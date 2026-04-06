@@ -14,7 +14,7 @@ st.markdown("""
     
     /* DASHBOARD MUCHO MÁS GRANDE */
     .dashboard-title { 
-        font-size: 60px; /* Tamaño extra grande */
+        font-size: 60px; 
         font-weight: 800; 
         color: #1A202C; 
         margin-bottom: 0;
@@ -45,6 +45,18 @@ st.markdown("""
     .cell-empty { border: 1px solid #EDF2F7; color: #A0AEC0; background-color: #ffffff;}
 
     label { font-weight: 700 !important; color: #2D3748 !important; font-size: 14px !important; }
+
+    /* --- NUEVOS AJUSTES PARA EL BOTÓN DE FECHA --- */
+    div[data-testid="stPopover"] > button {
+        width: 45px !important;
+        height: 45px !important;
+        padding: 0 !important;
+        font-size: 22px !important;
+        margin-top: 25px !important; /* Alineación con el balance */
+        border-radius: 8px !important;
+        border: 1px solid #E2E8F0 !important;
+    }
+    div[data-testid="stNumberInput"] { max-width: 180px !important; }
     </style>
     """, unsafe_allow_html=True)
 
@@ -52,17 +64,14 @@ st.markdown("""
 # 2. LÓGICA DE ESTADO (MEMORIA)
 # ==========================================
 if "total_balance" not in st.session_state:
-    st.session_state.total_balance = 25000.00  # Balance Inicial con centavos
+    st.session_state.total_balance = 25000.00  
 
 if "mis_trades" not in st.session_state:
     st.session_state.mis_trades = {} 
 
-# Función para procesar el cambio automáticamente
-# Función modificada para usar la fecha seleccionada
 def procesar_cambio():
     nuevo = st.session_state.input_balance
     viejo = st.session_state.total_balance
-    # USAMOS LA FECHA DEL SELECTOR en lugar de datetime.now()
     fecha_sel = st.session_state.input_fecha 
     
     if nuevo != viejo:
@@ -88,8 +97,7 @@ with col_fil:
 
 with col_date:
     meses_nombres = [calendar.month_name[i] for i in range(1, 13)]
-    # Estamos en 2026 según el sistema
-    date_sel = st.selectbox("Date range", [f"{m} 2026" for m in meses_nombres], index=3) # Abril 2026
+    date_sel = st.selectbox("Date range", [f"{m} 2026" for m in meses_nombres], index=3) 
     mes_sel_nombre, anio_sel_str = date_sel.split()
     mes_sel = list(calendar.month_name).index(mes_sel_nombre)
     anio_sel = int(anio_sel_str)
@@ -99,16 +107,14 @@ with col_data:
 
 with col_bal:
     st.markdown(f'<div style="text-align:right; margin-bottom:5px;"><small>TOTAL BALANCE</small></div>', unsafe_allow_html=True)
-    # Mostramos siempre con 2 decimales (centavos)
     st.markdown(f'<div class="balance-box">${st.session_state.total_balance:,.2f}</div>', unsafe_allow_html=True)
 
 st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
 
 # ==========================================
-# 4. ENTRADA AUTOMÁTICA (VERSION COMPACTA)
+# 4. ENTRADA AUTOMÁTICA (CON POPOVER 🗓️)
 # ==========================================
-# 0.5 y 0.5 para los inputs, 3 para el espacio vacío (actúa como buffer)
-c1, c2, _ = st.columns([0.5, 0.5, 3]) 
+c1, c2, _ = st.columns([0.5, 0.2, 3.3]) 
 
 with c1:
     st.number_input(
@@ -120,11 +126,13 @@ with c1:
     )
 
 with c2:
-    st.date_input(
-        "Fecha:",
-        value=datetime.now(),
-        key="input_fecha"
-    )
+    # Botón de calendario tipo Popover
+    with st.popover("🗓️"):
+        st.date_input(
+            "Fecha del registro:",
+            value=datetime.now(),
+            key="input_fecha"
+        )
 
 # ==========================================
 # 5. CALENDARIO Y RESUMEN
@@ -162,7 +170,6 @@ with col_cal:
                         if trade and visible:
                             clase = "cell-win" if trade["pnl"] > 0 else "cell-loss"
                             simbolo = "+" if trade["pnl"] > 0 else ""
-                            # Mostrar centavos en el calendario también
                             st.markdown(f'<div class="card {clase}"><b>{dia}</b><br>{simbolo}${trade["pnl"]:,.2f}</div>', unsafe_allow_html=True)
                         else:
                             opacidad = "0.2" if trade and not visible else "1"
@@ -185,7 +192,6 @@ with col_det:
     else:
         st.info("No hay actividad registrada en este periodo.")
 
-# Opción para resetear (en el sidebar para no estorbar)
 if st.sidebar.button("Limpiar todo y volver a $25,000.00"):
     st.session_state.total_balance = 25000.00
     st.session_state.mis_trades = {}
