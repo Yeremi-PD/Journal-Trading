@@ -34,12 +34,12 @@ BOTON_ICON_SIZE = 100 # Tamaño del icono 🗓️ (px)
 # Tarjeta 1: Net P&L
 CARD_PNL_X = 0       # Eje X
 CARD_PNL_Y = 10      # Eje Y
-CARD_PNL_W = 150     # Ancho en porcentaje %
+CARD_PNL_W = 40     # Ancho en porcentaje %
 
 # Tarjeta 2: Trade Win %
 CARD_WIN_X = 0       # Eje X
 CARD_WIN_Y = 20      # Eje Y (Separación de la tarjeta de arriba)
-CARD_WIN_W = 50     # Ancho en porcentaje %
+CARD_WIN_W = 40     # Ancho en porcentaje %
 
 
 # ==========================================
