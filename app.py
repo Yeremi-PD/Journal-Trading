@@ -38,7 +38,6 @@ LBL_DATA_Y = 0
 
 SELECT_FONDO_CLARO = "#FFFFFF"
 SELECT_TEXTO_CLARO = "#1A202C"
-
 SELECT_FONDO_OSCURO = "#2D3748"
 SELECT_TEXTO_OSCURO = "#E2E8F0"
 
@@ -59,31 +58,31 @@ LBL_INPUT_BAL_X = 0
 LBL_INPUT_BAL_Y = 0
 
 INPUT_FONDO_CLARO = "#FFFFFF"
-INPUT_TEXTO_CLARO = "#1A202C" # Ahora sigue el color del tema
+INPUT_TEXTO_CLARO = "#00C897"
+INPUT_FONDO_OSCURO = "#1A202C"
+INPUT_TEXTO_OSCURO = "#00C897" 
 
-INPUT_FONDO_OSCURO = "#2D3748"
-INPUT_TEXTO_OSCURO = "#FFFFFF" # Ahora sigue el color del tema
-
-# --- ZONA 5: CALENDARIO Y BOTONES ---
+# --- ZONA 5: CALENDARIO Y BOTONES UNIFICADOS ---
 BOTON_FONDO_CLARO = "#F3F4F6"
 BOTON_TEXTO_CLARO = "#1A202C"
-
 BOTON_FONDO_OSCURO = "#2D3748"
 BOTON_TEXTO_OSCURO = "#FFFFFF"
 
-# Posición del botón Popover (🗓️) - Ahora la columna es más pequeña, usa números cercanos a 0.
-BOTON_X = -90          
+# Posición del botón Popover (🗓️) - ¡PARED INVISIBLE DERRIBADA! Ya puedes usar -170
+BOTON_X = -170          
 BOTON_Y = 27         
 BOTON_WIDTH = 45     
 BOTON_HEIGHT = 45    
-BOTON_ICON_SIZE = 100 
+BOTON_ICON_SIZE = 22 
 
+# Texto del Mes y Año en el Calendario
 MES_TEXTO_X = 0
 MES_TEXTO_Y = 10      
 MES_TEXTO_SIZE = 22
 MES_TEXTO_COLOR_W = "#FFFFFF" 
 MES_TEXTO_COLOR_B = "#1A202C" 
 
+# Flechas ◀ ▶
 FLECHAS_X_AJUSTE = 0 
 FLECHAS_Y_AJUSTE = 10 
 FLECHAS_SIZE = 16
@@ -137,7 +136,6 @@ def procesar_cambio():
         pnl = nuevo - viejo
         clave = (fecha_sel.year, fecha_sel.month, fecha_sel.day)
         
-        # Guardar conservando las imágenes si ya existían
         imagenes_previas = st.session_state.db[ctx]["trades"].get(clave, {}).get("imagenes", [])
         
         st.session_state.db[ctx]["trades"][clave] = {
@@ -147,6 +145,12 @@ def procesar_cambio():
             "imagenes": imagenes_previas
         }
         st.session_state.db[ctx]["balance"] = nuevo
+
+# Diálogo en pantalla completa para ver la imagen
+@st.dialog("🖼️ Visor de Imágenes", width="large")
+def visor_imagenes(imagenes):
+    for img in imagenes:
+        st.image(img, use_container_width=True)
 
 # ==========================================
 # 4. BARRA LATERAL (MENÚ)
@@ -195,19 +199,24 @@ else:
 st.markdown(f"""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-    .stApp {{ background-color: {bg_color}; color: {text_color}; font-family: 'Inter', sans-serif; overflow-x: hidden; }}
     
+    /* DERRIBAR LA PARED INVISIBLE (Permite usar números negativos sin desaparecer) */
+    .stApp {{ background-color: {bg_color}; color: {text_color}; font-family: 'Inter', sans-serif; overflow: visible !important; overflow-x: visible !important; }}
+    div[data-testid="column"] {{ overflow: visible !important; }}
+
     div[data-testid="column"]:nth-of-type(1) .dashboard-title {{ margin-left: {TITULO_X}px !important; margin-top: {TITULO_Y}px !important; display: block; }}
     div[data-testid="column"]:nth-of-type(2) {{ margin-left: {FILTROS_X}px; margin-top: {FILTROS_Y}px; z-index: 10; }}
     div[data-testid="column"]:nth-of-type(3) {{ margin-left: {DATA_SRC_X}px; margin-top: {DATA_SRC_Y}px; z-index: 10; }}
     div[data-testid="column"]:nth-of-type(4) {{ margin-left: {BALANCE_BOX_X}px; margin-top: {BALANCE_BOX_Y}px; }}
 
+    /* COLORES SELECTORES */
     div[data-baseweb="select"] > div {{ background-color: {select_fondo_actual} !important; border-color: {border_color} !important; }}
     div[data-baseweb="select"] * {{ color: {select_texto_actual} !important; }}
     ul[role="listbox"] {{ background-color: {select_fondo_actual} !important; }}
     li[role="option"] {{ color: {select_texto_actual} !important; background-color: {select_fondo_actual} !important; }}
     li[role="option"]:hover {{ background-color: {border_color} !important; }}
 
+    /* COLORES INPUT */
     div[data-testid="stNumberInput"] {{ margin-left: {INPUT_BAL_X}px !important; margin-top: {INPUT_BAL_Y}px !important; max-width: 200px !important; }}
     div[data-testid="stNumberInput"] button {{ display: none !important; }} 
     div[data-testid="stNumberInput"] div[data-baseweb="base-input"] {{ background-color: {input_fondo_actual} !important; }}
@@ -226,8 +235,7 @@ st.markdown(f"""
     
     .balance-box {{ 
         background: #00C897; color: white; padding: 10px 0px; border-radius: 80px; 
-        text-align: center; font-weight: 700; font-size: {BALANCE_SIZE}px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: {BALANCE_BOX_W}%; margin: 0 auto;
+        text-align: center; font-weight: 700; font-size: {BALANCE_SIZE}px; width: {BALANCE_BOX_W}%; margin: 0 auto;
     }}
     
     .thin-line {{ border-bottom: 1.5px solid {border_color}; margin: 10px 0px 25px 0px; width: 100%; }}
@@ -239,13 +247,15 @@ st.markdown(f"""
     .card {{ 
         aspect-ratio: 1 / 1; padding: 5px; border-radius: 20px; 
         display: flex; flex-direction: column; justify-content: center; 
-        align-items: center; font-size: 12px; 
-        margin-bottom: 6px !important; /* <--- 4pt extra de espaciado añadido aquí */
+        align-items: center; font-size: 12px; margin-bottom: 6px !important; position: relative;
     }}
     .card b {{ font-size: 18px !important; }}
     .cell-win {{ border: 2.5px solid #00C897; color: #00664F; background-color: #e6f9f4;}}
     .cell-loss {{ border: 2.5px solid #FF4C4C; color: #9B1C1C; background-color: #ffeded;}}
     .cell-empty {{ border: 1px solid {border_color}; color: #A0AEC0; background-color: {empty_cell_bg};}}
+    
+    /* CAMARA EMOJI INDICADOR */
+    .cam-icon {{ font-size: 11px; margin-top: 2px; }}
 
     label {{ font-weight: 700 !important; color: {text_color} !important; font-size: 14px !important; }}
     p, div {{ color: {text_color}; }}
@@ -255,7 +265,11 @@ st.markdown(f"""
         margin-left: {FLECHAS_X_AJUSTE}px !important; margin-top: {FLECHAS_Y_AJUSTE}px !important; font-size: {FLECHAS_SIZE}px !important;
     }}
     
-    div[data-testid="stPopover"] {{ margin-left: {BOTON_X}px !important; margin-top: {BOTON_Y}px !important; }}
+    /* POSICIONAMIENTO LIBRE DEL BOTÓN CALENDARIO Y Z-INDEX ALTO */
+    div[data-testid="stPopover"] {{ 
+        transform: translate({BOTON_X}px, {BOTON_Y}px) !important; 
+        z-index: 9999 !important; position: relative;
+    }}
     div[data-testid="stPopover"] > button {{
         width: {BOTON_WIDTH}px !important; height: {BOTON_HEIGHT}px !important;
         font-size: {BOTON_ICON_SIZE}px !important; padding: 0 !important; border-radius: 8px !important;
@@ -263,7 +277,6 @@ st.markdown(f"""
         display: flex !important; justify-content: center !important; align-items: center !important; margin: 0 !important;
     }}
     
-    /* FONDO DEL POPOVER DEL CALENDARIO ARREGLADO PARA RESPETAR TEMA */
     div[data-testid="stPopoverBody"] {{ background-color: {card_bg} !important; border: 1px solid {border_color} !important; }}
     div[data-testid="stPopoverBody"] * {{ color: {text_color} !important; }}
 
@@ -285,6 +298,12 @@ st.markdown(f"""
     .lbl-g {{ background-color: #e6f9f4; color: #00C897; padding: 2px 8px; border-radius: 10px; }}
     .lbl-b {{ background-color: #EEF2FF; color: #4F46E5; padding: 2px 8px; border-radius: 10px; }}
     .lbl-r {{ background-color: #ffeded; color: #FF4C4C; padding: 2px 8px; border-radius: 10px; }}
+    
+    @media (max-width: 768px) {{
+        .dashboard-title {{ margin-left: 0 !important; text-align: center; }}
+        div[data-testid="stNumberInput"] {{ margin-left: 0 !important; width: 100% !important; max-width: none !important; }}
+        div[data-testid="stPopover"] {{ transform: translate(0px, 10px) !important; }}
+    }}
     </style>
     """, unsafe_allow_html=True)
 
@@ -309,7 +328,6 @@ st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
 # ==========================================
 # 7. ENTRADA AUTOMÁTICA E IMÁGENES
 # ==========================================
-# Se ajustaron los anchos para pegar el botón al input naturalmente y dejar 200pt de espacio antes del Drag&Drop
 c1, c2, c_espacio, c_img = st.columns([1.2, 0.4, 0.8, 2]) 
 
 with c1:
@@ -318,18 +336,21 @@ with c2:
     with st.popover("🗓️"):
         st.date_input("Fecha oculta", value=hoy, key="input_fecha", label_visibility="collapsed")
 
-# Lógica del Uploader de Imágenes
 fecha_str_actual = st.session_state.input_fecha.strftime("%d/%m/%Y")
 clave_actual = (st.session_state.input_fecha.year, st.session_state.input_fecha.month, st.session_state.input_fecha.day)
+trade_actual = st.session_state.db[ctx]["trades"].get(clave_actual)
 
 with c_img:
     archivos = st.file_uploader(f"🖼️ Adjuntar capturas para: {fecha_str_actual}", accept_multiple_files=True, key=f"up_{fecha_str_actual}")
     if archivos:
-        # Asegurar que exista el registro del trade en la fecha actual antes de guardar
         if clave_actual not in st.session_state.db[ctx]["trades"]:
             st.session_state.db[ctx]["trades"][clave_actual] = {"pnl": 0.0, "balance_final": bal_actual, "fecha_str": fecha_str_actual, "imagenes": []}
-        
         st.session_state.db[ctx]["trades"][clave_actual]["imagenes"] = archivos
+
+    # Si hay imágenes guardadas este día, muestra el botón para abrirlas
+    if trade_actual and trade_actual.get("imagenes"):
+        if st.button("📷 Ver Imágenes en Pantalla Completa", use_container_width=True):
+            visor_imagenes(trade_actual["imagenes"])
 
 # ==========================================
 # 8. CALENDARIO Y RESUMEN
@@ -374,7 +395,9 @@ with col_cal:
                         if trade and visible:
                             c_cls = "cell-win" if trade["pnl"] > 0 else "cell-loss"
                             c_sim = "+" if trade["pnl"] > 0 else ""
-                            st.markdown(f'<div class="card {c_cls}"><b>{dia}</b><br>{c_sim}${trade["pnl"]:,.2f}</div>', unsafe_allow_html=True)
+                            # Lógica para mostrar la cámara 📷 en el calendario grande si hay fotos subidas
+                            tiene_imagen = '<div class="cam-icon">📷</div>' if trade.get("imagenes") else ''
+                            st.markdown(f'<div class="card {c_cls}"><b>{dia}</b><br>{c_sim}${trade["pnl"]:,.2f}{tiene_imagen}</div>', unsafe_allow_html=True)
                         else:
                             op = "0.2" if trade and not visible else "1"
                             st.markdown(f'<div class="card cell-empty" style="opacity:{op}">{dia}</div>', unsafe_allow_html=True)
@@ -437,11 +460,3 @@ with col_det:
             </div>
         </div>
     """, unsafe_allow_html=True)
-    
-    # ---------------- VISOR DE IMÁGENES ----------------
-    # Las imágenes se muestran debajo de las tarjetas de métricas según el día seleccionado en el 🗓️
-    trade_actual = st.session_state.db[ctx]["trades"].get(clave_actual)
-    if trade_actual and trade_actual.get("imagenes"):
-        st.markdown(f"**Imágenes del {fecha_str_actual}:**")
-        for img in trade_actual["imagenes"]:
-            st.image(img, use_container_width=True)
