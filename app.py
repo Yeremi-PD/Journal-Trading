@@ -52,7 +52,7 @@ st.markdown("""
         
         /* CAMBIA ESTO: */
         margin: 2px !important; /* Un margen muy pequeño para que casi se toquen */
-        width: 110%;
+        width: 90%;
     }
     .card b { font-size: 18px !important; }
     .cell-win { border: 2.5px solid #00C897; color: #00664F; background-color: #e6f9f4;}
