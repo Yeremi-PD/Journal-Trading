@@ -31,7 +31,7 @@ st.markdown("""
 
     /* CALENDARIO */
     .calendar-wrapper { 
-        background: white; padding: 25px; border-radius: 15px; 
+        background: white; padding: 25px; border-radius: 30px; 
         border: 1px solid #E2E8F0; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
     }
     .card { 
