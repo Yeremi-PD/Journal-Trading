@@ -4,7 +4,7 @@ import calendar
 from datetime import datetime
 
 # ==========================================
-# 1. CONFIGURACIÓN Y CSS 
+# 1. CONFIGURACIÓN Y CSS (TEXTOS NEGROS)
 # ==========================================
 st.set_page_config(page_title="Yeremi Journal Pro", layout="wide")
 
@@ -22,7 +22,6 @@ st.markdown("""
     .calendar-wrapper { background-color: white; padding: 15px; border-radius: 8px; border: 1px solid #E2E8F0; margin-bottom: 20px; }
     .month-header { text-align: center; font-size: 20px; font-weight: 600; color: #2D3748; margin-bottom: 15px; }
     
-    /* CALENDARIO MÁS PEQUEÑO */
     .card { aspect-ratio: 1 / 1; padding: 4px; border-radius: 4px; text-align: center; margin-bottom: 3px; display: flex; flex-direction: column; justify-content: center; align-items: center; font-size: 11px; line-height: 1.2;}
     .card span { font-size: 13px !important; font-weight: bold; }
     
@@ -30,10 +29,10 @@ st.markdown("""
     .cell-loss { border: 2px solid #FF4C4C; color: #000; background-color: #ffeded;}
     .cell-empty { border: 1px solid #E2E8F0; color: #A0AEC0; background-color: #f8fafc;}
 
-    /* FORZAR TEXTOS NEGROS EN LOS CONTROLES */
-    div[role="radiogroup"] label { color: #000000 !important; font-weight: 600; }
-    .stTextArea label { color: #000000 !important; font-weight: bold;}
-    .stNumberInput label { color: #000000 !important; font-weight: bold;}
+    /* FORZAR TEXTOS NEGROS PARA QUE SE VEAN BIEN */
+    div[data-testid="stRadio"] p { color: #000000 !important; font-weight: 800 !important; font-size: 16px; }
+    div[data-testid="stTextArea"] p { color: #000000 !important; font-weight: 800 !important; font-size: 16px; }
+    label { color: #000000 !important; font-weight: bold !important; }
     
     div.block-container { padding-top: 1rem; }
     </style>
@@ -59,21 +58,29 @@ with st.container():
         texto_pegado = st.text_area("Pega la orden de Tradovate aquí:", height=130)
     
     with col_opciones:
-        contratos = st.number_input("Cantidad de contratos:", min_value=1, value=2)
+        st.write("") # Espacio
         es_ganancia = st.radio("¿El trade fue ganador o perdedor?", ["Ganador", "Perdedor"], horizontal=True)
     
     if texto_pegado:
         try:
-            # Extraer precios y fecha
-            precios = re.findall(r'(\d{2,5},\d{3}\.\d{2})', texto_pegado)
-            fechas = re.findall(r'(\d{4})-(\d{2})-(\d{2})', texto_pegado)
+            # 1. Eliminar líneas de órdenes canceladas (Stop Loss) para no arruinar el cálculo
+            lineas_validas = [linea for linea in texto_pegado.split('\n') if 'cancelled' not in linea.lower() and 'rejected' not in linea.lower()]
+            texto_limpio = " ".join(lineas_validas)
+            
+            # 2. Extraer precios, fechas y cantidad de contratos automáticamente
+            precios = re.findall(r'(\d{2,5},\d{3}\.\d{2})', texto_limpio)
+            fechas = re.findall(r'(\d{4})-(\d{2})-(\d{2})', texto_limpio)
+            
+            # Buscar el patrón de contratos (ej. Market202 -> 2 contratos)
+            match_contratos = re.search(r'(?:Market|Take Profit|Limit)\s*(\d+)\s*0\s*\d+', texto_limpio, re.IGNORECASE)
+            contratos = int(match_contratos.group(1)) if match_contratos else 1
             
             if len(precios) >= 2 and fechas:
                 anio_trade, mes_trade, dia_trade = map(int, fechas[0])
-                precios_numeros = [float(p.replace(',', '')) for p in precios]
+                precios_numeros = list(set([float(p.replace(',', '')) for p in precios]))
                 diferencia = max(precios_numeros) - min(precios_numeros)
                 
-                # CÁLCULO MNQ CON COMISIÓN EXACTA ($1.04 por contrato ida y vuelta)
+                # CÁLCULO MNQ EXACTO ($2 por punto, $1.04 comisión por contrato)
                 bruto = diferencia * 2 * contratos 
                 comision_total = 1.04 * contratos
                 neto = (bruto - comision_total) if es_ganancia == "Ganador" else -(bruto + comision_total)
@@ -81,7 +88,7 @@ with st.container():
                 col1, col2 = st.columns([3, 1])
                 with col1:
                     color_txt = "green" if neto > 0 else "red"
-                    st.markdown(f"<p style='color:black; font-weight:bold; margin:0;'>Fecha detectada: {dia_trade}/{mes_trade}/{anio_trade} | Puntos: {diferencia:.2f} | Comisiones: -${comision_total:.2f}</p>", unsafe_allow_html=True)
+                    st.markdown(f"<p style='color:black; font-weight:bold; margin:0;'>Fecha: {dia_trade}/{mes_trade}/{anio_trade} | Contratos: {contratos} | Comisiones: -${comision_total:.2f}</p>", unsafe_allow_html=True)
                     st.markdown(f"<h3 style='color:{color_txt}; margin-top:0;'>Neto calculado: ${neto:.2f}</h3>", unsafe_allow_html=True)
                 
                 with col2:
@@ -93,9 +100,9 @@ with st.container():
                         }
                         st.rerun() 
             else:
-                st.warning("Asegúrate de copiar toda la fila donde se vea la fecha y los precios.")
-        except:
-            st.error("Error procesando los datos.")
+                st.warning("Asegúrate de copiar toda la fila. No se detectaron precios válidos.")
+        except Exception as e:
+            st.error("Error procesando los datos. Revisa el formato.")
 
 st.write("---")
 
@@ -110,7 +117,6 @@ with col_mes:
 with col_anio:
     anio_seleccionado = st.selectbox("Año visible", [2024, 2025, 2026, 2027], index=2)
 
-# Filtrar trades de la memoria
 trades_del_mes = {k[2]: v for k, v in st.session_state.mis_trades.items() if k[0] == anio_seleccionado and k[1] == mes_seleccionado}
 
 total_pnl = sum(t["pnl"] for t in trades_del_mes.values())
