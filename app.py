@@ -16,7 +16,7 @@ st.set_page_config(page_title="Yeremi Journal Pro", layout="wide")
 # --- TÍTULO PRINCIPAL (Dashboard) ---
 TITULO_X = 0         
 TITULO_Y = 0         
-TITULO_SIZE = 100    
+TITULO_SIZE = 200    
 TITULO_COLOR = "#1A202C" # Puedes poner colores como "red", "#FF0000", etc.
 
 # --- SELECTORES SUPERIORES ---
