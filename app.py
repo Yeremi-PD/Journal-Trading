@@ -11,63 +11,83 @@ st.set_page_config(page_title="Yeremi Journal Pro", layout="wide")
 # ==========================================
 # 2. SECCIÓN DE AJUSTES MANUALES (Modifica los números aquí)
 # ==========================================
+# Usa números positivos para mover a la Derecha/Abajo, y negativos para Izquierda/Arriba.
 
 # --- TÍTULO PRINCIPAL ---
-TITULO_X = 0         # Posición Izquierda/Derecha (px)
-TITULO_Y = 0         # Posición Arriba/Abajo (px)
-TITULO_SIZE = 100    # Tamaño de la letra (px)
+TITULO_X = 0         
+TITULO_Y = 0         
+TITULO_SIZE = 100    
 
-# --- CAJA DE BALANCE ---
-BALANCE_X = 100      # Posición Izquierda/Derecha (px)
-BALANCE_Y = 0        # Posición Arriba/Abajo (px)
-BALANCE_WIDTH = 50   # Ancho de la caja (en porcentaje %)
-BALANCE_SIZE = 30    # Tamaño de la letra (px)
+# --- SELECTORES (Los 3 de arriba) ---
+FILTROS_X = 0        # Posición Izquierda/Derecha
+FILTROS_Y = 0        # Posición Arriba/Abajo
 
-# --- BOTÓN DEL CALENDARIO 🗓️ ---
-BOTON_X = 59         # Posición Izquierda/Derecha (px)
-BOTON_Y = 25         # Posición Arriba/Abajo (px)
-BOTON_WIDTH = 45     # Ancho del botón (px)
-BOTON_HEIGHT = 45    # Alto del botón (px)
-BOTON_ICON_SIZE = 22 # Tamaño del icono 🗓️ (px) (Nota: 100 era muy grande, lo regresé a un tamaño normal)
+DATE_X = 0
+DATE_Y = 0
 
-# --- NUEVAS TARJETAS DE MÉTRICAS (NET P&L y WIN %) ---
+DATA_SRC_X = 0
+DATA_SRC_Y = 0
+
+# --- CAJA DE TOTAL BALANCE (La de arriba) ---
+BALANCE_BOX_X = 0     
+BALANCE_BOX_Y = 0     
+BALANCE_BOX_W = 100  # Ancho %
+BALANCE_BOX_SIZE = 30  
+
+# --- INPUT DE BALANCE (El de abajo) ---
+INPUT_BAL_X = 0
+INPUT_BAL_Y = 0
+
+# --- BOTÓN DEL CALENDARIO 🗓️ (REFORZADO) ---
+BOTON_X = 0          
+BOTON_Y = 25         
+BOTON_WIDTH = 45     
+BOTON_HEIGHT = 45    
+BOTON_ICON_SIZE = 22 
+
+# --- TARJETAS DE MÉTRICAS (Acortadas un 20%) ---
 # Tarjeta 1: Net P&L
-CARD_PNL_X = 0       # Eje X
-CARD_PNL_Y = 10      # Eje Y
-CARD_PNL_W = 100      # Ancho en porcentaje % (Recomendado 100 para que llene su columna)
+CARD_PNL_X = 0       
+CARD_PNL_Y = 10      
+CARD_PNL_W = 80      # Reducido de 100 a 80
 
 # Tarjeta 2: Trade Win %
-CARD_WIN_X = 0       # Eje X
-CARD_WIN_Y = 20      # Eje Y (Separación de la tarjeta de arriba)
-CARD_WIN_W = 100      # Ancho en porcentaje % (Recomendado 100 para que llene su columna)
+CARD_WIN_X = 0       
+CARD_WIN_Y = 20      
+CARD_WIN_W = 80      # Reducido de 100 a 80
 
 
 # ==========================================
-# 3. LÓGICA DE ESTADO (MEMORIA Y TEMAS)
+# 3. LÓGICA DE ESTADO (REAL VS DEMO)
 # ==========================================
-if "total_balance" not in st.session_state:
-    st.session_state.total_balance = 25000.00  
+# Ahora creamos dos bases de datos separadas
+if "db" not in st.session_state:
+    st.session_state.db = {
+        "Real Data": {"balance": 25000.00, "trades": {}},
+        "Demo Data": {"balance": 25000.00, "trades": {}}
+    }
 
-if "mis_trades" not in st.session_state:
-    st.session_state.mis_trades = {} 
+if "data_source_sel" not in st.session_state:
+    st.session_state.data_source_sel = "Demo Data"
 
 if "tema" not in st.session_state:
-    st.session_state.tema = "Oscuro" # Lo puse oscuro por defecto basado en tu captura
+    st.session_state.tema = "Oscuro"
 
 def procesar_cambio():
+    ctx = st.session_state.data_source_sel # Saber si estamos en Real o Demo
     nuevo = st.session_state.input_balance
-    viejo = st.session_state.total_balance
+    viejo = st.session_state.db[ctx]["balance"]
     fecha_sel = st.session_state.input_fecha 
     
     if nuevo != viejo:
         pnl = nuevo - viejo
         clave = (fecha_sel.year, fecha_sel.month, fecha_sel.day)
-        st.session_state.mis_trades[clave] = {
+        st.session_state.db[ctx]["trades"][clave] = {
             "pnl": pnl,
             "balance_final": nuevo,
             "fecha_str": fecha_sel.strftime("%d/%m/%Y")
         }
-        st.session_state.total_balance = nuevo
+        st.session_state.db[ctx]["balance"] = nuevo
 
 # ==========================================
 # 4. BARRA LATERAL (MENÚ)
@@ -81,50 +101,49 @@ if st.sidebar.button(texto_boton_tema):
 
 st.sidebar.markdown("---")
 
-if st.sidebar.button("🗑️ Limpiar todo y volver a $25,000.00"):
-    st.session_state.total_balance = 25000.00
-    st.session_state.mis_trades = {}
+# El botón ahora limpia solo la cuenta en la que estés
+ctx_actual = st.session_state.data_source_sel
+if st.sidebar.button(f"🗑️ Limpiar {ctx_actual} a $25k"):
+    st.session_state.db[ctx_actual]["balance"] = 25000.00
+    st.session_state.db[ctx_actual]["trades"] = {}
     st.rerun()
 
 # ==========================================
 # 5. COLORES DEL TEMA Y CSS DINÁMICO
 # ==========================================
 if st.session_state.tema == "Claro":
-    bg_color = "#F7FAFC"
-    text_color = "#2D3748"
-    title_color = "#1A202C"
-    card_bg = "#FFFFFF"
-    border_color = "#E2E8F0"
-    empty_cell_bg = "#FFFFFF"
+    bg_color, text_color, title_color = "#F7FAFC", "#2D3748", "#1A202C"
+    card_bg, border_color, empty_cell_bg = "#FFFFFF", "#E2E8F0", "#FFFFFF"
 else:
-    bg_color = "#1A202C"
-    text_color = "#E2E8F0"
-    title_color = "#FFFFFF"
-    card_bg = "#2D3748"
-    border_color = "#4A5568"
-    empty_cell_bg = "#1A202C"
+    bg_color, text_color, title_color = "#1A202C", "#E2E8F0", "#FFFFFF"
+    card_bg, border_color, empty_cell_bg = "#2D3748", "#4A5568", "#1A202C"
 
 st.markdown(f"""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-    
     .stApp {{ background-color: {bg_color}; color: {text_color}; font-family: 'Inter', sans-serif; overflow-x: hidden; }}
     
+    /* COORDENADAS REFORZADAS DE LOS ELEMENTOS USANDO TRANSFORM */
+    div[data-testid="column"]:nth-of-type(1) .dashboard-title {{ transform: translate({TITULO_X}px, {TITULO_Y}px); }}
+    div[data-testid="column"]:nth-of-type(2) {{ transform: translate({FILTROS_X}px, {FILTROS_Y}px); z-index: 10; }}
+    div[data-testid="column"]:nth-of-type(3) {{ transform: translate({DATE_X}px, {DATE_Y}px); z-index: 10; }}
+    div[data-testid="column"]:nth-of-type(4) {{ transform: translate({DATA_SRC_X}px, {DATA_SRC_Y}px); z-index: 10; }}
+    div[data-testid="column"]:nth-of-type(5) {{ transform: translate({BALANCE_BOX_X}px, {BALANCE_BOX_Y}px); }}
+    div[data-testid="column"]:nth-of-type(6) {{ transform: translate({INPUT_BAL_X}px, {INPUT_BAL_Y}px); }}
+
     .dashboard-title {{ 
-        font-size: {TITULO_SIZE}px; font-weight: 800; color: {title_color}; margin-bottom: 0;
-        letter-spacing: -2px; margin-left: {TITULO_X}px; margin-top: {TITULO_Y}px;
+        font-size: {TITULO_SIZE}px; font-weight: 800; color: {title_color}; margin-bottom: 0; letter-spacing: -2px;
     }}
     
     .balance-box {{ 
         background: #00C897; color: white; padding: 10px 0px; border-radius: 80px; 
         text-align: center; font-weight: 700; font-size: {BALANCE_SIZE}px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-left: {BALANCE_X}px; 
-        margin-top: {BALANCE_Y}px; width: {BALANCE_WIDTH}%;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: {BALANCE_BOX_W}%; margin: 0 auto;
     }}
     
     .thin-line {{ border-bottom: 1.5px solid {border_color}; margin: 10px 0px 25px 0px; width: 100%; }}
 
-    /* CALENDARIO */
+    /* CALENDARIO CON SEPARACIÓN VERTICAL DE 2PX */
     .calendar-wrapper {{ 
         background: {card_bg}; padding: 1px; border-radius: 15px; 
         border: 1px solid {border_color}; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
@@ -132,7 +151,7 @@ st.markdown(f"""
     .card {{ 
         aspect-ratio: 1 / 1; padding: 5px; border-radius: 20px; 
         display: flex; flex-direction: column; justify-content: center; 
-        align-items: center; font-size: 12px;
+        align-items: center; font-size: 12px; margin-bottom: 2px !important; /* <--- 2px añadidos aquí */
     }}
     .card b {{ font-size: 18px !important; }}
     .cell-win {{ border: 2.5px solid #00C897; color: #00664F; background-color: #e6f9f4;}}
@@ -142,49 +161,39 @@ st.markdown(f"""
     label {{ font-weight: 700 !important; color: {text_color} !important; font-size: 14px !important; }}
     p, div {{ color: {text_color}; }}
 
+    /* BOTÓN POPOVER REFORZADO */
     div[data-testid="stPopover"] > button {{
+        transform: translate({BOTON_X}px, {BOTON_Y}px) !important; /* <--- Movimiento infalible */
         width: {BOTON_WIDTH}px !important; height: {BOTON_HEIGHT}px !important;
-        font-size: {BOTON_ICON_SIZE}px !important; margin-left: {BOTON_X}px !important;
-        margin-top: {BOTON_Y}px !important; padding: 0 !important; border-radius: 8px !important;
+        font-size: {BOTON_ICON_SIZE}px !important; padding: 0 !important; border-radius: 8px !important;
         border: 1px solid {border_color} !important; background-color: {card_bg} !important;
         display: flex !important; justify-content: center !important; align-items: center !important;
     }}
     div[data-testid="stNumberInput"] {{ max-width: 180px !important; }}
 
-    /* --- NUEVAS TARJETAS DE MÉTRICAS --- */
+    /* --- TARJETAS MÉTRICAS (MÁS PEQUEÑAS) --- */
     .metric-card {{
-        background-color: {card_bg};
-        border-radius: 20px;
-        padding: 20px 25px;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-        border: 1px solid {border_color};
+        background-color: {card_bg}; border-radius: 20px;
+        padding: 15px 20px; /* <--- Padding reducido para hacerlas un 20% más compactas */
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); border: 1px solid {border_color};
     }}
-    
-    .card-pnl {{ margin-left: {CARD_PNL_X}px; margin-top: {CARD_PNL_Y}px; width: {CARD_PNL_W}%; }}
-    .card-win {{ margin-left: {CARD_WIN_X}px; margin-top: {CARD_WIN_Y}px; width: {CARD_WIN_W}%; display: flex; justify-content: space-between; align-items: center; }}
+    .card-pnl {{ transform: translate({CARD_PNL_X}px, {CARD_PNL_Y}px); width: {CARD_PNL_W}%; }}
+    .card-win {{ transform: translate({CARD_WIN_X}px, {CARD_WIN_Y}px); width: {CARD_WIN_W}%; display: flex; justify-content: space-between; align-items: center; }}
 
-    .metric-header {{ display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }}
-    .metric-title {{ font-size: 15px; font-weight: 500; color: #6B7280; }}
+    .metric-header {{ display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }}
+    .metric-title {{ font-size: 14px; font-weight: 500; color: #6B7280; }}
     .metric-icon {{ color: #9CA3AF; font-size: 14px; cursor: pointer; }}
     .metric-badge {{ background-color: #EEF2FF; color: #4F46E5; padding: 2px 8px; border-radius: 12px; font-size: 12px; font-weight: 700; }}
     
-    .pnl-value {{ font-size: 32px; font-weight: 800; color: #00C897; letter-spacing: -0.5px; }}
+    .pnl-value {{ font-size: 28px; font-weight: 800; color: #00C897; letter-spacing: -0.5px; }}
     .pnl-value-loss {{ color: #FF4C4C; }}
-    .win-value {{ font-size: 32px; font-weight: 800; color: {title_color}; letter-spacing: -0.5px; }}
+    .win-value {{ font-size: 28px; font-weight: 800; color: {title_color}; letter-spacing: -0.5px; }}
 
     .gauge-container {{ display: flex; flex-direction: column; align-items: center; gap: 5px; }}
-    .gauge-labels {{ display: flex; gap: 15px; font-size: 12px; font-weight: 700; margin-top: -5px; }}
+    .gauge-labels {{ display: flex; gap: 15px; font-size: 11px; font-weight: 700; margin-top: -5px; }}
     .lbl-g {{ background-color: #e6f9f4; color: #00C897; padding: 2px 8px; border-radius: 10px; }}
     .lbl-b {{ background-color: #EEF2FF; color: #4F46E5; padding: 2px 8px; border-radius: 10px; }}
     .lbl-r {{ background-color: #ffeded; color: #FF4C4C; padding: 2px 8px; border-radius: 10px; }}
-    
-    /* --- DISEÑO RESPONSIVO (MÓVILES) --- */
-    @media (max-width: 768px) {{
-        .dashboard-title {{ font-size: 40px !important; margin-left: 0 !important; text-align: center; }}
-        .balance-box {{ width: 100% !important; margin-left: 0 !important; font-size: 24px !important; }}
-        .card-pnl, .card-win {{ width: 100% !important; margin-left: 0 !important; flex-direction: column; text-align: center; gap: 15px; }}
-        div[data-testid="stPopover"] > button {{ margin-left: 0 !important; }}
-    }}
     </style>
     """, unsafe_allow_html=True)
 
@@ -201,10 +210,16 @@ with col_date:
     mes_sel_nombre, anio_sel_str = date_sel.split()
     mes_sel = list(calendar.month_name).index(mes_sel_nombre)
     anio_sel = int(anio_sel_str)
-with col_data: tipo_cuenta = st.selectbox("Data Source", ["Real Data", "Demo Data"], index=1)
+
+# Selector de cuenta vinculado directo a la sesión
+with col_data: st.selectbox("Data Source", ["Real Data", "Demo Data"], key="data_source_sel")
+
+ctx = st.session_state.data_source_sel
+bal_actual = st.session_state.db[ctx]["balance"]
+
 with col_bal:
-    st.markdown(f'<div style="text-align:center; margin-bottom:5px;"><small>TOTAL BALANCE</small></div>', unsafe_allow_html=True)
-    st.markdown(f'<div class="balance-box">${st.session_state.total_balance:,.2f}</div>', unsafe_allow_html=True)
+    st.markdown(f'<div style="text-align:center; margin-bottom:5px;"><small>TOTAL BALANCE ({ctx.upper()})</small></div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="balance-box">${bal_actual:,.2f}</div>', unsafe_allow_html=True)
 
 st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
 
@@ -213,10 +228,11 @@ st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
 # ==========================================
 c1, c2, _ = st.columns([0.5, 0.2, 3.3]) 
 with c1:
-    st.number_input("Balance:", value=st.session_state.total_balance, format="%.2f", key="input_balance", on_change=procesar_cambio)
+    st.number_input("Balance:", value=bal_actual, format="%.2f", key="input_balance", on_change=procesar_cambio)
 with c2:
     with st.popover("🗓️"):
-        st.date_input("Fecha del registro:", value=datetime.now(), key="input_fecha")
+        # label_visibility="collapsed" elimina el texto "Fecha del registro:"
+        st.date_input("Fecha del registro:", value=datetime.now(), key="input_fecha", label_visibility="collapsed")
 
 # ==========================================
 # 8. CALENDARIO Y RESUMEN
@@ -242,7 +258,7 @@ with col_cal:
                 with d_cols[i]:
                     if dia == "": st.markdown('<div class="card cell-empty"></div>', unsafe_allow_html=True)
                     else:
-                        trade = st.session_state.mis_trades.get((anio_sel, mes_sel, dia))
+                        trade = st.session_state.db[ctx]["trades"].get((anio_sel, mes_sel, dia))
                         visible = True
                         if filtro == "Ganancias" and (not trade or trade["pnl"] <= 0): visible = False
                         if filtro == "Pérdidas" and (not trade or trade["pnl"] >= 0): visible = False
@@ -258,7 +274,7 @@ with col_cal:
 
 with col_det:
     # ---------------- CÁLCULOS MATEMÁTICOS PARA LAS MÉTRICAS ----------------
-    trades_mes = [v["pnl"] for k, v in st.session_state.mis_trades.items() if k[0] == anio_sel and k[1] == mes_sel]
+    trades_mes = [v["pnl"] for k, v in st.session_state.db[ctx]["trades"].items() if k[0] == anio_sel and k[1] == mes_sel]
     total_trades = len(trades_mes)
     
     net_pnl = sum(trades_mes) if total_trades > 0 else 0.0
@@ -268,12 +284,10 @@ with col_det:
     
     win_pct = (wins / total_trades * 100) if total_trades > 0 else 0.0
     
-    # SVG Matemáticas para el Arco
     r = 40
-    c = math.pi * r # 125.66 (Longitud del semicírculo)
+    c = math.pi * r 
     len_w = (wins / total_trades * c) if total_trades > 0 else 0
     len_t = (ties / total_trades * c) if total_trades > 0 else 0
-    len_l = (losses / total_trades * c) if total_trades > 0 else 0
 
     # ---------------- RENDERIZAR TARJETA 1: P&L ----------------
     color_pnl = "pnl-value" if net_pnl >= 0 else "pnl-value pnl-value-loss"
@@ -291,8 +305,6 @@ with col_det:
     """, unsafe_allow_html=True)
 
     # ---------------- RENDERIZAR TARJETA 2: WIN % ----------------
-    # ATENCIÓN: El código HTML abajo no tiene indentación intencionalmente 
-    # para evitar que Markdown lo tome como un bloque de código.
     svg_html = f'<svg width="120" height="60" viewBox="0 0 100 50">\n'
     svg_html += f'<path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="{border_color}" stroke-width="10"/>\n'
     if total_trades > 0:
