@@ -73,10 +73,10 @@ BOTON_FONDO_OSCURO = "#2D3748"
 BOTON_TEXTO_OSCURO = "#FFFFFF"
 
 # Posición del botón Popover (🗓️) - DEVUELTO A SU POSICIÓN ANTERIOR
-BOTON_X = -170          
+BOTON_X = 170          
 BOTON_Y = 27         
 BOTON_WIDTH = 100     
-BOTON_HEIGHT = 45    
+BOTON_HEIGHT = 100    
 BOTON_ICON_SIZE = 22 
 
 # Texto del Mes y Año en el Calendario
