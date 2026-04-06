@@ -12,8 +12,6 @@ st.set_page_config(page_title="Yeremi Journal Pro", layout="wide")
 # ==========================================
 # 2. BASE DE DATOS GLOBAL (MULTIPLATAFORMA)
 # ==========================================
-# Esto guarda los datos en el servidor, no en tu pestaña. 
-# Así puedes entrar desde el celular y la PC a la vez y ver lo mismo.
 @st.cache_resource
 def get_global_db():
     return {}
@@ -29,8 +27,11 @@ def inicializar_data_usuario():
 if "usuario_actual" not in st.session_state:
     st.session_state.usuario_actual = None
 
-# --- PANTALLA DE LOGIN ---
-if st.session_state.usuario_actual is None:
+# --- PANTALLA DE LOGIN CON PARCHE DE SEGURIDAD ---
+# Si no hay usuario, O si el usuario en sesión ya no existe en la DB global (porque el servidor se reinició)
+if st.session_state.usuario_actual is None or st.session_state.usuario_actual not in db_global:
+    st.session_state.usuario_actual = None  # Cierra la sesión fantasma por seguridad
+    
     st.markdown("<h1 style='text-align:center; font-family:sans-serif;'>Yeremi Journal Pro</h1>", unsafe_allow_html=True)
     
     col1, col2, col3 = st.columns([1, 2, 1])
@@ -62,14 +63,14 @@ if st.session_state.usuario_actual is None:
                     st.success("Cuenta creada con éxito. Ya puedes iniciar sesión en la pestaña 'Entrar'.")
                 else:
                     st.warning("Completa todos los campos.")
-    st.stop() # Detiene la app aquí si no hay sesión iniciada
+    st.stop() # Detiene la app aquí si no hay sesión válida iniciada
 
 # ==========================================
 # 3. SECCIÓN DE AJUSTES MANUALES
 # ==========================================
 
 # --- ZONA 0: TEMA PRINCIPAL ---
-TEMA_POR_DEFECTO = "Oscuro"  # Escribe "Claro" o "Oscuro"
+TEMA_POR_DEFECTO = "Oscuro"
 
 # --- ZONA 1: TÍTULO PRINCIPAL ---
 TITULO_TEXTO = "Dashboard"
@@ -124,7 +125,6 @@ BOTON_TEXTO_CLARO = "#1A202C"
 BOTON_FONDO_OSCURO = "#2D3748"
 BOTON_TEXTO_OSCURO = "#FFFFFF"
 
-# El Botón 🗓️ (Devuelto a su lugar)
 BOTON_X = -170          
 BOTON_Y = 27         
 BOTON_WIDTH = 45     
@@ -150,9 +150,9 @@ CARD_WIN_X = 0
 CARD_WIN_Y = 20      
 CARD_WIN_W = 80      
 
-# --- ZONA 7: ÁREA DE SUBIR IMÁGENES (NUEVO) ---
-UPLOADER_ANCHO = 300      # Ancho de la caja en píxeles (ej: 300)
-UPLOADER_ALTO = 100       # Alto de la caja en píxeles (ej: 100)
+# --- ZONA 7: ÁREA DE SUBIR IMÁGENES ---
+UPLOADER_ANCHO = 300      
+UPLOADER_ALTO = 100       
 UPLOADER_FONDO_CLARO = "#FFFFFF"
 UPLOADER_FONDO_OSCURO = "#2D3748"
 
@@ -262,14 +262,12 @@ st.markdown(f"""
     div[data-testid="column"]:nth-of-type(3) {{ margin-left: {DATA_SRC_X}px; margin-top: {DATA_SRC_Y}px; z-index: 10; }}
     div[data-testid="column"]:nth-of-type(4) {{ margin-left: {BALANCE_BOX_X}px; margin-top: {BALANCE_BOX_Y}px; }}
 
-    /* COLORES SELECTORES */
     div[data-baseweb="select"] > div {{ background-color: {select_fondo_actual} !important; border-color: {border_color} !important; }}
     div[data-baseweb="select"] * {{ color: {select_texto_actual} !important; }}
     ul[role="listbox"] {{ background-color: {select_fondo_actual} !important; }}
     li[role="option"] {{ color: {select_texto_actual} !important; background-color: {select_fondo_actual} !important; }}
     li[role="option"]:hover {{ background-color: {border_color} !important; }}
     
-    /* ESTÉTICA DEL ÁREA DE SUBIR IMÁGENES */
     [data-testid="stFileUploadDropzone"] {{ 
         background-color: {uploader_fondo_actual} !important; 
         border: 2px dashed {border_color} !important; 
@@ -278,7 +276,7 @@ st.markdown(f"""
         display: flex; justify-content: center; align-items: center;
     }}
     [data-testid="stFileUploadDropzone"] * {{ color: {text_color} !important; }}
-    [data-testid="stFileUploadDropzone"] button {{ display: none; }} /* Oculta botón extra */
+    [data-testid="stFileUploadDropzone"] button {{ display: none; }} 
 
     div[data-testid="stNumberInput"] {{ margin-left: {INPUT_BAL_X}px !important; margin-top: {INPUT_BAL_Y}px !important; max-width: 200px !important; }}
     div[data-testid="stNumberInput"] button {{ display: none !important; }} 
@@ -325,7 +323,6 @@ st.markdown(f"""
         margin-left: {FLECHAS_X_AJUSTE}px !important; margin-top: {FLECHAS_Y_AJUSTE}px !important; font-size: {FLECHAS_SIZE}px !important;
     }}
     
-    /* POPOVER RESTAURADO A SU POSICIÓN ORIGINAL NEGATIVA */
     div[data-testid="stPopover"] {{ position: absolute !important; left: {BOTON_X}px !important; top: {BOTON_Y}px !important; z-index: 9999 !important; }}
     div[data-testid="stPopover"] > button {{
         width: {BOTON_WIDTH}px !important; height: {BOTON_HEIGHT}px !important;
@@ -342,6 +339,12 @@ st.markdown(f"""
     .metric-header {{ display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }}
     .metric-title {{ font-size: 14px; font-weight: 500; color: #6B7280; }}
     .win-value {{ font-size: 28px; font-weight: 800; color: {titulo_color_actual}; letter-spacing: -0.5px; }}
+    
+    @media (max-width: 768px) {{
+        .dashboard-title {{ margin-left: 0 !important; text-align: center; }}
+        div[data-testid="stNumberInput"] {{ margin-left: 0 !important; width: 100% !important; max-width: none !important; }}
+        div[data-testid="stPopover"] {{ position: relative !important; left: 0 !important; top: 10px !important; }}
+    }}
     </style>
     """, unsafe_allow_html=True)
 
@@ -366,7 +369,6 @@ st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
 # ==========================================
 # 8. ENTRADA AUTOMÁTICA E IMÁGENES
 # ==========================================
-# Ajuste de columnas para dar espacio al uploader
 c1, c2, c_espacio, c_img = st.columns([1.2, 0.4, 0.8, 2]) 
 
 with c1:
@@ -391,7 +393,7 @@ with c_img:
         db_usuario[ctx]["trades"][clave_actual]["imagenes"] = lista_b64
 
 # ==========================================
-# 9. CALENDARIO Y RESUMEN (Y MODALES CSS)
+# 9. CALENDARIO Y RESUMEN
 # ==========================================
 col_cal, col_det = st.columns([1.5, 1])
 
@@ -434,7 +436,7 @@ with col_cal:
                             c_cls = "cell-win" if trade["pnl"] > 0 else "cell-loss"
                             c_sim = "+" if trade["pnl"] > 0 else ""
                             
-                            # Magia de CSS-Only Modal
+                            # MAGIA CSS MODAL
                             if trade.get("imagenes"):
                                 id_modal = f"mod_{anio_sel}_{mes_sel}_{dia}"
                                 img_tags = "".join([f'<img src="{img}">' for img in trade["imagenes"]])
