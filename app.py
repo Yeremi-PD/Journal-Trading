@@ -20,7 +20,7 @@ TITULO_SIZE = 100    # Tamaño de la letra (px)
 # --- CAJA DE BALANCE ---
 BALANCE_X = 0        # Posición Izquierda/Derecha (px)
 BALANCE_Y = 0        # Posición Arriba/Abajo (px)
-BALANCE_WIDTH = 600  # Ancho de la caja (en porcentaje %)
+BALANCE_WIDTH = 50  # Ancho de la caja (en porcentaje %)
 BALANCE_SIZE = 30    # Tamaño de la letra (px)
 
 # --- BOTÓN DEL CALENDARIO 🗓️ ---
