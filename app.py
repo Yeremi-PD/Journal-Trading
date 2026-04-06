@@ -14,8 +14,8 @@ st.set_page_config(page_title="Yeremi Journal Pro", layout="wide")
 # Usa números positivos para mover a la Derecha/Abajo, y negativos para Izquierda/Arriba.
 
 # --- ZONA 1: TÍTULO PRINCIPAL ---
-TITULO_TEXTO = "Dashboar"
-TITULO_X = 0         
+TITULO_TEXTO = "Dashboard"
+TITULO_X = 100         
 TITULO_Y = -20         
 TITULO_SIZE = 80     # ¡Ajustado a 80 para probar, cámbialo a tu gusto!
 TITULO_COLOR = "#1A202C"
