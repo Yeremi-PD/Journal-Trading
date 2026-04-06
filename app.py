@@ -16,7 +16,7 @@ st.set_page_config(page_title="Yeremi Journal Pro", layout="wide")
 # --- ZONA 1: TÍTULO PRINCIPAL ---
 TITULO_TEXTO = "Dashboard"
 TITULO_X = 0         
-TITULO_Y = 0         
+TITULO_Y = -20         
 TITULO_SIZE = 80     # ¡Ajustado a 80 para probar, cámbialo a tu gusto!
 TITULO_COLOR = "#1A202C"
 
