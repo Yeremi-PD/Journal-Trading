@@ -14,10 +14,10 @@ st.markdown("""
     
     /* DASHBOARD MUCHO MÁS GRANDE */
     .dashboard-title { 
-        font-size: 300px; 
-        font-weight: 1000; 
+        font-size: 900px; 
+        font-weight: 9000; 
         color: #1A202C; 
-        margin-bottom: 0;
+        margin-bottom: 2;
         letter-spacing: 1px;
     }
     
