@@ -76,7 +76,7 @@ BOTON_TEXTO_OSCURO = "#FFFFFF"
 
 # Posición del botón Popover (🗓️)
 # AHORA USA MARGEN RELATIVO: 10px a la derecha significa separación real.
-BOTON_X =-125          
+BOTON_X = 10          
 BOTON_Y = 27         
 BOTON_WIDTH = 45     
 BOTON_HEIGHT = 45    
