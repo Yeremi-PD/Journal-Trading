@@ -45,8 +45,8 @@ LBL_INPUT_BAL_X = 0  # Letras de "Balance:"
 LBL_INPUT_BAL_Y = 0
 
 # --- BOTÓN DEL CALENDARIO 🗓️ (REFORZADO) ---
-BOTON_X = -180          # ¡Mueve el botón!
-BOTON_Y = 25         
+BOTON_X = -170          # ¡Mueve el botón!
+BOTON_Y = 20         
 BOTON_WIDTH = 45     
 BOTON_HEIGHT = 45    
 BOTON_ICON_SIZE = 22 
