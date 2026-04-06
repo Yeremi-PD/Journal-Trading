@@ -24,7 +24,7 @@ BALANCE_WIDTH = 50  # Ancho de la caja (en porcentaje %)
 BALANCE_SIZE = 30    # Tamaño de la letra (px)
 
 # --- BOTÓN DEL CALENDARIO 🗓️ ---
-BOTON_X = 0          # Posición Izquierda/Derecha (px)
+BOTON_X = 59          # Posición Izquierda/Derecha (px)
 BOTON_Y = 25         # Posición Arriba/Abajo (px)
 BOTON_WIDTH = 45     # Ancho del botón (px)
 BOTON_HEIGHT = 45    # Alto del botón (px)
