@@ -4,7 +4,7 @@ import calendar
 from datetime import datetime
 
 # ==========================================
-# 1. CONFIGURACIÓN Y CSS (DISEÑO LIMPIO)
+# 1. CONFIGURACIÓN Y CSS (MINIMALISTA)
 # ==========================================
 st.set_page_config(page_title="Yeremi Journal Pro", layout="wide")
 
@@ -18,91 +18,90 @@ st.markdown("""
         padding: 10px; 
         border-radius: 8px; 
         border: 1px solid #E2E8F0; 
-        max-width: 380px; 
+        max-width: 400px; /* Calendario pequeño */
     }
     
     .month-header { text-align: center; font-size: 16px; font-weight: 700; margin-bottom: 10px; color: #000; }
     
-    .card-btn {
-        width: 100%;
-        aspect-ratio: 1/1;
-        border-radius: 4px;
-        border: 1px solid #EDF2F7;
-        font-weight: bold;
-        font-size: 12px;
-        margin-bottom: 2px;
+    .card { 
+        aspect-ratio: 1 / 1; 
+        padding: 2px; 
+        border-radius: 4px; 
+        text-align: center; 
+        display: flex; 
+        flex-direction: column; 
+        justify-content: center; 
+        align-items: center; 
+        font-size: 10px;
+        cursor: pointer;
     }
-
-    /* Colores para los días con trade */
-    div.stButton > button { width: 100% !important; border-radius: 4px !important; height: 45px !important;}
     
+    .cell-win { border: 2px solid #00C897; background-color: #e6f9f4; color: #000; font-weight: bold;}
+    .cell-loss { border: 2px solid #FF4C4C; background-color: #ffeded; color: #000; font-weight: bold;}
+    .cell-empty { border: 1px solid #EDF2F7; background-color: #f8fafc; color: #A0AEC0;}
+
     label, p, h3 { color: #000000 !important; font-weight: 700 !important; }
     div.block-container { padding-top: 1rem; }
     </style>
     """, unsafe_allow_html=True)
 
 # ==========================================
-# 2. MEMORIA (SESSION STATE)
+# 2. MEMORIA Y LÓGICA DE DATOS
 # ==========================================
 if "mis_trades" not in st.session_state:
     st.session_state.mis_trades = {} 
-if "dia_ver" not in st.session_state:
-    st.session_state.dia_ver = None
+if "dia_seleccionado" not in st.session_state:
+    st.session_state.dia_seleccionado = None
 
 st.title("📈 Yeremi Journal")
 
-# --- PROCESADOR DE TEXTO ---
-with st.expander("📥 AGREGAR TRADE (PEGA AQUÍ)", expanded=True):
+# --- PROCESADOR ---
+with st.expander("📥 PEGAR TRADE", expanded=True):
     col_t, col_i = st.columns([2, 1])
     with col_t:
-        texto_raw = st.text_area("Datos de Tradovate:", height=100, placeholder="Pega el texto de tus órdenes aquí...")
+        texto = st.text_area("Datos de Tradovate:", height=100)
     with col_i:
-        img_file = st.file_uploader("Captura de pantalla:", type=["png", "jpg"])
+        img = st.file_uploader("Captura:", type=["png", "jpg"])
 
-    if texto_raw:
+    if texto:
         try:
-            fechas = re.findall(r'(\d{4})-(\d{2})-(\d{2})', texto_raw)
-            precios = re.findall(r'(\d{2,5},?\d{3}\.\d{2})', texto_raw)
-            es_demo = "USDT" in texto_raw or "25:1" in texto_raw
+            fechas = re.findall(r'(\d{4})-(\d{2})-(\d{2})', texto)
+            precios = re.findall(r'(\d{2,5},?\d{3}\.\d{2})', texto)
+            es_demo = "USDT" in texto or "25:1" in texto
             
             if len(precios) >= 2 and fechas:
                 y, m, d = map(int, fechas[0])
                 nums = [float(p.replace(',', '')) for p in precios]
                 
-                # Identificar Entrada vs Salida (Lógica simplificada)
-                # En tu texto de pérdida: Buy (Entrada) 24,312.00 | Sell (Salida SL) 24,300.00
-                p_buy = nums[-1] if 'BUY' in texto_raw.upper() else nums[0]
-                p_sell = nums[0] if 'SELL' in texto_raw.upper() else nums[-1]
+                # Identificar Buy vs Sell para saber si ganó o perdió
+                p_buy = nums[-1] if 'BUY' in texto.upper() else nums[0]
+                p_sell = nums[0] if 'SELL' in texto.upper() else nums[-1]
                 
-                # Contratos
-                match_q = re.search(r'(?:MARKET|LIMIT|STOP LOSS|TAKE PROFIT)\D*(\d+)', texto_raw.upper())
+                # Cantidad contratos
+                match_q = re.search(r'(?:MARKET|LIMIT|STOP LOSS|TAKE PROFIT)\D*(\d+)', texto.upper())
                 cant = int(match_q.group(1)) if match_q else 1
                 
-                # Cálculo de puntos
-                neto = (p_sell - p_buy) * 2 * cant
+                puntos = p_sell - p_buy
+                neto = puntos * 2 * cant
                 
-                # Restar comisión SOLO si no es Demo
+                # Solo restar comisión si NO es cuenta Demo
                 if not es_demo:
                     neto -= (1.04 * cant)
                 
-                res_color = "green" if neto >= 0 else "red"
-                st.markdown(f"**Resultado Detectado:** <span style='color:{res_color}'>${neto:.2f}</span> ({'DEMO' if es_demo else 'REAL'})", unsafe_allow_html=True)
+                color = "green" if neto >= 0 else "red"
+                st.markdown(f"Resultado detectado: <span style='color:{color}'>${neto:.2f}</span> ({'DEMO' if es_demo else 'REAL'})", unsafe_allow_html=True)
                 
-                if st.button("GUARDAR EN CALENDARIO"):
+                if st.button("AGREGAR"):
                     st.session_state.mis_trades[(y, m, d)] = {
-                        "pnl": neto, 
-                        "img": img_file, 
-                        "txt": texto_raw, 
-                        "tipo": "DEMO" if es_demo else "REAL"
+                        "pnl": neto, "img": img, "txt": texto, "tipo": "DEMO" if es_demo else "REAL"
                     }
-                    st.success(f"Día {d} guardado con éxito.")
                     st.rerun()
-        except: st.error("Error al leer los datos. Intenta copiar el bloque completo.")
+        except: st.error("Error en formato")
 
 st.write("---")
 
 # ==========================================
-# 3. LAYOUT: CALENDARIO (IZQ) | DETALLE (DER)
+# 3. CUERPO: CALENDARIO (IZQ) | INFO (DER)
 # ==========================================
 col_izq, col_der = st.columns([1, 1])
 
@@ -114,17 +113,16 @@ with col_izq:
     st.markdown('<div class="calendar-wrapper">', unsafe_allow_html=True)
     st.markdown(f'<div class="month-header">{calendar.month_name[m_sel]} {a_sel}</div>', unsafe_allow_html=True)
     
-    # Lógica de construcción del calendario
+    # Lógica calendario
     primer_dia, dias_mes = calendar.monthrange(a_sel, m_sel)
     espacios = (primer_dia + 1) % 7
     dias_semana = ["Do", "Lu", "Ma", "Mi", "Ju", "Vi", "Sá"]
     
-    # Headers de la semana
+    # Headers
     h_cols = st.columns(7)
-    for i, d_nom in enumerate(dias_semana): 
-        h_cols[i].markdown(f"<center><b style='font-size:11px;'>{d_nom}</b></center>", unsafe_allow_html=True)
+    for i, d in enumerate(dias_semana): h_cols[i].markdown(f"<center><b style='font-size:10px;'>{d}</b></center>", unsafe_allow_html=True)
     
-    # Celdas de los días
+    # Celdas
     cuadricula = [""] * espacios + list(range(1, dias_mes + 1))
     for fila in range(0, len(cuadricula), 7):
         cols = st.columns(7)
@@ -134,56 +132,51 @@ with col_izq:
                 dia = cuadricula[idx]
                 with cols[i]:
                     if dia == "":
-                        st.write("")
+                        st.markdown('<div class="card cell-empty"></div>', unsafe_allow_html=True)
                     else:
                         key = (a_sel, m_sel, dia)
                         trade = st.session_state.mis_trades.get(key)
-                        
                         if trade:
-                            # Color según ganancia o pérdida
-                            label_btn = f"{dia}"
-                            if st.button(label_btn, key=f"btn_{dia}"):
-                                st.session_state.dia_ver = key
+                            clase = "cell-win" if trade["pnl"] >= 0 else "cell-loss"
+                            # BOTÓN INVISIBLE PARA SELECCIONAR EL DÍA
+                            if st.button(f"{dia}", key=f"btn_{dia}", help=f"Ver trade día {dia}"):
+                                st.session_state.dia_seleccionado = key
                                 st.rerun()
-                            # Pintar el color debajo del botón para que sepas que tiene trade
-                            color_bar = "#00C897" if trade['pnl'] >= 0 else "#FF4C4C"
-                            st.markdown(f"<div style='height:4px; background:{color_bar}; width:100%; border-radius:2px;'></div>", unsafe_allow_html=True)
                         else:
-                            st.button(f"{dia}", key=f"empty_{dia}", disabled=True)
-
+                            st.markdown(f'<div class="card cell-empty">{dia}</div>', unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
-# --- PANEL DERECHO: SOLO APARECE SI HACES CLIC ---
+# --- LADO DERECHO (VACÍO O CON INFO) ---
 with col_der:
-    if st.session_state.dia_ver:
-        y_v, m_v, d_v = st.session_state.dia_ver
-        trade_info = st.session_state.mis_trades.get(st.session_state.dia_ver)
-        
-        if trade_info:
-            st.subheader(f"Trade del {d_v} de {calendar.month_name[m_v]}")
+    if st.session_state.dia_seleccionado:
+        y_s, m_s, d_s = st.session_state.dia_seleccionado
+        # Verificar si el trade aún existe (por si se borró la memoria)
+        if st.session_state.dia_seleccionado in st.session_state.mis_trades:
+            info = st.session_state.mis_trades[st.session_state.dia_seleccionado]
+            st.subheader(f"Día {d_s} - {calendar.month_name[m_sel]}")
             
-            pnl_color = "#00C897" if trade_info['pnl'] >= 0 else "#FF4C4C"
-            st.markdown(f"<h1 style='color:{pnl_color}; margin-top:0;'>${trade_info['pnl']:.2f}</h1>", unsafe_allow_html=True)
-            st.write(f"**Cuenta:** {trade_info['tipo']}")
+            c_pnl = "green" if info['pnl'] >= 0 else "red"
+            st.markdown(f"### Resultado: <span style='color:{c_pnl}'>${info['pnl']:.2f}</span>", unsafe_allow_html=True)
+            st.write(f"**Cuenta:** {info['tipo']}")
             
-            if trade_info["img"]:
-                st.image(trade_info["img"], caption="Gráfico de la sesión", use_container_width=True)
-            else:
-                st.info("No subiste imagen para este día.")
+            if info["img"]:
+                st.image(info["img"], use_container_width=True)
             
-            with st.expander("Ver órdenes pegadas"):
-                st.code(trade_info["txt"])
+            with st.expander("Ver Datos Crudos"):
+                st.code(info["txt"])
             
-            if st.button("Cerrar Detalles"):
-                st.session_state.dia_ver = None
+            if st.button("Cerrar Vista"):
+                st.session_state.dia_seleccionado = None
                 st.rerun()
+        else:
+            st.write("Selecciona un día con trade en el calendario.")
     else:
-        st.markdown("<br><br><br><center><h3>Haz clic en un día con marca para ver los detalles</h3></center>", unsafe_allow_html=True)
+        st.info("Haz clic en un día del calendario para ver la información.")
 
-# --- MÉTRICAS ---
+# --- MÉTRICAS ABAJO ---
 st.write("---")
-trades_actuales = [v["pnl"] for k, v in st.session_state.mis_trades.items() if k[0] == a_sel and k[1] == m_sel]
-if trades_actuales:
+pnl_lista = [v["pnl"] for k, v in st.session_state.mis_trades.items() if k[0] == a_sel and k[1] == m_sel]
+if pnl_lista:
     m1, m2 = st.columns(2)
-    m1.metric("P&L Total (Mes)", f"${sum(trades_actuales):.2f}")
-    m2.metric("Días Operados", len(trades_actuales))
+    m1.metric("P&L Total Mes", f"${sum(pnl_lista):.2f}")
+    m2.metric("Total Trades", len(pnl_lista))
