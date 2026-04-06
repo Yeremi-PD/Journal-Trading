@@ -11,7 +11,6 @@ st.set_page_config(page_title="Yeremi Journal Pro", layout="wide")
 # ==========================================
 # 2. SECCIÓN DE AJUSTES MANUALES (TODO EL CONTROL AQUÍ)
 # ==========================================
-# Usa números positivos para mover a la Derecha/Abajo, y negativos para Izquierda/Arriba.
 
 # --- ZONA 0: TEMA PRINCIPAL ---
 TEMA_POR_DEFECTO = "Oscuro"  # Escribe "Claro" o "Oscuro"
@@ -76,7 +75,8 @@ BOTON_FONDO_OSCURO = "#2D3748"
 BOTON_TEXTO_OSCURO = "#FFFFFF"
 
 # Posición del botón Popover (🗓️)
-BOTON_X = -170          
+# AHORA USA MARGEN RELATIVO: 10px a la derecha significa separación real.
+BOTON_X = 10          
 BOTON_Y = 27         
 BOTON_WIDTH = 45     
 BOTON_HEIGHT = 45    
@@ -84,14 +84,14 @@ BOTON_ICON_SIZE = 22
 
 # Texto del Mes y Año en el Calendario (Ej. Abril 2026)
 MES_TEXTO_X = 0
-MES_TEXTO_Y = 10      # <--- Bajado 10px
+MES_TEXTO_Y = 10      
 MES_TEXTO_SIZE = 22
-MES_TEXTO_COLOR_W = "#FFFFFF" # Color en tema oscuro
-MES_TEXTO_COLOR_B = "#1A202C" # Color en tema claro
+MES_TEXTO_COLOR_W = "#FFFFFF" 
+MES_TEXTO_COLOR_B = "#1A202C" 
 
 # Ajustes visuales de las Flechas ◀ ▶
 FLECHAS_X_AJUSTE = 0 
-FLECHAS_Y_AJUSTE = 10 # <--- Bajadas 10px
+FLECHAS_Y_AJUSTE = 10 
 FLECHAS_SIZE = 16
 
 # --- ZONA 6: TARJETAS DE MÉTRICAS ---
@@ -170,7 +170,6 @@ if st.sidebar.button(f"🗑️ Limpiar {ctx_actual} a $25k"):
 # ==========================================
 # 5. COLORES DEL TEMA Y CSS DINÁMICO
 # ==========================================
-# LÓGICA DE COLORES SEGÚN EL TEMA ACTUAL
 if st.session_state.tema == "Claro":
     bg_color, text_color = "#F7FAFC", "#2D3748"
     card_bg, border_color, empty_cell_bg = "#FFFFFF", "#E2E8F0", "#FFFFFF"
@@ -199,30 +198,33 @@ st.markdown(f"""
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
     .stApp {{ background-color: {bg_color}; color: {text_color}; font-family: 'Inter', sans-serif; overflow-x: hidden; }}
     
-    div[data-testid="column"]:nth-of-type(1) .dashboard-title {{ transform: translate({TITULO_X}px, {TITULO_Y}px) !important; display: block; }}
-    div[data-testid="column"]:nth-of-type(2) {{ transform: translate({FILTROS_X}px, {FILTROS_Y}px); z-index: 10; }}
-    div[data-testid="column"]:nth-of-type(3) {{ transform: translate({DATA_SRC_X}px, {DATA_SRC_Y}px); z-index: 10; }}
-    div[data-testid="column"]:nth-of-type(4) {{ transform: translate({BALANCE_BOX_X}px, {BALANCE_BOX_Y}px); }}
+    div[data-testid="column"]:nth-of-type(1) .dashboard-title {{ margin-left: {TITULO_X}px !important; margin-top: {TITULO_Y}px !important; display: block; }}
+    div[data-testid="column"]:nth-of-type(2) {{ margin-left: {FILTROS_X}px; margin-top: {FILTROS_Y}px; z-index: 10; }}
+    div[data-testid="column"]:nth-of-type(3) {{ margin-left: {DATA_SRC_X}px; margin-top: {DATA_SRC_Y}px; z-index: 10; }}
+    div[data-testid="column"]:nth-of-type(4) {{ margin-left: {BALANCE_BOX_X}px; margin-top: {BALANCE_BOX_Y}px; }}
 
-    /* CONFIGURACIÓN DE LOS SELECTORES (Filtros y Data Source) */
+    /* CONFIGURACIÓN DE LOS SELECTORES (Filtros y Data Source) Y SU MENÚ DESPLEGABLE */
     div[data-baseweb="select"] > div {{
         background-color: {select_fondo_actual} !important;
         border-color: {border_color} !important;
     }}
-    div[data-baseweb="select"] * {{
-        color: {select_texto_actual} !important;
-    }}
+    div[data-baseweb="select"] * {{ color: {select_texto_actual} !important; }}
+    
+    /* ESTO ARREGLA EL FONDO DE LA LISTA DESPLEGABLE */
+    ul[role="listbox"] {{ background-color: {select_fondo_actual} !important; }}
+    li[role="option"] {{ color: {select_texto_actual} !important; background-color: {select_fondo_actual} !important; }}
+    li[role="option"]:hover {{ background-color: {border_color} !important; }}
 
     /* CONFIGURACIÓN DEL INPUT DE BALANCE */
-    div[data-testid="stNumberInput"] {{ transform: translate({INPUT_BAL_X}px, {INPUT_BAL_Y}px) !important; max-width: 200px !important; }}
-    div[data-testid="stNumberInput"] button {{ display: none !important; }} /* Oculta el + y - */
+    div[data-testid="stNumberInput"] {{ margin-left: {INPUT_BAL_X}px !important; margin-top: {INPUT_BAL_Y}px !important; max-width: 200px !important; }}
+    div[data-testid="stNumberInput"] button {{ display: none !important; }} 
     div[data-testid="stNumberInput"] div[data-baseweb="input"] {{ background-color: {input_fondo_actual} !important; border-color: {border_color} !important; }}
     div[data-testid="stNumberInput"] input {{ color: {input_texto_actual} !important; font-weight: bold; }}
 
-    div[data-testid="column"]:nth-of-type(2) label {{ transform: translate({LBL_FILTROS_X}px, {LBL_FILTROS_Y}px) !important; display: inline-block; }}
-    div[data-testid="column"]:nth-of-type(3) label {{ transform: translate({LBL_DATA_X}px, {LBL_DATA_Y}px) !important; display: inline-block; }}
-    div[data-testid="stNumberInput"] label {{ transform: translate({LBL_INPUT_BAL_X}px, {LBL_INPUT_BAL_Y}px) !important; display: inline-block; }}
-    .lbl-total-bal {{ transform: translate({LBL_TOTAL_BAL_X}px, {LBL_TOTAL_BAL_Y}px); display: block; }}
+    div[data-testid="column"]:nth-of-type(2) label {{ margin-left: {LBL_FILTROS_X}px !important; margin-top: {LBL_FILTROS_Y}px !important; display: inline-block; }}
+    div[data-testid="column"]:nth-of-type(3) label {{ margin-left: {LBL_DATA_X}px !important; margin-top: {LBL_DATA_Y}px !important; display: inline-block; }}
+    div[data-testid="stNumberInput"] label {{ margin-left: {LBL_INPUT_BAL_X}px !important; margin-top: {LBL_INPUT_BAL_Y}px !important; display: inline-block; }}
+    .lbl-total-bal {{ margin-left: {LBL_TOTAL_BAL_X}px; margin-top: {LBL_TOTAL_BAL_Y}px; display: block; }}
 
     .dashboard-title {{ 
         font-size: {TITULO_SIZE}px !important; 
@@ -263,25 +265,26 @@ st.markdown(f"""
        ================================== */
     div[data-testid="stButton"] > button {{
         background-color: {btn_bg} !important; color: {btn_text} !important; border: 1px solid {border_color} !important;
-        transform: translate({FLECHAS_X_AJUSTE}px, {FLECHAS_Y_AJUSTE}px) !important;
+        margin-left: {FLECHAS_X_AJUSTE}px !important; margin-top: {FLECHAS_Y_AJUSTE}px !important;
         font-size: {FLECHAS_SIZE}px !important;
     }}
     
-    div[data-testid="stPopover"] {{ transform: translate({BOTON_X}px, {BOTON_Y}px) !important; }}
+    /* Popover espaciado mediante márgenes (evita choque en móviles) */
+    div[data-testid="stPopover"] {{ margin-left: {BOTON_X}px !important; margin-top: {BOTON_Y}px !important; }}
     div[data-testid="stPopover"] > button {{
         width: {BOTON_WIDTH}px !important; height: {BOTON_HEIGHT}px !important;
         font-size: {BOTON_ICON_SIZE}px !important; padding: 0 !important; border-radius: 8px !important;
         border: 1px solid {border_color} !important; background-color: {btn_bg} !important; color: {btn_text} !important;
         display: flex !important; justify-content: center !important; align-items: center !important;
-        transform: none !important; /* Evita que el transform de flechas afecte al popover */
+        margin: 0 !important; /* Reseteamos margen interno para no afectar popover */
     }}
 
     .metric-card {{
         background-color: {card_bg}; border-radius: 20px; padding: 15px 20px;
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); border: 1px solid {border_color};
     }}
-    .card-pnl {{ transform: translate({CARD_PNL_X}px, {CARD_PNL_Y}px); width: {CARD_PNL_W}%; }}
-    .card-win {{ transform: translate({CARD_WIN_X}px, {CARD_WIN_Y}px); width: {CARD_WIN_W}%; display: flex; justify-content: space-between; align-items: center; }}
+    .card-pnl {{ margin-left: {CARD_PNL_X}px; margin-top: {CARD_PNL_Y}px; width: {CARD_PNL_W}%; }}
+    .card-win {{ margin-left: {CARD_WIN_X}px; margin-top: {CARD_WIN_Y}px; width: {CARD_WIN_W}%; display: flex; justify-content: space-between; align-items: center; }}
 
     .metric-header {{ display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }}
     .metric-title {{ font-size: 14px; font-weight: 500; color: #6B7280; }}
@@ -297,6 +300,13 @@ st.markdown(f"""
     .lbl-g {{ background-color: #e6f9f4; color: #00C897; padding: 2px 8px; border-radius: 10px; }}
     .lbl-b {{ background-color: #EEF2FF; color: #4F46E5; padding: 2px 8px; border-radius: 10px; }}
     .lbl-r {{ background-color: #ffeded; color: #FF4C4C; padding: 2px 8px; border-radius: 10px; }}
+    
+    /* MEDIA QUERY PARA MÓVILES (Desactiva márgenes extremos para evitar salidas de pantalla) */
+    @media (max-width: 768px) {{
+        .dashboard-title {{ margin-left: 0 !important; text-align: center; }}
+        div[data-testid="stNumberInput"] {{ margin-left: 0 !important; width: 100% !important; max-width: none !important; }}
+        div[data-testid="stPopover"] {{ margin-left: 0 !important; margin-top: 10px !important; }}
+    }}
     </style>
     """, unsafe_allow_html=True)
 
@@ -321,7 +331,8 @@ st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
 # ==========================================
 # 7. ENTRADA AUTOMÁTICA (CON POPOVER 🗓️)
 # ==========================================
-c1, c2, _ = st.columns([1, 1, 3]) 
+# Columnas ajustadas para que el botón esté naturalmente al lado de la caja
+c1, c2, _ = st.columns([1.5, 1, 3]) 
 with c1:
     st.number_input(INPUT_BAL_TEXTO, value=bal_actual, format="%.2f", key="input_balance", on_change=procesar_cambio)
 with c2:
@@ -342,7 +353,7 @@ with col_cal:
     
     c_izq, c_cen, c_der = st.columns([1, 4, 1])
     with c_izq: st.button("◀", on_click=cambiar_mes, args=(-1,), use_container_width=True)
-    with c_cen: st.markdown(f'<div style="text-align:center; font-weight:800; font-size:{MES_TEXTO_SIZE}px; color:{mes_color_actual}; transform: translate({MES_TEXTO_X}px, {MES_TEXTO_Y}px);">{nombre_mes} {anio_sel}</div>', unsafe_allow_html=True)
+    with c_cen: st.markdown(f'<div style="text-align:center; font-weight:800; font-size:{MES_TEXTO_SIZE}px; color:{mes_color_actual}; margin-left:{MES_TEXTO_X}px; margin-top:{MES_TEXTO_Y}px;">{nombre_mes} {anio_sel}</div>', unsafe_allow_html=True)
     with c_der: st.button("▶", on_click=cambiar_mes, args=(1,), use_container_width=True)
     
     st.markdown("<br>", unsafe_allow_html=True)
