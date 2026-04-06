@@ -84,7 +84,7 @@ MES_TEXTO_COLOR_B = "#1A202C" # Color en tema claro
 
 # Ajustes visuales de las Flechas ◀ ▶
 FLECHAS_X_AJUSTE = 0 # Mueve ambas flechas juntas en el eje X
-FLECHAS_Y_AJUSTE = 0 # Mueve ambas flechas juntas en el eje Y
+FLECHAS_Y_AJUSTE = 10 # Mueve ambas flechas juntas en el eje Y
 FLECHAS_SIZE = 16
 
 # --- ZONA 6: TARJETAS DE MÉTRICAS ---
