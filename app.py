@@ -45,7 +45,7 @@ st.markdown("""
         font-size: 12px;
         
         /* --- ESTA ES LA LÍNEA QUE DEBES AGREGAR O CAMBIAR --- */
-        margin: 4px; /* Aumenta este número para más distancia, bájalo para menos */
+        margin: 2px; /* Aumenta este número para más distancia, bájalo para menos */
     }
     .card b { font-size: 18px !important; }
     .cell-win { border: 2.5px solid #00C897; color: #00664F; background-color: #e6f9f4;}
