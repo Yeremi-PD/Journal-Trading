@@ -46,7 +46,7 @@ LBL_INPUT_BAL_Y = 0
 
 # --- BOTÓN DEL CALENDARIO 🗓️ (REFORZADO) ---
 BOTON_X = -170          # ¡Mueve el botón!
-BOTON_Y = 30         
+BOTON_Y = 25         
 BOTON_WIDTH = 45     
 BOTON_HEIGHT = 45    
 BOTON_ICON_SIZE = 22 
