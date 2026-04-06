@@ -8,87 +8,56 @@ from datetime import datetime
 st.set_page_config(page_title="Yeremi Journal Pro", layout="wide")
 
 # ==========================================
-# 2. LÓGICA DE ESTADO (MEMORIA)
+# 2. SECCIÓN DE AJUSTES MANUALES (Modifica los números aquí)
 # ==========================================
-if "total_balance" not in st.session_state:
-    st.session_state.total_balance = 25000.00  
 
-if "mis_trades" not in st.session_state:
-    st.session_state.mis_trades = {} 
+# --- TÍTULO PRINCIPAL ---
+TITULO_X = 0         # Posición Izquierda/Derecha (px)
+TITULO_Y = 0         # Posición Arriba/Abajo (px)
+TITULO_SIZE = 100    # Tamaño de la letra (px)
 
-def procesar_cambio():
-    nuevo = st.session_state.input_balance
-    viejo = st.session_state.total_balance
-    fecha_sel = st.session_state.input_fecha 
-    
-    if nuevo != viejo:
-        pnl = nuevo - viejo
-        clave = (fecha_sel.year, fecha_sel.month, fecha_sel.day)
-        st.session_state.mis_trades[clave] = {
-            "pnl": pnl,
-            "balance_final": nuevo,
-            "fecha_str": fecha_sel.strftime("%d/%m/%Y")
-        }
-        st.session_state.total_balance = nuevo
+# --- CAJA DE BALANCE ---
+BALANCE_X = 0        # Posición Izquierda/Derecha (px)
+BALANCE_Y = 0        # Posición Arriba/Abajo (px)
+BALANCE_WIDTH = 100  # Ancho de la caja (en porcentaje %)
+BALANCE_SIZE = 30    # Tamaño de la letra (px)
 
-# ==========================================
-# 3. CONTROLES DE DISEÑO EN SIDEBAR (Ejes y Tamaño)
-# ==========================================
-st.sidebar.markdown("### ⚙️ Ajustes de Diseño (X, Y, Ancho, Alto)")
-st.sidebar.caption("Usa estos controles para mover y cambiar el tamaño de los elementos.")
+# --- BOTÓN DEL CALENDARIO 🗓️ ---
+BOTON_X = 0          # Posición Izquierda/Derecha (px)
+BOTON_Y = 25         # Posición Arriba/Abajo (px)
+BOTON_WIDTH = 45     # Ancho del botón (px)
+BOTON_HEIGHT = 45    # Alto del botón (px)
+BOTON_ICON_SIZE = 22 # Tamaño del icono 🗓️ (px)
 
-st.sidebar.markdown("**Título Principal**")
-t_y = st.sidebar.slider("Título - Eje Y (Subir/Bajar)", -50, 150, 0)
-t_x = st.sidebar.slider("Título - Eje X (Izq/Der)", -50, 150, 0)
-t_size = st.sidebar.slider("Título - Tamaño (Alto)", 40, 150, 100)
-
-st.sidebar.markdown("**Caja de Balance**")
-b_y = st.sidebar.slider("Balance - Eje Y", -50, 150, 0)
-b_x = st.sidebar.slider("Balance - Eje X", -100, 150, 0)
-b_w = st.sidebar.slider("Balance - Ancho %", 50, 150, 100)
-b_size = st.sidebar.slider("Balance - Tamaño Texto", 15, 60, 30)
-
-st.sidebar.markdown("**Botón de Calendario 🗓️**")
-btn_y = st.sidebar.slider("Botón 🗓️ - Eje Y", -50, 100, 25)
-btn_x = st.sidebar.slider("Botón 🗓️ - Eje X", -50, 150, 0)
-btn_w = st.sidebar.slider("Botón 🗓️ - Ancho (px)", 30, 100, 45)
-btn_h = st.sidebar.slider("Botón 🗓️ - Alto (px)", 30, 100, 45)
-btn_f = st.sidebar.slider("Botón 🗓️ - Tamaño Icono", 10, 50, 22)
-
-st.sidebar.markdown("---")
-if st.sidebar.button("🗑️ Limpiar todo y volver a $25,000.00"):
-    st.session_state.total_balance = 25000.00
-    st.session_state.mis_trades = {}
-    st.rerun()
 
 # ==========================================
-# 4. CSS DINÁMICO (Inyecta los valores de la Sidebar)
+# 3. CSS DINÁMICO (Inyecta las variables de arriba)
 # ==========================================
 st.markdown(f"""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
     .stApp {{ background-color: #F7FAFC; color: #2D3748; font-family: 'Inter', sans-serif; }}
     
-    /* TÍTULO CON VARIABLES */
+    /* TÍTULO */
     .dashboard-title {{ 
-        font-size: {t_size}px; 
+        font-size: {TITULO_SIZE}px; 
         font-weight: 800; 
         color: #1A202C; 
         margin-bottom: 0;
         letter-spacing: -2px;
-        margin-top: {t_y}px;
-        margin-left: {t_x}px;
+        margin-left: {TITULO_X}px;
+        margin-top: {TITULO_Y}px;
     }}
     
-    /* BALANCE CON VARIABLES */
+    /* BALANCE */
     .balance-box {{ 
         background: #2D3748; color: white; padding: 10px 0px; 
         border-radius: 80px; text-align: center; font-weight: 700; 
-        font-size: {b_size}px;
+        font-size: {BALANCE_SIZE}px;
         box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        margin-top: {b_y}px;
-        margin-left: {b_x}px;
-        width: {b_w}%;
+        margin-left: {BALANCE_X}px;
+        margin-top: {BALANCE_Y}px;
+        width: {BALANCE_WIDTH}%;
     }}
     
     .thin-line {{ border-bottom: 1.5px solid #E2E8F0; margin: 10px 0px 25px 0px; width: 100%; }}
@@ -110,13 +79,13 @@ st.markdown(f"""
 
     label {{ font-weight: 700 !important; color: #2D3748 !important; font-size: 14px !important; }}
 
-    /* BOTÓN POPOVER CON VARIABLES */
+    /* BOTÓN POPOVER (CALENDARIO) */
     div[data-testid="stPopover"] > button {{
-        width: {btn_w}px !important;
-        height: {btn_h}px !important;
-        font-size: {btn_f}px !important;
-        margin-top: {btn_y}px !important; 
-        margin-left: {btn_x}px !important;
+        width: {BOTON_WIDTH}px !important;
+        height: {BOTON_HEIGHT}px !important;
+        font-size: {BOTON_ICON_SIZE}px !important;
+        margin-left: {BOTON_X}px !important;
+        margin-top: {BOTON_Y}px !important; 
         padding: 0 !important;
         border-radius: 8px !important;
         border: 1px solid #E2E8F0 !important;
@@ -127,6 +96,30 @@ st.markdown(f"""
     div[data-testid="stNumberInput"] {{ max-width: 180px !important; }}
     </style>
     """, unsafe_allow_html=True)
+
+# ==========================================
+# 4. LÓGICA DE ESTADO (MEMORIA)
+# ==========================================
+if "total_balance" not in st.session_state:
+    st.session_state.total_balance = 25000.00  
+
+if "mis_trades" not in st.session_state:
+    st.session_state.mis_trades = {} 
+
+def procesar_cambio():
+    nuevo = st.session_state.input_balance
+    viejo = st.session_state.total_balance
+    fecha_sel = st.session_state.input_fecha 
+    
+    if nuevo != viejo:
+        pnl = nuevo - viejo
+        clave = (fecha_sel.year, fecha_sel.month, fecha_sel.day)
+        st.session_state.mis_trades[clave] = {
+            "pnl": pnl,
+            "balance_final": nuevo,
+            "fecha_str": fecha_sel.strftime("%d/%m/%Y")
+        }
+        st.session_state.total_balance = nuevo
 
 # ==========================================
 # 5. HEADER (BARRA SUPERIOR)
@@ -170,7 +163,6 @@ with c1:
     )
 
 with c2:
-    # Botón de calendario tipo Popover
     with st.popover("🗓️"):
         st.date_input(
             "Fecha del registro:",
@@ -235,3 +227,9 @@ with col_det:
                 st.markdown(f"**Día {k[2]}:** <span style='color:{color}'>{'+' if v['pnl']>0 else ''}${v['pnl']:,.2f}</span>", unsafe_allow_html=True)
     else:
         st.info("No hay actividad registrada en este periodo.")
+
+# Botón oculto abajo para reiniciar la data si lo necesitas
+if st.button("Limpiar todo y volver a $25,000.00"):
+    st.session_state.total_balance = 25000.00
+    st.session_state.mis_trades = {}
+    st.rerun()
