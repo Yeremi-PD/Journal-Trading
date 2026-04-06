@@ -46,8 +46,8 @@ LBL_INPUT_BAL_Y = 0
 
 # --- CAJA DE TOTAL BALANCE (La de arriba) ---
 BALANCE_BOX_X = 0     
-BALANCE_BOX_Y = 10     
-BALANCE_BOX_W = 1100  # Ancho %
+BALANCE_BOX_Y = 0     
+BALANCE_BOX_W = 100  # Ancho %
 BALANCE_SIZE = 30    # <--- AQUÍ ESTABA EL ERROR. CORREGIDO.
 
 # --- INPUT DE BALANCE (El cuadro numérico de abajo) ---
