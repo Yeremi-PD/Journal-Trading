@@ -51,7 +51,7 @@ st.markdown("""
         font-size: 12px;
         
         /* CAMBIA ESTO: */
-        margin: 2px !important; /* Un margen muy pequeño para que casi se toquen */
+        margin: 4px !important; /* Un margen muy pequeño para que casi se toquen */
         width: 98%;
     }
     .card b { font-size: 18px !important; }
