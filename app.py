@@ -22,7 +22,7 @@ st.markdown("""
     }
     
     .balance-box { 
-        background: #2D3748; color: white; padding: 10px 20px; 
+        background: #2D3748; color: white; padding: 10px 50px; 
         border-radius: 10px; text-align: center; font-weight: 700; font-size: 22px;
         box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     }
@@ -31,7 +31,7 @@ st.markdown("""
 
     /* CALENDARIO */
     .calendar-wrapper { 
-        background: white; padding: 25px; border-radius: 15px; 
+        background: white; padding: 0px; border-radius: 15px; 
         border: 1px solid #E2E8F0; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
     }
     .card { 
