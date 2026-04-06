@@ -57,7 +57,7 @@ st.markdown(f"""
         box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         margin-left: {BALANCE_X}px;
         margin-top: {BALANCE_Y}px;
-        width: {BALANCE_WIDTH}%;
+        width: {BALANCE_WIDTH}20%;
     }}
     
     .thin-line {{ border-bottom: 1.5px solid #E2E8F0; margin: 10px 0px 25px 0px; width: 100%; }}
