@@ -3,7 +3,7 @@ import calendar
 from datetime import datetime
 
 # ==========================================
-# 1. CONFIGURACIÓN Y CSS (DASHBOARD GIGANTE)
+# 1. CONFIGURACIÓN Y CSS (CALENDARIO COMPACTO)
 # ==========================================
 st.set_page_config(page_title="Yeremi Journal Pro", layout="wide")
 
@@ -28,7 +28,7 @@ st.markdown("""
     /* CALENDARIO TAMAÑO ORIGINAL COMPACTO */
     .calendar-wrapper { 
         background: white; padding: 15px; border-radius: 12px; 
-        border: 1px solid #E2E8F0; max-width: 550px; /* Tamaño controlado */
+        border: 1px solid #E2E8F0; max-width: 550px;
         margin-bottom: 20px;
     }
     .card { 
@@ -38,7 +38,7 @@ st.markdown("""
     }
     .card b { font-size: 14px !important; margin-bottom: 2px; }
     
-    /* COLORES DEFINITIVOS */
+    /* COLORES DE CELDAS (CON !IMPORTANT PARA QUE NO FALLEN) */
     .cell-win { border: 2px solid #00C897 !important; color: #00664F !important; background-color: #e6f9f4 !important; font-weight: 700; }
     .cell-loss { border: 2px solid #FF4C4C !important; color: #9B1C1C !important; background-color: #ffeded !important; font-weight: 700; }
     .cell-empty { border: 1px solid #EDF2F7; color: #A0AEC0; background-color: #ffffff; }
@@ -61,12 +61,14 @@ def guardar_cambio():
     viejo = st.session_state.total_balance
     fecha = st.session_state.fecha_input
     
+    # Calculamos la diferencia
+    pnl = nuevo - viejo
+    
+    # Solo guardamos si hay un cambio real
     if nuevo != viejo:
-        pnl = nuevo - viejo
         clave = (fecha.year, fecha.month, fecha.day)
         st.session_state.mis_trades[clave] = {"pnl": pnl}
         st.session_state.total_balance = nuevo
-        # Forzar recarga para que el calendario se pinte de inmediato
         st.rerun()
 
 # ==========================================
@@ -82,7 +84,9 @@ with col_filt:
 
 with col_range:
     meses_lista = [calendar.month_name[i] for i in range(1, 13)]
-    date_sel = st.selectbox("Date range", [f"{m} 2026" for m in meses_lista], index=3) # Abril 2026
+    # Usamos la fecha actual para que el Date Range coincida con el mes de hoy
+    mes_actual_idx = datetime.now().month - 1
+    date_sel = st.selectbox("Date range", [f"{m} 2026" for m in meses_lista], index=mes_actual_idx)
     m_name, a_name = date_sel.split()
     mes_num = list(calendar.month_name).index(m_name)
     anio_num = int(a_name)
@@ -97,15 +101,15 @@ with col_account:
 st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
 
 # ==========================================
-# 4. REGISTRO DINÁMICO (FECHA AUTO-HOY)
+# 4. REGISTRO (CON FECHA DE HOY AUTOMÁTICA)
 # ==========================================
-with st.expander("📝 REGISTRAR BALANCE (Escribe el total y pulsa Enter)"):
+with st.expander("📝 REGISTRAR CIERRE DEL DÍA"):
     c1, c2 = st.columns(2)
     with c1:
-        # Por defecto siempre carga la fecha de HOY
-        st.date_input("Fecha:", value=datetime.now(), key="fecha_input")
+        # datetime.now() asegura que siempre abra con la fecha de hoy
+        st.date_input("Fecha del registro:", value=datetime.now(), key="fecha_input")
     with c2:
-        st.number_input("Nuevo Balance:", 
+        st.number_input("Nuevo Balance total:", 
                         value=st.session_state.total_balance, 
                         format="%.2f", 
                         key="val_input", 
@@ -125,12 +129,10 @@ with col_cal:
     espacios = (primer_dia + 1) % 7
     cuadricula = [""] * espacios + list(range(1, total_dias + 1))
     
-    # Cabecera de días
     h_cols = st.columns(7)
     for i, d in enumerate(dias_semana):
         h_cols[i].markdown(f"<div style='text-align:center; font-size:11px; font-weight:bold; color:#A0AEC0;'>{d}</div>", unsafe_allow_html=True)
     
-    # Pintar días
     for fila in range(0, len(cuadricula), 7):
         d_cols = st.columns(7)
         for i in range(7):
@@ -142,15 +144,17 @@ with col_cal:
                     else:
                         trade = st.session_state.mis_trades.get((anio_num, mes_num, dia))
                         
-                        # Lógica de renderizado a prueba de fallos
                         if trade:
                             pnl_val = trade["pnl"]
+                            # Lógica estricta de dibujo:
                             if pnl_val > 0 and filtro != "Pérdidas":
+                                # GANANCIA -> VERDE
                                 st.markdown(f'<div class="card cell-win"><b>{dia}</b><br>+${pnl_val:,.2f}</div>', unsafe_allow_html=True)
                             elif pnl_val < 0 and filtro != "Ganancias":
-                                # AQUÍ ESTABA EL FALLO, AHORA FORZAMOS EL ROJO
+                                # PÉRDIDA -> ROJO (Fuerzo el dibujo aquí)
                                 st.markdown(f'<div class="card cell-loss"><b>{dia}</b><br>-${abs(pnl_val):,.2f}</div>', unsafe_allow_html=True)
                             else:
+                                # Si está filtrado, lo mostramos vacío/tenue
                                 st.markdown(f'<div class="card cell-empty" style="opacity:0.3;">{dia}</div>', unsafe_allow_html=True)
                         else:
                             st.markdown(f'<div class="card cell-empty">{dia}</div>', unsafe_allow_html=True)
@@ -163,6 +167,6 @@ with col_res:
         total_pnl = sum(trades_mes)
         color = "#00C897" if total_pnl > 0 else "#FF4C4C"
         st.markdown(f"<h2 style='color:{color};'>${total_pnl:,.2f}</h2>", unsafe_allow_html=True)
-        st.write(f"Días operados: {len(trades_mes)}")
+        st.metric("Días operados", len(trades_mes))
     else:
-        st.info("No hay datos registrados para este mes.")
+        st.info("Escribe tu balance arriba para empezar el registro de hoy.")
