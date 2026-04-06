@@ -128,9 +128,6 @@ with c1:
 with c2:
     # Botón de calendario tipo Popover
     with st.popover("🗓️"):
-            value=datetime.now(),
-            key="input_fecha"
-        )
 
 # ==========================================
 # 5. CALENDARIO Y RESUMEN
