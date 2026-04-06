@@ -14,7 +14,7 @@ st.markdown("""
     
     /* DASHBOARD MUCHO MÁS GRANDE */
     .dashboard-title { 
-        font-size: 60px; 
+        font-size: 100px; 
         font-weight: 800; 
         color: #1A202C; 
         margin-bottom: 0;
