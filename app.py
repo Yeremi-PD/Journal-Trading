@@ -78,7 +78,7 @@ if "db" not in st.session_state:
     }
 
 if "data_source_sel" not in st.session_state:
-    st.session_state.data_source_sel = "Demo Data"
+    st.session_state.data_source_sel = "Demo Daa"
 
 if "tema" not in st.session_state:
     st.session_state.tema = "Oscuro"
