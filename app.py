@@ -1,6 +1,7 @@
 import streamlit as st
 import calendar
 import math
+import base64
 from datetime import datetime
 
 # ==========================================
@@ -9,13 +10,61 @@ from datetime import datetime
 st.set_page_config(page_title="Yeremi Journal Pro", layout="wide")
 
 # ==========================================
-# 2. SECCIÓN DE AJUSTES MANUALES (TODO EL CONTROL AQUÍ)
+# 2. SISTEMA DE SESIONES Y USUARIOS (LOGIN)
 # ==========================================
+# Base de datos simulada en memoria para usuarios
+if "usuarios_db" not in st.session_state:
+    st.session_state.usuarios_db = {}  # { "usuario": { "password": "123", "data": { "Real Data": ..., "Demo Data": ... } } }
 
-# --- ZONA 0: TEMA PRINCIPAL ---
-TEMA_POR_DEFECTO = "Oscuro"  # Escribe "Claro" o "Oscuro"
+if "usuario_actual" not in st.session_state:
+    st.session_state.usuario_actual = None
 
-# --- ZONA 1: TÍTULO PRINCIPAL ---
+def inicializar_data_usuario():
+    return {
+        "Real Data": {"balance": 25000.00, "trades": {}},
+        "Demo Data": {"balance": 25000.00, "trades": {}}
+    }
+
+# --- PANTALLA DE LOGIN ---
+if st.session_state.usuario_actual is None:
+    st.markdown("<h1 style='text-align:center;'>Yeremi Journal Pro</h1>", unsafe_allow_html=True)
+    st.markdown("<h3 style='text-align:center; color:gray;'>Iniciar Sesión</h3>", unsafe_allow_html=True)
+    
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        tab1, tab2 = st.tabs(["Entrar", "Registrarse"])
+        
+        with tab1:
+            log_user = st.text_input("Usuario", key="log_user")
+            log_pass = st.text_input("Contraseña", type="password", key="log_pass")
+            if st.button("Acceder", use_container_width=True):
+                if log_user in st.session_state.usuarios_db and st.session_state.usuarios_db[log_user]["password"] == log_pass:
+                    st.session_state.usuario_actual = log_user
+                    st.rerun()
+                else:
+                    st.error("Usuario o contraseña incorrectos.")
+                    
+        with tab2:
+            reg_user = st.text_input("Nuevo Usuario", key="reg_user")
+            reg_pass = st.text_input("Nueva Contraseña", type="password", key="reg_pass")
+            if st.button("Crear Cuenta", use_container_width=True):
+                if reg_user in st.session_state.usuarios_db:
+                    st.warning("El usuario ya existe.")
+                elif len(reg_user) > 0 and len(reg_pass) > 0:
+                    st.session_state.usuarios_db[reg_user] = {
+                        "password": reg_pass,
+                        "data": inicializar_data_usuario()
+                    }
+                    st.success("Cuenta creada. Ya puedes iniciar sesión.")
+                else:
+                    st.warning("Completa todos los campos.")
+    st.stop()  # Detiene la ejecución para que no se muestre el dashboard
+
+# ==========================================
+# 3. SECCIÓN DE AJUSTES MANUALES
+# ==========================================
+TEMA_POR_DEFECTO = "Oscuro"
+
 TITULO_TEXTO = "Dashboard"
 TITULO_X = 100         
 TITULO_Y = -20         
@@ -23,7 +72,6 @@ TITULO_SIZE = 50
 TITULO_COLOR_W = "#FFFFFF" 
 TITULO_COLOR_B = "#000000" 
 
-# --- ZONA 2: SELECTORES SUPERIORES ---
 FILTROS_TEXTO = "Filtros"
 FILTROS_X = 0        
 FILTROS_Y = 0        
@@ -41,7 +89,6 @@ SELECT_TEXTO_CLARO = "#1A202C"
 SELECT_FONDO_OSCURO = "#2D3748"
 SELECT_TEXTO_OSCURO = "#E2E8F0"
 
-# --- ZONA 3: CAJA DE TOTAL BALANCE ---
 TOTAL_BAL_TEXTO = "TOTAL BALANCE"
 BALANCE_BOX_X = 0     
 BALANCE_BOX_Y = 0     
@@ -50,7 +97,6 @@ BALANCE_SIZE = 30
 LBL_TOTAL_BAL_X = 0  
 LBL_TOTAL_BAL_Y = 0
 
-# --- ZONA 4: INPUT DE BALANCE ---
 INPUT_BAL_TEXTO = "Balance:"
 INPUT_BAL_X = 0      
 INPUT_BAL_Y = 0      
@@ -62,32 +108,28 @@ INPUT_TEXTO_CLARO = "#00C897"
 INPUT_FONDO_OSCURO = "#1A202C"
 INPUT_TEXTO_OSCURO = "#00C897" 
 
-# --- ZONA 5: CALENDARIO Y BOTONES UNIFICADOS ---
 BOTON_FONDO_CLARO = "#F3F4F6"
 BOTON_TEXTO_CLARO = "#1A202C"
 BOTON_FONDO_OSCURO = "#2D3748"
 BOTON_TEXTO_OSCURO = "#FFFFFF"
 
-# Posición del botón Popover (🗓️) - ¡PARED INVISIBLE DERRIBADA! Ya puedes usar -170
-BOTON_X = -470          
+# BOTÓN DE CALENDARIO FIJO (Anclado al Input)
+BOTON_X = 220  # Ajusta este valor en positivo para separarlo a la derecha del cuadro
 BOTON_Y = 27         
 BOTON_WIDTH = 45     
 BOTON_HEIGHT = 45    
 BOTON_ICON_SIZE = 22 
 
-# Texto del Mes y Año en el Calendario
 MES_TEXTO_X = 0
 MES_TEXTO_Y = 10      
 MES_TEXTO_SIZE = 22
 MES_TEXTO_COLOR_W = "#FFFFFF" 
 MES_TEXTO_COLOR_B = "#1A202C" 
 
-# Flechas ◀ ▶
 FLECHAS_X_AJUSTE = 0 
 FLECHAS_Y_AJUSTE = 10 
 FLECHAS_SIZE = 16
 
-# --- ZONA 6: TARJETAS DE MÉTRICAS ---
 CARD_PNL_X = 0       
 CARD_PNL_Y = 10      
 CARD_PNL_W = 80      
@@ -97,17 +139,13 @@ CARD_WIN_Y = 20
 CARD_WIN_W = 80      
 
 # ==========================================
-# 3. LÓGICA DE ESTADO Y CALENDARIO
+# 4. LÓGICA DE ESTADO DEL USUARIO
 # ==========================================
-if "db" not in st.session_state:
-    st.session_state.db = {
-        "Real Data": {"balance": 25000.00, "trades": {}},
-        "Demo Data": {"balance": 25000.00, "trades": {}}
-    }
+usuario = st.session_state.usuario_actual
+db_usuario = st.session_state.usuarios_db[usuario]["data"]
 
 if "data_source_sel" not in st.session_state:
     st.session_state.data_source_sel = "Demo Data"
-
 if "tema" not in st.session_state:
     st.session_state.tema = TEMA_POR_DEFECTO
 
@@ -129,32 +167,35 @@ def cambiar_mes(delta):
 def procesar_cambio():
     ctx = st.session_state.data_source_sel 
     nuevo = st.session_state.input_balance
-    viejo = st.session_state.db[ctx]["balance"]
+    viejo = db_usuario[ctx]["balance"]
     fecha_sel = st.session_state.input_fecha 
     
     if nuevo != viejo:
         pnl = nuevo - viejo
         clave = (fecha_sel.year, fecha_sel.month, fecha_sel.day)
+        imagenes_previas = db_usuario[ctx]["trades"].get(clave, {}).get("imagenes", [])
         
-        imagenes_previas = st.session_state.db[ctx]["trades"].get(clave, {}).get("imagenes", [])
-        
-        st.session_state.db[ctx]["trades"][clave] = {
+        db_usuario[ctx]["trades"][clave] = {
             "pnl": pnl,
             "balance_final": nuevo,
             "fecha_str": fecha_sel.strftime("%d/%m/%Y"),
             "imagenes": imagenes_previas
         }
-        st.session_state.db[ctx]["balance"] = nuevo
+        db_usuario[ctx]["balance"] = nuevo
 
-# Diálogo en pantalla completa para ver la imagen
-@st.dialog("🖼️ Visor de Imágenes", width="large")
-def visor_imagenes(imagenes):
-    for img in imagenes:
-        st.image(img, use_container_width=True)
+# Función para convertir imagen a Base64 (Para el Fullscreen HTML)
+def convertir_img_base64(uploaded_file):
+    return base64.b64encode(uploaded_file.getvalue()).decode()
 
 # ==========================================
-# 4. BARRA LATERAL (MENÚ)
+# 5. BARRA LATERAL (MENÚ Y CUENTA)
 # ==========================================
+st.sidebar.markdown(f"### 👤 Cuenta: {usuario}")
+if st.sidebar.button("🚪 Cerrar Sesión"):
+    st.session_state.usuario_actual = None
+    st.rerun()
+
+st.sidebar.markdown("---")
 st.sidebar.markdown("### ⚙️ Panel de Control")
 
 texto_boton_tema = "🌙 Cambiar a Tema Oscuro" if st.session_state.tema == "Claro" else "☀️ Cambiar a Tema Claro"
@@ -162,45 +203,33 @@ if st.sidebar.button(texto_boton_tema):
     st.session_state.tema = "Oscuro" if st.session_state.tema == "Claro" else "Claro"
     st.rerun()
 
-st.sidebar.markdown("---")
-
 ctx_actual = st.session_state.data_source_sel
 if st.sidebar.button(f"🗑️ Limpiar {ctx_actual} a $25k"):
-    st.session_state.db[ctx_actual]["balance"] = 25000.00
-    st.session_state.db[ctx_actual]["trades"] = {}
+    db_usuario[ctx_actual]["balance"] = 25000.00
+    db_usuario[ctx_actual]["trades"] = {}
     st.rerun()
 
 # ==========================================
-# 5. COLORES DEL TEMA Y CSS DINÁMICO
+# 6. COLORES DEL TEMA Y CSS DINÁMICO
 # ==========================================
 if st.session_state.tema == "Claro":
     bg_color, text_color = "#F7FAFC", "#2D3748"
     card_bg, border_color, empty_cell_bg = "#FFFFFF", "#E2E8F0", "#FFFFFF"
-    
     btn_bg, btn_text = BOTON_FONDO_CLARO, BOTON_TEXTO_CLARO
-    titulo_color_actual = TITULO_COLOR_B
-    mes_color_actual = MES_TEXTO_COLOR_B
-    input_fondo_actual = INPUT_FONDO_CLARO
-    input_texto_actual = INPUT_TEXTO_CLARO
-    select_fondo_actual = SELECT_FONDO_CLARO
-    select_texto_actual = SELECT_TEXTO_CLARO
+    titulo_color_actual, mes_color_actual = TITULO_COLOR_B, MES_TEXTO_COLOR_B
+    input_fondo_actual, input_texto_actual = INPUT_FONDO_CLARO, INPUT_TEXTO_CLARO
+    select_fondo_actual, select_texto_actual = SELECT_FONDO_CLARO, SELECT_TEXTO_CLARO
 else:
     bg_color, text_color = "#1A202C", "#E2E8F0"
     card_bg, border_color, empty_cell_bg = "#2D3748", "#4A5568", "#1A202C"
-    
     btn_bg, btn_text = BOTON_FONDO_OSCURO, BOTON_TEXTO_OSCURO
-    titulo_color_actual = TITULO_COLOR_W
-    mes_color_actual = MES_TEXTO_COLOR_W
-    input_fondo_actual = INPUT_FONDO_OSCURO
-    input_texto_actual = INPUT_TEXTO_OSCURO
-    select_fondo_actual = SELECT_FONDO_OSCURO
-    select_texto_actual = SELECT_TEXTO_OSCURO
+    titulo_color_actual, mes_color_actual = TITULO_COLOR_W, MES_TEXTO_COLOR_W
+    input_fondo_actual, input_texto_actual = INPUT_FONDO_OSCURO, INPUT_TEXTO_OSCURO
+    select_fondo_actual, select_texto_actual = SELECT_FONDO_OSCURO, SELECT_TEXTO_OSCURO
 
 st.markdown(f"""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-    
-    /* DERRIBAR LA PARED INVISIBLE (Permite usar números negativos sin desaparecer) */
     .stApp {{ background-color: {bg_color}; color: {text_color}; font-family: 'Inter', sans-serif; overflow: visible !important; overflow-x: visible !important; }}
     div[data-testid="column"] {{ overflow: visible !important; }}
 
@@ -209,14 +238,17 @@ st.markdown(f"""
     div[data-testid="column"]:nth-of-type(3) {{ margin-left: {DATA_SRC_X}px; margin-top: {DATA_SRC_Y}px; z-index: 10; }}
     div[data-testid="column"]:nth-of-type(4) {{ margin-left: {BALANCE_BOX_X}px; margin-top: {BALANCE_BOX_Y}px; }}
 
-    /* COLORES SELECTORES */
+    /* COLORES SELECTORES Y UPLOADER */
     div[data-baseweb="select"] > div {{ background-color: {select_fondo_actual} !important; border-color: {border_color} !important; }}
     div[data-baseweb="select"] * {{ color: {select_texto_actual} !important; }}
     ul[role="listbox"] {{ background-color: {select_fondo_actual} !important; }}
     li[role="option"] {{ color: {select_texto_actual} !important; background-color: {select_fondo_actual} !important; }}
     li[role="option"]:hover {{ background-color: {border_color} !important; }}
+    
+    [data-testid="stFileUploadDropzone"] {{ background-color: {select_fondo_actual} !important; border-color: {border_color} !important; }}
+    [data-testid="stFileUploadDropzone"] * {{ color: {text_color} !important; }}
 
-    /* COLORES INPUT */
+    /* CONFIGURACIÓN DEL INPUT DE BALANCE */
     div[data-testid="stNumberInput"] {{ margin-left: {INPUT_BAL_X}px !important; margin-top: {INPUT_BAL_Y}px !important; max-width: 200px !important; }}
     div[data-testid="stNumberInput"] button {{ display: none !important; }} 
     div[data-testid="stNumberInput"] div[data-baseweb="base-input"] {{ background-color: {input_fondo_actual} !important; }}
@@ -254,8 +286,21 @@ st.markdown(f"""
     .cell-loss {{ border: 2.5px solid #FF4C4C; color: #9B1C1C; background-color: #ffeded;}}
     .cell-empty {{ border: 1px solid {border_color}; color: #A0AEC0; background-color: {empty_cell_bg};}}
     
-    /* CAMARA EMOJI INDICADOR */
-    .cam-icon {{ font-size: 11px; margin-top: 2px; }}
+    /* ICONO CÁMARA CENTRADO Y ANCLADO AL DÍA */
+    .cam-icon {{ 
+        font-size: 18px; margin-top: 3px; cursor: pointer; 
+        background: rgba(255,255,255,0.7); border-radius: 50%; padding: 2px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: 0.2s;
+    }}
+    .cam-icon:hover {{ transform: scale(1.2); }}
+
+    /* ESTILO DEL MODAL PANTALLA COMPLETA */
+    .fs-modal {{
+        display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+        background: rgba(0,0,0,0.9); z-index: 999999; flex-direction: column;
+        align-items: center; overflow-y: auto; padding: 50px 0; cursor: pointer;
+    }}
+    .fs-modal img {{ max-width: 90%; margin-bottom: 20px; box-shadow: 0 0 20px black; border-radius: 10px; }}
 
     label {{ font-weight: 700 !important; color: {text_color} !important; font-size: 14px !important; }}
     p, div {{ color: {text_color}; }}
@@ -265,10 +310,10 @@ st.markdown(f"""
         margin-left: {FLECHAS_X_AJUSTE}px !important; margin-top: {FLECHAS_Y_AJUSTE}px !important; font-size: {FLECHAS_SIZE}px !important;
     }}
     
-    /* POSICIONAMIENTO LIBRE DEL BOTÓN CALENDARIO Y Z-INDEX ALTO */
+    /* BOTÓN POPOVER ANCLADO ABSOLUTAMENTE (Ignora el tamaño de la ventana) */
+    div[data-testid="column"]:nth-of-type(1) {{ position: relative; }}
     div[data-testid="stPopover"] {{ 
-        transform: translate({BOTON_X}px, {BOTON_Y}px) !important; 
-        z-index: 9999 !important; position: relative;
+        position: absolute !important; left: {BOTON_X}px !important; top: {BOTON_Y}px !important; z-index: 9999 !important;
     }}
     div[data-testid="stPopover"] > button {{
         width: {BOTON_WIDTH}px !important; height: {BOTON_HEIGHT}px !important;
@@ -283,32 +328,14 @@ st.markdown(f"""
     .metric-card {{ background-color: {card_bg}; border-radius: 20px; padding: 15px 20px; border: 1px solid {border_color}; }}
     .card-pnl {{ margin-left: {CARD_PNL_X}px; margin-top: {CARD_PNL_Y}px; width: {CARD_PNL_W}%; }}
     .card-win {{ margin-left: {CARD_WIN_X}px; margin-top: {CARD_WIN_Y}px; width: {CARD_WIN_W}%; display: flex; justify-content: space-between; align-items: center; }}
-
     .metric-header {{ display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }}
     .metric-title {{ font-size: 14px; font-weight: 500; color: #6B7280; }}
-    .metric-icon {{ color: #9CA3AF; font-size: 14px; cursor: pointer; }}
-    .metric-badge {{ background-color: #EEF2FF; color: #4F46E5; padding: 2px 8px; border-radius: 12px; font-size: 12px; font-weight: 700; }}
-    
-    .pnl-value {{ font-size: 28px; font-weight: 800; color: #00C897; letter-spacing: -0.5px; }}
-    .pnl-value-loss {{ color: #FF4C4C; }}
     .win-value {{ font-size: 28px; font-weight: 800; color: {titulo_color_actual}; letter-spacing: -0.5px; }}
-
-    .gauge-container {{ display: flex; flex-direction: column; align-items: center; gap: 5px; }}
-    .gauge-labels {{ display: flex; gap: 15px; font-size: 11px; font-weight: 700; margin-top: -5px; }}
-    .lbl-g {{ background-color: #e6f9f4; color: #00C897; padding: 2px 8px; border-radius: 10px; }}
-    .lbl-b {{ background-color: #EEF2FF; color: #4F46E5; padding: 2px 8px; border-radius: 10px; }}
-    .lbl-r {{ background-color: #ffeded; color: #FF4C4C; padding: 2px 8px; border-radius: 10px; }}
-    
-    @media (max-width: 768px) {{
-        .dashboard-title {{ margin-left: 0 !important; text-align: center; }}
-        div[data-testid="stNumberInput"] {{ margin-left: 0 !important; width: 100% !important; max-width: none !important; }}
-        div[data-testid="stPopover"] {{ transform: translate(0px, 10px) !important; }}
-    }}
     </style>
     """, unsafe_allow_html=True)
 
 # ==========================================
-# 6. HEADER (BARRA SUPERIOR)
+# 7. HEADER (BARRA SUPERIOR)
 # ==========================================
 col_t, col_fil, col_data, col_bal = st.columns([3, 1.5, 1.5, 2])
 
@@ -317,7 +344,7 @@ with col_fil: filtro = st.selectbox(FILTROS_TEXTO, ["Todos", "Ganancias", "Pérd
 with col_data: st.selectbox(DATA_SRC_TEXTO, ["Real Data", "Demo Data"], key="data_source_sel")
 
 ctx = st.session_state.data_source_sel
-bal_actual = st.session_state.db[ctx]["balance"]
+bal_actual = db_usuario[ctx]["balance"]
 
 with col_bal:
     st.markdown(f'<div class="lbl-total-bal" style="text-align:center; margin-bottom:5px;"><small>{TOTAL_BAL_TEXTO}</small></div>', unsafe_allow_html=True)
@@ -326,34 +353,51 @@ with col_bal:
 st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
 
 # ==========================================
-# 7. ENTRADA AUTOMÁTICA E IMÁGENES
+# 8. ENTRADA AUTOMÁTICA E IMÁGENES
 # ==========================================
-c1, c2, c_espacio, c_img = st.columns([1.2, 0.4, 0.8, 2]) 
+c1, c_img = st.columns([1.5, 2]) 
 
 with c1:
     st.number_input(INPUT_BAL_TEXTO, value=bal_actual, format="%.2f", key="input_balance", on_change=procesar_cambio)
-with c2:
     with st.popover("🗓️"):
         st.date_input("Fecha oculta", value=hoy, key="input_fecha", label_visibility="collapsed")
 
 fecha_str_actual = st.session_state.input_fecha.strftime("%d/%m/%Y")
 clave_actual = (st.session_state.input_fecha.year, st.session_state.input_fecha.month, st.session_state.input_fecha.day)
-trade_actual = st.session_state.db[ctx]["trades"].get(clave_actual)
 
 with c_img:
-    archivos = st.file_uploader(f"🖼️ Adjuntar capturas para: {fecha_str_actual}", accept_multiple_files=True, key=f"up_{fecha_str_actual}")
+    archivos = st.file_uploader("", accept_multiple_files=True, label_visibility="collapsed", key=f"up_{fecha_str_actual}")
     if archivos:
-        if clave_actual not in st.session_state.db[ctx]["trades"]:
-            st.session_state.db[ctx]["trades"][clave_actual] = {"pnl": 0.0, "balance_final": bal_actual, "fecha_str": fecha_str_actual, "imagenes": []}
-        st.session_state.db[ctx]["trades"][clave_actual]["imagenes"] = archivos
-
-    # Si hay imágenes guardadas este día, muestra el botón para abrirlas
-    if trade_actual and trade_actual.get("imagenes"):
-        if st.button("📷 Ver Imágenes en Pantalla Completa", use_container_width=True):
-            visor_imagenes(trade_actual["imagenes"])
+        if clave_actual not in db_usuario[ctx]["trades"]:
+            db_usuario[ctx]["trades"][clave_actual] = {"pnl": 0.0, "balance_final": bal_actual, "fecha_str": fecha_str_actual, "imagenes": []}
+        
+        # Convertimos las imágenes a Base64 y las guardamos
+        lista_b64 = []
+        for img in archivos:
+            lista_b64.append(f"data:{img.type};base64,{convertir_img_base64(img)}")
+            
+        db_usuario[ctx]["trades"][clave_actual]["imagenes"] = lista_b64
 
 # ==========================================
-# 8. CALENDARIO Y RESUMEN
+# 9. GENERADOR DE MODALES DE PANTALLA COMPLETA
+# ==========================================
+# Inyectamos en el HTML los "modales" ocultos de cada día que tenga fotos
+modales_html = ""
+for clave_dia, datos_dia in db_usuario[ctx]["trades"].items():
+    if datos_dia.get("imagenes"):
+        id_modal = f"modal_{clave_dia[0]}_{clave_dia[1]}_{clave_dia[2]}"
+        img_tags = "".join([f'<img src="{img_b64}">' for img_b64 in datos_dia["imagenes"]])
+        modales_html += f"""
+        <div id="{id_modal}" class="fs-modal" onclick="this.style.display='none'">
+            <span style="color:white; font-size:30px; position:absolute; top:20px; right:40px;">✖ CERRAR</span>
+            {img_tags}
+        </div>
+        """
+if modales_html:
+    st.markdown(modales_html, unsafe_allow_html=True)
+
+# ==========================================
+# 10. CALENDARIO Y RESUMEN
 # ==========================================
 col_cal, col_det = st.columns([1.5, 1])
 
@@ -387,7 +431,7 @@ with col_cal:
                 with d_cols[i]:
                     if dia == "": st.markdown('<div class="card cell-empty"></div>', unsafe_allow_html=True)
                     else:
-                        trade = st.session_state.db[ctx]["trades"].get((anio_sel, mes_sel, dia))
+                        trade = db_usuario[ctx]["trades"].get((anio_sel, mes_sel, dia))
                         visible = True
                         if filtro == "Ganancias" and (not trade or trade["pnl"] <= 0): visible = False
                         if filtro == "Pérdidas" and (not trade or trade["pnl"] >= 0): visible = False
@@ -395,23 +439,28 @@ with col_cal:
                         if trade and visible:
                             c_cls = "cell-win" if trade["pnl"] > 0 else "cell-loss"
                             c_sim = "+" if trade["pnl"] > 0 else ""
-                            # Lógica para mostrar la cámara 📷 en el calendario grande si hay fotos subidas
-                            tiene_imagen = '<div class="cam-icon">📷</div>' if trade.get("imagenes") else ''
-                            st.markdown(f'<div class="card {c_cls}"><b>{dia}</b><br>{c_sim}${trade["pnl"]:,.2f}{tiene_imagen}</div>', unsafe_allow_html=True)
+                            
+                            # Si tiene imágenes, inyectamos el emoji de cámara que activa el modal FullScreen
+                            if trade.get("imagenes"):
+                                id_modal = f"modal_{anio_sel}_{mes_sel}_{dia}"
+                                cam_html = f'<div class="cam-icon" onclick="document.getElementById(\'{id_modal}\').style.display=\'flex\'">📷</div>'
+                            else:
+                                cam_html = ""
+                                
+                            st.markdown(f'<div class="card {c_cls}"><b>{dia}</b><br>{c_sim}${trade["pnl"]:,.2f}{cam_html}</div>', unsafe_allow_html=True)
                         else:
                             op = "0.2" if trade and not visible else "1"
                             st.markdown(f'<div class="card cell-empty" style="opacity:{op}">{dia}</div>', unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
 with col_det:
-    trades_mes = [v["pnl"] for k, v in st.session_state.db[ctx]["trades"].items() if k[0] == anio_sel and k[1] == mes_sel]
+    trades_mes = [v["pnl"] for k, v in db_usuario[ctx]["trades"].items() if k[0] == anio_sel and k[1] == mes_sel]
     total_trades = len(trades_mes)
     
     net_pnl = sum(trades_mes) if total_trades > 0 else 0.0
     wins = len([t for t in trades_mes if t > 0])
     losses = len([t for t in trades_mes if t < 0])
     ties = len([t for t in trades_mes if t == 0])
-    
     win_pct = (wins / total_trades * 100) if total_trades > 0 else 0.0
     
     r = 40
@@ -425,16 +474,14 @@ with col_det:
     st.markdown(f"""
         <div class="metric-card card-pnl">
             <div class="metric-header">
-                <span class="metric-title">Net P&L</span>
-                <span class="metric-icon">ⓘ</span>
+                <span class="metric-title">Net P&L</span><span class="metric-icon">ⓘ</span>
                 <span class="metric-badge">{total_trades}</span>
             </div>
             <div class="{color_pnl}">{simbolo_pnl}${net_pnl:,.2f}</div>
         </div>
     """, unsafe_allow_html=True)
 
-    svg_html = f'<svg width="120" height="60" viewBox="0 0 100 50">\n'
-    svg_html += f'<path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="{border_color}" stroke-width="10"/>\n'
+    svg_html = f'<svg width="120" height="60" viewBox="0 0 100 50">\n<path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="{border_color}" stroke-width="10"/>\n'
     if total_trades > 0:
         svg_html += f'<path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#FF4C4C" stroke-width="10" stroke-dasharray="{c} {c}"/>\n'
         svg_html += f'<path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#4F46E5" stroke-width="10" stroke-dasharray="{len_w + len_t} {c}"/>\n'
@@ -444,18 +491,13 @@ with col_det:
     st.markdown(f"""
         <div class="metric-card card-win">
             <div>
-                <div class="metric-header">
-                    <span class="metric-title">Trade win %</span>
-                    <span class="metric-icon">ⓘ</span>
-                </div>
+                <div class="metric-header"><span class="metric-title">Trade win %</span><span class="metric-icon">ⓘ</span></div>
                 <div class="win-value">{win_pct:.2f}%</div>
             </div>
             <div class="gauge-container">
                 {svg_html}
                 <div class="gauge-labels">
-                    <span class="lbl-g">{wins}</span>
-                    <span class="lbl-b">{ties}</span>
-                    <span class="lbl-r">{losses}</span>
+                    <span class="lbl-g">{wins}</span><span class="lbl-b">{ties}</span><span class="lbl-r">{losses}</span>
                 </div>
             </div>
         </div>
