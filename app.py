@@ -207,3 +207,43 @@ if trades_mes:
     m2.metric("Trades Realizados", len(trades_mes))
     win_r = (len([p for p in trades_mes if p > 0]) / len(trades_mes)) * 100
     m3.metric("Win Rate", f"{win_r:.1f}%")
+# ==========================================
+# 4. MONITOR DE BALANCE (SOLO TEXTO PEGADO)
+# ==========================================
+st.write("---")
+st.subheader("🏦 Monitor de Balance de Cuenta")
+
+# Memoria para el balance
+if "balance_actual" not in st.session_state:
+    st.session_state.balance_actual = 25000.00 
+
+col_input_b, col_visual_b = st.columns([1, 1])
+
+with col_input_b:
+    # Aquí pegas el texto que copias de TradingView
+    texto_balance = st.text_input("Pega el texto del Balance aquí:", placeholder="Ej: Account Balance 25,170.38")
+    
+    if texto_balance:
+        # Buscamos cualquier número que parezca un balance (ej. 25,170.38)
+        match_balance = re.findall(r'(\d{1,3}(?:,\d{3})*(?:\.\d{2})?)', texto_balance)
+        if match_balance:
+            # Tomamos el primer número encontrado y quitamos la coma para que sea matemático
+            valor_limpio = float(match_balance[0].replace(',', ''))
+            st.session_state.balance_actual = valor_limpio
+            st.success("✅ Balance actualizado correctamente.")
+
+with col_visual_b:
+    # Diseño visual para que se vea profesional
+    st.markdown(f"""
+        <div style="background-color: #1A202C; padding: 20px; border-radius: 10px; text-align: center; border: 1px solid #4A5568;">
+            <p style="color: #A0AEC0; margin: 0; font-size: 14px; font-weight: bold;">ACCOUNT BALANCE</p>
+            <h1 style="color: #4FD1C5; margin: 0; font-size: 38px;">${st.session_state.balance_actual:,.2f}</h1>
+        </div>
+    """, unsafe_allow_html=True)
+
+# Cálculo de Profit Total acumulado basado en una cuenta de 25k (ajusta el número si es otra)
+meta_inicio = 25000.00
+profit_total = st.session_state.balance_actual - meta_inicio
+color_p = "#00C897" if profit_total >= 0 else "#FF4C4C"
+
+st.markdown(f"**Ganancia Total sobre balance inicial:** <span style='color:{color_p}; font-size:18px;'>${profit_total:,.2f}</span>", unsafe_allow_html=True)
