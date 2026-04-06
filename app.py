@@ -105,7 +105,7 @@ st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
 # ==========================================
 # 4. ENTRADA AUTOMÁTICA (SIN BOTÓN)
 # ==========================================
-c1, c2 = st.columns([1, 3])
+c1, c2 = st.columns([0.5, 4])
 with c1:
     # Al dar ENTER en este campo, se dispara 'on_change'
     st.number_input(
