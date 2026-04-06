@@ -58,18 +58,20 @@ if "mis_trades" not in st.session_state:
     st.session_state.mis_trades = {} 
 
 # Función para procesar el cambio automáticamente
+# Función modificada para usar la fecha seleccionada
 def procesar_cambio():
     nuevo = st.session_state.input_balance
     viejo = st.session_state.total_balance
+    # USAMOS LA FECHA DEL SELECTOR en lugar de datetime.now()
+    fecha_sel = st.session_state.input_fecha 
+    
     if nuevo != viejo:
         pnl = nuevo - viejo
-        # Usamos la fecha de hoy para el registro
-        hoy = datetime.now()
-        clave = (hoy.year, hoy.month, hoy.day)
+        clave = (fecha_sel.year, fecha_sel.month, fecha_sel.day)
         st.session_state.mis_trades[clave] = {
             "pnl": pnl,
             "balance_final": nuevo,
-            "fecha_str": hoy.strftime("%d/%m/%Y")
+            "fecha_str": fecha_sel.strftime("%d/%m/%Y")
         }
         st.session_state.total_balance = nuevo
 
@@ -103,19 +105,30 @@ with col_bal:
 st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
 
 # ==========================================
-# 4. ENTRADA AUTOMÁTICA (SIN BOTÓN)
+# 4. ENTRADA AUTOMÁTICA (MODIFICADA)
 # ==========================================
-c1, c2 = st.columns([0.5, 4])
+c1, c2, c3 = st.columns([1, 1, 2]) # Tres columnas equilibradas
+
 with c1:
-    # Al dar ENTER en este campo, se dispara 'on_change'
     st.number_input(
-        "Introduce el balance de hoy:", 
+        "Balance:", 
         value=st.session_state.total_balance,
         format="%.2f", 
         key="input_balance",
         on_change=procesar_cambio
     )
 
+with c2:
+    # Este es el selector de fecha
+    st.date_input(
+        "Fecha del registro:",
+        value=datetime.now(),
+        key="input_fecha"
+    )
+
+with c3:
+    st.markdown("<br>", unsafe_allow_html=True) # Espacio para alinear con los inputs
+    st.info("Ajusta la fecha y el balance, luego presiona **Enter**.")
 
 # ==========================================
 # 5. CALENDARIO Y RESUMEN
