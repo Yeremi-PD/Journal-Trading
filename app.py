@@ -10,14 +10,15 @@ from datetime import datetime
 st.set_page_config(page_title="Yeremi Journal Pro", layout="wide")
 
 # ==========================================
-# 2. SISTEMA DE SESIONES Y USUARIOS (LOGIN)
+# 2. BASE DE DATOS GLOBAL (MULTIPLATAFORMA)
 # ==========================================
-# Base de datos simulada en memoria para usuarios
-if "usuarios_db" not in st.session_state:
-    st.session_state.usuarios_db = {}  # { "usuario": { "password": "123", "data": { "Real Data": ..., "Demo Data": ... } } }
+# Esto guarda los datos en el servidor, no en tu pestaña. 
+# Así puedes entrar desde el celular y la PC a la vez y ver lo mismo.
+@st.cache_resource
+def get_global_db():
+    return {}
 
-if "usuario_actual" not in st.session_state:
-    st.session_state.usuario_actual = None
+db_global = get_global_db()
 
 def inicializar_data_usuario():
     return {
@@ -25,20 +26,23 @@ def inicializar_data_usuario():
         "Demo Data": {"balance": 25000.00, "trades": {}}
     }
 
+if "usuario_actual" not in st.session_state:
+    st.session_state.usuario_actual = None
+
 # --- PANTALLA DE LOGIN ---
 if st.session_state.usuario_actual is None:
-    st.markdown("<h1 style='text-align:center;'>Yeremi Journal Pro</h1>", unsafe_allow_html=True)
-    st.markdown("<h3 style='text-align:center; color:gray;'>Iniciar Sesión</h3>", unsafe_allow_html=True)
+    st.markdown("<h1 style='text-align:center; font-family:sans-serif;'>Yeremi Journal Pro</h1>", unsafe_allow_html=True)
     
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
+        st.markdown("<h3 style='text-align:center; color:gray;'>Iniciar Sesión</h3>", unsafe_allow_html=True)
         tab1, tab2 = st.tabs(["Entrar", "Registrarse"])
         
         with tab1:
             log_user = st.text_input("Usuario", key="log_user")
             log_pass = st.text_input("Contraseña", type="password", key="log_pass")
             if st.button("Acceder", use_container_width=True):
-                if log_user in st.session_state.usuarios_db and st.session_state.usuarios_db[log_user]["password"] == log_pass:
+                if log_user in db_global and db_global[log_user]["password"] == log_pass:
                     st.session_state.usuario_actual = log_user
                     st.rerun()
                 else:
@@ -48,23 +52,26 @@ if st.session_state.usuario_actual is None:
             reg_user = st.text_input("Nuevo Usuario", key="reg_user")
             reg_pass = st.text_input("Nueva Contraseña", type="password", key="reg_pass")
             if st.button("Crear Cuenta", use_container_width=True):
-                if reg_user in st.session_state.usuarios_db:
+                if reg_user in db_global:
                     st.warning("El usuario ya existe.")
                 elif len(reg_user) > 0 and len(reg_pass) > 0:
-                    st.session_state.usuarios_db[reg_user] = {
+                    db_global[reg_user] = {
                         "password": reg_pass,
                         "data": inicializar_data_usuario()
                     }
-                    st.success("Cuenta creada. Ya puedes iniciar sesión.")
+                    st.success("Cuenta creada con éxito. Ya puedes iniciar sesión en la pestaña 'Entrar'.")
                 else:
                     st.warning("Completa todos los campos.")
-    st.stop()  # Detiene la ejecución para que no se muestre el dashboard
+    st.stop() # Detiene la app aquí si no hay sesión iniciada
 
 # ==========================================
 # 3. SECCIÓN DE AJUSTES MANUALES
 # ==========================================
-TEMA_POR_DEFECTO = "Oscuro"
 
+# --- ZONA 0: TEMA PRINCIPAL ---
+TEMA_POR_DEFECTO = "Oscuro"  # Escribe "Claro" o "Oscuro"
+
+# --- ZONA 1: TÍTULO PRINCIPAL ---
 TITULO_TEXTO = "Dashboard"
 TITULO_X = 100         
 TITULO_Y = -20         
@@ -72,6 +79,7 @@ TITULO_SIZE = 50
 TITULO_COLOR_W = "#FFFFFF" 
 TITULO_COLOR_B = "#000000" 
 
+# --- ZONA 2: SELECTORES SUPERIORES ---
 FILTROS_TEXTO = "Filtros"
 FILTROS_X = 0        
 FILTROS_Y = 0        
@@ -89,6 +97,7 @@ SELECT_TEXTO_CLARO = "#1A202C"
 SELECT_FONDO_OSCURO = "#2D3748"
 SELECT_TEXTO_OSCURO = "#E2E8F0"
 
+# --- ZONA 3: CAJA DE TOTAL BALANCE ---
 TOTAL_BAL_TEXTO = "TOTAL BALANCE"
 BALANCE_BOX_X = 0     
 BALANCE_BOX_Y = 0     
@@ -97,6 +106,7 @@ BALANCE_SIZE = 30
 LBL_TOTAL_BAL_X = 0  
 LBL_TOTAL_BAL_Y = 0
 
+# --- ZONA 4: INPUT DE BALANCE ---
 INPUT_BAL_TEXTO = "Balance:"
 INPUT_BAL_X = 0      
 INPUT_BAL_Y = 0      
@@ -108,13 +118,14 @@ INPUT_TEXTO_CLARO = "#00C897"
 INPUT_FONDO_OSCURO = "#1A202C"
 INPUT_TEXTO_OSCURO = "#00C897" 
 
+# --- ZONA 5: CALENDARIO Y BOTONES ---
 BOTON_FONDO_CLARO = "#F3F4F6"
 BOTON_TEXTO_CLARO = "#1A202C"
 BOTON_FONDO_OSCURO = "#2D3748"
 BOTON_TEXTO_OSCURO = "#FFFFFF"
 
-# BOTÓN DE CALENDARIO FIJO (Anclado al Input)
-BOTON_X = 220  # Ajusta este valor en positivo para separarlo a la derecha del cuadro
+# El Botón 🗓️ (Devuelto a su lugar)
+BOTON_X = -170          
 BOTON_Y = 27         
 BOTON_WIDTH = 45     
 BOTON_HEIGHT = 45    
@@ -130,6 +141,7 @@ FLECHAS_X_AJUSTE = 0
 FLECHAS_Y_AJUSTE = 10 
 FLECHAS_SIZE = 16
 
+# --- ZONA 6: TARJETAS DE MÉTRICAS ---
 CARD_PNL_X = 0       
 CARD_PNL_Y = 10      
 CARD_PNL_W = 80      
@@ -138,11 +150,17 @@ CARD_WIN_X = 0
 CARD_WIN_Y = 20      
 CARD_WIN_W = 80      
 
+# --- ZONA 7: ÁREA DE SUBIR IMÁGENES (NUEVO) ---
+UPLOADER_ANCHO = 300      # Ancho de la caja en píxeles (ej: 300)
+UPLOADER_ALTO = 100       # Alto de la caja en píxeles (ej: 100)
+UPLOADER_FONDO_CLARO = "#FFFFFF"
+UPLOADER_FONDO_OSCURO = "#2D3748"
+
 # ==========================================
 # 4. LÓGICA DE ESTADO DEL USUARIO
 # ==========================================
 usuario = st.session_state.usuario_actual
-db_usuario = st.session_state.usuarios_db[usuario]["data"]
+db_usuario = db_global[usuario]["data"]
 
 if "data_source_sel" not in st.session_state:
     st.session_state.data_source_sel = "Demo Data"
@@ -183,20 +201,19 @@ def procesar_cambio():
         }
         db_usuario[ctx]["balance"] = nuevo
 
-# Función para convertir imagen a Base64 (Para el Fullscreen HTML)
 def convertir_img_base64(uploaded_file):
     return base64.b64encode(uploaded_file.getvalue()).decode()
 
 # ==========================================
-# 5. BARRA LATERAL (MENÚ Y CUENTA)
+# 5. BARRA LATERAL (MENÚ Y CUENTAS)
 # ==========================================
-st.sidebar.markdown(f"### 👤 Cuenta: {usuario}")
+st.sidebar.markdown(f"### 👤 Mi Cuenta: {usuario}")
 if st.sidebar.button("🚪 Cerrar Sesión"):
     st.session_state.usuario_actual = None
     st.rerun()
 
 st.sidebar.markdown("---")
-st.sidebar.markdown("### ⚙️ Panel de Control")
+st.sidebar.markdown("### ⚙️ Ajustes")
 
 texto_boton_tema = "🌙 Cambiar a Tema Oscuro" if st.session_state.tema == "Claro" else "☀️ Cambiar a Tema Claro"
 if st.sidebar.button(texto_boton_tema):
@@ -209,6 +226,11 @@ if st.sidebar.button(f"🗑️ Limpiar {ctx_actual} a $25k"):
     db_usuario[ctx_actual]["trades"] = {}
     st.rerun()
 
+st.sidebar.markdown("---")
+st.sidebar.markdown("### 👥 Cuentas Registradas")
+for user in db_global.keys():
+    st.sidebar.markdown(f"- {user}")
+
 # ==========================================
 # 6. COLORES DEL TEMA Y CSS DINÁMICO
 # ==========================================
@@ -219,6 +241,7 @@ if st.session_state.tema == "Claro":
     titulo_color_actual, mes_color_actual = TITULO_COLOR_B, MES_TEXTO_COLOR_B
     input_fondo_actual, input_texto_actual = INPUT_FONDO_CLARO, INPUT_TEXTO_CLARO
     select_fondo_actual, select_texto_actual = SELECT_FONDO_CLARO, SELECT_TEXTO_CLARO
+    uploader_fondo_actual = UPLOADER_FONDO_CLARO
 else:
     bg_color, text_color = "#1A202C", "#E2E8F0"
     card_bg, border_color, empty_cell_bg = "#2D3748", "#4A5568", "#1A202C"
@@ -226,6 +249,7 @@ else:
     titulo_color_actual, mes_color_actual = TITULO_COLOR_W, MES_TEXTO_COLOR_W
     input_fondo_actual, input_texto_actual = INPUT_FONDO_OSCURO, INPUT_TEXTO_OSCURO
     select_fondo_actual, select_texto_actual = SELECT_FONDO_OSCURO, SELECT_TEXTO_OSCURO
+    uploader_fondo_actual = UPLOADER_FONDO_OSCURO
 
 st.markdown(f"""
     <style>
@@ -238,17 +262,24 @@ st.markdown(f"""
     div[data-testid="column"]:nth-of-type(3) {{ margin-left: {DATA_SRC_X}px; margin-top: {DATA_SRC_Y}px; z-index: 10; }}
     div[data-testid="column"]:nth-of-type(4) {{ margin-left: {BALANCE_BOX_X}px; margin-top: {BALANCE_BOX_Y}px; }}
 
-    /* COLORES SELECTORES Y UPLOADER */
+    /* COLORES SELECTORES */
     div[data-baseweb="select"] > div {{ background-color: {select_fondo_actual} !important; border-color: {border_color} !important; }}
     div[data-baseweb="select"] * {{ color: {select_texto_actual} !important; }}
     ul[role="listbox"] {{ background-color: {select_fondo_actual} !important; }}
     li[role="option"] {{ color: {select_texto_actual} !important; background-color: {select_fondo_actual} !important; }}
     li[role="option"]:hover {{ background-color: {border_color} !important; }}
     
-    [data-testid="stFileUploadDropzone"] {{ background-color: {select_fondo_actual} !important; border-color: {border_color} !important; }}
+    /* ESTÉTICA DEL ÁREA DE SUBIR IMÁGENES */
+    [data-testid="stFileUploadDropzone"] {{ 
+        background-color: {uploader_fondo_actual} !important; 
+        border: 2px dashed {border_color} !important; 
+        width: {UPLOADER_ANCHO}px !important;
+        min-height: {UPLOADER_ALTO}px !important;
+        display: flex; justify-content: center; align-items: center;
+    }}
     [data-testid="stFileUploadDropzone"] * {{ color: {text_color} !important; }}
+    [data-testid="stFileUploadDropzone"] button {{ display: none; }} /* Oculta botón extra */
 
-    /* CONFIGURACIÓN DEL INPUT DE BALANCE */
     div[data-testid="stNumberInput"] {{ margin-left: {INPUT_BAL_X}px !important; margin-top: {INPUT_BAL_Y}px !important; max-width: 200px !important; }}
     div[data-testid="stNumberInput"] button {{ display: none !important; }} 
     div[data-testid="stNumberInput"] div[data-baseweb="base-input"] {{ background-color: {input_fondo_actual} !important; }}
@@ -260,47 +291,31 @@ st.markdown(f"""
     div[data-testid="stNumberInput"] label {{ margin-left: {LBL_INPUT_BAL_X}px !important; margin-top: {LBL_INPUT_BAL_Y}px !important; display: inline-block; }}
     .lbl-total-bal {{ margin-left: {LBL_TOTAL_BAL_X}px; margin-top: {LBL_TOTAL_BAL_Y}px; display: block; }}
 
-    .dashboard-title {{ 
-        font-size: {TITULO_SIZE}px !important; font-weight: 800 !important; color: {titulo_color_actual} !important; 
-        margin-bottom: 0 !important; line-height: 1.1 !important; letter-spacing: -2px !important;
-    }}
+    .dashboard-title {{ font-size: {TITULO_SIZE}px !important; font-weight: 800 !important; color: {titulo_color_actual} !important; margin-bottom: 0 !important; line-height: 1.1 !important; letter-spacing: -2px !important; }}
     
-    .balance-box {{ 
-        background: #00C897; color: white; padding: 10px 0px; border-radius: 80px; 
-        text-align: center; font-weight: 700; font-size: {BALANCE_SIZE}px; width: {BALANCE_BOX_W}%; margin: 0 auto;
-    }}
+    .balance-box {{ background: #00C897; color: white; padding: 10px 0px; border-radius: 80px; text-align: center; font-weight: 700; font-size: {BALANCE_SIZE}px; width: {BALANCE_BOX_W}%; margin: 0 auto; }}
     
     .thin-line {{ border-bottom: 1.5px solid {border_color}; margin: 10px 0px 25px 0px; width: 100%; }}
 
-    .calendar-wrapper {{ 
-        background: {card_bg}; padding: 10px; border-radius: 15px; 
-        border: 1px solid {border_color}; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
-    }}
-    .card {{ 
-        aspect-ratio: 1 / 1; padding: 5px; border-radius: 20px; 
-        display: flex; flex-direction: column; justify-content: center; 
-        align-items: center; font-size: 12px; margin-bottom: 6px !important; position: relative;
-    }}
+    .calendar-wrapper {{ background: {card_bg}; padding: 10px; border-radius: 15px; border: 1px solid {border_color}; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }}
+    .card {{ aspect-ratio: 1 / 1; padding: 5px; border-radius: 20px; display: flex; flex-direction: column; justify-content: center; align-items: center; font-size: 12px; margin-bottom: 6px !important; position: relative; }}
     .card b {{ font-size: 18px !important; }}
     .cell-win {{ border: 2.5px solid #00C897; color: #00664F; background-color: #e6f9f4;}}
     .cell-loss {{ border: 2.5px solid #FF4C4C; color: #9B1C1C; background-color: #ffeded;}}
     .cell-empty {{ border: 1px solid {border_color}; color: #A0AEC0; background-color: {empty_cell_bg};}}
     
-    /* ICONO CÁMARA CENTRADO Y ANCLADO AL DÍA */
-    .cam-icon {{ 
-        font-size: 18px; margin-top: 3px; cursor: pointer; 
-        background: rgba(255,255,255,0.7); border-radius: 50%; padding: 2px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: 0.2s;
-    }}
+    /* EL TRUCO DEL MODAL SIN JAVASCRIPT */
+    .cam-icon {{ font-size: 18px; margin-top: 3px; cursor: pointer; background: rgba(255,255,255,0.7); border-radius: 50%; padding: 2px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: 0.2s; }}
     .cam-icon:hover {{ transform: scale(1.2); }}
-
-    /* ESTILO DEL MODAL PANTALLA COMPLETA */
+    
+    .modal-toggle:checked + .fs-modal {{ display: flex !important; }}
     .fs-modal {{
         display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-        background: rgba(0,0,0,0.9); z-index: 999999; flex-direction: column;
-        align-items: center; overflow-y: auto; padding: 50px 0; cursor: pointer;
+        background: rgba(0,0,0,0.95); z-index: 9999999; flex-direction: column;
+        align-items: center; justify-content: center; overflow-y: auto; padding: 50px 0;
     }}
-    .fs-modal img {{ max-width: 90%; margin-bottom: 20px; box-shadow: 0 0 20px black; border-radius: 10px; }}
+    .fs-modal img {{ max-width: 90vw; max-height: 80vh; margin-bottom: 20px; box-shadow: 0 0 20px black; border-radius: 10px; object-fit: contain; }}
+    .close-btn {{ color: white; font-size: 25px; position: absolute; top: 30px; right: 50px; cursor: pointer; font-weight: bold; background: red; padding: 5px 15px; border-radius: 8px; }}
 
     label {{ font-weight: 700 !important; color: {text_color} !important; font-size: 14px !important; }}
     p, div {{ color: {text_color}; }}
@@ -310,18 +325,14 @@ st.markdown(f"""
         margin-left: {FLECHAS_X_AJUSTE}px !important; margin-top: {FLECHAS_Y_AJUSTE}px !important; font-size: {FLECHAS_SIZE}px !important;
     }}
     
-    /* BOTÓN POPOVER ANCLADO ABSOLUTAMENTE (Ignora el tamaño de la ventana) */
-    div[data-testid="column"]:nth-of-type(1) {{ position: relative; }}
-    div[data-testid="stPopover"] {{ 
-        position: absolute !important; left: {BOTON_X}px !important; top: {BOTON_Y}px !important; z-index: 9999 !important;
-    }}
+    /* POPOVER RESTAURADO A SU POSICIÓN ORIGINAL NEGATIVA */
+    div[data-testid="stPopover"] {{ position: absolute !important; left: {BOTON_X}px !important; top: {BOTON_Y}px !important; z-index: 9999 !important; }}
     div[data-testid="stPopover"] > button {{
         width: {BOTON_WIDTH}px !important; height: {BOTON_HEIGHT}px !important;
         font-size: {BOTON_ICON_SIZE}px !important; padding: 0 !important; border-radius: 8px !important;
         border: 1px solid {border_color} !important; background-color: {btn_bg} !important; color: {btn_text} !important;
         display: flex !important; justify-content: center !important; align-items: center !important; margin: 0 !important;
     }}
-    
     div[data-testid="stPopoverBody"] {{ background-color: {card_bg} !important; border: 1px solid {border_color} !important; }}
     div[data-testid="stPopoverBody"] * {{ color: {text_color} !important; }}
 
@@ -355,10 +366,12 @@ st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
 # ==========================================
 # 8. ENTRADA AUTOMÁTICA E IMÁGENES
 # ==========================================
-c1, c_img = st.columns([1.5, 2]) 
+# Ajuste de columnas para dar espacio al uploader
+c1, c2, c_espacio, c_img = st.columns([1.2, 0.4, 0.8, 2]) 
 
 with c1:
     st.number_input(INPUT_BAL_TEXTO, value=bal_actual, format="%.2f", key="input_balance", on_change=procesar_cambio)
+with c2:
     with st.popover("🗓️"):
         st.date_input("Fecha oculta", value=hoy, key="input_fecha", label_visibility="collapsed")
 
@@ -371,7 +384,6 @@ with c_img:
         if clave_actual not in db_usuario[ctx]["trades"]:
             db_usuario[ctx]["trades"][clave_actual] = {"pnl": 0.0, "balance_final": bal_actual, "fecha_str": fecha_str_actual, "imagenes": []}
         
-        # Convertimos las imágenes a Base64 y las guardamos
         lista_b64 = []
         for img in archivos:
             lista_b64.append(f"data:{img.type};base64,{convertir_img_base64(img)}")
@@ -379,25 +391,7 @@ with c_img:
         db_usuario[ctx]["trades"][clave_actual]["imagenes"] = lista_b64
 
 # ==========================================
-# 9. GENERADOR DE MODALES DE PANTALLA COMPLETA
-# ==========================================
-# Inyectamos en el HTML los "modales" ocultos de cada día que tenga fotos
-modales_html = ""
-for clave_dia, datos_dia in db_usuario[ctx]["trades"].items():
-    if datos_dia.get("imagenes"):
-        id_modal = f"modal_{clave_dia[0]}_{clave_dia[1]}_{clave_dia[2]}"
-        img_tags = "".join([f'<img src="{img_b64}">' for img_b64 in datos_dia["imagenes"]])
-        modales_html += f"""
-        <div id="{id_modal}" class="fs-modal" onclick="this.style.display='none'">
-            <span style="color:white; font-size:30px; position:absolute; top:20px; right:40px;">✖ CERRAR</span>
-            {img_tags}
-        </div>
-        """
-if modales_html:
-    st.markdown(modales_html, unsafe_allow_html=True)
-
-# ==========================================
-# 10. CALENDARIO Y RESUMEN
+# 9. CALENDARIO Y RESUMEN (Y MODALES CSS)
 # ==========================================
 col_cal, col_det = st.columns([1.5, 1])
 
@@ -440,10 +434,18 @@ with col_cal:
                             c_cls = "cell-win" if trade["pnl"] > 0 else "cell-loss"
                             c_sim = "+" if trade["pnl"] > 0 else ""
                             
-                            # Si tiene imágenes, inyectamos el emoji de cámara que activa el modal FullScreen
+                            # Magia de CSS-Only Modal
                             if trade.get("imagenes"):
-                                id_modal = f"modal_{anio_sel}_{mes_sel}_{dia}"
-                                cam_html = f'<div class="cam-icon" onclick="document.getElementById(\'{id_modal}\').style.display=\'flex\'">📷</div>'
+                                id_modal = f"mod_{anio_sel}_{mes_sel}_{dia}"
+                                img_tags = "".join([f'<img src="{img}">' for img in trade["imagenes"]])
+                                cam_html = f"""
+                                <label for="{id_modal}"><div class="cam-icon">📷</div></label>
+                                <input type="checkbox" id="{id_modal}" class="modal-toggle" style="display:none;">
+                                <div class="fs-modal">
+                                    <label for="{id_modal}" class="close-btn">✖ CERRAR</label>
+                                    {img_tags}
+                                </div>
+                                """
                             else:
                                 cam_html = ""
                                 
@@ -473,10 +475,7 @@ with col_det:
     
     st.markdown(f"""
         <div class="metric-card card-pnl">
-            <div class="metric-header">
-                <span class="metric-title">Net P&L</span><span class="metric-icon">ⓘ</span>
-                <span class="metric-badge">{total_trades}</span>
-            </div>
+            <div class="metric-header"><span class="metric-title">Net P&L</span><span class="metric-icon">ⓘ</span><span class="metric-badge">{total_trades}</span></div>
             <div class="{color_pnl}">{simbolo_pnl}${net_pnl:,.2f}</div>
         </div>
     """, unsafe_allow_html=True)
@@ -496,9 +495,7 @@ with col_det:
             </div>
             <div class="gauge-container">
                 {svg_html}
-                <div class="gauge-labels">
-                    <span class="lbl-g">{wins}</span><span class="lbl-b">{ties}</span><span class="lbl-r">{losses}</span>
-                </div>
+                <div class="gauge-labels"><span class="lbl-g">{wins}</span><span class="lbl-b">{ties}</span><span class="lbl-r">{losses}</span></div>
             </div>
         </div>
     """, unsafe_allow_html=True)
