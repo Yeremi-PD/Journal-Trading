@@ -18,7 +18,7 @@ TITULO_TEXTO = "Dashboard"
 TITULO_X = 100         
 TITULO_Y = -20         
 TITULO_SIZE = 50     # ¡Ajustado a 80 para probar, cámbialo a tu gusto!
-TITULO_COLOR = "#ffffff"
+TITULO_COLOR = "#000000"
 
 # --- ZONA 2: SELECTORES SUPERIORES ---
 # Filtros
