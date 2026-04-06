@@ -4,7 +4,7 @@ import calendar
 from datetime import datetime
 
 # ==========================================
-# 1. CONFIGURACIÓN Y CSS (TEXTOS NEGROS)
+# 1. CONFIGURACIÓN Y CSS 
 # ==========================================
 st.set_page_config(page_title="Yeremi Journal Pro", layout="wide")
 
@@ -46,65 +46,68 @@ if "mis_trades" not in st.session_state:
 st.title("📈 Yeremi Pro Journal")
 
 # ==========================================
-# 3. PROCESADOR INTELIGENTE (100% AUTOMÁTICO)
+# 3. PROCESADOR INTELIGENTE (CUENTAS REALES Y DEMO)
 # ==========================================
 with st.container():
     st.markdown("### 🤖 Procesador Automático (MNQ)")
     
-    texto_pegado = st.text_area("Pega la orden de Tradovate aquí (Detectará compras, ventas y comisiones solo):", height=130)
+    texto_pegado = st.text_area("Pega la orden de Tradovate/Demo aquí:", height=130)
     
     if texto_pegado:
         try:
             texto_upper = texto_pegado.upper()
-            
-            # Buscar fecha
             fechas = re.findall(r'(\d{4})-(\d{2})-(\d{2})', texto_pegado)
             
-            # Separar el texto en bloques por cada orden
-            # Usamos MNQ, NQ, etc. como separador de órdenes
-            bloques = re.split(r'(?=MNQ|NQM)', texto_upper)
-            if len(bloques) < 2:
-                bloques = texto_upper.split('\n\n') # Respaldo por si pegan diferente
+            # Separador compatible con formato real y demo
+            bloques = re.split(r'(?=MNQ|CME)', texto_upper)
+            if len(bloques) < 2: bloques = texto_upper.split('\n\n')
                 
             buy_prices = []
             sell_prices = []
             contratos = 1
+            tipo_trade = "LONG"
             
             for bloque in bloques:
-                # Solo procesar órdenes que fueron ejecutadas (FILLED), ignorar las CANCELLED
                 if 'FILLED' in bloque:
-                    # Extraer el precio (soporta formatos como 24,375.00 o 24375.00)
-                    precios = re.findall(r'(\d{2,5},\d{3}\.\d{2}|\d{2,5}\.\d{2})', bloque)
-                    if precios:
-                        # Tomar el último precio del bloque (suele ser el Avg Fill Price)
-                        precio_val = float(precios[-1].replace(',', ''))
+                    # Detectar si fue Long o Short basándose en la orden de entrada (Market/Limit)
+                    if 'MARKET' in bloque or 'LIMIT' in bloque:
+                        tipo_trade = "SHORT" if 'SELL' in bloque else "LONG"
+
+                    # Extraer precios (soporta formato con o sin comas)
+                    precios_str = re.findall(r'(\d{2,5},?\d{3}\.\d{2})', bloque)
+                    if precios_str:
+                        precios_numeros = [float(p.replace(',', '')) for p in precios_str]
                         
+                        # Inteligencia de precio de ejecución
+                        if 'MARKET' in bloque or 'LIMIT' in bloque:
+                            precio_val = precios_numeros[0] # Entrada
+                        else:
+                            precio_val = precios_numeros[-1] # Salida (TP/SL)
+                            
                         if 'BUY' in bloque:
                             buy_prices.append(precio_val)
                         elif 'SELL' in bloque:
                             sell_prices.append(precio_val)
                     
-                    # Extraer cantidad de contratos
-                    match_c = re.search(r'(?:MARKET|TAKE PROFIT|STOP LOSS|LIMIT)\s*(\d+)', bloque)
-                    if match_c:
-                        contratos = max(contratos, int(match_c.group(1)))
+                    # Inteligencia de contratos (Para arreglar textos pegados como "Market924,289")
+                    temp_block = bloque
+                    for p in precios_str: temp_block = temp_block.replace(p, ' ')
+                    match_qty = re.search(r'(?:MARKET|TAKE PROFIT|STOP LOSS|LIMIT)\D*(\d+)', temp_block)
+                    if match_qty:
+                        contratos = max(contratos, int(match_qty.group(1)))
 
-            # Hacer la matemática solo si tenemos entrada y salida
+            # Matemáticas finales si se detectó todo
             if buy_prices and sell_prices and fechas:
                 anio_trade, mes_trade, dia_trade = map(int, fechas[0])
                 
-                # Promediar precios en caso de múltiples entradas/salidas
                 avg_buy = sum(buy_prices) / len(buy_prices)
                 avg_sell = sum(sell_prices) / len(sell_prices)
                 
-                # LÓGICA DE ORO: Venta - Compra siempre da los puntos correctos
+                # Fórmula universal que funciona para Longs y Shorts
                 puntos_netos = avg_sell - avg_buy
                 
-                # CÁLCULO MNQ ($2 por punto, $1.04 comisión por contrato)
                 bruto = puntos_netos * 2 * contratos 
                 comision_total = 1.04 * contratos
-                
-                # Restar comisiones
                 neto = bruto - comision_total
                 
                 col1, col2 = st.columns([3, 1])
@@ -112,14 +115,15 @@ with st.container():
                     if neto > 0:
                         estado = "🟢 GANANCIA"
                         color_txt = "green"
-                    elif neto < -5: # Margen para no confundir loss con break even por comisiones
+                    elif neto < -5:
                         estado = "🔴 PÉRDIDA"
                         color_txt = "red"
                     else:
                         estado = "⚪ BREAK EVEN"
                         color_txt = "gray"
 
-                    st.markdown(f"<p style='color:black; font-weight:bold; margin:0;'>Fecha: {dia_trade}/{mes_trade}/{anio_trade} | Contratos: {contratos} | Detección: {estado}</p>", unsafe_allow_html=True)
+                    st.markdown(f"<p style='color:black; font-weight:bold; margin:0;'>Fecha: {dia_trade}/{mes_trade}/{anio_trade} | Operación: {tipo_trade} | Contratos: {contratos}</p>", unsafe_allow_html=True)
+                    st.markdown(f"<p style='color:black; font-weight:bold; margin:0;'>Resultado: {estado} | Comisiones: -${comision_total:.2f}</p>", unsafe_allow_html=True)
                     st.markdown(f"<h3 style='color:{color_txt}; margin-top:0;'>Neto calculado: ${neto:.2f}</h3>", unsafe_allow_html=True)
                 
                 with col2:
@@ -133,7 +137,7 @@ with st.container():
             else:
                 st.warning("⚠️ Pega el texto completo que incluya tanto el 'Buy' como el 'Sell' en estado 'filled'.")
         except Exception as e:
-            st.error("Error procesando los datos. Revisa el formato de Tradovate.")
+            st.error("Error procesando los datos. Revisa el formato.")
 
 st.write("---")
 
