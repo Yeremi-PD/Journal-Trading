@@ -35,7 +35,7 @@ st.markdown("""
         border: 1px solid #E2E8F0; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
     }
     .card { 
-        aspect-ratio: 1 / 1; padding: 5px; border-radius: 10px; 
+        aspect-ratio: 1 / 1; padding: 5px; border-radius: 100px; 
         display: flex; flex-direction: column; justify-content: center; 
         align-items: center; font-size: 12px;
     }
