@@ -18,7 +18,7 @@ TITULO_Y = 0         # Posición Arriba/Abajo (px)
 TITULO_SIZE = 100    # Tamaño de la letra (px)
 
 # --- CAJA DE BALANCE ---
-BALANCE_X = 3        # Posición Izquierda/Derecha (px)
+BALANCE_X = 49        # Posición Izquierda/Derecha (px)
 BALANCE_Y = 0        # Posición Arriba/Abajo (px)
 BALANCE_WIDTH = 50  # Ancho de la caja (en porcentaje %)
 BALANCE_SIZE = 30    # Tamaño de la letra (px)
