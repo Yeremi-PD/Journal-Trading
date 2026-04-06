@@ -52,7 +52,7 @@ BALANCE_SIZE = 30    # <--- AQUÍ ESTABA EL ERROR. CORREGIDO.
 
 # --- INPUT DE BALANCE (El cuadro numérico de abajo) ---
 INPUT_BAL_X = 0
-INPUT_BAL_Y = 0
+INPUT_BAL_Y = 20
 
 # --- BOTÓN DEL CALENDARIO 🗓️ ---
 BOTON_X = 0          
