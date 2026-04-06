@@ -8,22 +8,7 @@ from datetime import datetime
 st.set_page_config(page_title="Yeremi Journal Pro", layout="wide")
 
 st.markdown("""
-    /* 1. Hace que el botón del calendario sea invisible (solo se ve el emoji) */
-    div[data-testid="stPopover"] > button {
-        background-color: transparent !important;
-        border: none !important;
-        box-shadow: none !important;
-        padding: 0 !important;
-        width: 30px !important;
-        height: 30px !important;
-        margin-top: 31px !important; /* Esto lo baja para que esté al lado del balance */
-        font-size: 24px !important;
-    }
-
-    /* 2. Hace que el cuadro de escribir el dinero sea más corto */
-    div[data-testid="stNumberInput"] { 
-        max-width: 150px !important; 
-    }<style>
+<style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
     .stApp { background-color: #F7FAFC; color: #2D3748; font-family: 'Inter', sans-serif; }
     
@@ -87,7 +72,22 @@ st.markdown("""
         border: 1px solid #E2E8F0 !important;
     }
     div[data-testid="stNumberInput"] { max-width: 180px !important; }
-    </style>
+    /* 1. Hace que el botón del calendario sea invisible (solo se ve el emoji) */
+    div[data-testid="stPopover"] > button {
+        background-color: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        width: 30px !important;
+        height: 30px !important;
+        margin-top: 31px !important; /* Esto lo baja para que esté al lado del balance */
+        font-size: 24px !important;
+    }
+
+    /* 2. Hace que el cuadro de escribir el dinero sea más corto */
+    div[data-testid="stNumberInput"] { 
+        max-width: 150px !important; 
+    }</style>
     """, unsafe_allow_html=True)
 
 # ==========================================
