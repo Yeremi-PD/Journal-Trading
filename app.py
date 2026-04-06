@@ -20,8 +20,8 @@ TITULO_TEXTO = "Dashboard"
 TITULO_X = 100         
 TITULO_Y = -20         
 TITULO_SIZE = 50     
-TITULO_COLOR_W = "#FFFFFF" # BLANCO (Se usará automáticamente en Tema Oscuro)
-TITULO_COLOR_B = "#000000" # NEGRO (Se usará automáticamente en Tema Claro)
+TITULO_COLOR_W = "#FFFFFF" 
+TITULO_COLOR_B = "#000000" 
 
 # --- ZONA 2: SELECTORES SUPERIORES (Filtros y Data Source) ---
 FILTROS_TEXTO = "Filtros"
@@ -36,7 +36,6 @@ DATA_SRC_Y = 0
 LBL_DATA_X = 0       
 LBL_DATA_Y = 0
 
-# Colores de las cajas de los selectores (Filtros y Data Source)
 SELECT_FONDO_CLARO = "#FFFFFF"
 SELECT_TEXTO_CLARO = "#1A202C"
 
@@ -63,26 +62,24 @@ LBL_INPUT_BAL_Y = 0
 INPUT_FONDO_CLARO = "#FFFFFF"
 INPUT_TEXTO_CLARO = "#00C897"
 
-INPUT_FONDO_OSCURO = "#2D3748"
+INPUT_FONDO_OSCURO = "#1A202C"
 INPUT_TEXTO_OSCURO = "#00C897" 
 
 # --- ZONA 5: CALENDARIO Y BOTONES UNIFICADOS ---
-# Colores generales para TODOS los botones (Flechas, Menú y 🗓️)
 BOTON_FONDO_CLARO = "#F3F4F6"
 BOTON_TEXTO_CLARO = "#1A202C"
 
 BOTON_FONDO_OSCURO = "#2D3748"
 BOTON_TEXTO_OSCURO = "#FFFFFF"
 
-# Posición del botón Popover (🗓️)
-# AHORA USA MARGEN RELATIVO: 10px a la derecha significa separación real.
-BOTON_X = 10          
+# Posición del botón Popover (🗓️) - DEVUELTO A SU POSICIÓN ANTERIOR
+BOTON_X = -170          
 BOTON_Y = 27         
 BOTON_WIDTH = 45     
 BOTON_HEIGHT = 45    
 BOTON_ICON_SIZE = 22 
 
-# Texto del Mes y Año en el Calendario (Ej. Abril 2026)
+# Texto del Mes y Año en el Calendario
 MES_TEXTO_X = 0
 MES_TEXTO_Y = 10      
 MES_TEXTO_SIZE = 22
@@ -203,23 +200,21 @@ st.markdown(f"""
     div[data-testid="column"]:nth-of-type(3) {{ margin-left: {DATA_SRC_X}px; margin-top: {DATA_SRC_Y}px; z-index: 10; }}
     div[data-testid="column"]:nth-of-type(4) {{ margin-left: {BALANCE_BOX_X}px; margin-top: {BALANCE_BOX_Y}px; }}
 
-    /* CONFIGURACIÓN DE LOS SELECTORES (Filtros y Data Source) Y SU MENÚ DESPLEGABLE */
+    /* CONFIGURACIÓN DE LOS SELECTORES */
     div[data-baseweb="select"] > div {{
-        background-color: {select_fondo_actual} !important;
-        border-color: {border_color} !important;
+        background-color: {select_fondo_actual} !important; border-color: {border_color} !important;
     }}
     div[data-baseweb="select"] * {{ color: {select_texto_actual} !important; }}
-    
-    /* ESTO ARREGLA EL FONDO DE LA LISTA DESPLEGABLE */
     ul[role="listbox"] {{ background-color: {select_fondo_actual} !important; }}
     li[role="option"] {{ color: {select_texto_actual} !important; background-color: {select_fondo_actual} !important; }}
     li[role="option"]:hover {{ background-color: {border_color} !important; }}
 
-    /* CONFIGURACIÓN DEL INPUT DE BALANCE */
+    /* CONFIGURACIÓN DEL INPUT DE BALANCE (CORREGIDO PARA FONDOS) */
     div[data-testid="stNumberInput"] {{ margin-left: {INPUT_BAL_X}px !important; margin-top: {INPUT_BAL_Y}px !important; max-width: 200px !important; }}
     div[data-testid="stNumberInput"] button {{ display: none !important; }} 
+    div[data-testid="stNumberInput"] div[data-baseweb="base-input"] {{ background-color: {input_fondo_actual} !important; }}
     div[data-testid="stNumberInput"] div[data-baseweb="input"] {{ background-color: {input_fondo_actual} !important; border-color: {border_color} !important; }}
-    div[data-testid="stNumberInput"] input {{ color: {input_texto_actual} !important; font-weight: bold; }}
+    div[data-testid="stNumberInput"] input {{ color: {input_texto_actual} !important; background-color: {input_fondo_actual} !important; font-weight: bold; }}
 
     div[data-testid="column"]:nth-of-type(2) label {{ margin-left: {LBL_FILTROS_X}px !important; margin-top: {LBL_FILTROS_Y}px !important; display: inline-block; }}
     div[data-testid="column"]:nth-of-type(3) label {{ margin-left: {LBL_DATA_X}px !important; margin-top: {LBL_DATA_Y}px !important; display: inline-block; }}
@@ -227,12 +222,8 @@ st.markdown(f"""
     .lbl-total-bal {{ margin-left: {LBL_TOTAL_BAL_X}px; margin-top: {LBL_TOTAL_BAL_Y}px; display: block; }}
 
     .dashboard-title {{ 
-        font-size: {TITULO_SIZE}px !important; 
-        font-weight: 800 !important; 
-        color: {titulo_color_actual} !important; 
-        margin-bottom: 0 !important; 
-        line-height: 1.1 !important;
-        letter-spacing: -2px !important;
+        font-size: {TITULO_SIZE}px !important; font-weight: 800 !important; color: {titulo_color_actual} !important; 
+        margin-bottom: 0 !important; line-height: 1.1 !important; letter-spacing: -2px !important;
     }}
     
     .balance-box {{ 
@@ -261,7 +252,7 @@ st.markdown(f"""
     p, div {{ color: {text_color}; }}
 
     /* ==================================
-       DISEÑO UNIFICADO DE BOTONES
+       BOTONES Y VENTANA DEL POPOVER
        ================================== */
     div[data-testid="stButton"] > button {{
         background-color: {btn_bg} !important; color: {btn_text} !important; border: 1px solid {border_color} !important;
@@ -269,16 +260,21 @@ st.markdown(f"""
         font-size: {FLECHAS_SIZE}px !important;
     }}
     
-    /* Popover espaciado mediante márgenes (evita choque en móviles) */
     div[data-testid="stPopover"] {{ margin-left: {BOTON_X}px !important; margin-top: {BOTON_Y}px !important; }}
     div[data-testid="stPopover"] > button {{
         width: {BOTON_WIDTH}px !important; height: {BOTON_HEIGHT}px !important;
         font-size: {BOTON_ICON_SIZE}px !important; padding: 0 !important; border-radius: 8px !important;
         border: 1px solid {border_color} !important; background-color: {btn_bg} !important; color: {btn_text} !important;
         display: flex !important; justify-content: center !important; align-items: center !important;
-        margin: 0 !important; /* Reseteamos margen interno para no afectar popover */
+        margin: 0 !important;
     }}
+    
+    /* ARREGLO DEL FONDO DENTRO DE LA VENTANA DEL CALENDARIO */
+    div[data-testid="stPopoverBody"] {{ background-color: {card_bg} !important; border-color: {border_color} !important; }}
+    div[data-testid="stPopoverBody"] div[data-baseweb="input"] {{ background-color: {input_fondo_actual} !important; }}
+    div[data-testid="stPopoverBody"] input {{ color: {input_texto_actual} !important; }}
 
+    /* --- TARJETAS MÉTRICAS --- */
     .metric-card {{
         background-color: {card_bg}; border-radius: 20px; padding: 15px 20px;
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); border: 1px solid {border_color};
@@ -301,7 +297,6 @@ st.markdown(f"""
     .lbl-b {{ background-color: #EEF2FF; color: #4F46E5; padding: 2px 8px; border-radius: 10px; }}
     .lbl-r {{ background-color: #ffeded; color: #FF4C4C; padding: 2px 8px; border-radius: 10px; }}
     
-    /* MEDIA QUERY PARA MÓVILES (Desactiva márgenes extremos para evitar salidas de pantalla) */
     @media (max-width: 768px) {{
         .dashboard-title {{ margin-left: 0 !important; text-align: center; }}
         div[data-testid="stNumberInput"] {{ margin-left: 0 !important; width: 100% !important; max-width: none !important; }}
@@ -331,8 +326,7 @@ st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
 # ==========================================
 # 7. ENTRADA AUTOMÁTICA (CON POPOVER 🗓️)
 # ==========================================
-# Columnas ajustadas para que el botón esté naturalmente al lado de la caja
-c1, c2, _ = st.columns([1.5, 1, 3]) 
+c1, c2, _ = st.columns([1, 1, 3]) 
 with c1:
     st.number_input(INPUT_BAL_TEXTO, value=bal_actual, format="%.2f", key="input_balance", on_change=procesar_cambio)
 with c2:
