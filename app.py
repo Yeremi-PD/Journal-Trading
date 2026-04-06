@@ -24,7 +24,7 @@ TITULO_SIZE = 50
 TITULO_COLOR_W = "#FFFFFF" # BLANCO (Se usará automáticamente en Tema Oscuro)
 TITULO_COLOR_B = "#000000" # NEGRO (Se usará automáticamente en Tema Claro)
 
-# --- ZONA 2: SELECTORES SUPERIORES ---
+# --- ZONA 2: SELECTORES SUPERIORES (Filtros y Data Source) ---
 FILTROS_TEXTO = "Filtros"
 FILTROS_X = 0        
 FILTROS_Y = 0        
@@ -37,12 +37,19 @@ DATA_SRC_Y = 0
 LBL_DATA_X = 0       
 LBL_DATA_Y = 0
 
+# Colores de las cajas de los selectores (Filtros y Data Source)
+SELECT_FONDO_CLARO = "#FFFFFF"
+SELECT_TEXTO_CLARO = "#1A202C"
+
+SELECT_FONDO_OSCURO = "#2D3748"
+SELECT_TEXTO_OSCURO = "#E2E8F0"
+
 # --- ZONA 3: CAJA DE TOTAL BALANCE (Caja Verde Superior) ---
 TOTAL_BAL_TEXTO = "TOTAL BALANCE"
 BALANCE_BOX_X = 0     
 BALANCE_BOX_Y = 0     
-BALANCE_BOX_W = 40  
-BALANCE_SIZE = 25    
+BALANCE_BOX_W = 50  
+BALANCE_SIZE = 30    
 LBL_TOTAL_BAL_X = 0  
 LBL_TOTAL_BAL_Y = 0
 
@@ -55,10 +62,10 @@ LBL_INPUT_BAL_Y = 0
 
 # Colores del Input según el tema
 INPUT_FONDO_CLARO = "#FFFFFF"
-INPUT_TEXTO_CLARO = "#dc2d22"
+INPUT_TEXTO_CLARO = "#00C897"
 
 INPUT_FONDO_OSCURO = "#2D3748"
-INPUT_TEXTO_OSCURO = "#dc2d22" 
+INPUT_TEXTO_OSCURO = "#00C897" 
 
 # --- ZONA 5: CALENDARIO Y BOTONES UNIFICADOS ---
 # Colores generales para TODOS los botones (Flechas, Menú y 🗓️)
@@ -77,14 +84,14 @@ BOTON_ICON_SIZE = 22
 
 # Texto del Mes y Año en el Calendario (Ej. Abril 2026)
 MES_TEXTO_X = 0
-MES_TEXTO_Y = 0
+MES_TEXTO_Y = 10      # <--- Bajado 10px
 MES_TEXTO_SIZE = 22
 MES_TEXTO_COLOR_W = "#FFFFFF" # Color en tema oscuro
 MES_TEXTO_COLOR_B = "#1A202C" # Color en tema claro
 
 # Ajustes visuales de las Flechas ◀ ▶
-FLECHAS_X_AJUSTE = 0 # Mueve ambas flechas juntas en el eje X
-FLECHAS_Y_AJUSTE = 10 # Mueve ambas flechas juntas en el eje Y
+FLECHAS_X_AJUSTE = 0 
+FLECHAS_Y_AJUSTE = 10 # <--- Bajadas 10px
 FLECHAS_SIZE = 16
 
 # --- ZONA 6: TARJETAS DE MÉTRICAS ---
@@ -173,6 +180,8 @@ if st.session_state.tema == "Claro":
     mes_color_actual = MES_TEXTO_COLOR_B
     input_fondo_actual = INPUT_FONDO_CLARO
     input_texto_actual = INPUT_TEXTO_CLARO
+    select_fondo_actual = SELECT_FONDO_CLARO
+    select_texto_actual = SELECT_TEXTO_CLARO
 else:
     bg_color, text_color = "#1A202C", "#E2E8F0"
     card_bg, border_color, empty_cell_bg = "#2D3748", "#4A5568", "#1A202C"
@@ -182,6 +191,8 @@ else:
     mes_color_actual = MES_TEXTO_COLOR_W
     input_fondo_actual = INPUT_FONDO_OSCURO
     input_texto_actual = INPUT_TEXTO_OSCURO
+    select_fondo_actual = SELECT_FONDO_OSCURO
+    select_texto_actual = SELECT_TEXTO_OSCURO
 
 st.markdown(f"""
     <style>
@@ -192,6 +203,15 @@ st.markdown(f"""
     div[data-testid="column"]:nth-of-type(2) {{ transform: translate({FILTROS_X}px, {FILTROS_Y}px); z-index: 10; }}
     div[data-testid="column"]:nth-of-type(3) {{ transform: translate({DATA_SRC_X}px, {DATA_SRC_Y}px); z-index: 10; }}
     div[data-testid="column"]:nth-of-type(4) {{ transform: translate({BALANCE_BOX_X}px, {BALANCE_BOX_Y}px); }}
+
+    /* CONFIGURACIÓN DE LOS SELECTORES (Filtros y Data Source) */
+    div[data-baseweb="select"] > div {{
+        background-color: {select_fondo_actual} !important;
+        border-color: {border_color} !important;
+    }}
+    div[data-baseweb="select"] * {{
+        color: {select_texto_actual} !important;
+    }}
 
     /* CONFIGURACIÓN DEL INPUT DE BALANCE */
     div[data-testid="stNumberInput"] {{ transform: translate({INPUT_BAL_X}px, {INPUT_BAL_Y}px) !important; max-width: 200px !important; }}
