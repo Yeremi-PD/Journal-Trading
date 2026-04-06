@@ -34,10 +34,18 @@ st.markdown("""
         background: white; padding: 25px; border-radius: 15px; 
         border: 1px solid #E2E8F0; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
     }
-    .card { 
-        aspect-ratio: 1 / 1; padding: 5px; border-radius: 10px; 
-        display: flex; flex-direction: column; justify-content: center; 
-        align-items: center; font-size: 12px;
+.card { 
+        aspect-ratio: 1 / 1; 
+        padding: 5px; 
+        border-radius: 10px; 
+        display: flex; 
+        flex-direction: column; 
+        justify-content: center; 
+        align-items: center; 
+        font-size: 12px;
+        
+        /* --- ESTA ES LA LÍNEA QUE DEBES AGREGAR O CAMBIAR --- */
+        margin: 4px; /* Aumenta este número para más distancia, bájalo para menos */
     }
     .card b { font-size: 18px !important; }
     .cell-win { border: 2.5px solid #00C897; color: #00664F; background-color: #e6f9f4;}
