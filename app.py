@@ -29,8 +29,7 @@ st.markdown("""
     .cell-loss { border: 2px solid #FF4C4C; color: #000; background-color: #ffeded;}
     .cell-empty { border: 1px solid #E2E8F0; color: #A0AEC0; background-color: #f8fafc;}
 
-    /* FORZAR TEXTOS NEGROS PARA QUE SE VEAN BIEN */
-    div[data-testid="stRadio"] p { color: #000000 !important; font-weight: 800 !important; font-size: 16px; }
+    /* FORZAR TEXTOS NEGROS */
     div[data-testid="stTextArea"] p { color: #000000 !important; font-weight: 800 !important; font-size: 16px; }
     label { color: #000000 !important; font-weight: bold !important; }
     
@@ -47,52 +46,84 @@ if "mis_trades" not in st.session_state:
 st.title("📈 Yeremi Pro Journal")
 
 # ==========================================
-# 3. PROCESADOR AUTOMÁTICO DE TRADES
+# 3. PROCESADOR INTELIGENTE (100% AUTOMÁTICO)
 # ==========================================
 with st.container():
-    st.markdown("### 🤖 Procesador de Tradovate (MNQ)")
+    st.markdown("### 🤖 Procesador Automático (MNQ)")
     
-    col_txt, col_opciones = st.columns([2, 1])
-    
-    with col_txt:
-        texto_pegado = st.text_area("Pega la orden de Tradovate aquí:", height=130)
-    
-    with col_opciones:
-        st.write("") # Espacio
-        es_ganancia = st.radio("¿El trade fue ganador o perdedor?", ["Ganador", "Perdedor"], horizontal=True)
+    texto_pegado = st.text_area("Pega la orden de Tradovate aquí (Detectará compras, ventas y comisiones solo):", height=130)
     
     if texto_pegado:
         try:
-            # 1. Eliminar líneas de órdenes canceladas (Stop Loss) para no arruinar el cálculo
-            lineas_validas = [linea for linea in texto_pegado.split('\n') if 'cancelled' not in linea.lower() and 'rejected' not in linea.lower()]
-            texto_limpio = " ".join(lineas_validas)
+            texto_upper = texto_pegado.upper()
             
-            # 2. Extraer precios, fechas y cantidad de contratos automáticamente
-            precios = re.findall(r'(\d{2,5},\d{3}\.\d{2})', texto_limpio)
-            fechas = re.findall(r'(\d{4})-(\d{2})-(\d{2})', texto_limpio)
+            # Buscar fecha
+            fechas = re.findall(r'(\d{4})-(\d{2})-(\d{2})', texto_pegado)
             
-            # Buscar el patrón de contratos (ej. Market202 -> 2 contratos)
-            match_contratos = re.search(r'(?:Market|Take Profit|Limit)\s*(\d+)\s*0\s*\d+', texto_limpio, re.IGNORECASE)
-            contratos = int(match_contratos.group(1)) if match_contratos else 1
-            
-            if len(precios) >= 2 and fechas:
-                anio_trade, mes_trade, dia_trade = map(int, fechas[0])
-                precios_numeros = list(set([float(p.replace(',', '')) for p in precios]))
-                diferencia = max(precios_numeros) - min(precios_numeros)
+            # Separar el texto en bloques por cada orden
+            # Usamos MNQ, NQ, etc. como separador de órdenes
+            bloques = re.split(r'(?=MNQ|NQM)', texto_upper)
+            if len(bloques) < 2:
+                bloques = texto_upper.split('\n\n') # Respaldo por si pegan diferente
                 
-                # CÁLCULO MNQ EXACTO ($2 por punto, $1.04 comisión por contrato)
-                bruto = diferencia * 2 * contratos 
+            buy_prices = []
+            sell_prices = []
+            contratos = 1
+            
+            for bloque in bloques:
+                # Solo procesar órdenes que fueron ejecutadas (FILLED), ignorar las CANCELLED
+                if 'FILLED' in bloque:
+                    # Extraer el precio (soporta formatos como 24,375.00 o 24375.00)
+                    precios = re.findall(r'(\d{2,5},\d{3}\.\d{2}|\d{2,5}\.\d{2})', bloque)
+                    if precios:
+                        # Tomar el último precio del bloque (suele ser el Avg Fill Price)
+                        precio_val = float(precios[-1].replace(',', ''))
+                        
+                        if 'BUY' in bloque:
+                            buy_prices.append(precio_val)
+                        elif 'SELL' in bloque:
+                            sell_prices.append(precio_val)
+                    
+                    # Extraer cantidad de contratos
+                    match_c = re.search(r'(?:MARKET|TAKE PROFIT|STOP LOSS|LIMIT)\s*(\d+)', bloque)
+                    if match_c:
+                        contratos = max(contratos, int(match_c.group(1)))
+
+            # Hacer la matemática solo si tenemos entrada y salida
+            if buy_prices and sell_prices and fechas:
+                anio_trade, mes_trade, dia_trade = map(int, fechas[0])
+                
+                # Promediar precios en caso de múltiples entradas/salidas
+                avg_buy = sum(buy_prices) / len(buy_prices)
+                avg_sell = sum(sell_prices) / len(sell_prices)
+                
+                # LÓGICA DE ORO: Venta - Compra siempre da los puntos correctos
+                puntos_netos = avg_sell - avg_buy
+                
+                # CÁLCULO MNQ ($2 por punto, $1.04 comisión por contrato)
+                bruto = puntos_netos * 2 * contratos 
                 comision_total = 1.04 * contratos
-                neto = (bruto - comision_total) if es_ganancia == "Ganador" else -(bruto + comision_total)
+                
+                # Restar comisiones
+                neto = bruto - comision_total
                 
                 col1, col2 = st.columns([3, 1])
                 with col1:
-                    color_txt = "green" if neto > 0 else "red"
-                    st.markdown(f"<p style='color:black; font-weight:bold; margin:0;'>Fecha: {dia_trade}/{mes_trade}/{anio_trade} | Contratos: {contratos} | Comisiones: -${comision_total:.2f}</p>", unsafe_allow_html=True)
+                    if neto > 0:
+                        estado = "🟢 GANANCIA"
+                        color_txt = "green"
+                    elif neto < -5: # Margen para no confundir loss con break even por comisiones
+                        estado = "🔴 PÉRDIDA"
+                        color_txt = "red"
+                    else:
+                        estado = "⚪ BREAK EVEN"
+                        color_txt = "gray"
+
+                    st.markdown(f"<p style='color:black; font-weight:bold; margin:0;'>Fecha: {dia_trade}/{mes_trade}/{anio_trade} | Contratos: {contratos} | Detección: {estado}</p>", unsafe_allow_html=True)
                     st.markdown(f"<h3 style='color:{color_txt}; margin-top:0;'>Neto calculado: ${neto:.2f}</h3>", unsafe_allow_html=True)
                 
                 with col2:
-                    if st.button("➕ Agregar al Calendario"):
+                    if st.button("➕ Agregar al Calendario", use_container_width=True):
                         st.session_state.mis_trades[(anio_trade, mes_trade, dia_trade)] = {
                             "pnl": neto, 
                             "trades": 1, 
@@ -100,9 +131,9 @@ with st.container():
                         }
                         st.rerun() 
             else:
-                st.warning("Asegúrate de copiar toda la fila. No se detectaron precios válidos.")
+                st.warning("⚠️ Pega el texto completo que incluya tanto el 'Buy' como el 'Sell' en estado 'filled'.")
         except Exception as e:
-            st.error("Error procesando los datos. Revisa el formato.")
+            st.error("Error procesando los datos. Revisa el formato de Tradovate.")
 
 st.write("---")
 
