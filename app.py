@@ -27,7 +27,7 @@ st.markdown("""
         box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     }
     
-    .thin-line { border-bottom: 1.5px solid #E2E8F0; margin: 10px 0px 90px 0px; width: 100%; }
+    .thin-line { border-bottom: 1.5px solid #E2E8F0; margin: 10px 0px 25px 0px; width: 90%; }
 
     /* CALENDARIO */
     .calendar-wrapper { 
