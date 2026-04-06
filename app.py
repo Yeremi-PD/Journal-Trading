@@ -54,7 +54,7 @@ st.markdown(f"""
         background: #2D3748; color: white; padding: 10px 0px; 
         border-radius: 80px; text-align: center; font-weight: 700; 
         font-size: {BALANCE_SIZE}px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        box-shadow: 0 4px 6px rgba(0,0,0,0);
         margin-left: {BALANCE_X}px;
         margin-top: {BALANCE_Y}px;
         width: {BALANCE_WIDTH}%;
