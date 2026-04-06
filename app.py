@@ -72,7 +72,7 @@ BOTON_FONDO_OSCURO = "#2D3748"
 BOTON_TEXTO_OSCURO = "#FFFFFF"
 
 # Posición del botón Popover (🗓️) - Ahora la columna es más pequeña, usa números cercanos a 0.
-BOTON_X = 0          
+BOTON_X = -90          
 BOTON_Y = 27         
 BOTON_WIDTH = 45     
 BOTON_HEIGHT = 45    
