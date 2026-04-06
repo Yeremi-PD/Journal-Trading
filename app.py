@@ -69,7 +69,7 @@ BOTON_FONDO_OSCURO = "#2D3748"
 BOTON_TEXTO_OSCURO = "#FFFFFF"
 
 # Posición del botón Popover (🗓️) - ¡PARED INVISIBLE DERRIBADA! Ya puedes usar -170
-BOTON_X = -270          
+BOTON_X = -470          
 BOTON_Y = 27         
 BOTON_WIDTH = 45     
 BOTON_HEIGHT = 45    
