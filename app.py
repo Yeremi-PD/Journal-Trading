@@ -18,9 +18,9 @@ TITULO_X = 0
 TITULO_Y = 0         
 TITULO_SIZE = 100    
 
-# --- SELECTORES (Los 3 de arriba) ---
-FILTROS_X = 0        # Posición Izquierda/Derecha
-FILTROS_Y = 0        # Posición Arriba/Abajo
+# --- CAJAS SELECTORAS COMPLETAS (Mueve caja + texto juntos) ---
+FILTROS_X = 0        
+FILTROS_Y = 0        
 
 DATE_X = 0
 DATE_Y = 0
@@ -28,17 +28,33 @@ DATE_Y = 0
 DATA_SRC_X = 0
 DATA_SRC_Y = 0
 
+# --- TEXTOS / LABELS INDEPENDIENTES (Mueve solo las letras) ---
+LBL_FILTROS_X = 0
+LBL_FILTROS_Y = 0
+
+LBL_DATE_X = 0
+LBL_DATE_Y = 0
+
+LBL_DATA_X = 0
+LBL_DATA_Y = 0
+
+LBL_TOTAL_BAL_X = 0
+LBL_TOTAL_BAL_Y = 0
+
+LBL_INPUT_BAL_X = 0
+LBL_INPUT_BAL_Y = 0
+
 # --- CAJA DE TOTAL BALANCE (La de arriba) ---
 BALANCE_BOX_X = 0     
 BALANCE_BOX_Y = 0     
 BALANCE_BOX_W = 100  # Ancho %
-BALANCE_BOX_SIZE = 30  
+BALANCE_SIZE = 30    # <--- AQUÍ ESTABA EL ERROR. CORREGIDO.
 
-# --- INPUT DE BALANCE (El de abajo) ---
+# --- INPUT DE BALANCE (El cuadro numérico de abajo) ---
 INPUT_BAL_X = 0
 INPUT_BAL_Y = 0
 
-# --- BOTÓN DEL CALENDARIO 🗓️ (REFORZADO) ---
+# --- BOTÓN DEL CALENDARIO 🗓️ ---
 BOTON_X = 0          
 BOTON_Y = 25         
 BOTON_WIDTH = 45     
@@ -46,21 +62,18 @@ BOTON_HEIGHT = 45
 BOTON_ICON_SIZE = 22 
 
 # --- TARJETAS DE MÉTRICAS (Acortadas un 20%) ---
-# Tarjeta 1: Net P&L
 CARD_PNL_X = 0       
 CARD_PNL_Y = 10      
-CARD_PNL_W = 80      # Reducido de 100 a 80
+CARD_PNL_W = 80      
 
-# Tarjeta 2: Trade Win %
 CARD_WIN_X = 0       
 CARD_WIN_Y = 20      
-CARD_WIN_W = 80      # Reducido de 100 a 80
+CARD_WIN_W = 80      
 
 
 # ==========================================
 # 3. LÓGICA DE ESTADO (REAL VS DEMO)
 # ==========================================
-# Ahora creamos dos bases de datos separadas
 if "db" not in st.session_state:
     st.session_state.db = {
         "Real Data": {"balance": 25000.00, "trades": {}},
@@ -74,7 +87,7 @@ if "tema" not in st.session_state:
     st.session_state.tema = "Oscuro"
 
 def procesar_cambio():
-    ctx = st.session_state.data_source_sel # Saber si estamos en Real o Demo
+    ctx = st.session_state.data_source_sel 
     nuevo = st.session_state.input_balance
     viejo = st.session_state.db[ctx]["balance"]
     fecha_sel = st.session_state.input_fecha 
@@ -101,7 +114,6 @@ if st.sidebar.button(texto_boton_tema):
 
 st.sidebar.markdown("---")
 
-# El botón ahora limpia solo la cuenta en la que estés
 ctx_actual = st.session_state.data_source_sel
 if st.sidebar.button(f"🗑️ Limpiar {ctx_actual} a $25k"):
     st.session_state.db[ctx_actual]["balance"] = 25000.00
@@ -123,13 +135,20 @@ st.markdown(f"""
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
     .stApp {{ background-color: {bg_color}; color: {text_color}; font-family: 'Inter', sans-serif; overflow-x: hidden; }}
     
-    /* COORDENADAS REFORZADAS DE LOS ELEMENTOS USANDO TRANSFORM */
+    /* COORDENADAS DE CAJAS PRINCIPALES */
     div[data-testid="column"]:nth-of-type(1) .dashboard-title {{ transform: translate({TITULO_X}px, {TITULO_Y}px); }}
     div[data-testid="column"]:nth-of-type(2) {{ transform: translate({FILTROS_X}px, {FILTROS_Y}px); z-index: 10; }}
     div[data-testid="column"]:nth-of-type(3) {{ transform: translate({DATE_X}px, {DATE_Y}px); z-index: 10; }}
     div[data-testid="column"]:nth-of-type(4) {{ transform: translate({DATA_SRC_X}px, {DATA_SRC_Y}px); z-index: 10; }}
     div[data-testid="column"]:nth-of-type(5) {{ transform: translate({BALANCE_BOX_X}px, {BALANCE_BOX_Y}px); }}
     div[data-testid="column"]:nth-of-type(6) {{ transform: translate({INPUT_BAL_X}px, {INPUT_BAL_Y}px); }}
+
+    /* COORDENADAS INDEPENDIENTES PARA LOS TEXTOS (LABELS) */
+    div[data-testid="column"]:nth-of-type(2) label {{ transform: translate({LBL_FILTROS_X}px, {LBL_FILTROS_Y}px) !important; display: inline-block; }}
+    div[data-testid="column"]:nth-of-type(3) label {{ transform: translate({LBL_DATE_X}px, {LBL_DATE_Y}px) !important; display: inline-block; }}
+    div[data-testid="column"]:nth-of-type(4) label {{ transform: translate({LBL_DATA_X}px, {LBL_DATA_Y}px) !important; display: inline-block; }}
+    div[data-testid="stNumberInput"] label {{ transform: translate({LBL_INPUT_BAL_X}px, {LBL_INPUT_BAL_Y}px) !important; display: inline-block; }}
+    .lbl-total-bal {{ transform: translate({LBL_TOTAL_BAL_X}px, {LBL_TOTAL_BAL_Y}px); display: block; }}
 
     .dashboard-title {{ 
         font-size: {TITULO_SIZE}px; font-weight: 800; color: {title_color}; margin-bottom: 0; letter-spacing: -2px;
@@ -151,7 +170,7 @@ st.markdown(f"""
     .card {{ 
         aspect-ratio: 1 / 1; padding: 5px; border-radius: 20px; 
         display: flex; flex-direction: column; justify-content: center; 
-        align-items: center; font-size: 12px; margin-bottom: 2px !important; /* <--- 2px añadidos aquí */
+        align-items: center; font-size: 12px; margin-bottom: 2px !important;
     }}
     .card b {{ font-size: 18px !important; }}
     .cell-win {{ border: 2.5px solid #00C897; color: #00664F; background-color: #e6f9f4;}}
@@ -163,7 +182,7 @@ st.markdown(f"""
 
     /* BOTÓN POPOVER REFORZADO */
     div[data-testid="stPopover"] > button {{
-        transform: translate({BOTON_X}px, {BOTON_Y}px) !important; /* <--- Movimiento infalible */
+        transform: translate({BOTON_X}px, {BOTON_Y}px) !important; 
         width: {BOTON_WIDTH}px !important; height: {BOTON_HEIGHT}px !important;
         font-size: {BOTON_ICON_SIZE}px !important; padding: 0 !important; border-radius: 8px !important;
         border: 1px solid {border_color} !important; background-color: {card_bg} !important;
@@ -174,7 +193,7 @@ st.markdown(f"""
     /* --- TARJETAS MÉTRICAS (MÁS PEQUEÑAS) --- */
     .metric-card {{
         background-color: {card_bg}; border-radius: 20px;
-        padding: 15px 20px; /* <--- Padding reducido para hacerlas un 20% más compactas */
+        padding: 15px 20px;
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); border: 1px solid {border_color};
     }}
     .card-pnl {{ transform: translate({CARD_PNL_X}px, {CARD_PNL_Y}px); width: {CARD_PNL_W}%; }}
@@ -211,14 +230,14 @@ with col_date:
     mes_sel = list(calendar.month_name).index(mes_sel_nombre)
     anio_sel = int(anio_sel_str)
 
-# Selector de cuenta vinculado directo a la sesión
 with col_data: st.selectbox("Data Source", ["Real Data", "Demo Data"], key="data_source_sel")
 
 ctx = st.session_state.data_source_sel
 bal_actual = st.session_state.db[ctx]["balance"]
 
 with col_bal:
-    st.markdown(f'<div style="text-align:center; margin-bottom:5px;"><small>TOTAL BALANCE ({ctx.upper()})</small></div>', unsafe_allow_html=True)
+    # Agregada clase lbl-total-bal para mover este texto independientemente
+    st.markdown(f'<div class="lbl-total-bal" style="text-align:center; margin-bottom:5px;"><small>TOTAL BALANCE ({ctx.upper()})</small></div>', unsafe_allow_html=True)
     st.markdown(f'<div class="balance-box">${bal_actual:,.2f}</div>', unsafe_allow_html=True)
 
 st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
@@ -231,7 +250,6 @@ with c1:
     st.number_input("Balance:", value=bal_actual, format="%.2f", key="input_balance", on_change=procesar_cambio)
 with c2:
     with st.popover("🗓️"):
-        # label_visibility="collapsed" elimina el texto "Fecha del registro:"
         st.date_input("Fecha del registro:", value=datetime.now(), key="input_fecha", label_visibility="collapsed")
 
 # ==========================================
