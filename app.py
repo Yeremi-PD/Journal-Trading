@@ -13,55 +13,45 @@ st.set_page_config(page_title="Yeremi Journal Pro", layout="wide")
 # ==========================================
 # Usa números positivos para mover a la Derecha/Abajo, y negativos para Izquierda/Arriba.
 
-# --- TÍTULO PRINCIPAL ---
+# --- TÍTULO PRINCIPAL (Dashboard) ---
 TITULO_X = 0         
 TITULO_Y = 0         
-TITULO_SIZE = 500    
+TITULO_SIZE = 100    
+TITULO_COLOR = "#1A202C" # Puedes poner colores como "red", "#FF0000", etc.
 
-# --- CAJAS SELECTORAS COMPLETAS (Mueve caja + texto juntos) ---
+# --- SELECTORES SUPERIORES ---
 FILTROS_X = 0        
 FILTROS_Y = 0        
-
-DATE_X = 0
-DATE_Y = 0
+LBL_FILTROS_X = 0    # Letras de "Filters"
+LBL_FILTROS_Y = 0
 
 DATA_SRC_X = 0
 DATA_SRC_Y = 0
-
-# --- TEXTOS / LABELS INDEPENDIENTES (Mueve solo las letras) ---
-LBL_FILTROS_X = 0
-LBL_FILTROS_Y = 0
-
-LBL_DATE_X = 0
-LBL_DATE_Y = 0
-
-LBL_DATA_X = 0
+LBL_DATA_X = 0       # Letras de "Data Source"
 LBL_DATA_Y = 0
 
-LBL_TOTAL_BAL_X = 0
-LBL_TOTAL_BAL_Y = 0
-
-LBL_INPUT_BAL_X = 0
-LBL_INPUT_BAL_Y = -10
-
-# --- CAJA DE TOTAL BALANCE (La de arriba) ---
+# --- CAJA DE TOTAL BALANCE (La caja verde de arriba) ---
 BALANCE_BOX_X = 0     
 BALANCE_BOX_Y = 0     
 BALANCE_BOX_W = 100  # Ancho %
-BALANCE_SIZE = 30    # <--- AQUÍ ESTABA EL ERROR. CORREGIDO.
+BALANCE_SIZE = 30    
+LBL_TOTAL_BAL_X = 0  # Letras de "TOTAL BALANCE"
+LBL_TOTAL_BAL_Y = 0
 
-# --- INPUT DE BALANCE (El cuadro numérico de abajo) ---
-INPUT_BAL_X = -100
-INPUT_BAL_Y = 1000
+# --- INPUT DE BALANCE (El cuadro de números REFORZADO) ---
+INPUT_BAL_X = 0      # ¡Mueve toda la caja!
+INPUT_BAL_Y = 0      
+LBL_INPUT_BAL_X = 0  # Letras de "Balance:"
+LBL_INPUT_BAL_Y = 0
 
-# --- BOTÓN DEL CALENDARIO 🗓️ ---
-BOTON_X = 100          
-BOTON_Y = 550         
+# --- BOTÓN DEL CALENDARIO 🗓️ (REFORZADO) ---
+BOTON_X = 0          # ¡Mueve el botón!
+BOTON_Y = 25         
 BOTON_WIDTH = 45     
 BOTON_HEIGHT = 45    
 BOTON_ICON_SIZE = 22 
 
-# --- TARJETAS DE MÉTRICAS (Acortadas un 20%) ---
+# --- TARJETAS DE MÉTRICAS ---
 CARD_PNL_X = 0       
 CARD_PNL_Y = 10      
 CARD_PNL_W = 80      
@@ -70,9 +60,8 @@ CARD_WIN_X = 0
 CARD_WIN_Y = 20      
 CARD_WIN_W = 80      
 
-
 # ==========================================
-# 3. LÓGICA DE ESTADO (REAL VS DEMO)
+# 3. LÓGICA DE ESTADO Y CALENDARIO
 # ==========================================
 if "db" not in st.session_state:
     st.session_state.db = {
@@ -85,6 +74,22 @@ if "data_source_sel" not in st.session_state:
 
 if "tema" not in st.session_state:
     st.session_state.tema = "Oscuro"
+
+# Lógica de navegación del calendario grande
+hoy = datetime.now()
+if "cal_month" not in st.session_state:
+    st.session_state.cal_month = hoy.month
+if "cal_year" not in st.session_state:
+    st.session_state.cal_year = hoy.year
+
+def cambiar_mes(delta):
+    st.session_state.cal_month += delta
+    if st.session_state.cal_month > 12:
+        st.session_state.cal_month = 1
+        st.session_state.cal_year += 1
+    elif st.session_state.cal_month < 1:
+        st.session_state.cal_month = 12
+        st.session_state.cal_year -= 1
 
 def procesar_cambio():
     ctx = st.session_state.data_source_sel 
@@ -124,10 +129,10 @@ if st.sidebar.button(f"🗑️ Limpiar {ctx_actual} a $25k"):
 # 5. COLORES DEL TEMA Y CSS DINÁMICO
 # ==========================================
 if st.session_state.tema == "Claro":
-    bg_color, text_color, title_color = "#F7FAFC", "#2D3748", "#1A202C"
+    bg_color, text_color = "#F7FAFC", "#2D3748"
     card_bg, border_color, empty_cell_bg = "#FFFFFF", "#E2E8F0", "#FFFFFF"
 else:
-    bg_color, text_color, title_color = "#1A202C", "#E2E8F0", "#FFFFFF"
+    bg_color, text_color = "#1A202C", "#E2E8F0"
     card_bg, border_color, empty_cell_bg = "#2D3748", "#4A5568", "#1A202C"
 
 st.markdown(f"""
@@ -135,23 +140,25 @@ st.markdown(f"""
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
     .stApp {{ background-color: {bg_color}; color: {text_color}; font-family: 'Inter', sans-serif; overflow-x: hidden; }}
     
-    /* COORDENADAS DE CAJAS PRINCIPALES */
+    /* COORDENADAS DE CAJAS PRINCIPALES SUPERIORES */
     div[data-testid="column"]:nth-of-type(1) .dashboard-title {{ transform: translate({TITULO_X}px, {TITULO_Y}px); }}
     div[data-testid="column"]:nth-of-type(2) {{ transform: translate({FILTROS_X}px, {FILTROS_Y}px); z-index: 10; }}
-    div[data-testid="column"]:nth-of-type(3) {{ transform: translate({DATE_X}px, {DATE_Y}px); z-index: 10; }}
-    div[data-testid="column"]:nth-of-type(4) {{ transform: translate({DATA_SRC_X}px, {DATA_SRC_Y}px); z-index: 10; }}
-    div[data-testid="column"]:nth-of-type(5) {{ transform: translate({BALANCE_BOX_X}px, {BALANCE_BOX_Y}px); }}
-    div[data-testid="column"]:nth-of-type(6) {{ transform: translate({INPUT_BAL_X}px, {INPUT_BAL_Y}px); }}
+    div[data-testid="column"]:nth-of-type(3) {{ transform: translate({DATA_SRC_X}px, {DATA_SRC_Y}px); z-index: 10; }}
+    div[data-testid="column"]:nth-of-type(4) {{ transform: translate({BALANCE_BOX_X}px, {BALANCE_BOX_Y}px); }}
+
+    /* ESTO FUERZA AL INPUT Y AL POPOVER A MOVERSE SIN IMPORTAR LA COLUMNA (REFORZADO) */
+    div[data-testid="stNumberInput"] {{ transform: translate({INPUT_BAL_X}px, {INPUT_BAL_Y}px) !important; max-width: 200px !important; }}
+    div[data-testid="stPopover"] {{ transform: translate({BOTON_X}px, {BOTON_Y}px) !important; }}
 
     /* COORDENADAS INDEPENDIENTES PARA LOS TEXTOS (LABELS) */
     div[data-testid="column"]:nth-of-type(2) label {{ transform: translate({LBL_FILTROS_X}px, {LBL_FILTROS_Y}px) !important; display: inline-block; }}
-    div[data-testid="column"]:nth-of-type(3) label {{ transform: translate({LBL_DATE_X}px, {LBL_DATE_Y}px) !important; display: inline-block; }}
-    div[data-testid="column"]:nth-of-type(4) label {{ transform: translate({LBL_DATA_X}px, {LBL_DATA_Y}px) !important; display: inline-block; }}
+    div[data-testid="column"]:nth-of-type(3) label {{ transform: translate({LBL_DATA_X}px, {LBL_DATA_Y}px) !important; display: inline-block; }}
     div[data-testid="stNumberInput"] label {{ transform: translate({LBL_INPUT_BAL_X}px, {LBL_INPUT_BAL_Y}px) !important; display: inline-block; }}
     .lbl-total-bal {{ transform: translate({LBL_TOTAL_BAL_X}px, {LBL_TOTAL_BAL_Y}px); display: block; }}
 
+    /* TÍTULO DASHBOARD AJUSTABLE */
     .dashboard-title {{ 
-        font-size: {TITULO_SIZE}px; font-weight: 800; color: {title_color}; margin-bottom: 0; letter-spacing: -2px;
+        font-size: {TITULO_SIZE}px; font-weight: 800; color: {TITULO_COLOR}; margin-bottom: 0; letter-spacing: -2px;
     }}
     
     .balance-box {{ 
@@ -162,9 +169,9 @@ st.markdown(f"""
     
     .thin-line {{ border-bottom: 1.5px solid {border_color}; margin: 10px 0px 25px 0px; width: 100%; }}
 
-    /* CALENDARIO CON SEPARACIÓN VERTICAL DE 2PX */
+    /* CALENDARIO Y DÍAS */
     .calendar-wrapper {{ 
-        background: {card_bg}; padding: 1px; border-radius: 15px; 
+        background: {card_bg}; padding: 10px; border-radius: 15px; 
         border: 1px solid {border_color}; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
     }}
     .card {{ 
@@ -180,17 +187,15 @@ st.markdown(f"""
     label {{ font-weight: 700 !important; color: {text_color} !important; font-size: 14px !important; }}
     p, div {{ color: {text_color}; }}
 
-    /* BOTÓN POPOVER REFORZADO */
+    /* DISEÑO DEL BOTÓN POPOVER REFORZADO */
     div[data-testid="stPopover"] > button {{
-        transform: translate({BOTON_X}px, {BOTON_Y}px) !important; 
         width: {BOTON_WIDTH}px !important; height: {BOTON_HEIGHT}px !important;
         font-size: {BOTON_ICON_SIZE}px !important; padding: 0 !important; border-radius: 8px !important;
         border: 1px solid {border_color} !important; background-color: {card_bg} !important;
         display: flex !important; justify-content: center !important; align-items: center !important;
     }}
-    div[data-testid="stNumberInput"] {{ max-width: 180px !important; }}
 
-    /* --- TARJETAS MÉTRICAS (MÁS PEQUEÑAS) --- */
+    /* --- TARJETAS MÉTRICAS --- */
     .metric-card {{
         background-color: {card_bg}; border-radius: 20px;
         padding: 15px 20px;
@@ -206,7 +211,7 @@ st.markdown(f"""
     
     .pnl-value {{ font-size: 28px; font-weight: 800; color: #00C897; letter-spacing: -0.5px; }}
     .pnl-value-loss {{ color: #FF4C4C; }}
-    .win-value {{ font-size: 28px; font-weight: 800; color: {title_color}; letter-spacing: -0.5px; }}
+    .win-value {{ font-size: 28px; font-weight: 800; color: {TITULO_COLOR}; letter-spacing: -0.5px; }}
 
     .gauge-container {{ display: flex; flex-direction: column; align-items: center; gap: 5px; }}
     .gauge-labels {{ display: flex; gap: 15px; font-size: 11px; font-weight: 700; margin-top: -5px; }}
@@ -219,24 +224,17 @@ st.markdown(f"""
 # ==========================================
 # 6. HEADER (BARRA SUPERIOR)
 # ==========================================
-col_t, col_fil, col_date, col_data, col_bal = st.columns([3, 1.5, 2, 1.5, 2])
+# Eliminé la columna de "Date range" porque ahora navegaremos con flechas en el calendario
+col_t, col_fil, col_data, col_bal = st.columns([3, 1.5, 1.5, 2])
 
 with col_t: st.markdown('<p class="dashboard-title">Dashboard</p>', unsafe_allow_html=True)
 with col_fil: filtro = st.selectbox("Filters", ["Todos", "Ganancias", "Pérdidas"])
-with col_date:
-    meses_nombres = [calendar.month_name[i] for i in range(1, 13)]
-    date_sel = st.selectbox("Date range", [f"{m} 2026" for m in meses_nombres], index=3) 
-    mes_sel_nombre, anio_sel_str = date_sel.split()
-    mes_sel = list(calendar.month_name).index(mes_sel_nombre)
-    anio_sel = int(anio_sel_str)
-
 with col_data: st.selectbox("Data Source", ["Real Data", "Demo Data"], key="data_source_sel")
 
 ctx = st.session_state.data_source_sel
 bal_actual = st.session_state.db[ctx]["balance"]
 
 with col_bal:
-    # Agregada clase lbl-total-bal para mover este texto independientemente
     st.markdown(f'<div class="lbl-total-bal" style="text-align:center; margin-bottom:5px;"><small>TOTAL BALANCE ({ctx.upper()})</small></div>', unsafe_allow_html=True)
     st.markdown(f'<div class="balance-box">${bal_actual:,.2f}</div>', unsafe_allow_html=True)
 
@@ -245,21 +243,34 @@ st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
 # ==========================================
 # 7. ENTRADA AUTOMÁTICA (CON POPOVER 🗓️)
 # ==========================================
-c1, c2, _ = st.columns([0.5, 0.2, 3.3]) 
+c1, c2, _ = st.columns([1, 1, 3]) 
 with c1:
     st.number_input("Balance:", value=bal_actual, format="%.2f", key="input_balance", on_change=procesar_cambio)
 with c2:
     with st.popover("🗓️"):
-        st.date_input("Fecha del registro:", value=datetime.now(), key="input_fecha", label_visibility="collapsed")
+        st.date_input("Fecha del registro:", value=hoy, key="input_fecha", label_visibility="collapsed")
 
 # ==========================================
 # 8. CALENDARIO Y RESUMEN
 # ==========================================
 col_cal, col_det = st.columns([1.5, 1])
 
+# Variables del calendario actual
+anio_sel = st.session_state.cal_year
+mes_sel = st.session_state.cal_month
+nombre_mes = calendar.month_name[mes_sel]
+
 with col_cal:
     st.markdown('<div class="calendar-wrapper">', unsafe_allow_html=True)
-    st.markdown(f'<div style="text-align:center; font-weight:800; font-size:20px; margin-bottom:15px; color:{title_color};">{date_sel}</div>', unsafe_allow_html=True)
+    
+    # NUEVO: Encabezado del calendario con flechas de navegación
+    c_izq, c_cen, c_der = st.columns([1, 4, 1])
+    with c_izq: st.button("◀", on_click=cambiar_mes, args=(-1,), use_container_width=True)
+    with c_cen: st.markdown(f'<div style="text-align:center; font-weight:800; font-size:22px; color:{TITULO_COLOR};">{nombre_mes} {anio_sel}</div>', unsafe_allow_html=True)
+    with c_der: st.button("▶", on_click=cambiar_mes, args=(1,), use_container_width=True)
+    
+    st.markdown("<br>", unsafe_allow_html=True)
+    
     dias_semana = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"]
     primer_dia, total_dias = calendar.monthrange(anio_sel, mes_sel)
     cuadricula = [""] * ((primer_dia + 1) % 7) + list(range(1, total_dias + 1))
