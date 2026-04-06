@@ -56,7 +56,7 @@ INPUT_BAL_Y = 0
 
 # --- BOTÓN DEL CALENDARIO 🗓️ ---
 BOTON_X = 0          
-BOTON_Y = 25         
+BOTON_Y = 550         
 BOTON_WIDTH = 45     
 BOTON_HEIGHT = 45    
 BOTON_ICON_SIZE = 22 
