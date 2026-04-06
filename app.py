@@ -42,7 +42,7 @@ LBL_TOTAL_BAL_X = 0
 LBL_TOTAL_BAL_Y = 0
 
 LBL_INPUT_BAL_X = 0
-LBL_INPUT_BAL_Y = 0
+LBL_INPUT_BAL_Y = 100
 
 # --- CAJA DE TOTAL BALANCE (La de arriba) ---
 BALANCE_BOX_X = 0     
@@ -52,10 +52,10 @@ BALANCE_SIZE = 30    # <--- AQUÍ ESTABA EL ERROR. CORREGIDO.
 
 # --- INPUT DE BALANCE (El cuadro numérico de abajo) ---
 INPUT_BAL_X = 100
-INPUT_BAL_Y = 20
+INPUT_BAL_Y = 1000
 
 # --- BOTÓN DEL CALENDARIO 🗓️ ---
-BOTON_X = 0          
+BOTON_X = 100          
 BOTON_Y = 550         
 BOTON_WIDTH = 45     
 BOTON_HEIGHT = 45    
