@@ -36,7 +36,7 @@ st.markdown("""
     }
 /* 1. Pegar las columnas entre sí */
     [data-testid="stHorizontalBlock"] {
-        gap: 12px !important; /* Elimina el espacio natural de Streamlit entre columnas */
+        gap: 15px !important; /* Elimina el espacio natural de Streamlit entre columnas */
     }
 
     /* 2. Ajustar el cuadro para que no tenga separación */
@@ -52,7 +52,7 @@ st.markdown("""
         
         /* CAMBIA ESTO: */
         margin: 2px !important; /* Un margen muy pequeño para que casi se toquen */
-        width: 95%;
+        width: 98%;
     }
     .card b { font-size: 18px !important; }
     .cell-win { border: 2.5px solid #00C897; color: #00664F; background-color: #e6f9f4;}
