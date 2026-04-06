@@ -36,7 +36,7 @@ st.markdown("""
     }
 /* 1. Pegar las columnas entre sí */
     [data-testid="stHorizontalBlock"] {
-        gap: 3px !important; /* Elimina el espacio natural de Streamlit entre columnas */
+        gap: 8px !important; /* Elimina el espacio natural de Streamlit entre columnas */
     }
 
     /* 2. Ajustar el cuadro para que no tenga separación */
