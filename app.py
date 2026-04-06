@@ -9,49 +9,57 @@ from datetime import datetime
 st.set_page_config(page_title="Yeremi Journal Pro", layout="wide")
 
 # ==========================================
-# 2. SECCIÓN DE AJUSTES MANUALES (Modifica los números aquí)
+# 2. SECCIÓN DE AJUSTES MANUALES (TODO EL CONTROL AQUÍ)
 # ==========================================
 # Usa números positivos para mover a la Derecha/Abajo, y negativos para Izquierda/Arriba.
 
-# --- TÍTULO PRINCIPAL (Dashboard) ---
+# --- ZONA 1: TÍTULO PRINCIPAL ---
+TITULO_TEXTO = "Dashboard"
 TITULO_X = 0         
-TITULO_Y = 90         
-TITULO_SIZE = 400    
-TITULO_COLOR = "#1A202C" # Puedes poner colores como "red", "#FF0000", etc.
+TITULO_Y = 0         
+TITULO_SIZE = 80     # ¡Ajustado a 80 para probar, cámbialo a tu gusto!
+TITULO_COLOR = "#1A202C"
 
-# --- SELECTORES SUPERIORES ---
+# --- ZONA 2: SELECTORES SUPERIORES ---
+# Filtros
+FILTROS_TEXTO = "Filtros"
 FILTROS_X = 0        
 FILTROS_Y = 0        
-LBL_FILTROS_X = 0    # Letras de "Filters"
+LBL_FILTROS_X = 0    
 LBL_FILTROS_Y = 0
 
+# Origen de Datos (Real/Demo)
+DATA_SRC_TEXTO = "Data Source"
 DATA_SRC_X = 0
 DATA_SRC_Y = 0
-LBL_DATA_X = 0       # Letras de "Data Source"
+LBL_DATA_X = 0       
 LBL_DATA_Y = 0
 
-# --- CAJA DE TOTAL BALANCE (La caja verde de arriba) ---
+# --- ZONA 3: CAJA DE TOTAL BALANCE (Caja Verde Superior) ---
+TOTAL_BAL_TEXTO = "TOTAL BALANCE"
 BALANCE_BOX_X = 0     
 BALANCE_BOX_Y = 0     
-BALANCE_BOX_W = 100  # Ancho %
-BALANCE_SIZE = 30    
-LBL_TOTAL_BAL_X = 0  # Letras de "TOTAL BALANCE"
+BALANCE_BOX_W = 100  # Ancho en %
+BALANCE_SIZE = 30    # Tamaño de los números dentro de la caja
+LBL_TOTAL_BAL_X = 0  
 LBL_TOTAL_BAL_Y = 0
 
-# --- INPUT DE BALANCE (El cuadro de números REFORZADO) ---
-INPUT_BAL_X = 0      # ¡Mueve toda la caja!
+# --- ZONA 4: INPUT DE BALANCE (Cuadro para ingresar números) ---
+INPUT_BAL_TEXTO = "Balance:"
+INPUT_BAL_X = 0      
 INPUT_BAL_Y = 0      
-LBL_INPUT_BAL_X = 0  # Letras de "Balance:"
+LBL_INPUT_BAL_X = 0  
 LBL_INPUT_BAL_Y = 0
 
-# --- BOTÓN DEL CALENDARIO 🗓️ (REFORZADO) ---
-BOTON_X = -170          # ¡Mueve el botón!
+# --- ZONA 5: CALENDARIO Y BOTONES ---
+# Botón Popover 🗓️
+BOTON_X = -170          
 BOTON_Y = 27         
 BOTON_WIDTH = 45     
 BOTON_HEIGHT = 45    
 BOTON_ICON_SIZE = 22 
 
-# --- TARJETAS DE MÉTRICAS ---
+# --- ZONA 6: TARJETAS DE MÉTRICAS (Porcentajes y PNL) ---
 CARD_PNL_X = 0       
 CARD_PNL_Y = 10      
 CARD_PNL_W = 80      
@@ -75,7 +83,6 @@ if "data_source_sel" not in st.session_state:
 if "tema" not in st.session_state:
     st.session_state.tema = "Oscuro"
 
-# Lógica de navegación del calendario grande
 hoy = datetime.now()
 if "cal_month" not in st.session_state:
     st.session_state.cal_month = hoy.month
@@ -128,12 +135,15 @@ if st.sidebar.button(f"🗑️ Limpiar {ctx_actual} a $25k"):
 # ==========================================
 # 5. COLORES DEL TEMA Y CSS DINÁMICO
 # ==========================================
+# Aquí se define el color de los botones (btn_bg, btn_text)
 if st.session_state.tema == "Claro":
     bg_color, text_color = "#F7FAFC", "#2D3748"
     card_bg, border_color, empty_cell_bg = "#FFFFFF", "#E2E8F0", "#FFFFFF"
+    btn_bg, btn_text = "#F3F4F6", "#1A202C" # Botones en modo claro (Gris clarito)
 else:
     bg_color, text_color = "#1A202C", "#E2E8F0"
     card_bg, border_color, empty_cell_bg = "#2D3748", "#4A5568", "#1A202C"
+    btn_bg, btn_text = "#2D3748", "#FFFFFF" # Botones en modo oscuro
 
 st.markdown(f"""
     <style>
@@ -141,24 +151,28 @@ st.markdown(f"""
     .stApp {{ background-color: {bg_color}; color: {text_color}; font-family: 'Inter', sans-serif; overflow-x: hidden; }}
     
     /* COORDENADAS DE CAJAS PRINCIPALES SUPERIORES */
-    div[data-testid="column"]:nth-of-type(1) .dashboard-title {{ transform: translate({TITULO_X}px, {TITULO_Y}px); }}
+    div[data-testid="column"]:nth-of-type(1) .dashboard-title {{ transform: translate({TITULO_X}px, {TITULO_Y}px) !important; display: block; }}
     div[data-testid="column"]:nth-of-type(2) {{ transform: translate({FILTROS_X}px, {FILTROS_Y}px); z-index: 10; }}
     div[data-testid="column"]:nth-of-type(3) {{ transform: translate({DATA_SRC_X}px, {DATA_SRC_Y}px); z-index: 10; }}
     div[data-testid="column"]:nth-of-type(4) {{ transform: translate({BALANCE_BOX_X}px, {BALANCE_BOX_Y}px); }}
 
-    /* ESTO FUERZA AL INPUT Y AL POPOVER A MOVERSE SIN IMPORTAR LA COLUMNA (REFORZADO) */
+    /* ESTO FUERZA AL INPUT Y AL POPOVER A MOVERSE */
     div[data-testid="stNumberInput"] {{ transform: translate({INPUT_BAL_X}px, {INPUT_BAL_Y}px) !important; max-width: 200px !important; }}
-    div[data-testid="stPopover"] {{ transform: translate({BOTON_X}px, {BOTON_Y}px) !important; }}
-
+    
     /* COORDENADAS INDEPENDIENTES PARA LOS TEXTOS (LABELS) */
     div[data-testid="column"]:nth-of-type(2) label {{ transform: translate({LBL_FILTROS_X}px, {LBL_FILTROS_Y}px) !important; display: inline-block; }}
     div[data-testid="column"]:nth-of-type(3) label {{ transform: translate({LBL_DATA_X}px, {LBL_DATA_Y}px) !important; display: inline-block; }}
     div[data-testid="stNumberInput"] label {{ transform: translate({LBL_INPUT_BAL_X}px, {LBL_INPUT_BAL_Y}px) !important; display: inline-block; }}
     .lbl-total-bal {{ transform: translate({LBL_TOTAL_BAL_X}px, {LBL_TOTAL_BAL_Y}px); display: block; }}
 
-    /* TÍTULO DASHBOARD AJUSTABLE */
+    /* TÍTULO DASHBOARD FUERZA BRUTA (!important a todo para obligar el cambio) */
     .dashboard-title {{ 
-        font-size: {TITULO_SIZE}px; font-weight: 800; color: {TITULO_COLOR}; margin-bottom: 0; letter-spacing: -2px;
+        font-size: {TITULO_SIZE}px !important; 
+        font-weight: 800 !important; 
+        color: {TITULO_COLOR} !important; 
+        margin-bottom: 0 !important; 
+        line-height: 1.1 !important;
+        letter-spacing: -2px !important;
     }}
     
     .balance-box {{ 
@@ -187,18 +201,28 @@ st.markdown(f"""
     label {{ font-weight: 700 !important; color: {text_color} !important; font-size: 14px !important; }}
     p, div {{ color: {text_color}; }}
 
-    /* DISEÑO DEL BOTÓN POPOVER REFORZADO */
+    /* ==================================
+       ESTILOS DE BOTONES SEGÚN EL TEMA
+       ================================== */
+    /* Botones generales (flechas, barra lateral) */
+    div[data-testid="stButton"] > button {{
+        background-color: {btn_bg} !important;
+        color: {btn_text} !important;
+        border: 1px solid {border_color} !important;
+    }}
+    
+    /* Botón Popover del Calendario REFORZADO */
+    div[data-testid="stPopover"] {{ transform: translate({BOTON_X}px, {BOTON_Y}px) !important; }}
     div[data-testid="stPopover"] > button {{
         width: {BOTON_WIDTH}px !important; height: {BOTON_HEIGHT}px !important;
         font-size: {BOTON_ICON_SIZE}px !important; padding: 0 !important; border-radius: 8px !important;
-        border: 1px solid {border_color} !important; background-color: {card_bg} !important;
+        border: 1px solid {border_color} !important; background-color: {btn_bg} !important; color: {btn_text} !important;
         display: flex !important; justify-content: center !important; align-items: center !important;
     }}
 
     /* --- TARJETAS MÉTRICAS --- */
     .metric-card {{
-        background-color: {card_bg}; border-radius: 20px;
-        padding: 15px 20px;
+        background-color: {card_bg}; border-radius: 20px; padding: 15px 20px;
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); border: 1px solid {border_color};
     }}
     .card-pnl {{ transform: translate({CARD_PNL_X}px, {CARD_PNL_Y}px); width: {CARD_PNL_W}%; }}
@@ -224,18 +248,17 @@ st.markdown(f"""
 # ==========================================
 # 6. HEADER (BARRA SUPERIOR)
 # ==========================================
-# Eliminé la columna de "Date range" porque ahora navegaremos con flechas en el calendario
 col_t, col_fil, col_data, col_bal = st.columns([3, 1.5, 1.5, 2])
 
-with col_t: st.markdown('<p class="dashboard-title">Dashboard</p>', unsafe_allow_html=True)
-with col_fil: filtro = st.selectbox("Filters", ["Todos", "Ganancias", "Pérdidas"])
-with col_data: st.selectbox("Data Source", ["Real Data", "Demo Data"], key="data_source_sel")
+with col_t: st.markdown(f'<p class="dashboard-title">{TITULO_TEXTO}</p>', unsafe_allow_html=True)
+with col_fil: filtro = st.selectbox(FILTROS_TEXTO, ["Todos", "Ganancias", "Pérdidas"])
+with col_data: st.selectbox(DATA_SRC_TEXTO, ["Real Data", "Demo Data"], key="data_source_sel")
 
 ctx = st.session_state.data_source_sel
 bal_actual = st.session_state.db[ctx]["balance"]
 
 with col_bal:
-    st.markdown(f'<div class="lbl-total-bal" style="text-align:center; margin-bottom:5px;"><small>TOTAL BALANCE ({ctx.upper()})</small></div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="lbl-total-bal" style="text-align:center; margin-bottom:5px;"><small>{TOTAL_BAL_TEXTO} ({ctx.upper()})</small></div>', unsafe_allow_html=True)
     st.markdown(f'<div class="balance-box">${bal_actual:,.2f}</div>', unsafe_allow_html=True)
 
 st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
@@ -245,17 +268,16 @@ st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
 # ==========================================
 c1, c2, _ = st.columns([1, 1, 3]) 
 with c1:
-    st.number_input("Balance:", value=bal_actual, format="%.2f", key="input_balance", on_change=procesar_cambio)
+    st.number_input(INPUT_BAL_TEXTO, value=bal_actual, format="%.2f", key="input_balance", on_change=procesar_cambio)
 with c2:
     with st.popover("🗓️"):
-        st.date_input("Fecha del registro:", value=hoy, key="input_fecha", label_visibility="collapsed")
+        st.date_input("Fecha oculta", value=hoy, key="input_fecha", label_visibility="collapsed")
 
 # ==========================================
 # 8. CALENDARIO Y RESUMEN
 # ==========================================
 col_cal, col_det = st.columns([1.5, 1])
 
-# Variables del calendario actual
 anio_sel = st.session_state.cal_year
 mes_sel = st.session_state.cal_month
 nombre_mes = calendar.month_name[mes_sel]
@@ -263,7 +285,6 @@ nombre_mes = calendar.month_name[mes_sel]
 with col_cal:
     st.markdown('<div class="calendar-wrapper">', unsafe_allow_html=True)
     
-    # NUEVO: Encabezado del calendario con flechas de navegación
     c_izq, c_cen, c_der = st.columns([1, 4, 1])
     with c_izq: st.button("◀", on_click=cambiar_mes, args=(-1,), use_container_width=True)
     with c_cen: st.markdown(f'<div style="text-align:center; font-weight:800; font-size:22px; color:{TITULO_COLOR};">{nombre_mes} {anio_sel}</div>', unsafe_allow_html=True)
@@ -302,7 +323,6 @@ with col_cal:
     st.markdown('</div>', unsafe_allow_html=True)
 
 with col_det:
-    # ---------------- CÁLCULOS MATEMÁTICOS PARA LAS MÉTRICAS ----------------
     trades_mes = [v["pnl"] for k, v in st.session_state.db[ctx]["trades"].items() if k[0] == anio_sel and k[1] == mes_sel]
     total_trades = len(trades_mes)
     
@@ -318,7 +338,6 @@ with col_det:
     len_w = (wins / total_trades * c) if total_trades > 0 else 0
     len_t = (ties / total_trades * c) if total_trades > 0 else 0
 
-    # ---------------- RENDERIZAR TARJETA 1: P&L ----------------
     color_pnl = "pnl-value" if net_pnl >= 0 else "pnl-value pnl-value-loss"
     simbolo_pnl = "+" if net_pnl > 0 else ""
     
@@ -333,7 +352,6 @@ with col_det:
         </div>
     """, unsafe_allow_html=True)
 
-    # ---------------- RENDERIZAR TARJETA 2: WIN % ----------------
     svg_html = f'<svg width="120" height="60" viewBox="0 0 100 50">\n'
     svg_html += f'<path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="{border_color}" stroke-width="10"/>\n'
     if total_trades > 0:
