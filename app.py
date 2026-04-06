@@ -28,7 +28,7 @@ BOTON_X = 59          # Posición Izquierda/Derecha (px)
 BOTON_Y = 25         # Posición Arriba/Abajo (px)
 BOTON_WIDTH = 45     # Ancho del botón (px)
 BOTON_HEIGHT = 45    # Alto del botón (px)
-BOTON_ICON_SIZE = 50 # Tamaño del icono 🗓️ (px)
+BOTON_ICON_SIZE = 100 # Tamaño del icono 🗓️ (px)
 
 # --- NUEVAS TARJETAS DE MÉTRICAS (NET P&L y WIN %) ---
 # Tarjeta 1: Net P&L
