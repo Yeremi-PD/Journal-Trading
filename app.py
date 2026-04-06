@@ -18,28 +18,28 @@ TITULO_Y = 0         # Posición Arriba/Abajo (px)
 TITULO_SIZE = 100    # Tamaño de la letra (px)
 
 # --- CAJA DE BALANCE ---
-BALANCE_X = 100        # Posición Izquierda/Derecha (px)
+BALANCE_X = 100      # Posición Izquierda/Derecha (px)
 BALANCE_Y = 0        # Posición Arriba/Abajo (px)
-BALANCE_WIDTH = 50  # Ancho de la caja (en porcentaje %)
+BALANCE_WIDTH = 50   # Ancho de la caja (en porcentaje %)
 BALANCE_SIZE = 30    # Tamaño de la letra (px)
 
 # --- BOTÓN DEL CALENDARIO 🗓️ ---
-BOTON_X = 59          # Posición Izquierda/Derecha (px)
+BOTON_X = 59         # Posición Izquierda/Derecha (px)
 BOTON_Y = 25         # Posición Arriba/Abajo (px)
 BOTON_WIDTH = 45     # Ancho del botón (px)
 BOTON_HEIGHT = 45    # Alto del botón (px)
-BOTON_ICON_SIZE = 100 # Tamaño del icono 🗓️ (px)
+BOTON_ICON_SIZE = 22 # Tamaño del icono 🗓️ (px) (Nota: 100 era muy grande, lo regresé a un tamaño normal)
 
 # --- NUEVAS TARJETAS DE MÉTRICAS (NET P&L y WIN %) ---
 # Tarjeta 1: Net P&L
 CARD_PNL_X = 0       # Eje X
 CARD_PNL_Y = 10      # Eje Y
-CARD_PNL_W = 40     # Ancho en porcentaje %
+CARD_PNL_W = 100      # Ancho en porcentaje % (Recomendado 100 para que llene su columna)
 
 # Tarjeta 2: Trade Win %
 CARD_WIN_X = 0       # Eje X
 CARD_WIN_Y = 20      # Eje Y (Separación de la tarjeta de arriba)
-CARD_WIN_W = 40     # Ancho en porcentaje %
+CARD_WIN_W = 100      # Ancho en porcentaje % (Recomendado 100 para que llene su columna)
 
 
 # ==========================================
@@ -52,7 +52,7 @@ if "mis_trades" not in st.session_state:
     st.session_state.mis_trades = {} 
 
 if "tema" not in st.session_state:
-    st.session_state.tema = "Claro"
+    st.session_state.tema = "Oscuro" # Lo puse oscuro por defecto basado en tu captura
 
 def procesar_cambio():
     nuevo = st.session_state.input_balance
@@ -96,7 +96,6 @@ if st.session_state.tema == "Claro":
     card_bg = "#FFFFFF"
     border_color = "#E2E8F0"
     empty_cell_bg = "#FFFFFF"
-    badge_bg = "#F3F4F6"
 else:
     bg_color = "#1A202C"
     text_color = "#E2E8F0"
@@ -104,13 +103,12 @@ else:
     card_bg = "#2D3748"
     border_color = "#4A5568"
     empty_cell_bg = "#1A202C"
-    badge_bg = "#4A5568"
 
 st.markdown(f"""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
     
-    .stApp {{ background-color: {bg_color}; color: {text_color}; font-family: 'Inter', sans-serif; }}
+    .stApp {{ background-color: {bg_color}; color: {text_color}; font-family: 'Inter', sans-serif; overflow-x: hidden; }}
     
     .dashboard-title {{ 
         font-size: {TITULO_SIZE}px; font-weight: 800; color: {title_color}; margin-bottom: 0;
@@ -162,14 +160,8 @@ st.markdown(f"""
         border: 1px solid {border_color};
     }}
     
-    .card-pnl {{
-        margin-left: {CARD_PNL_X}px; margin-top: {CARD_PNL_Y}px; width: {CARD_PNL_W}%;
-    }}
-    
-    .card-win {{
-        margin-left: {CARD_WIN_X}px; margin-top: {CARD_WIN_Y}px; width: {CARD_WIN_W}%;
-        display: flex; justify-content: space-between; align-items: center;
-    }}
+    .card-pnl {{ margin-left: {CARD_PNL_X}px; margin-top: {CARD_PNL_Y}px; width: {CARD_PNL_W}%; }}
+    .card-win {{ margin-left: {CARD_WIN_X}px; margin-top: {CARD_WIN_Y}px; width: {CARD_WIN_W}%; display: flex; justify-content: space-between; align-items: center; }}
 
     .metric-header {{ display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }}
     .metric-title {{ font-size: 15px; font-weight: 500; color: #6B7280; }}
@@ -185,6 +177,14 @@ st.markdown(f"""
     .lbl-g {{ background-color: #e6f9f4; color: #00C897; padding: 2px 8px; border-radius: 10px; }}
     .lbl-b {{ background-color: #EEF2FF; color: #4F46E5; padding: 2px 8px; border-radius: 10px; }}
     .lbl-r {{ background-color: #ffeded; color: #FF4C4C; padding: 2px 8px; border-radius: 10px; }}
+    
+    /* --- DISEÑO RESPONSIVO (MÓVILES) --- */
+    @media (max-width: 768px) {{
+        .dashboard-title {{ font-size: 40px !important; margin-left: 0 !important; text-align: center; }}
+        .balance-box {{ width: 100% !important; margin-left: 0 !important; font-size: 24px !important; }}
+        .card-pnl, .card-win {{ width: 100% !important; margin-left: 0 !important; flex-direction: column; text-align: center; gap: 15px; }}
+        div[data-testid="stPopover"] > button {{ margin-left: 0 !important; }}
+    }}
     </style>
     """, unsafe_allow_html=True)
 
@@ -291,19 +291,15 @@ with col_det:
     """, unsafe_allow_html=True)
 
     # ---------------- RENDERIZAR TARJETA 2: WIN % ----------------
-    # Generar el SVG dinámico
-    svg_html = f"""
-        <svg width="120" height="60" viewBox="0 0 100 50">
-            <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="{border_color}" stroke-width="10"/>
-    """
+    # ATENCIÓN: El código HTML abajo no tiene indentación intencionalmente 
+    # para evitar que Markdown lo tome como un bloque de código.
+    svg_html = f'<svg width="120" height="60" viewBox="0 0 100 50">\n'
+    svg_html += f'<path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="{border_color}" stroke-width="10"/>\n'
     if total_trades > 0:
-        # Se dibuja montando las capas con stroke-dasharray
-        svg_html += f"""
-            <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#FF4C4C" stroke-width="10" stroke-dasharray="{c} {c}"/>
-            <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#4F46E5" stroke-width="10" stroke-dasharray="{len_w + len_t} {c}"/>
-            <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#00C897" stroke-width="10" stroke-dasharray="{len_w} {c}"/>
-        """
-    svg_html += "</svg>"
+        svg_html += f'<path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#FF4C4C" stroke-width="10" stroke-dasharray="{c} {c}"/>\n'
+        svg_html += f'<path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#4F46E5" stroke-width="10" stroke-dasharray="{len_w + len_t} {c}"/>\n'
+        svg_html += f'<path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#00C897" stroke-width="10" stroke-dasharray="{len_w} {c}"/>\n'
+    svg_html += '</svg>'
 
     st.markdown(f"""
         <div class="metric-card card-win">
