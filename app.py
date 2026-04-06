@@ -34,18 +34,25 @@ st.markdown("""
         background: white; padding: 25px; border-radius: 15px; 
         border: 1px solid #E2E8F0; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
     }
-.card { 
+/* 1. Pegar las columnas entre sí */
+    [data-testid="stHorizontalBlock"] {
+        gap: 0px !important; /* Elimina el espacio natural de Streamlit entre columnas */
+    }
+
+    /* 2. Ajustar el cuadro para que no tenga separación */
+    .card { 
         aspect-ratio: 1 / 1; 
         padding: 5px; 
-        border-radius: 10px; 
+        border-radius: 8px; 
         display: flex; 
         flex-direction: column; 
         justify-content: center; 
         align-items: center; 
         font-size: 12px;
         
-        /* --- ESTA ES LA LÍNEA QUE DEBES AGREGAR O CAMBIAR --- */
-        margin: 2px; /* Aumenta este número para más distancia, bájalo para menos */
+        /* CAMBIA ESTO: */
+        margin: 2px !important; /* Un margen muy pequeño para que casi se toquen */
+        width: 100%;
     }
     .card b { font-size: 18px !important; }
     .cell-win { border: 2.5px solid #00C897; color: #00664F; background-color: #e6f9f4;}
