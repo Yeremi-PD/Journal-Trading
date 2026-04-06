@@ -14,11 +14,11 @@ st.markdown("""
     
     /* DASHBOARD MUCHO MÁS GRANDE */
     .dashboard-title { 
-        font-size: 100px; 
+        font-size: 300px; 
         font-weight: 1000; 
         color: #1A202C; 
         margin-bottom: 0;
-        letter-spacing: 2px;
+        letter-spacing: 1px;
     }
     
     .balance-box { 
