@@ -23,7 +23,7 @@ st.markdown("""
     
     .balance-box { 
         background: #2D3748; color: white; padding: 5px 20px; 
-        border-radius: 1100px; text-align: center; font-weight: 700; font-size: 22px;
+        border-radius: 100px; text-align: center; font-weight: 700; font-size: 22px;
         box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     }
     
@@ -31,11 +31,11 @@ st.markdown("""
 
     /* CALENDARIO */
     .calendar-wrapper { 
-        background: white; padding: 25px; border-radius: 15px; 
+        background: white; padding: 25px; border-radius: 100px; 
         border: 1px solid #E2E8F0; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
     }
     .card { 
-        aspect-ratio: 1 / 1; padding: 5px; border-radius: 10px; 
+        aspect-ratio: 1 / 1; padding: 5px; border-radius: 100px; 
         display: flex; flex-direction: column; justify-content: center; 
         align-items: center; font-size: 12px;
     }
@@ -128,8 +128,6 @@ with c1:
 with c2:
     # Botón de calendario tipo Popover
     with st.popover("🗓️"):
-        st.date_input(
-            "Fecha del registro:",
             value=datetime.now(),
             key="input_fecha"
         )
