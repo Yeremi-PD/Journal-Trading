@@ -115,9 +115,7 @@ with c1:
         key="input_balance",
         on_change=procesar_cambio
     )
-with c2:
-    st.write("")
-    st.write(f"Escribe el nuevo valor de tu cuenta y presiona **Enter** para actualizar el calendario.")
+
 
 # ==========================================
 # 5. CALENDARIO Y RESUMEN
