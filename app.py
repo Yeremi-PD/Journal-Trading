@@ -51,7 +51,7 @@ BALANCE_BOX_W = 100  # Ancho %
 BALANCE_SIZE = 30    # <--- AQUÍ ESTABA EL ERROR. CORREGIDO.
 
 # --- INPUT DE BALANCE (El cuadro numérico de abajo) ---
-INPUT_BAL_X = 100
+INPUT_BAL_X = -100
 INPUT_BAL_Y = 1000
 
 # --- BOTÓN DEL CALENDARIO 🗓️ ---
