@@ -105,9 +105,10 @@ with col_bal:
 st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
 
 # ==========================================
-# 4. ENTRADA AUTOMÁTICA (MODIFICADA)
+# 4. ENTRADA AUTOMÁTICA (VERSION COMPACTA)
 # ==========================================
-c1, c2, c3 = st.columns([1, 1, 2]) # Tres columnas equilibradas
+# 0.5 y 0.5 para los inputs, 3 para el espacio vacío (actúa como buffer)
+c1, c2, _ = st.columns([0.5, 0.5, 3]) 
 
 with c1:
     st.number_input(
@@ -119,16 +120,11 @@ with c1:
     )
 
 with c2:
-    # Este es el selector de fecha
     st.date_input(
-        "Fecha del registro:",
+        "Fecha:",
         value=datetime.now(),
         key="input_fecha"
     )
-
-with c3:
-    st.markdown("<br>", unsafe_allow_html=True) # Espacio para alinear con los inputs
-    st.info("Ajusta la fecha y el balance, luego presiona **Enter**.")
 
 # ==========================================
 # 5. CALENDARIO Y RESUMEN
