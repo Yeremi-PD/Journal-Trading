@@ -23,7 +23,7 @@ TITULO_SIZE = 50
 TITULO_COLOR_W = "#FFFFFF" 
 TITULO_COLOR_B = "#000000" 
 
-# --- ZONA 2: SELECTORES SUPERIORES (Filtros y Data Source) ---
+# --- ZONA 2: SELECTORES SUPERIORES ---
 FILTROS_TEXTO = "Filtros"
 FILTROS_X = 0        
 FILTROS_Y = 0        
@@ -42,7 +42,7 @@ SELECT_TEXTO_CLARO = "#1A202C"
 SELECT_FONDO_OSCURO = "#2D3748"
 SELECT_TEXTO_OSCURO = "#E2E8F0"
 
-# --- ZONA 3: CAJA DE TOTAL BALANCE (Caja Verde Superior) ---
+# --- ZONA 3: CAJA DE TOTAL BALANCE ---
 TOTAL_BAL_TEXTO = "TOTAL BALANCE"
 BALANCE_BOX_X = 0     
 BALANCE_BOX_Y = 0     
@@ -51,42 +51,39 @@ BALANCE_SIZE = 30
 LBL_TOTAL_BAL_X = 0  
 LBL_TOTAL_BAL_Y = 0
 
-# --- ZONA 4: INPUT DE BALANCE (Cuadro para ingresar/pegar números) ---
+# --- ZONA 4: INPUT DE BALANCE ---
 INPUT_BAL_TEXTO = "Balance:"
 INPUT_BAL_X = 0      
 INPUT_BAL_Y = 0      
 LBL_INPUT_BAL_X = 0  
 LBL_INPUT_BAL_Y = 0
 
-# Colores del Input según el tema
 INPUT_FONDO_CLARO = "#FFFFFF"
-INPUT_TEXTO_CLARO = "#00C897"
+INPUT_TEXTO_CLARO = "#1A202C" # Ahora sigue el color del tema
 
-INPUT_FONDO_OSCURO = "#1A202C"
-INPUT_TEXTO_OSCURO = "#00C897" 
+INPUT_FONDO_OSCURO = "#2D3748"
+INPUT_TEXTO_OSCURO = "#FFFFFF" # Ahora sigue el color del tema
 
-# --- ZONA 5: CALENDARIO Y BOTONES UNIFICADOS ---
+# --- ZONA 5: CALENDARIO Y BOTONES ---
 BOTON_FONDO_CLARO = "#F3F4F6"
 BOTON_TEXTO_CLARO = "#1A202C"
 
 BOTON_FONDO_OSCURO = "#2D3748"
 BOTON_TEXTO_OSCURO = "#FFFFFF"
 
-# Posición del botón Popover (🗓️) - DEVUELTO A SU POSICIÓN ANTERIOR
-BOTON_X = 10          
+# Posición del botón Popover (🗓️) - Ahora la columna es más pequeña, usa números cercanos a 0.
+BOTON_X = 0          
 BOTON_Y = 27         
-BOTON_WIDTH = 100     
-BOTON_HEIGHT = 100    
+BOTON_WIDTH = 45     
+BOTON_HEIGHT = 45    
 BOTON_ICON_SIZE = 22 
 
-# Texto del Mes y Año en el Calendario
 MES_TEXTO_X = 0
 MES_TEXTO_Y = 10      
 MES_TEXTO_SIZE = 22
 MES_TEXTO_COLOR_W = "#FFFFFF" 
 MES_TEXTO_COLOR_B = "#1A202C" 
 
-# Ajustes visuales de las Flechas ◀ ▶
 FLECHAS_X_AJUSTE = 0 
 FLECHAS_Y_AJUSTE = 10 
 FLECHAS_SIZE = 16
@@ -139,10 +136,15 @@ def procesar_cambio():
     if nuevo != viejo:
         pnl = nuevo - viejo
         clave = (fecha_sel.year, fecha_sel.month, fecha_sel.day)
+        
+        # Guardar conservando las imágenes si ya existían
+        imagenes_previas = st.session_state.db[ctx]["trades"].get(clave, {}).get("imagenes", [])
+        
         st.session_state.db[ctx]["trades"][clave] = {
             "pnl": pnl,
             "balance_final": nuevo,
-            "fecha_str": fecha_sel.strftime("%d/%m/%Y")
+            "fecha_str": fecha_sel.strftime("%d/%m/%Y"),
+            "imagenes": imagenes_previas
         }
         st.session_state.db[ctx]["balance"] = nuevo
 
@@ -200,16 +202,12 @@ st.markdown(f"""
     div[data-testid="column"]:nth-of-type(3) {{ margin-left: {DATA_SRC_X}px; margin-top: {DATA_SRC_Y}px; z-index: 10; }}
     div[data-testid="column"]:nth-of-type(4) {{ margin-left: {BALANCE_BOX_X}px; margin-top: {BALANCE_BOX_Y}px; }}
 
-    /* CONFIGURACIÓN DE LOS SELECTORES */
-    div[data-baseweb="select"] > div {{
-        background-color: {select_fondo_actual} !important; border-color: {border_color} !important;
-    }}
+    div[data-baseweb="select"] > div {{ background-color: {select_fondo_actual} !important; border-color: {border_color} !important; }}
     div[data-baseweb="select"] * {{ color: {select_texto_actual} !important; }}
     ul[role="listbox"] {{ background-color: {select_fondo_actual} !important; }}
     li[role="option"] {{ color: {select_texto_actual} !important; background-color: {select_fondo_actual} !important; }}
     li[role="option"]:hover {{ background-color: {border_color} !important; }}
 
-    /* CONFIGURACIÓN DEL INPUT DE BALANCE (CORREGIDO PARA FONDOS) */
     div[data-testid="stNumberInput"] {{ margin-left: {INPUT_BAL_X}px !important; margin-top: {INPUT_BAL_Y}px !important; max-width: 200px !important; }}
     div[data-testid="stNumberInput"] button {{ display: none !important; }} 
     div[data-testid="stNumberInput"] div[data-baseweb="base-input"] {{ background-color: {input_fondo_actual} !important; }}
@@ -241,7 +239,8 @@ st.markdown(f"""
     .card {{ 
         aspect-ratio: 1 / 1; padding: 5px; border-radius: 20px; 
         display: flex; flex-direction: column; justify-content: center; 
-        align-items: center; font-size: 12px; margin-bottom: 2px !important;
+        align-items: center; font-size: 12px; 
+        margin-bottom: 6px !important; /* <--- 4pt extra de espaciado añadido aquí */
     }}
     .card b {{ font-size: 18px !important; }}
     .cell-win {{ border: 2.5px solid #00C897; color: #00664F; background-color: #e6f9f4;}}
@@ -251,13 +250,9 @@ st.markdown(f"""
     label {{ font-weight: 700 !important; color: {text_color} !important; font-size: 14px !important; }}
     p, div {{ color: {text_color}; }}
 
-    /* ==================================
-       BOTONES Y VENTANA DEL POPOVER
-       ================================== */
     div[data-testid="stButton"] > button {{
         background-color: {btn_bg} !important; color: {btn_text} !important; border: 1px solid {border_color} !important;
-        margin-left: {FLECHAS_X_AJUSTE}px !important; margin-top: {FLECHAS_Y_AJUSTE}px !important;
-        font-size: {FLECHAS_SIZE}px !important;
+        margin-left: {FLECHAS_X_AJUSTE}px !important; margin-top: {FLECHAS_Y_AJUSTE}px !important; font-size: {FLECHAS_SIZE}px !important;
     }}
     
     div[data-testid="stPopover"] {{ margin-left: {BOTON_X}px !important; margin-top: {BOTON_Y}px !important; }}
@@ -265,20 +260,14 @@ st.markdown(f"""
         width: {BOTON_WIDTH}px !important; height: {BOTON_HEIGHT}px !important;
         font-size: {BOTON_ICON_SIZE}px !important; padding: 0 !important; border-radius: 8px !important;
         border: 1px solid {border_color} !important; background-color: {btn_bg} !important; color: {btn_text} !important;
-        display: flex !important; justify-content: center !important; align-items: center !important;
-        margin: 0 !important;
+        display: flex !important; justify-content: center !important; align-items: center !important; margin: 0 !important;
     }}
     
-    /* ARREGLO DEL FONDO DENTRO DE LA VENTANA DEL CALENDARIO */
-    div[data-testid="stPopoverBody"] {{ background-color: {card_bg} !important; border-color: {border_color} !important; }}
-    div[data-testid="stPopoverBody"] div[data-baseweb="input"] {{ background-color: {input_fondo_actual} !important; }}
-    div[data-testid="stPopoverBody"] input {{ color: {input_texto_actual} !important; }}
+    /* FONDO DEL POPOVER DEL CALENDARIO ARREGLADO PARA RESPETAR TEMA */
+    div[data-testid="stPopoverBody"] {{ background-color: {card_bg} !important; border: 1px solid {border_color} !important; }}
+    div[data-testid="stPopoverBody"] * {{ color: {text_color} !important; }}
 
-    /* --- TARJETAS MÉTRICAS --- */
-    .metric-card {{
-        background-color: {card_bg}; border-radius: 20px; padding: 15px 20px;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); border: 1px solid {border_color};
-    }}
+    .metric-card {{ background-color: {card_bg}; border-radius: 20px; padding: 15px 20px; border: 1px solid {border_color}; }}
     .card-pnl {{ margin-left: {CARD_PNL_X}px; margin-top: {CARD_PNL_Y}px; width: {CARD_PNL_W}%; }}
     .card-win {{ margin-left: {CARD_WIN_X}px; margin-top: {CARD_WIN_Y}px; width: {CARD_WIN_W}%; display: flex; justify-content: space-between; align-items: center; }}
 
@@ -296,12 +285,6 @@ st.markdown(f"""
     .lbl-g {{ background-color: #e6f9f4; color: #00C897; padding: 2px 8px; border-radius: 10px; }}
     .lbl-b {{ background-color: #EEF2FF; color: #4F46E5; padding: 2px 8px; border-radius: 10px; }}
     .lbl-r {{ background-color: #ffeded; color: #FF4C4C; padding: 2px 8px; border-radius: 10px; }}
-    
-    @media (max-width: 768px) {{
-        .dashboard-title {{ margin-left: 0 !important; text-align: center; }}
-        div[data-testid="stNumberInput"] {{ margin-left: 0 !important; width: 100% !important; max-width: none !important; }}
-        div[data-testid="stPopover"] {{ margin-left: 0 !important; margin-top: 10px !important; }}
-    }}
     </style>
     """, unsafe_allow_html=True)
 
@@ -324,14 +307,29 @@ with col_bal:
 st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
 
 # ==========================================
-# 7. ENTRADA AUTOMÁTICA (CON POPOVER 🗓️)
+# 7. ENTRADA AUTOMÁTICA E IMÁGENES
 # ==========================================
-c1, c2, _ = st.columns([1, 1, 3]) 
+# Se ajustaron los anchos para pegar el botón al input naturalmente y dejar 200pt de espacio antes del Drag&Drop
+c1, c2, c_espacio, c_img = st.columns([1.2, 0.4, 0.8, 2]) 
+
 with c1:
     st.number_input(INPUT_BAL_TEXTO, value=bal_actual, format="%.2f", key="input_balance", on_change=procesar_cambio)
 with c2:
     with st.popover("🗓️"):
         st.date_input("Fecha oculta", value=hoy, key="input_fecha", label_visibility="collapsed")
+
+# Lógica del Uploader de Imágenes
+fecha_str_actual = st.session_state.input_fecha.strftime("%d/%m/%Y")
+clave_actual = (st.session_state.input_fecha.year, st.session_state.input_fecha.month, st.session_state.input_fecha.day)
+
+with c_img:
+    archivos = st.file_uploader(f"🖼️ Adjuntar capturas para: {fecha_str_actual}", accept_multiple_files=True, key=f"up_{fecha_str_actual}")
+    if archivos:
+        # Asegurar que exista el registro del trade en la fecha actual antes de guardar
+        if clave_actual not in st.session_state.db[ctx]["trades"]:
+            st.session_state.db[ctx]["trades"][clave_actual] = {"pnl": 0.0, "balance_final": bal_actual, "fecha_str": fecha_str_actual, "imagenes": []}
+        
+        st.session_state.db[ctx]["trades"][clave_actual]["imagenes"] = archivos
 
 # ==========================================
 # 8. CALENDARIO Y RESUMEN
@@ -439,3 +437,11 @@ with col_det:
             </div>
         </div>
     """, unsafe_allow_html=True)
+    
+    # ---------------- VISOR DE IMÁGENES ----------------
+    # Las imágenes se muestran debajo de las tarjetas de métricas según el día seleccionado en el 🗓️
+    trade_actual = st.session_state.db[ctx]["trades"].get(clave_actual)
+    if trade_actual and trade_actual.get("imagenes"):
+        st.markdown(f"**Imágenes del {fecha_str_actual}:**")
+        for img in trade_actual["imagenes"]:
+            st.image(img, use_container_width=True)
