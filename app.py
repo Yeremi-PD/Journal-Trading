@@ -22,7 +22,7 @@ st.markdown("""
     }
     
     .balance-box { 
-        background: #2D3748; color: white; padding: 100px 100px; 
+        background: #2D3748; color: white; padding: 10px 50px; 
         border-radius: 80px; text-align: center; font-weight: 700; font-size: 40px;
         box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     }
