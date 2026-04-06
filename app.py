@@ -21,7 +21,8 @@ TITULO_TEXTO = "Dashboard"
 TITULO_X = 100         
 TITULO_Y = -20         
 TITULO_SIZE = 50     
-TITULO_COLOR = "#FFFFFF" # Cambia esto a tu gusto
+TITULO_COLOR_W = "#FFFFFF" # BLANCO (Se usará automáticamente en Tema Oscuro)
+TITULO_COLOR_B = "#000000" # NEGRO (Se usará automáticamente en Tema Claro)
 
 # --- ZONA 2: SELECTORES SUPERIORES ---
 FILTROS_TEXTO = "Filtros"
@@ -51,34 +52,40 @@ INPUT_BAL_X = 0
 INPUT_BAL_Y = 0      
 LBL_INPUT_BAL_X = 0  
 LBL_INPUT_BAL_Y = 0
-INPUT_FONDO_COLOR = "#2D3748" # Color del fondo del cuadrito
-INPUT_TEXTO_COLOR = "#00C897" # Color de los números que escribes/pegas
 
-# --- ZONA 5: CALENDARIO Y BOTONES ---
-# Botón Popover (El del icono 🗓️)
+# Colores del Input según el tema
+INPUT_FONDO_CLARO = "#FFFFFF"
+INPUT_TEXTO_CLARO = "#00C897"
+
+INPUT_FONDO_OSCURO = "#2D3748"
+INPUT_TEXTO_OSCURO = "#00C897" 
+
+# --- ZONA 5: CALENDARIO Y BOTONES UNIFICADOS ---
+# Colores generales para TODOS los botones (Flechas, Menú y 🗓️)
+BOTON_FONDO_CLARO = "#F3F4F6"
+BOTON_TEXTO_CLARO = "#1A202C"
+
+BOTON_FONDO_OSCURO = "#2D3748"
+BOTON_TEXTO_OSCURO = "#FFFFFF"
+
+# Posición del botón Popover (🗓️)
 BOTON_X = -170          
 BOTON_Y = 27         
 BOTON_WIDTH = 45     
 BOTON_HEIGHT = 45    
 BOTON_ICON_SIZE = 22 
 
-# Texto del Mes y Año (Ej. Abril 2026)
+# Texto del Mes y Año en el Calendario (Ej. Abril 2026)
 MES_TEXTO_X = 0
 MES_TEXTO_Y = 0
 MES_TEXTO_SIZE = 22
-MES_TEXTO_COLOR = "#FFFFFF"
+MES_TEXTO_COLOR_W = "#FFFFFF" # Color en tema oscuro
+MES_TEXTO_COLOR_B = "#1A202C" # Color en tema claro
 
-# Flecha Izquierda ◀
-FLECHA_IZQ_X = 0
-FLECHA_IZQ_Y = 0
-FLECHA_IZQ_SIZE = 16
-FLECHA_IZQ_COLOR = "#A0AEC0"
-
-# Flecha Derecha ▶
-FLECHA_DER_X = 0
-FLECHA_DER_Y = 0
-FLECHA_DER_SIZE = 16
-FLECHA_DER_COLOR = "#A0AEC0"
+# Ajustes visuales de las Flechas ◀ ▶
+FLECHAS_X_AJUSTE = 0 # Mueve ambas flechas juntas en el eje X
+FLECHAS_Y_AJUSTE = 0 # Mueve ambas flechas juntas en el eje Y
+FLECHAS_SIZE = 16
 
 # --- ZONA 6: TARJETAS DE MÉTRICAS ---
 CARD_PNL_X = 0       
@@ -156,14 +163,25 @@ if st.sidebar.button(f"🗑️ Limpiar {ctx_actual} a $25k"):
 # ==========================================
 # 5. COLORES DEL TEMA Y CSS DINÁMICO
 # ==========================================
+# LÓGICA DE COLORES SEGÚN EL TEMA ACTUAL
 if st.session_state.tema == "Claro":
     bg_color, text_color = "#F7FAFC", "#2D3748"
     card_bg, border_color, empty_cell_bg = "#FFFFFF", "#E2E8F0", "#FFFFFF"
-    btn_bg, btn_text = "#F3F4F6", "#1A202C" 
+    
+    btn_bg, btn_text = BOTON_FONDO_CLARO, BOTON_TEXTO_CLARO
+    titulo_color_actual = TITULO_COLOR_B
+    mes_color_actual = MES_TEXTO_COLOR_B
+    input_fondo_actual = INPUT_FONDO_CLARO
+    input_texto_actual = INPUT_TEXTO_CLARO
 else:
     bg_color, text_color = "#1A202C", "#E2E8F0"
     card_bg, border_color, empty_cell_bg = "#2D3748", "#4A5568", "#1A202C"
-    btn_bg, btn_text = "#2D3748", "#FFFFFF" 
+    
+    btn_bg, btn_text = BOTON_FONDO_OSCURO, BOTON_TEXTO_OSCURO
+    titulo_color_actual = TITULO_COLOR_W
+    mes_color_actual = MES_TEXTO_COLOR_W
+    input_fondo_actual = INPUT_FONDO_OSCURO
+    input_texto_actual = INPUT_TEXTO_OSCURO
 
 st.markdown(f"""
     <style>
@@ -177,13 +195,9 @@ st.markdown(f"""
 
     /* CONFIGURACIÓN DEL INPUT DE BALANCE */
     div[data-testid="stNumberInput"] {{ transform: translate({INPUT_BAL_X}px, {INPUT_BAL_Y}px) !important; max-width: 200px !important; }}
-    
-    /* OCULTAR LOS BOTONES + Y - NATIVOS */
-    div[data-testid="stNumberInput"] button {{ display: none !important; }}
-    
-    /* CAMBIAR EL COLOR DE FONDO Y TEXTO DEL INPUT */
-    div[data-testid="stNumberInput"] div[data-baseweb="input"] {{ background-color: {INPUT_FONDO_COLOR} !important; border-color: {border_color} !important; }}
-    div[data-testid="stNumberInput"] input {{ color: {INPUT_TEXTO_COLOR} !important; font-weight: bold; }}
+    div[data-testid="stNumberInput"] button {{ display: none !important; }} /* Oculta el + y - */
+    div[data-testid="stNumberInput"] div[data-baseweb="input"] {{ background-color: {input_fondo_actual} !important; border-color: {border_color} !important; }}
+    div[data-testid="stNumberInput"] input {{ color: {input_texto_actual} !important; font-weight: bold; }}
 
     div[data-testid="column"]:nth-of-type(2) label {{ transform: translate({LBL_FILTROS_X}px, {LBL_FILTROS_Y}px) !important; display: inline-block; }}
     div[data-testid="column"]:nth-of-type(3) label {{ transform: translate({LBL_DATA_X}px, {LBL_DATA_Y}px) !important; display: inline-block; }}
@@ -193,7 +207,7 @@ st.markdown(f"""
     .dashboard-title {{ 
         font-size: {TITULO_SIZE}px !important; 
         font-weight: 800 !important; 
-        color: {TITULO_COLOR} !important; 
+        color: {titulo_color_actual} !important; 
         margin-bottom: 0 !important; 
         line-height: 1.1 !important;
         letter-spacing: -2px !important;
@@ -224,18 +238,13 @@ st.markdown(f"""
     label {{ font-weight: 700 !important; color: {text_color} !important; font-size: 14px !important; }}
     p, div {{ color: {text_color}; }}
 
+    /* ==================================
+       DISEÑO UNIFICADO DE BOTONES
+       ================================== */
     div[data-testid="stButton"] > button {{
         background-color: {btn_bg} !important; color: {btn_text} !important; border: 1px solid {border_color} !important;
-    }}
-    
-    /* POSICIONAMIENTO DE FLECHAS DEL CALENDARIO */
-    .calendar-wrapper div[data-testid="column"]:nth-of-type(1) button {{
-        transform: translate({FLECHA_IZQ_X}px, {FLECHA_IZQ_Y}px) !important;
-        font-size: {FLECHA_IZQ_SIZE}px !important; color: {FLECHA_IZQ_COLOR} !important;
-    }}
-    .calendar-wrapper div[data-testid="column"]:nth-of-type(3) button {{
-        transform: translate({FLECHA_DER_X}px, {FLECHA_DER_Y}px) !important;
-        font-size: {FLECHA_DER_SIZE}px !important; color: {FLECHA_DER_COLOR} !important;
+        transform: translate({FLECHAS_X_AJUSTE}px, {FLECHAS_Y_AJUSTE}px) !important;
+        font-size: {FLECHAS_SIZE}px !important;
     }}
     
     div[data-testid="stPopover"] {{ transform: translate({BOTON_X}px, {BOTON_Y}px) !important; }}
@@ -244,6 +253,7 @@ st.markdown(f"""
         font-size: {BOTON_ICON_SIZE}px !important; padding: 0 !important; border-radius: 8px !important;
         border: 1px solid {border_color} !important; background-color: {btn_bg} !important; color: {btn_text} !important;
         display: flex !important; justify-content: center !important; align-items: center !important;
+        transform: none !important; /* Evita que el transform de flechas afecte al popover */
     }}
 
     .metric-card {{
@@ -260,7 +270,7 @@ st.markdown(f"""
     
     .pnl-value {{ font-size: 28px; font-weight: 800; color: #00C897; letter-spacing: -0.5px; }}
     .pnl-value-loss {{ color: #FF4C4C; }}
-    .win-value {{ font-size: 28px; font-weight: 800; color: {TITULO_COLOR}; letter-spacing: -0.5px; }}
+    .win-value {{ font-size: 28px; font-weight: 800; color: {titulo_color_actual}; letter-spacing: -0.5px; }}
 
     .gauge-container {{ display: flex; flex-direction: column; align-items: center; gap: 5px; }}
     .gauge-labels {{ display: flex; gap: 15px; font-size: 11px; font-weight: 700; margin-top: -5px; }}
@@ -312,7 +322,7 @@ with col_cal:
     
     c_izq, c_cen, c_der = st.columns([1, 4, 1])
     with c_izq: st.button("◀", on_click=cambiar_mes, args=(-1,), use_container_width=True)
-    with c_cen: st.markdown(f'<div style="text-align:center; font-weight:800; font-size:{MES_TEXTO_SIZE}px; color:{MES_TEXTO_COLOR}; transform: translate({MES_TEXTO_X}px, {MES_TEXTO_Y}px);">{nombre_mes} {anio_sel}</div>', unsafe_allow_html=True)
+    with c_cen: st.markdown(f'<div style="text-align:center; font-weight:800; font-size:{MES_TEXTO_SIZE}px; color:{mes_color_actual}; transform: translate({MES_TEXTO_X}px, {MES_TEXTO_Y}px);">{nombre_mes} {anio_sel}</div>', unsafe_allow_html=True)
     with c_der: st.button("▶", on_click=cambiar_mes, args=(1,), use_container_width=True)
     
     st.markdown("<br>", unsafe_allow_html=True)
