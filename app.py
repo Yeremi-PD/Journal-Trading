@@ -16,7 +16,7 @@ st.set_page_config(page_title="Yeremi Journal Pro", layout="wide")
 # --- TÍTULO PRINCIPAL ---
 TITULO_X = 0         
 TITULO_Y = 0         
-TITULO_SIZE = 100    
+TITULO_SIZE = 500    
 
 # --- CAJAS SELECTORAS COMPLETAS (Mueve caja + texto juntos) ---
 FILTROS_X = 0        
