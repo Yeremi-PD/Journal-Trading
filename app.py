@@ -65,14 +65,10 @@ if st.session_state.usuario_actual is None or st.session_state.usuario_actual no
     st.stop()
 
 # ==========================================
-# 3. SECCIÓN DE AJUSTES MANUALES (TODO AGRUPADO POR ELEMENTO)
+# 3. SECCIÓN DE AJUSTES MANUALES
 # ==========================================
-
 TEMA_POR_DEFECTO = "Oscuro"
 
-# ---------------------------------------------------------
-# [ TEXTO PRINCIPAL ]
-# ---------------------------------------------------------
 TXT_DASHBOARD = "Dashboard"
 TXT_DASH_SIZE = 60
 TXT_DASH_X = 20         
@@ -80,9 +76,6 @@ TXT_DASH_Y = -20
 TXT_DASH_COLOR_C = "#000000"
 TXT_DASH_COLOR_O = "#FFFFFF"
 
-# ---------------------------------------------------------
-# [ ETIQUETA: FILTROS ] 
-# ---------------------------------------------------------
 LBL_FILTROS = "Filters"
 LBL_FILTROS_SIZE = 20           
 LBL_FILTROS_X = 0
@@ -97,9 +90,6 @@ OPT_FILTROS_SIZE = 15
 OPT_FILTROS_COLOR_C = "#000000"  
 OPT_FILTROS_COLOR_O = "#FFFFFF"  
 
-# ---------------------------------------------------------
-# [ ETIQUETA: DATA SOURCE ] 
-# ---------------------------------------------------------
 LBL_DATA = "Data Source"
 LBL_DATA_SIZE = 20              
 LBL_DATA_X = 0
@@ -113,9 +103,6 @@ OPT_DATA_SIZE = 14
 OPT_DATA_COLOR_C = "#000000"     
 OPT_DATA_COLOR_O = "#FFFFFF"     
 
-# ---------------------------------------------------------
-# [ ETIQUETA Y CAJA: BALANCE MANUAL (Input) ] 
-# ---------------------------------------------------------
 LBL_INPUT = "Balance:"
 LBL_INPUT_SIZE = 20             
 LBL_INPUT_X = 0
@@ -131,9 +118,6 @@ INPUT_BAL_TXT_SIZE = 25
 INPUT_FONDO_C = "#FFFFFF"
 INPUT_FONDO_O = "#1A202C"
 
-# ---------------------------------------------------------
-# [ ETIQUETA: TOTAL BALANCE (Arriba del Dinero Verde) ]
-# ---------------------------------------------------------
 LBL_BAL_TOTAL = "ACCOUNT BALANCE"
 LBL_BAL_TOTAL_SIZE = 18
 LBL_BAL_TOTAL_X = 0
@@ -146,9 +130,6 @@ BALANCE_BOX_W = 50
 BALANCE_BOX_X = 0     
 BALANCE_BOX_Y = 0     
 
-# ---------------------------------------------------------
-# [ LÍNEA SEPARADORA HORIZONTAL ]
-# ---------------------------------------------------------
 LINEA_GROSOR = 1.5             
 LINEA_ANCHO = 100              
 LINEA_X = 0                    
@@ -157,9 +138,6 @@ LINEA_MARGEN_INF = 25
 LINEA_COLOR_C = "#E2E8F0"
 LINEA_COLOR_O = "#4A5568"
 
-# ---------------------------------------------------------
-# [ ÁREA DE ARRASTRAR IMÁGENES (DROPZONE) ] 
-# ---------------------------------------------------------
 DROPZONE_W = "100%"
 DROPZONE_H = "75px"            
 DROPZONE_X = 0
@@ -178,9 +156,6 @@ BTN_UP_BG_O = "#4A5568"
 BTN_UP_TXT_C = "#000000"      
 BTN_UP_TXT_O = "#FFFFFF"
 
-# ---------------------------------------------------------
-# [ BOTÓN: CALENDARIO Y FLECHAS ]
-# ---------------------------------------------------------
 BTN_CAL_EMOJI = "🗓️"
 BTN_CAL_W = 68     
 BTN_CAL_H = 68    
@@ -192,9 +167,6 @@ FLECHAS_SIZE = 40
 FLECHAS_X = 0 
 FLECHAS_Y = 0   
 
-# ---------------------------------------------------------
-# [ CALENDARIO: MES Y DÍAS DE LA SEMANA ]
-# ---------------------------------------------------------
 TXT_MES_SIZE = 28
 TXT_MES_COLOR_C = "#000000"
 TXT_MES_COLOR_O = "#FFFFFF"
@@ -203,44 +175,30 @@ TXT_DIAS_SEM_SIZE = 15
 TXT_DIAS_SEM_COLOR_C = "#000000"
 TXT_DIAS_SEM_COLOR_O = "#FFFFFF"
 
-# ---------------------------------------------------------
-# [ TARJETAS DE LOS DÍAS ]
-# ---------------------------------------------------------
 TXT_NUM_DIA_SIZE = 20
 TXT_NUM_DIA_COLOR_C = "#000000"
 TXT_NUM_DIA_COLOR_O = "#c0c0c0"
 
 TXT_PNL_DIA_SIZE = 30
-
 TXT_PCT_DIA_SIZE = 25
 TXT_PCT_DIA_COLOR_C = "#000000"
 TXT_PCT_DIA_COLOR_O = "#000000"
 
 BTN_CAM_EMOJI = "📷"
-BTN_CAM_SIZE = 30                    
-BTN_CAM_X = 0
-BTN_CAM_Y = 2
 BTN_CAM_BG_C = "rgba(255,255,255,0.8)"
 BTN_CAM_BG_O = "rgba(0,0,0,0.6)"
 
 TXT_CERRAR_MODAL = "✖ CERRAR"
 
-# ---------------------------------------------------------
-# [ TARJETA: NET P&L ]
-# ---------------------------------------------------------
 CARD_PNL_TITULO = "Net P&L"
 CARD_PNL_TITULO_SIZE = 20
 CARD_PNL_TITULO_COLOR_C = "#000000"
 CARD_PNL_TITULO_COLOR_O = "#FFFFFF"
-
 CARD_PNL_W = "100%"     
 CARD_PNL_H = "auto"     
 CARD_PNL_X = 0          
 CARD_PNL_Y = 0          
 
-# ---------------------------------------------------------
-# [ TARJETA: TRADE WIN % ]
-# ---------------------------------------------------------
 CARD_WIN_TITULO = "WinRate"
 CARD_WIN_TITULO_SIZE = 20
 CARD_WIN_TITULO_COLOR_C = "#000000"
@@ -248,15 +206,11 @@ CARD_WIN_TITULO_COLOR_O = "#FFFFFF"
 CARD_WIN_VALOR_SIZE = 28
 CARD_WIN_VALOR_COLOR_C = "#000000"
 CARD_WIN_VALOR_COLOR_O = "#FFFFFF"
-
 CARD_WIN_W = "100%"     
 CARD_WIN_H = "auto"     
 CARD_WIN_X = 0          
 CARD_WIN_Y = 0          
 
-# ---------------------------------------------------------
-# [ TARJETAS DE SEMANAS Y MES ]
-# ---------------------------------------------------------
 TXT_W1 = "Week 1"
 TXT_W2 = "Week 2"
 TXT_W3 = "Week 3"
@@ -268,21 +222,17 @@ TXT_MO = "Month"
 WEEKS_TITULOS_SIZE = 20        
 WEEKS_TITULOS_COLOR_C = "#000000"
 WEEKS_TITULOS_COLOR_O = "#FFFFFF"
-
 WEEKS_VALOR_SIZE = 25          
 WEEKS_PCT_SIZE = 20          
-
 WEEK_BOX_W = "31%"          
 WEEK_BOX_H = "120px"         
 MONTH_BOX_W = "100%"        
 MONTH_BOX_H = "120px"        
 MONTH_TITLE_SIZE = 30       
 MONTH_VAL_SIZE = 25         
-
 WEEKS_CONTENEDOR_X = 0      
 WEEKS_CONTENEDOR_Y = 15     
 WEEK_ALIGN = "center"       
-
 
 # ==========================================
 # 4. LÓGICA DE ESTADO DEL USUARIO
@@ -329,7 +279,6 @@ def procesar_cambio():
     if nuevo != viejo:
         pnl = nuevo - viejo
         clave = (fecha_sel.year, fecha_sel.month, fecha_sel.day)
-        # Rescatar datos antiguos para no perder las notas al actualizar balance
         old_trade = db_usuario[ctx]["trades"].get(clave, {})
         
         db_usuario[ctx]["trades"][clave] = {
@@ -357,7 +306,6 @@ def convertir_img_base64(uploaded_file):
 st.sidebar.markdown(f"### 👤 My Account: {usuario}")
 st.sidebar.markdown("---")
 
-# SECCIÓN NUEVA: METRICS (Con un toggle para que funcione la tabla)
 st.sidebar.markdown("### 📊 Metrics")
 mostrar_tabla = st.sidebar.toggle("Mostrar tabla de resultados", value=False)
 
@@ -400,64 +348,20 @@ if st.sidebar.button("🚪 Log Out", use_container_width=True):
 # ==========================================
 if st.session_state.tema == "Claro":
     bg_color, card_bg, border_color, empty_cell_bg = "#F7FAFC", "#FFFFFF", "#E2E8F0", "#FFFFFF"
-    
-    c_dash = TXT_DASH_COLOR_C
-    c_filtros = LBL_FILTROS_COLOR_C
-    c_opt_filtros = OPT_FILTROS_COLOR_C   
-    c_data = LBL_DATA_COLOR_C
-    c_opt_data = OPT_DATA_COLOR_C         
-    c_lbl_bal = LBL_BAL_TOTAL_COLOR_C
-    c_lbl_in = LBL_INPUT_COLOR_C
-    c_mes = TXT_MES_COLOR_C
-    c_dias_sem = TXT_DIAS_SEM_COLOR_C
-    c_num_dia = TXT_NUM_DIA_COLOR_C
-    c_pct_dia = TXT_PCT_DIA_COLOR_C
-    c_tit_pnl = CARD_PNL_TITULO_COLOR_C
-    c_tit_win = CARD_WIN_TITULO_COLOR_C
-    c_val_win = CARD_WIN_VALOR_COLOR_C
-    
-    btn_bg = BTN_CAL_BG_C
-    btn_txt = "#000000" 
-    input_bg = INPUT_FONDO_C
-    
-    drop_bg = DROPZONE_BG_C
-    drop_border = DROPZONE_BORDER_C
-    u_btn_bg = BTN_UP_BG_C
-    u_btn_txt = BTN_UP_TXT_C
-    
-    wk_tit_c = WEEKS_TITULOS_COLOR_C
-    c_cam_bg = BTN_CAM_BG_C
-    c_linea = LINEA_COLOR_C
+    c_dash, c_filtros, c_opt_filtros, c_data, c_opt_data = TXT_DASH_COLOR_C, LBL_FILTROS_COLOR_C, OPT_FILTROS_COLOR_C, LBL_DATA_COLOR_C, OPT_DATA_COLOR_C
+    c_lbl_bal, c_lbl_in, c_mes, c_dias_sem = LBL_BAL_TOTAL_COLOR_C, LBL_INPUT_COLOR_C, TXT_MES_COLOR_C, TXT_DIAS_SEM_COLOR_C
+    c_num_dia, c_pct_dia, c_tit_pnl, c_tit_win, c_val_win = TXT_NUM_DIA_COLOR_C, TXT_PCT_DIA_COLOR_C, CARD_PNL_TITULO_COLOR_C, CARD_WIN_TITULO_COLOR_C, CARD_WIN_VALOR_COLOR_C
+    btn_bg, btn_txt, input_bg = BTN_CAL_BG_C, "#000000", INPUT_FONDO_C
+    drop_bg, drop_border, u_btn_bg, u_btn_txt = DROPZONE_BG_C, DROPZONE_BORDER_C, BTN_UP_BG_C, BTN_UP_TXT_C
+    wk_tit_c, c_cam_bg, c_linea = WEEKS_TITULOS_COLOR_C, BTN_CAM_BG_C, LINEA_COLOR_C
 else:
     bg_color, card_bg, border_color, empty_cell_bg = "#1A202C", "#2D3748", "#4A5568", "#1A202C"
-    
-    c_dash = TXT_DASH_COLOR_O
-    c_filtros = LBL_FILTROS_COLOR_O
-    c_opt_filtros = OPT_FILTROS_COLOR_O   
-    c_data = LBL_DATA_COLOR_O
-    c_opt_data = OPT_DATA_COLOR_O         
-    c_lbl_bal = LBL_BAL_TOTAL_COLOR_O
-    c_lbl_in = LBL_INPUT_COLOR_O
-    c_mes = TXT_MES_COLOR_O
-    c_dias_sem = TXT_DIAS_SEM_COLOR_O
-    c_num_dia = TXT_NUM_DIA_COLOR_O
-    c_pct_dia = TXT_PCT_DIA_COLOR_O
-    c_tit_pnl = CARD_PNL_TITULO_COLOR_O
-    c_tit_win = CARD_WIN_TITULO_COLOR_O
-    c_val_win = CARD_WIN_VALOR_COLOR_O
-    
-    btn_bg = BTN_CAL_BG_O
-    btn_txt = "#FFFFFF" 
-    input_bg = INPUT_FONDO_O
-    
-    drop_bg = DROPZONE_BG_O
-    drop_border = DROPZONE_BORDER_O
-    u_btn_bg = BTN_UP_BG_O
-    u_btn_txt = BTN_UP_TXT_O
-    
-    wk_tit_c = WEEKS_TITULOS_COLOR_O
-    c_cam_bg = BTN_CAM_BG_O
-    c_linea = LINEA_COLOR_O
+    c_dash, c_filtros, c_opt_filtros, c_data, c_opt_data = TXT_DASH_COLOR_O, LBL_FILTROS_COLOR_O, OPT_FILTROS_COLOR_O, LBL_DATA_COLOR_O, OPT_DATA_COLOR_O
+    c_lbl_bal, c_lbl_in, c_mes, c_dias_sem = LBL_BAL_TOTAL_COLOR_O, LBL_INPUT_COLOR_O, TXT_MES_COLOR_O, TXT_DIAS_SEM_COLOR_O
+    c_num_dia, c_pct_dia, c_tit_pnl, c_tit_win, c_val_win = TXT_NUM_DIA_COLOR_O, TXT_PCT_DIA_COLOR_O, CARD_PNL_TITULO_COLOR_O, CARD_WIN_TITULO_COLOR_O, CARD_WIN_VALOR_COLOR_O
+    btn_bg, btn_txt, input_bg = BTN_CAL_BG_O, "#FFFFFF", INPUT_FONDO_O
+    drop_bg, drop_border, u_btn_bg, u_btn_txt = DROPZONE_BG_O, DROPZONE_BORDER_O, BTN_UP_BG_O, BTN_UP_TXT_O
+    wk_tit_c, c_cam_bg, c_linea = WEEKS_TITULOS_COLOR_O, BTN_CAM_BG_O, LINEA_COLOR_O
 
 # ==========================================
 # 7. INYECCIÓN DE CSS DINÁMICO (MODO DIOS)
@@ -469,131 +373,113 @@ st.markdown(f"""
     
     div[data-testid="column"] {{ overflow: visible !important; }}
     
-    /* TITULO DASHBOARD */
     .dashboard-title {{ font-size: {TXT_DASH_SIZE}px !important; font-weight: 800 !important; color: {c_dash} !important; margin-left: {TXT_DASH_X}px !important; margin-top: {TXT_DASH_Y}px !important; margin-bottom: 0 !important; line-height: 1.1 !important; letter-spacing: -2px !important; }}
-    
-    /* ETIQUETAS HTML PERSONALIZADAS (REEMPLAZAN LAS DE STREAMLIT) */
     .lbl-total-bal {{ font-size: {LBL_BAL_TOTAL_SIZE}px !important; color: {c_lbl_bal} !important; font-weight: 700 !important; display: inline-block !important; transform: translate({LBL_BAL_TOTAL_X}px, {LBL_BAL_TOTAL_Y}px) !important; }}
     .lbl-filtros {{ font-size: {LBL_FILTROS_SIZE}px !important; color: {c_filtros} !important; font-weight: 700 !important; transform: translate({LBL_FILTROS_X}px, {LBL_FILTROS_Y}px) !important; margin-bottom: 5px !important; }}
     .lbl-data {{ font-size: {LBL_DATA_SIZE}px !important; color: {c_data} !important; font-weight: 700 !important; transform: translate({LBL_DATA_X}px, {LBL_DATA_Y}px) !important; margin-bottom: 5px !important; }}
     .lbl-input {{ font-size: {LBL_INPUT_SIZE}px !important; color: {c_lbl_in} !important; font-weight: 700 !important; transform: translate({LBL_INPUT_X}px, {LBL_INPUT_Y}px) !important; margin-bottom: 5px !important; }}
     
-    /* CAJA VERDE BALANCE */
     .balance-box {{ background: #00C897 !important; color: white !important; padding: 10px 0px !important; border-radius: 80px !important; text-align: center !important; font-weight: 700 !important; font-size: {BALANCE_SIZE}px !important; margin-left: {BALANCE_BOX_X}px !important; margin-top: {BALANCE_BOX_Y}px !important; width: {BALANCE_BOX_W}% !important; margin: 0 auto !important; }}
-    
-    /* LÍNEA SEPARADORA */
     .thin-line {{ border-bottom: {LINEA_GROSOR}px solid {c_linea} !important; margin: {LINEA_MARGEN_SUP}px 0px {LINEA_MARGEN_INF}px 0px !important; width: {LINEA_ANCHO}% !important; transform: translateX({LINEA_X}px) !important; }}
 
-    /* OCULTAR ETIQUETAS NATIVAS DE STREAMLIT */
     div[data-testid="stSelectbox"] label {{ display: none !important; }}
     div[data-testid="stNumberInput"] label {{ display: none !important; }}
 
-    /* Fondos de selectores */
     div[data-baseweb="select"] > div {{ background-color: {card_bg} !important; border-color: {border_color} !important; }}
     ul[role="listbox"] {{ background-color: {card_bg} !important; }}
-    
-    /* TAMAÑO Y COLOR DE LAS OPCIONES DE ADENTRO FORZADO DIRECTAMENTE A LOS COMPONENTES */
     div[data-testid="stSelectbox"] div[data-baseweb="select"] * {{ font-size: {OPT_FILTROS_SIZE}px !important; color: {c_opt_filtros} !important; }}
     div[data-testid="stSelectbox"] div[data-baseweb="select"] svg {{ fill: 00000 !important; color: 00000 !important; }}
     div[data-testid="stSelectbox"] input {{ color: 00000 !important; }}
-    
     ul[role="listbox"] * {{ font-size: {OPT_FILTROS_SIZE}px !important; color: {c_opt_filtros} !important; }}
     li[role="option"] {{ background-color: F3F4F6 !important; }}
     li[role="option"]:hover {{ background-color: {border_color} !important; }}
 
-    /* INPUT BALANCE (CAJA DE TEXTO Y NÚMERO) */
     div[data-testid="stNumberInput"] {{ margin-left: {INPUT_BAL_X}px !important; margin-top: {INPUT_BAL_Y}px !important; width: {INPUT_BAL_W} !important; min-width: {INPUT_BAL_W} !important; max-width: {INPUT_BAL_W} !important; }}
     div[data-testid="stNumberInput"] button {{ display: none !important; }} 
-    
     div[data-testid="stNumberInput"] > div:last-child,
     div[data-testid="stNumberInput"] div[data-baseweb="base-input"],
-    div[data-testid="stNumberInput"] div[data-baseweb="input"] {{ 
-        height: {INPUT_BAL_H} !important; 
-        min-height: {INPUT_BAL_H} !important; 
-        background-color: {input_bg} !important; 
-        border-color: {border_color} !important; 
-    }}
-    
-    div[data-testid="stNumberInput"] input {{ 
-        color: {c_lbl_in} !important; 
-        font-size: {INPUT_BAL_TXT_SIZE}px !important; 
-        background-color: {input_bg} !important; 
-        font-weight: bold !important; 
-        height: {INPUT_BAL_H} !important; 
-        min-height: {INPUT_BAL_H} !important; 
-        box-sizing: border-box !important;
-        padding-top: 0 !important; 
-        padding-bottom: 0 !important;
-    }}
+    div[data-testid="stNumberInput"] div[data-baseweb="input"] {{ height: {INPUT_BAL_H} !important; min-height: {INPUT_BAL_H} !important; background-color: {input_bg} !important; border-color: {border_color} !important; }}
+    div[data-testid="stNumberInput"] input {{ color: {c_lbl_in} !important; font-size: {INPUT_BAL_TXT_SIZE}px !important; background-color: {input_bg} !important; font-weight: bold !important; height: {INPUT_BAL_H} !important; min-height: {INPUT_BAL_H} !important; box-sizing: border-box !important; padding-top: 0 !important; padding-bottom: 0 !important; }}
 
-    /* EL ÁREA DE DROPZONE (DONDE ARRASTRAS IMÁGENES) */
     [data-testid="stFileUploader"] {{ transform: translate({DROPZONE_X}px, {DROPZONE_Y}px) !important; background-color: transparent !important; border: none !important; padding: 0 !important; box-shadow: none !important; }}
     [data-testid="stFileUploader"] > section {{ background-color: transparent !important; border: none !important; padding: 0 !important; }}
-    
-    /* El contenedor visible del Dropzone */
-    [data-testid="stFileUploadDropzone"] {{ 
-        background-color: {drop_bg} !important; 
-        border: {drop_border} !important; 
-        border-radius: 10px !important;
-        padding: 0 !important; 
-        width: {DROPZONE_W} !important;
-        min-height: {DROPZONE_H} !important; 
-        height: {DROPZONE_H} !important;
-        box-shadow: none !important; 
-        display: flex !important;
-        justify-content: center !important;
-        align-items: center !important;
-    }}
+    [data-testid="stFileUploadDropzone"] {{ background-color: {drop_bg} !important; border: {drop_border} !important; border-radius: 10px !important; padding: 0 !important; width: {DROPZONE_W} !important; min-height: {DROPZONE_H} !important; height: {DROPZONE_H} !important; box-shadow: none !important; display: flex !important; justify-content: center !important; align-items: center !important; }}
     [data-testid="stFileUploadDropzone"] > div {{ background-color: transparent !important; border: none !important; }}
     [data-testid="stFileUploadDropzone"] > div > span, [data-testid="stFileUploadDropzone"] small, [data-testid="stFileUploaderDropzoneInstructions"] {{ display: none !important; }}
-    
-    [data-testid="stFileUploadDropzone"] button {{ 
-        background-color: {u_btn_bg} !important; 
-        color: {u_btn_txt} !important; 
-        border: 1px solid {border_color} !important; 
-        border-radius: 6px !important; 
-        margin: 0 !important; 
-        width: {BTN_UP_W} !important;
-        min-width: {BTN_UP_W} !important;
-        min-height: {BTN_UP_H} !important;
-        height: {BTN_UP_H} !important;
-    }}
+    [data-testid="stFileUploadDropzone"] button {{ background-color: {u_btn_bg} !important; color: {u_btn_txt} !important; border: 1px solid {border_color} !important; border-radius: 6px !important; margin: 0 !important; width: {BTN_UP_W} !important; min-width: {BTN_UP_W} !important; min-height: {BTN_UP_H} !important; height: {BTN_UP_H} !important; }}
     [data-testid="stFileUploadDropzone"] button * {{ color: {u_btn_txt} !important; font-size: {BTN_UP_SIZE} !important; }}
     [data-testid="stFileUploadDropzone"] button::after {{ content: "{BTN_UP_TEXTO}" !important; font-size: {BTN_UP_SIZE} !important; }}
     [data-testid="stFileUploadDropzone"] button div {{ display: none !important; }}
 
-    /* BOTÓN CALENDARIO FORZADO */
     div[data-testid="stButton"] > button {{ background-color: {btn_bg} !important; color: {btn_txt} !important; border: 1px solid {border_color} !important; }}
-    div[data-testid="stPopover"] > button {{ 
-        min-height: {BTN_CAL_H}px !important; height: {BTN_CAL_H}px !important; 
-        min-width: {BTN_CAL_W}px !important; width: {BTN_CAL_W}px !important; 
-        padding: 0 !important; font-size: {BTN_CAL_ICON_SIZE}px !important; border-radius: px !important; border: 1px solid {border_color} !important; background-color: {btn_bg} !important; color: {btn_txt} !important; display: flex !important; justify-content: center !important; align-items: center !important; 
-    }}
+    div[data-testid="stPopover"] > button {{ min-height: {BTN_CAL_H}px !important; height: {BTN_CAL_H}px !important; min-width: {BTN_CAL_W}px !important; width: {BTN_CAL_W}px !important; padding: 0 !important; font-size: {BTN_CAL_ICON_SIZE}px !important; border: 1px solid {border_color} !important; background-color: {btn_bg} !important; color: {btn_txt} !important; display: flex !important; justify-content: center !important; align-items: center !important; }}
     div[data-testid="stPopoverBody"] {{ background-color: {card_bg} !important; border: 1px solid {border_color} !important; }}
 
-    /* CALENDARIO Y DÍAS */
     .calendar-wrapper {{ background: {card_bg} !important; padding: 10px !important; border-radius: 15px !important; border: 1px solid {border_color} !important; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1) !important; }}
     .txt-dias-sem {{ font-size: {TXT_DIAS_SEM_SIZE}px !important; font-weight: bold !important; color: {c_dias_sem} !important; text-align: center !important; }}
     
-    .card {{ 
-        aspect-ratio: 1 / 1 !important; padding: 5px !important; border-radius: 20px !important; 
-        display: flex !important; flex-direction: column !important; position: relative !important;
-        font-size: 12px !important; margin-bottom: 6px !important;
-        padding-bottom: 25px !important; 
-    }}
+    .card {{ aspect-ratio: 1 / 1 !important; padding: 5px !important; border-radius: 20px !important; display: flex !important; flex-direction: column !important; position: relative !important; font-size: 12px !important; margin-bottom: 6px !important; padding-bottom: 25px !important; }}
     .day-number {{ position: absolute !important; top: 6px !important; left: 10px !important; font-size: {TXT_NUM_DIA_SIZE}px !important; font-weight: bold !important; color: {c_num_dia} !important; }}
     .day-content {{ margin-top: auto !important; margin-bottom: auto !important; text-align: center !important; width: 100% !important; }}
     .day-pnl {{ font-size: {TXT_PNL_DIA_SIZE}px !important; font-weight: bold !important; }}
     .day-pct {{ font-size: {TXT_PCT_DIA_SIZE}px !important; color: {c_pct_dia} !important; opacity: 0.9 !important; font-weight: 600 !important; display: block !important; }}
     
-    /* CÁMARA TAMAÑO MODIFICABLE */
-    .cam-icon {{ 
-        position: absolute !important; bottom: {BTN_CAM_Y}px !important; left: 50% !important; transform: translateX(calc(-50% + {BTN_CAM_X}px)) !important;
-        font-size: {BTN_CAM_SIZE}px !important; cursor: pointer !important; background: {c_cam_bg} !important; 
-        border-radius: 50% !important; padding: 2px 4px !important; box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important; transition: 0.2s !important; 
+    /* ========================================================================= */
+    /* 🔴🔴 CSS ESTRELLA: BOTONES DE CÁMARA (📷) Y NOTAS (📝) LADO A LADO 🔴🔴 */
+    /* ========================================================================= */
+    .cam-icon, div[data-testid="stHorizontalBlock"]:has(> div[data-testid="column"]:nth-child(7)) div[data-testid="stPopover"] > button {{
+        width: 32px !important;
+        height: 32px !important;
+        min-width: 32px !important;
+        min-height: 32px !important;
+        border-radius: 50% !important;
+        background: {c_cam_bg} !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        font-size: 16px !important;
+        padding: 0 !important;
+        border: none !important;
+        transition: 0.2s !important;
+        color: {c_num_dia} !important;
     }}
-    .cam-icon:hover {{ transform: translateX(calc(-50% + {BTN_CAM_X}px)) scale(1.2) !important; }}
     
+    /* CÁMARA A LA IZQUIERDA */
+    .cam-icon {{
+        position: absolute !important;
+        bottom: 2px !important;
+        left: 50% !important;
+        transform: translateX(-110%) !important;
+        cursor: pointer !important;
+    }}
+    .cam-icon:hover {{ transform: translateX(-110%) scale(1.1) !important; }}
+
+    /* NOTAS A LA DERECHA */
+    div[data-testid="stHorizontalBlock"]:has(> div[data-testid="column"]:nth-child(7)) div[data-testid="stPopover"] {{
+        position: absolute !important;
+        bottom: 2px !important;
+        left: 50% !important;
+        transform: translateX(10%) !important;
+        z-index: 10 !important;
+    }}
+    div[data-testid="stHorizontalBlock"]:has(> div[data-testid="column"]:nth-child(7)) div[data-testid="stPopover"] > button:hover {{
+        transform: scale(1.1) !important;
+    }}
+
+    /* CUADRO GIGANTE PARA LAS NOTAS */
+    div[data-testid="stPopoverBody"]:has(h3) {{
+        width: 80vw !important;
+        max-width: 800px !important;
+        padding: 25px !important;
+        border-radius: 15px !important;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important;
+        background-color: {card_bg} !important;
+        border: 1px solid {border_color} !important;
+        color: {c_dash} !important;
+    }}
+    /* ========================================================================= */
+
     .cell-win {{ border: 2.5px solid #00C897 !important; color: #00664F !important; background-color: #e6f9f4 !important;}}
     .cell-loss {{ border: 2.5px solid #FF4C4C !important; color: #9B1C1C !important; background-color: #ffeded !important;}}
     .cell-empty {{ border: 1px solid {border_color} !important; background-color: {empty_cell_bg} !important;}}
@@ -603,15 +489,12 @@ st.markdown(f"""
     .fs-modal img {{ max-width: 90vw !important; max-height: 80vh !important; margin-bottom: 20px !important; box-shadow: 0 0 20px black !important; border-radius: 10px !important; object-fit: contain !important; }}
     .close-btn {{ color: white !important; font-size: 25px !important; position: absolute !important; top: 30px !important; right: 50px !important; cursor: pointer !important; font-weight: bold !important; background: red !important; padding: 5px 15px !important; border-radius: 8px !important; }}
 
-    /* METRICAS PNL Y WIN */
     .card-pnl {{ width: {CARD_PNL_W} !important; height: {CARD_PNL_H} !important; transform: translate({CARD_PNL_X}px, {CARD_PNL_Y}px) !important; }}
     .card-win {{ width: {CARD_WIN_W} !important; height: {CARD_WIN_H} !important; transform: translate({CARD_WIN_X}px, {CARD_WIN_Y}px) !important; }}
-    
     .metric-card {{ background-color: {card_bg} !important; border-radius: 20px !important; padding: 15px 20px !important; border: 1px solid {border_color} !important; }}
     .metric-header {{ display: flex !important; align-items: center !important; gap: 8px !important; margin-bottom: 5px !important; }}
     .title-net-pnl {{ font-size: {CARD_PNL_TITULO_SIZE}px !important; font-weight: 700 !important; color: {c_tit_pnl} !important; }}
     .title-trade-win {{ font-size: {CARD_WIN_TITULO_SIZE}px !important; font-weight: 700 !important; color: {c_tit_win} !important; }}
-    
     .pnl-value {{ font-size: 28px !important; font-weight: 800 !important; color: #00C897 !important; letter-spacing: -0.5px !important; }}
     .pnl-value-loss {{ color: #FF4C4C !important; }}
     .win-value {{ font-size: {CARD_WIN_VALOR_SIZE}px !important; font-weight: 800 !important; color: {c_val_win} !important; letter-spacing: -0.5px !important; }}
@@ -622,30 +505,15 @@ st.markdown(f"""
     .lbl-b {{ background-color: #EEF2FF !important; color: #4F46E5 !important; padding: 2px 8px !important; border-radius: 10px !important; }}
     .lbl-r {{ background-color: #ffeded !important; color: #FF4C4C !important; padding: 2px 8px !important; border-radius: 10px !important; }}
 
-    /* FLECHAS MES */
     .calendar-wrapper div[data-testid="column"]:first-child button {{ transform: translate({FLECHAS_X}px, {FLECHAS_Y}px) !important; font-size: {FLECHAS_SIZE}px !important; }}
     .calendar-wrapper div[data-testid="column"]:nth-child(3) button {{ transform: translate(calc({FLECHAS_X}px * -1), {FLECHAS_Y}px) !important; font-size: {FLECHAS_SIZE}px !important; }}
 
-    /* ESTILOS DE LOS CUADROS DE SEMANAS Y MES */
-    .weeks-container {{ 
-        transform: translate({WEEKS_CONTENEDOR_X}px, {WEEKS_CONTENEDOR_Y}px) !important;
-        display: flex !important; flex-wrap: wrap !important; gap: 10px !important; justify-content: space-between !important; 
-        margin-top: 15px !important;
-    }}
-    .wk-box {{ 
-        width: {WEEK_BOX_W} !important; height: {WEEK_BOX_H} !important; 
-        background: {card_bg} !important; border: 1px solid {border_color} !important; border-radius: 12px !important;
-        display: flex !important; flex-direction: column !important; align-items: {WEEK_ALIGN} !important; justify-content: center !important; padding: 5px !important;
-    }}
+    .weeks-container {{ transform: translate({WEEKS_CONTENEDOR_X}px, {WEEKS_CONTENEDOR_Y}px) !important; display: flex !important; flex-wrap: wrap !important; gap: 10px !important; justify-content: space-between !important; margin-top: 15px !important; }}
+    .wk-box {{ width: {WEEK_BOX_W} !important; height: {WEEK_BOX_H} !important; background: {card_bg} !important; border: 1px solid {border_color} !important; border-radius: 12px !important; display: flex !important; flex-direction: column !important; align-items: {WEEK_ALIGN} !important; justify-content: center !important; padding: 5px !important; }}
     .wk-title {{ font-size: {WEEKS_TITULOS_SIZE}px !important; font-weight: 700 !important; color: {wk_tit_c} !important; margin-bottom: 2px !important; }}
     .wk-val {{ font-size: {WEEKS_VALOR_SIZE}px !important; font-weight: 800 !important; line-height: 1.2 !important; }}
     
-    .mo-box {{ 
-        width: {MONTH_BOX_W} !important; height: {MONTH_BOX_H} !important; 
-        background: {card_bg} !important; border: 1px solid {border_color} !important; border-radius: 15px !important;
-        display: flex !important; flex-direction: column !important; align-items: {WEEK_ALIGN} !important; justify-content: center !important; padding: 10px !important;
-        margin-top: 5px !important;
-    }}
+    .mo-box {{ width: {MONTH_BOX_W} !important; height: {MONTH_BOX_H} !important; background: {card_bg} !important; border: 1px solid {border_color} !important; border-radius: 15px !important; display: flex !important; flex-direction: column !important; align-items: {WEEK_ALIGN} !important; justify-content: center !important; padding: 10px !important; margin-top: 5px !important; }}
     .mo-title {{ font-size: {MONTH_TITLE_SIZE}px !important; font-weight: 800 !important; color: {wk_tit_c} !important; text-transform: uppercase !important; letter-spacing: 1px !important; }}
     .mo-val {{ font-size: {MONTH_VAL_SIZE}px !important; font-weight: 800 !important; line-height: 1.2 !important; }}
     
@@ -653,7 +521,6 @@ st.markdown(f"""
     .txt-red {{ color: #FF4C4C !important; }}
     .txt-gray {{ color: gray !important; }}
     
-    /* REGLAS RESPONSIVE (MÓVILES) */
     @media (max-width: 768px) {{
         .dashboard-title {{ font-size: 38px !important; margin: 10px auto !important; text-align: center !important; line-height: 1 !important;}}
         .lbl-total-bal, .lbl-filtros, .lbl-data, .lbl-input {{ transform: translate(0, 0) !important; text-align: center !important; width: 100% !important; margin-bottom: 10px !important;}}
@@ -677,47 +544,8 @@ st.markdown(f"""
         .wk-box {{ width: 48% !important; margin-bottom: 5px !important; }}
         .mo-box {{ width: 100% !important; }}
         .thin-line {{ width: 100% !important; transform: translate(0, 0) !important; }}
-        
-        /* Ajuste de ancho en celular para el modal de Notas */
-        div[data-testid="stPopoverBody"]:has(h3) {{ width: 100vw !important; left: 0 !important; border-radius: 0 !important; padding: 10px !important; }}
-    }}
 
-    /* CSS ESTRELLA: BOTON DE NOTAS (📝) SUPERPUESTO (Igual que la cámara, pero arriba) */
-    div[data-testid="stHorizontalBlock"]:has(> div[data-testid="column"]:nth-child(7)) div[data-testid="stPopover"] {{
-        position: absolute !important;
-        top: 4px !important;
-        right: 4px !important;
-        z-index: 10 !important;
-    }}
-    div[data-testid="stHorizontalBlock"]:has(> div[data-testid="column"]:nth-child(7)) div[data-testid="stPopover"] > button {{
-        background: {c_cam_bg} !important;
-        border: none !important;
-        border-radius: 50% !important;
-        width: 28px !important;
-        height: 28px !important;
-        min-height: 28px !important;
-        min-width: 28px !important;
-        padding: 0 !important;
-        font-size: 14px !important;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
-        display: flex !important;
-        justify-content: center !important;
-        align-items: center !important;
-        transition: 0.2s !important;
-        color: {c_num_dia} !important;
-    }}
-    div[data-testid="stHorizontalBlock"]:has(> div[data-testid="column"]:nth-child(7)) div[data-testid="stPopover"] > button:hover {{
-        transform: scale(1.1) !important;
-    }}
-    /* Diseño interno del menú de notas */
-    div[data-testid="stPopoverBody"]:has(h3) {{
-        width: 320px !important;
-        padding: 15px !important;
-        border-radius: 10px !important;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1) !important;
-        background-color: {card_bg} !important;
-        border: 1px solid {border_color} !important;
-        color: {c_dash} !important;
+        div[data-testid="stPopoverBody"]:has(h3) {{ width: 95vw !important; max-width: 95vw !important; left: -10vw !important; padding: 15px !important; }}
     }}
     </style>
     """, unsafe_allow_html=True)
@@ -782,7 +610,6 @@ with c_img:
 
 # =========================================================================================
 # 9.5 BLOQUE AISLADO: FUNCIONES PARA DIBUJAR LOS MENÚS DE COLOR
-# (Debe estar aquí obligatoriamente para que Python pueda usarlas en el calendario abajo)
 # =========================================================================================
 def colorful_menu(options, state_key, label, value_key, trade_data_ref, modal_key):
     if value_key not in trade_data_ref: trade_data_ref[value_key] = options[0]['text']
@@ -796,11 +623,35 @@ def colorful_menu(options, state_key, label, value_key, trade_data_ref, modal_ke
     for i, option in enumerate(options):
         with cols[i]:
             text, color = option['text'], option['color']
+            
+            # Efecto visual: 100% de color y borde si está seleccionado. 30% opacidad si no.
+            is_selected = (i == current_index)
+            opacity = "1" if is_selected else "0.3"
+            border = "3px solid #FFF" if is_selected else "none"
+            box_shadow = "0 0 10px rgba(255,255,255,0.4)" if is_selected else "none"
+            
             button_style = f"""
                 <style>
-                div[data-testid="column"]:has(> div > button[key="btn_{modal_key}_{value_key}_{i}"]) {{ background-color: {color} !important; border-radius: 5px !important; padding: 0 !important; height: 35px !important; }}
-                div[data-testid="column"]:has(> div > button[key="btn_{modal_key}_{value_key}_{i}"]) button {{ background-color: transparent !important; border: none !important; color: white !important; font-weight: bold !important; font-size: 14px !important; height: 100% !important; width: 100% !important; padding: 0 !important; }}
-                div[data-testid="column"]:has(> div > button[key="btn_{modal_key}_{value_key}_{current_index}"]) button {{ border: 2px solid white !important; }}
+                div[data-testid="column"]:has(> div > button[key="btn_{modal_key}_{value_key}_{i}"]) {{ 
+                    background-color: {color} !important; 
+                    border-radius: 8px !important; 
+                    padding: 0 !important; 
+                    height: 40px !important; 
+                    opacity: {opacity} !important;
+                    box-shadow: {box_shadow} !important;
+                    transition: all 0.2s !important;
+                }}
+                div[data-testid="column"]:has(> div > button[key="btn_{modal_key}_{value_key}_{i}"]) button {{ 
+                    background-color: transparent !important; 
+                    border: {border} !important; 
+                    border-radius: 8px !important;
+                    color: white !important; 
+                    font-weight: bold !important; 
+                    font-size: 14px !important; 
+                    height: 100% !important; 
+                    width: 100% !important; 
+                    padding: 0 !important; 
+                }}
                 </style>
             """
             st.markdown(button_style, unsafe_allow_html=True)
@@ -817,13 +668,33 @@ def colorful_multiselect(options, label, value_key, trade_data_ref, modal_key):
     for i, option in enumerate(options):
         with cols[i % 3]:
             text, color = option['text'], option['color']
+            
+            # Efecto visual de seleccionado vs no seleccionado
             is_selected = text in current_selections
             btn_border = "2px solid white" if is_selected else "none"
-            btn_opacity = "1" if is_selected else "0.7"
+            btn_opacity = "1" if is_selected else "0.3"
+            
             button_style = f"""
                 <style>
-                div[data-testid="column"]:has(> div > button[key="multibtn_{modal_key}_{i}"]) {{ background-color: {color} !important; border-radius: 5px !important; padding: 0 !important; margin-bottom: 5px !important; height: 30px !important; opacity: {btn_opacity} !important; }}
-                div[data-testid="column"]:has(> div > button[key="multibtn_{modal_key}_{i}"]) button {{ background-color: transparent !important; border: {btn_border} !important; color: white !important; font-weight: bold !important; font-size: 12px !important; height: 100% !important; width: 100% !important; padding: 0 !important; }}
+                div[data-testid="column"]:has(> div > button[key="multibtn_{modal_key}_{i}"]) {{ 
+                    background-color: {color} !important; 
+                    border-radius: 5px !important; 
+                    padding: 0 !important; 
+                    margin-bottom: 5px !important; 
+                    height: 30px !important; 
+                    opacity: {btn_opacity} !important; 
+                    transition: all 0.2s !important;
+                }}
+                div[data-testid="column"]:has(> div > button[key="multibtn_{modal_key}_{i}"]) button {{ 
+                    background-color: transparent !important; 
+                    border: {btn_border} !important; 
+                    color: white !important; 
+                    font-weight: bold !important; 
+                    font-size: 12px !important; 
+                    height: 100% !important; 
+                    width: 100% !important; 
+                    padding: 0 !important; 
+                }}
                 </style>
             """
             st.markdown(button_style, unsafe_allow_html=True)
@@ -1137,6 +1008,10 @@ if mostrar_tabla:
         df_results = pd.DataFrame(table_data)
         
         def style_rows(row):
+            # Por defecto las celdas se quedan sin estilo para heredar el color del tema
+            styles = [''] * len(row)
+            
+            # Formatear SOLAMENTE el P&L
             pnl_str = row['P&L']
             if pnl_str.startswith('+$'):
                 color = 'color: #00C897; font-weight: bold;'
@@ -1144,6 +1019,11 @@ if mostrar_tabla:
                  color = 'color: gray;'
             else:
                  color = 'color: #FF4C4C; font-weight: bold;'
-            return [color] * len(row)
+            
+            # Buscar el indice de la columna P&L para teñir solo esa
+            pnl_idx = row.index.get_loc('P&L')
+            styles[pnl_idx] = color
+            
+            return styles
 
         st.dataframe(df_results.style.apply(style_rows, axis=1), use_container_width=True)
