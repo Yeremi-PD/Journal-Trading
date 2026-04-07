@@ -212,7 +212,7 @@ TXT_DIAS_SEM_COLOR_O = "#FFFFFF"
 # ---------------------------------------------------------
 TXT_NUM_DIA_SIZE = 18
 TXT_NUM_DIA_COLOR_C = "#000000"
-TXT_NUM_DIA_COLOR_O = "#3b3b3b"
+TXT_NUM_DIA_COLOR_O = "#c0c0c0"
 
 TXT_PNL_DIA_SIZE = 20
 
