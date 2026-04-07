@@ -742,25 +742,33 @@ with c_not:
             trade_data_ref = db_usuario[ctx]["trades"][clave_actual]
             
             bias_options = ['ALCISTA', 'BAJISTA', 'NEUTRO']
-            colorful_menu(bias_options, "&nbsp;&nbsp;&nbsp;Bias", 'bias', trade_data_ref)
+            colorful_menu(bias_options, '<span style="font-weight:bold; font-size:15pt;">&nbsp;&nbsp;&nbsp;Bias</span>', 'bias', trade_data_ref)
             st.markdown("<br>", unsafe_allow_html=True)
+            
             Confluences_options = ['BIAS Claro', 'Liq Sweep', 'IFVG', 'FVG', 'EQH / EQL', 'BSL / SSL', 'POI', 'SMT', 'Order Block', 'PDH / PDL', 'Continuación', 'Data High / Data Low', 'CISD']
-            colorful_multiselect(Confluences_options, "&nbsp;&nbsp;&nbsp;Confluences", 'Confluences', trade_data_ref)
+            colorful_multiselect(Confluences_options, '<span style="font-weight:bold; font-size:15pt;">&nbsp;&nbsp;&nbsp;Confluences</span>', 'Confluences', trade_data_ref)
             st.markdown("<br>", unsafe_allow_html=True)
-            trade_data_ref['razon_trade'] = st.text_area("&nbsp;&nbsp;&nbsp;Reason For Trade", value=trade_data_ref.get('razon_trade', ''), key=f"razon_main", height=80)
-            trade_data_ref['Corrections'] = st.text_area("&nbsp;&nbsp;&nbsp;Corrections", value=trade_data_ref.get('Corrections', ''), key=f"corr_main", height=80)
+            
+            st.markdown('<div style="font-weight:bold; font-size:15pt; margin-bottom:5px;">&nbsp;&nbsp;&nbsp;Reason For Trade</div>', unsafe_allow_html=True)
+            trade_data_ref['razon_trade'] = st.text_area("Reason For Trade", value=trade_data_ref.get('razon_trade', ''), key=f"razon_main", height=80, label_visibility="collapsed")
+            
+            st.markdown('<div style="font-weight:bold; font-size:15pt; margin-bottom:5px;">&nbsp;&nbsp;&nbsp;Corrections</div>', unsafe_allow_html=True)
+            trade_data_ref['Corrections'] = st.text_area("Corrections", value=trade_data_ref.get('Corrections', ''), key=f"corr_main", height=80, label_visibility="collapsed")
             
             risk_options = ['0.6%', '0.5%', '0.4%']
-            colorful_menu(risk_options, "&nbsp;&nbsp;&nbsp;% Risk", 'risk', trade_data_ref)
+            colorful_menu(risk_options, '<span style="font-weight:bold; font-size:15pt;">&nbsp;&nbsp;&nbsp;% Risk</span>', 'risk', trade_data_ref)
             st.markdown("<br>", unsafe_allow_html=True)
+            
             rrr_options = ['1:1', '1:1.5', '1:2', '1:3', '1:4']
-            colorful_menu(rrr_options, "&nbsp;&nbsp;&nbsp;RR", 'rrr', trade_data_ref)
+            colorful_menu(rrr_options, '<span style="font-weight:bold; font-size:15pt;">&nbsp;&nbsp;&nbsp;RR</span>', 'rrr', trade_data_ref)
             st.markdown("<br>", unsafe_allow_html=True)
+            
             trade_type_options = ['A+', 'A', 'B', 'C']
-            colorful_menu(trade_type_options, "&nbsp;&nbsp;&nbsp;Trade Type", 'trade_type', trade_data_ref)
+            colorful_menu(trade_type_options, '<span style="font-weight:bold; font-size:15pt;">&nbsp;&nbsp;&nbsp;Trade Type</span>', 'trade_type', trade_data_ref)
             st.markdown("<br>", unsafe_allow_html=True)
-            trade_data_ref['Emotions'] = st.text_area("&nbsp;&nbsp;&nbsp;Emotions", value=trade_data_ref.get('&nbsp;&nbsp;&nbsp;Emotions', ''), key=f"emoc_main", height=80)
-
+            
+            st.markdown('<div style="font-weight:bold; font-size:15pt; margin-bottom:5px;">&nbsp;&nbsp;&nbsp;Emotions</div>', unsafe_allow_html=True)
+            trade_data_ref['Emotions'] = st.text_area("Emotions", value=trade_data_ref.get('Emotions', ''), key=f"emoc_main", height=80, label_visibility="collapsed")
 
 # ==========================================
 # 10. CALENDARIO Y RESUMEN
