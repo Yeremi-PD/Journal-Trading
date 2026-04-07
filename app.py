@@ -123,7 +123,7 @@ MES_TEXTO_Y = 10
 # ---------------------------------------------------------
 # TEXTO 7: Días de la semana (Dom, Lun, Mar...)
 # ---------------------------------------------------------
-TXT_DIAS_SEM_SIZE = 13
+TXT_DIAS_SEM_SIZE = 19
 TXT_DIAS_SEM_COLOR_CLARO = "#000000"
 TXT_DIAS_SEM_COLOR_OSCURO = "#FFFFFF"
 
