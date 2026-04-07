@@ -136,7 +136,7 @@ INPUT_FONDO_O = "#1A202C"
 # ---------------------------------------------------------
 # [ ETIQUETA: TOTAL BALANCE (Arriba del Dinero Verde) ]
 # ---------------------------------------------------------
-LBL_BAL_TOTAL = "Account Balance"
+LBL_BAL_TOTAL = "ACCOUNT BALANCE"
 LBL_BAL_TOTAL_SIZE = 18
 LBL_BAL_TOTAL_X = 0
 LBL_BAL_TOTAL_Y = 0
