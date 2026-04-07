@@ -1134,8 +1134,8 @@ section[data-testid="stMain"] div[data-testid="column"]:nth-child(3) {{
     min-width: 100px !important; 
     min-height: 100px !important; 
 }}
-[data-testid="stFileUploadDropzone"] button * {{ color: {u_btn_txt} !important; font-size: 20px !important; }}
-[data-testid="stFileUploadDropzone"] button::after {{ content: "Upload" !important; font-size: 20px !important; }} /* TAMAÑO LETRAS UPLOAD */
+[data-testid="stFileUploadDropzone"] button * {{ color: {u_btn_txt} !important; font-size: 200px !important; }}
+[data-testid="stFileUploadDropzone"] button::after {{ content: "Upload" !important; font-size: 200px !important; }} /* TAMAÑO LETRAS UPLOAD */
 
 /* ================== BOTÓN NOTAS (c_not) ================== */
 /* EDITA AQUÍ SUS MEDIDAS Y POSICIÓN */
