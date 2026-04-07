@@ -473,8 +473,8 @@ st.markdown(f"""
     ul[role="listbox"] {{ background-color: {card_bg} !important; }}
     
     /* TAMAÑO Y COLOR DE LAS OPCIONES DE ADENTRO (AHORA INDEPENDIENTE DEL TÍTULO) */
-    div[data-testid="column"]:nth-of-type(2) div[data-baseweb="select"] * {{ font-size: {OPT_FILTROS_SIZE}px !important; color: {c_opt_filtros} !important; }}
-    div[data-testid="column"]:nth-of-type(3) div[data-baseweb="select"] * {{ font-size: {OPT_DATA_SIZE}px !important; color: {c_opt_data} !important; }}
+    div[data-testid="column"]:nth-of-type(2) div[data-baseweb="select"] * {{ font-size: {OPT_FILTROS_SIZE}px !important; color: ff0043  !important; }}
+    div[data-testid="column"]:nth-of-type(3) div[data-baseweb="select"] * {{ font-size: {OPT_DATA_SIZE}px !important; color: ff0043  !important; }}
     li[role="option"], li[role="option"] span {{ font-size: {OPT_FILTROS_SIZE}px !important; color: {c_opt_filtros} !important; }}
     li[role="option"]:hover {{ background-color: {border_color} !important; }}
 
