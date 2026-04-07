@@ -376,7 +376,7 @@ if admin_pass == "725166":
             st.rerun()
 
 st.sidebar.markdown("<br><br><br>", unsafe_allow_html=True)
-if st.sidebar.button("🚪 Cerrar Sesión", use_container_width=True):
+if st.sidebar.button("🚪 Log Out", use_container_width=True):
     st.session_state.usuario_actual = None
     st.rerun()
 
