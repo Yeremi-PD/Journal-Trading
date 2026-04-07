@@ -249,7 +249,9 @@ with col_cal:
                 if trade and trade.get("imagenes"):
                     mid = f"mod_{dia}_{st.session_state.cal_month}"
                     imgs = "".join([f'<img src="{im}">' for im in trade["imagenes"]])
-                    cam_html = f'<input type="checkbox" id="{mid}" class="modal-toggle"><label for="{mid}" class="cam-icon">📷</label><div class="fs-modal"><label for="{mid}" class="close-btn">✖ CERRAR</label>{imgs}</div>'
+                    with st.popover("📷"):
+    for img in trade["imagenes"]:
+        st.image(img)
                 
                 pnl_html = ""
                 if trade:
