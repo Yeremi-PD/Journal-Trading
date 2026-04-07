@@ -24,6 +24,8 @@ def conectar_google_sheets():
         client = gspread.authorize(creds)
         return client.open("Trading_Journal_DB").sheet1
     except Exception as e:
+        # ESTO HARÁ QUE EL ERROR SALGA EN PANTALLA
+        st.error(f"🚨 ERROR DE CONEXIÓN CON GOOGLE SHEETS: {e}")
         return None
 
 hoja_excel = conectar_google_sheets()
