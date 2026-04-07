@@ -82,7 +82,7 @@ TXT_DASH_COLOR_O = "#FFFFFF"
 # ---------------------------------------------------------
 # [ ETIQUETA: FILTROS ] 
 # ---------------------------------------------------------
-LBL_FILTROS = "Filtros"
+LBL_FILTROS = "Filters"
 LBL_FILTROS_SIZE = 20           
 LBL_FILTROS_X = 0
 LBL_FILTROS_Y = 0
@@ -340,7 +340,7 @@ def convertir_img_base64(uploaded_file):
 # ==========================================
 # 5. BARRA LATERAL (AJUSTES Y ADMIN)
 # ==========================================
-st.sidebar.markdown(f"### 👤 Mi Cuenta: {usuario}")
+st.sidebar.markdown(f"### 👤 My Account: {usuario}")
 st.sidebar.markdown("---")
 st.sidebar.markdown("### ⚙️ Ajustes")
 
