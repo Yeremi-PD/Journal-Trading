@@ -83,7 +83,7 @@ TXT_DASH_COLOR_O = "#FFFFFF"
 # [ ETIQUETA: FILTROS ]
 # ---------------------------------------------------------
 LBL_FILTROS = "Filtros"
-LBL_FILTROS_SIZE = 18
+LBL_FILTROS_SIZE = 20           # <-- TAMAÑO FIJADO A 20
 LBL_FILTROS_X = 0
 LBL_FILTROS_Y = 0
 LBL_FILTROS_COLOR_C = "#000000"
@@ -99,7 +99,7 @@ OPT_FILTROS_SIZE = 14
 # [ ETIQUETA: DATA SOURCE ]
 # ---------------------------------------------------------
 LBL_DATA = "Data Source"
-LBL_DATA_SIZE = 40
+LBL_DATA_SIZE = 20              # <-- TAMAÑO FIJADO A 20
 LBL_DATA_X = 0
 LBL_DATA_Y = 0
 LBL_DATA_COLOR_C = "#000000"
@@ -114,7 +114,7 @@ OPT_DATA_SIZE = 14
 # [ ETIQUETA Y CAJA: BALANCE MANUAL (Input) ]
 # ---------------------------------------------------------
 LBL_INPUT = "Balance:"
-LBL_INPUT_SIZE = 18
+LBL_INPUT_SIZE = 20             # <-- TAMAÑO FIJADO A 20
 LBL_INPUT_X = 0
 LBL_INPUT_Y = 0
 LBL_INPUT_COLOR_C = "#000000"
@@ -122,10 +122,10 @@ LBL_INPUT_COLOR_O = "#FFFFFF"
 
     # ( Caja del Input Manual )
 INPUT_BAL_W = "200px"         
-INPUT_BAL_H = "110px"          # <-- AHORA SÍ CAMBIARÁ LA ALTURA REAL DE LA CAJA
+INPUT_BAL_H = "50px"          # <-- ALTURA FIJADA A 50px
 INPUT_BAL_X = 0      
 INPUT_BAL_Y = 0      
-INPUT_BAL_TXT_SIZE = 22       # <-- TAMAÑO DEL NÚMERO QUE ESCRIBES
+INPUT_BAL_TXT_SIZE = 22       
 INPUT_FONDO_C = "#FFFFFF"
 INPUT_FONDO_O = "#1A202C"
 
@@ -439,31 +439,41 @@ st.markdown(f"""
     /* LÍNEA SEPARADORA */
     .thin-line {{ border-bottom: {LINEA_GROSOR}px solid {c_linea} !important; margin: {LINEA_MARGEN_SUP}px 0px {LINEA_MARGEN_INF}px 0px !important; width: {LINEA_ANCHO}% !important; transform: translateX({LINEA_X}px) !important; }}
 
-    /* ETIQUETAS FILTROS Y DATA SOURCE (SOLO AFECTA AL TÍTULO) */
-    div[data-testid="column"]:nth-of-type(2) label[data-testid="stWidgetLabel"] p {{ font-size: {LBL_FILTROS_SIZE}px !important; color: {c_filtros} !important; font-weight: 700 !important; transform: translate({LBL_FILTROS_X}px, {LBL_FILTROS_Y}px) !important; }}
-    div[data-testid="column"]:nth-of-type(3) label[data-testid="stWidgetLabel"] p {{ font-size: {LBL_DATA_SIZE}px !important; color: {c_data} !important; font-weight: 700 !important; transform: translate({LBL_DATA_X}px, {LBL_DATA_Y}px) !important; }}
+    /* DESTRUCCIÓN DE LÍMITES DE ETIQUETAS FILTROS Y DATA SOURCE */
+    div[data-testid="column"]:nth-of-type(2) label p,
+    div[data-testid="column"]:nth-of-type(2) label span,
+    div[data-testid="column"]:nth-of-type(2) label {{ font-size: {LBL_FILTROS_SIZE}px !important; color: {c_filtros} !important; font-weight: 700 !important; transform: translate({LBL_FILTROS_X}px, {LBL_FILTROS_Y}px) !important; line-height: 1.2 !important; }}
+    
+    div[data-testid="column"]:nth-of-type(3) label p,
+    div[data-testid="column"]:nth-of-type(3) label span,
+    div[data-testid="column"]:nth-of-type(3) label {{ font-size: {LBL_DATA_SIZE}px !important; color: {c_data} !important; font-weight: 700 !important; transform: translate({LBL_DATA_X}px, {LBL_DATA_Y}px) !important; line-height: 1.2 !important; }}
     
     /* Fondos y colores de selectores */
     div[data-baseweb="select"] > div {{ background-color: {card_bg} !important; border-color: {border_color} !important; }}
     ul[role="listbox"] {{ background-color: {card_bg} !important; }}
     
-    /* TAMAÑO DE LAS OPCIONES DE ADENTRO (INDEPENDIENTE DEL TÍTULO) */
+    /* TAMAÑO DE LAS OPCIONES DE ADENTRO */
     div[data-testid="column"]:nth-of-type(2) div[data-baseweb="select"] span {{ font-size: {OPT_FILTROS_SIZE}px !important; color: {c_filtros} !important; }}
     div[data-testid="column"]:nth-of-type(3) div[data-baseweb="select"] span {{ font-size: {OPT_DATA_SIZE}px !important; color: {c_data} !important; }}
     li[role="option"] span, li[role="option"] {{ color: {c_filtros} !important; font-size: {OPT_FILTROS_SIZE}px !important; }}
     li[role="option"]:hover {{ background-color: {border_color} !important; }}
 
-    /* ETIQUETA E INPUT BALANCE: OBLIGADO A CRECER EN ALTURA */
-    div[data-testid="stNumberInput"] label[data-testid="stWidgetLabel"] p {{ font-size: {LBL_INPUT_SIZE}px !important; color: {c_lbl_in} !important; font-weight: 700 !important; transform: translate({LBL_INPUT_X}px, {LBL_INPUT_Y}px) !important; }}
+    /* DESTRUCCIÓN DE LÍMITES DE ETIQUETA E INPUT BALANCE */
+    div[data-testid="stNumberInput"] label p,
+    div[data-testid="stNumberInput"] label span,
+    div[data-testid="stNumberInput"] label {{ font-size: {LBL_INPUT_SIZE}px !important; color: {c_lbl_in} !important; font-weight: 700 !important; transform: translate({LBL_INPUT_X}px, {LBL_INPUT_Y}px) !important; line-height: 1.2 !important; }}
+    
     div[data-testid="stNumberInput"] {{ margin-left: {INPUT_BAL_X}px !important; margin-top: {INPUT_BAL_Y}px !important; width: {INPUT_BAL_W} !important; min-width: {INPUT_BAL_W} !important; max-width: {INPUT_BAL_W} !important; }}
     div[data-testid="stNumberInput"] button {{ display: none !important; }} 
     
+    /* FORZANDO LA ALTURA DE LA CAJA BALANCE EN TODAS SUS CAPAS INTERNAS */
+    div[data-testid="stNumberInput"] > div:last-child,
     div[data-testid="stNumberInput"] div[data-baseweb="base-input"],
     div[data-testid="stNumberInput"] div[data-baseweb="input"] {{ 
-        background-color: {input_bg} !important; 
-        border-color: {border_color} !important; 
         height: {INPUT_BAL_H} !important; 
         min-height: {INPUT_BAL_H} !important; 
+        background-color: {input_bg} !important; 
+        border-color: {border_color} !important; 
     }}
     
     div[data-testid="stNumberInput"] input {{ 
@@ -473,6 +483,7 @@ st.markdown(f"""
         font-weight: bold !important; 
         height: {INPUT_BAL_H} !important; 
         min-height: {INPUT_BAL_H} !important; 
+        box-sizing: border-box !important;
         padding-top: 0 !important; 
         padding-bottom: 0 !important;
     }}
