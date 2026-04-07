@@ -164,7 +164,7 @@ CAM_ICON_BG_OSCURO = "rgba(0,0,0,0.6)"
 # ---------------------------------------------------------
 FLECHAS_X_AJUSTE = 0 
 FLECHAS_Y_AJUSTE = 0   
-FLECHAS_SIZE = 40
+FLECHAS_SIZE = 16
 
 BOTON_FONDO_CLARO = "#F3F4F6"
 BOTON_FONDO_OSCURO = "#2D3748"
@@ -190,7 +190,7 @@ WEEKS_CONTENEDOR_Y = 15
 
 WEEK_BOX_W = "31%"          # 31% para que quepan 3 en una fila (ya que ahora son 5)
 WEEK_BOX_H = "80px"         # Un poco más alto para el porcentaje
-WEEK_TITLE_SIZE = 12        
+WEEK_TITLE_SIZE = 409        
 WEEK_TITLE_COLOR_C = "#000000"
 WEEK_TITLE_COLOR_O = "#FFFFFF"
 WEEK_VAL_SIZE = 16          
