@@ -350,7 +350,7 @@ if st.sidebar.button(texto_boton_tema):
     st.rerun()
 
 ctx_actual = st.session_state.data_source_sel
-if st.sidebar.button(f"🗑️ Limpiar {ctx_actual} a $25k"):
+if st.sidebar.button(f"🗑️ Clean {ctx_actual} to $25k"):
     db_usuario[ctx_actual]["balance"] = 25000.00
     db_usuario[ctx_actual]["trades"] = {}
     st.rerun()
