@@ -165,7 +165,7 @@ DROPZONE_BG_O = "transparent"
 DROPZONE_BORDER_C = "1px dashed #E2E8F0"  
 DROPZONE_BORDER_O = "1px dashed #4A5568"
 
-BTN_UP_TEXTO = "Upload"
+BTN_UP_TEXTO = "Upload c c  c c"
 BTN_UP_SIZE = "20px"
 BTN_UP_W = "120px"             
 BTN_UP_H = "45px"              
