@@ -226,15 +226,6 @@ BTN_CAM_BG_O = "rgba(0,0,0,0.6)"
 TXT_CERRAR_MODAL = "✖ CERRAR"
 
 # ---------------------------------------------------------
-# [ BOTÓN DE NOTAS (📝) - MOVER A TU ANTOJO ]
-# ---------------------------------------------------------
-# Puedes usar valores negativos o positivos ("10px", "-5px", "50%", etc.)
-# Esto ubica el botón libremente desde arriba y desde la derecha de la tarjeta.
-BTN_NOTAS_TOP = "-50px"
-BTN_NOTAS_RIGHT = "-55px"
-BTN_NOTAS_SIZE = 55
-
-# ---------------------------------------------------------
 # [ TARJETA: NET P&L ]
 # ---------------------------------------------------------
 CARD_PNL_TITULO = "Net P&L"
@@ -338,7 +329,6 @@ def procesar_cambio():
     if nuevo != viejo:
         pnl = nuevo - viejo
         clave = (fecha_sel.year, fecha_sel.month, fecha_sel.day)
-        # Rescatar datos antiguos para no perder las notas al actualizar balance
         old_trade = db_usuario[ctx]["trades"].get(clave, {})
         
         db_usuario[ctx]["trades"][clave] = {
@@ -366,7 +356,6 @@ def convertir_img_base64(uploaded_file):
 st.sidebar.markdown(f"### 👤 My Account: {usuario}")
 st.sidebar.markdown("---")
 
-# SECCIÓN NUEVA: METRICS (Con un toggle para que funcione la tabla)
 st.sidebar.markdown("### 📊 Metrics")
 mostrar_tabla = st.sidebar.toggle("Mostrar tabla de resultados", value=False)
 
@@ -478,30 +467,23 @@ st.markdown(f"""
     
     div[data-testid="column"] {{ overflow: visible !important; position: relative !important; }}
     
-    /* TITULO DASHBOARD */
     .dashboard-title {{ font-size: {TXT_DASH_SIZE}px !important; font-weight: 800 !important; color: {c_dash} !important; margin-left: {TXT_DASH_X}px !important; margin-top: {TXT_DASH_Y}px !important; margin-bottom: 0 !important; line-height: 1.1 !important; letter-spacing: -2px !important; }}
     
-    /* ETIQUETAS HTML PERSONALIZADAS (REEMPLAZAN LAS DE STREAMLIT) */
     .lbl-total-bal {{ font-size: {LBL_BAL_TOTAL_SIZE}px !important; color: {c_lbl_bal} !important; font-weight: 700 !important; display: inline-block !important; transform: translate({LBL_BAL_TOTAL_X}px, {LBL_BAL_TOTAL_Y}px) !important; }}
     .lbl-filtros {{ font-size: {LBL_FILTROS_SIZE}px !important; color: {c_filtros} !important; font-weight: 700 !important; transform: translate({LBL_FILTROS_X}px, {LBL_FILTROS_Y}px) !important; margin-bottom: 5px !important; }}
     .lbl-data {{ font-size: {LBL_DATA_SIZE}px !important; color: {c_data} !important; font-weight: 700 !important; transform: translate({LBL_DATA_X}px, {LBL_DATA_Y}px) !important; margin-bottom: 5px !important; }}
     .lbl-input {{ font-size: {LBL_INPUT_SIZE}px !important; color: {c_lbl_in} !important; font-weight: 700 !important; transform: translate({LBL_INPUT_X}px, {LBL_INPUT_Y}px) !important; margin-bottom: 5px !important; }}
     
-    /* CAJA VERDE BALANCE */
     .balance-box {{ background: #00C897 !important; color: white !important; padding: 10px 0px !important; border-radius: 80px !important; text-align: center !important; font-weight: 700 !important; font-size: {BALANCE_SIZE}px !important; margin-left: {BALANCE_BOX_X}px !important; margin-top: {BALANCE_BOX_Y}px !important; width: {BALANCE_BOX_W}% !important; margin: 0 auto !important; }}
     
-    /* LÍNEA SEPARADORA */
     .thin-line {{ border-bottom: {LINEA_GROSOR}px solid {c_linea} !important; margin: {LINEA_MARGEN_SUP}px 0px {LINEA_MARGEN_INF}px 0px !important; width: {LINEA_ANCHO}% !important; transform: translateX({LINEA_X}px) !important; }}
 
-    /* OCULTAR ETIQUETAS NATIVAS DE STREAMLIT */
     div[data-testid="stSelectbox"] label {{ display: none !important; }}
     div[data-testid="stNumberInput"] label {{ display: none !important; }}
 
-    /* Fondos de selectores */
     div[data-baseweb="select"] > div {{ background-color: {card_bg} !important; border-color: {border_color} !important; }}
     ul[role="listbox"] {{ background-color: {card_bg} !important; }}
     
-    /* TAMAÑO Y COLOR DE LAS OPCIONES DE ADENTRO FORZADO DIRECTAMENTE A LOS COMPONENTES */
     div[data-testid="stSelectbox"] div[data-baseweb="select"] * {{ font-size: {OPT_FILTROS_SIZE}px !important; color: {c_opt_filtros} !important; }}
     div[data-testid="stSelectbox"] div[data-baseweb="select"] svg {{ fill: 00000 !important; color: 00000 !important; }}
     div[data-testid="stSelectbox"] input {{ color: 00000 !important; }}
@@ -510,101 +492,59 @@ st.markdown(f"""
     li[role="option"] {{ background-color: F3F4F6 !important; }}
     li[role="option"]:hover {{ background-color: {border_color} !important; }}
 
-    /* INPUT BALANCE (CAJA DE TEXTO Y NÚMERO) */
     div[data-testid="stNumberInput"] {{ margin-left: {INPUT_BAL_X}px !important; margin-top: {INPUT_BAL_Y}px !important; width: {INPUT_BAL_W} !important; min-width: {INPUT_BAL_W} !important; max-width: {INPUT_BAL_W} !important; }}
     div[data-testid="stNumberInput"] button {{ display: none !important; }} 
     
     div[data-testid="stNumberInput"] > div:last-child,
     div[data-testid="stNumberInput"] div[data-baseweb="base-input"],
-    div[data-testid="stNumberInput"] div[data-baseweb="input"] {{ 
-        height: {INPUT_BAL_H} !important; 
-        min-height: {INPUT_BAL_H} !important; 
-        background-color: {input_bg} !important; 
-        border-color: {border_color} !important; 
-    }}
+    div[data-testid="stNumberInput"] div[data-baseweb="input"] {{ height: {INPUT_BAL_H} !important; min-height: {INPUT_BAL_H} !important; background-color: {input_bg} !important; border-color: {border_color} !important; }}
     
-    div[data-testid="stNumberInput"] input {{ 
-        color: {c_lbl_in} !important; 
-        font-size: {INPUT_BAL_TXT_SIZE}px !important; 
-        background-color: {input_bg} !important; 
-        font-weight: bold !important; 
-        height: {INPUT_BAL_H} !important; 
-        min-height: {INPUT_BAL_H} !important; 
-        box-sizing: border-box !important;
-        padding-top: 0 !important; 
-        padding-bottom: 0 !important;
-    }}
+    div[data-testid="stNumberInput"] input {{ color: {c_lbl_in} !important; font-size: {INPUT_BAL_TXT_SIZE}px !important; background-color: {input_bg} !important; font-weight: bold !important; height: {INPUT_BAL_H} !important; min-height: {INPUT_BAL_H} !important; box-sizing: border-box !important; padding-top: 0 !important; padding-bottom: 0 !important; }}
 
-    /* EL ÁREA DE DROPZONE (DONDE ARRASTRAS IMÁGENES) */
     [data-testid="stFileUploader"] {{ transform: translate({DROPZONE_X}px, {DROPZONE_Y}px) !important; background-color: transparent !important; border: none !important; padding: 0 !important; box-shadow: none !important; }}
     [data-testid="stFileUploader"] > section {{ background-color: transparent !important; border: none !important; padding: 0 !important; }}
     
-    /* El contenedor visible del Dropzone */
-    [data-testid="stFileUploadDropzone"] {{ 
-        background-color: {drop_bg} !important; 
-        border: {drop_border} !important; 
-        border-radius: 10px !important;
-        padding: 0 !important; 
-        width: {DROPZONE_W} !important;
-        min-height: {DROPZONE_H} !important; 
-        height: {DROPZONE_H} !important;
-        box-shadow: none !important; 
-        display: flex !important;
-        justify-content: center !important;
-        align-items: center !important;
-    }}
+    [data-testid="stFileUploadDropzone"] {{ background-color: {drop_bg} !important; border: {drop_border} !important; border-radius: 8px !important; padding: 0 !important; width: {DROPZONE_W} !important; min-height: {DROPZONE_H} !important; height: {DROPZONE_H} !important; box-shadow: none !important; display: flex !important; justify-content: center !important; align-items: center !important; }}
     [data-testid="stFileUploadDropzone"] > div {{ background-color: transparent !important; border: none !important; }}
     [data-testid="stFileUploadDropzone"] > div > span, [data-testid="stFileUploadDropzone"] small, [data-testid="stFileUploaderDropzoneInstructions"] {{ display: none !important; }}
     
-    [data-testid="stFileUploadDropzone"] button {{ 
-        background-color: {u_btn_bg} !important; 
-        color: {u_btn_txt} !important; 
-        border: 1px solid {border_color} !important; 
-        border-radius: 6px !important; 
-        margin: 0 !important; 
-        width: {BTN_UP_W} !important;
-        min-width: {BTN_UP_W} !important;
-        min-height: {BTN_UP_H} !important;
-        height: {BTN_UP_H} !important;
-    }}
+    [data-testid="stFileUploadDropzone"] button {{ background-color: {u_btn_bg} !important; color: {u_btn_txt} !important; border: 1px solid {border_color} !important; border-radius: 6px !important; margin: 0 !important; width: {BTN_UP_W} !important; min-width: {BTN_UP_W} !important; min-height: {BTN_UP_H} !important; height: {BTN_UP_H} !important; }}
     [data-testid="stFileUploadDropzone"] button * {{ color: {u_btn_txt} !important; font-size: {BTN_UP_SIZE} !important; }}
     [data-testid="stFileUploadDropzone"] button::after {{ content: "{BTN_UP_TEXTO}" !important; font-size: {BTN_UP_SIZE} !important; }}
     [data-testid="stFileUploadDropzone"] button div {{ display: none !important; }}
 
-    /* BOTÓN CALENDARIO FORZADO */
     div[data-testid="stButton"] > button {{ background-color: {btn_bg} !important; color: {btn_txt} !important; border: 1px solid {border_color} !important; }}
-    div[data-testid="stPopover"] > button {{ 
-        min-height: {BTN_CAL_H}px !important; height: {BTN_CAL_H}px !important; 
-        min-width: {BTN_CAL_W}px !important; width: {BTN_CAL_W}px !important; 
-        padding: 0 !important; font-size: {BTN_CAL_ICON_SIZE}px !important; border-radius: px !important; border: 1px solid {border_color} !important; background-color: {btn_bg} !important; color: {btn_txt} !important; display: flex !important; justify-content: center !important; align-items: center !important; 
+    div[data-testid="stPopover"] > button {{ min-height: {BTN_CAL_H}px !important; height: {BTN_CAL_H}px !important; min-width: {BTN_CAL_W}px !important; width: {BTN_CAL_W}px !important; padding: 0 !important; font-size: {BTN_CAL_ICON_SIZE}px !important; border-radius: px !important; border: 1px solid {border_color} !important; background-color: {btn_bg} !important; color: {btn_txt} !important; display: flex !important; justify-content: center !important; align-items: center !important; }}
+    
+    /* MODAL (POPOVER) REDUCIDO EN BORDES Y AJUSTADO */
+    div[data-testid="stPopoverBody"] {{ 
+        background-color: {card_bg} !important; 
+        border: 1px solid {border_color} !important; 
+        border-radius: 8px !important; 
+        padding: 15px !important; 
     }}
-    div[data-testid="stPopoverBody"] {{ background-color: {card_bg} !important; border: 1px solid {border_color} !important; }}
+    div[data-testid="stPopoverBody"]:has(h3) {{
+        width: 500px !important;
+        max-width: 95vw !important;
+        max-height: 85vh !important;
+        overflow-y: auto !important;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.3) !important;
+    }}
 
-    /* CALENDARIO Y DÍAS */
     .calendar-wrapper {{ background: {card_bg} !important; padding: 10px !important; border-radius: 15px !important; border: 1px solid {border_color} !important; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1) !important; }}
     .txt-dias-sem {{ font-size: {TXT_DIAS_SEM_SIZE}px !important; font-weight: bold !important; color: {c_dias_sem} !important; text-align: center !important; }}
     
-    .card {{ 
-        aspect-ratio: 1 / 1 !important; padding: 5px !important; border-radius: 20px !important; 
-        display: flex !important; flex-direction: column !important; position: relative !important;
-        font-size: 12px !important; margin-bottom: 6px !important;
-        padding-bottom: 25px !important; 
-    }}
+    .card {{ aspect-ratio: 1 / 1 !important; padding: 5px !important; border-radius: 10px !important; display: flex !important; flex-direction: column !important; position: relative !important; font-size: 12px !important; margin-bottom: 6px !important; padding-bottom: 25px !important; }}
     .day-number {{ position: absolute !important; top: 6px !important; left: 10px !important; font-size: {TXT_NUM_DIA_SIZE}px !important; font-weight: bold !important; color: {c_num_dia} !important; }}
     .day-content {{ margin-top: auto !important; margin-bottom: auto !important; text-align: center !important; width: 100% !important; }}
     .day-pnl {{ font-size: {TXT_PNL_DIA_SIZE}px !important; font-weight: bold !important; }}
     .day-pct {{ font-size: {TXT_PCT_DIA_SIZE}px !important; color: {c_pct_dia} !important; opacity: 0.9 !important; font-weight: 600 !important; display: block !important; }}
     
-    /* CÁMARA TAMAÑO MODIFICABLE */
-    .cam-icon {{ 
-        position: absolute !important; bottom: {BTN_CAM_Y}px !important; left: 50% !important; transform: translateX(calc(-50% + {BTN_CAM_X}px)) !important;
-        font-size: {BTN_CAM_SIZE}px !important; cursor: pointer !important; background: {c_cam_bg} !important; 
-        border-radius: 50% !important; padding: 2px 4px !important; box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important; transition: 0.2s !important; 
-    }}
+    .cam-icon {{ position: absolute !important; bottom: {BTN_CAM_Y}px !important; left: 50% !important; transform: translateX(calc(-50% + {BTN_CAM_X}px)) !important; font-size: {BTN_CAM_SIZE}px !important; cursor: pointer !important; background: {c_cam_bg} !important; border-radius: 50% !important; padding: 2px 4px !important; box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important; transition: 0.2s !important; }}
     .cam-icon:hover {{ transform: translateX(calc(-50% + {BTN_CAM_X}px)) scale(1.2) !important; }}
     
-    .cell-win {{ border: 2.5px solid #00C897 !important; color: #00664F !important; background-color: #e6f9f4 !important;}}
-    .cell-loss {{ border: 2.5px solid #FF4C4C !important; color: #9B1C1C !important; background-color: #ffeded !important;}}
+    .cell-win {{ border: 2px solid #00C897 !important; color: #00664F !important; background-color: #e6f9f4 !important;}}
+    .cell-loss {{ border: 2px solid #FF4C4C !important; color: #9B1C1C !important; background-color: #ffeded !important;}}
     .cell-empty {{ border: 1px solid {border_color} !important; background-color: {empty_cell_bg} !important;}}
 
     .modal-toggle:checked ~ .fs-modal {{ display: flex !important; }}
@@ -612,11 +552,10 @@ st.markdown(f"""
     .fs-modal img {{ max-width: 90vw !important; max-height: 80vh !important; margin-bottom: 20px !important; box-shadow: 0 0 20px black !important; border-radius: 10px !important; object-fit: contain !important; }}
     .close-btn {{ color: white !important; font-size: 25px !important; position: absolute !important; top: 30px !important; right: 50px !important; cursor: pointer !important; font-weight: bold !important; background: red !important; padding: 5px 15px !important; border-radius: 8px !important; }}
 
-    /* METRICAS PNL Y WIN */
     .card-pnl {{ width: {CARD_PNL_W} !important; height: {CARD_PNL_H} !important; transform: translate({CARD_PNL_X}px, {CARD_PNL_Y}px) !important; }}
     .card-win {{ width: {CARD_WIN_W} !important; height: {CARD_WIN_H} !important; transform: translate({CARD_WIN_X}px, {CARD_WIN_Y}px) !important; }}
     
-    .metric-card {{ background-color: {card_bg} !important; border-radius: 20px !important; padding: 15px 20px !important; border: 1px solid {border_color} !important; }}
+    .metric-card {{ background-color: {card_bg} !important; border-radius: 15px !important; padding: 15px 20px !important; border: 1px solid {border_color} !important; }}
     .metric-header {{ display: flex !important; align-items: center !important; gap: 8px !important; margin-bottom: 5px !important; }}
     .title-net-pnl {{ font-size: {CARD_PNL_TITULO_SIZE}px !important; font-weight: 700 !important; color: {c_tit_pnl} !important; }}
     .title-trade-win {{ font-size: {CARD_WIN_TITULO_SIZE}px !important; font-weight: 700 !important; color: {c_tit_win} !important; }}
@@ -627,34 +566,19 @@ st.markdown(f"""
     
     .gauge-container {{ display: flex !important; flex-direction: column !important; align-items: center !important; gap: 5px !important; }}
     .gauge-labels {{ display: flex !important; gap: 15px !important; font-size: 11px !important; font-weight: 700 !important; margin-top: -5px !important; }}
-    .lbl-g {{ background-color: #e6f9f4 !important; color: #00C897 !important; padding: 2px 8px !important; border-radius: 10px !important; }}
-    .lbl-b {{ background-color: #EEF2FF !important; color: #4F46E5 !important; padding: 2px 8px !important; border-radius: 10px !important; }}
-    .lbl-r {{ background-color: #ffeded !important; color: #FF4C4C !important; padding: 2px 8px !important; border-radius: 10px !important; }}
+    .lbl-g {{ background-color: #e6f9f4 !important; color: #00C897 !important; padding: 2px 8px !important; border-radius: 8px !important; }}
+    .lbl-b {{ background-color: #EEF2FF !important; color: #4F46E5 !important; padding: 2px 8px !important; border-radius: 8px !important; }}
+    .lbl-r {{ background-color: #ffeded !important; color: #FF4C4C !important; padding: 2px 8px !important; border-radius: 8px !important; }}
 
-    /* FLECHAS MES */
     .calendar-wrapper div[data-testid="column"]:first-child button {{ transform: translate({FLECHAS_X}px, {FLECHAS_Y}px) !important; font-size: {FLECHAS_SIZE}px !important; }}
     .calendar-wrapper div[data-testid="column"]:nth-child(3) button {{ transform: translate(calc({FLECHAS_X}px * -1), {FLECHAS_Y}px) !important; font-size: {FLECHAS_SIZE}px !important; }}
 
-    /* ESTILOS DE LOS CUADROS DE SEMANAS Y MES */
-    .weeks-container {{ 
-        transform: translate({WEEKS_CONTENEDOR_X}px, {WEEKS_CONTENEDOR_Y}px) !important;
-        display: flex !important; flex-wrap: wrap !important; gap: 10px !important; justify-content: space-between !important; 
-        margin-top: 15px !important;
-    }}
-    .wk-box {{ 
-        width: {WEEK_BOX_W} !important; height: {WEEK_BOX_H} !important; 
-        background: {card_bg} !important; border: 1px solid {border_color} !important; border-radius: 12px !important;
-        display: flex !important; flex-direction: column !important; align-items: {WEEK_ALIGN} !important; justify-content: center !important; padding: 5px !important;
-    }}
+    .weeks-container {{ transform: translate({WEEKS_CONTENEDOR_X}px, {WEEKS_CONTENEDOR_Y}px) !important; display: flex !important; flex-wrap: wrap !important; gap: 10px !important; justify-content: space-between !important; margin-top: 15px !important; }}
+    .wk-box {{ width: {WEEK_BOX_W} !important; height: {WEEK_BOX_H} !important; background: {card_bg} !important; border: 1px solid {border_color} !important; border-radius: 12px !important; display: flex !important; flex-direction: column !important; align-items: {WEEK_ALIGN} !important; justify-content: center !important; padding: 5px !important; }}
     .wk-title {{ font-size: {WEEKS_TITULOS_SIZE}px !important; font-weight: 700 !important; color: {wk_tit_c} !important; margin-bottom: 2px !important; }}
     .wk-val {{ font-size: {WEEKS_VALOR_SIZE}px !important; font-weight: 800 !important; line-height: 1.2 !important; }}
     
-    .mo-box {{ 
-        width: {MONTH_BOX_W} !important; height: {MONTH_BOX_H} !important; 
-        background: {card_bg} !important; border: 1px solid {border_color} !important; border-radius: 15px !important;
-        display: flex !important; flex-direction: column !important; align-items: {WEEK_ALIGN} !important; justify-content: center !important; padding: 10px !important;
-        margin-top: 5px !important;
-    }}
+    .mo-box {{ width: {MONTH_BOX_W} !important; height: {MONTH_BOX_H} !important; background: {card_bg} !important; border: 1px solid {border_color} !important; border-radius: 15px !important; display: flex !important; flex-direction: column !important; align-items: {WEEK_ALIGN} !important; justify-content: center !important; padding: 10px !important; margin-top: 5px !important; }}
     .mo-title {{ font-size: {MONTH_TITLE_SIZE}px !important; font-weight: 800 !important; color: {wk_tit_c} !important; text-transform: uppercase !important; letter-spacing: 1px !important; }}
     .mo-val {{ font-size: {MONTH_VAL_SIZE}px !important; font-weight: 800 !important; line-height: 1.2 !important; }}
     
@@ -662,7 +586,6 @@ st.markdown(f"""
     .txt-red {{ color: #FF4C4C !important; }}
     .txt-gray {{ color: gray !important; }}
     
-    /* REGLAS RESPONSIVE (MÓVILES) */
     @media (max-width: 768px) {{
         .dashboard-title {{ font-size: 38px !important; margin: 10px auto !important; text-align: center !important; line-height: 1 !important;}}
         .lbl-total-bal, .lbl-filtros, .lbl-data, .lbl-input {{ transform: translate(0, 0) !important; text-align: center !important; width: 100% !important; margin-bottom: 10px !important;}}
@@ -670,68 +593,16 @@ st.markdown(f"""
         div[data-testid="stNumberInput"] {{ width: 100% !important; max-width: 100% !important; margin: 0 !important; }}
         [data-testid="stFileUploadDropzone"] {{ width: 100% !important; transform: translate(0, 0) !important; }}
         div[data-testid="stPopover"] > button {{ width: 100% !important; margin-top: 5px !important; }}
-        
-        div[data-testid="stHorizontalBlock"]:has(> div[data-testid="column"]:nth-child(7)) {{ flex-wrap: nowrap !important; overflow-x: auto !important; padding-bottom: 5px !important; }}
-        div[data-testid="stHorizontalBlock"]:has(> div[data-testid="column"]:nth-child(7)) > div[data-testid="column"] {{ min-width: 48px !important; flex: 1 1 auto !important; }}
-        
         .card {{ min-height: 70px !important; padding-bottom: 15px !important; }}
         .day-number {{ font-size: 14px !important; left: 4px !important; top: 2px !important; }}
         .day-pnl {{ font-size: 14px !important; }}
         .day-pct {{ font-size: 12px !important; }}
         .cam-icon {{ font-size: 16px !important; bottom: -2px !important; }}
         .txt-dias-sem {{ font-size: 11px !important; }}
-        
         .card-pnl, .card-win {{ width: 100% !important; transform: translate(0, 0) !important; height: auto !important; margin-bottom: 15px !important; }}
         .weeks-container {{ transform: translate(0, 0) !important; flex-wrap: wrap !important; justify-content: space-between !important; }}
         .wk-box {{ width: 48% !important; margin-bottom: 5px !important; }}
         .mo-box {{ width: 100% !important; }}
-        .thin-line {{ width: 100% !important; transform: translate(0, 0) !important; }}
-        
-        /* Ajuste de ancho en celular para el modal de Notas */
-        div[data-testid="stPopoverBody"]:has(h3) {{ width: 100vw !important; left: 0 !important; border-radius: 0 !important; padding: 10px !important; }}
-    }}
-
-    /* CSS ESTRELLA: BOTON DE NOTAS (📝) MOVIDO CON ABSOLUTE */
-    .calendar-wrapper div[data-testid="column"] div[data-testid="stPopover"] {{
-        position: absolute !important;
-        top: {BTN_NOTAS_TOP} !important;
-        right: {BTN_NOTAS_RIGHT} !important;
-        z-index: 10 !important;
-    }}
-    .calendar-wrapper div[data-testid="column"] div[data-testid="stPopover"] > button {{
-        background: {c_cam_bg} !important;
-        border: none !important;
-        border-radius: 50% !important;
-        width: 32px !important;
-        height: 32px !important;
-        min-height: 32px !important;
-        min-width: 32px !important;
-        padding: 0 !important;
-        font-size: {BTN_NOTAS_SIZE}px !important;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
-        display: flex !important;
-        justify-content: center !important;
-        align-items: center !important;
-        transition: 0.2s !important;
-        color: {c_num_dia} !important;
-    }}
-    .calendar-wrapper div[data-testid="column"] div[data-testid="stPopover"] > button:hover {{
-        transform: scale(1.1) !important;
-    }}
-    
-    /* MODAL MÁS GRANDE Y CÓMODO */
-    div[data-testid="stPopoverBody"]:has(h3) {{
-        width: 700px !important;
-        max-width: 95vw !important;
-        height: auto !important;
-        max-height: 85vh !important;
-        padding: 20px !important;
-        border-radius: 15px !important;
-        box-shadow: 0 8px 30px rgba(0,0,0,0.4) !important;
-        background-color: {card_bg} !important;
-        border: 1px solid {border_color} !important;
-        color: {c_dash} !important;
-        overflow-y: auto !important;
     }}
     </style>
     """, unsafe_allow_html=True)
@@ -761,10 +632,48 @@ with col_bal:
 
 st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
 
+# =========================================================================================
+# 8.5 BLOQUE AISLADO: FUNCIONES PARA DIBUJAR LOS MENÚS CON SELECCIÓN REPARADA 100%
+# =========================================================================================
+def colorful_menu(options, label, value_key, trade_data_ref):
+    if value_key not in trade_data_ref: trade_data_ref[value_key] = options[0]
+    st.markdown(f"<div style='margin-bottom: 5px; font-weight: bold;'>{label}</div>", unsafe_allow_html=True)
+    selected_value = trade_data_ref[value_key]
+            
+    cols = st.columns(len(options))
+    for i, text in enumerate(options):
+        with cols[i]:
+            is_selected = (text == selected_value)
+            btn_label = f"✅ {text}" if is_selected else text
+            btn_type = "primary" if is_selected else "secondary"
+            
+            # Usando botones nativos, garantizado que se pintan si type="primary"
+            if st.button(btn_label, key=f"btn_{value_key}_{i}", use_container_width=True, type=btn_type):
+                trade_data_ref[value_key] = text
+                st.rerun()
+
+def colorful_multiselect(options, label, value_key, trade_data_ref):
+    if value_key not in trade_data_ref: trade_data_ref[value_key] = []
+    st.markdown(f"<div style='margin-bottom: 5px; font-weight: bold;'>{label}</div>", unsafe_allow_html=True)
+    current_selections = trade_data_ref[value_key]
+    
+    cols = st.columns(3) 
+    for i, text in enumerate(options):
+        with cols[i % 3]:
+            is_selected = (text in current_selections)
+            btn_label = f"✅ {text}" if is_selected else text
+            btn_type = "primary" if is_selected else "secondary"
+            
+            if st.button(btn_label, key=f"multibtn_{value_key}_{i}", use_container_width=True, type=btn_type):
+                if text in current_selections: trade_data_ref[value_key].remove(text)
+                else: trade_data_ref[value_key].append(text)
+                st.rerun()
+
+
 # ==========================================
-# 9. ENTRADA AUTOMÁTICA E IMÁGENES
+# 9. ENTRADA AUTOMÁTICA E IMÁGENES + BOTÓN DE NOTAS (MOVIDO AQUÍ)
 # ==========================================
-c1, c2, c_img, c_espacio = st.columns([1.5, 0.5, 2.5, 4]) 
+c1, c2, c_img, c_not, c_espacio = st.columns([1.5, 0.5, 2.5, 0.6, 3.4]) 
 
 with c1:
     st.markdown(f'<div class="lbl-input">{LBL_INPUT}</div>', unsafe_allow_html=True)
@@ -794,62 +703,45 @@ with c_img:
             lista_b64.append(f"data:{img.type};base64,{convertir_img_base64(img)}")
         db_usuario[ctx]["trades"][clave_actual]["imagenes"].extend(lista_b64)
 
-# =========================================================================================
-# 9.5 BLOQUE AISLADO: FUNCIONES PARA DIBUJAR LOS MENÚS DE COLOR Y SELECCIÓN EXACTA
-# =========================================================================================
-def colorful_menu(options, state_key, label, value_key, trade_data_ref, modal_key):
-    if value_key not in trade_data_ref: trade_data_ref[value_key] = options[0]['text']
-    st.markdown(f"<div style='margin-bottom: 5px; font-weight: bold;'>{label}</div>", unsafe_allow_html=True)
-    selected_value = trade_data_ref[value_key]
+# --------- AQUÍ ESTÁ EL BOTÓN DE NOTAS REUBICADO ---------
+with c_not:
+    st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True) 
+    with st.popover("📝"):
+        st.markdown("<h3 style='text-align:center; margin-top:0;'>Detalles del Trade</h3>", unsafe_allow_html=True)
+        
+        # Si el día no existe aún, inicializarlo temporalmente o mostrar advertencia
+        if clave_actual not in db_usuario[ctx]["trades"]:
+            st.info("Agrega un cambio de balance o una imagen primero para activar las notas en este día.")
+        else:
+            trade_data_ref = db_usuario[ctx]["trades"][clave_actual]
             
-    cols = st.columns(len(options))
-    for i, option in enumerate(options):
-        with cols[i]:
-            text, color = option['text'], option['color']
-            is_selected = (text == selected_value)
+            # BIAS
+            bias_options = ['ALCISTA', 'BAJISTA', 'NEUTRO']
+            colorful_menu(bias_options, "Bias", 'bias', trade_data_ref)
+            st.markdown("<br>", unsafe_allow_html=True)
             
-            # Si NO está seleccionado, el fondo es transparente y las letras del color.
-            bg_color = color if is_selected else "transparent"
-            txt_color = "white" if is_selected else color
-            border = "2px solid white" if is_selected else f"1px solid {color}"
-            
-            button_style = f"""
-                <style>
-                div[data-testid="column"]:has(> div > button[key="btn_{modal_key}_{value_key}_{i}"]) {{ padding: 0 !important; margin-bottom: 5px !important; height: 35px !important; }}
-                div[data-testid="column"]:has(> div > button[key="btn_{modal_key}_{value_key}_{i}"]) button {{ background-color: {bg_color} !important; border: {border} !important; color: {txt_color} !important; font-weight: bold !important; font-size: 13px !important; height: 100% !important; width: 100% !important; padding: 0 !important; border-radius: 6px !important; transition: 0.1s !important; }}
-                </style>
-            """
-            st.markdown(button_style, unsafe_allow_html=True)
-            if st.button(text, key=f"btn_{modal_key}_{value_key}_{i}", use_container_width=True):
-                trade_data_ref[value_key] = text
-                st.rerun()
+            # CONFLUENCIAS
+            confluencias_options = ['1. BIAS Claro', '2. Liq Sweep', '4. IFVG', '3. FVG', 'EQH / EQL', 'BSL / SSL', 'PO3', 'SMT', 'Breaker Block', 'Descuento', 'Order Block', 'NYMO', 'PDH', 'PDL', 'Inducement', 'Turtle Soup', 'Continuación', 'Reversal', 'Data High', 'Data Low', 'CISD', 'Nada']
+            colorful_multiselect(confluencias_options, "Confluencias", 'confluencias', trade_data_ref)
+            st.markdown("<br>", unsafe_allow_html=True)
 
-def colorful_multiselect(options, label, value_key, trade_data_ref, modal_key):
-    if value_key not in trade_data_ref: trade_data_ref[value_key] = []
-    st.markdown(f"<div style='margin-bottom: 5px; font-weight: bold;'>{label}</div>", unsafe_allow_html=True)
-    current_selections = trade_data_ref[value_key]
-    
-    cols = st.columns(3) 
-    for i, option in enumerate(options):
-        with cols[i % 3]:
-            text, color = option['text'], option['color']
-            is_selected = (text in current_selections)
+            # RAZÓN Y CORRECCIONES (Textareas más pequeños para ahorrar espacio en la altura)
+            trade_data_ref['razon_trade'] = st.text_area("Razón del Trade", value=trade_data_ref.get('razon_trade', ''), key=f"razon_main", height=80)
+            trade_data_ref['correcciones'] = st.text_area("Correcciones", value=trade_data_ref.get('correcciones', ''), key=f"corr_main", height=80)
             
-            bg_color = color if is_selected else "transparent"
-            txt_color = "white" if is_selected else color
-            border = "2px solid white" if is_selected else f"1px solid {color}"
+            # RISK Y RRR
+            risk_options = ['0.6%', '0.5%', '0.4%']
+            colorful_menu(risk_options, "% Risk", 'risk', trade_data_ref)
+            st.markdown("<br>", unsafe_allow_html=True)
+
+            rrr_options = ['A+', 'A', 'B', 'C']
+            colorful_menu(rrr_options, "RRR", 'rrr', trade_data_ref)
+            st.markdown("<br>", unsafe_allow_html=True)
             
-            button_style = f"""
-                <style>
-                div[data-testid="column"]:has(> div > button[key="multibtn_{modal_key}_{i}"]) {{ padding: 0 !important; margin-bottom: 8px !important; height: 32px !important; }}
-                div[data-testid="column"]:has(> div > button[key="multibtn_{modal_key}_{i}"]) button {{ background-color: {bg_color} !important; border: {border} !important; color: {txt_color} !important; font-weight: bold !important; font-size: 12px !important; height: 100% !important; width: 100% !important; padding: 0 !important; border-radius: 6px !important; transition: 0.1s !important; }}
-                </style>
-            """
-            st.markdown(button_style, unsafe_allow_html=True)
-            if st.button(text, key=f"multibtn_{modal_key}_{i}", use_container_width=True):
-                if text in current_selections: trade_data_ref[value_key].remove(text)
-                else: trade_data_ref[value_key].append(text)
-                st.rerun()
+            # TIPO Y EMOCIONES
+            trade_data_ref['trade_type'] = st.text_input("Trade Type", value=trade_data_ref.get('trade_type', ''), key=f"type_main")
+            trade_data_ref['emociones'] = st.text_area("Emociones", value=trade_data_ref.get('emociones', ''), key=f"emoc_main", height=80)
+
 
 # ==========================================
 # 10. CALENDARIO Y RESUMEN
@@ -881,8 +773,6 @@ with col_cal:
         d_cols = st.columns(7)
         for i, dia in enumerate(semana_dias):
             with d_cols[i]:
-                modal_key = f"modal_{anio_sel}_{mes_sel}_{dia}"
-                
                 if dia == 0: st.markdown('<div class="card cell-empty"></div>', unsafe_allow_html=True)
                 else:
                     trade = db_usuario[ctx]["trades"].get((anio_sel, mes_sel, dia))
@@ -897,39 +787,6 @@ with col_cal:
                         bal_ini = trade["balance_final"] - trade["pnl"]
                         pct = (trade["pnl"] / bal_ini * 100) if bal_ini != 0 else 0
                         pct_str = f"{c_sim}{pct:.2f}%"
-                        
-                        # --- BOTÓN DE NOTAS (📝) ---
-                        popover_key = f"pop_{anio_sel}_{mes_sel}_{dia}"
-                        with st.popover("📝", key=popover_key):
-                            st.markdown("<h3 style='text-align:center;'>Detalles del Trade</h3>", unsafe_allow_html=True)
-                            trade_data_ref = db_usuario[ctx]["trades"][(anio_sel, mes_sel, dia)]
-                            
-                            # BIAS
-                            bias_options = [{'text': 'ALCISTA', 'color': '#337ab7'}, {'text': 'BAJISTA', 'color': '#777777'}, {'text': 'NEUTRO', 'color': '#8c6e5c'}]
-                            colorful_menu(bias_options, f"bias_{modal_key}", "Bias", 'bias', trade_data_ref, modal_key)
-                            st.markdown("<br>", unsafe_allow_html=True)
-                            
-                            # CONFLUENCIAS
-                            confluencias_options = [{'text': '1. BIAS Claro', 'color': '#8c6e5c'}, {'text': '2. Liq Sweep', 'color': '#777777'}, {'text': '4. IFVG', 'color': '#b06c9b'}, {'text': '3. FVG', 'color': '#a52a2a'}, {'text': 'EQH / EQL', 'color': '#5cb85c'}, {'text': 'BSL / SSL', 'color': '#5cb85c'}, {'text': 'PO3', 'color': '#b06c9b'}, {'text': 'SMT', 'color': '#8e44ad'}, {'text': 'Breaker Block', 'color': '#95a5a6'}, {'text': 'Descuento', 'color': '#b08e33'}, {'text': 'Order Block', 'color': '#5cb85c'}, {'text': 'NYMO', 'color': '#b06c9b'}, {'text': 'PDH', 'color': '#8c6e5c'}, {'text': 'PDL', 'color': '#8c6e5c'}, {'text': 'Inducement', 'color': '#b06c9b'}, {'text': 'Turtle Soup', 'color': '#b06c9b'}, {'text': 'Continuación', 'color': '#8e44ad'}, {'text': 'Reversal', 'color': '#8c6e5c'}, {'text': 'Data High', 'color': '#a52a2a'}, {'text': 'Data Low', 'color': '#a52a2a'}, {'text': 'CISD', 'color': '#b08e33'}, {'text': 'Nada', 'color': '#d9534f'}]
-                            colorful_multiselect(confluencias_options, "Confluencias", 'confluencias', trade_data_ref, modal_key)
-                            st.markdown("<br>", unsafe_allow_html=True)
-
-                            # RAZÓN Y CORRECCIONES
-                            trade_data_ref['razon_trade'] = st.text_area("Razón del Trade", value=trade_data_ref.get('razon_trade', ''), key=f"razon_{modal_key}")
-                            trade_data_ref['correcciones'] = st.text_area("Correcciones", value=trade_data_ref.get('correcciones', ''), key=f"corr_{modal_key}")
-                            
-                            # RISK Y RRR
-                            risk_options = [{'text': '0.6%', 'color': '#777777'}, {'text': '0.5%', 'color': '#777777'}, {'text': '0.4%', 'color': '#777777'}]
-                            colorful_menu(risk_options, f"risk_{modal_key}", "% Risk", 'risk', trade_data_ref, modal_key)
-                            st.markdown("<br>", unsafe_allow_html=True)
-
-                            rrr_options = [{'text': 'A+', 'color': '#337ab7'}, {'text': 'A', 'color': '#5cb85c'}, {'text': 'B', 'color': '#f0ad4e'}, {'text': 'C', 'color': '#d9534f'}]
-                            colorful_menu(rrr_options, f"rrr_{modal_key}", "RRR", 'rrr', trade_data_ref, modal_key)
-                            st.markdown("<br>", unsafe_allow_html=True)
-                            
-                            # TIPO Y EMOCIONES
-                            trade_data_ref['trade_type'] = st.text_input("Trade Type", value=trade_data_ref.get('trade_type', ''), key=f"type_{modal_key}")
-                            trade_data_ref['emociones'] = st.text_area("Emociones", value=trade_data_ref.get('emociones', ''), key=f"emoc_{modal_key}")
 
                         if trade.get("imagenes"):
                             id_modal = f"mod_{anio_sel}_{mes_sel}_{dia}"
@@ -1121,7 +978,7 @@ with st.expander("🛠️ OPEN ORDER HISTORY", expanded=False):
 
 
 # =========================================================================================================
-# 12. TABLA DE RESULTADOS (SOLO SE MUESTRA SI ESTÁ ACTIVO EN EL MENÚ METRICS)
+# 12. TABLA DE RESULTADOS (EDITABLE Y CON BOTÓN TOGGLE DE METRICS)
 # =========================================================================================================
 if mostrar_tabla:
     st.markdown("<br><br><h2 style='text-align:center;'>Tabla de Resultados</h2>", unsafe_allow_html=True)
@@ -1173,4 +1030,5 @@ if mostrar_tabla:
             
             return row_styles
 
-        st.dataframe(df_results.style.apply(style_rows, axis=1), use_container_width=True)
+        # Se hace interactiva y editable con st.data_editor
+        st.data_editor(df_results.style.apply(style_rows, axis=1), use_container_width=True, num_rows="dynamic")
