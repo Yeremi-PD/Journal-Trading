@@ -896,8 +896,8 @@ with st.expander("🛠️ OPEN ORDER HISTORY", expanded=False):
                     cols_img = st.columns(len(imagenes_restantes))
                     for i, img_b64 in enumerate(imagenes_restantes):
                         with cols_img[i]:
-                            st.markdown(f'<img src="{img_b64}" style="width:100%; border-radius:8px; border:1px solid gray;">', unsafe_allow_html=True)
-                            if st.button("🗑️ Borrar", key=f"delimg_{clave}_{i}", use_container_width=True):
+                            st.markdown(f'<img src="{img_b64}" style="width:100%; border-radius:20px; border:1px solid gray;">', unsafe_allow_html=True)
+                            if st.button("🗑️ Delete", key=f"delimg_{clave}_{i}", use_container_width=True):
                                 data["imagenes"].pop(i)
                                 db_usuario[ctx]["trades"][clave]["imagenes"] = data["imagenes"]
                                 st.rerun()
