@@ -123,7 +123,7 @@ MES_TEXTO_Y = 10
 # ---------------------------------------------------------
 # TEXTO 7: Días de la semana (Dom, Lun, Mar...)
 # ---------------------------------------------------------
-TXT_DIAS_SEM_SIZE = 19
+TXT_DIAS_SEM_SIZE = 13
 TXT_DIAS_SEM_COLOR_CLARO = "#000000"
 TXT_DIAS_SEM_COLOR_OSCURO = "#FFFFFF"
 
@@ -132,20 +132,20 @@ TXT_DIAS_SEM_COLOR_OSCURO = "#FFFFFF"
 # ---------------------------------------------------------
 TXT_NUM_DIA_SIZE = 15
 TXT_NUM_DIA_COLOR_CLARO = "#000000"
-TXT_NUM_DIA_COLOR_OSCURO = "##0000ff"
+TXT_NUM_DIA_COLOR_OSCURO = "#FFFFFF"
 
 # ---------------------------------------------------------
 # TEXTO 9: El dinero dentro de la tarjeta (Ej: +$50.00)
 # (Mantiene su color verde o rojo automático, pero puedes cambiar el TAMAÑO)
 # ---------------------------------------------------------
-TXT_PNL_DIA_SIZE = 19
+TXT_PNL_DIA_SIZE = 16
 
 # ---------------------------------------------------------
 # TEXTO 10: El Porcentaje dentro de la tarjeta (Ej: +1.50%)
 # ---------------------------------------------------------
-TXT_PCT_DIA_SIZE = 15
+TXT_PCT_DIA_SIZE = 11
 TXT_PCT_DIA_COLOR_CLARO = "#000000"
-TXT_PCT_DIA_COLOR_OSCURO = "#000000"
+TXT_PCT_DIA_COLOR_OSCURO = "#FFFFFF"
 
 # ---------------------------------------------------------
 # TEXTO 11: Título "Net P&L"
@@ -182,8 +182,11 @@ BOTON_HEIGHT = 45
 BOTON_ICON_SIZE = 22 
 
 FLECHAS_X_AJUSTE = 0 
-FLECHAS_Y_AJUSTE = 20 
-FLECHAS_SIZE = 50
+FLECHAS_Y_AJUSTE = 10 
+FLECHAS_SIZE = 16
+
+UPLOAD_X = 0         # <- MUEVE EL BOTÓN DE UPLOAD A LA DERECHA/IZQUIERDA
+UPLOAD_Y = 0         # <- MUEVE EL BOTÓN DE UPLOAD ARRIBA/ABAJO
 
 BALANCE_BOX_X = 0     
 BALANCE_BOX_Y = 0     
@@ -200,7 +203,7 @@ CARD_PNL_Y = 10
 CARD_PNL_W = 80      
 CARD_WIN_X = 0       
 CARD_WIN_Y = 20      
-CARD_WIN_W = 70      
+CARD_WIN_W = 80      
 
 # ==========================================
 # 4. LÓGICA DE ESTADO DEL USUARIO
@@ -363,10 +366,10 @@ st.markdown(f"""
     div[data-testid="stNumberInput"] div[data-baseweb="input"] {{ background-color: {input_bg} !important; border-color: {border_color} !important; }}
     div[data-testid="stNumberInput"] input {{ color: {c_lbl_in} !important; background-color: {input_bg} !important; font-weight: bold; }}
 
-    /* ÁREA DE UPLOAD (SOLO BOTÓN LIMPIO) */
-    [data-testid="stFileUploadDropzone"] {{ background: transparent !important; border: none !important; padding: 0 !important; min-height: 0 !important; }}
-    [data-testid="stFileUploadDropzone"] > div > span {{ display: none !important; }}
-    [data-testid="stFileUploadDropzone"] small {{ display: none !important; }}
+    /* ÁREA DE UPLOAD (FONDO TRANSPARENTE, SIN TEXTOS EXTRA) */
+    [data-testid="stFileUploader"] {{ background-color: transparent !important; margin-left: {UPLOAD_X}px !important; margin-top: {UPLOAD_Y}px !important; }}
+    [data-testid="stFileUploadDropzone"] {{ background-color: transparent !important; border: none !important; padding: 0 !important; min-height: 0 !important; }}
+    [data-testid="stFileUploadDropzone"] > div > span, [data-testid="stFileUploadDropzone"] small, [data-testid="stFileUploaderDropzoneInstructions"] {{ display: none !important; }}
     [data-testid="stFileUploadDropzone"] button {{ background-color: {btn_bg} !important; color: {btn_txt} !important; border: 1px solid {border_color} !important; border-radius: 6px !important; margin: 0 !important; }}
     [data-testid="stFileUploadDropzone"] button * {{ color: {btn_txt} !important; }}
 
@@ -428,8 +431,8 @@ st.markdown(f"""
     .lbl-b {{ background-color: #EEF2FF; color: #4F46E5; padding: 2px 8px; border-radius: 10px; }}
     .lbl-r {{ background-color: #ffeded; color: #FF4C4C; padding: 2px 8px; border-radius: 10px; }}
 
-    /* FLECHAS MES */
-    .calendar-wrapper div[data-testid="stButton"] {{ margin-top: {FLECHAS_Y_AJUSTE}px; margin-left: {FLECHAS_X_AJUSTE}px; }}
+    /* FLECHAS MES - ¡CON !IMPORTANT PARA FORZAR EL MOVIMIENTO! */
+    .calendar-wrapper [data-testid="stButton"], .calendar-wrapper .stButton {{ margin-top: {FLECHAS_Y_AJUSTE}px !important; margin-left: {FLECHAS_X_AJUSTE}px !important; }}
     .calendar-wrapper div[data-testid="stButton"] button * {{ font-size: {FLECHAS_SIZE}px !important; }}
     </style>
     """, unsafe_allow_html=True)
