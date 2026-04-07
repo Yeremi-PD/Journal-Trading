@@ -1040,7 +1040,7 @@ def sync_table_edits():
                         pass
 
 if mostrar_tabla:
-    st.markdown("<br><br><h2 style='text-align:center;'>Tabla de Resultados</h2>", unsafe_allow_html=True)
+    st.markdown("<br><br><h2 style='text-align:center;'>Results Table</h2>", unsafe_allow_html=True)
     all_trades = db_usuario[ctx]["trades"]
     if not all_trades:
         st.info("No hay trades registrados.")
