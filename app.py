@@ -159,7 +159,7 @@ UPLOAD_BTN_TXT_OSCURO = "#000000"
 # CONFIGURACIÓN DE FLECHAS (CALENDARIO) Y OTROS
 # ---------------------------------------------------------
 FLECHAS_X_AJUSTE = 0 
-FLECHAS_Y_AJUSTE = 0   # Si pones 10 bajará 10px, si pones -10 subirá
+FLECHAS_Y_AJUSTE = 10   # Si pones 10 bajará 10px, si pones -10 subirá
 FLECHAS_SIZE = 16
 
 BOTON_FONDO_CLARO = "#F3F4F6"
