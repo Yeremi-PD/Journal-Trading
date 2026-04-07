@@ -513,13 +513,13 @@ st.markdown(f"""
 
     /* EL ÁREA DE DROPZONE (DONDE ARRASTRAS IMÁGENES) */
     [data-testid="stFileUploader"] {{ transform: translate({DROPZONE_X}px, {DROPZONE_Y}px) !important; background-color: transparent !important; border: none !important; padding: 0 !important; box-shadow: none !important; }}
-    [data-testid="stFileUploader"] > section {{ background-color: transparent !important; border: none !important; padding: 0 !important; }}
+    [data-testid="stFileUploader"] > section {{ background-color: FFFFFF !important; border: none !important; padding: 0 !important; }}
     
     /* El contenedor visible del Dropzone */
     [data-testid="stFileUploadDropzone"] {{ 
         background-color: {drop_bg} !important; 
         border: {drop_border} !important; 
-        border-radius: 10px !important;
+        border-radius: 110px !important;
         padding: 0 !important; 
         width: {DROPZONE_W} !important;
         min-height: {DROPZONE_H} !important; 
