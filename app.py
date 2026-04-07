@@ -150,8 +150,8 @@ UPLOAD_X = 0
 UPLOAD_Y = 0
 UPLOAD_W = "100%"                     # Ancho del botón de carga (Ej: "120px" o "100%")
 UPLOAD_H = "45px"                     # Alto del botón de carga
-UPLOAD_BTN_BG_CLARO = "#000000"       
-UPLOAD_BTN_BG_OSCURO = "#000000"
+UPLOAD_BTN_BG_CLARO = "#E2E8F0"       
+UPLOAD_BTN_BG_OSCURO = "#4A5568"
 UPLOAD_BTN_TXT_CLARO = "#000000"      
 UPLOAD_BTN_TXT_OSCURO = "#FFFFFF"
 
