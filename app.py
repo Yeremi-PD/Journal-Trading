@@ -25,6 +25,18 @@ def inicializar_data_usuario():
         "Account Demo": {"balance": 25000.00, "trades": {}}
     }
 
+def inicializar_settings():
+    return {
+        "size_top_stats": 18,
+        "size_card_titles": 20,
+        "size_box_titles": 20,
+        "size_box_vals": 25,
+        "size_box_pct": 20,
+        "size_box_wl": 14,
+        "size_gauge": 220,
+        "size_gauge_lbl": 14
+    }
+
 if "usuario_actual" not in st.session_state:
     st.session_state.usuario_actual = None
 
@@ -57,7 +69,8 @@ if st.session_state.usuario_actual is None or st.session_state.usuario_actual no
                 elif len(reg_user) > 0 and len(reg_pass) > 0:
                     db_global[reg_user] = {
                         "password": reg_pass,
-                        "data": inicializar_data_usuario()
+                        "data": inicializar_data_usuario(),
+                        "settings": inicializar_settings()
                     }
                     st.success("Cuenta creada con éxito. Ya puedes iniciar sesión.")
                 else:
@@ -247,6 +260,11 @@ if "data_source_sel" not in st.session_state:
 usuario = st.session_state.usuario_actual
 db_usuario = db_global[usuario]["data"]
 
+# Inicializar settings en base de datos del usuario si no existe
+if "settings" not in db_global[usuario]:
+    db_global[usuario]["settings"] = inicializar_settings()
+user_settings = db_global[usuario]["settings"]
+
 for cuenta in ["Account Real", "Account Demo"]:
     if cuenta not in db_usuario:
         db_usuario[cuenta] = {"balance": 25000.00, "trades": {}}
@@ -306,17 +324,6 @@ st.sidebar.markdown("### 📊 Metrics")
 mostrar_tabla = st.sidebar.toggle("Show Results Table", value=False)
 
 st.sidebar.markdown("---")
-st.sidebar.markdown("### 🔠 Ajustes de Texto Generales")
-if "size_top_stats" not in st.session_state:
-    st.session_state.size_top_stats = 18
-if "size_card_titles" not in st.session_state:
-    st.session_state.size_card_titles = 20
-
-st.session_state.size_top_stats = st.sidebar.slider("Tamaño Monthly P&L y Win Rate (Top)", 10, 40, st.session_state.size_top_stats)
-st.session_state.size_card_titles = st.sidebar.slider("Tamaño Títulos (All-Time, etc)", 10, 40, st.session_state.size_card_titles)
-
-
-st.sidebar.markdown("---")
 st.sidebar.markdown("### ⚙️ Settings")
 
 texto_boton_tema = "🌙 Switch to Dark Theme" if st.session_state.tema == "Claro" else "☀️ Switch to Light Theme"
@@ -345,23 +352,17 @@ if admin_pass == "725166":
                 st.session_state.usuario_actual = None
             st.rerun()
 
-# --- NUEVOS SLIDERS: AJUSTES DE CAJAS Y GRÁFICO (DEBAJO DE ADMIN) ---
+# --- NUEVOS SLIDERS: AJUSTES DE TEXTOS Y GRÁFICOS (DEBAJO DE ADMIN) ---
 st.sidebar.markdown("---")
-st.sidebar.markdown("### 📐 Ajustes de Cajas y Gráfico")
-
-if "size_box_titles" not in st.session_state: st.session_state.size_box_titles = 20
-if "size_box_vals" not in st.session_state: st.session_state.size_box_vals = 25
-if "size_box_pct" not in st.session_state: st.session_state.size_box_pct = 20
-if "size_box_wl" not in st.session_state: st.session_state.size_box_wl = 14
-if "size_gauge" not in st.session_state: st.session_state.size_gauge = 220
-if "size_gauge_lbl" not in st.session_state: st.session_state.size_gauge_lbl = 14
-
-st.session_state.size_box_titles = st.sidebar.slider("Tamaño Títulos (Week/Month)", 10, 40, st.session_state.size_box_titles)
-st.session_state.size_box_vals = st.sidebar.slider("Tamaño P&L Cajas", 10, 50, st.session_state.size_box_vals)
-st.session_state.size_box_pct = st.sidebar.slider("Tamaño % Cajas", 10, 40, st.session_state.size_box_pct)
-st.session_state.size_box_wl = st.sidebar.slider("Tamaño W/L Cajas", 10, 40, st.session_state.size_box_wl)
-st.session_state.size_gauge = st.sidebar.slider("Tamaño Gráfico (Medio Círculo)", 100, 400, st.session_state.size_gauge)
-st.session_state.size_gauge_lbl = st.sidebar.slider("Tamaño Números bajo Gráfico", 10, 30, st.session_state.size_gauge_lbl)
+with st.sidebar.expander("🔠 Ajustes de Textos y Gráficos"):
+    user_settings["size_top_stats"] = st.slider("Tamaño Monthly P&L y Win Rate (Top)", 10, 40, user_settings["size_top_stats"])
+    user_settings["size_card_titles"] = st.slider("Tamaño Títulos (All-Time, etc)", 10, 40, user_settings["size_card_titles"])
+    user_settings["size_box_titles"] = st.slider("Tamaño Títulos (Week/Month)", 10, 40, user_settings["size_box_titles"])
+    user_settings["size_box_vals"] = st.slider("Tamaño P&L Cajas", 10, 50, user_settings["size_box_vals"])
+    user_settings["size_box_pct"] = st.slider("Tamaño % Cajas", 10, 40, user_settings["size_box_pct"])
+    user_settings["size_box_wl"] = st.slider("Tamaño W/L Cajas", 10, 40, user_settings["size_box_wl"])
+    user_settings["size_gauge"] = st.slider("Tamaño Gráfico (Medio Círculo)", 100, 400, user_settings["size_gauge"])
+    user_settings["size_gauge_lbl"] = st.slider("Tamaño Números bajo Gráfico", 10, 30, user_settings["size_gauge_lbl"])
 
 # --- BOTÓN DE LOG OUT (SIEMPRE AL FINAL) ---
 st.sidebar.markdown("<br><br><br>", unsafe_allow_html=True)
@@ -524,8 +525,8 @@ st.markdown(f"""
     
     .metric-card {{ background-color: {card_bg} !important; border-radius: 15px !important; padding: 15px 20px !important; border: 1px solid {border_color} !important; }}
     .metric-header {{ display: flex !important; align-items: center !important; gap: 8px !important; margin-bottom: 5px !important; }}
-    .title-net-pnl {{ font-size: {st.session_state.size_card_titles}px !important; font-weight: 700 !important; color: {c_tit_pnl} !important; }}
-    .title-trade-win {{ font-size: {st.session_state.size_card_titles}px !important; font-weight: 700 !important; color: {c_tit_win} !important; }}
+    .title-net-pnl {{ font-size: {user_settings['size_card_titles']}px !important; font-weight: 700 !important; color: {c_tit_pnl} !important; }}
+    .title-trade-win {{ font-size: {user_settings['size_card_titles']}px !important; font-weight: 700 !important; color: {c_tit_win} !important; }}
     
     .pnl-value {{ font-size: 28px !important; font-weight: 800 !important; color: #00C897 !important; letter-spacing: -0.5px !important; }}
     .pnl-value-loss {{ color: #FF4C4C !important; }}
@@ -760,8 +761,8 @@ with col_cal:
     with c_stats:
         st.markdown(f'''
             <div style="display:flex; justify-content:flex-end; align-items:center; gap:20px; margin-top:8px;">
-                <div style="font-weight:700; font-size:{st.session_state.size_top_stats}px; color:{c_mes}; display:flex; align-items:center; gap:8px;">Monthly P&L: <span style="background-color:{bg_pnl_top}; color:{color_pnl_top}; padding:4px 12px; border-radius:12px; font-weight:800;">{simb_pnl_top}${net_pnl_top:,.2f}</span></div>
-                <div style="font-weight:700; font-size:{st.session_state.size_top_stats}px; color:{c_mes}; display:flex; align-items:center; gap:8px;">Win Rate: <span style="background-color:{bg_win_top}; color:{color_win_top}; padding:4px 12px; border-radius:12px; font-weight:800;">{win_pct_top:.1f}%</span></div>
+                <div style="font-weight:700; font-size:{user_settings['size_top_stats']}px; color:{c_mes}; display:flex; align-items:center; gap:8px;">Monthly P&L: <span style="background-color:{bg_pnl_top}; color:{color_pnl_top}; padding:4px 12px; border-radius:12px; font-weight:800;">{simb_pnl_top}${net_pnl_top:,.2f}</span></div>
+                <div style="font-weight:700; font-size:{user_settings['size_top_stats']}px; color:{c_mes}; display:flex; align-items:center; gap:8px;">Win Rate: <span style="background-color:{bg_win_top}; color:{color_win_top}; padding:4px 12px; border-radius:12px; font-weight:800;">{win_pct_top:.1f}%</span></div>
             </div>
         ''', unsafe_allow_html=True)
     
@@ -845,8 +846,8 @@ with col_det:
     st.markdown("<br>", unsafe_allow_html=True)
 
     # 🔴 SVG DINÁMICO EN TAMAÑO 🔴
-    svg_h = st.session_state.size_gauge // 2
-    svg_html = f'<svg width="{st.session_state.size_gauge}" height="{svg_h}" viewBox="0 0 100 50">\n<path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="{border_color}" stroke-width="10"/>\n'
+    svg_h = user_settings['size_gauge'] // 2
+    svg_html = f'<svg width="{user_settings["size_gauge"]}" height="{svg_h}" viewBox="0 0 100 50">\n<path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="{border_color}" stroke-width="10"/>\n'
     if total_trades > 0:
         svg_html += f'<path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#FF4C4C" stroke-width="10" stroke-dasharray="{c} {c}"/>\n'
         svg_html += f'<path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#4F46E5" stroke-width="10" stroke-dasharray="{len_w + len_t} {c}"/>\n'
@@ -862,11 +863,11 @@ with col_det:
             <div style="display:flex; flex-direction:row; align-items:center; justify-content:center; gap:25px; margin-top:15px;">
                 <div class="gauge-container">
                     {svg_html}
-                    <div class="gauge-labels" style="font-size: {st.session_state.size_gauge_lbl}px !important;">
+                    <div class="gauge-labels" style="font-size: {user_settings['size_gauge_lbl']}px !important;">
                         <span class="lbl-g">{wins}</span><span class="lbl-b">{ties}</span><span class="lbl-r">{losses}</span>
                     </div>
                 </div>
-                <div style="font-size: {st.session_state.size_box_wl}px; color: gray; font-weight: 800; text-align:center; white-space:nowrap;">
+                <div style="font-size: {user_settings['size_box_wl']}px; color: gray; font-weight: 800; text-align:center; white-space:nowrap;">
                     {wins}W / {losses}L
                 </div>
             </div>
@@ -910,9 +911,9 @@ with col_det:
             titulo_str = titulos_semanas[idx] if idx < len(titulos_semanas) else f"Week {num_sem}"
             c_sem, s_sem = get_col_simb(stats["pnl"])
             pct_sem = calc_pct(stats["pnl"])
-            semanas_html += f'<div class="wk-box"><div class="wk-title" style="font-size:{st.session_state.size_box_titles}px !important;">{titulo_str}</div><div class="wk-val {c_sem}" style="font-size:{st.session_state.size_box_vals}px !important;">{s_sem}${stats["pnl"]:,.2f}<br><span style="font-size:{st.session_state.size_box_pct}px;">{s_sem}{pct_sem:.2f}%</span><br><span style="font-size: {st.session_state.size_box_wl}px; color: gray; font-weight: 500;">{stats["w"]}W / {stats["l"]}L</span></div></div>'
+            semanas_html += f'<div class="wk-box"><div class="wk-title" style="font-size:{user_settings["size_box_titles"]}px !important;">{titulo_str}</div><div class="wk-val {c_sem}" style="font-size:{user_settings["size_box_vals"]}px !important;">{s_sem}${stats["pnl"]:,.2f}<br><span style="font-size:{user_settings["size_box_pct"]}px;">{s_sem}{pct_sem:.2f}%</span><br><span style="font-size: {user_settings["size_box_wl"]}px; color: gray; font-weight: 500;">{stats["w"]}W / {stats["l"]}L</span></div></div>'
 
-        st.markdown(f'<div class="weeks-container">{semanas_html}<div class="mo-box"><div class="mo-title" style="font-size:{st.session_state.size_box_titles}px !important;">{TXT_MO}</div><div class="mo-val {cM}" style="font-size:{st.session_state.size_box_vals}px !important;">{sM}${m_total:,.2f}<br><span style="font-size:{st.session_state.size_box_pct}px;">{sM}{pct_m:.2f}%</span><br><span style="font-size: {st.session_state.size_box_wl}px; color: gray; font-weight: 500;">{m_w}W / {m_l}L</span></div></div></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="weeks-container">{semanas_html}<div class="mo-box"><div class="mo-title" style="font-size:{user_settings["size_box_titles"]}px !important;">{TXT_MO}</div><div class="mo-val {cM}" style="font-size:{user_settings["size_box_vals"]}px !important;">{sM}${m_total:,.2f}<br><span style="font-size:{user_settings["size_box_pct"]}px;">{sM}{pct_m:.2f}%</span><br><span style="font-size: {user_settings["size_box_wl"]}px; color: gray; font-weight: 500;">{m_w}W / {m_l}L</span></div></div></div>', unsafe_allow_html=True)
 
     else:
         # LÓGICA DE TODOS LOS MESES (ALL-TIME)
@@ -934,7 +935,7 @@ with col_det:
             nombre_m = f"{calendar.month_abbr[m]} {y}"
             c_m, s_m = get_col_simb(val_m)
             pct_m_box = calc_pct(val_m)
-            meses_html += f'<div class="wk-box"><div class="wk-title" style="font-size:{st.session_state.size_box_titles}px !important;">{nombre_m}</div><div class="wk-val {c_m}" style="font-size:{st.session_state.size_box_vals}px !important;">{s_m}${val_m:,.2f}<br><span style="font-size:{st.session_state.size_box_pct}px;">{s_m}{pct_m_box:.2f}%</span><br><span style="font-size: {st.session_state.size_box_wl}px; color: gray; font-weight: 500;">{w_m}W / {l_m}L</span></div></div>'
+            meses_html += f'<div class="wk-box"><div class="wk-title" style="font-size:{user_settings["size_box_titles"]}px !important;">{nombre_m}</div><div class="wk-val {c_m}" style="font-size:{user_settings["size_box_vals"]}px !important;">{s_m}${val_m:,.2f}<br><span style="font-size:{user_settings["size_box_pct"]}px;">{s_m}{pct_m_box:.2f}%</span><br><span style="font-size: {user_settings["size_box_wl"]}px; color: gray; font-weight: 500;">{w_m}W / {l_m}L</span></div></div>'
         
         if meses_html:
             st.markdown(f'<div class="weeks-container">{meses_html}</div>', unsafe_allow_html=True)
