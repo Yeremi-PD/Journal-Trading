@@ -143,7 +143,7 @@ TXT_PNL_DIA_SIZE = 16
 # ---------------------------------------------------------
 # TEXTO 10: El Porcentaje dentro de la tarjeta (Ej: +1.50%)
 # ---------------------------------------------------------
-TXT_PCT_DIA_SIZE = 11
+TXT_PCT_DIA_SIZE = 20
 TXT_PCT_DIA_COLOR_CLARO = "#000000"
 TXT_PCT_DIA_COLOR_OSCURO = "#FFFFFF"
 
