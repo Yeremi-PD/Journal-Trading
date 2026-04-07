@@ -29,7 +29,6 @@ def inicializar_settings():
     return {
         # Dashboard
         "btn_up_sz": 20, "btn_up_w": 120, "btn_up_h": 45, "btn_up_x": 0, "btn_up_y": 0,
-        "btn_save_sz": 16, "btn_save_w": 200, "btn_save_h": 35, "btn_save_x": 0, "btn_save_y": 5,
         "btn_cal_sz": 33, "btn_cal_w": 68, "btn_cal_h": 68, "btn_cal_x": 0, "btn_cal_y": 0,
         "btn_not_sz": 18, "btn_not_w": 50, "btn_not_h": 50, "btn_not_x": 0, "btn_not_y": 8,
         "bal_num_sz": 30, "bal_box_w": 50, "bal_box_pad": 10,
@@ -85,7 +84,7 @@ if st.session_state.usuario_actual is None or st.session_state.usuario_actual no
     st.stop()
 
 # ==========================================
-# 3. SECCIÓN DE AJUSTES MANUALES (CONSTANTES ESTRUCTURALES)
+# 3. SECCIÓN DE AJUSTES MANUALES (CONSTANTES)
 # ==========================================
 
 TEMA_POR_DEFECTO = "Oscuro"
@@ -131,11 +130,13 @@ LBL_INPUT_Y = 0
 LBL_INPUT_COLOR_C = "#000000"
 LBL_INPUT_COLOR_O = "#FFFFFF"
 
+# ====== TAMAÑO Y POSICIÓN ORIGINAL DEL BALANCE Y SAVE ======
 INPUT_BAL_W = "200px"         
 INPUT_BAL_H = "60px"          
 INPUT_BAL_X = 0      
 INPUT_BAL_Y = 0      
 INPUT_BAL_TXT_SIZE = 25       
+
 INPUT_FONDO_C = "#FFFFFF"
 INPUT_FONDO_O = "#1A202C"
 
@@ -173,7 +174,6 @@ BTN_UP_TXT_C = "#000000"
 BTN_UP_TXT_O = "#FFFFFF"
 
 BTN_CAL_EMOJI = "🗓️"
-BTN_CAL_W = 68
 BTN_CAL_BG_C = "#F3F4F6"
 BTN_CAL_BG_O = "#2D3748"
 
@@ -183,7 +183,6 @@ FLECHAS_Y = 0
 
 TXT_MES_COLOR_C = "#000000"
 TXT_MES_COLOR_O = "#FFFFFF"
-TXT_DIAS_SEM_SIZE = 15
 TXT_DIAS_SEM_COLOR_C = "#000000"
 TXT_DIAS_SEM_COLOR_O = "#FFFFFF"
 TXT_NUM_DIA_COLOR_C = "#000000"
@@ -209,7 +208,6 @@ CARD_PNL_Y = 0
 CARD_WIN_TITULO = "Win Rate Monthly"
 CARD_WIN_TITULO_COLOR_C = "#000000"
 CARD_WIN_TITULO_COLOR_O = "#FFFFFF"
-CARD_WIN_VALOR_SIZE = 28
 CARD_WIN_VALOR_COLOR_C = "#000000"
 CARD_WIN_VALOR_COLOR_O = "#FFFFFF"
 CARD_WIN_W = "100%"     
@@ -318,7 +316,7 @@ def reset_settings(category):
     s = db_global[usuario]["settings"][st.session_state.dispositivo_actual]
     
     if category == "dash":
-        keys = ["btn_up_sz", "btn_up_w", "btn_up_h", "btn_up_x", "btn_up_y", "btn_save_sz", "btn_save_w", "btn_save_h", "btn_save_x", "btn_save_y", "btn_cal_sz", "btn_cal_w", "btn_cal_h", "btn_cal_x", "btn_cal_y", "btn_not_sz", "btn_not_w", "btn_not_h", "btn_not_x", "btn_not_y", "bal_num_sz", "bal_box_w", "bal_box_pad"]
+        keys = ["btn_up_sz", "btn_up_w", "btn_up_h", "btn_up_x", "btn_up_y", "btn_cal_sz", "btn_cal_w", "btn_cal_h", "btn_cal_x", "btn_cal_y", "btn_not_sz", "btn_not_w", "btn_not_h", "btn_not_x", "btn_not_y", "bal_num_sz", "bal_box_w", "bal_box_pad"]
     elif category == "txt":
         keys = ["size_top_stats", "size_card_titles", "size_box_titles", "size_box_vals", "size_box_pct", "size_box_wl", "pie_size", "pie_y_offset"]
     elif category == "cal":
@@ -367,7 +365,7 @@ if admin_pass == "725166":
                 st.session_state.usuario_actual = None
             st.rerun()
 
-# --- NUEVOS MENÚS DE AJUSTE EXPANDIBLES ---
+# --- MENÚS EXPANDIBLES (ORDENADOS COMO PEDISTE) ---
 st.sidebar.markdown("---")
 
 with st.sidebar.expander("🖥️ Ajustes de Dashboard"):
@@ -386,13 +384,6 @@ with st.sidebar.expander("🖥️ Ajustes de Dashboard"):
     user_settings["btn_up_h"] = st.slider("Altura Botón Upload", 20, 100, user_settings["btn_up_h"])
     user_settings["btn_up_x"] = st.slider("Mover Upload Horiz (X)", -100, 100, user_settings["btn_up_x"])
     user_settings["btn_up_y"] = st.slider("Mover Upload Vert (Y)", -100, 100, user_settings["btn_up_y"])
-    
-    st.markdown("**Botón SAVE**")
-    user_settings["btn_save_sz"] = st.slider("Tamaño Texto SAVE", 10, 40, user_settings["btn_save_sz"])
-    user_settings["btn_save_w"] = st.slider("Ancho Botón SAVE", 50, 400, user_settings["btn_save_w"])
-    user_settings["btn_save_h"] = st.slider("Altura Botón SAVE", 20, 100, user_settings["btn_save_h"])
-    user_settings["btn_save_x"] = st.slider("Mover SAVE Horiz (X)", -100, 100, user_settings["btn_save_x"])
-    user_settings["btn_save_y"] = st.slider("Mover SAVE Vert (Y)", -100, 100, user_settings["btn_save_y"])
     
     st.markdown("**Botón CALENDARIO**")
     user_settings["btn_cal_sz"] = st.slider("Tamaño Emoji Calendario", 10, 60, user_settings["btn_cal_sz"])
@@ -488,11 +479,6 @@ def gen_css_vars(s):
     --btn-up-h: {s['btn_up_h']}px;
     --btn-up-x: {s['btn_up_x']}px;
     --btn-up-y: {s['btn_up_y']}px;
-    --btn-save-sz: {s['btn_save_sz']}px;
-    --btn-save-w: {s['btn_save_w']}px;
-    --btn-save-h: {s['btn_save_h']}px;
-    --btn-save-x: {s['btn_save_x']}px;
-    --btn-save-y: {s['btn_save_y']}px;
     --btn-cal-sz: {s['btn_cal_sz']}px;
     --btn-cal-w: {s['btn_cal_w']}px;
     --btn-cal-h: {s['btn_cal_h']}px;
@@ -539,33 +525,41 @@ st.markdown(f"""
     li[role="option"] {{ background-color: F3F4F6 !important; }}
     li[role="option"]:hover {{ background-color: {border_color} !important; }}
 
-    div[data-testid="column"]:nth-child(1) div[data-testid="stNumberInput"] {{ width: var(--btn-save-w) !important; min-width: var(--btn-save-w) !important; max-width: var(--btn-save-w) !important; margin-left: {INPUT_BAL_X}px !important; margin-top: {INPUT_BAL_Y}px !important; }}
+    /* RESTAURADO A ORIGINAL: Input Balance y Botón Save */
+    div[data-testid="column"]:nth-child(1) div[data-testid="stNumberInput"] {{ width: {INPUT_BAL_W} !important; min-width: {INPUT_BAL_W} !important; max-width: {INPUT_BAL_W} !important; margin-left: {INPUT_BAL_X}px !important; margin-top: {INPUT_BAL_Y}px !important; }}
     div[data-testid="stNumberInput"] button {{ display: none !important; }} 
     div[data-testid="stNumberInput"] > div:last-child, div[data-testid="stNumberInput"] div[data-baseweb="base-input"], div[data-testid="stNumberInput"] div[data-baseweb="input"] {{ height: {INPUT_BAL_H} !important; min-height: {INPUT_BAL_H} !important; background-color: {input_bg} !important; border-color: {border_color} !important; }}
     div[data-testid="stNumberInput"] input {{ color: {c_lbl_in} !important; font-size: {INPUT_BAL_TXT_SIZE}px !important; background-color: {input_bg} !important; font-weight: bold !important; height: {INPUT_BAL_H} !important; min-height: {INPUT_BAL_H} !important; box-sizing: border-box !important; padding-top: 0 !important; padding-bottom: 0 !important; }}
 
     [data-testid="stForm"] {{ padding: 0 !important; border: none !important; background: transparent !important; margin: 0 !important; }}
     
-    /* BOTON SAVE */
     div[data-testid="column"]:nth-child(1) [data-testid="stFormSubmitButton"] button {{ 
         background-color: #00C897 !important; color: white !important; font-weight: bold !important; 
-        font-size: var(--btn-save-sz) !important; height: var(--btn-save-h) !important; 
-        min-height: var(--btn-save-h) !important; border-radius: 8px !important; border: none !important; 
-        width: var(--btn-save-w) !important; transform: translate(var(--btn-save-x), var(--btn-save-y)) !important;
+        height: 35px !important; min-height: 35px !important; border-radius: 8px !important; border: none !important; 
+        width: {INPUT_BAL_W} !important; margin-left: {INPUT_BAL_X}px !important; margin-top: 5px !important;
     }}
 
-    [data-testid="stFileUploader"] {{ transform: translate({DROPZONE_X}px, {DROPZONE_Y}px) !important; background-color: transparent !important; border: none !important; padding: 0 !important; box-shadow: none !important; }}
+    /* MOVIMIENTO DE LOS CONTENEDORES ENTEROS PARA LOS BOTONES CAL, UPLOAD, NOTAS */
+    section[data-testid="stMain"] div[data-testid="column"]:nth-child(2) div[data-testid="stPopover"] {{
+        transform: translate(var(--btn-cal-x), var(--btn-cal-y)) !important; position: relative; z-index: 10;
+    }}
+    section[data-testid="stMain"] div[data-testid="column"]:nth-child(3) [data-testid="stFileUploader"] {{
+        transform: translate(var(--btn-up-x), var(--btn-up-y)) !important; position: relative; z-index: 10;
+    }}
+    section[data-testid="stMain"] div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] {{
+        transform: translate(var(--btn-not-x), var(--btn-not-y)) !important; position: relative; z-index: 10;
+    }}
+
+    /* ESTILOS INTERNOS DE LOS BOTONES */
     [data-testid="stFileUploader"] > section {{ background-color: transparent !important; border: none !important; padding: 0 !important; }}
     [data-testid="stFileUploadDropzone"] {{ background-color: {drop_bg} !important; border: {drop_border} !important; border-radius: 8px !important; padding: 0 !important; width: {DROPZONE_W} !important; min-height: {DROPZONE_H} !important; height: {DROPZONE_H} !important; box-shadow: none !important; display: flex !important; justify-content: center !important; align-items: center !important; }}
     [data-testid="stFileUploadDropzone"] > div {{ background-color: transparent !important; border: none !important; }}
     [data-testid="stFileUploadDropzone"] > div > span, [data-testid="stFileUploadDropzone"] small, [data-testid="stFileUploaderDropzoneInstructions"] {{ display: none !important; }}
     
-    /* BOTON UPLOAD */
     [data-testid="stFileUploadDropzone"] button {{ 
         background-color: {u_btn_bg} !important; color: {u_btn_txt} !important; border: 1px solid {border_color} !important; 
         border-radius: 6px !important; margin: 0 !important; width: var(--btn-up-w) !important; 
         min-width: var(--btn-up-w) !important; min-height: var(--btn-up-h) !important; height: var(--btn-up-h) !important; 
-        transform: translate(var(--btn-up-x), var(--btn-up-y)) !important;
     }}
     [data-testid="stFileUploadDropzone"] button * {{ color: {u_btn_txt} !important; font-size: var(--btn-up-sz) !important; }}
     [data-testid="stFileUploadDropzone"] button::after {{ content: "{BTN_UP_TEXTO}" !important; font-size: var(--btn-up-sz) !important; }}
@@ -573,22 +567,18 @@ st.markdown(f"""
 
     div[data-testid="stButton"] > button {{ background-color: {btn_bg} !important; color: {btn_txt} !important; border: 1px solid {border_color} !important; }}
     
-    /* BOTON CALENDARIO (POPOVER COL 2) */
     div[data-testid="column"]:nth-child(2) div[data-testid="stPopover"] > button {{ 
         min-height: var(--btn-cal-h) !important; height: var(--btn-cal-h) !important; min-width: var(--btn-cal-w) !important; 
         width: var(--btn-cal-w) !important; padding: 0 !important; font-size: var(--btn-cal-sz) !important; 
         border-radius: 8px !important; border: 1px solid {border_color} !important; background-color: {btn_bg} !important; 
         color: {btn_txt} !important; display: flex !important; justify-content: center !important; align-items: center !important; 
-        transform: translate(var(--btn-cal-x), var(--btn-cal-y)) !important;
     }}
 
-    /* BOTON NOTAS (POPOVER COL 4) */
     div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] > button {{ 
         min-height: var(--btn-not-h) !important; height: var(--btn-not-h) !important; min-width: var(--btn-not-w) !important; 
         width: var(--btn-not-w) !important; padding: 0 !important; font-size: var(--btn-not-sz) !important; 
         border-radius: 8px !important; border: 1px solid {border_color} !important; background-color: {btn_bg} !important; 
         color: {btn_txt} !important; display: flex !important; justify-content: center !important; align-items: center !important; 
-        transform: translate(var(--btn-not-x), var(--btn-not-y)) !important;
     }}
     
     div[data-testid="stPopoverBody"] {{ background-color: {card_bg} !important; border: 1px solid {border_color} !important; border-radius: 8px !important; padding: 15px !important; }}
@@ -1099,7 +1089,7 @@ with st.expander("🛠️ OPEN ORDER HISTORY", expanded=False):
                     accept_multiple_files=True, 
                     key=upd_key, 
                     on_change=agregar_imagenes_historial, 
-                    args=(ctx, clave, upd_key, counter_key)
+                    args=(ctx, clave, upd_key, counter_main_key)
                 )
 
                 imagenes_restantes = db_usuario[ctx]["trades"][clave].get("imagenes", [])
