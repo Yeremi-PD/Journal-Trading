@@ -199,7 +199,7 @@ FLECHAS_Y = 0
 # ---------------------------------------------------------
 # [ CALENDARIO: MES Y DÍAS DE LA SEMANA ]
 # ---------------------------------------------------------
-TXT_MES_SIZE = 18
+TXT_MES_SIZE = 28
 TXT_MES_COLOR_C = "#000000"
 TXT_MES_COLOR_O = "#FFFFFF"
 
