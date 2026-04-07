@@ -94,8 +94,8 @@ OPT_FILTRO_1 = "Todos"
 OPT_FILTRO_2 = "Ganancias"
 OPT_FILTRO_3 = "Pérdidas"
 OPT_FILTROS_SIZE = 15  
-OPT_FILTROS_COLOR_C = "#000000"  
-OPT_FILTROS_COLOR_O = "#FFFFFF"  
+OPT_FILTROS_COLOR_C = "#000000"  # <-- COLOR DEL TEXTO ADENTRO (TEMA CLARO)
+OPT_FILTROS_COLOR_O = "#FFFFFF"  # <-- COLOR DEL TEXTO ADENTRO (TEMA OSCURO)
 
 # ---------------------------------------------------------
 # [ ETIQUETA: DATA SOURCE ] 
@@ -111,8 +111,8 @@ LBL_DATA_COLOR_O = "#FFFFFF"
 OPT_DATA_1 = "Real Data"
 OPT_DATA_2 = "Demo Data"
 OPT_DATA_SIZE = 14    
-OPT_DATA_COLOR_C = "#000000"     
-OPT_DATA_COLOR_O = "#FFFFFF"     
+OPT_DATA_COLOR_C = "#000000"     # <-- COLOR DEL TEXTO ADENTRO (TEMA CLARO)
+OPT_DATA_COLOR_O = "#FFFFFF"     # <-- COLOR DEL TEXTO ADENTRO (TEMA OSCURO)
 
 # ---------------------------------------------------------
 # [ ETIQUETA Y CAJA: BALANCE MANUAL (Input) ] 
@@ -183,27 +183,17 @@ BTN_UP_TXT_C = "#000000"
 BTN_UP_TXT_O = "#FFFFFF"
 
 # ---------------------------------------------------------
-# [ FLECHAS DEL CALENDARIO: INDEPENDIENTES (IZQ / DER) ]
+# [ FLECHAS DEL CALENDARIO (IZQ / DER) ]
 # ---------------------------------------------------------
-# -- Flecha Izquierda (◀) --
-BTN_PREV_W = "100px"          
-BTN_PREV_H = "50px"           
-BTN_PREV_X = 0                
-BTN_PREV_Y = 0                
-BTN_PREV_ICON_SIZE = 20       
-
-# -- Flecha Derecha (▶) --
-BTN_NEXT_W = "100px"          
-BTN_NEXT_H = "50px"           
-BTN_NEXT_X = 0                
-BTN_NEXT_Y = 0                
-BTN_NEXT_ICON_SIZE = 20       
-
-# -- Colores Generales Flechas --
-FLECHAS_BG_C = "#F3F4F6"     
-FLECHAS_BG_O = "#2D3748"     
-FLECHAS_TXT_C = "#000000"    
-FLECHAS_TXT_O = "#FFFFFF"    
+FLECHAS_W = "100px"          # Ancho de cada botón de flecha
+FLECHAS_H = "50px"           # Alto de cada botón de flecha
+FLECHAS_X = 0                # Mover a los lados
+FLECHAS_Y = 0                # Mover arriba o abajo
+FLECHAS_ICON_SIZE = 20       # Tamaño del triangulito (◀ / ▶)
+FLECHAS_BG_C = "#F3F4F6"     # Color fondo Tema Claro
+FLECHAS_BG_O = "#2D3748"     # Color fondo Tema Oscuro
+FLECHAS_TXT_C = "#000000"    # Color triangulito Tema Claro
+FLECHAS_TXT_O = "#FFFFFF"    # Color triangulito Tema Oscuro
 
 # ---------------------------------------------------------
 # [ CALENDARIO: MES Y DÍAS DE LA SEMANA ]
@@ -405,15 +395,14 @@ if st.session_state.tema == "Claro":
     c_tit_win = CARD_WIN_TITULO_COLOR_C
     c_val_win = CARD_WIN_VALOR_COLOR_C
     
+    btn_bg = BTN_CAL_BG_C
+    btn_txt = "#000000" 
     input_bg = INPUT_FONDO_C
     
     drop_bg = DROPZONE_BG_C
     drop_border = DROPZONE_BORDER_C
     u_btn_bg = BTN_UP_BG_C
     u_btn_txt = BTN_UP_TXT_C
-    
-    f_bg = FLECHAS_BG_C
-    f_txt = FLECHAS_TXT_C
     
     wk_tit_c = WEEKS_TITULOS_COLOR_C
     c_cam_bg = BTN_CAM_BG_C
@@ -436,15 +425,14 @@ else:
     c_tit_win = CARD_WIN_TITULO_COLOR_O
     c_val_win = CARD_WIN_VALOR_COLOR_O
     
+    btn_bg = BTN_CAL_BG_O
+    btn_txt = "#FFFFFF" 
     input_bg = INPUT_FONDO_O
     
     drop_bg = DROPZONE_BG_O
     drop_border = DROPZONE_BORDER_O
     u_btn_bg = BTN_UP_BG_O
     u_btn_txt = BTN_UP_TXT_O
-    
-    f_bg = FLECHAS_BG_O
-    f_txt = FLECHAS_TXT_O
     
     wk_tit_c = WEEKS_TITULOS_COLOR_O
     c_cam_bg = BTN_CAM_BG_O
@@ -553,46 +541,12 @@ st.markdown(f"""
     [data-testid="stFileUploadDropzone"] button::after {{ content: "{BTN_UP_TEXTO}" !important; font-size: {BTN_UP_SIZE} !important; }}
     [data-testid="stFileUploadDropzone"] button div {{ display: none !important; }}
 
-    /* FLECHAS DEL CALENDARIO INDEPENDIENTES - MODO DIOS */
-    div.stButton > button[kind="secondary"]:has(div:contains("◀")) {
-        width: {BTN_PREV_W} !important; 
-        min-width: {BTN_PREV_W} !important;
-        height: {BTN_PREV_H} !important; 
-        min-height: {BTN_PREV_H} !important;
-        background-color: {f_bg} !important; 
-        color: {f_txt} !important;
-        transform: translate({BTN_PREV_X}px, {BTN_PREV_Y}px) !important;
-        display: flex !important; 
-        justify-content: center !important; 
-        align-items: center !important;
-        border: 1px solid {border_color} !important;
-    }
-    div.stButton > button[kind="secondary"]:has(div:contains("◀")) div {
-        font-size: {BTN_PREV_ICON_SIZE}px !important;
-    }
-
-    div.stButton > button[kind="secondary"]:has(div:contains("▶")) {
-        width: {BTN_NEXT_W} !important; 
-        min-width: {BTN_NEXT_W} !important;
-        height: {BTN_NEXT_H} !important; 
-        min-height: {BTN_NEXT_H} !important;
-        background-color: {f_bg} !important; 
-        color: {f_txt} !important;
-        transform: translate({BTN_NEXT_X}px, {BTN_NEXT_Y}px) !important;
-        display: flex !important; 
-        justify-content: center !important; 
-        align-items: center !important;
-        border: 1px solid {border_color} !important;
-    }
-    div.stButton > button[kind="secondary"]:has(div:contains("▶")) div {
-        font-size: {BTN_NEXT_ICON_SIZE}px !important;
-    }
-
-    /* BOTON CALENDARIO (POPOVER) */
+    /* BOTÓN CALENDARIO FORZADO */
+    div[data-testid="stButton"] > button {{ background-color: {btn_bg} !important; color: {btn_txt} !important; border: 1px solid {border_color} !important; }}
     div[data-testid="stPopover"] > button {{ 
         min-height: {BTN_CAL_H}px !important; height: {BTN_CAL_H}px !important; 
         min-width: {BTN_CAL_W}px !important; width: {BTN_CAL_W}px !important; 
-        padding: 0 !important; font-size: {BTN_CAL_ICON_SIZE}px !important; border-radius: px !important; border: 1px solid {border_color} !important; background-color: {BTN_CAL_BG_O} !important; color: {TXT_DASH_COLOR_C} !important; display: flex !important; justify-content: center !important; align-items: center !important; 
+        padding: 0 !important; font-size: {BTN_CAL_ICON_SIZE}px !important; border-radius: px !important; border: 1px solid {border_color} !important; background-color: {btn_bg} !important; color: {btn_txt} !important; display: flex !important; justify-content: center !important; align-items: center !important; 
     }}
     div[data-testid="stPopoverBody"] {{ background-color: {card_bg} !important; border: 1px solid {border_color} !important; }}
 
@@ -646,6 +600,10 @@ st.markdown(f"""
     .lbl-g {{ background-color: #e6f9f4 !important; color: #00C897 !important; padding: 2px 8px !important; border-radius: 10px !important; }}
     .lbl-b {{ background-color: #EEF2FF !important; color: #4F46E5 !important; padding: 2px 8px !important; border-radius: 10px !important; }}
     .lbl-r {{ background-color: #ffeded !important; color: #FF4C4C !important; padding: 2px 8px !important; border-radius: 10px !important; }}
+
+    /* FLECHAS MES */
+    .calendar-wrapper div[data-testid="column"]:first-child button {{ transform: translate({FLECHAS_X}px, {FLECHAS_Y}px) !important; font-size: {FLECHAS_SIZE}px !important; }}
+    .calendar-wrapper div[data-testid="column"]:nth-child(3) button {{ transform: translate(calc({FLECHAS_X}px * -1), {FLECHAS_Y}px) !important; font-size: {FLECHAS_SIZE}px !important; }}
 
     /* ESTILOS DE LOS CUADROS DE SEMANAS Y MES */
     .weeks-container {{ 
@@ -740,10 +698,11 @@ mes_sel = st.session_state.cal_month
 nombre_mes = calendar.month_name[mes_sel]
 
 with col_cal:
+    
     c_izq, c_cen, c_der = st.columns([1, 4, 1])
-    with c_izq: st.button("◀", on_click=cambiar_mes, args=(-1,))
-    with c_cen: st.markdown(f'<div style="text-align:center; font-weight:800; font-size:{TXT_MES_SIZE}px; color:{c_mes}; margin-top:5px;">{nombre_mes} {anio_sel}</div>', unsafe_allow_html=True)
-    with c_der: st.button("▶", on_click=cambiar_mes, args=(1,))
+    with c_izq: st.button("◀", on_click=cambiar_mes, args=(-1,), use_container_width=True)
+    with c_cen: st.markdown(f'<div style="text-align:center; font-weight:400; font-size:{TXT_MES_SIZE}px; color:{c_mes}; margin-top:5px;">{nombre_mes} {anio_sel}</div>', unsafe_allow_html=True)
+    with c_der: st.button("▶", on_click=cambiar_mes, args=(1,), use_container_width=True)
     
     st.markdown("<br>", unsafe_allow_html=True)
     
