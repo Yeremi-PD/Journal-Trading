@@ -149,7 +149,7 @@ BALANCE_BOX_Y = 0
 # [ LÍNEA SEPARADORA HORIZONTAL ]
 # ---------------------------------------------------------
 LINEA_GROSOR = 1.5             
-LINEA_ANCHO = 100              
+LINEA_ANCHO = 50              
 LINEA_X = 0                    
 LINEA_MARGEN_SUP = 10          
 LINEA_MARGEN_INF = 25          
