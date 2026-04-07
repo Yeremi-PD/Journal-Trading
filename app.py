@@ -339,7 +339,7 @@ def procesar_cambio():
             "fecha_str": fecha_sel.strftime("%d/%m/%Y"),
             "imagenes": old_trade.get("imagenes", []),
             "bias": old_trade.get("bias", "NEUTRO"),
-            "confluencias": old_trade.get("confluencias", []),
+            "Confluences": old_trade.get("Confluences", []),
             "razon_trade": old_trade.get("razon_trade", ""),
             "correcciones": old_trade.get("correcciones", ""),
             "risk": old_trade.get("risk", "0.5%"),
@@ -668,7 +668,7 @@ def agregar_imagenes_main(contexto, llave, widget_id, counter_id, bal_act, f_str
         if llave not in db_usuario[contexto]["trades"]:
             db_usuario[contexto]["trades"][llave] = {
                 "pnl": 0.0, "balance_final": bal_act, "fecha_str": f_str, "imagenes": [],
-                "bias": "NEUTRO", "confluencias": [], "razon_trade": "", "correcciones": "", "risk": "0.5%", "rrr": "B", "trade_type": "A", "emociones": ""
+                "bias": "NEUTRO", "Confluences": [], "razon_trade": "", "correcciones": "", "risk": "0.5%", "rrr": "B", "trade_type": "A", "emociones": ""
             }
         for img in archivos_nuevos:
             db_usuario[contexto]["trades"][llave]["imagenes"].append(f"data:{img.type};base64,{convertir_img_base64(img)}")
@@ -729,8 +729,8 @@ with c_not:
             colorful_menu(bias_options, "Bias", 'bias', trade_data_ref)
             st.markdown("<br>", unsafe_allow_html=True)
             
-            confluencias_options = ['1. BIAS Claro', '2. Liq Sweep', '4. IFVG', '3. FVG', 'EQH / EQL', 'BSL / SSL', 'PO3', 'SMT', 'Breaker Block', 'Descuento', 'Order Block', 'NYMO', 'PDH', 'PDL', 'Inducement', 'Turtle Soup', 'Continuación', 'Reversal', 'Data High', 'Data Low', 'CISD', 'Nada']
-            colorful_multiselect(confluencias_options, "Confluencias", 'confluencias', trade_data_ref)
+            Confluences_options = ['1. BIAS Claro', '2. Liq Sweep', '4. IFVG', '3. FVG', 'EQH / EQL', 'BSL / SSL', 'PO3', 'SMT', 'Breaker Block', 'Descuento', 'Order Block', 'NYMO', 'PDH', 'PDL', 'Inducement', 'Turtle Soup', 'Continuación', 'Reversal', 'Data High', 'Data Low', 'CISD', 'Nada']
+            colorful_multiselect(Confluences_options, "Confluences", 'Confluences', trade_data_ref)
             st.markdown("<br>", unsafe_allow_html=True)
 
             trade_data_ref['razon_trade'] = st.text_area("Reason For Trade", value=trade_data_ref.get('razon_trade', ''), key=f"razon_main", height=80)
@@ -990,7 +990,7 @@ with st.expander("🛠️ OPEN ORDER HISTORY", expanded=False):
                             "fecha_str": nueva_fecha.strftime("%d/%m/%Y"),
                             "imagenes": db_usuario[ctx]["trades"].get(clave, {}).get("imagenes", imagenes_restantes),
                             "bias": data.get("bias", "NEUTRO"),
-                            "confluencias": data.get("confluencias", []),
+                            "Confluences": data.get("Confluences", []),
                             "razon_trade": data.get("razon_trade", ""),
                             "correcciones": data.get("correcciones", ""),
                             "risk": data.get("risk", "0.5%"),
@@ -1055,13 +1055,13 @@ if mostrar_tabla:
             pnl = trade.get('pnl', 0)
             pnl_simbol = "+" if pnl > 0 else ""
             
-            confluencias_list = trade.get('confluencias', [])
-            confluencias_resumen = ", ".join([c.split(". ")[-1] for c in confluencias_list])
+            Confluences_list = trade.get('Confluences', [])
+            Confluences_resumen = ", ".join([c.split(". ")[-1] for c in Confluences_list])
 
             row = {
                 "Fecha": fecha.strftime("%d/%m/%Y"),
                 "Bias": trade.get('bias', ''),
-                "Confluencias": confluencias_resumen,
+                "Confluences": Confluences_resumen,
                 "Reason For Trade": trade.get('razon_trade', ''),
                 "% Risk": trade.get('risk', ''),
                 "RR": trade.get('rrr', ''),
