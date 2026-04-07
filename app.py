@@ -848,74 +848,91 @@ with col_det:
 
     st.markdown(f'<div class="weeks-container">{semanas_html}<div class="mo-box"><div class="mo-title">{TXT_MO}</div><div class="mo-val {cM}">{sM}${m_total:,.2f}<br><span style="font-size:{WEEKS_PCT_SIZE}px;">{sM}{pct_m:.2f}%</span></div></div></div>', unsafe_allow_html=True)
     # ==========================================
-# 11. TABLA DE EDICIÓN MANUAL (HISTORIAL)
+# 11. TABLA DE EDICIÓN MANUAL (HISTORIAL LIMPIO)
 # ==========================================
-st.markdown("<br><br>", unsafe_allow_html=True)
+st.markdown("<br>", unsafe_allow_html=True)
 st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
-st.markdown(f"<h3 style='color:{c_dash}; margin-left:{TXT_DASH_X}px;'>⚙️ Editar Historial Manualmente</h3>", unsafe_allow_html=True)
 
-# Obtenemos los trades de la cuenta seleccionada actualmente
-trades_actuales = db_usuario[ctx]["trades"]
-
-if not trades_actuales:
-    st.markdown(f"<p style='color:{c_dash}; margin-left:{TXT_DASH_X}px; opacity: 0.7;'>No hay registros en esta cuenta para editar aún.</p>", unsafe_allow_html=True)
-else:
-    # Ordenar los días del más reciente al más antiguo
-    trades_ordenados = sorted(trades_actuales.items(), key=lambda x: datetime(x[0][0], x[0][1], x[0][2]), reverse=True)
+# 1er Nivel: Desplegable principal para no ensuciar la pantalla
+with st.expander("🛠️ ABRIR HISTORIAL DE OPERACIONES (Editar / Borrar)", expanded=False):
+    trades_actuales = db_usuario[ctx]["trades"]
     
-    for clave, data in trades_ordenados:
-        fecha_dt = datetime(clave[0], clave[1], clave[2])
+    if not trades_actuales:
+        st.info("No hay operaciones registradas en esta cuenta aún.")
+    else:
+        # Ordenar los días del más reciente al más antiguo
+        trades_ordenados = sorted(trades_actuales.items(), key=lambda x: datetime(x[0][0], x[0][1], x[0][2]), reverse=True)
         
-        # Cada fila es un expander (desplegable)
-        with st.expander(f"📝 Fecha: {data['fecha_str']} | Balance Final: ${data['balance_final']:,.2f} | P&L: ${data['pnl']:,.2f}"):
-            c_ed1, c_ed2, c_ed3 = st.columns(3)
+        for clave, data in trades_ordenados:
+            fecha_dt = datetime(clave[0], clave[1], clave[2])
+            pnl_val = float(data['pnl'])
             
-            with c_ed1:
-                nueva_fecha = st.date_input("Cambiar Día", value=fecha_dt, key=f"f_{clave}")
-            with c_ed2:
-                nuevo_bal = st.number_input("Nuevo Balance Final", value=float(data['balance_final']), format="%.2f", key=f"b_{clave}")
-            with c_ed3:
-                nuevo_pnl = st.number_input("Nuevo P&L", value=float(data['pnl']), format="%.2f", key=f"p_{clave}")
+            # Lógica de colores para Profit y Stop Loss
+            color_pnl = "#00C897" if pnl_val > 0 else ("#FF4C4C" if pnl_val < 0 else "gray")
+            simbolo = "+" if pnl_val > 0 else ""
             
-            st.markdown("---")
-            st.markdown("**📸 Gestión de Imágenes:**")
-            c_img1, c_img2 = st.columns([1, 2])
-            
-            with c_img1:
-                st.write(f"Imágenes actuales: **{len(data.get('imagenes', []))}**")
-                if st.button("🗑️ Borrar fotos de este día", key=f"delimg_{clave}"):
-                    db_usuario[ctx]["trades"][clave]["imagenes"] = []
-                    st.rerun()
-            with c_img2:
-                nuevas_imgs = st.file_uploader("Subir fotos nuevas", accept_multiple_files=True, key=f"upd_{clave}")
-            
-            st.markdown("---")
-            c_btn1, c_btn2 = st.columns(2)
-            
-            with c_btn1:
-                if st.button("💾 Guardar Cambios", key=f"save_{clave}", use_container_width=True):
-                    # Guardar nuevas imágenes si se subieron
-                    lista_imgs = data.get("imagenes", [])
-                    if nuevas_imgs:
-                        for img in nuevas_imgs:
-                            lista_imgs.append(f"data:{img.type};base64,{convertir_img_base64(img)}")
-                    
-                    nueva_clave = (nueva_fecha.year, nueva_fecha.month, nueva_fecha.day)
-                    
-                    # Si el usuario cambió la fecha, borramos el registro del día viejo
-                    if nueva_clave != clave:
+            # 2do Nivel: Desplegable por cada día operado
+            with st.expander(f"📅 {data['fecha_str']} | P&L: {simbolo}${pnl_val:,.2f}"):
+                c_ed1, c_ed2, c_ed3 = st.columns(3)
+                
+                with c_ed1:
+                    nueva_fecha = st.date_input("Día", value=fecha_dt, key=f"f_{clave}")
+                with c_ed2:
+                    nuevo_bal = st.number_input("Nuevo Balance", value=float(data['balance_final']), format="%.2f", key=f"b_{clave}")
+                with c_ed3:
+                    # Título coloreado dependiendo de si es Profit o Pérdida
+                    st.markdown(f"**Profit / Loss:** <span style='color:{color_pnl}; font-weight:900; font-size:18px;'>{simbolo}${pnl_val:,.2f}</span>", unsafe_allow_html=True)
+                    nuevo_pnl = st.number_input("Editar P&L", value=pnl_val, format="%.2f", key=f"p_{clave}", label_visibility="collapsed")
+                
+                st.markdown("---")
+                st.markdown("**📸 Tus Imágenes (Haz clic en '🗑️' para borrar una específica):**")
+                
+                imagenes_restantes = data.get("imagenes", []).copy()
+                
+                if imagenes_restantes:
+                    # Crea columnas dinámicas según la cantidad de fotos
+                    cols_img = st.columns(len(imagenes_restantes))
+                    for i, img_b64 in enumerate(imagenes_restantes):
+                        with cols_img[i]:
+                            # Muestra la miniatura de la imagen
+                            st.markdown(f'<img src="{img_b64}" style="width:100%; border-radius:8px; border:1px solid gray;">', unsafe_allow_html=True)
+                            # Botón para borrar esa imagen exacta
+                            if st.button("🗑️ Borrar", key=f"delimg_{clave}_{i}", use_container_width=True):
+                                data["imagenes"].pop(i) # Elimina la foto de la memoria
+                                db_usuario[ctx]["trades"][clave]["imagenes"] = data["imagenes"]
+                                st.rerun()
+                else:
+                    st.caption("No hay imágenes guardadas en este día.")
+                
+                st.markdown("<br>", unsafe_allow_html=True)
+                nuevas_imgs = st.file_uploader("Agregar más fotos a este día", accept_multiple_files=True, key=f"upd_{clave}")
+                
+                st.markdown("---")
+                c_btn1, c_btn2 = st.columns(2)
+                
+                with c_btn1:
+                    if st.button("💾 GUARDAR CAMBIOS DEL DÍA", key=f"save_{clave}", use_container_width=True):
+                        # Guardar fotos nuevas si el usuario arrastró alguna
+                        if nuevas_imgs:
+                            for img in nuevas_imgs:
+                                imagenes_restantes.append(f"data:{img.type};base64,{convertir_img_base64(img)}")
+                        
+                        nueva_clave = (nueva_fecha.year, nueva_fecha.month, nueva_fecha.day)
+                        
+                        # Si cambió de día en el calendario, borra la fecha vieja
+                        if nueva_clave != clave:
+                            del db_usuario[ctx]["trades"][clave]
+                        
+                        # Sobrescribe con los datos frescos
+                        db_usuario[ctx]["trades"][nueva_clave] = {
+                            "pnl": nuevo_pnl,
+                            "balance_final": nuevo_bal,
+                            "fecha_str": nueva_fecha.strftime("%d/%m/%Y"),
+                            "imagenes": imagenes_restantes
+                        }
+                        st.rerun()
+                        
+                with c_btn2:
+                    if st.button("❌ BORRAR DÍA COMPLETO", key=f"del_{clave}", use_container_width=True):
                         del db_usuario[ctx]["trades"][clave]
-                    
-                    # Guardamos la información actualizada
-                    db_usuario[ctx]["trades"][nueva_clave] = {
-                        "pnl": nuevo_pnl,
-                        "balance_final": nuevo_bal,
-                        "fecha_str": nueva_fecha.strftime("%d/%m/%Y"),
-                        "imagenes": lista_imgs
-                    }
-                    st.rerun()
-                    
-            with c_btn2:
-                if st.button("❌ Eliminar TODO el registro", key=f"del_{clave}", use_container_width=True):
-                    del db_usuario[ctx]["trades"][clave]
-                    st.rerun()
+                        st.rerun()
