@@ -70,32 +70,49 @@ if st.session_state.usuario_actual is None or st.session_state.usuario_actual no
 TEMA_POR_DEFECTO = "Oscuro"
 
 # ---------------------------------------------------------
-# TEXTOS PRINCIPALES Y DÍAS
+# TEXTOS PRINCIPALES Y ETIQUETAS
 # ---------------------------------------------------------
 TXT_DASHBOARD = "Dashboard"
+TXT_FILTROS = "Filtros"
+TXT_DATA = "Data Source"
+TXT_LBL_BAL = "TOTAL BALANCE"
+TXT_LBL_INPUT = "Balance:"
+
+# NUEVOS TEXTOS DE SEMANAS Y MES
+TXT_WEEK_1 = "Week 1"
+TXT_WEEK_2 = "Week 2"
+TXT_WEEK_3 = "Week 3"
+TXT_WEEK_4 = "Week 4"
+TXT_WEEK_5 = "Week 5"
+TXT_MONTH = "Month"
+
+# EMOJIS Y BOTONES DE SISTEMA
+TXT_CALENDARIO = "🗓️"
+TXT_CAMARA = "📷"
+TXT_CERRAR_MODAL = "✖ CERRAR"
+
+# ---------------------------------------------------------
+# TAMAÑOS Y COLORES DE TEXTOS PRINCIPALES
+# ---------------------------------------------------------
 TXT_DASH_SIZE = 60
 TXT_DASH_COLOR_CLARO = "#000000"
 TXT_DASH_COLOR_OSCURO = "#FFFFFF"
 TITULO_X = 100         
 TITULO_Y = -20         
 
-TXT_FILTROS = "Filtros"
 TXT_FILTROS_SIZE = 18
 TXT_FILTROS_COLOR_CLARO = "#000000"
 TXT_FILTROS_COLOR_OSCURO = "#FFFFFF"
 
-TXT_DATA = "Data Source"
 TXT_DATA_SIZE = 18
 TXT_DATA_COLOR_CLARO = "#000000"
 TXT_DATA_COLOR_OSCURO = "#FFFFFF"
 
-TXT_LBL_BAL = "TOTAL BALANCE"
 TXT_LBL_BAL_SIZE = 18
 TXT_LBL_BAL_COLOR_CLARO = "#000000"
 TXT_LBL_BAL_COLOR_OSCURO = "#FFFFFF"
 
-TXT_LBL_INPUT = "Balance:"
-TXT_LBL_INPUT_SIZE = 40
+TXT_LBL_INPUT_SIZE = 18
 TXT_LBL_INPUT_COLOR_CLARO = "#000000"
 TXT_LBL_INPUT_COLOR_OSCURO = "#FFFFFF"
 
@@ -117,7 +134,17 @@ TXT_PCT_DIA_COLOR_CLARO = "#000000"
 TXT_PCT_DIA_COLOR_OSCURO = "#FFFFFF"
 
 # ---------------------------------------------------------
-# CONFIGURACIONES DE TARJETAS (PNL Y WIN) - TAMAÑOS Y POSICIÓN
+# CAJA DE BALANCE (INPUT MANUAL)
+# ---------------------------------------------------------
+INPUT_BAL_X = 0      
+INPUT_BAL_Y = 0 
+INPUT_BAL_W = "200px"         # <-- ANCHO DEL INPUT BALANCE
+INPUT_BAL_H = "45px"          # <-- ALTO DEL INPUT BALANCE
+INPUT_FONDO_CLARO = "#FFFFFF"
+INPUT_FONDO_OSCURO = "#1A202C"
+
+# ---------------------------------------------------------
+# CONFIGURACIONES DE TARJETAS (PNL Y WIN)
 # ---------------------------------------------------------
 TXT_TITULO_PNL = "Net P&L"
 TXT_TITULO_PNL_SIZE = 20
@@ -144,57 +171,67 @@ CARD_WIN_X = 0
 CARD_WIN_Y = 0          
 
 # ---------------------------------------------------------
-# CONFIGURACIÓN DEL BOTÓN DE UPLOAD Y CÁMARA
+# BOTÓN DE UPLOAD (FORZADO A SER 50% MÁS GRANDE)
 # ---------------------------------------------------------
 UPLOAD_X = 0
 UPLOAD_Y = 0
-UPLOAD_W = "100%"                     # Ancho del botón de carga (Ej: "120px" o "100%")
-UPLOAD_H = "45px"                     # Alto del botón de carga
+UPLOAD_W = "100%"                     
+UPLOAD_H = "68px"                     # <-- ALTO FORZADO (Antes 45px, ahora 68px)
+UPLOAD_FONT_SIZE = "20px"             # <-- TAMAÑO DEL TEXTO DEL BOTÓN UPLOAD
 UPLOAD_BTN_BG_CLARO = "#E2E8F0"       
 UPLOAD_BTN_BG_OSCURO = "#4A5568"
 UPLOAD_BTN_TXT_CLARO = "#000000"      
 UPLOAD_BTN_TXT_OSCURO = "#FFFFFF"
 
-CAM_ICON_SIZE = 30                    # TAMAÑO DEL BOTÓN DE VER FOTOS EN EL DÍA
+CAM_ICON_SIZE = 30                    
 CAM_ICON_BG_CLARO = "rgba(255,255,255,0.8)"
 CAM_ICON_BG_OSCURO = "rgba(0,0,0,0.6)"
 
 # ---------------------------------------------------------
-# CONFIGURACIÓN DE FLECHAS (CALENDARIO) Y OTROS
+# BOTÓN DE CALENDARIO Y FLECHAS (FORZADO A SER 50% MÁS GRANDE)
 # ---------------------------------------------------------
+BOTON_WIDTH = 68     # <-- ANCHO FORZADO (Antes 45)
+BOTON_HEIGHT = 68    # <-- ALTO FORZADO (Antes 45)
+BOTON_ICON_SIZE = 33 # <-- TAMAÑO EMOJI CALENDARIO (Antes 22)
+BOTON_FONDO_CLARO = "#F3F4F6"
+BOTON_FONDO_OSCURO = "#2D3748"
+
 FLECHAS_X_AJUSTE = 0 
 FLECHAS_Y_AJUSTE = 0   
 FLECHAS_SIZE = 16
 
-BOTON_FONDO_CLARO = "#F3F4F6"
-BOTON_FONDO_OSCURO = "#2D3748"
-BOTON_WIDTH = 45     
-BOTON_HEIGHT = 45    
-BOTON_ICON_SIZE = 22 
+# ---------------------------------------------------------
+# LÍNEA SEPARADORA (THIN LINE)
+# ---------------------------------------------------------
+LINEA_GROSOR = 1.5             
+LINEA_MARGEN_SUP = 10          
+LINEA_MARGEN_INF = 25          
+LINEA_ANCHO = 100              
+LINEA_X = 0                    
+LINEA_COLOR_CLARO = "#E2E8F0"
+LINEA_COLOR_OSCURO = "#4A5568"
 
+# ---------------------------------------------------------
+# BALANCE VISUAL (EL CUADRO VERDE GRANDE)
+# ---------------------------------------------------------
 BALANCE_BOX_X = 0     
 BALANCE_BOX_Y = 0     
 BALANCE_BOX_W = 50  
 BALANCE_SIZE = 30  
 
-INPUT_BAL_X = 0      
-INPUT_BAL_Y = 0      
-INPUT_FONDO_CLARO = "#FFFFFF"
-INPUT_FONDO_OSCURO = "#1A202C"
-
 # ---------------------------------------------------------
-# NUEVAS TARJETAS DE SEMANA Y MES (WEEK / MONTH)
+# TARJETAS DE SEMANA Y MES (WEEK / MONTH)
 # ---------------------------------------------------------
 WEEKS_CONTENEDOR_X = 0      
 WEEKS_CONTENEDOR_Y = 15     
 
-WEEK_BOX_W = "31%"          # 31% para que quepan 3 en una fila (ya que ahora son 5)
-WEEK_BOX_H = "120px"         # Un poco más alto para el porcentaje
+WEEK_BOX_W = "31%"          
+WEEK_BOX_H = "120px"         
 WEEK_TITLE_SIZE = 25        
 WEEK_TITLE_COLOR_C = "#000000"
 WEEK_TITLE_COLOR_O = "#FFFFFF"
 WEEK_VAL_SIZE = 30          
-WEEK_PCT_SIZE = 25          # TAMAÑO DEL PORCENTAJE DE LA SEMANA/MES
+WEEK_PCT_SIZE = 25          
 WEEK_ALIGN = "center"       
 
 MONTH_BOX_W = "100%"        
@@ -315,6 +352,7 @@ if st.session_state.tema == "Claro":
     u_btn_txt = UPLOAD_BTN_TXT_CLARO
     wk_tit_c = WEEK_TITLE_COLOR_C
     c_cam_bg = CAM_ICON_BG_CLARO
+    c_linea = LINEA_COLOR_CLARO
 else:
     bg_color, card_bg, border_color, empty_cell_bg = "#1A202C", "#2D3748", "#4A5568", "#1A202C"
     
@@ -339,6 +377,7 @@ else:
     u_btn_txt = UPLOAD_BTN_TXT_OSCURO
     wk_tit_c = WEEK_TITLE_COLOR_O
     c_cam_bg = CAM_ICON_BG_OSCURO
+    c_linea = LINEA_COLOR_OSCURO
 
 # ==========================================
 # 7. INYECCIÓN DE CSS DINÁMICO
@@ -353,7 +392,7 @@ st.markdown(f"""
     
     /* BALANCE BOX */
     .balance-box {{ background: #00C897; color: white; padding: 10px 0px; border-radius: 80px; text-align: center; font-weight: 700; font-size: {BALANCE_SIZE}px; margin-left: {BALANCE_BOX_X}px; margin-top: {BALANCE_BOX_Y}px; width: {BALANCE_BOX_W}%; margin: 0 auto; }}
-    .thin-line {{ border-bottom: 1.5px solid {border_color}; margin: 10px 0px 25px 0px; width: 100%; }}
+    .thin-line {{ border-bottom: {LINEA_GROSOR}px solid {c_linea}; margin: {LINEA_MARGEN_SUP}px 0px {LINEA_MARGEN_INF}px 0px; width: {LINEA_ANCHO}%; transform: translateX({LINEA_X}px); }}
     .lbl-total-bal {{ font-size: {TXT_LBL_BAL_SIZE}px !important; color: {c_lbl_bal} !important; font-weight: 700; }}
 
     /* SELECTORES */
@@ -365,15 +404,15 @@ st.markdown(f"""
     li[role="option"] {{ color: {c_filtros} !important; background-color: {card_bg} !important; }}
     li[role="option"]:hover {{ background-color: {border_color} !important; }}
 
-    /* INPUT BALANCE */
+    /* INPUT BALANCE - TAMAÑOS MODIFICABLES */
     div[data-testid="stNumberInput"] label {{ font-size: {TXT_LBL_INPUT_SIZE}px !important; color: {c_lbl_in} !important; font-weight: 700; }}
-    div[data-testid="stNumberInput"] {{ margin-left: {INPUT_BAL_X}px !important; margin-top: {INPUT_BAL_Y}px !important; max-width: 200px !important; }}
+    div[data-testid="stNumberInput"] {{ margin-left: {INPUT_BAL_X}px !important; margin-top: {INPUT_BAL_Y}px !important; width: {INPUT_BAL_W} !important; max-width: {INPUT_BAL_W} !important; }}
     div[data-testid="stNumberInput"] button {{ display: none !important; }} 
-    div[data-testid="stNumberInput"] div[data-baseweb="base-input"] {{ background-color: {input_bg} !important; }}
+    div[data-testid="stNumberInput"] div[data-baseweb="base-input"] {{ background-color: {input_bg} !important; height: {INPUT_BAL_H} !important; }}
     div[data-testid="stNumberInput"] div[data-baseweb="input"] {{ background-color: {input_bg} !important; border-color: {border_color} !important; }}
-    div[data-testid="stNumberInput"] input {{ color: {c_lbl_in} !important; background-color: {input_bg} !important; font-weight: bold; }}
+    div[data-testid="stNumberInput"] input {{ color: {c_lbl_in} !important; background-color: {input_bg} !important; font-weight: bold; height: 100% !important; }}
 
-    /* DESTRUCCIÓN TOTAL DE FONDOS GRISES EN UPLOAD */
+    /* DESTRUCCIÓN TOTAL DE FONDOS GRISES EN UPLOAD Y FORZADO A 50% MÁS GRANDE */
     [data-testid="stFileUploader"] {{ transform: translate({UPLOAD_X}px, {UPLOAD_Y}px) !important; background-color: transparent !important; border: none !important; padding: 0 !important; }}
     [data-testid="stFileUploader"] > section, [data-testid="stFileUploader"] > section > div {{ background-color: transparent !important; border: none !important; }}
     [data-testid="stFileUploadDropzone"] {{ background-color: transparent !important; border: none !important; padding: 0 !important; min-height: 0 !important; box-shadow: none !important; }}
@@ -387,13 +426,21 @@ st.markdown(f"""
         border-radius: 6px !important; 
         margin: 0 !important; 
         width: {UPLOAD_W} !important;
+        min-height: {UPLOAD_H} !important;
         height: {UPLOAD_H} !important;
     }}
-    [data-testid="stFileUploadDropzone"] button * {{ color: {u_btn_txt} !important; }}
+    [data-testid="stFileUploadDropzone"] button * {{ 
+        color: {u_btn_txt} !important; 
+        font-size: {UPLOAD_FONT_SIZE} !important;
+    }}
 
-    /* BOTONES GENERALES */
+    /* BOTONES GENERALES Y CALENDARIO (FORZADO 50% MÁS GRANDE) */
     div[data-testid="stButton"] > button {{ background-color: {btn_bg} !important; color: {btn_txt} !important; border: 1px solid {border_color} !important; }}
-    div[data-testid="stPopover"] > button {{ height: {BOTON_HEIGHT}px !important; width: {BOTON_WIDTH}px !important; padding: 0 !important; font-size: {BOTON_ICON_SIZE}px !important; border-radius: 8px !important; border: 1px solid {border_color} !important; background-color: {btn_bg} !important; color: {btn_txt} !important; display: flex !important; justify-content: center !important; align-items: center !important; }}
+    div[data-testid="stPopover"] > button {{ 
+        min-height: {BOTON_HEIGHT}px !important; height: {BOTON_HEIGHT}px !important; 
+        min-width: {BOTON_WIDTH}px !important; width: {BOTON_WIDTH}px !important; 
+        padding: 0 !important; font-size: {BOTON_ICON_SIZE}px !important; border-radius: 8px !important; border: 1px solid {border_color} !important; background-color: {btn_bg} !important; color: {btn_txt} !important; display: flex !important; justify-content: center !important; align-items: center !important; 
+    }}
     div[data-testid="stPopoverBody"] {{ background-color: {card_bg} !important; border: 1px solid {border_color} !important; }}
 
     /* CALENDARIO Y DÍAS */
@@ -507,7 +554,7 @@ with c1:
     st.number_input(TXT_LBL_INPUT, value=bal_actual, format="%.2f", key="input_balance", on_change=procesar_cambio)
 with c2:
     st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True) 
-    with st.popover("🗓️"):
+    with st.popover(TXT_CALENDARIO):
         st.date_input("Fecha oculta", value=hoy, key="input_fecha", label_visibility="collapsed")
 
 fecha_str_actual = st.session_state.input_fecha.strftime("%d/%m/%Y")
@@ -577,7 +624,7 @@ with col_cal:
                             if trade.get("imagenes"):
                                 id_modal = f"mod_{anio_sel}_{mes_sel}_{dia}"
                                 img_tags = "".join([f'<img src="{img}">' for img in trade["imagenes"]])
-                                cam_html = f'<input type="checkbox" id="{id_modal}" class="modal-toggle" style="display:none;"><label for="{id_modal}"><div class="cam-icon">📷</div></label><div class="fs-modal"><label for="{id_modal}" class="close-btn">✖ CERRAR</label>{img_tags}</div>'
+                                cam_html = f'<input type="checkbox" id="{id_modal}" class="modal-toggle" style="display:none;"><label for="{id_modal}"><div class="cam-icon">{TXT_CAMARA}</div></label><div class="fs-modal"><label for="{id_modal}" class="close-btn">{TXT_CERRAR_MODAL}</label>{img_tags}</div>'
                             else:
                                 cam_html = ""
                             
@@ -676,11 +723,11 @@ with col_det:
     # --- RENDERIZADO DE LOS CUADROS DE SEMANAS Y MES ---
     st.markdown(f"""
     <div class="weeks-container">
-        <div class="wk-box"><div class="wk-title">Week 1</div><div class="wk-val {c1}">{s1}${w1:,.2f}<br><span style="font-size:{WEEK_PCT_SIZE}px;">{s1}{pct_w1:.2f}%</span></div></div>
-        <div class="wk-box"><div class="wk-title">Week 2</div><div class="wk-val {c2}">{s2}${w2:,.2f}<br><span style="font-size:{WEEK_PCT_SIZE}px;">{s2}{pct_w2:.2f}%</span></div></div>
-        <div class="wk-box"><div class="wk-title">Week 3</div><div class="wk-val {c3}">{s3}${w3:,.2f}<br><span style="font-size:{WEEK_PCT_SIZE}px;">{s3}{pct_w3:.2f}%</span></div></div>
-        <div class="wk-box"><div class="wk-title">Week 4</div><div class="wk-val {c4}">{s4}${w4:,.2f}<br><span style="font-size:{WEEK_PCT_SIZE}px;">{s4}{pct_w4:.2f}%</span></div></div>
-        <div class="wk-box"><div class="wk-title">Week 5</div><div class="wk-val {c5}">{s5}${w5:,.2f}<br><span style="font-size:{WEEK_PCT_SIZE}px;">{s5}{pct_w5:.2f}%</span></div></div>
-        <div class="mo-box"><div class="mo-title">Month</div><div class="mo-val {cM}">{sM}${m_total:,.2f}<br><span style="font-size:{WEEK_PCT_SIZE}px;">{sM}{pct_m:.2f}%</span></div></div>
+        <div class="wk-box"><div class="wk-title">{TXT_WEEK_1}</div><div class="wk-val {c1}">{s1}${w1:,.2f}<br><span style="font-size:{WEEK_PCT_SIZE}px;">{s1}{pct_w1:.2f}%</span></div></div>
+        <div class="wk-box"><div class="wk-title">{TXT_WEEK_2}</div><div class="wk-val {c2}">{s2}${w2:,.2f}<br><span style="font-size:{WEEK_PCT_SIZE}px;">{s2}{pct_w2:.2f}%</span></div></div>
+        <div class="wk-box"><div class="wk-title">{TXT_WEEK_3}</div><div class="wk-val {c3}">{s3}${w3:,.2f}<br><span style="font-size:{WEEK_PCT_SIZE}px;">{s3}{pct_w3:.2f}%</span></div></div>
+        <div class="wk-box"><div class="wk-title">{TXT_WEEK_4}</div><div class="wk-val {c4}">{s4}${w4:,.2f}<br><span style="font-size:{WEEK_PCT_SIZE}px;">{s4}{pct_w4:.2f}%</span></div></div>
+        <div class="wk-box"><div class="wk-title">{TXT_WEEK_5}</div><div class="wk-val {c5}">{s5}${w5:,.2f}<br><span style="font-size:{WEEK_PCT_SIZE}px;">{s5}{pct_w5:.2f}%</span></div></div>
+        <div class="mo-box"><div class="mo-title">{TXT_MONTH}</div><div class="mo-val {cM}">{sM}${m_total:,.2f}<br><span style="font-size:{WEEK_PCT_SIZE}px;">{sM}{pct_m:.2f}%</span></div></div>
     </div>
     """, unsafe_allow_html=True)
