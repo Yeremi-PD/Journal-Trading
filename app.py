@@ -163,8 +163,8 @@ DROPZONE_W = "100%"
 DROPZONE_H = "75px"            # Altura del cuadro donde arrastras
 DROPZONE_X = 0
 DROPZONE_Y = 0
-DROPZONE_BG_C = "transparent"  # Color de fondo (puedes poner rgba, hex, o transparent)
-DROPZONE_BG_O = "transparent"
+DROPZONE_BG_C = "000000"  # Color de fondo (puedes poner rgba, hex, o transparent)
+DROPZONE_BG_O = "000000"
 DROPZONE_BORDER_C = "1px dashed #E2E8F0"  # Borde (ej: "2px solid red" o "none")
 DROPZONE_BORDER_O = "1px dashed #4A5568"
 
