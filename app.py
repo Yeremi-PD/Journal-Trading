@@ -230,9 +230,9 @@ TXT_CERRAR_MODAL = "✖ CERRAR"
 # ---------------------------------------------------------
 # Puedes usar valores negativos o positivos ("10px", "-5px", "50%", etc.)
 # Esto ubica el botón libremente desde arriba y desde la derecha de la tarjeta.
-BTN_NOTAS_TOP = "-5px"
-BTN_NOTAS_RIGHT = "-5px"
-BTN_NOTAS_SIZE = 18
+BTN_NOTAS_TOP = "-50px"
+BTN_NOTAS_RIGHT = "-55px"
+BTN_NOTAS_SIZE = 55
 
 # ---------------------------------------------------------
 # [ TARJETA: NET P&L ]
