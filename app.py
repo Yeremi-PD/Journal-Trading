@@ -80,11 +80,11 @@ TXT_DASH_COLOR_C = "#000000"
 TXT_DASH_COLOR_O = "#FFFFFF"
 
 # ---------------------------------------------------------
-# [ ETIQUETA: FILTROS ]
+# [ ETIQUETA: FILTROS ] (AQUÍ AHORA ES HTML PURO)
 # ---------------------------------------------------------
 LBL_FILTROS = "Filtros"
-LBL_FILTROS_SIZE = 90           # <-- TAMAÑO FIJADO A 20
-LBL_FILTROS_X = 90
+LBL_FILTROS_SIZE = 20           
+LBL_FILTROS_X = 0
 LBL_FILTROS_Y = 0
 LBL_FILTROS_COLOR_C = "#000000"
 LBL_FILTROS_COLOR_O = "#FFFFFF"
@@ -93,13 +93,13 @@ LBL_FILTROS_COLOR_O = "#FFFFFF"
 OPT_FILTRO_1 = "Todos"
 OPT_FILTRO_2 = "Ganancias"
 OPT_FILTRO_3 = "Pérdidas"
-OPT_FILTROS_SIZE = 90  
+OPT_FILTROS_SIZE = 14  
 
 # ---------------------------------------------------------
-# [ ETIQUETA: DATA SOURCE ]
+# [ ETIQUETA: DATA SOURCE ] (AQUÍ AHORA ES HTML PURO)
 # ---------------------------------------------------------
 LBL_DATA = "Data Source"
-LBL_DATA_SIZE = 20              # <-- TAMAÑO FIJADO A 20
+LBL_DATA_SIZE = 20              
 LBL_DATA_X = 0
 LBL_DATA_Y = 0
 LBL_DATA_COLOR_C = "#000000"
@@ -111,10 +111,10 @@ OPT_DATA_2 = "Demo Data"
 OPT_DATA_SIZE = 14    
 
 # ---------------------------------------------------------
-# [ ETIQUETA Y CAJA: BALANCE MANUAL (Input) ]
+# [ ETIQUETA Y CAJA: BALANCE MANUAL (Input) ] (AQUÍ AHORA ES HTML PURO)
 # ---------------------------------------------------------
 LBL_INPUT = "Balance:"
-LBL_INPUT_SIZE = 20             # <-- TAMAÑO FIJADO A 20
+LBL_INPUT_SIZE = 20             
 LBL_INPUT_X = 0
 LBL_INPUT_Y = 0
 LBL_INPUT_COLOR_C = "#000000"
@@ -122,7 +122,7 @@ LBL_INPUT_COLOR_O = "#FFFFFF"
 
     # ( Caja del Input Manual )
 INPUT_BAL_W = "200px"         
-INPUT_BAL_H = "90px"          # <-- ALTURA FIJADA A 50px
+INPUT_BAL_H = "50px"          
 INPUT_BAL_X = 0      
 INPUT_BAL_Y = 0      
 INPUT_BAL_TXT_SIZE = 22       
@@ -157,14 +157,22 @@ LINEA_COLOR_C = "#E2E8F0"
 LINEA_COLOR_O = "#4A5568"
 
 # ---------------------------------------------------------
-# [ BOTÓN: SUBIR FOTOS (Upload) ]
+# [ ÁREA DE ARRASTRAR IMÁGENES (DROPZONE) ] <-- NUEVO CONTENEDOR
 # ---------------------------------------------------------
+DROPZONE_W = "100%"
+DROPZONE_H = "75px"            # Altura del cuadro donde arrastras
+DROPZONE_X = 0
+DROPZONE_Y = 0
+DROPZONE_BG_C = "transparent"  # Color de fondo (puedes poner rgba, hex, o transparent)
+DROPZONE_BG_O = "transparent"
+DROPZONE_BORDER_C = "1px dashed #E2E8F0"  # Borde (ej: "2px solid red" o "none")
+DROPZONE_BORDER_O = "1px dashed #4A5568"
+
+    # ( Botón de Upload de Adentro )
 BTN_UP_TEXTO = "Upload"
-BTN_UP_SIZE = "2101px"
-BTN_UP_W = "11100%"                     
-BTN_UP_H = "6811px"                     
-BTN_UP_X = 0
-BTN_UP_Y = 0
+BTN_UP_SIZE = "20px"
+BTN_UP_W = "120px"             # El ancho del botón de adentro
+BTN_UP_H = "45px"              # El alto del botón de adentro
 BTN_UP_BG_C = "#E2E8F0"       
 BTN_UP_BG_O = "#4A5568"
 BTN_UP_TXT_C = "#000000"      
@@ -386,8 +394,11 @@ if st.session_state.tema == "Claro":
     btn_txt = "#000000" 
     input_bg = INPUT_FONDO_C
     
+    drop_bg = DROPZONE_BG_C
+    drop_border = DROPZONE_BORDER_C
     u_btn_bg = BTN_UP_BG_C
     u_btn_txt = BTN_UP_TXT_C
+    
     wk_tit_c = WEEKS_TITULOS_COLOR_C
     c_cam_bg = BTN_CAM_BG_C
     c_linea = LINEA_COLOR_C
@@ -411,8 +422,11 @@ else:
     btn_txt = "#FFFFFF" 
     input_bg = INPUT_FONDO_O
     
+    drop_bg = DROPZONE_BG_O
+    drop_border = DROPZONE_BORDER_O
     u_btn_bg = BTN_UP_BG_O
     u_btn_txt = BTN_UP_TXT_O
+    
     wk_tit_c = WEEKS_TITULOS_COLOR_O
     c_cam_bg = BTN_CAM_BG_O
     c_linea = LINEA_COLOR_O
@@ -430,8 +444,11 @@ st.markdown(f"""
     /* TITULO DASHBOARD */
     .dashboard-title {{ font-size: {TXT_DASH_SIZE}px !important; font-weight: 800 !important; color: {c_dash} !important; margin-left: {TXT_DASH_X}px !important; margin-top: {TXT_DASH_Y}px !important; margin-bottom: 0 !important; line-height: 1.1 !important; letter-spacing: -2px !important; }}
     
-    /* ETIQUETA TOTAL BALANCE */
+    /* ETIQUETAS HTML PERSONALIZADAS (REEMPLAZAN LAS DE STREAMLIT) */
     .lbl-total-bal {{ font-size: {LBL_BAL_TOTAL_SIZE}px !important; color: {c_lbl_bal} !important; font-weight: 700 !important; display: inline-block !important; transform: translate({LBL_BAL_TOTAL_X}px, {LBL_BAL_TOTAL_Y}px) !important; }}
+    .lbl-filtros {{ font-size: {LBL_FILTROS_SIZE}px !important; color: {c_filtros} !important; font-weight: 700 !important; transform: translate({LBL_FILTROS_X}px, {LBL_FILTROS_Y}px) !important; margin-bottom: 5px !important; }}
+    .lbl-data {{ font-size: {LBL_DATA_SIZE}px !important; color: {c_data} !important; font-weight: 700 !important; transform: translate({LBL_DATA_X}px, {LBL_DATA_Y}px) !important; margin-bottom: 5px !important; }}
+    .lbl-input {{ font-size: {LBL_INPUT_SIZE}px !important; color: {c_lbl_in} !important; font-weight: 700 !important; transform: translate({LBL_INPUT_X}px, {LBL_INPUT_Y}px) !important; margin-bottom: 5px !important; }}
     
     /* CAJA VERDE BALANCE */
     .balance-box {{ background: #00C897 !important; color: white !important; padding: 10px 0px !important; border-radius: 80px !important; text-align: center !important; font-weight: 700 !important; font-size: {BALANCE_SIZE}px !important; margin-left: {BALANCE_BOX_X}px !important; margin-top: {BALANCE_BOX_Y}px !important; width: {BALANCE_BOX_W}% !important; margin: 0 auto !important; }}
@@ -439,15 +456,10 @@ st.markdown(f"""
     /* LÍNEA SEPARADORA */
     .thin-line {{ border-bottom: {LINEA_GROSOR}px solid {c_linea} !important; margin: {LINEA_MARGEN_SUP}px 0px {LINEA_MARGEN_INF}px 0px !important; width: {LINEA_ANCHO}% !important; transform: translateX({LINEA_X}px) !important; }}
 
-    /* DESTRUCCIÓN DE LÍMITES DE ETIQUETAS FILTROS Y DATA SOURCE */
-    div[data-testid="column"]:nth-of-type(2) label p,
-    div[data-testid="column"]:nth-of-type(2) label span,
-    div[data-testid="column"]:nth-of-type(2) label {{ font-size: {LBL_FILTROS_SIZE}px !important; color: {c_filtros} !important; font-weight: 700 !important; transform: translate({LBL_FILTROS_X}px, {LBL_FILTROS_Y}px) !important; line-height: 1.2 !important; }}
-    
-    div[data-testid="column"]:nth-of-type(3) label p,
-    div[data-testid="column"]:nth-of-type(3) label span,
-    div[data-testid="column"]:nth-of-type(3) label {{ font-size: {LBL_DATA_SIZE}px !important; color: {c_data} !important; font-weight: 700 !important; transform: translate({LBL_DATA_X}px, {LBL_DATA_Y}px) !important; line-height: 1.2 !important; }}
-    
+    /* OCULTAR ETIQUETAS NATIVAS DE STREAMLIT */
+    div[data-testid="stSelectbox"] label {{ display: none !important; }}
+    div[data-testid="stNumberInput"] label {{ display: none !important; }}
+
     /* Fondos y colores de selectores */
     div[data-baseweb="select"] > div {{ background-color: {card_bg} !important; border-color: {border_color} !important; }}
     ul[role="listbox"] {{ background-color: {card_bg} !important; }}
@@ -458,15 +470,10 @@ st.markdown(f"""
     li[role="option"] span, li[role="option"] {{ color: {c_filtros} !important; font-size: {OPT_FILTROS_SIZE}px !important; }}
     li[role="option"]:hover {{ background-color: {border_color} !important; }}
 
-    /* DESTRUCCIÓN DE LÍMITES DE ETIQUETA E INPUT BALANCE */
-    div[data-testid="stNumberInput"] label p,
-    div[data-testid="stNumberInput"] label span,
-    div[data-testid="stNumberInput"] label {{ font-size: {LBL_INPUT_SIZE}px !important; color: {c_lbl_in} !important; font-weight: 700 !important; transform: translate({LBL_INPUT_X}px, {LBL_INPUT_Y}px) !important; line-height: 1.2 !important; }}
-    
+    /* INPUT BALANCE (CAJA DE TEXTO Y NÚMERO) */
     div[data-testid="stNumberInput"] {{ margin-left: {INPUT_BAL_X}px !important; margin-top: {INPUT_BAL_Y}px !important; width: {INPUT_BAL_W} !important; min-width: {INPUT_BAL_W} !important; max-width: {INPUT_BAL_W} !important; }}
     div[data-testid="stNumberInput"] button {{ display: none !important; }} 
     
-    /* FORZANDO LA ALTURA DE LA CAJA BALANCE EN TODAS SUS CAPAS INTERNAS */
     div[data-testid="stNumberInput"] > div:last-child,
     div[data-testid="stNumberInput"] div[data-baseweb="base-input"],
     div[data-testid="stNumberInput"] div[data-baseweb="input"] {{ 
@@ -488,10 +495,24 @@ st.markdown(f"""
         padding-bottom: 0 !important;
     }}
 
-    /* ELIMINACIÓN TOTAL DE FANTASMAS GRISES DEL UPLOAD */
-    [data-testid="stFileUploader"] {{ transform: translate({BTN_UP_X}px, {BTN_UP_Y}px) !important; background-color: transparent !important; border: none !important; padding: 0 !important; box-shadow: none !important; }}
+    /* EL ÁREA DE DROPZONE (DONDE ARRASTRAS IMÁGENES) */
+    [data-testid="stFileUploader"] {{ transform: translate({DROPZONE_X}px, {DROPZONE_Y}px) !important; background-color: transparent !important; border: none !important; padding: 0 !important; box-shadow: none !important; }}
     [data-testid="stFileUploader"] > section {{ background-color: transparent !important; border: none !important; padding: 0 !important; }}
-    [data-testid="stFileUploadDropzone"] {{ background-color: transparent !important; border: none !important; padding: 0 !important; min-height: 0 !important; box-shadow: none !important; }}
+    
+    /* El contenedor visible del Dropzone */
+    [data-testid="stFileUploadDropzone"] {{ 
+        background-color: {drop_bg} !important; 
+        border: {drop_border} !important; 
+        border-radius: 10px !important;
+        padding: 0 !important; 
+        width: {DROPZONE_W} !important;
+        min-height: {DROPZONE_H} !important; 
+        height: {DROPZONE_H} !important;
+        box-shadow: none !important; 
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+    }}
     [data-testid="stFileUploadDropzone"] > div {{ background-color: transparent !important; border: none !important; }}
     [data-testid="stFileUploadDropzone"] > div > span, [data-testid="stFileUploadDropzone"] small, [data-testid="stFileUploaderDropzoneInstructions"] {{ display: none !important; }}
     
@@ -608,9 +629,16 @@ st.markdown(f"""
 # ==========================================
 col_t, col_fil, col_data, col_bal = st.columns([3, 1.5, 1.5, 2])
 
-with col_t: st.markdown(f'<p class="dashboard-title">{TXT_DASHBOARD}</p>', unsafe_allow_html=True)
-with col_fil: filtro = st.selectbox(LBL_FILTROS, [OPT_FILTRO_1, OPT_FILTRO_2, OPT_FILTRO_3])
-with col_data: st.selectbox(LBL_DATA, [OPT_DATA_1, OPT_DATA_2], key="data_source_sel")
+with col_t: 
+    st.markdown(f'<p class="dashboard-title">{TXT_DASHBOARD}</p>', unsafe_allow_html=True)
+
+with col_fil: 
+    st.markdown(f'<div class="lbl-filtros">{LBL_FILTROS}</div>', unsafe_allow_html=True)
+    filtro = st.selectbox("Filtros", [OPT_FILTRO_1, OPT_FILTRO_2, OPT_FILTRO_3], label_visibility="collapsed")
+
+with col_data: 
+    st.markdown(f'<div class="lbl-data">{LBL_DATA}</div>', unsafe_allow_html=True)
+    st.selectbox("Data Source", [OPT_DATA_1, OPT_DATA_2], key="data_source_sel", label_visibility="collapsed")
 
 ctx = st.session_state.data_source_sel
 bal_actual = db_usuario[ctx]["balance"]
@@ -627,7 +655,9 @@ st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
 c1, c2, c_img, c_espacio = st.columns([1.5, 0.5, 2.5, 4]) 
 
 with c1:
-    st.number_input(LBL_INPUT, value=bal_actual, format="%.2f", key="input_balance", on_change=procesar_cambio)
+    st.markdown(f'<div class="lbl-input">{LBL_INPUT}</div>', unsafe_allow_html=True)
+    st.number_input("Balance", value=bal_actual, format="%.2f", key="input_balance", on_change=procesar_cambio, label_visibility="collapsed")
+
 with c2:
     st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True) 
     with st.popover(BTN_CAL_EMOJI):
@@ -637,7 +667,7 @@ fecha_str_actual = st.session_state.input_fecha.strftime("%d/%m/%Y")
 clave_actual = (st.session_state.input_fecha.year, st.session_state.input_fecha.month, st.session_state.input_fecha.day)
 
 with c_img:
-    st.markdown("<div style='height:22px;'></div>", unsafe_allow_html=True) 
+    st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True) 
     archivos = st.file_uploader("", accept_multiple_files=True, label_visibility="collapsed", key=f"up_{fecha_str_actual}")
     if archivos:
         if clave_actual not in db_usuario[ctx]["trades"]:
@@ -668,7 +698,6 @@ with col_cal:
     st.markdown("<br>", unsafe_allow_html=True)
     
     dias_semana = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"]
-    # Configurar el calendario para que la semana empiece el DOMINGO
     calendar.setfirstweekday(calendar.SUNDAY)
     mes_matriz = calendar.monthcalendar(anio_sel, mes_sel)
     
@@ -691,7 +720,6 @@ with col_cal:
                         c_cls = "cell-win" if trade["pnl"] > 0 else "cell-loss"
                         c_sim = "+" if trade["pnl"] > 0 else ""
                         
-                        # PORCENTAJE
                         bal_ini = trade["balance_final"] - trade["pnl"]
                         pct = (trade["pnl"] / bal_ini * 100) if bal_ini != 0 else 0
                         pct_str = f"{c_sim}{pct:.2f}%"
@@ -710,7 +738,6 @@ with col_cal:
     st.markdown('</div>', unsafe_allow_html=True)
 
 with col_det:
-    # --- CÁLCULOS PNL ---
     trades_mes = [v["pnl"] for k, v in db_usuario[ctx]["trades"].items() if k[0] == anio_sel and k[1] == mes_sel]
     total_trades = len(trades_mes)
     
@@ -728,7 +755,6 @@ with col_det:
     color_pnl = "pnl-value" if net_pnl >= 0 else "pnl-value pnl-value-loss"
     simbolo_pnl = "+" if net_pnl > 0 else ""
     
-    # --- RENDERIZADO TARJETA PNL ---
     st.markdown(f"""
         <div class="metric-card card-pnl">
             <div class="metric-header"><span class="title-net-pnl">{CARD_PNL_TITULO}</span></div>
@@ -745,7 +771,6 @@ with col_det:
         svg_html += f'<path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#00C897" stroke-width="10" stroke-dasharray="{len_w} {c}"/>\n'
     svg_html += '</svg>'
 
-    # --- RENDERIZADO TARJETA WIN % ---
     st.markdown(f"""
         <div class="metric-card card-win">
             <div>
@@ -759,7 +784,6 @@ with col_det:
         </div>
     """, unsafe_allow_html=True)
     
-    # --- LÓGICA DE SEMANAS EXACTAS DE CALENDARIO (EMPEZANDO EN DOMINGO) ---
     semanas_totales = {i: 0.0 for i in range(1, len(mes_matriz) + 1)}
     
     for key, val in db_usuario[ctx]["trades"].items():
@@ -786,31 +810,11 @@ with col_det:
 
     titulos_semanas = [TXT_W1, TXT_W2, TXT_W3, TXT_W4, TXT_W5, TXT_W6]
     
-    # Construcción dinámica del HTML de Semanas
     semanas_html = ""
     for idx, (num_sem, val_sem) in enumerate(semanas_totales.items()):
         titulo_str = titulos_semanas[idx] if idx < len(titulos_semanas) else f"Week {num_sem}"
         c_sem, s_sem = get_col_simb(val_sem)
         pct_sem = calc_pct(val_sem)
-        
-        semanas_html += f"""
-        <div class="wk-box">
-            <div class="wk-title">{titulo_str}</div>
-            <div class="wk-val {c_sem}">{s_sem}${val_sem:,.2f}<br>
-                <span style="font-size:{WEEKS_PCT_SIZE}px;">{s_sem}{pct_sem:.2f}%</span>
-            </div>
-        </div>
-        """
+        semanas_html += f'<div class="wk-box"><div class="wk-title">{titulo_str}</div><div class="wk-val {c_sem}">{s_sem}${val_sem:,.2f}<br><span style="font-size:{WEEKS_PCT_SIZE}px;">{s_sem}{pct_sem:.2f}%</span></div></div>'
 
-    # Render Final
-    st.markdown(f"""
-    <div class="weeks-container">
-        {semanas_html}
-        <div class="mo-box">
-            <div class="mo-title">{TXT_MO}</div>
-            <div class="mo-val {cM}">{sM}${m_total:,.2f}<br>
-                <span style="font-size:{WEEKS_PCT_SIZE}px;">{sM}{pct_m:.2f}%</span>
-            </div>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown(f'<div class="weeks-container">{semanas_html}<div class="mo-box"><div class="mo-title">{TXT_MO}</div><div class="mo-val {cM}">{sM}${m_total:,.2f}<br><span style="font-size:{WEEKS_PCT_SIZE}px;">{sM}{pct_m:.2f}%</span></div></div></div>', unsafe_allow_html=True)
