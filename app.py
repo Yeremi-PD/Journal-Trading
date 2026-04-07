@@ -568,10 +568,10 @@ st.markdown(f"""
 
     .weeks-container {{ transform: translate({WEEKS_CONTENEDOR_X}px, {WEEKS_CONTENEDOR_Y}px) !important; display: flex !important; flex-wrap: wrap !important; gap: 10px !important; justify-content: space-between !important; margin-top: 15px !important; }}
     .wk-box {{ width: {WEEK_BOX_W} !important; height: {WEEK_BOX_H} !important; background: {card_bg} !important; border: 1px solid {border_color} !important; border-radius: 12px !important; display: flex !important; flex-direction: column !important; align-items: {WEEK_ALIGN} !important; justify-content: center !important; padding: 5px !important; }}
-    .wk-title {{ font-size: {WEEKS_TITULOS_SIZE}px !important; font-weight: 700 !important; color: {wk_tit_c} !important; margin-bottom: 2px !important; }}
-    .wk-val {{ font-size: {WEEKS_VALOR_SIZE}px !important; font-weight: 800 !important; line-height: 1.2 !important; }}
+    .wk-title {{ font-size: {WEEKS_TITULOS_SIZE}px !important; font-weight: 700 !important; color: {wk_tit_c} !important; margin-bottom: 2px !important; text-align: center !important; }}
+    .wk-val {{ font-size: {WEEKS_VALOR_SIZE}px !important; font-weight: 800 !important; line-height: 1.2 !important; text-align: center !important; }}
     
-    .mo-box {{ width: {Month_BOX_W} !important; height: {Month_BOX_H} !important; background: {card_bg} !important; border: 1px solid {border_color} !important; border-radius: 15px !important; display: flex !important; flex-direction: column !important; align-items: {WEEK_ALIGN} !important; justify-content: center !important; padding: 10px !important; margin-top: 5px !important; }}
+    .mo-box {{ width: {Month_BOX_W} !important; height: {Month_BOX_H} !important; background: {card_bg} !important; border: 1px solid {border_color} !important; border-radius: 15px !important; display: flex !important; flex-direction: column !important; align-items: {WEEK_ALIGN} !important; justify-content: center !important; padding: 10px !important; margin-top: 5px !important; text-align: center !important; }}
     .mo-title {{ font-size: {Month_TITLE_SIZE}px !important; font-weight: 800 !important; color: {wk_tit_c} !important; text-transform: uppercase !important; letter-spacing: 1px !important; }}
     .mo-val {{ font-size: {Month_VAL_SIZE}px !important; font-weight: 800 !important; line-height: 1.2 !important; }}
     
@@ -768,10 +768,15 @@ with col_cal:
     net_pnl_top = sum(trades_mes_top) if total_trades_top > 0 else 0.0
     wins_top = len([t for t in trades_mes_top if t > 0])
     win_pct_top = (wins_top / total_trades_top * 100) if total_trades_top > 0 else 0.0
+    
     color_pnl_top = "#00C897" if net_pnl_top >= 0 else "#FF4C4C"
+    bg_pnl_top = "#e6f9f4" if net_pnl_top >= 0 else "#ffeded"
     simb_pnl_top = "+" if net_pnl_top > 0 else ""
+    
+    color_win_top = "#00C897" if win_pct_top >= 50 else "#FF4C4C"
+    bg_win_top = "#e6f9f4" if win_pct_top >= 50 else "#ffeded"
 
-    c_izq, c_cen, c_der, c_stats = st.columns([0.6, 2, 0.6, 3])
+    c_izq, c_cen, c_der, c_stats = st.columns([0.6, 2, 0.6, 3.8])
     with c_izq: 
         st.button("◀", on_click=cambiar_mes, args=(-1,), use_container_width=True)
     with c_cen: 
@@ -780,9 +785,9 @@ with col_cal:
         st.button("▶", on_click=cambiar_mes, args=(1,), use_container_width=True)
     with c_stats:
         st.markdown(f'''
-            <div style="display:flex; justify-content:flex-end; align-items:center; gap:15px; margin-top:8px;">
-                <div style="font-weight:600; font-size:16px; color:{c_mes};">Monthly P&L: <span style="color:{color_pnl_top}; font-weight:800;">{simb_pnl_top}${net_pnl_top:,.2f}</span></div>
-                <div style="font-weight:600; font-size:16px; color:{c_mes};">Win Rate: <span style="font-weight:800;">{win_pct_top:.1f}%</span></div>
+            <div style="display:flex; justify-content:flex-end; align-items:center; gap:20px; margin-top:8px;">
+                <div style="font-weight:700; font-size:18px; color:{c_mes}; display:flex; align-items:center; gap:8px;">Monthly P&L: <span style="background-color:{bg_pnl_top}; color:{color_pnl_top}; padding:4px 12px; border-radius:12px; font-weight:800;">{simb_pnl_top}${net_pnl_top:,.2f}</span></div>
+                <div style="font-weight:700; font-size:18px; color:{c_mes}; display:flex; align-items:center; gap:8px;">Win Rate: <span style="background-color:{bg_win_top}; color:{color_win_top}; padding:4px 12px; border-radius:12px; font-weight:800;">{win_pct_top:.1f}%</span></div>
             </div>
         ''', unsafe_allow_html=True)
     
@@ -828,13 +833,24 @@ with col_cal:
                         st.markdown(f'<div class="card cell-empty" style="opacity:{op}"><div class="day-number">{dia}</div></div>', unsafe_allow_html=True)
 
 with col_det:
-    trades_mes = [v["pnl"] for k, v in db_usuario[ctx]["trades"].items() if k[0] == anio_sel and k[1] == mes_sel]
-    total_trades = len(trades_mes)
     
-    net_pnl = sum(trades_mes) if total_trades > 0 else 0.0
-    wins = len([t for t in trades_mes if t > 0])
-    losses = len([t for t in trades_mes if t < 0])
-    ties = len([t for t in trades_mes if t == 0])
+    ver_todo = st.toggle("🌍 View All-Time Stats", value=False)
+    
+    if ver_todo:
+        trades_lista = [v["pnl"] for k, v in db_usuario[ctx]["trades"].items()]
+        titulo_pnl = "Net P&L All-Time"
+        titulo_win = "Win Rate All-Time"
+    else:
+        trades_lista = [v["pnl"] for k, v in db_usuario[ctx]["trades"].items() if k[0] == anio_sel and k[1] == mes_sel]
+        titulo_pnl = CARD_PNL_TITULO
+        titulo_win = CARD_WIN_TITULO
+        
+    total_trades = len(trades_lista)
+    
+    net_pnl = sum(trades_lista) if total_trades > 0 else 0.0
+    wins = len([t for t in trades_lista if t > 0])
+    losses = len([t for t in trades_lista if t < 0])
+    ties = len([t for t in trades_lista if t == 0])
     win_pct = (wins / total_trades * 100) if total_trades > 0 else 0.0
     
     r = 40
@@ -847,7 +863,7 @@ with col_det:
     
     st.markdown(f"""
         <div class="metric-card card-pnl">
-            <div class="metric-header"><span class="title-net-pnl">{CARD_PNL_TITULO}</span></div>
+            <div class="metric-header"><span class="title-net-pnl">{titulo_pnl}</span></div>
             <div class="{color_pnl}">{simbolo_pnl}${net_pnl:,.2f}</div>
         </div>
     """, unsafe_allow_html=True)
@@ -864,7 +880,7 @@ with col_det:
     st.markdown(f"""
         <div class="metric-card card-win">
             <div>
-                <div class="metric-header"><span class="title-trade-win">{CARD_WIN_TITULO}</span></div>
+                <div class="metric-header"><span class="title-trade-win">{titulo_win}</span></div>
                 <div class="win-value">{win_pct:.2f}%</div>
             </div>
             <div class="gauge-container">
@@ -874,18 +890,6 @@ with col_det:
         </div>
     """, unsafe_allow_html=True)
     
-    semanas_totales = {i: 0.0 for i in range(1, len(mes_matriz) + 1)}
-    
-    for key, val in db_usuario[ctx]["trades"].items():
-        if key[0] == anio_sel and key[1] == mes_sel:
-            dia = key[2]
-            for idx, semana in enumerate(mes_matriz):
-                if dia in semana:
-                    semanas_totales[idx + 1] += val["pnl"]
-                    break
-
-    m_total = sum(semanas_totales.values())
-    
     def get_col_simb(valor):
         if valor > 0: return "txt-green", "+"
         elif valor < 0: return "txt-red", ""
@@ -894,21 +898,55 @@ with col_det:
     def calc_pct(valor):
         base = bal_actual - valor
         return (valor / base * 100) if base != 0 else 0.0
-
-    cM, sM = get_col_simb(m_total)
-    pct_m = calc_pct(m_total)
-
-    titulos_semanas = [TXT_W1, TXT_W2, TXT_W3, TXT_W4, TXT_W5, TXT_W6]
     
-    semanas_html = ""
-    for idx, (num_sem, val_sem) in enumerate(semanas_totales.items()):
-        titulo_str = titulos_semanas[idx] if idx < len(titulos_semanas) else f"Week {num_sem}"
-        c_sem, s_sem = get_col_simb(val_sem)
-        pct_sem = calc_pct(val_sem)
-        semanas_html += f'<div class="wk-box"><div class="wk-title">{titulo_str}</div><div class="wk-val {c_sem}">{s_sem}${val_sem:,.2f}<br><span style="font-size:{WEEKS_PCT_SIZE}px;">{s_sem}{pct_sem:.2f}%</span></div></div>'
+    if not ver_todo:
+        # LÓGICA DE SEMANAS (MENSUAL)
+        semanas_totales = {i: 0.0 for i in range(1, len(mes_matriz) + 1)}
+        
+        for key, val in db_usuario[ctx]["trades"].items():
+            if key[0] == anio_sel and key[1] == mes_sel:
+                dia = key[2]
+                for idx, semana in enumerate(mes_matriz):
+                    if dia in semana:
+                        semanas_totales[idx + 1] += val["pnl"]
+                        break
 
-    st.markdown(f'<div class="weeks-container">{semanas_html}<div class="mo-box"><div class="mo-title">{TXT_MO}</div><div class="mo-val {cM}">{sM}${m_total:,.2f}<br><span style="font-size:{WEEKS_PCT_SIZE}px;">{sM}{pct_m:.2f}%</span></div></div></div>', unsafe_allow_html=True)
+        m_total = sum(semanas_totales.values())
+        cM, sM = get_col_simb(m_total)
+        pct_m = calc_pct(m_total)
 
+        titulos_semanas = [TXT_W1, TXT_W2, TXT_W3, TXT_W4, TXT_W5, TXT_W6]
+        
+        semanas_html = ""
+        for idx, (num_sem, val_sem) in enumerate(semanas_totales.items()):
+            titulo_str = titulos_semanas[idx] if idx < len(titulos_semanas) else f"Week {num_sem}"
+            c_sem, s_sem = get_col_simb(val_sem)
+            pct_sem = calc_pct(val_sem)
+            semanas_html += f'<div class="wk-box"><div class="wk-title">{titulo_str}</div><div class="wk-val {c_sem}">{s_sem}${val_sem:,.2f}<br><span style="font-size:{WEEKS_PCT_SIZE}px;">{s_sem}{pct_sem:.2f}%</span></div></div>'
+
+        st.markdown(f'<div class="weeks-container">{semanas_html}<div class="mo-box"><div class="mo-title">{TXT_MO}</div><div class="mo-val {cM}">{sM}${m_total:,.2f}<br><span style="font-size:{WEEKS_PCT_SIZE}px;">{sM}{pct_m:.2f}%</span></div></div></div>', unsafe_allow_html=True)
+
+    else:
+        # LÓGICA DE TODOS LOS MESES (ALL-TIME)
+        meses_totales = {}
+        for key, val in db_usuario[ctx]["trades"].items():
+            y, m = key[0], key[1]
+            if (y, m) not in meses_totales:
+                meses_totales[(y, m)] = 0.0
+            meses_totales[(y, m)] += val["pnl"]
+            
+        meses_html = ""
+        for (y, m) in sorted(meses_totales.keys()):
+            val_m = meses_totales[(y, m)]
+            nombre_m = f"{calendar.month_abbr[m]} {y}"
+            c_m, s_m = get_col_simb(val_m)
+            pct_m_box = calc_pct(val_m)
+            meses_html += f'<div class="wk-box"><div class="wk-title" style="font-size:16px;">{nombre_m}</div><div class="wk-val {c_m}">{s_m}${val_m:,.2f}<br><span style="font-size:{WEEKS_PCT_SIZE}px;">{s_m}{pct_m_box:.2f}%</span></div></div>'
+        
+        if meses_html:
+            st.markdown(f'<div class="weeks-container">{meses_html}</div>', unsafe_allow_html=True)
+        else:
+            st.info("No hay meses con trades registrados aún.")
 
 # ==========================================
 # 11. TABLA DE EDICIÓN MANUAL (HISTORIAL LIMPIO POR MES)
