@@ -880,7 +880,7 @@ with st.expander("🛠️ OPEN ORDER HISTORY", expanded=False):
                 c_ed1, c_ed2, c_ed3 = st.columns(3)
                 
                 with c_ed1:
-                    nueva_fecha = st.date_input("Día", value=fecha_dt, key=f"f_{clave}")
+                    nueva_fecha = st.date_input("Day", value=fecha_dt, key=f"f_{clave}")
                 with c_ed2:
                     nuevo_bal = st.number_input("Nuevo Balance", value=float(data['balance_final']), format="%.2f", key=f"b_{clave}")
                 with c_ed3:
