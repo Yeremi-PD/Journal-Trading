@@ -213,7 +213,9 @@ TXT_DIAS_SEM_COLOR_O = "#FFFFFF"
 TXT_NUM_DIA_SIZE = 18
 TXT_NUM_DIA_COLOR_C = "#000000"
 TXT_NUM_DIA_COLOR_O = "#c0c0c0"
+
 TXT_PNL_DIA_SIZE = 30
+
 TXT_PCT_DIA_SIZE = 25
 TXT_PCT_DIA_COLOR_C = "#000000"
 TXT_PCT_DIA_COLOR_O = "#000000"
@@ -845,3 +847,75 @@ with col_det:
         semanas_html += f'<div class="wk-box"><div class="wk-title">{titulo_str}</div><div class="wk-val {c_sem}">{s_sem}${val_sem:,.2f}<br><span style="font-size:{WEEKS_PCT_SIZE}px;">{s_sem}{pct_sem:.2f}%</span></div></div>'
 
     st.markdown(f'<div class="weeks-container">{semanas_html}<div class="mo-box"><div class="mo-title">{TXT_MO}</div><div class="mo-val {cM}">{sM}${m_total:,.2f}<br><span style="font-size:{WEEKS_PCT_SIZE}px;">{sM}{pct_m:.2f}%</span></div></div></div>', unsafe_allow_html=True)
+    # ==========================================
+# 11. TABLA DE EDICIÓN MANUAL (HISTORIAL)
+# ==========================================
+st.markdown("<br><br>", unsafe_allow_html=True)
+st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
+st.markdown(f"<h3 style='color:{c_dash}; margin-left:{TXT_DASH_X}px;'>⚙️ Editar Historial Manualmente</h3>", unsafe_allow_html=True)
+
+# Obtenemos los trades de la cuenta seleccionada actualmente
+trades_actuales = db_usuario[ctx]["trades"]
+
+if not trades_actuales:
+    st.markdown(f"<p style='color:{c_dash}; margin-left:{TXT_DASH_X}px; opacity: 0.7;'>No hay registros en esta cuenta para editar aún.</p>", unsafe_allow_html=True)
+else:
+    # Ordenar los días del más reciente al más antiguo
+    trades_ordenados = sorted(trades_actuales.items(), key=lambda x: datetime(x[0][0], x[0][1], x[0][2]), reverse=True)
+    
+    for clave, data in trades_ordenados:
+        fecha_dt = datetime(clave[0], clave[1], clave[2])
+        
+        # Cada fila es un expander (desplegable)
+        with st.expander(f"📝 Fecha: {data['fecha_str']} | Balance Final: ${data['balance_final']:,.2f} | P&L: ${data['pnl']:,.2f}"):
+            c_ed1, c_ed2, c_ed3 = st.columns(3)
+            
+            with c_ed1:
+                nueva_fecha = st.date_input("Cambiar Día", value=fecha_dt, key=f"f_{clave}")
+            with c_ed2:
+                nuevo_bal = st.number_input("Nuevo Balance Final", value=float(data['balance_final']), format="%.2f", key=f"b_{clave}")
+            with c_ed3:
+                nuevo_pnl = st.number_input("Nuevo P&L", value=float(data['pnl']), format="%.2f", key=f"p_{clave}")
+            
+            st.markdown("---")
+            st.markdown("**📸 Gestión de Imágenes:**")
+            c_img1, c_img2 = st.columns([1, 2])
+            
+            with c_img1:
+                st.write(f"Imágenes actuales: **{len(data.get('imagenes', []))}**")
+                if st.button("🗑️ Borrar fotos de este día", key=f"delimg_{clave}"):
+                    db_usuario[ctx]["trades"][clave]["imagenes"] = []
+                    st.rerun()
+            with c_img2:
+                nuevas_imgs = st.file_uploader("Subir fotos nuevas", accept_multiple_files=True, key=f"upd_{clave}")
+            
+            st.markdown("---")
+            c_btn1, c_btn2 = st.columns(2)
+            
+            with c_btn1:
+                if st.button("💾 Guardar Cambios", key=f"save_{clave}", use_container_width=True):
+                    # Guardar nuevas imágenes si se subieron
+                    lista_imgs = data.get("imagenes", [])
+                    if nuevas_imgs:
+                        for img in nuevas_imgs:
+                            lista_imgs.append(f"data:{img.type};base64,{convertir_img_base64(img)}")
+                    
+                    nueva_clave = (nueva_fecha.year, nueva_fecha.month, nueva_fecha.day)
+                    
+                    # Si el usuario cambió la fecha, borramos el registro del día viejo
+                    if nueva_clave != clave:
+                        del db_usuario[ctx]["trades"][clave]
+                    
+                    # Guardamos la información actualizada
+                    db_usuario[ctx]["trades"][nueva_clave] = {
+                        "pnl": nuevo_pnl,
+                        "balance_final": nuevo_bal,
+                        "fecha_str": nueva_fecha.strftime("%d/%m/%Y"),
+                        "imagenes": lista_imgs
+                    }
+                    st.rerun()
+                    
+            with c_btn2:
+                if st.button("❌ Eliminar TODO el registro", key=f"del_{clave}", use_container_width=True):
+                    del db_usuario[ctx]["trades"][clave]
+                    st.rerun()
