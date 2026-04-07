@@ -226,13 +226,6 @@ BTN_CAM_BG_O = "rgba(0,0,0,0.6)"
 TXT_CERRAR_MODAL = "✖ CERRAR"
 
 # ---------------------------------------------------------
-# [ BOTÓN DE NOTAS (📝) ]
-# ---------------------------------------------------------
-BTN_NOTAS_TOP = "-5px"
-BTN_NOTAS_RIGHT = "-5px"
-BTN_NOTAS_SIZE = 18
-
-# ---------------------------------------------------------
 # [ TARJETA: NET P&L ]
 # ---------------------------------------------------------
 CARD_PNL_TITULO = "Net P&L"
@@ -302,11 +295,6 @@ if "data_source_sel" not in st.session_state:
 
 usuario = st.session_state.usuario_actual
 db_usuario = db_global[usuario]["data"]
-
-if "Real Data" in db_usuario:
-    db_usuario["Account Real"] = db_usuario.pop("Real Data")
-if "Demo Account" in db_usuario:
-    db_usuario["Account Demo"] = db_usuario.pop("Demo Account")
 
 for cuenta in ["Account Real", "Account Demo"]:
     if cuenta not in db_usuario:
@@ -508,7 +496,6 @@ st.markdown(f"""
     
     div[data-testid="stNumberInput"] input {{ color: {c_lbl_in} !important; font-size: {INPUT_BAL_TXT_SIZE}px !important; background-color: {input_bg} !important; font-weight: bold !important; height: {INPUT_BAL_H} !important; min-height: {INPUT_BAL_H} !important; box-sizing: border-box !important; padding-top: 0 !important; padding-bottom: 0 !important; }}
 
-    /* FORMULARIO AISLADO PARA BALANCE */
     [data-testid="stForm"] {{ padding: 0 !important; border: none !important; background: transparent !important; margin: 0 !important; }}
     [data-testid="stFormSubmitButton"] button {{ background-color: #00C897 !important; color: white !important; font-weight: bold !important; height: 35px !important; min-height: 35px !important; border-radius: 8px !important; border: none !important; width: {INPUT_BAL_W} !important; margin-left: {INPUT_BAL_X}px !important; margin-top: 5px !important; }}
 
@@ -527,21 +514,8 @@ st.markdown(f"""
     div[data-testid="stButton"] > button {{ background-color: {btn_bg} !important; color: {btn_txt} !important; border: 1px solid {border_color} !important; }}
     div[data-testid="stPopover"] > button {{ min-height: {BTN_CAL_H}px !important; height: {BTN_CAL_H}px !important; min-width: {BTN_CAL_W}px !important; width: {BTN_CAL_W}px !important; padding: 0 !important; font-size: {BTN_CAL_ICON_SIZE}px !important; border-radius: px !important; border: 1px solid {border_color} !important; background-color: {btn_bg} !important; color: {btn_txt} !important; display: flex !important; justify-content: center !important; align-items: center !important; }}
     
-    /* MODAL (POPOVER) MÁS ANCHO Y AJUSTADO */
-    div[data-testid="stPopoverBody"] {{ 
-        background-color: {card_bg} !important; 
-        border: 1px solid {border_color} !important; 
-        border-radius: 8px !important; 
-        padding: 15px !important; 
-    }}
-    div[data-testid="stPopoverBody"]:has(h3) {{
-        width: 710px !important; /* 29% MAS ANCHO COMO PEDISTE (antes 550px) */
-        max-width: 95vw !important;
-        max-height: 85vh !important;
-        margin-top: 100px !important;
-        overflow-y: auto !important;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.3) !important;
-    }}
+    div[data-testid="stPopoverBody"] {{ background-color: {card_bg} !important; border: 1px solid {border_color} !important; border-radius: 8px !important; padding: 15px !important; }}
+    div[data-testid="stPopoverBody"]:has(h3) {{ width: 710px !important; max-width: 95vw !important; max-height: 85vh !important; margin-top: 100px !important; overflow-y: auto !important; box-shadow: 0 4px 20px rgba(0,0,0,0.3) !important; }}
 
     .calendar-wrapper {{ background: {card_bg} !important; padding: 10px !important; border-radius: 15px !important; border: 1px solid {border_color} !important; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1) !important; }}
     .txt-dias-sem {{ font-size: {TXT_DIAS_SEM_SIZE}px !important; font-weight: bold !important; color: {c_dias_sem} !important; text-align: center !important; }}
@@ -688,7 +662,6 @@ c1, c2, c_img, c_not, c_espacio = st.columns([1.5, 0.5, 2.5, 0.6, 3.4])
 
 with c1:
     st.markdown(f'<div class="lbl-input">{LBL_INPUT}</div>', unsafe_allow_html=True)
-    # 🔴 SOLUCIÓN: FORMULARIO PARA QUE SOLO SE ACTIVE CON ENTER 🔴
     with st.form("form_balance", border=False):
         st.number_input("Balance", value=bal_actual, format="%.2f", key="input_balance", label_visibility="collapsed")
         guardar_btn = st.form_submit_button("✅ ENTER (Guardar)")
@@ -719,7 +692,6 @@ with c_img:
         for img in archivos:
             lista_b64.append(f"data:{img.type};base64,{convertir_img_base64(img)}")
         
-        # 🔴 SOLUCIÓN: REEMPLAZAR EN VEZ DE EXTENDER PARA EVITAR DUPLICADOS INFINITOS 🔴
         db_usuario[ctx]["trades"][clave_actual]["imagenes"] = lista_b64
 
 with c_not:
@@ -732,21 +704,17 @@ with c_not:
         else:
             trade_data_ref = db_usuario[ctx]["trades"][clave_actual]
             
-            # BIAS
             bias_options = ['ALCISTA', 'BAJISTA', 'NEUTRO']
             colorful_menu(bias_options, "Bias", 'bias', trade_data_ref)
             st.markdown("<br>", unsafe_allow_html=True)
             
-            # CONFLUENCIAS
             confluencias_options = ['1. BIAS Claro', '2. Liq Sweep', '4. IFVG', '3. FVG', 'EQH / EQL', 'BSL / SSL', 'PO3', 'SMT', 'Breaker Block', 'Descuento', 'Order Block', 'NYMO', 'PDH', 'PDL', 'Inducement', 'Turtle Soup', 'Continuación', 'Reversal', 'Data High', 'Data Low', 'CISD', 'Nada']
             colorful_multiselect(confluencias_options, "Confluencias", 'confluencias', trade_data_ref)
             st.markdown("<br>", unsafe_allow_html=True)
 
-            # RAZÓN Y CORRECCIONES
             trade_data_ref['razon_trade'] = st.text_area("Razón del Trade", value=trade_data_ref.get('razon_trade', ''), key=f"razon_main", height=80)
             trade_data_ref['correcciones'] = st.text_area("Correcciones", value=trade_data_ref.get('correcciones', ''), key=f"corr_main", height=80)
             
-            # RISK Y RR
             risk_options = ['0.6%', '0.5%', '0.4%']
             colorful_menu(risk_options, "% Risk", 'risk', trade_data_ref)
             st.markdown("<br>", unsafe_allow_html=True)
@@ -755,7 +723,6 @@ with c_not:
             colorful_menu(rrr_options, "RR", 'rrr', trade_data_ref)
             st.markdown("<br>", unsafe_allow_html=True)
             
-            # 🔴 SOLUCIÓN: TIPO DE TRADE EN BOTONES 🔴
             trade_type_options = ['A+', 'A', 'B', 'C']
             colorful_menu(trade_type_options, "Trade Type", 'trade_type', trade_data_ref)
             st.markdown("<br>", unsafe_allow_html=True)
@@ -927,10 +894,12 @@ with st.expander("🛠️ OPEN ORDER HISTORY", expanded=False):
                 mes_actual_dibujado = nombre_mes_grp
 
             pnl_val = float(data['pnl'])
-            color_pnl = "#00C897" if pnl_val > 0 else ("#FF4C4C" if pnl_val < 0 else "gray")
+            
+            # 🟢 SOLUCIÓN: TÍTULO DEL EXPANDER CON COLORES DE STREAMLIT (Markdown) 🔴
+            color_md = "green" if pnl_val > 0 else ("red" if pnl_val < 0 else "gray")
             simbolo = "+" if pnl_val > 0 else ""
             
-            with st.expander(f"📅 {data['fecha_str']} | P&L: {simbolo}${pnl_val:,.2f}"):
+            with st.expander(f"📅 {data['fecha_str']} | P&L: :{color_md}[{simbolo}${pnl_val:,.2f}]"):
                 c_ed1, c_ed2, c_ed3 = st.columns(3)
                 
                 with c_ed1:
@@ -938,12 +907,27 @@ with st.expander("🛠️ OPEN ORDER HISTORY", expanded=False):
                 with c_ed2:
                     nuevo_bal = st.number_input("Nuevo Balance", value=float(data['balance_final']), format="%.2f", key=f"b_{clave}")
                 with c_ed3:
-                    st.markdown(f"**Profit / Loss:** <span style='color:{color_pnl}; font-weight:900; font-size:18px;'>{simbolo}${pnl_val:,.2f}</span>", unsafe_allow_html=True)
-                    nuevo_pnl = st.number_input("Editar P&L", value=pnl_val, format="%.2f", key=f"p_{clave}", label_visibility="collapsed")
+                    nuevo_pnl = st.number_input("Editar P&L", value=pnl_val, format="%.2f", key=f"p_{clave}")
                 
                 st.markdown("---")
-                st.markdown("**📸:**")
+                st.markdown("**📸 Imágenes Guardadas:**")
                 
+                # 🟢 SOLUCIÓN: LÓGICA INSTANTÁNEA PARA LAS NUEVAS IMÁGENES 🟢
+                counter_key = f"upd_counter_{clave}"
+                if counter_key not in st.session_state:
+                    st.session_state[counter_key] = 0
+                
+                upd_key = f"upd_{clave}_{st.session_state[counter_key]}"
+                nuevas_imgs = st.file_uploader("Agregar más fotos (se guardan automáticamente)", accept_multiple_files=True, key=upd_key)
+                
+                # Si arrastra algo, lo agrega al instante a la lista principal, limpia el uploader y recarga
+                if nuevas_imgs:
+                    for img in nuevas_imgs:
+                        data["imagenes"].append(f"data:{img.type};base64,{convertir_img_base64(img)}")
+                    db_usuario[ctx]["trades"][clave]["imagenes"] = data["imagenes"]
+                    st.session_state[counter_key] += 1
+                    st.rerun()
+
                 imagenes_restantes = data.get("imagenes", []).copy()
                 
                 if imagenes_restantes:
@@ -958,18 +942,11 @@ with st.expander("🛠️ OPEN ORDER HISTORY", expanded=False):
                 else:
                     st.caption("No hay imágenes guardadas en este día.")
                 
-                st.markdown("<br>", unsafe_allow_html=True)
-                nuevas_imgs = st.file_uploader("Add more photos to this day", accept_multiple_files=True, key=f"upd_{clave}")
-                
                 st.markdown("---")
                 c_btn1, c_btn2 = st.columns(2)
                 
                 with c_btn1:
                     if st.button("💾 SAVE TODAY'S CHANGES", key=f"save_{clave}", use_container_width=True):
-                        if nuevas_imgs:
-                            for img in nuevas_imgs:
-                                imagenes_restantes.append(f"data:{img.type};base64,{convertir_img_base64(img)}")
-                        
                         nueva_clave = (nueva_fecha.year, nueva_fecha.month, nueva_fecha.day)
                         
                         if nueva_clave != clave:
@@ -1068,11 +1045,12 @@ if mostrar_tabla:
         st.session_state.current_table_keys = keys_list
         df_results = pd.DataFrame(table_data)
         
+        # 🟢 SOLUCIÓN: COLOREAR SOLAMENTE LA COLUMNA DE P&L 🟢
         def style_rows(row):
             pnl_str = row['P&L']
             
-            base_style = f'color: {c_dash};'
-            row_styles = [base_style] * len(row)
+            # String vacío para dejar que Streamlit decida el color del texto por defecto
+            row_styles = [''] * len(row) 
             
             if pnl_str.startswith('+$'):
                 pnl_style = 'color: #00C897; font-weight: bold;'
