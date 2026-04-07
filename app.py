@@ -20,8 +20,8 @@ db_global = get_global_db()
 
 def inicializar_data_usuario():
     return {
-        "Real Data": {"balance": 25000.00, "trades": {}},
-        "Demo Data": {"balance": 25000.00, "trades": {}}
+        "Account Real": {"balance": 25000.00, "trades": {}},
+        "Account Demo": {"balance": 25000.00, "trades": {}}
     }
 
 if "usuario_actual" not in st.session_state:
