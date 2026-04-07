@@ -623,60 +623,16 @@ st.markdown(f"""
     .txt-red {{ color: #FF4C4C !important; }}
     .txt-gray {{ color: gray !important; }}
     
-    /* ========================================================= */
-    /* RESPONSIVE (MÓVIL) - BLOQUE EXTREMO REESCRITO */
-    /* ========================================================= */
     @media (max-width: 768px) {{
-        /* General Resets */
-        .dashboard-title {{ font-size: 36px !important; margin: 0 auto 15px auto !important; text-align: center !important; transform: none !important; }}
-        .lbl-total-bal, .lbl-filtros, .lbl-data, .lbl-input {{ transform: translate(0, 0) !important; text-align: center !important; width: 100% !important; margin-bottom: 5px !important; }}
-        .balance-box {{ width: 100% !important; margin: 0 auto 15px auto !important; transform: translate(0,0) !important; }}
-        .thin-line {{ width: 100% !important; transform: translateX(0) !important; }}
-        
-        /* Input Row (Balance, Cal, Upload, Notes) se ajustan al 100% y se apilan */
-        div[data-testid="stNumberInput"] {{ width: 100% !important; min-width: 100% !important; max-width: 100% !important; margin: 0 !important; }}
-        div[data-testid="stFormSubmitButton"] button {{ width: 100% !important; margin: 5px 0 0 0 !important; }}
-        div[data-testid="stPopover"] {{ width: 100% !important; min-width: 100% !important; max-width: 100% !important; margin-bottom: 10px !important; }}
-        div[data-testid="stPopover"] > button, div[data-testid="stPopover"] > div > button {{ width: 100% !important; min-width: 100% !important; max-width: 100% !important; position: relative !important; }}
-        [data-testid="stFileUploader"] {{ transform: translate(0, 0) !important; width: 100% !important; min-width: 100% !important; margin-bottom: 10px !important; }}
-        [data-testid="stFileUploadDropzone"] button {{ width: 100% !important; min-width: 100% !important; max-width: 100% !important; }}
-
-        /* CALENDARIO MÓVIL: Forzar sí o sí 7 columnas horizontales para que no se apilen 49 cajas hacia abajo */
-        div[data-testid="stHorizontalBlock"]:has(.txt-dias-sem),
-        div[data-testid="stHorizontalBlock"]:has(.card) {{ flex-wrap: nowrap !important; gap: 2px !important; }}
-        
-        div[data-testid="stHorizontalBlock"]:has(.txt-dias-sem) > div[data-testid="column"],
-        div[data-testid="stHorizontalBlock"]:has(.card) > div[data-testid="column"] {{
-            width: 14.28% !important; min-width: 0 !important; flex: 1 1 14.28% !important;
-        }}
-
-        /* Ajustes miniatura para que todo entre en el calendario forzado a 7 columnas */
-        .txt-dias-sem {{ font-size: 11px !important; }}
-        .card {{ min-height: 70px !important; padding: 2px !important; }}
-        .day-number {{ font-size: 12px !important; top: 2px !important; left: 4px !important; }}
-        .day-pnl {{ font-size: 11px !important; word-wrap: break-word; }}
-        .day-pct {{ font-size: 9px !important; }}
-        .day-content {{ transform: translateY(0) !important; padding-top: 0 !important; }}
-        .cam-icon {{ font-size: 16px !important; bottom: 2px !important; transform: translateX(-50%) !important;}}
-        .note-icon {{ font-size: 16px !important; top: 2px !important; right: 2px !important;}}
-        
-        /* Flechas para cambiar de mes centradas */
-        div[data-testid="column"]:first-child button, 
-        div[data-testid="column"]:nth-child(3) button {{ transform: translate(0,0) !important; font-size: 25px !important; }}
-
-        /* Tarjetas de Métricas (All-Time / Monthly) reseteadas a tamaño normal móvil */
-        .card-pnl, .card-win {{ width: 100% !important; transform: translate(0, 0) !important; height: auto !important; margin-top: 10px !important; }}
-        .card-win div[style*="transform"] {{ transform: translateY(0) !important; }} /* Resetear offset Y oculto del pie chart */
-        
-        /* Contenedores de Semanas divididos al 48% para que queden de a dos */
-        .weeks-container {{ transform: translate(0, 0) !important; display: flex !important; flex-wrap: wrap !important; justify-content: space-between !important; margin-top: 10px !important; }}
-        .wk-box {{ width: 48% !important; height: auto !important; padding: 10px !important; margin-bottom: 10px !important; }}
-        .mo-box {{ width: 100% !important; height: auto !important; padding: 15px !important; }}
-
-        /* Modales emergentes adaptados a la pantalla completa */
-        .fs-modal img {{ max-width: 95vw !important; max-height: 60vh !important; }}
-        .note-modal-content {{ width: 95vw !important; max-width: 95vw !important; margin-top: 20px !important; }}
-        .close-btn {{ top: 10px !important; right: 10px !important; font-size: 16px !important; padding: 5px 10px !important; }}
+        .dashboard-title {{ font-size: 38px !important; margin: 10px auto !important; text-align: center !important; line-height: 1 !important;}}
+        .lbl-total-bal, .lbl-filtros, .lbl-data, .lbl-input {{ transform: translate(0, 0) !important; text-align: center !important; width: 100% !important; margin-bottom: 10px !important;}}
+        .balance-box {{ width: 100% !important; margin: 0 auto 15px auto !important; transform: translate(0,0) !important;}}
+        div[data-testid="column"]:nth-child(1) div[data-testid="stNumberInput"], div[data-testid="column"]:nth-child(1) [data-testid="stFormSubmitButton"] button {{ width: 100% !important; max-width: 100% !important; margin: 0 !important; }}
+        [data-testid="stFileUploadDropzone"] {{ width: 100% !important; transform: translate(0, 0) !important; }}
+        div[data-testid="column"]:nth-child(2) div[data-testid="stPopover"] > button, div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] > button {{ width: 100% !important; margin-top: 5px !important; }}
+        .weeks-container {{ transform: translate(0, 0) !important; flex-wrap: wrap !important; justify-content: space-between !important; }}
+        .wk-box {{ width: 48% !important; margin-bottom: 5px !important; }}
+        .mo-box {{ width: 100% !important; }}
     }}
     </style>
     """, unsafe_allow_html=True)
