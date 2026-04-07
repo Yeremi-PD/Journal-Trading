@@ -1014,7 +1014,7 @@ with st.expander("🛠️ OPEN ORDER HISTORY", expanded=False):
             
             nombre_mes_grp = f"{calendar.month_name[mes_t]} {anio_t}"
             if nombre_mes_grp != mes_actual_dibujado:
-                st.markdown(f"<h4 style='color:{c_dash}; margin-top:15px; border-bottom:1px solid gray; padding-bottom:5px;'>🗓️ {nombre_mes_grp}</h4>", unsafe_allow_html=True)
+                st.markdown(f"<h4 style='color:{c_dash}; margin-top:15px; border-bottom:1px solid gray; padding-bottom:5px;'>aaa🗓️ {nombre_mes_grp}</h4>", unsafe_allow_html=True)
                 mes_actual_dibujado = nombre_mes_grp
 
             pnl_val = float(data['pnl'])
