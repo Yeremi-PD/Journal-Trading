@@ -27,36 +27,21 @@ def inicializar_data_usuario():
 
 def inicializar_settings():
     return {
-        "size_top_stats": 18,
-        "size_card_titles": 20,
-        "size_box_titles": 20,
-        "size_box_vals": 25,
-        "size_box_pct": 20,
-        "size_box_wl": 14,
-        "pie_size": 120,
-        "pie_y_offset": 0,
-        "cal_mes_size": 28,
-        "cal_pnl_size": 30,
-        "cal_pct_size": 25,
-        "cal_dia_size": 20,
-        "cal_cam_size": 30,
-        "cal_scale": 100,
-        # Nuevos ajustes del Dashboard
-        "btn_up_sz": 20,
-        "btn_up_h": 45,
-        "btn_up_x": 0,
-        "btn_up_y": 0,
-        "btn_save_sz": 16,
-        "btn_save_h": 35,
-        "btn_save_x": 0,
-        "btn_save_y": 5,
-        "btn_cal_sz": 33,
-        "btn_cal_h": 68,
-        "btn_cal_x": 0,
-        "btn_cal_y": 0,
-        "bal_num_sz": 30,
-        "bal_box_w": 50,
-        "bal_box_pad": 10
+        # Dashboard
+        "btn_up_sz": 20, "btn_up_w": 120, "btn_up_h": 45, "btn_up_x": 0, "btn_up_y": 0,
+        "btn_save_sz": 16, "btn_save_w": 200, "btn_save_h": 35, "btn_save_x": 0, "btn_save_y": 5,
+        "btn_cal_sz": 33, "btn_cal_w": 68, "btn_cal_h": 68, "btn_cal_x": 0, "btn_cal_y": 0,
+        "btn_not_sz": 18, "btn_not_w": 50, "btn_not_h": 50, "btn_not_x": 0, "btn_not_y": 8,
+        "bal_num_sz": 30, "bal_box_w": 50, "bal_box_pad": 10,
+        
+        # Textos y Gráficos
+        "size_top_stats": 18, "size_card_titles": 20, "size_box_titles": 20,
+        "size_box_vals": 25, "size_box_pct": 20, "size_box_wl": 14,
+        "pie_size": 120, "pie_y_offset": 0,
+        
+        # Calendario
+        "cal_mes_size": 28, "cal_pnl_size": 30, "cal_pct_size": 25,
+        "cal_dia_size": 20, "cal_cam_size": 30, "cal_scale": 100, "cal_line_height": 1.2
     }
 
 if "usuario_actual" not in st.session_state:
@@ -146,11 +131,6 @@ LBL_INPUT_Y = 0
 LBL_INPUT_COLOR_C = "#000000"
 LBL_INPUT_COLOR_O = "#FFFFFF"
 
-INPUT_BAL_W = "200px"         
-INPUT_BAL_H = "60px"          
-INPUT_BAL_X = 0      
-INPUT_BAL_Y = 0      
-INPUT_BAL_TXT_SIZE = 25       
 INPUT_FONDO_C = "#FFFFFF"
 INPUT_FONDO_O = "#1A202C"
 
@@ -161,11 +141,6 @@ LBL_BAL_TOTAL_Y = 0
 LBL_BAL_TOTAL_COLOR_C = "#000000"
 LBL_BAL_TOTAL_COLOR_O = "#FFFFFF"
 
-BALANCE_SIZE = 30  
-BALANCE_BOX_W = 50  
-BALANCE_BOX_X = 0     
-BALANCE_BOX_Y = 0     
-
 LINEA_GROSOR = 1.5             
 LINEA_ANCHO = 100              
 LINEA_X = 0                    
@@ -174,28 +149,18 @@ LINEA_MARGEN_INF = 25
 LINEA_COLOR_C = "#E2E8F0"
 LINEA_COLOR_O = "#4A5568"
 
-DROPZONE_W = "100%"
-DROPZONE_H = "75px"            
-DROPZONE_X = 0
-DROPZONE_Y = 0
 DROPZONE_BG_C = "transparent"  
 DROPZONE_BG_O = "transparent"
 DROPZONE_BORDER_C = "1px dashed #E2E8F0"  
 DROPZONE_BORDER_O = "1px dashed #4A5568"
 
 BTN_UP_TEXTO = "Upload"
-BTN_UP_SIZE = "20px"
-BTN_UP_W = "120px"             
-BTN_UP_H = "45px"              
 BTN_UP_BG_C = "#E2E8F0"        
 BTN_UP_BG_O = "#4A5568"
 BTN_UP_TXT_C = "#000000"      
 BTN_UP_TXT_O = "#FFFFFF"
 
 BTN_CAL_EMOJI = "🗓️"
-BTN_CAL_W = 68     
-BTN_CAL_H = 68    
-BTN_CAL_ICON_SIZE = 33 
 BTN_CAL_BG_C = "#F3F4F6"
 BTN_CAL_BG_O = "#2D3748"
 
@@ -205,46 +170,26 @@ FLECHAS_Y = 0
 
 TXT_MES_COLOR_C = "#000000"
 TXT_MES_COLOR_O = "#FFFFFF"
-
-TXT_DIAS_SEM_SIZE = 15
 TXT_DIAS_SEM_COLOR_C = "#000000"
 TXT_DIAS_SEM_COLOR_O = "#FFFFFF"
-
 TXT_NUM_DIA_COLOR_C = "#000000"
 TXT_NUM_DIA_COLOR_O = "#c0c0c0"
-
 TXT_PCT_DIA_COLOR_C = "#000000"
 TXT_PCT_DIA_COLOR_O = "#000000"
 
 BTN_CAM_EMOJI = "📷"
-BTN_CAM_X = 0
-BTN_CAM_Y = 2
 BTN_CAM_BG_C = "rgba(0,0,0,0)"
 BTN_CAM_BG_O = "rgba(0,0,0,0)"
 TXT_CERRAR_MODAL = "✖ CERRAR"
 
-BTN_NOTAS_TOP = "-5px"
-BTN_NOTAS_RIGHT = "-5px"
-BTN_NOTAS_SIZE = 18
-
 CARD_PNL_TITULO = "Net P&L Monthly"
 CARD_PNL_TITULO_COLOR_C = "#000000"
 CARD_PNL_TITULO_COLOR_O = "#FFFFFF"
-CARD_PNL_W = "100%"     
-CARD_PNL_H = "auto"     
-CARD_PNL_X = 0          
-CARD_PNL_Y = 0          
-
 CARD_WIN_TITULO = "Win Rate Monthly"
 CARD_WIN_TITULO_COLOR_C = "#000000"
 CARD_WIN_TITULO_COLOR_O = "#FFFFFF"
-CARD_WIN_VALOR_SIZE = 28
 CARD_WIN_VALOR_COLOR_C = "#000000"
 CARD_WIN_VALOR_COLOR_O = "#FFFFFF"
-CARD_WIN_W = "100%"     
-CARD_WIN_H = "auto"     
-CARD_WIN_X = 0          
-CARD_WIN_Y = 0          
 
 TXT_W1 = "Week 1"
 TXT_W2 = "Week 2"
@@ -253,17 +198,8 @@ TXT_W4 = "Week 4"
 TXT_W5 = "Week 5"
 TXT_W6 = "Week 6"
 TXT_MO = "Month"
-
 WEEKS_TITULOS_COLOR_C = "#000000"
 WEEKS_TITULOS_COLOR_O = "#FFFFFF"
-WEEK_BOX_W = "31%"          
-WEEK_BOX_H = "120px"         
-Month_BOX_W = "100%"        
-Month_BOX_H = "120px"        
-WEEKS_CONTENEDOR_X = 0      
-WEEKS_CONTENEDOR_Y = 15     
-WEEK_ALIGN = "center"        
-
 
 # ==========================================
 # 4. LÓGICA DE ESTADO Y AJUSTES
@@ -343,11 +279,23 @@ def procesar_cambio():
 def convertir_img_base64(uploaded_file):
     return base64.b64encode(uploaded_file.getvalue()).decode()
 
+def reset_settings(category):
+    defaults = inicializar_settings()
+    if category == "dash":
+        keys = ["btn_up_sz", "btn_up_w", "btn_up_h", "btn_up_x", "btn_up_y", "btn_save_sz", "btn_save_w", "btn_save_h", "btn_save_x", "btn_save_y", "btn_cal_sz", "btn_cal_w", "btn_cal_h", "btn_cal_x", "btn_cal_y", "btn_not_sz", "btn_not_w", "btn_not_h", "btn_not_x", "btn_not_y", "bal_num_sz", "bal_box_w", "bal_box_pad"]
+    elif category == "txt":
+        keys = ["size_top_stats", "size_card_titles", "size_box_titles", "size_box_vals", "size_box_pct", "size_box_wl", "pie_size", "pie_y_offset"]
+    elif category == "cal":
+        keys = ["cal_mes_size", "cal_pnl_size", "cal_pct_size", "cal_dia_size", "cal_cam_size", "cal_scale", "cal_line_height"]
+    
+    for k in keys:
+        user_settings[k] = defaults[k]
+
 # ==========================================
 # 5. BARRA LATERAL (AJUSTES Y ADMIN)
 # ==========================================
 st.sidebar.markdown(f"### 👤 My Account: {usuario}")
-st.session_state.dispositivo_actual = st.sidebar.radio("💻📱 Perfil de Dispositivo", ["PC", "Móvil"], index=0 if st.session_state.dispositivo_actual == "PC" else 1)
+st.session_state.dispositivo_actual = st.sidebar.radio("⚙️ Editando Perfil de Diseño para:", ["PC", "Móvil"], index=0 if st.session_state.dispositivo_actual == "PC" else 1, help="Cambiar esto no afecta la vista al instante, pero determina qué variables mueven los sliders. La vista se adapta sola al celular.")
 
 st.sidebar.markdown("---")
 st.sidebar.markdown("### 📊 Metrics")
@@ -382,9 +330,46 @@ if admin_pass == "725166":
                 st.session_state.usuario_actual = None
             st.rerun()
 
-# --- NUEVOS SLIDERS: AJUSTES DE TEXTOS, GRÁFICOS Y CALENDARIO ---
+# --- NUEVOS SLIDERS ORDENADOS ---
 st.sidebar.markdown("---")
+with st.sidebar.expander("🖥️ Ajustes de Dashboard"):
+    if st.button("🔄 Reset Dashboard", key="res_dash", use_container_width=True): reset_settings("dash"); st.rerun()
+    
+    st.write("**Botón UPLOAD**")
+    user_settings["btn_up_sz"] = st.slider("Tamaño Texto Upload", 10, 40, user_settings["btn_up_sz"])
+    user_settings["btn_up_w"] = st.slider("Ancho Botón Upload", 50, 300, user_settings["btn_up_w"])
+    user_settings["btn_up_h"] = st.slider("Altura Botón Upload", 20, 100, user_settings["btn_up_h"])
+    user_settings["btn_up_x"] = st.slider("Mover Upload Horiz (X)", -100, 100, user_settings["btn_up_x"])
+    user_settings["btn_up_y"] = st.slider("Mover Upload Vert (Y)", -100, 100, user_settings["btn_up_y"])
+    
+    st.write("**Botón SAVE**")
+    user_settings["btn_save_sz"] = st.slider("Tamaño Texto SAVE", 10, 40, user_settings["btn_save_sz"])
+    user_settings["btn_save_w"] = st.slider("Ancho Botón SAVE", 50, 400, user_settings["btn_save_w"])
+    user_settings["btn_save_h"] = st.slider("Altura Botón SAVE", 20, 100, user_settings["btn_save_h"])
+    user_settings["btn_save_x"] = st.slider("Mover SAVE Horiz (X)", -100, 100, user_settings["btn_save_x"])
+    user_settings["btn_save_y"] = st.slider("Mover SAVE Vert (Y)", -100, 100, user_settings["btn_save_y"])
+    
+    st.write("**Botón CALENDARIO**")
+    user_settings["btn_cal_sz"] = st.slider("Tamaño Emoji Calendario", 10, 60, user_settings["btn_cal_sz"])
+    user_settings["btn_cal_w"] = st.slider("Ancho Botón Calendario", 30, 150, user_settings["btn_cal_w"])
+    user_settings["btn_cal_h"] = st.slider("Altura Botón Calendario", 20, 120, user_settings["btn_cal_h"])
+    user_settings["btn_cal_x"] = st.slider("Mover Calendario Horiz (X)", -100, 100, user_settings["btn_cal_x"])
+    user_settings["btn_cal_y"] = st.slider("Mover Calendario Vert (Y)", -100, 100, user_settings["btn_cal_y"])
+
+    st.write("**Botón NOTAS (📝)**")
+    user_settings["btn_not_sz"] = st.slider("Tamaño Emoji Notas", 10, 60, user_settings["btn_not_sz"])
+    user_settings["btn_not_w"] = st.slider("Ancho Botón Notas", 30, 150, user_settings["btn_not_w"])
+    user_settings["btn_not_h"] = st.slider("Altura Botón Notas", 20, 120, user_settings["btn_not_h"])
+    user_settings["btn_not_x"] = st.slider("Mover Notas Horiz (X)", -100, 100, user_settings["btn_not_x"])
+    user_settings["btn_not_y"] = st.slider("Mover Notas Vert (Y)", -100, 100, user_settings["btn_not_y"])
+
+    st.write("**Caja ACCOUNT BALANCE**")
+    user_settings["bal_num_sz"] = st.slider("Tamaño Números Balance", 10, 60, user_settings["bal_num_sz"])
+    user_settings["bal_box_w"] = st.slider("Ancho Fondo Verde (%)", 10, 100, user_settings["bal_box_w"])
+    user_settings["bal_box_pad"] = st.slider("Altura Fondo Verde (Padding)", 0, 50, user_settings["bal_box_pad"])
+
 with st.sidebar.expander("🔠 Ajustes de Textos y Gráficos"):
+    if st.button("🔄 Reset Textos y Gráficos", key="res_txt", use_container_width=True): reset_settings("txt"); st.rerun()
     user_settings["size_top_stats"] = st.slider("Tamaño Monthly P&L y Win Rate (Top)", 10, 40, user_settings["size_top_stats"])
     user_settings["size_card_titles"] = st.slider("Tamaño Títulos (All-Time, etc)", 10, 40, user_settings["size_card_titles"])
     user_settings["size_box_titles"] = st.slider("Tamaño Títulos (Week/Month)", 10, 40, user_settings["size_box_titles"])
@@ -395,36 +380,14 @@ with st.sidebar.expander("🔠 Ajustes de Textos y Gráficos"):
     user_settings["pie_y_offset"] = st.slider("Posición Vertical Gráfico (Arriba/Abajo)", -100, 100, user_settings["pie_y_offset"])
 
 with st.sidebar.expander("📅 Ajustes de Calendario"):
+    if st.button("🔄 Reset Calendario", key="res_cal", use_container_width=True): reset_settings("cal"); st.rerun()
     user_settings["cal_mes_size"] = st.slider("Tamaño del Mes (Título)", 10, 50, user_settings["cal_mes_size"])
     user_settings["cal_pnl_size"] = st.slider("Tamaño P&L del Día", 10, 40, user_settings["cal_pnl_size"])
     user_settings["cal_pct_size"] = st.slider("Tamaño % del Día", 10, 30, user_settings["cal_pct_size"])
     user_settings["cal_dia_size"] = st.slider("Tamaño Número del Día", 10, 30, user_settings["cal_dia_size"])
     user_settings["cal_cam_size"] = st.slider("Tamaño Icono Cámara", 10, 50, user_settings["cal_cam_size"])
     user_settings["cal_scale"] = st.slider("Escala General (Altura del Calendario)", 50, 200, user_settings["cal_scale"])
-
-with st.sidebar.expander("🖥️ Ajustes de Dashboard"):
-    st.write("**Botón UPLOAD**")
-    user_settings["btn_up_sz"] = st.slider("Tamaño Texto Upload", 10, 40, user_settings["btn_up_sz"])
-    user_settings["btn_up_h"] = st.slider("Altura Botón Upload", 20, 100, user_settings["btn_up_h"])
-    user_settings["btn_up_x"] = st.slider("Mover Upload Horiz (X)", -100, 100, user_settings["btn_up_x"])
-    user_settings["btn_up_y"] = st.slider("Mover Upload Vert (Y)", -100, 100, user_settings["btn_up_y"])
-    
-    st.write("**Botón SAVE**")
-    user_settings["btn_save_sz"] = st.slider("Tamaño Texto SAVE", 10, 40, user_settings["btn_save_sz"])
-    user_settings["btn_save_h"] = st.slider("Altura Botón SAVE", 20, 100, user_settings["btn_save_h"])
-    user_settings["btn_save_x"] = st.slider("Mover SAVE Horiz (X)", -100, 100, user_settings["btn_save_x"])
-    user_settings["btn_save_y"] = st.slider("Mover SAVE Vert (Y)", -100, 100, user_settings["btn_save_y"])
-    
-    st.write("**Botón CALENDARIO**")
-    user_settings["btn_cal_sz"] = st.slider("Tamaño Emoji Calendario", 10, 60, user_settings["btn_cal_sz"])
-    user_settings["btn_cal_h"] = st.slider("Altura Botón Calendario", 20, 120, user_settings["btn_cal_h"])
-    user_settings["btn_cal_x"] = st.slider("Mover Calendario Horiz (X)", -100, 100, user_settings["btn_cal_x"])
-    user_settings["btn_cal_y"] = st.slider("Mover Calendario Vert (Y)", -100, 100, user_settings["btn_cal_y"])
-
-    st.write("**Caja ACCOUNT BALANCE**")
-    user_settings["bal_num_sz"] = st.slider("Tamaño Números Balance", 10, 60, user_settings["bal_num_sz"])
-    user_settings["bal_box_w"] = st.slider("Ancho Fondo Verde (%)", 10, 100, user_settings["bal_box_w"])
-    user_settings["bal_box_pad"] = st.slider("Altura Fondo Verde (Padding)", 0, 50, user_settings["bal_box_pad"])
+    user_settings["cal_line_height"] = st.slider("Altura entre Textos (Espaciado)", 0.5, 3.0, user_settings["cal_line_height"], 0.1)
 
 # --- BOTÓN DE LOG OUT (SIEMPRE AL FINAL) ---
 st.sidebar.markdown("<br><br><br>", unsafe_allow_html=True)
@@ -437,79 +400,75 @@ if st.sidebar.button("🚪 Log Out", use_container_width=True):
 # ==========================================
 if st.session_state.tema == "Claro":
     bg_color, card_bg, border_color, empty_cell_bg = "#F7FAFC", "#FFFFFF", "#E2E8F0", "#FFFFFF"
-    
-    c_dash = TXT_DASH_COLOR_C
-    c_filtros = LBL_FILTROS_COLOR_C
-    c_opt_filtros = OPT_FILTROS_COLOR_C   
-    c_data = LBL_DATA_COLOR_C
-    c_opt_data = OPT_DATA_COLOR_C         
-    c_lbl_bal = LBL_BAL_TOTAL_COLOR_C
-    c_lbl_in = LBL_INPUT_COLOR_C
-    c_mes = TXT_MES_COLOR_C
-    c_dias_sem = TXT_DIAS_SEM_COLOR_C
-    c_num_dia = TXT_NUM_DIA_COLOR_C
-    c_pct_dia = TXT_PCT_DIA_COLOR_C
-    c_tit_pnl = CARD_PNL_TITULO_COLOR_C
-    c_tit_win = CARD_WIN_TITULO_COLOR_C
-    c_val_win = CARD_WIN_VALOR_COLOR_C
-    
-    btn_bg = BTN_CAL_BG_C
-    btn_txt = "#000000" 
-    input_bg = INPUT_FONDO_C
-    
-    drop_bg = DROPZONE_BG_C
-    drop_border = DROPZONE_BORDER_C
-    u_btn_bg = BTN_UP_BG_C
-    u_btn_txt = BTN_UP_TXT_C
-    
-    wk_tit_c = WEEKS_TITULOS_COLOR_C
-    c_cam_bg = BTN_CAM_BG_C
-    c_linea = LINEA_COLOR_C
+    c_dash, c_filtros, c_opt_filtros = TXT_DASH_COLOR_C, LBL_FILTROS_COLOR_C, OPT_FILTROS_COLOR_C   
+    c_data, c_opt_data, c_lbl_bal, c_lbl_in = LBL_DATA_COLOR_C, OPT_DATA_COLOR_C, LBL_BAL_TOTAL_COLOR_C, LBL_INPUT_COLOR_C
+    c_mes, c_dias_sem, c_num_dia, c_pct_dia = TXT_MES_COLOR_C, TXT_DIAS_SEM_COLOR_C, TXT_NUM_DIA_COLOR_C, TXT_PCT_DIA_COLOR_C
+    c_tit_pnl, c_tit_win, c_val_win = CARD_PNL_TITULO_COLOR_C, CARD_WIN_TITULO_COLOR_C, CARD_WIN_VALOR_COLOR_C
+    btn_bg, btn_txt, input_bg = BTN_CAL_BG_C, "#000000", INPUT_FONDO_C
+    drop_bg, drop_border, u_btn_bg, u_btn_txt = DROPZONE_BG_C, DROPZONE_BORDER_C, BTN_UP_BG_C, BTN_UP_TXT_C
+    wk_tit_c, c_cam_bg, c_linea = WEEKS_TITULOS_COLOR_C, BTN_CAM_BG_C, LINEA_COLOR_C
 else:
     bg_color, card_bg, border_color, empty_cell_bg = "#1A202C", "#2D3748", "#4A5568", "#1A202C"
-    
-    c_dash = TXT_DASH_COLOR_O
-    c_filtros = LBL_FILTROS_COLOR_O
-    c_opt_filtros = OPT_FILTROS_COLOR_O   
-    c_data = LBL_DATA_COLOR_O
-    c_opt_data = OPT_DATA_COLOR_O         
-    c_lbl_bal = LBL_BAL_TOTAL_COLOR_O
-    c_lbl_in = LBL_INPUT_COLOR_O
-    c_mes = TXT_MES_COLOR_O
-    c_dias_sem = TXT_DIAS_SEM_COLOR_O
-    c_num_dia = TXT_NUM_DIA_COLOR_O
-    c_pct_dia = TXT_PCT_DIA_COLOR_O
-    c_tit_pnl = CARD_PNL_TITULO_COLOR_O
-    c_tit_win = CARD_WIN_TITULO_COLOR_O
-    c_val_win = CARD_WIN_VALOR_COLOR_O
-    
-    btn_bg = BTN_CAL_BG_O
-    btn_txt = "#FFFFFF" 
-    input_bg = INPUT_FONDO_O
-    
-    drop_bg = DROPZONE_BG_O
-    drop_border = DROPZONE_BORDER_O
-    u_btn_bg = BTN_UP_BG_O
-    u_btn_txt = BTN_UP_TXT_O
-    
-    wk_tit_c = WEEKS_TITULOS_COLOR_O
-    c_cam_bg = BTN_CAM_BG_O
-    c_linea = LINEA_COLOR_O
-
-# Variables auxiliares para los f-strings CSS
-sz_dia = user_settings["cal_dia_size"]
-sz_pnl = user_settings["cal_pnl_size"]
-sz_pct = user_settings["cal_pct_size"]
-sz_cam = user_settings["cal_cam_size"]
-sz_scl = user_settings["cal_scale"]
-sz_tit = user_settings["size_card_titles"]
+    c_dash, c_filtros, c_opt_filtros = TXT_DASH_COLOR_O, LBL_FILTROS_COLOR_O, OPT_FILTROS_COLOR_O   
+    c_data, c_opt_data, c_lbl_bal, c_lbl_in = LBL_DATA_COLOR_O, OPT_DATA_COLOR_O, LBL_BAL_TOTAL_COLOR_O, LBL_INPUT_COLOR_O
+    c_mes, c_dias_sem, c_num_dia, c_pct_dia = TXT_MES_COLOR_O, TXT_DIAS_SEM_COLOR_O, TXT_NUM_DIA_COLOR_O, TXT_PCT_DIA_COLOR_O
+    c_tit_pnl, c_tit_win, c_val_win = CARD_PNL_TITULO_COLOR_O, CARD_WIN_TITULO_COLOR_O, CARD_WIN_VALOR_COLOR_O
+    btn_bg, btn_txt, input_bg = BTN_CAL_BG_O, "#FFFFFF", INPUT_FONDO_O
+    drop_bg, drop_border, u_btn_bg, u_btn_txt = DROPZONE_BG_O, DROPZONE_BORDER_O, BTN_UP_BG_O, BTN_UP_TXT_O
+    wk_tit_c, c_cam_bg, c_linea = WEEKS_TITULOS_COLOR_O, BTN_CAM_BG_O, LINEA_COLOR_O
 
 # ==========================================
-# 7. INYECCIÓN DE CSS DINÁMICO
+# 7. INYECCIÓN DE CSS DINÁMICO VARIABLES CSS
 # ==========================================
+def gen_css_vars(s):
+    return f"""
+    --size-top-stats: {s['size_top_stats']}px;
+    --size-card-titles: {s['size_card_titles']}px;
+    --size-box-titles: {s['size_box_titles']}px;
+    --size-box-vals: {s['size_box_vals']}px;
+    --size-box-pct: {s['size_box_pct']}px;
+    --size-box-wl: {s['size_box_wl']}px;
+    --pie-size: {s['pie_size']}px;
+    --pie-y-offset: {s['pie_y_offset']}px;
+    --cal-mes-size: {s['cal_mes_size']}px;
+    --cal-pnl-size: {s['cal_pnl_size']}px;
+    --cal-pct-size: {s['cal_pct_size']}px;
+    --cal-dia-size: {s['cal_dia_size']}px;
+    --cal-cam-size: {s['cal_cam_size']}px;
+    --cal-scale: {s['cal_scale']}px;
+    --cal-line-height: {s['cal_line_height']};
+    --btn-up-sz: {s['btn_up_sz']}px;
+    --btn-up-w: {s['btn_up_w']}px;
+    --btn-up-h: {s['btn_up_h']}px;
+    --btn-up-x: {s['btn_up_x']}px;
+    --btn-up-y: {s['btn_up_y']}px;
+    --btn-save-sz: {s['btn_save_sz']}px;
+    --btn-save-w: {s['btn_save_w']}px;
+    --btn-save-h: {s['btn_save_h']}px;
+    --btn-save-x: {s['btn_save_x']}px;
+    --btn-save-y: {s['btn_save_y']}px;
+    --btn-cal-sz: {s['btn_cal_sz']}px;
+    --btn-cal-w: {s['btn_cal_w']}px;
+    --btn-cal-h: {s['btn_cal_h']}px;
+    --btn-cal-x: {s['btn_cal_x']}px;
+    --btn-cal-y: {s['btn_cal_y']}px;
+    --btn-not-sz: {s['btn_not_sz']}px;
+    --btn-not-w: {s['btn_not_w']}px;
+    --btn-not-h: {s['btn_not_h']}px;
+    --btn-not-x: {s['btn_not_x']}px;
+    --btn-not-y: {s['btn_not_y']}px;
+    --bal-num-sz: {s['bal_num_sz']}px;
+    --bal-box-w: {s['bal_box_w']}%;
+    --bal-box-pad: {s['bal_box_pad']}px;
+    """
+
 st.markdown(f"""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    
+    :root {{ {gen_css_vars(db_global[usuario]["settings"]["PC"])} }}
+    @media (max-width: 768px) {{ :root {{ {gen_css_vars(db_global[usuario]["settings"]["Móvil"])} }} }}
+
     .stApp {{ background-color: {bg_color} !important; font-family: 'Inter', sans-serif !important; }}
     
     div[data-testid="column"] {{ overflow: visible !important; position: relative !important; }}
@@ -521,91 +480,68 @@ st.markdown(f"""
     .lbl-data {{ font-size: {LBL_DATA_SIZE}px !important; color: {c_data} !important; font-weight: 700 !important; transform: translate({LBL_DATA_X}px, {LBL_DATA_Y}px) !important; margin-bottom: 5px !important; }}
     .lbl-input {{ font-size: {LBL_INPUT_SIZE}px !important; color: {c_lbl_in} !important; font-weight: 700 !important; transform: translate({LBL_INPUT_X}px, {LBL_INPUT_Y}px) !important; margin-bottom: 5px !important; }}
     
-    .balance-box {{ background: #00C897 !important; color: white !important; padding: {user_settings['bal_box_pad']}px 0px !important; border-radius: 80px !important; text-align: center !important; font-weight: 700 !important; font-size: {user_settings['bal_num_sz']}px !important; margin-left: {BALANCE_BOX_X}px !important; margin-top: {BALANCE_BOX_Y}px !important; width: {user_settings['bal_box_w']}% !important; margin: 0 auto !important; }}
+    .balance-box {{ background: #00C897 !important; color: white !important; padding: var(--bal-box-pad) 0px !important; border-radius: 80px !important; text-align: center !important; font-weight: 700 !important; font-size: var(--bal-num-sz) !important; width: var(--bal-box-w) !important; margin: 0 auto !important; }}
     
     .thin-line {{ border-bottom: {LINEA_GROSOR}px solid {c_linea} !important; margin: {LINEA_MARGEN_SUP}px 0px {LINEA_MARGEN_INF}px 0px !important; width: {LINEA_ANCHO}% !important; transform: translateX({LINEA_X}px) !important; }}
 
-    div[data-testid="stSelectbox"] label {{ display: none !important; }}
-    div[data-testid="stNumberInput"] label {{ display: none !important; }}
-
-    div[data-baseweb="select"] > div {{ background-color: {card_bg} !important; border-color: {border_color} !important; }}
-    ul[role="listbox"] {{ background-color: {card_bg} !important; }}
-    
-    div[data-testid="stSelectbox"] div[data-baseweb="select"] * {{ font-size: {OPT_FILTROS_SIZE}px !important; color: {c_opt_filtros} !important; }}
+    div[data-testid="stSelectbox"] label, div[data-testid="stNumberInput"] label {{ display: none !important; }}
+    div[data-baseweb="select"] > div, ul[role="listbox"] {{ background-color: {card_bg} !important; border-color: {border_color} !important; }}
+    div[data-testid="stSelectbox"] div[data-baseweb="select"] *, ul[role="listbox"] * {{ font-size: {OPT_FILTROS_SIZE}px !important; color: {c_opt_filtros} !important; }}
     div[data-testid="stSelectbox"] div[data-baseweb="select"] svg {{ fill: 00000 !important; color: 00000 !important; }}
     div[data-testid="stSelectbox"] input {{ color: 00000 !important; }}
-    
-    ul[role="listbox"] * {{ font-size: {OPT_FILTROS_SIZE}px !important; color: {c_opt_filtros} !important; }}
     li[role="option"] {{ background-color: F3F4F6 !important; }}
     li[role="option"]:hover {{ background-color: {border_color} !important; }}
 
-    div[data-testid="stNumberInput"] {{ margin-left: {INPUT_BAL_X}px !important; margin-top: {INPUT_BAL_Y}px !important; width: {INPUT_BAL_W} !important; min-width: {INPUT_BAL_W} !important; max-width: {INPUT_BAL_W} !important; }}
+    div[data-testid="column"]:nth-child(1) div[data-testid="stNumberInput"] {{ width: var(--btn-save-w) !important; min-width: var(--btn-save-w) !important; max-width: var(--btn-save-w) !important; }}
     div[data-testid="stNumberInput"] button {{ display: none !important; }} 
-    
-    div[data-testid="stNumberInput"] > div:last-child,
-    div[data-testid="stNumberInput"] div[data-baseweb="base-input"],
-    div[data-testid="stNumberInput"] div[data-baseweb="input"] {{ height: {INPUT_BAL_H} !important; min-height: {INPUT_BAL_H} !important; background-color: {input_bg} !important; border-color: {border_color} !important; }}
-    
+    div[data-testid="stNumberInput"] > div:last-child, div[data-testid="stNumberInput"] div[data-baseweb="base-input"], div[data-testid="stNumberInput"] div[data-baseweb="input"] {{ height: {INPUT_BAL_H} !important; min-height: {INPUT_BAL_H} !important; background-color: {input_bg} !important; border-color: {border_color} !important; }}
     div[data-testid="stNumberInput"] input {{ color: {c_lbl_in} !important; font-size: {INPUT_BAL_TXT_SIZE}px !important; background-color: {input_bg} !important; font-weight: bold !important; height: {INPUT_BAL_H} !important; min-height: {INPUT_BAL_H} !important; box-sizing: border-box !important; padding-top: 0 !important; padding-bottom: 0 !important; }}
 
     [data-testid="stForm"] {{ padding: 0 !important; border: none !important; background: transparent !important; margin: 0 !important; }}
     
     /* BOTON SAVE */
-    [data-testid="stFormSubmitButton"] button {{ 
-        background-color: #00C897 !important; 
-        color: white !important; 
-        font-weight: bold !important; 
-        font-size: {user_settings['btn_save_sz']}px !important;
-        height: {user_settings['btn_save_h']}px !important; 
-        min-height: {user_settings['btn_save_h']}px !important; 
-        border-radius: 8px !important; 
-        border: none !important; 
-        width: {INPUT_BAL_W} !important; 
-        transform: translate({user_settings['btn_save_x']}px, {user_settings['btn_save_y']}px) !important;
+    div[data-testid="column"]:nth-child(1) [data-testid="stFormSubmitButton"] button {{ 
+        background-color: #00C897 !important; color: white !important; font-weight: bold !important; 
+        font-size: var(--btn-save-sz) !important; height: var(--btn-save-h) !important; 
+        min-height: var(--btn-save-h) !important; border-radius: 8px !important; border: none !important; 
+        width: var(--btn-save-w) !important; transform: translate(var(--btn-save-x), var(--btn-save-y)) !important;
     }}
 
     [data-testid="stFileUploader"] {{ transform: translate({DROPZONE_X}px, {DROPZONE_Y}px) !important; background-color: transparent !important; border: none !important; padding: 0 !important; box-shadow: none !important; }}
     [data-testid="stFileUploader"] > section {{ background-color: transparent !important; border: none !important; padding: 0 !important; }}
-    
     [data-testid="stFileUploadDropzone"] {{ background-color: {drop_bg} !important; border: {drop_border} !important; border-radius: 8px !important; padding: 0 !important; width: {DROPZONE_W} !important; min-height: {DROPZONE_H} !important; height: {DROPZONE_H} !important; box-shadow: none !important; display: flex !important; justify-content: center !important; align-items: center !important; }}
     [data-testid="stFileUploadDropzone"] > div {{ background-color: transparent !important; border: none !important; }}
     [data-testid="stFileUploadDropzone"] > div > span, [data-testid="stFileUploadDropzone"] small, [data-testid="stFileUploaderDropzoneInstructions"] {{ display: none !important; }}
     
     /* BOTON UPLOAD */
     [data-testid="stFileUploadDropzone"] button {{ 
-        background-color: {u_btn_bg} !important; 
-        color: {u_btn_txt} !important; 
-        border: 1px solid {border_color} !important; 
-        border-radius: 6px !important; 
-        margin: 0 !important; 
-        width: {BTN_UP_W} !important; 
-        min-width: {BTN_UP_W} !important; 
-        min-height: {user_settings['btn_up_h']}px !important; 
-        height: {user_settings['btn_up_h']}px !important; 
-        transform: translate({user_settings['btn_up_x']}px, {user_settings['btn_up_y']}px) !important;
+        background-color: {u_btn_bg} !important; color: {u_btn_txt} !important; border: 1px solid {border_color} !important; 
+        border-radius: 6px !important; margin: 0 !important; width: var(--btn-up-w) !important; 
+        min-width: var(--btn-up-w) !important; min-height: var(--btn-up-h) !important; height: var(--btn-up-h) !important; 
+        transform: translate(var(--btn-up-x), var(--btn-up-y)) !important;
     }}
-    [data-testid="stFileUploadDropzone"] button * {{ color: {u_btn_txt} !important; font-size: {user_settings['btn_up_sz']}px !important; }}
-    [data-testid="stFileUploadDropzone"] button::after {{ content: "{BTN_UP_TEXTO}" !important; font-size: {user_settings['btn_up_sz']}px !important; }}
+    [data-testid="stFileUploadDropzone"] button * {{ color: {u_btn_txt} !important; font-size: var(--btn-up-sz) !important; }}
+    [data-testid="stFileUploadDropzone"] button::after {{ content: "{BTN_UP_TEXTO}" !important; font-size: var(--btn-up-sz) !important; }}
     [data-testid="stFileUploadDropzone"] button div {{ display: none !important; }}
 
     div[data-testid="stButton"] > button {{ background-color: {btn_bg} !important; color: {btn_txt} !important; border: 1px solid {border_color} !important; }}
     
-    /* BOTON CALENDARIO (POPOVER) */
-    div[data-testid="stPopover"] > button {{ 
-        min-height: {user_settings['btn_cal_h']}px !important; 
-        height: {user_settings['btn_cal_h']}px !important; 
-        min-width: {BTN_CAL_W}px !important; 
-        width: {BTN_CAL_W}px !important; 
-        padding: 0 !important; 
-        font-size: {user_settings['btn_cal_sz']}px !important; 
-        border-radius: 8px !important; 
-        border: 1px solid {border_color} !important; 
-        background-color: {btn_bg} !important; 
-        color: {btn_txt} !important; 
-        display: flex !important; 
-        justify-content: center !important; 
-        align-items: center !important; 
-        transform: translate({user_settings['btn_cal_x']}px, {user_settings['btn_cal_y']}px) !important;
+    /* BOTON CALENDARIO (POPOVER COL 2) */
+    div[data-testid="column"]:nth-child(2) div[data-testid="stPopover"] > button {{ 
+        min-height: var(--btn-cal-h) !important; height: var(--btn-cal-h) !important; min-width: var(--btn-cal-w) !important; 
+        width: var(--btn-cal-w) !important; padding: 0 !important; font-size: var(--btn-cal-sz) !important; 
+        border-radius: 8px !important; border: 1px solid {border_color} !important; background-color: {btn_bg} !important; 
+        color: {btn_txt} !important; display: flex !important; justify-content: center !important; align-items: center !important; 
+        transform: translate(var(--btn-cal-x), var(--btn-cal-y)) !important;
+    }}
+
+    /* BOTON NOTAS (POPOVER COL 4) */
+    div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] > button {{ 
+        min-height: var(--btn-not-h) !important; height: var(--btn-not-h) !important; min-width: var(--btn-not-w) !important; 
+        width: var(--btn-not-w) !important; padding: 0 !important; font-size: var(--btn-not-sz) !important; 
+        border-radius: 8px !important; border: 1px solid {border_color} !important; background-color: {btn_bg} !important; 
+        color: {btn_txt} !important; display: flex !important; justify-content: center !important; align-items: center !important; 
+        transform: translate(var(--btn-not-x), var(--btn-not-y)) !important;
     }}
     
     div[data-testid="stPopoverBody"] {{ background-color: {card_bg} !important; border: 1px solid {border_color} !important; border-radius: 8px !important; padding: 15px !important; }}
@@ -614,13 +550,13 @@ st.markdown(f"""
     .calendar-wrapper {{ background: {card_bg} !important; padding: 10px !important; border-radius: 15px !important; border: 1px solid {border_color} !important; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1) !important; }}
     .txt-dias-sem {{ font-size: {TXT_DIAS_SEM_SIZE}px !important; font-weight: bold !important; color: {c_dias_sem} !important; text-align: center !important; }}
     
-    .card {{ padding: 5px !important; border-radius: 10px !important; display: flex !important; flex-direction: column !important; position: relative !important; font-size: 12px !important; margin-bottom: 6px !important; min-height: {sz_scl}px !important; }}
-    .day-number {{ position: absolute !important; top: 6px !important; left: 10px !important; font-size: {sz_dia}px !important; font-weight: bold !important; color: {c_num_dia} !important; }}
-    .day-content {{ margin-top: auto !important; margin-bottom: auto !important; text-align: center !important; width: 100% !important; }}
-    .day-pnl {{ font-size: {sz_pnl}px !important; font-weight: bold !important; }}
-    .day-pct {{ font-size: {sz_pct}px !important; color: {c_pct_dia} !important; opacity: 0.9 !important; font-weight: 600 !important; display: block !important; }}
+    .card {{ padding: 5px !important; border-radius: 10px !important; display: flex !important; flex-direction: column !important; position: relative !important; font-size: 12px !important; margin-bottom: 6px !important; min-height: var(--cal-scale) !important; }}
+    .day-number {{ position: absolute !important; top: 6px !important; left: 10px !important; font-size: var(--cal-dia-size) !important; font-weight: bold !important; color: {c_num_dia} !important; }}
+    .day-content {{ margin-top: auto !important; margin-bottom: auto !important; text-align: center !important; width: 100% !important; line-height: var(--cal-line-height) !important; }}
+    .day-pnl {{ font-size: var(--cal-pnl-size) !important; font-weight: bold !important; }}
+    .day-pct {{ font-size: var(--cal-pct-size) !important; color: {c_pct_dia} !important; opacity: 0.9 !important; font-weight: 600 !important; display: block !important; }}
     
-    .cam-icon {{ position: absolute !important; bottom: {BTN_CAM_Y}px !important; left: 50% !important; transform: translateX(calc(-50% + {BTN_CAM_X}px)) !important; font-size: {sz_cam}px !important; cursor: pointer !important; background: {c_cam_bg} !important; border-radius: 50% !important; padding: 2px 4px !important; box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important; transition: 0.2s !important; }}
+    .cam-icon {{ position: absolute !important; bottom: {BTN_CAM_Y}px !important; left: 50% !important; transform: translateX(calc(-50% + {BTN_CAM_X}px)) !important; font-size: var(--cal-cam-size) !important; cursor: pointer !important; background: {c_cam_bg} !important; border-radius: 50% !important; padding: 2px 4px !important; box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important; transition: 0.2s !important; }}
     .cam-icon:hover {{ transform: translateX(calc(-50% + {BTN_CAM_X}px)) scale(1.2) !important; }}
     
     .cell-win {{ border: 2px solid #00C897 !important; color: #00664F !important; background-color: #e6f9f4 !important;}}
@@ -637,12 +573,12 @@ st.markdown(f"""
     
     .metric-card {{ background-color: {card_bg} !important; border-radius: 15px !important; padding: 15px 20px !important; border: 1px solid {border_color} !important; }}
     .metric-header {{ display: flex !important; align-items: center !important; gap: 8px !important; margin-bottom: 5px !important; }}
-    .title-net-pnl {{ font-size: {sz_tit}px !important; font-weight: 700 !important; color: {c_tit_pnl} !important; }}
-    .title-trade-win {{ font-size: {sz_tit}px !important; font-weight: 700 !important; color: {c_tit_win} !important; }}
+    .title-net-pnl {{ font-size: var(--size-card-titles) !important; font-weight: 700 !important; color: {c_tit_pnl} !important; }}
+    .title-trade-win {{ font-size: var(--size-card-titles) !important; font-weight: 700 !important; color: {c_tit_win} !important; }}
     
     .pnl-value {{ font-size: 28px !important; font-weight: 800 !important; color: #00C897 !important; letter-spacing: -0.5px !important; }}
     .pnl-value-loss {{ color: #FF4C4C !important; }}
-    .win-value {{ font-size: {CARD_WIN_VALOR_SIZE}px !important; font-weight: 800 !important; color: {c_val_win} !important; letter-spacing: -0.5px !important; }}
+    .win-value {{ font-size: {CARD_WIN_VALOR_SIZE}px !important; font-weight: 800 !important; letter-spacing: -0.5px !important; }}
 
     .calendar-wrapper div[data-testid="column"]:first-child button {{ transform: translate({FLECHAS_X}px, {FLECHAS_Y}px) !important; font-size: {FLECHAS_SIZE}px !important; }}
     .calendar-wrapper div[data-testid="column"]:nth-child(3) button {{ transform: translate(calc({FLECHAS_X}px * -1), {FLECHAS_Y}px) !important; font-size: {FLECHAS_SIZE}px !important; }}
@@ -664,9 +600,9 @@ st.markdown(f"""
         .dashboard-title {{ font-size: 38px !important; margin: 10px auto !important; text-align: center !important; line-height: 1 !important;}}
         .lbl-total-bal, .lbl-filtros, .lbl-data, .lbl-input {{ transform: translate(0, 0) !important; text-align: center !important; width: 100% !important; margin-bottom: 10px !important;}}
         .balance-box {{ width: 100% !important; margin: 0 auto 15px auto !important; transform: translate(0,0) !important;}}
-        div[data-testid="stNumberInput"] {{ width: 100% !important; max-width: 100% !important; margin: 0 !important; }}
+        div[data-testid="column"]:nth-child(1) div[data-testid="stNumberInput"], div[data-testid="column"]:nth-child(1) [data-testid="stFormSubmitButton"] button {{ width: 100% !important; max-width: 100% !important; margin: 0 !important; }}
         [data-testid="stFileUploadDropzone"] {{ width: 100% !important; transform: translate(0, 0) !important; }}
-        div[data-testid="stPopover"] > button {{ width: 100% !important; margin-top: 5px !important; }}
+        div[data-testid="column"]:nth-child(2) div[data-testid="stPopover"] > button, div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] > button {{ width: 100% !important; margin-top: 5px !important; }}
         .weeks-container {{ transform: translate(0, 0) !important; flex-wrap: wrap !important; justify-content: space-between !important; }}
         .wk-box {{ width: 48% !important; margin-bottom: 5px !important; }}
         .mo-box {{ width: 100% !important; }}
@@ -771,13 +707,10 @@ clave_actual = (st.session_state.input_fecha.year, st.session_state.input_fecha.
 
 with c_img:
     st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True) 
-    
     counter_main_key = f"upd_main_counter_{clave_actual}"
     if counter_main_key not in st.session_state:
         st.session_state[counter_main_key] = 0
-    
     upd_main_key = f"up_main_{clave_actual}_{st.session_state[counter_main_key]}"
-    
     st.file_uploader(
         "", 
         accept_multiple_files=True, 
@@ -791,7 +724,6 @@ with c_not:
     st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True) 
     with st.popover("📝"):
         st.markdown("<h3 style='text-align:center; margin-top:0;'>Trade Details</h3>", unsafe_allow_html=True)
-        
         if clave_actual not in db_usuario[ctx]["trades"]:
             st.info("Agrega un cambio de balance o una imagen primero para activar las notas en este día.")
         else:
@@ -800,26 +732,21 @@ with c_not:
             bias_options = ['ALCISTA', 'BAJISTA', 'NEUTRO']
             colorful_menu(bias_options, "&nbsp;&nbsp;&nbsp;Bias", 'bias', trade_data_ref)
             st.markdown("<br>", unsafe_allow_html=True)
-            
             Confluences_options = ['BIAS Claro', 'Liq Sweep', 'IFVG', 'FVG', 'EQH / EQL', 'BSL / SSL', 'POI', 'SMT', 'Order Block', 'PDH / PDL', 'Continuación', 'Data High / Data Low', 'CISD']
             colorful_multiselect(Confluences_options, "&nbsp;&nbsp;&nbsp;Confluences", 'Confluences', trade_data_ref)
             st.markdown("<br>", unsafe_allow_html=True)
-
             trade_data_ref['razon_trade'] = st.text_area("&nbsp;&nbsp;&nbsp;Reason For Trade", value=trade_data_ref.get('razon_trade', ''), key=f"razon_main", height=80)
             trade_data_ref['Corrections'] = st.text_area("&nbsp;&nbsp;&nbsp;Corrections", value=trade_data_ref.get('Corrections', ''), key=f"corr_main", height=80)
             
             risk_options = ['0.6%', '0.5%', '0.4%']
             colorful_menu(risk_options, "&nbsp;&nbsp;&nbsp;% Risk", 'risk', trade_data_ref)
             st.markdown("<br>", unsafe_allow_html=True)
-
             rrr_options = ['1:1', '1:1.5', '1:2', '1:3', '1:4']
             colorful_menu(rrr_options, "&nbsp;&nbsp;&nbsp;RR", 'rrr', trade_data_ref)
             st.markdown("<br>", unsafe_allow_html=True)
-            
             trade_type_options = ['A+', 'A', 'B', 'C']
             colorful_menu(trade_type_options, "&nbsp;&nbsp;&nbsp;Trade Type", 'trade_type', trade_data_ref)
             st.markdown("<br>", unsafe_allow_html=True)
-
             trade_data_ref['Emotions'] = st.text_area("&nbsp;&nbsp;&nbsp;Emotions", value=trade_data_ref.get('&nbsp;&nbsp;&nbsp;Emotions', ''), key=f"emoc_main", height=80)
 
 
@@ -850,14 +777,14 @@ with col_cal:
     with c_izq: 
         st.button("◀", on_click=cambiar_mes, args=(-1,), use_container_width=True)
     with c_cen: 
-        st.markdown(f'<div style="text-align:center; font-weight:600; font-size:{user_settings["cal_mes_size"]}px; color:{c_mes}; margin-top:2px;">{nombre_mes} {anio_sel}</div>', unsafe_allow_html=True)
+        st.markdown(f'<div style="text-align:center; font-weight:600; font-size:var(--cal-mes-size); color:{c_mes}; margin-top:2px;">{nombre_mes} {anio_sel}</div>', unsafe_allow_html=True)
     with c_der: 
         st.button("▶", on_click=cambiar_mes, args=(1,), use_container_width=True)
     with c_stats:
         st.markdown(f'''
             <div style="display:flex; justify-content:flex-end; align-items:center; gap:20px; margin-top:8px;">
-                <div style="font-weight:700; font-size:{user_settings['size_top_stats']}px; color:{c_mes}; display:flex; align-items:center; gap:8px;">Monthly P&L: <span style="background-color:{bg_pnl_top}; color:{color_pnl_top}; padding:4px 12px; border-radius:12px; font-weight:800;">{simb_pnl_top}${net_pnl_top:,.2f}</span></div>
-                <div style="font-weight:700; font-size:{user_settings['size_top_stats']}px; color:{c_mes}; display:flex; align-items:center; gap:8px;">Win Rate: <span style="background-color:{bg_win_top}; color:{color_win_top}; padding:4px 12px; border-radius:12px; font-weight:800;">{win_pct_top:.1f}%</span></div>
+                <div style="font-weight:700; font-size:var(--size-top-stats); color:{c_mes}; display:flex; align-items:center; gap:8px;">Monthly P&L: <span style="background-color:{bg_pnl_top}; color:{color_pnl_top}; padding:4px 12px; border-radius:12px; font-weight:800;">{simb_pnl_top}${net_pnl_top:,.2f}</span></div>
+                <div style="font-weight:700; font-size:var(--size-top-stats); color:{c_mes}; display:flex; align-items:center; gap:8px;">Win Rate: <span style="background-color:{bg_win_top}; color:{color_win_top}; padding:4px 12px; border-radius:12px; font-weight:800;">{win_pct_top:.1f}%</span></div>
             </div>
         ''', unsafe_allow_html=True)
     
@@ -902,11 +829,11 @@ with col_cal:
                         op = "0.2" if trade and not visible else "1"
                         st.markdown(f'<div class="card cell-empty" style="opacity:{op}"><div class="day-number">{dia}</div></div>', unsafe_allow_html=True)
 
-# 🔴 FUNCIÓN PARA CREAR EL GRÁFICO DE PASTEL SVG 🔴
-def get_pie_svg(w, l, t, size, y_offset):
+# 🔴 FUNCIÓN PARA CREAR EL GRÁFICO DE PASTEL SVG RESPONSIVO 🔴
+def get_pie_svg(w, l, t):
     tot = w + l + t
     if tot == 0:
-        return f'<svg width="{size}" height="{size}" viewBox="0 0 100 100" style="transform: translateY({y_offset}px);"><circle cx="50" cy="50" r="50" fill="#4A5568" /></svg>'
+        return f'<svg width="100%" height="100%" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50" fill="#4A5568" /></svg>'
 
     C = 2 * math.pi * 25
     pw = w / tot
@@ -917,7 +844,7 @@ def get_pie_svg(w, l, t, size, y_offset):
     off_l = - (pw * C)
     off_t = - ((pw + pl) * C)
 
-    svg = f'<svg width="{size}" height="{size}" viewBox="0 0 100 100" style="transform: translateY({y_offset}px); border-radius:50%;">'
+    svg = f'<svg width="100%" height="100%" viewBox="0 0 100 100" style="border-radius:50%;">'
     
     if pw > 0:
         svg += f'<circle cx="50" cy="50" r="25" fill="none" stroke="#00C897" stroke-width="50" stroke-dasharray="{pw * C} {C}" stroke-dashoffset="{off_w}" transform="rotate(-90 50 50)" />'
@@ -967,6 +894,7 @@ with col_det:
     
     color_pnl = "pnl-value" if net_pnl >= 0 else "pnl-value pnl-value-loss"
     simbolo_pnl = "+" if net_pnl > 0 else ""
+    c_win_card = "#00C897" if win_pct >= 50 else "#FF4C4C"
     
     st.markdown(f"""
         <div class="metric-card card-pnl">
@@ -978,17 +906,19 @@ with col_det:
     st.markdown("<br>", unsafe_allow_html=True)
 
     # 🔴 LLAMADA AL GRÁFICO SVG PASTEL 🔴
-    pie_html = get_pie_svg(wins, losses, ties, user_settings["pie_size"], user_settings["pie_y_offset"])
+    pie_html = get_pie_svg(wins, losses, ties)
 
     st.markdown(f"""
         <div class="metric-card card-win">
             <div>
                 <div class="metric-header"><span class="title-trade-win">{titulo_win}</span></div>
-                <div class="win-value">{win_pct:.2f}%</div>
+                <div class="win-value" style="color: {c_win_card};">{win_pct:.2f}%</div>
             </div>
             <div style="display:flex; flex-direction:row; align-items:center; justify-content:center; gap:25px; margin-top:15px; padding-bottom:10px;">
-                {pie_html}
-                <div style="font-size: {user_settings['size_box_wl']}px; color: gray; font-weight: 800; text-align:center; white-space:nowrap; transform: translateY({user_settings["pie_y_offset"]}px);">
+                <div style="width: var(--pie-size); height: var(--pie-size); transform: translateY(var(--pie-y-offset)); flex-shrink: 0; display:flex;">
+                    {pie_html}
+                </div>
+                <div style="font-size: var(--size-box-wl); color: gray; font-weight: 800; text-align:center; white-space:nowrap; transform: translateY(var(--pie-y-offset));">
                     {wins}W / {losses}L
                 </div>
             </div>
@@ -1031,9 +961,9 @@ with col_det:
             titulo_str = titulos_semanas[idx] if idx < len(titulos_semanas) else f"Week {num_sem}"
             c_sem, s_sem = get_col_simb(stats["pnl"])
             pct_sem = calc_pct(stats["pnl"])
-            semanas_html += f'<div class="wk-box"><div class="wk-title" style="font-size:{user_settings["size_box_titles"]}px !important;">{titulo_str}</div><div class="wk-val {c_sem}" style="font-size:{user_settings["size_box_vals"]}px !important;">{s_sem}${stats["pnl"]:,.2f}<br><span style="font-size:{user_settings["size_box_pct"]}px;">{s_sem}{pct_sem:.2f}%</span><br><span style="font-size: {user_settings["size_box_wl"]}px; color: gray; font-weight: 500;">{stats["w"]}W / {stats["l"]}L</span></div></div>'
+            semanas_html += f'<div class="wk-box"><div class="wk-title" style="font-size:var(--size-box-titles) !important;">{titulo_str}</div><div class="wk-val {c_sem}" style="font-size:var(--size-box-vals) !important;">{s_sem}${stats["pnl"]:,.2f}<br><span style="font-size:var(--size-box-pct);">{s_sem}{pct_sem:.2f}%</span><br><span style="font-size: var(--size-box-wl); color: gray; font-weight: 500;">{stats["w"]}W / {stats["l"]}L</span></div></div>'
 
-        st.markdown(f'<div class="weeks-container">{semanas_html}<div class="mo-box"><div class="mo-title" style="font-size:{user_settings["size_box_titles"]}px !important;">{TXT_MO}</div><div class="mo-val {cM}" style="font-size:{user_settings["size_box_vals"]}px !important;">{sM}${m_total:,.2f}<br><span style="font-size:{user_settings["size_box_pct"]}px;">{sM}{pct_m:.2f}%</span><br><span style="font-size: {user_settings["size_box_wl"]}px; color: gray; font-weight: 500;">{m_w}W / {m_l}L</span></div></div></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="weeks-container">{semanas_html}<div class="mo-box"><div class="mo-title" style="font-size:var(--size-box-titles) !important;">{TXT_MO}</div><div class="mo-val {cM}" style="font-size:var(--size-box-vals) !important;">{sM}${m_total:,.2f}<br><span style="font-size:var(--size-box-pct);">{sM}{pct_m:.2f}%</span><br><span style="font-size: var(--size-box-wl); color: gray; font-weight: 500;">{m_w}W / {m_l}L</span></div></div></div>', unsafe_allow_html=True)
 
     else:
         meses_stats = {}
@@ -1054,7 +984,7 @@ with col_det:
             nombre_m = f"{calendar.month_abbr[m]} {y}"
             c_m, s_m = get_col_simb(val_m)
             pct_m_box = calc_pct(val_m)
-            meses_html += f'<div class="wk-box"><div class="wk-title" style="font-size:{user_settings["size_box_titles"]}px !important;">{nombre_m}</div><div class="wk-val {c_m}" style="font-size:{user_settings["size_box_vals"]}px !important;">{s_m}${val_m:,.2f}<br><span style="font-size:{user_settings["size_box_pct"]}px;">{s_m}{pct_m_box:.2f}%</span><br><span style="font-size: {user_settings["size_box_wl"]}px; color: gray; font-weight: 500;">{w_m}W / {l_m}L</span></div></div>'
+            meses_html += f'<div class="wk-box"><div class="wk-title" style="font-size:var(--size-box-titles) !important;">{nombre_m}</div><div class="wk-val {c_m}" style="font-size:var(--size-box-vals) !important;">{s_m}${val_m:,.2f}<br><span style="font-size:var(--size-box-pct);">{s_m}{pct_m_box:.2f}%</span><br><span style="font-size: var(--size-box-wl); color: gray; font-weight: 500;">{w_m}W / {l_m}L</span></div></div>'
         
         if meses_html:
             st.markdown(f'<div class="weeks-container">{meses_html}</div>', unsafe_allow_html=True)
@@ -1123,7 +1053,7 @@ with st.expander("🛠️ OPEN ORDER HISTORY", expanded=False):
                     accept_multiple_files=True, 
                     key=upd_key, 
                     on_change=agregar_imagenes_historial, 
-                    args=(ctx, clave, upd_key, counter_key)
+                    args=(ctx, clave, upd_key, counter_main_key)
                 )
 
                 imagenes_restantes = db_usuario[ctx]["trades"][clave].get("imagenes", [])
