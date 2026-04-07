@@ -65,14 +65,11 @@ if st.session_state.usuario_actual is None or st.session_state.usuario_actual no
     st.stop()
 
 # ==========================================
-# 3. SECCIÓN DE AJUSTES MANUALES
+# 3. SECCIÓN DE AJUSTES MANUALES (CONSTANTES)
 # ==========================================
 
 TEMA_POR_DEFECTO = "Oscuro"
 
-# ---------------------------------------------------------
-# [ TEXTO PRINCIPAL ]
-# ---------------------------------------------------------
 TXT_DASHBOARD = "Dashboard"
 TXT_DASH_SIZE = 60
 TXT_DASH_X = 20        
@@ -80,9 +77,6 @@ TXT_DASH_Y = -20
 TXT_DASH_COLOR_C = "#000000"
 TXT_DASH_COLOR_O = "#FFFFFF"
 
-# ---------------------------------------------------------
-# [ ETIQUETA: FILTROS ] 
-# ---------------------------------------------------------
 LBL_FILTROS = "Filters"
 LBL_FILTROS_SIZE = 20            
 LBL_FILTROS_X = 0
@@ -97,9 +91,6 @@ OPT_FILTROS_SIZE = 15
 OPT_FILTROS_COLOR_C = "#000000"  
 OPT_FILTROS_COLOR_O = "#FFFFFF"  
 
-# ---------------------------------------------------------
-# [ ETIQUETA: DATA SOURCE ] 
-# ---------------------------------------------------------
 LBL_DATA = "Data Source"
 LBL_DATA_SIZE = 20              
 LBL_DATA_X = 0
@@ -113,9 +104,6 @@ OPT_DATA_SIZE = 14
 OPT_DATA_COLOR_C = "#000000"     
 OPT_DATA_COLOR_O = "#FFFFFF"     
 
-# ---------------------------------------------------------
-# [ ETIQUETA Y CAJA: BALANCE MANUAL (Input) ] 
-# ---------------------------------------------------------
 LBL_INPUT = "Balance:"
 LBL_INPUT_SIZE = 20             
 LBL_INPUT_X = 0
@@ -131,9 +119,6 @@ INPUT_BAL_TXT_SIZE = 25
 INPUT_FONDO_C = "#FFFFFF"
 INPUT_FONDO_O = "#1A202C"
 
-# ---------------------------------------------------------
-# [ ETIQUETA: TOTAL BALANCE ]
-# ---------------------------------------------------------
 LBL_BAL_TOTAL = "ACCOUNT BALANCE"
 LBL_BAL_TOTAL_SIZE = 18
 LBL_BAL_TOTAL_X = 0
@@ -146,9 +131,6 @@ BALANCE_BOX_W = 50
 BALANCE_BOX_X = 0     
 BALANCE_BOX_Y = 0     
 
-# ---------------------------------------------------------
-# [ LÍNEA SEPARADORA HORIZONTAL ]
-# ---------------------------------------------------------
 LINEA_GROSOR = 1.5             
 LINEA_ANCHO = 100              
 LINEA_X = 0                    
@@ -157,9 +139,6 @@ LINEA_MARGEN_INF = 25
 LINEA_COLOR_C = "#E2E8F0"
 LINEA_COLOR_O = "#4A5568"
 
-# ---------------------------------------------------------
-# [ ÁREA DE ARRASTRAR IMÁGENES (DROPZONE) ] 
-# ---------------------------------------------------------
 DROPZONE_W = "100%"
 DROPZONE_H = "75px"            
 DROPZONE_X = 0
@@ -178,9 +157,6 @@ BTN_UP_BG_O = "#4A5568"
 BTN_UP_TXT_C = "#000000"      
 BTN_UP_TXT_O = "#FFFFFF"
 
-# ---------------------------------------------------------
-# [ BOTÓN: CALENDARIO Y FLECHAS ]
-# ---------------------------------------------------------
 BTN_CAL_EMOJI = "🗓️"
 BTN_CAL_W = 68     
 BTN_CAL_H = 68    
@@ -192,9 +168,6 @@ FLECHAS_SIZE = 40
 FLECHAS_X = 0 
 FLECHAS_Y = 0   
 
-# ---------------------------------------------------------
-# [ CALENDARIO: MES Y DÍAS DE LA SEMANA ]
-# ---------------------------------------------------------
 TXT_MES_SIZE = 28
 TXT_MES_COLOR_C = "#000000"
 TXT_MES_COLOR_O = "#FFFFFF"
@@ -203,15 +176,11 @@ TXT_DIAS_SEM_SIZE = 15
 TXT_DIAS_SEM_COLOR_C = "#000000"
 TXT_DIAS_SEM_COLOR_O = "#FFFFFF"
 
-# ---------------------------------------------------------
-# [ TARJETAS DE LOS DÍAS ]
-# ---------------------------------------------------------
 TXT_NUM_DIA_SIZE = 20
 TXT_NUM_DIA_COLOR_C = "#000000"
 TXT_NUM_DIA_COLOR_O = "#c0c0c0"
 
 TXT_PNL_DIA_SIZE = 30
-
 TXT_PCT_DIA_SIZE = 25
 TXT_PCT_DIA_COLOR_C = "#000000"
 TXT_PCT_DIA_COLOR_O = "#000000"
@@ -222,46 +191,31 @@ BTN_CAM_X = 0
 BTN_CAM_Y = 2
 BTN_CAM_BG_C = "rgba(0,0,0,0)"
 BTN_CAM_BG_O = "rgba(0,0,0,0)"
-
 TXT_CERRAR_MODAL = "✖ CERRAR"
 
-# ---------------------------------------------------------
-# [ BOTÓN DE NOTAS (📝) ]
-# ---------------------------------------------------------
 BTN_NOTAS_TOP = "-5px"
 BTN_NOTAS_RIGHT = "-5px"
 BTN_NOTAS_SIZE = 18
 
-# ---------------------------------------------------------
-# [ TARJETA: NET P&L ]
-# ---------------------------------------------------------
 CARD_PNL_TITULO = "Net P&L Monthly"
 CARD_PNL_TITULO_COLOR_C = "#000000"
 CARD_PNL_TITULO_COLOR_O = "#FFFFFF"
-
 CARD_PNL_W = "100%"     
 CARD_PNL_H = "auto"     
 CARD_PNL_X = 0          
 CARD_PNL_Y = 0          
 
-# ---------------------------------------------------------
-# [ TARJETA: TRADE WIN % ]
-# ---------------------------------------------------------
 CARD_WIN_TITULO = "Win Rate Monthly"
 CARD_WIN_TITULO_COLOR_C = "#000000"
 CARD_WIN_TITULO_COLOR_O = "#FFFFFF"
 CARD_WIN_VALOR_SIZE = 28
 CARD_WIN_VALOR_COLOR_C = "#000000"
 CARD_WIN_VALOR_COLOR_O = "#FFFFFF"
-
 CARD_WIN_W = "100%"     
 CARD_WIN_H = "auto"     
 CARD_WIN_X = 0          
 CARD_WIN_Y = 0          
 
-# ---------------------------------------------------------
-# [ TARJETAS DE SEMANAS Y MES ]
-# ---------------------------------------------------------
 TXT_W1 = "Week 1"
 TXT_W2 = "Week 2"
 TXT_W3 = "Week 3"
@@ -270,20 +224,12 @@ TXT_W5 = "Week 5"
 TXT_W6 = "Week 6"
 TXT_MO = "Month"
 
-WEEKS_TITULOS_SIZE = 20        
 WEEKS_TITULOS_COLOR_C = "#000000"
 WEEKS_TITULOS_COLOR_O = "#FFFFFF"
-
-WEEKS_VALOR_SIZE = 25          
-WEEKS_PCT_SIZE = 20          
-
 WEEK_BOX_W = "31%"          
 WEEK_BOX_H = "120px"         
 Month_BOX_W = "100%"        
 Month_BOX_H = "120px"        
-Month_TITLE_SIZE = 30        
-Month_VAL_SIZE = 25          
-
 WEEKS_CONTENEDOR_X = 0      
 WEEKS_CONTENEDOR_Y = 15     
 WEEK_ALIGN = "center"        
@@ -360,7 +306,7 @@ st.sidebar.markdown("### 📊 Metrics")
 mostrar_tabla = st.sidebar.toggle("Show Results Table", value=False)
 
 st.sidebar.markdown("---")
-st.sidebar.markdown("### 🔠 Ajustes de Texto")
+st.sidebar.markdown("### 🔠 Ajustes de Texto Generales")
 if "size_top_stats" not in st.session_state:
     st.session_state.size_top_stats = 18
 if "size_card_titles" not in st.session_state:
@@ -399,6 +345,25 @@ if admin_pass == "725166":
                 st.session_state.usuario_actual = None
             st.rerun()
 
+# --- NUEVOS SLIDERS: AJUSTES DE CAJAS Y GRÁFICO (DEBAJO DE ADMIN) ---
+st.sidebar.markdown("---")
+st.sidebar.markdown("### 📐 Ajustes de Cajas y Gráfico")
+
+if "size_box_titles" not in st.session_state: st.session_state.size_box_titles = 20
+if "size_box_vals" not in st.session_state: st.session_state.size_box_vals = 25
+if "size_box_pct" not in st.session_state: st.session_state.size_box_pct = 20
+if "size_box_wl" not in st.session_state: st.session_state.size_box_wl = 14
+if "size_gauge" not in st.session_state: st.session_state.size_gauge = 220
+if "size_gauge_lbl" not in st.session_state: st.session_state.size_gauge_lbl = 14
+
+st.session_state.size_box_titles = st.sidebar.slider("Tamaño Títulos (Week/Month)", 10, 40, st.session_state.size_box_titles)
+st.session_state.size_box_vals = st.sidebar.slider("Tamaño P&L Cajas", 10, 50, st.session_state.size_box_vals)
+st.session_state.size_box_pct = st.sidebar.slider("Tamaño % Cajas", 10, 40, st.session_state.size_box_pct)
+st.session_state.size_box_wl = st.sidebar.slider("Tamaño W/L Cajas", 10, 40, st.session_state.size_box_wl)
+st.session_state.size_gauge = st.sidebar.slider("Tamaño Gráfico (Medio Círculo)", 100, 400, st.session_state.size_gauge)
+st.session_state.size_gauge_lbl = st.sidebar.slider("Tamaño Números bajo Gráfico", 10, 30, st.session_state.size_gauge_lbl)
+
+# --- BOTÓN DE LOG OUT (SIEMPRE AL FINAL) ---
 st.sidebar.markdown("<br><br><br>", unsafe_allow_html=True)
 if st.sidebar.button("🚪 Log Out", use_container_width=True):
     st.session_state.usuario_actual = None
@@ -567,7 +532,7 @@ st.markdown(f"""
     .win-value {{ font-size: {CARD_WIN_VALOR_SIZE}px !important; font-weight: 800 !important; color: {c_val_win} !important; letter-spacing: -0.5px !important; }}
     
     .gauge-container {{ display: flex !important; flex-direction: column !important; align-items: center !important; gap: 5px !important; }}
-    .gauge-labels {{ display: flex !important; gap: 15px !important; font-size: 11px !important; font-weight: 700 !important; margin-top: -5px !important; }}
+    .gauge-labels {{ display: flex !important; gap: 15px !important; font-weight: 700 !important; margin-top: -5px !important; }}
     .lbl-g {{ background-color: #e6f9f4 !important; color: #00C897 !important; padding: 2px 8px !important; border-radius: 8px !important; }}
     .lbl-b {{ background-color: #EEF2FF !important; color: #4F46E5 !important; padding: 2px 8px !important; border-radius: 8px !important; }}
     .lbl-r {{ background-color: #ffeded !important; color: #FF4C4C !important; padding: 2px 8px !important; border-radius: 8px !important; }}
@@ -577,12 +542,12 @@ st.markdown(f"""
 
     .weeks-container {{ transform: translate({WEEKS_CONTENEDOR_X}px, {WEEKS_CONTENEDOR_Y}px) !important; display: flex !important; flex-wrap: wrap !important; gap: 10px !important; justify-content: space-between !important; margin-top: 15px !important; }}
     .wk-box {{ width: {WEEK_BOX_W} !important; height: {WEEK_BOX_H} !important; background: {card_bg} !important; border: 1px solid {border_color} !important; border-radius: 12px !important; display: flex !important; flex-direction: column !important; align-items: {WEEK_ALIGN} !important; justify-content: center !important; padding: 5px !important; }}
-    .wk-title {{ font-size: {WEEKS_TITULOS_SIZE}px !important; font-weight: 700 !important; color: {wk_tit_c} !important; margin-bottom: 2px !important; text-align: center !important; }}
-    .wk-val {{ font-size: {WEEKS_VALOR_SIZE}px !important; font-weight: 800 !important; line-height: 1.2 !important; text-align: center !important; }}
+    .wk-title {{ font-weight: 700 !important; color: {wk_tit_c} !important; margin-bottom: 2px !important; text-align: center !important; }}
+    .wk-val {{ font-weight: 800 !important; line-height: 1.2 !important; text-align: center !important; }}
     
     .mo-box {{ width: {Month_BOX_W} !important; height: {Month_BOX_H} !important; background: {card_bg} !important; border: 1px solid {border_color} !important; border-radius: 15px !important; display: flex !important; flex-direction: column !important; align-items: {WEEK_ALIGN} !important; justify-content: center !important; padding: 10px !important; margin-top: 5px !important; text-align: center !important; }}
-    .mo-title {{ font-size: {Month_TITLE_SIZE}px !important; font-weight: 800 !important; color: {wk_tit_c} !important; text-transform: uppercase !important; letter-spacing: 1px !important; }}
-    .mo-val {{ font-size: {Month_VAL_SIZE}px !important; font-weight: 800 !important; line-height: 1.2 !important; }}
+    .mo-title {{ font-weight: 800 !important; color: {wk_tit_c} !important; text-transform: uppercase !important; letter-spacing: 1px !important; }}
+    .mo-val {{ font-weight: 800 !important; line-height: 1.2 !important; }}
     
     .txt-green {{ color: #00C897 !important; }}
     .txt-red {{ color: #FF4C4C !important; }}
@@ -879,7 +844,9 @@ with col_det:
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    svg_html = f'<svg width="120" height="60" viewBox="0 0 100 50">\n<path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="{border_color}" stroke-width="10"/>\n'
+    # 🔴 SVG DINÁMICO EN TAMAÑO 🔴
+    svg_h = st.session_state.size_gauge // 2
+    svg_html = f'<svg width="{st.session_state.size_gauge}" height="{svg_h}" viewBox="0 0 100 50">\n<path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="{border_color}" stroke-width="10"/>\n'
     if total_trades > 0:
         svg_html += f'<path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#FF4C4C" stroke-width="10" stroke-dasharray="{c} {c}"/>\n'
         svg_html += f'<path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#4F46E5" stroke-width="10" stroke-dasharray="{len_w + len_t} {c}"/>\n'
@@ -890,11 +857,18 @@ with col_det:
         <div class="metric-card card-win">
             <div>
                 <div class="metric-header"><span class="title-trade-win">{titulo_win}</span></div>
-                <div class="win-value">{win_pct:.2f}%<br><span style="font-size: 16px; color: gray; font-weight: 600;">{wins}W / {losses}L</span></div>
+                <div class="win-value">{win_pct:.2f}%</div>
             </div>
-            <div class="gauge-container">
-                {svg_html}
-                <div class="gauge-labels"><span class="lbl-g">{wins}</span><span class="lbl-b">{ties}</span><span class="lbl-r">{losses}</span></div>
+            <div style="display:flex; flex-direction:row; align-items:center; justify-content:center; gap:25px; margin-top:15px;">
+                <div class="gauge-container">
+                    {svg_html}
+                    <div class="gauge-labels" style="font-size: {st.session_state.size_gauge_lbl}px !important;">
+                        <span class="lbl-g">{wins}</span><span class="lbl-b">{ties}</span><span class="lbl-r">{losses}</span>
+                    </div>
+                </div>
+                <div style="font-size: {st.session_state.size_box_wl}px; color: gray; font-weight: 800; text-align:center; white-space:nowrap;">
+                    {wins}W / {losses}L
+                </div>
             </div>
         </div>
     """, unsafe_allow_html=True)
@@ -936,9 +910,9 @@ with col_det:
             titulo_str = titulos_semanas[idx] if idx < len(titulos_semanas) else f"Week {num_sem}"
             c_sem, s_sem = get_col_simb(stats["pnl"])
             pct_sem = calc_pct(stats["pnl"])
-            semanas_html += f'<div class="wk-box"><div class="wk-title">{titulo_str}</div><div class="wk-val {c_sem}">{s_sem}${stats["pnl"]:,.2f}<br><span style="font-size:{WEEKS_PCT_SIZE}px;">{s_sem}{pct_sem:.2f}%</span><br><span style="font-size: 14px; color: gray; font-weight: 500;">{stats["w"]}W / {stats["l"]}L</span></div></div>'
+            semanas_html += f'<div class="wk-box"><div class="wk-title" style="font-size:{st.session_state.size_box_titles}px !important;">{titulo_str}</div><div class="wk-val {c_sem}" style="font-size:{st.session_state.size_box_vals}px !important;">{s_sem}${stats["pnl"]:,.2f}<br><span style="font-size:{st.session_state.size_box_pct}px;">{s_sem}{pct_sem:.2f}%</span><br><span style="font-size: {st.session_state.size_box_wl}px; color: gray; font-weight: 500;">{stats["w"]}W / {stats["l"]}L</span></div></div>'
 
-        st.markdown(f'<div class="weeks-container">{semanas_html}<div class="mo-box"><div class="mo-title">{TXT_MO}</div><div class="mo-val {cM}">{sM}${m_total:,.2f}<br><span style="font-size:{WEEKS_PCT_SIZE}px;">{sM}{pct_m:.2f}%</span><br><span style="font-size: 16px; color: gray; font-weight: 500;">{m_w}W / {m_l}L</span></div></div></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="weeks-container">{semanas_html}<div class="mo-box"><div class="mo-title" style="font-size:{st.session_state.size_box_titles}px !important;">{TXT_MO}</div><div class="mo-val {cM}" style="font-size:{st.session_state.size_box_vals}px !important;">{sM}${m_total:,.2f}<br><span style="font-size:{st.session_state.size_box_pct}px;">{sM}{pct_m:.2f}%</span><br><span style="font-size: {st.session_state.size_box_wl}px; color: gray; font-weight: 500;">{m_w}W / {m_l}L</span></div></div></div>', unsafe_allow_html=True)
 
     else:
         # LÓGICA DE TODOS LOS MESES (ALL-TIME)
@@ -960,7 +934,7 @@ with col_det:
             nombre_m = f"{calendar.month_abbr[m]} {y}"
             c_m, s_m = get_col_simb(val_m)
             pct_m_box = calc_pct(val_m)
-            meses_html += f'<div class="wk-box"><div class="wk-title" style="font-size:16px;">{nombre_m}</div><div class="wk-val {c_m}">{s_m}${val_m:,.2f}<br><span style="font-size:{WEEKS_PCT_SIZE}px;">{s_m}{pct_m_box:.2f}%</span><br><span style="font-size: 14px; color: gray; font-weight: 500;">{w_m}W / {l_m}L</span></div></div>'
+            meses_html += f'<div class="wk-box"><div class="wk-title" style="font-size:{st.session_state.size_box_titles}px !important;">{nombre_m}</div><div class="wk-val {c_m}" style="font-size:{st.session_state.size_box_vals}px !important;">{s_m}${val_m:,.2f}<br><span style="font-size:{st.session_state.size_box_pct}px;">{s_m}{pct_m_box:.2f}%</span><br><span style="font-size: {st.session_state.size_box_wl}px; color: gray; font-weight: 500;">{w_m}W / {l_m}L</span></div></div>'
         
         if meses_html:
             st.markdown(f'<div class="weeks-container">{meses_html}</div>', unsafe_allow_html=True)
