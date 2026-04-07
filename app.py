@@ -210,7 +210,7 @@ TXT_DIAS_SEM_COLOR_O = "#FFFFFF"
 # ---------------------------------------------------------
 # [ TARJETAS DE LOS DÍAS ]
 # ---------------------------------------------------------
-TXT_NUM_DIA_SIZE = 39
+TXT_NUM_DIA_SIZE = 20
 TXT_NUM_DIA_COLOR_C = "#000000"
 TXT_NUM_DIA_COLOR_O = "#c0c0c0"
 
