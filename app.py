@@ -171,12 +171,12 @@ BTN_UP_BG_O = "#4A5568"
 BTN_UP_TXT_C = "#000000"      
 BTN_UP_TXT_O = "#FFFFFF"
 
-BTN_CAL_EMOJI = "🗓️🗓️🗓️"
-BTN_CAL_W = 1     
-BTN_CAL_H = 1    
-BTN_CAL_ICON_SIZE = 1 
-BTN_CAL_BG_C = "#000000"
-BTN_CAL_BG_O = "#000000"
+BTN_CAL_EMOJI = "🗓️"
+BTN_CAL_W = 68     
+BTN_CAL_H = 68    
+BTN_CAL_ICON_SIZE = 33 
+BTN_CAL_BG_C = "#F3F4F6"
+BTN_CAL_BG_O = "#2D3748"
 
 FLECHAS_SIZE = 40
 FLECHAS_X = 0 
@@ -1014,7 +1014,7 @@ with st.expander("🛠️ OPEN ORDER HISTORY", expanded=False):
             
             nombre_mes_grp = f"{calendar.month_name[mes_t]} {anio_t}"
             if nombre_mes_grp != mes_actual_dibujado:
-                st.markdown(f"<h4 style='color:000000; margin-top:15px; border-bottom:1px solid gray; padding-bottom:5px;'>🗓️ {nombre_mes_grp}</h4>", unsafe_allow_html=True)
+                st.markdown(f"<h4 style='color:000000; margin-top:90px; border-bottom:90px solid gray; padding-bottom:90px;'>🗓️ {nombre_mes_grp}</h4>", unsafe_allow_html=True)
                 mes_actual_dibujado = nombre_mes_grp
 
             pnl_val = float(data['pnl'])
