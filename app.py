@@ -478,7 +478,7 @@ st.markdown(f"""
     div[data-testid="stSelectbox"] input {{ color: 00000 !important; }}
     
     ul[role="listbox"] * {{ font-size: {OPT_FILTROS_SIZE}px !important; color: FFFFFF !important; }}
-    li[role="option"] {{ background-color: 00000 !important; }}
+    li[role="option"] {{ background-color: FFFFFF !important; }}
     li[role="option"]:hover {{ background-color: {border_color} !important; }}
 
     /* INPUT BALANCE (CAJA DE TEXTO Y NÚMERO) */
