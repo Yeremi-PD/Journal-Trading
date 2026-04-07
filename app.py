@@ -40,7 +40,23 @@ def inicializar_settings():
         "cal_pct_size": 25,
         "cal_dia_size": 20,
         "cal_cam_size": 30,
-        "cal_scale": 100
+        "cal_scale": 100,
+        # Nuevos ajustes del Dashboard
+        "btn_up_sz": 20,
+        "btn_up_h": 45,
+        "btn_up_x": 0,
+        "btn_up_y": 0,
+        "btn_save_sz": 16,
+        "btn_save_h": 35,
+        "btn_save_x": 0,
+        "btn_save_y": 5,
+        "btn_cal_sz": 33,
+        "btn_cal_h": 68,
+        "btn_cal_x": 0,
+        "btn_cal_y": 0,
+        "bal_num_sz": 30,
+        "bal_box_w": 50,
+        "bal_box_pad": 10
     }
 
 if "usuario_actual" not in st.session_state:
@@ -386,6 +402,30 @@ with st.sidebar.expander("📅 Ajustes de Calendario"):
     user_settings["cal_cam_size"] = st.slider("Tamaño Icono Cámara", 10, 50, user_settings["cal_cam_size"])
     user_settings["cal_scale"] = st.slider("Escala General (Altura del Calendario)", 50, 200, user_settings["cal_scale"])
 
+with st.sidebar.expander("🖥️ Ajustes de Dashboard"):
+    st.write("**Botón UPLOAD**")
+    user_settings["btn_up_sz"] = st.slider("Tamaño Texto Upload", 10, 40, user_settings["btn_up_sz"])
+    user_settings["btn_up_h"] = st.slider("Altura Botón Upload", 20, 100, user_settings["btn_up_h"])
+    user_settings["btn_up_x"] = st.slider("Mover Upload Horiz (X)", -100, 100, user_settings["btn_up_x"])
+    user_settings["btn_up_y"] = st.slider("Mover Upload Vert (Y)", -100, 100, user_settings["btn_up_y"])
+    
+    st.write("**Botón SAVE**")
+    user_settings["btn_save_sz"] = st.slider("Tamaño Texto SAVE", 10, 40, user_settings["btn_save_sz"])
+    user_settings["btn_save_h"] = st.slider("Altura Botón SAVE", 20, 100, user_settings["btn_save_h"])
+    user_settings["btn_save_x"] = st.slider("Mover SAVE Horiz (X)", -100, 100, user_settings["btn_save_x"])
+    user_settings["btn_save_y"] = st.slider("Mover SAVE Vert (Y)", -100, 100, user_settings["btn_save_y"])
+    
+    st.write("**Botón CALENDARIO**")
+    user_settings["btn_cal_sz"] = st.slider("Tamaño Emoji Calendario", 10, 60, user_settings["btn_cal_sz"])
+    user_settings["btn_cal_h"] = st.slider("Altura Botón Calendario", 20, 120, user_settings["btn_cal_h"])
+    user_settings["btn_cal_x"] = st.slider("Mover Calendario Horiz (X)", -100, 100, user_settings["btn_cal_x"])
+    user_settings["btn_cal_y"] = st.slider("Mover Calendario Vert (Y)", -100, 100, user_settings["btn_cal_y"])
+
+    st.write("**Caja ACCOUNT BALANCE**")
+    user_settings["bal_num_sz"] = st.slider("Tamaño Números Balance", 10, 60, user_settings["bal_num_sz"])
+    user_settings["bal_box_w"] = st.slider("Ancho Fondo Verde (%)", 10, 100, user_settings["bal_box_w"])
+    user_settings["bal_box_pad"] = st.slider("Altura Fondo Verde (Padding)", 0, 50, user_settings["bal_box_pad"])
+
 # --- BOTÓN DE LOG OUT (SIEMPRE AL FINAL) ---
 st.sidebar.markdown("<br><br><br>", unsafe_allow_html=True)
 if st.sidebar.button("🚪 Log Out", use_container_width=True):
@@ -481,7 +521,7 @@ st.markdown(f"""
     .lbl-data {{ font-size: {LBL_DATA_SIZE}px !important; color: {c_data} !important; font-weight: 700 !important; transform: translate({LBL_DATA_X}px, {LBL_DATA_Y}px) !important; margin-bottom: 5px !important; }}
     .lbl-input {{ font-size: {LBL_INPUT_SIZE}px !important; color: {c_lbl_in} !important; font-weight: 700 !important; transform: translate({LBL_INPUT_X}px, {LBL_INPUT_Y}px) !important; margin-bottom: 5px !important; }}
     
-    .balance-box {{ background: #00C897 !important; color: white !important; padding: 10px 0px !important; border-radius: 80px !important; text-align: center !important; font-weight: 700 !important; font-size: {BALANCE_SIZE}px !important; margin-left: {BALANCE_BOX_X}px !important; margin-top: {BALANCE_BOX_Y}px !important; width: {BALANCE_BOX_W}% !important; margin: 0 auto !important; }}
+    .balance-box {{ background: #00C897 !important; color: white !important; padding: {user_settings['bal_box_pad']}px 0px !important; border-radius: 80px !important; text-align: center !important; font-weight: 700 !important; font-size: {user_settings['bal_num_sz']}px !important; margin-left: {BALANCE_BOX_X}px !important; margin-top: {BALANCE_BOX_Y}px !important; width: {user_settings['bal_box_w']}% !important; margin: 0 auto !important; }}
     
     .thin-line {{ border-bottom: {LINEA_GROSOR}px solid {c_linea} !important; margin: {LINEA_MARGEN_SUP}px 0px {LINEA_MARGEN_INF}px 0px !important; width: {LINEA_ANCHO}% !important; transform: translateX({LINEA_X}px) !important; }}
 
@@ -509,7 +549,20 @@ st.markdown(f"""
     div[data-testid="stNumberInput"] input {{ color: {c_lbl_in} !important; font-size: {INPUT_BAL_TXT_SIZE}px !important; background-color: {input_bg} !important; font-weight: bold !important; height: {INPUT_BAL_H} !important; min-height: {INPUT_BAL_H} !important; box-sizing: border-box !important; padding-top: 0 !important; padding-bottom: 0 !important; }}
 
     [data-testid="stForm"] {{ padding: 0 !important; border: none !important; background: transparent !important; margin: 0 !important; }}
-    [data-testid="stFormSubmitButton"] button {{ background-color: #00C897 !important; color: white !important; font-weight: bold !important; height: 35px !important; min-height: 35px !important; border-radius: 8px !important; border: none !important; width: {INPUT_BAL_W} !important; margin-left: {INPUT_BAL_X}px !important; margin-top: 5px !important; }}
+    
+    /* BOTON SAVE */
+    [data-testid="stFormSubmitButton"] button {{ 
+        background-color: #00C897 !important; 
+        color: white !important; 
+        font-weight: bold !important; 
+        font-size: {user_settings['btn_save_sz']}px !important;
+        height: {user_settings['btn_save_h']}px !important; 
+        min-height: {user_settings['btn_save_h']}px !important; 
+        border-radius: 8px !important; 
+        border: none !important; 
+        width: {INPUT_BAL_W} !important; 
+        transform: translate({user_settings['btn_save_x']}px, {user_settings['btn_save_y']}px) !important;
+    }}
 
     [data-testid="stFileUploader"] {{ transform: translate({DROPZONE_X}px, {DROPZONE_Y}px) !important; background-color: transparent !important; border: none !important; padding: 0 !important; box-shadow: none !important; }}
     [data-testid="stFileUploader"] > section {{ background-color: transparent !important; border: none !important; padding: 0 !important; }}
@@ -518,13 +571,42 @@ st.markdown(f"""
     [data-testid="stFileUploadDropzone"] > div {{ background-color: transparent !important; border: none !important; }}
     [data-testid="stFileUploadDropzone"] > div > span, [data-testid="stFileUploadDropzone"] small, [data-testid="stFileUploaderDropzoneInstructions"] {{ display: none !important; }}
     
-    [data-testid="stFileUploadDropzone"] button {{ background-color: {u_btn_bg} !important; color: {u_btn_txt} !important; border: 1px solid {border_color} !important; border-radius: 6px !important; margin: 0 !important; width: {BTN_UP_W} !important; min-width: {BTN_UP_W} !important; min-height: {BTN_UP_H} !important; height: {BTN_UP_H} !important; }}
-    [data-testid="stFileUploadDropzone"] button * {{ color: {u_btn_txt} !important; font-size: {BTN_UP_SIZE} !important; }}
-    [data-testid="stFileUploadDropzone"] button::after {{ content: "{BTN_UP_TEXTO}" !important; font-size: {BTN_UP_SIZE} !important; }}
+    /* BOTON UPLOAD */
+    [data-testid="stFileUploadDropzone"] button {{ 
+        background-color: {u_btn_bg} !important; 
+        color: {u_btn_txt} !important; 
+        border: 1px solid {border_color} !important; 
+        border-radius: 6px !important; 
+        margin: 0 !important; 
+        width: {BTN_UP_W} !important; 
+        min-width: {BTN_UP_W} !important; 
+        min-height: {user_settings['btn_up_h']}px !important; 
+        height: {user_settings['btn_up_h']}px !important; 
+        transform: translate({user_settings['btn_up_x']}px, {user_settings['btn_up_y']}px) !important;
+    }}
+    [data-testid="stFileUploadDropzone"] button * {{ color: {u_btn_txt} !important; font-size: {user_settings['btn_up_sz']}px !important; }}
+    [data-testid="stFileUploadDropzone"] button::after {{ content: "{BTN_UP_TEXTO}" !important; font-size: {user_settings['btn_up_sz']}px !important; }}
     [data-testid="stFileUploadDropzone"] button div {{ display: none !important; }}
 
     div[data-testid="stButton"] > button {{ background-color: {btn_bg} !important; color: {btn_txt} !important; border: 1px solid {border_color} !important; }}
-    div[data-testid="stPopover"] > button {{ min-height: {BTN_CAL_H}px !important; height: {BTN_CAL_H}px !important; min-width: {BTN_CAL_W}px !important; width: {BTN_CAL_W}px !important; padding: 0 !important; font-size: {BTN_CAL_ICON_SIZE}px !important; border-radius: px !important; border: 1px solid {border_color} !important; background-color: {btn_bg} !important; color: {btn_txt} !important; display: flex !important; justify-content: center !important; align-items: center !important; }}
+    
+    /* BOTON CALENDARIO (POPOVER) */
+    div[data-testid="stPopover"] > button {{ 
+        min-height: {user_settings['btn_cal_h']}px !important; 
+        height: {user_settings['btn_cal_h']}px !important; 
+        min-width: {BTN_CAL_W}px !important; 
+        width: {BTN_CAL_W}px !important; 
+        padding: 0 !important; 
+        font-size: {user_settings['btn_cal_sz']}px !important; 
+        border-radius: 8px !important; 
+        border: 1px solid {border_color} !important; 
+        background-color: {btn_bg} !important; 
+        color: {btn_txt} !important; 
+        display: flex !important; 
+        justify-content: center !important; 
+        align-items: center !important; 
+        transform: translate({user_settings['btn_cal_x']}px, {user_settings['btn_cal_y']}px) !important;
+    }}
     
     div[data-testid="stPopoverBody"] {{ background-color: {card_bg} !important; border: 1px solid {border_color} !important; border-radius: 8px !important; padding: 15px !important; }}
     div[data-testid="stPopoverBody"]:has(h3) {{ width: 710px !important; max-width: 95vw !important; max-height: 85vh !important; margin-top: 100px !important; overflow-y: auto !important; box-shadow: 0 4px 20px rgba(0,0,0,0.3) !important; }}
@@ -820,6 +902,49 @@ with col_cal:
                         op = "0.2" if trade and not visible else "1"
                         st.markdown(f'<div class="card cell-empty" style="opacity:{op}"><div class="day-number">{dia}</div></div>', unsafe_allow_html=True)
 
+# 🔴 FUNCIÓN PARA CREAR EL GRÁFICO DE PASTEL SVG 🔴
+def get_pie_svg(w, l, t, size, y_offset):
+    tot = w + l + t
+    if tot == 0:
+        return f'<svg width="{size}" height="{size}" viewBox="0 0 100 100" style="transform: translateY({y_offset}px);"><circle cx="50" cy="50" r="50" fill="#4A5568" /></svg>'
+
+    C = 2 * math.pi * 25
+    pw = w / tot
+    pl = l / tot
+    pt = t / tot
+
+    off_w = 0
+    off_l = - (pw * C)
+    off_t = - ((pw + pl) * C)
+
+    svg = f'<svg width="{size}" height="{size}" viewBox="0 0 100 100" style="transform: translateY({y_offset}px); border-radius:50%;">'
+    
+    if pw > 0:
+        svg += f'<circle cx="50" cy="50" r="25" fill="none" stroke="#00C897" stroke-width="50" stroke-dasharray="{pw * C} {C}" stroke-dashoffset="{off_w}" transform="rotate(-90 50 50)" />'
+    if pl > 0:
+        svg += f'<circle cx="50" cy="50" r="25" fill="none" stroke="#FF4C4C" stroke-width="50" stroke-dasharray="{pl * C} {C}" stroke-dashoffset="{off_l}" transform="rotate(-90 50 50)" />'
+    if pt > 0:
+        svg += f'<circle cx="50" cy="50" r="25" fill="none" stroke="#4F46E5" stroke-width="50" stroke-dasharray="{pt * C} {C}" stroke-dashoffset="{off_t}" transform="rotate(-90 50 50)" />'
+
+    def get_xy(pct_start, pct_slice):
+        angle = (pct_start + pct_slice/2) * 2 * math.pi - math.pi/2
+        x = 50 + 25 * math.cos(angle)
+        y = 50 + 25 * math.sin(angle)
+        return x, y
+
+    if pw > 0.05:
+        x, y = get_xy(0, pw)
+        svg += f'<text x="{x}" y="{y}" fill="white" font-size="14" font-family="sans-serif" font-weight="bold" text-anchor="middle" dominant-baseline="central">{int(round(pw*100))}%</text>'
+    if pl > 0.05:
+        x, y = get_xy(pw, pl)
+        svg += f'<text x="{x}" y="{y}" fill="white" font-size="14" font-family="sans-serif" font-weight="bold" text-anchor="middle" dominant-baseline="central">{int(round(pl*100))}%</text>'
+    if pt > 0.05:
+        x, y = get_xy(pw+pl, pt)
+        svg += f'<text x="{x}" y="{y}" fill="white" font-size="14" font-family="sans-serif" font-weight="bold" text-anchor="middle" dominant-baseline="central">{int(round(pt*100))}%</text>'
+
+    svg += '</svg>'
+    return svg
+
 with col_det:
     ver_todo = st.toggle("🌍 View All-Time Stats", value=False)
     
@@ -852,28 +977,8 @@ with col_det:
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # 🔴 GRÁFICO DE PASTEL (CSS PURO Y DINÁMICO) 🔴
-    if total_trades > 0:
-        pct_w = (wins / total_trades) * 100
-        pct_l = (losses / total_trades) * 100
-    else:
-        pct_w = 0
-        pct_l = 0
-
-    pie_html = f'''
-    <div style="
-        width: {user_settings["pie_size"]}px; 
-        height: {user_settings["pie_size"]}px; 
-        border-radius: 50%; 
-        background: conic-gradient(
-            #00C897 0% {pct_w}%, 
-            #FF4C4C {pct_w}% {pct_w + pct_l}%, 
-            #4F46E5 {pct_w + pct_l}% 100%
-        );
-        transform: translateY({user_settings["pie_y_offset"]}px);
-        flex-shrink: 0;
-    "></div>
-    '''
+    # 🔴 LLAMADA AL GRÁFICO SVG PASTEL 🔴
+    pie_html = get_pie_svg(wins, losses, ties, user_settings["pie_size"], user_settings["pie_y_offset"])
 
     st.markdown(f"""
         <div class="metric-card card-win">
@@ -1018,7 +1123,7 @@ with st.expander("🛠️ OPEN ORDER HISTORY", expanded=False):
                     accept_multiple_files=True, 
                     key=upd_key, 
                     on_change=agregar_imagenes_historial, 
-                    args=(ctx, clave, upd_key, counter_main_key)
+                    args=(ctx, clave, upd_key, counter_key)
                 )
 
                 imagenes_restantes = db_usuario[ctx]["trades"][clave].get("imagenes", [])
