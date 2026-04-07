@@ -748,7 +748,7 @@ with c_not:
             colorful_menu(trade_type_options, "&nbsp;&nbsp;&nbsp;Trade Type", 'trade_type', trade_data_ref)
             st.markdown("<br>", unsafe_allow_html=True)
 
-            trade_data_ref['Emotions'] = st.text_area("Emotions", value=trade_data_ref.get('&nbsp;&nbsp;&nbsp;Emotions', ''), key=f"emoc_main", height=80)
+            trade_data_ref['Emotions'] = st.text_area("&nbsp;&nbsp;&nbsp;Emotions", value=trade_data_ref.get('&nbsp;&nbsp;&nbsp;Emotions', ''), key=f"emoc_main", height=80)
 
 
 # ==========================================
