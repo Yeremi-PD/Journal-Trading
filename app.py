@@ -102,7 +102,7 @@ LBL_DATA = "Data Source"
 LBL_DATA_SIZE = 20              
 LBL_DATA_X = 0
 LBL_DATA_Y = 0
-LBL_DATA_COLOR_C = "#000000"
+LBL_DATA_COLOR_C = "#ffffff"
 LBL_DATA_COLOR_O = "#FFFFFF"
 
     # ( Opciones de adentro del menú Data Source )
@@ -182,9 +182,9 @@ BTN_UP_TXT_O = "#FFFFFF"
 # [ BOTÓN: CALENDARIO Y FLECHAS ]
 # ---------------------------------------------------------
 BTN_CAL_EMOJI = "🗓️"
-BTN_CAL_W = 618     
-BTN_CAL_H = 618    
-BTN_CAL_ICON_SIZE = 313 
+BTN_CAL_W = 68     
+BTN_CAL_H = 68    
+BTN_CAL_ICON_SIZE = 33 
 BTN_CAL_BG_C = "#F3F4F6"
 BTN_CAL_BG_O = "#2D3748"
 
