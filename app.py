@@ -86,8 +86,8 @@ LBL_FILTROS = "Filtros"
 LBL_FILTROS_SIZE = 50
 LBL_FILTROS_X = 0
 LBL_FILTROS_Y = 0
-LBL_FILTROS_COLOR_C = "#000000"
-LBL_FILTROS_COLOR_O = "#FFFFFF"
+LBL_FILTROS_COLOR_C = "#ff0043"
+LBL_FILTROS_COLOR_O = "#ff0043"
 
     # ( Opciones dentro de Filtros )
 OPT_FILTRO_1 = "Todos"
@@ -102,8 +102,8 @@ LBL_DATA = "Data Source"
 LBL_DATA_SIZE = 40
 LBL_DATA_X = 0
 LBL_DATA_Y = 0
-LBL_DATA_COLOR_C = "#000000"
-LBL_DATA_COLOR_O = "#FFFFFF"
+LBL_DATA_COLOR_C = "#ff0043"
+LBL_DATA_COLOR_O = "#ff0043"
 
     # ( Opciones dentro de Data Source )
 OPT_DATA_1 = "Real Data"
@@ -165,10 +165,10 @@ BTN_UP_W = "1200%"
 BTN_UP_H = "628px"                     
 BTN_UP_X = 0
 BTN_UP_Y = 0
-BTN_UP_BG_C = "#E2E8F0"       
-BTN_UP_BG_O = "#4A5568"
-BTN_UP_TXT_C = "#000000"      
-BTN_UP_TXT_O = "#FFFFFF"
+BTN_UP_BG_C = "#ff0043"       
+BTN_UP_BG_O = "#ff0043"
+BTN_UP_TXT_C = "#ff0043"      
+BTN_UP_TXT_O = "#ff0043"
 
 # ---------------------------------------------------------
 # [ BOTÓN: CALENDARIO Y FLECHAS ]
