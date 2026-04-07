@@ -948,6 +948,7 @@ with st.expander("🛠️ OPEN ORDER HISTORY", expanded=False):
                 if counter_key not in st.session_state:
                     st.session_state[counter_key] = 0
                 
+
                     accept_multiple_files=True, 
                     key=upd_key, 
                     on_change=agregar_imagenes_historial, 
