@@ -295,28 +295,46 @@ WEEK_ALIGN = "center"
 # ==========================================
 # 4. LÓGICA DE ESTADO DEL USUARIO
 # ==========================================
-# 1. Primero inicializamos el tema para evitar el error AttributeError
+
+# --- 1. INICIALIZAR VARIABLES DE SESIÓN (ESTO ARREGLA EL ERROR DEL CELULAR) ---
 if "tema" not in st.session_state:
     st.session_state.tema = TEMA_POR_DEFECTO
 
-# 2. Luego obtenemos los datos del usuario
+if "data_source_sel" not in st.session_state:
+    st.session_state.data_source_sel = "Account Demo"
+
+# --- 2. CARGAR DATOS DEL USUARIO ---
 usuario = st.session_state.usuario_actual
 db_usuario = db_global[usuario]["data"]
 
-# 3. Parche de seguridad para nombres de cuentas y evitar KeyErrors
+# --- 3. PARCHE PARA NOMBRES NUEVOS Y ESCUDO PROTECTOR ---
+if "Real Data" in db_usuario:
+    db_usuario["Account Real"] = db_usuario.pop("Real Data")
+if "Demo Data" in db_usuario:
+    db_usuario["Account Demo"] = db_usuario.pop("Demo Data")
+if "Demo Account" in db_usuario:
+    db_usuario["Account Demo"] = db_usuario.pop("Demo Account")
+
+# Asegurar que existan ambas cuentas siempre (Evita KeyError)
 for cuenta in ["Account Real", "Account Demo"]:
     if cuenta not in db_usuario:
         db_usuario[cuenta] = {"balance": 25000.00, "trades": {}}
 
-# 4. Inicializamos el resto de estados
-if "data_source_sel" not in st.session_state:
-    st.session_state.data_source_sel = "Account Demo"
-
+# --- 4. FECHAS Y CALENDARIO ---
 hoy = datetime.now()
 if "cal_month" not in st.session_state:
     st.session_state.cal_month = hoy.month
 if "cal_year" not in st.session_state:
     st.session_state.cal_year = hoy.year
+
+def cambiar_mes(delta):
+    st.session_state.cal_month += delta
+    if st.session_state.cal_month > 12:
+        st.session_state.cal_month = 1
+        st.session_state.cal_year += 1
+    elif st.session_state.cal_month < 1:
+        st.session_state.cal_month = 12
+        st.session_state.cal_year -= 1
 
 def procesar_cambio():
     ctx = st.session_state.data_source_sel 
@@ -339,7 +357,6 @@ def procesar_cambio():
 
 def convertir_img_base64(uploaded_file):
     return base64.b64encode(uploaded_file.getvalue()).decode()
-
 # ==========================================
 # 5. BARRA LATERAL (AJUSTES Y ADMIN)
 # ==========================================
