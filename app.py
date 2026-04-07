@@ -171,7 +171,7 @@ DROPZONE_BORDER_O = "1px dashed #4A5568"
     # ( Botón de Upload de Adentro )
 BTN_UP_TEXTO = "Upload"
 BTN_UP_SIZE = "20px"
-BTN_UP_W = "1120px"             # El ancho del botón de adentro
+BTN_UP_W = "120px"             # El ancho del botón de adentro
 BTN_UP_H = "415px"              # El alto del botón de adentro
 BTN_UP_BG_C = "#E2E8F0"       
 BTN_UP_BG_O = "#4A5568"
@@ -182,9 +182,9 @@ BTN_UP_TXT_O = "#FFFFFF"
 # [ BOTÓN: CALENDARIO Y FLECHAS ]
 # ---------------------------------------------------------
 BTN_CAL_EMOJI = "🗓️"
-BTN_CAL_W = 68     
-BTN_CAL_H = 68    
-BTN_CAL_ICON_SIZE = 33 
+BTN_CAL_W = 618     
+BTN_CAL_H = 618    
+BTN_CAL_ICON_SIZE = 313 
 BTN_CAL_BG_C = "#F3F4F6"
 BTN_CAL_BG_O = "#2D3748"
 
