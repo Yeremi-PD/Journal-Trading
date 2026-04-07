@@ -87,15 +87,15 @@ LBL_FILTROS_SIZE = 20
 LBL_FILTROS_X = 0
 LBL_FILTROS_Y = 0
 LBL_FILTROS_COLOR_C = "#000000"
-LBL_FILTROS_COLOR_O = "#ffffff"
+LBL_FILTROS_COLOR_O = "#FFFFFF"
 
     # ( Opciones de adentro del menú Filtros )
 OPT_FILTRO_1 = "Todos"
 OPT_FILTRO_2 = "Ganancias"
 OPT_FILTRO_3 = "Pérdidas"
-OPT_FILTROS_SIZE = 18  
-OPT_FILTROS_COLOR_C = "#ffffff"  # <-- COLOR DEL TEXTO ADENTRO (TEMA CLARO)
-OPT_FILTROS_COLOR_O = "#ffffff"  # <-- COLOR DEL TEXTO ADENTRO (TEMA OSCURO)
+OPT_FILTROS_SIZE = 14  
+OPT_FILTROS_COLOR_C = "#000000"  # <-- COLOR DEL TEXTO ADENTRO (TEMA CLARO)
+OPT_FILTROS_COLOR_O = "#FFFFFF"  # <-- COLOR DEL TEXTO ADENTRO (TEMA OSCURO)
 
 # ---------------------------------------------------------
 # [ ETIQUETA: DATA SOURCE ] (AQUÍ AHORA ES HTML PURO)
@@ -110,7 +110,7 @@ LBL_DATA_COLOR_O = "#FFFFFF"
     # ( Opciones de adentro del menú Data Source )
 OPT_DATA_1 = "Real Data"
 OPT_DATA_2 = "Demo Data"
-OPT_DATA_SIZE = 18    
+OPT_DATA_SIZE = 14    
 OPT_DATA_COLOR_C = "#000000"     # <-- COLOR DEL TEXTO ADENTRO (TEMA CLARO)
 OPT_DATA_COLOR_O = "#FFFFFF"     # <-- COLOR DEL TEXTO ADENTRO (TEMA OSCURO)
 
@@ -456,7 +456,7 @@ st.markdown(f"""
     .lbl-total-bal {{ font-size: {LBL_BAL_TOTAL_SIZE}px !important; color: {c_lbl_bal} !important; font-weight: 700 !important; display: inline-block !important; transform: translate({LBL_BAL_TOTAL_X}px, {LBL_BAL_TOTAL_Y}px) !important; }}
     .lbl-filtros {{ font-size: {LBL_FILTROS_SIZE}px !important; color: {c_filtros} !important; font-weight: 700 !important; transform: translate({LBL_FILTROS_X}px, {LBL_FILTROS_Y}px) !important; margin-bottom: 5px !important; }}
     .lbl-data {{ font-size: {LBL_DATA_SIZE}px !important; color: {c_data} !important; font-weight: 700 !important; transform: translate({LBL_DATA_X}px, {LBL_DATA_Y}px) !important; margin-bottom: 5px !important; }}
-    .lbl-input {{ font-size: {LBL_INPUT_SIZE}px !important; color: ffffff !important; font-weight: 700 !important; transform: translate({LBL_INPUT_X}px, {LBL_INPUT_Y}px) !important; margin-bottom: 5px !important; }}
+    .lbl-input {{ font-size: {LBL_INPUT_SIZE}px !important; color: {c_lbl_in} !important; font-weight: 700 !important; transform: translate({LBL_INPUT_X}px, {LBL_INPUT_Y}px) !important; margin-bottom: 5px !important; }}
     
     /* CAJA VERDE BALANCE */
     .balance-box {{ background: #00C897 !important; color: white !important; padding: 10px 0px !important; border-radius: 80px !important; text-align: center !important; font-weight: 700 !important; font-size: {BALANCE_SIZE}px !important; margin-left: {BALANCE_BOX_X}px !important; margin-top: {BALANCE_BOX_Y}px !important; width: {BALANCE_BOX_W}% !important; margin: 0 auto !important; }}
@@ -472,10 +472,18 @@ st.markdown(f"""
     div[data-baseweb="select"] > div {{ background-color: {card_bg} !important; border-color: {border_color} !important; }}
     ul[role="listbox"] {{ background-color: {card_bg} !important; }}
     
-    /* TAMAÑO Y COLOR DE LAS OPCIONES DE ADENTRO (AHORA INDEPENDIENTE DEL TÍTULO) */
-    div[data-testid="column"]:nth-of-type(2) div[data-baseweb="select"] * {{ font-size: {OPT_FILTROS_SIZE}px !important; color: ff0043  !important; }}
-    div[data-testid="column"]:nth-of-type(3) div[data-baseweb="select"] * {{ font-size: {OPT_DATA_SIZE}px !important; color: ff0043  !important; }}
-    li[role="option"], li[role="option"] span {{ font-size: {OPT_FILTROS_SIZE}px !important; color: {c_opt_filtros} !important; }}
+    /* TAMAÑO Y COLOR DE LAS OPCIONES DE ADENTRO FORZADO A LA PERFECCIÓN */
+    div[data-testid="column"]:nth-of-type(2) div[data-baseweb="select"],
+    div[data-testid="column"]:nth-of-type(2) div[data-baseweb="select"] div,
+    div[data-testid="column"]:nth-of-type(2) div[data-baseweb="select"] span {{ font-size: {OPT_FILTROS_SIZE}px !important; color: {c_opt_filtros} !important; }}
+    div[data-testid="column"]:nth-of-type(2) div[data-baseweb="select"] svg {{ fill: {c_opt_filtros} !important; color: {c_opt_filtros} !important; }}
+    
+    div[data-testid="column"]:nth-of-type(3) div[data-baseweb="select"],
+    div[data-testid="column"]:nth-of-type(3) div[data-baseweb="select"] div,
+    div[data-testid="column"]:nth-of-type(3) div[data-baseweb="select"] span {{ font-size: {OPT_DATA_SIZE}px !important; color: {c_opt_data} !important; }}
+    div[data-testid="column"]:nth-of-type(3) div[data-baseweb="select"] svg {{ fill: {c_opt_data} !important; color: {c_opt_data} !important; }}
+    
+    li[role="option"] span, li[role="option"] {{ color: {c_opt_filtros} !important; font-size: {OPT_FILTROS_SIZE}px !important; }}
     li[role="option"]:hover {{ background-color: {border_color} !important; }}
 
     /* INPUT BALANCE (CAJA DE TEXTO Y NÚMERO) */
