@@ -531,9 +531,10 @@ st.markdown(f"""
         padding: 15px !important; 
     }}
     div[data-testid="stPopoverBody"]:has(h3) {{
-        width: 500px !important;
+        width: 550px !important;
         max-width: 95vw !important;
         max-height: 85vh !important;
+        margin-top: 100px !important;
         overflow-y: auto !important;
         box-shadow: 0 4px 20px rgba(0,0,0,0.3) !important;
     }}
@@ -738,7 +739,7 @@ with c_not:
             colorful_menu(risk_options, "% Risk", 'risk', trade_data_ref)
             st.markdown("<br>", unsafe_allow_html=True)
 
-            rrr_options = ['A+', 'A', 'B', 'C']
+            rrr_options = ['1:1', '1:1.5', '1:2', '1:3', '1:4']
             colorful_menu(rrr_options, "RR", 'rrr', trade_data_ref)
             st.markdown("<br>", unsafe_allow_html=True)
             
