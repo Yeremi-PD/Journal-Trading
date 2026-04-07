@@ -905,13 +905,13 @@ with st.expander("🛠️ OPEN ORDER HISTORY", expanded=False):
                     st.caption("No hay imágenes guardadas en este día.")
                 
                 st.markdown("<br>", unsafe_allow_html=True)
-                nuevas_imgs = st.file_uploader("Agregar más fotos a este día", accept_multiple_files=True, key=f"upd_{clave}")
+                nuevas_imgs = st.file_uploader("Add more photos to this day", accept_multiple_files=True, key=f"upd_{clave}")
                 
                 st.markdown("---")
                 c_btn1, c_btn2 = st.columns(2)
                 
                 with c_btn1:
-                    if st.button("💾 GUARDAR CAMBIOS DEL DÍA", key=f"save_{clave}", use_container_width=True):
+                    if st.button("💾 SAVE TODAY'S CHANGES", key=f"save_{clave}", use_container_width=True):
                         if nuevas_imgs:
                             for img in nuevas_imgs:
                                 imagenes_restantes.append(f"data:{img.type};base64,{convertir_img_base64(img)}")
@@ -930,6 +930,6 @@ with st.expander("🛠️ OPEN ORDER HISTORY", expanded=False):
                         st.rerun()
                         
                 with c_btn2:
-                    if st.button("❌ BORRAR DÍA COMPLETO", key=f"del_{clave}", use_container_width=True):
+                    if st.button("❌ DELETE FULL DAY", key=f"del_{clave}", use_container_width=True):
                         del db_usuario[ctx]["trades"][clave]
                         st.rerun()
