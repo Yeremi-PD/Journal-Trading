@@ -341,7 +341,7 @@ def procesar_cambio():
             "bias": old_trade.get("bias", "NEUTRO"),
             "Confluences": old_trade.get("Confluences", []),
             "razon_trade": old_trade.get("razon_trade", ""),
-            "correcciones": old_trade.get("correcciones", ""),
+            "Corrections": old_trade.get("Corrections", ""),
             "risk": old_trade.get("risk", "0.5%"),
             "rrr": old_trade.get("rrr", "B"),
             "trade_type": old_trade.get("trade_type", ""),
@@ -668,7 +668,7 @@ def agregar_imagenes_main(contexto, llave, widget_id, counter_id, bal_act, f_str
         if llave not in db_usuario[contexto]["trades"]:
             db_usuario[contexto]["trades"][llave] = {
                 "pnl": 0.0, "balance_final": bal_act, "fecha_str": f_str, "imagenes": [],
-                "bias": "NEUTRO", "Confluences": [], "razon_trade": "", "correcciones": "", "risk": "0.5%", "rrr": "B", "trade_type": "A", "Emotions": ""
+                "bias": "NEUTRO", "Confluences": [], "razon_trade": "", "Corrections": "", "risk": "0.5%", "rrr": "B", "trade_type": "A", "Emotions": ""
             }
         for img in archivos_nuevos:
             db_usuario[contexto]["trades"][llave]["imagenes"].append(f"data:{img.type};base64,{convertir_img_base64(img)}")
@@ -734,7 +734,7 @@ with c_not:
             st.markdown("<br>", unsafe_allow_html=True)
 
             trade_data_ref['razon_trade'] = st.text_area("Reason For Trade", value=trade_data_ref.get('razon_trade', ''), key=f"razon_main", height=80)
-            trade_data_ref['correcciones'] = st.text_area("Correcciones", value=trade_data_ref.get('correcciones', ''), key=f"corr_main", height=80)
+            trade_data_ref['Corrections'] = st.text_area("Corrections", value=trade_data_ref.get('Corrections', ''), key=f"corr_main", height=80)
             
             risk_options = ['0.6%', '0.5%', '0.4%']
             colorful_menu(risk_options, "% Risk", 'risk', trade_data_ref)
@@ -992,7 +992,7 @@ with st.expander("🛠️ OPEN ORDER HISTORY", expanded=False):
                             "bias": data.get("bias", "NEUTRO"),
                             "Confluences": data.get("Confluences", []),
                             "razon_trade": data.get("razon_trade", ""),
-                            "correcciones": data.get("correcciones", ""),
+                            "Corrections": data.get("Corrections", ""),
                             "risk": data.get("risk", "0.5%"),
                             "rrr": data.get("rrr", "B"),
                             "trade_type": data.get("trade_type", ""),
@@ -1027,7 +1027,7 @@ def sync_table_edits():
                 t = db_usuario[contexto]["trades"][k]
                 if "Bias" in edits: t["bias"] = edits["Bias"]
                 if "Reason For Trade" in edits: t["razon_trade"] = edits["Reason For Trade"]
-                if "Correcciones" in edits: t["correcciones"] = edits["Correcciones"]
+                if "Corrections" in edits: t["Corrections"] = edits["Corrections"]
                 if "% Risk" in edits: t["risk"] = edits["% Risk"]
                 if "RR" in edits: t["rrr"] = edits["RR"]
                 if "Trade Type" in edits: t["trade_type"] = edits["Trade Type"]
@@ -1067,7 +1067,7 @@ if mostrar_tabla:
                 "RR": trade.get('rrr', ''),
                 "Trade Type": trade.get('trade_type', ''),
                 "Emotions": trade.get('Emotions', ''),
-                "Correcciones": trade.get('correcciones', ''),
+                "Corrections": trade.get('Corrections', ''),
                 "P&L": f"{pnl_simbol}${pnl:,.2f}"
             }
             table_data.append(row)
