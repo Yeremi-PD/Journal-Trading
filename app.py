@@ -707,7 +707,7 @@ with col_cal:
     
     st.markdown("<br>", unsafe_allow_html=True)
     
-    dias_semana = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"]
+    dias_semana = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
     calendar.setfirstweekday(calendar.SUNDAY)
     mes_matriz = calendar.monthcalendar(anio_sel, mes_sel)
     
