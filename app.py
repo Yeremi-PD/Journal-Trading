@@ -193,14 +193,14 @@ BALANCE_SIZE = 30
 INPUT_BAL_X = 0      
 INPUT_BAL_Y = 0      
 INPUT_FONDO_CLARO = "#FFFFFF"
-INPUT_FONDO_OSCURO = "#ff0043"
+INPUT_FONDO_OSCURO = "#1A202C"
 
 CARD_PNL_X = 0       
 CARD_PNL_Y = 10      
 CARD_PNL_W = 80      
 CARD_WIN_X = 0       
 CARD_WIN_Y = 20      
-CARD_WIN_W = 80      
+CARD_WIN_W = 70      
 
 # ==========================================
 # 4. LÓGICA DE ESTADO DEL USUARIO
