@@ -138,7 +138,7 @@ TXT_NUM_DIA_COLOR_OSCURO = "#FFFFFF"
 # TEXTO 9: El dinero dentro de la tarjeta (Ej: +$50.00)
 # (Mantiene su color verde o rojo automático, pero puedes cambiar el TAMAÑO)
 # ---------------------------------------------------------
-TXT_PNL_DIA_SIZE = 16
+TXT_PNL_DIA_SIZE = 20
 
 # ---------------------------------------------------------
 # TEXTO 10: El Porcentaje dentro de la tarjeta (Ej: +1.50%)
