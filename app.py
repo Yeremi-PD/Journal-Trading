@@ -478,8 +478,8 @@ st.markdown(f"""
     div[data-testid="stSelectbox"] input {{ color: 00000 !important; }}
     
     ul[role="listbox"] * {{ font-size: {OPT_FILTROS_SIZE}px !important; color: 00000 !important; }}
-    li[role="option"] {{ background-color: {card_bg} !important; }}
-    li[role="option"]:hover {{ background-color: {border_color} !important; }}
+    li[role="option"] {{ background-color: 00000 !important; }}
+    li[role="option"]:hover {{ background-color: 00000 !important; }}
 
     /* INPUT BALANCE (CAJA DE TEXTO Y NÚMERO) */
     div[data-testid="stNumberInput"] {{ margin-left: {INPUT_BAL_X}px !important; margin-top: {INPUT_BAL_Y}px !important; width: {INPUT_BAL_W} !important; min-width: {INPUT_BAL_W} !important; max-width: {INPUT_BAL_W} !important; }}
