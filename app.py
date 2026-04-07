@@ -295,11 +295,16 @@ WEEK_ALIGN = "center"
 usuario = st.session_state.usuario_actual
 db_usuario = db_global[usuario]["data"]
 
-if "data_source_sel" not in st.session_state:
-    st.session_state.data_source_sel = OPT_DATA_2
-if "tema" not in st.session_state:
-    st.session_state.tema = TEMA_POR_DEFECTO
+# --- PARCHE PARA NOMBRES NUEVOS ---
+if "Real Data" in db_usuario:
+    db_usuario["Account Real"] = db_usuario.pop("Real Data")
+if "Demo Data" in db_usuario:
+    db_usuario["Account Demo"] = db_usuario.pop("Demo Data")
+if "Demo Account" in db_usuario:
+    db_usuario["Account Demo"] = db_usuario.pop("Demo Account")
 
+if "data_source_sel" not in st.session_state:
+    st.session_state.data_source_sel = "Account Demo"
 hoy = datetime.now()
 if "cal_month" not in st.session_state:
     st.session_state.cal_month = hoy.month
