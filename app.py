@@ -80,7 +80,7 @@ TXT_DASH_COLOR_C = "#000000"
 TXT_DASH_COLOR_O = "#FFFFFF"
 
 # ---------------------------------------------------------
-# [ ETIQUETA: FILTROS ] (AQUÍ AHORA ES HTML PURO)
+# [ ETIQUETA: FILTROS ] 
 # ---------------------------------------------------------
 LBL_FILTROS = "Filtros"
 LBL_FILTROS_SIZE = 20           
@@ -98,7 +98,7 @@ OPT_FILTROS_COLOR_C = "#000000"  # <-- COLOR DEL TEXTO ADENTRO (TEMA CLARO)
 OPT_FILTROS_COLOR_O = "#FFFFFF"  # <-- COLOR DEL TEXTO ADENTRO (TEMA OSCURO)
 
 # ---------------------------------------------------------
-# [ ETIQUETA: DATA SOURCE ] (AQUÍ AHORA ES HTML PURO)
+# [ ETIQUETA: DATA SOURCE ] 
 # ---------------------------------------------------------
 LBL_DATA = "Data Source"
 LBL_DATA_SIZE = 20              
@@ -115,7 +115,7 @@ OPT_DATA_COLOR_C = "#000000"     # <-- COLOR DEL TEXTO ADENTRO (TEMA CLARO)
 OPT_DATA_COLOR_O = "#FFFFFF"     # <-- COLOR DEL TEXTO ADENTRO (TEMA OSCURO)
 
 # ---------------------------------------------------------
-# [ ETIQUETA Y CAJA: BALANCE MANUAL (Input) ] (AQUÍ AHORA ES HTML PURO)
+# [ ETIQUETA Y CAJA: BALANCE MANUAL (Input) ] 
 # ---------------------------------------------------------
 LBL_INPUT = "Balance:"
 LBL_INPUT_SIZE = 20             
@@ -383,9 +383,9 @@ if st.session_state.tema == "Claro":
     
     c_dash = TXT_DASH_COLOR_C
     c_filtros = LBL_FILTROS_COLOR_C
-    c_opt_filtros = OPT_FILTROS_COLOR_C   # <-- COLOR ASIGNADO
+    c_opt_filtros = OPT_FILTROS_COLOR_C   
     c_data = LBL_DATA_COLOR_C
-    c_opt_data = OPT_DATA_COLOR_C         # <-- COLOR ASIGNADO
+    c_opt_data = OPT_DATA_COLOR_C         
     c_lbl_bal = LBL_BAL_TOTAL_COLOR_C
     c_lbl_in = LBL_INPUT_COLOR_C
     c_mes = TXT_MES_COLOR_C
@@ -413,9 +413,9 @@ else:
     
     c_dash = TXT_DASH_COLOR_O
     c_filtros = LBL_FILTROS_COLOR_O
-    c_opt_filtros = OPT_FILTROS_COLOR_O   # <-- COLOR ASIGNADO
+    c_opt_filtros = OPT_FILTROS_COLOR_O   
     c_data = LBL_DATA_COLOR_O
-    c_opt_data = OPT_DATA_COLOR_O         # <-- COLOR ASIGNADO
+    c_opt_data = OPT_DATA_COLOR_O         
     c_lbl_bal = LBL_BAL_TOTAL_COLOR_O
     c_lbl_in = LBL_INPUT_COLOR_O
     c_mes = TXT_MES_COLOR_O
@@ -472,18 +472,13 @@ st.markdown(f"""
     div[data-baseweb="select"] > div {{ background-color: {card_bg} !important; border-color: {border_color} !important; }}
     ul[role="listbox"] {{ background-color: {card_bg} !important; }}
     
-    /* TAMAÑO Y COLOR DE LAS OPCIONES DE ADENTRO FORZADO A LA PERFECCIÓN */
-    div[data-testid="column"]:nth-of-type(2) div[data-baseweb="select"],
-    div[data-testid="column"]:nth-of-type(2) div[data-baseweb="select"] div,
-    div[data-testid="column"]:nth-of-type(2) div[data-baseweb="select"] span {{ font-size: {OPT_FILTROS_SIZE}px !important; color: {c_opt_filtros} !important; }}
-    div[data-testid="column"]:nth-of-type(2) div[data-baseweb="select"] svg {{ fill: {c_opt_filtros} !important; color: {c_opt_filtros} !important; }}
+    /* TAMAÑO Y COLOR DE LAS OPCIONES DE ADENTRO FORZADO DIRECTAMENTE A LOS COMPONENTES */
+    div[data-testid="stSelectbox"] div[data-baseweb="select"] * {{ font-size: {OPT_FILTROS_SIZE}px !important; color: {c_opt_filtros} !important; }}
+    div[data-testid="stSelectbox"] div[data-baseweb="select"] svg {{ fill: {c_opt_filtros} !important; color: {c_opt_filtros} !important; }}
+    div[data-testid="stSelectbox"] input {{ color: {c_opt_filtros} !important; }}
     
-    div[data-testid="column"]:nth-of-type(3) div[data-baseweb="select"],
-    div[data-testid="column"]:nth-of-type(3) div[data-baseweb="select"] div,
-    div[data-testid="column"]:nth-of-type(3) div[data-baseweb="select"] span {{ font-size: {OPT_DATA_SIZE}px !important; color: {c_opt_data} !important; }}
-    div[data-testid="column"]:nth-of-type(3) div[data-baseweb="select"] svg {{ fill: {c_opt_data} !important; color: {c_opt_data} !important; }}
-    
-    li[role="option"] span, li[role="option"] {{ color: {c_opt_filtros} !important; font-size: {OPT_FILTROS_SIZE}px !important; }}
+    ul[role="listbox"] * {{ font-size: {OPT_FILTROS_SIZE}px !important; color: {c_opt_filtros} !important; }}
+    li[role="option"] {{ background-color: {card_bg} !important; }}
     li[role="option"]:hover {{ background-color: {border_color} !important; }}
 
     /* INPUT BALANCE (CAJA DE TEXTO Y NÚMERO) */
@@ -513,13 +508,13 @@ st.markdown(f"""
 
     /* EL ÁREA DE DROPZONE (DONDE ARRASTRAS IMÁGENES) */
     [data-testid="stFileUploader"] {{ transform: translate({DROPZONE_X}px, {DROPZONE_Y}px) !important; background-color: transparent !important; border: none !important; padding: 0 !important; box-shadow: none !important; }}
-    [data-testid="stFileUploader"] > section {{ background-color: FFFFFF !important; border: none !important; padding: 0 !important; }}
+    [data-testid="stFileUploader"] > section {{ background-color: transparent !important; border: none !important; padding: 0 !important; }}
     
     /* El contenedor visible del Dropzone */
     [data-testid="stFileUploadDropzone"] {{ 
         background-color: {drop_bg} !important; 
         border: {drop_border} !important; 
-        border-radius: 110px !important;
+        border-radius: 10px !important;
         padding: 0 !important; 
         width: {DROPZONE_W} !important;
         min-height: {DROPZONE_H} !important; 
