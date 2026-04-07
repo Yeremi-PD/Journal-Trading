@@ -1120,7 +1120,7 @@ div[data-testid="column"]:nth-child(2) div[data-testid="stPopover"] > button {{
 /* ================== BOTÓN UPLOAD (c_img) ================== */
 /* EDITA AQUÍ SUS MEDIDAS Y POSICIÓN */
 section[data-testid="stMain"] div[data-testid="column"]:nth-child(3) {{
-    transform: translate(0px, 0px) !important;  /* POSICIONAMIENTO LIBRE (X, Y) */
+    transform: translate(100px, 100px) !important;  /* POSICIONAMIENTO LIBRE (X, Y) */
     z-index: 10;
 }}
 [data-testid="stFileUploadDropzone"] button {{ 
