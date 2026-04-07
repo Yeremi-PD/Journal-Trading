@@ -2,8 +2,7 @@ import streamlit as st
 import calendar
 import math
 import base64
-import pandas as pd
-from datetime import datetime, date
+from datetime import datetime
 
 # ==========================================
 # 1. CONFIGURACIÓN INICIAL
@@ -19,7 +18,6 @@ def get_global_db():
 
 db_global = get_global_db()
 
-# ACTUALIZADO: Estructura de datos para los trades más rica
 def inicializar_data_usuario():
     return {
         "Account Real": {"balance": 25000.00, "trades": {}},
@@ -342,135 +340,18 @@ def procesar_cambio():
     if nuevo != viejo:
         pnl = nuevo - viejo
         clave = (fecha_sel.year, fecha_sel.month, fecha_sel.day)
+        imagenes_previas = db_usuario[ctx]["trades"].get(clave, {}).get("imagenes", [])
         
-        # ACTUALIZADO: Recuperar datos del trade anterior para no perderlos
-        old_trade_data = db_usuario[ctx]["trades"].get(clave, {})
-        imagenes_previas = old_trade_data.get("imagenes", [])
-        
-        # ACTUALIZADO: Estructura rica para el trade
         db_usuario[ctx]["trades"][clave] = {
             "pnl": pnl,
             "balance_final": nuevo,
             "fecha_str": fecha_sel.strftime("%d/%m/%Y"),
-            "imagenes": imagenes_previas,
-            # Nuevos campos inicializados
-            "bias": old_trade_data.get("bias", "NEUTRO"),
-            "confluencias": old_trade_data.get("confluencias", []),
-            "razon_trade": old_trade_data.get("razon_trade", ""),
-            "correcciones": old_trade_data.get("correcciones", ""),
-            "risk": old_trade_data.get("risk", "0.5%"),
-            "rrr": old_trade_data.get("rrr", "B"),
-            "trade_type": old_trade_data.get("trade_type", ""),
-            "emociones": old_trade_data.get("emociones", "")
+            "imagenes": imagenes_previas
         }
         db_usuario[ctx]["balance"] = nuevo
 
 def convertir_img_base64(uploaded_file):
     return base64.b64encode(uploaded_file.getvalue()).decode()
-
-# ACTUALIZADO: Menú Colorido Simulado con Estados Persistentes
-def colorful_menu(options, state_key, label, value_key, trade_data_ref, modal_key):
-    # Generar clave única para el widget dentro del popover
-    widget_key = f"widget_{state_key}_{modal_key}"
-    
-    # Título del menú
-    st.markdown(f"<div style='margin-bottom: 5px; font-weight: bold;'>{label}</div>", unsafe_allow_html=True)
-    
-    # Obtener el índice del valor actual
-    selected_value = trade_data_ref.get(value_key, options[0]['text'])
-    current_index = 0
-    for i, opt in enumerate(options):
-        if opt['text'] == selected_value:
-            current_index = i
-            break
-            
-    # Simular menú despegable con selectbox y CSS
-    # streamlits selectbox no permite colores de fondo personalizados por opción de manera sencilla
-    # He usado botones en su lugar, que permiten color de fondo
-    cols = st.columns(len(options))
-    for i, option in enumerate(options):
-        with cols[i]:
-            text = option['text']
-            color = option['color']
-            # Estilo personalizado para el botón basado en el color y la selección
-            button_style = f"""
-                <style>
-                div[data-testid="column"]:has(> div > button[key="btn_{modal_key}_{value_key}_{i}"]) {{
-                    background-color: {color} !important;
-                    border-radius: 5px !important;
-                    padding: 0 !important;
-                    height: 35px !important;
-                }}
-                div[data-testid="column"]:has(> div > button[key="btn_{modal_key}_{value_key}_{i}"]) button {{
-                    background-color: transparent !important;
-                    border: none !important;
-                    color: white !important;
-                    font-weight: bold !important;
-                    font-size: 14px !important;
-                    height: 100% !important;
-                    width: 100% !important;
-                    padding: 0 !important;
-                }}
-                div[data-testid="column"]:has(> div > button[key="btn_{modal_key}_{value_key}_{current_index}"]) button {{
-                    border: 2px solid white !important; /* Resaltar selección */
-                }}
-                </style>
-            """
-            st.markdown(button_style, unsafe_allow_html=True)
-            if st.button(text, key=f"btn_{modal_key}_{value_key}_{i}", use_container_width=True):
-                trade_data_ref[value_key] = text
-                st.rerun()
-
-    return trade_data_ref[value_key]
-
-# ACTUALIZADO multiselect colorido simulado para Confluencias
-def colorful_multiselect(options, label, value_key, trade_data_ref, modal_key):
-    st.markdown(f"<div style='margin-bottom: 5px; font-weight: bold;'>{label}</div>", unsafe_allow_html=True)
-    current_selections = trade_data_ref.get(value_key, [])
-    
-    cols = st.columns(3) # Tres columnas para las confluencias
-    for i, option in enumerate(options):
-        with cols[i % 3]:
-            text = option['text']
-            color = option['color']
-            is_selected = text in current_selections
-            
-            # Estilo personalizado para el botón basado en el color y la selección
-            btn_border = "2px solid white" if is_selected else "none"
-            btn_opacity = "1" if is_selected else "0.7"
-            
-            button_style = f"""
-                <style>
-                div[data-testid="column"]:has(> div > button[key="multibtn_{modal_key}_{i}"]) {{
-                    background-color: {color} !important;
-                    border-radius: 5px !important;
-                    padding: 0 !important;
-                    margin-bottom: 5px !important;
-                    height: 30px !important;
-                    opacity: {btn_opacity} !important;
-                }}
-                div[data-testid="column"]:has(> div > button[key="multibtn_{modal_key}_{i}"]) button {{
-                    background-color: transparent !important;
-                    border: {btn_border} !important;
-                    color: white !important;
-                    font-weight: bold !important;
-                    font-size: 12px !important;
-                    height: 100% !important;
-                    width: 100% !important;
-                    padding: 0 !important;
-                }}
-                </style>
-            """
-            st.markdown(button_style, unsafe_allow_html=True)
-            if st.button(text, key=f"multibtn_{modal_key}_{i}", use_container_width=True):
-                if text in current_selections:
-                    trade_data_ref[value_key].remove(text)
-                else:
-                    trade_data_ref[value_key].append(text)
-                st.rerun()
-                
-    return trade_data_ref[value_key]
-
 
 # ==========================================
 # 5. BARRA LATERAL (AJUSTES Y ADMIN)
@@ -478,11 +359,6 @@ def colorful_multiselect(options, label, value_key, trade_data_ref, modal_key):
 st.sidebar.markdown(f"### 👤 My Account: {usuario}")
 st.sidebar.markdown("---")
 st.sidebar.markdown("### ⚙️ Settings")
-
-# ACTUALIZADO: Botón para mostrar tabla de resultados
-if st.sidebar.button("📊 Mostrar tabla de resultados", use_container_width=True):
-    st.session_state.mostrar_tabla_resultados = not st.session_state.get('mostrar_tabla_resultados', False)
-    st.rerun()
 
 texto_boton_tema = "🌙 Switch to Dark Theme" if st.session_state.tema == "Claro" else "☀️ Switch to Light Theme"
 if st.sidebar.button(texto_boton_tema):
@@ -823,38 +699,6 @@ st.markdown(f"""
         
         /* Líneas separadoras */
         .thin-line {{ width: 100% !important; transform: translate(0, 0) !important; }}
-
-        /* ACTUALIZADO: Estilos Responsive para el Popover de detalles 📝 */
-        div[data-testid="stPopoverBody"]:has(h3) {{
-            width: 100vw !important; /* Ancho completo de la pantalla */
-            left: 0 !important;
-            border-radius: 0 !important;
-            padding: 10px !important;
-        }}
-    }}
-    
-    /* ACTUALIZADO: Estilo general para el popover de detalles 📝 para posicionarlo */
-    div[data-testid="stHorizontalBlock"]:has(> div[data-testid="column"]:nth-child(7)) div[data-testid="stPopover"] {{
-        position: absolute !important;
-        top: 2px !important;
-        right: 2px !important;
-        z-index: 100 !important;
-    }}
-    div[data-testid="stHorizontalBlock"]:has(> div[data-testid="column"]:nth-child(7)) div[data-testid="stPopover"] > button {{
-        background-color: transparent !important;
-        border: none !important;
-        font-size: 18px !important;
-        cursor: pointer !important;
-        padding: 0 !important;
-        color: {c_num_dia} !important;
-    }}
-    div[data-testid="stPopoverBody"]:has(h3) {{
-        width: 350px !important;
-        padding: 15px !important;
-        border-radius: 10px !important;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1) !important;
-        background-color: {card_bg} !important;
-        color: {c_dash} !important;
     }}
     </style>
     """, unsafe_allow_html=True)
@@ -884,59 +728,6 @@ with col_bal:
 
 st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
 
-# ACTUALIZADO: Mostrar Tabla de Resultados si está activado
-if st.session_state.get('mostrar_tabla_resultados', False):
-    st.markdown("<h2 style='text-align:center;'>Tabla de Resultados</h2>", unsafe_allow_html=True)
-    all_trades = db_usuario[ctx]["trades"]
-    if not all_trades:
-        st.info("No hay trades registrados.")
-    else:
-        # Preparar datos para la tabla
-        table_data = []
-        for key, trade in sorted(all_trades.items(), key=lambda x: date(x[0][0], x[0][1], x[0][2]), reverse=True):
-            fecha = date(key[0], key[1], key[2])
-            
-            # Formatear P&L con color
-            pnl = trade.get('pnl', 0)
-            pnl_simbol = "+" if pnl > 0 else ""
-            
-            # Obtener las iniciales de las confluencias para un resumen
-            confluencias_list = trade.get('confluencias', [])
-            confluencias_resumen = ", ".join([c.split(". ")[-1] for c in confluencias_list])
-
-            row = {
-                "Fecha": fecha.strftime("%d/%m/%Y"),
-                "Bias": trade.get('bias', ''),
-                "Confluencias": confluencias_resumen,
-                "Razón del Trade": trade.get('razon_trade', ''),
-                "Correcciones": trade.get('correcciones', ''),
-                "% Risk": trade.get('risk', ''),
-                "RRR": trade.get('rrr', ''),
-                "Trade Type": trade.get('trade_type', ''),
-                "P&L": f"{pnl_simbol}${pnl:,.2f}",
-                "Emociones": trade.get('emociones', '')
-            }
-            table_data.append(row)
-        
-        # Crear DataFrame y mostrar con estilos
-        df_results = pd.DataFrame(table_data)
-        
-        # Definir función de estilo para las filas
-        def style_rows(row):
-            pnl_str = row['P&L']
-            if pnl_str.startswith('+$'):
-                color = 'color: #00C897; font-weight: bold;'
-            elif pnl_str.startswith('$0.00'):
-                 color = 'color: gray;'
-            else:
-                 color = 'color: #FF4C4C; font-weight: bold;'
-            return [color] * len(row)
-
-        # Aplicar estilo
-        st.dataframe(df_results.style.apply(style_rows, axis=1), use_container_width=True)
-        st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
-
-
 # ==========================================
 # 9. ENTRADA AUTOMÁTICA E IMÁGENES
 # ==========================================
@@ -958,30 +749,13 @@ with c_img:
     st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True) 
     archivos = st.file_uploader("", accept_multiple_files=True, label_visibility="collapsed", key=f"up_{fecha_str_actual}")
     if archivos:
-        # ACTUALIZADO Recuperar datos del trade anterior si existe
-        old_trade_data = db_usuario[ctx]["trades"].get(clave_actual, {})
         if clave_actual not in db_usuario[ctx]["trades"]:
-             db_usuario[ctx]["trades"][clave_actual] = {
-                "pnl": 0.0,
-                "balance_final": bal_actual,
-                "fecha_str": fecha_str_actual,
-                "imagenes": [],
-                # Campos inicializados
-                "bias": "NEUTRO",
-                "confluencias": [],
-                "razon_trade": "",
-                "correcciones": "",
-                "risk": "0.5%",
-                "rrr": "B",
-                "trade_type": "",
-                "emociones": ""
-             }
+            db_usuario[ctx]["trades"][clave_actual] = {"pnl": 0.0, "balance_final": bal_actual, "fecha_str": fecha_str_actual, "imagenes": []}
         
         lista_b64 = []
         for img in archivos:
             lista_b64.append(f"data:{img.type};base64,{convertir_img_base64(img)}")
-        # Añadir a las imágenes existentes si las hay
-        db_usuario[ctx]["trades"][clave_actual]["imagenes"].extend(lista_b64)
+        db_usuario[ctx]["trades"][clave_actual]["imagenes"] = lista_b64
 
 # ==========================================
 # 10. CALENDARIO Y RESUMEN
@@ -995,9 +769,9 @@ nombre_mes = calendar.month_name[mes_sel]
 with col_cal:
     
     c_izq, c_cen, c_der = st.columns([1, 4, 1])
-    with c_izq: st.button("◀", on_click=cambiar_mes, args=(-1,), use_container_width=True, key="prev_month_btn")
+    with c_izq: st.button("◀", on_click=cambiar_mes, args=(-1,), use_container_width=True)
     with c_cen: st.markdown(f'<div style="text-align:center; font-weight:400; font-size:{TXT_MES_SIZE}px; color:{c_mes}; margin-top:5px;">{nombre_mes} {anio_sel}</div>', unsafe_allow_html=True)
-    with c_der: st.button("▶", on_click=cambiar_mes, args=(1,), use_container_width=True, key="next_month_btn")
+    with c_der: st.button("▶", on_click=cambiar_mes, args=(1,), use_container_width=True)
     
     st.markdown("<br>", unsafe_allow_html=True)
     
@@ -1009,136 +783,35 @@ with col_cal:
     for i, d in enumerate(dias_semana):
         h_cols[i].markdown(f"<div class='txt-dias-sem'>{d}</div>", unsafe_allow_html=True)
     
-    # Renderizar cada día del calendario
-    for num_week, semana_dias in enumerate(mes_matriz):
+    for semana_dias in mes_matriz:
         d_cols = st.columns(7)
         for i, dia in enumerate(semana_dias):
             with d_cols[i]:
-                modal_key = f"modal_{anio_sel}_{mes_sel}_{dia}" # Clave única para los modales de este día
-                
                 if dia == 0: st.markdown('<div class="card cell-empty"></div>', unsafe_allow_html=True)
                 else:
-                    trade_info = db_usuario[ctx]["trades"].get((anio_sel, mes_sel, dia))
+                    trade = db_usuario[ctx]["trades"].get((anio_sel, mes_sel, dia))
                     visible = True
-                    if filtro == OPT_FILTRO_2 and (not trade_info or trade_info["pnl"] <= 0): visible = False
-                    if filtro == OPT_FILTRO_3 and (not trade_info or trade_info["pnl"] >= 0): visible = False
+                    if filtro == OPT_FILTRO_2 and (not trade or trade["pnl"] <= 0): visible = False
+                    if filtro == OPT_FILTRO_3 and (not trade or trade["pnl"] >= 0): visible = False
 
-                    if trade_info and visible:
-                        c_cls = "cell-win" if trade_info["pnl"] > 0 else "cell-loss"
-                        c_sim = "+" if trade_info["pnl"] > 0 else ""
+                    if trade and visible:
+                        c_cls = "cell-win" if trade["pnl"] > 0 else "cell-loss"
+                        c_sim = "+" if trade["pnl"] > 0 else ""
                         
-                        bal_ini = trade_info["balance_final"] - trade_info["pnl"]
-                        pct = (trade_info["pnl"] / bal_ini * 100) if bal_ini != 0 else 0
+                        bal_ini = trade["balance_final"] - trade["pnl"]
+                        pct = (trade["pnl"] / bal_ini * 100) if bal_ini != 0 else 0
                         pct_str = f"{c_sim}{pct:.2f}%"
                         
-                        # --- ACTUALIZADO: Botón 📝 y Menú de detalles Advanced ---
-                        popover_key = f"pop_{anio_sel}_{mes_sel}_{dia}"
-                        
-                        with st.popover("📝", key=popover_key):
-                            st.markdown("<h3 style='text-align:center;'>Detalles del Trade</h3>", unsafe_allow_html=True)
-                            
-                            # Referencia directa para guardar cambios automáticamente al interactuar
-                            trade_data_ref = db_usuario[ctx]["trades"][(anio_sel, mes_sel, dia)]
-                            
-                            # 1. Bias
-                            bias_options = [
-                                {'text': 'ALCISTA', 'color': '#337ab7'}, # Azul
-                                {'text': 'BAJISTA', 'color': '#777777'}, # Gris
-                                {'text': 'NEUTRO', 'color': '#8c6e5c'}  # Marrón
-                            ]
-                            colorful_menu(bias_options, f"bias_{modal_key}", "Bias", 'bias', trade_data_ref, modal_key)
-                            
-                            st.markdown("<br>", unsafe_allow_html=True)
-                            
-                            # 2. Confluencias
-                            confluencias_options = [
-                                {'text': '1. BIAS Claro', 'color': '#8c6e5c'}, # Marrón
-                                {'text': '2. Liq Sweep', 'color': '#777777'}, # Gris
-                                {'text': '4. IFVG', 'color': '#b06c9b'},      # Morado
-                                {'text': '3. FVG', 'color': '#a52a2a'},       # Marrón oscuro
-                                {'text': 'EQH / EQL', 'color': '#5cb85c'},    # Verde
-                                {'text': 'BSL / SSL', 'color': '#5cb85c'},    # Verde
-                                {'text': 'PO3', 'color': '#b06c9b'},          # Morado
-                                {'text': 'SMT', 'color': '#8e44ad'},          # Morado oscuro
-                                {'text': 'Breaker Block', 'color': '#95a5a6'},# Gris claro
-                                {'text': 'Descuento', 'color': '#b08e33'},    # Dorado
-                                {'text': 'Order Block', 'color': '#5cb85c'},  # Verde
-                                {'text': 'NYMO', 'color': '#b06c9b'},          # Morado
-                                {'text': 'PDH', 'color': '#8c6e5c'},          # Marrón
-                                {'text': 'PDL', 'color': '#8c6e5c'},          # Marrón
-                                {'text': 'Inducement', 'color': '#b06c9b'},   # Morado
-                                {'text': 'Turtle Soup', 'color': '#b06c9b'},  # Morado
-                                {'text': 'Continuación', 'color': '#8e44ad'}, # Morado oscuro
-                                {'text': 'Reversal', 'color': '#8c6e5c'},      # Marrón
-                                {'text': 'Data High', 'color': '#a52a2a'},    # Marrón oscuro
-                                {'text': 'Data Low', 'color': '#a52a2a'},     # Marrón oscuro
-                                {'text': 'CISD', 'color': '#b08e33'},        # Dorado
-                                {'text': 'Nada', 'color': '#d9534f'}          # Rojo
-                            ]
-                            colorful_multiselect(confluencias_options, "Confluencias", 'confluencias', trade_data_ref, modal_key)
-
-                            st.markdown("<br>", unsafe_allow_html=True)
-
-                            # 3. Razón del Trade
-                            current_razon = trade_data_ref.get('razon_trade', '')
-                            new_razon = st.text_area("Razón del Trade", value=current_razon, key=f"razon_{modal_key}")
-                            trade_data_ref['razon_trade'] = new_razon
-                            
-                            # 4. Correcciones
-                            current_correcciones = trade_data_ref.get('correcciones', '')
-                            new_correcciones = st.text_area("Correcciones", value=current_correcciones, key=f"corr_{modal_key}")
-                            trade_data_ref['correcciones'] = new_correcciones
-                            
-                            # 5. % Risk
-                            risk_options = [
-                                {'text': '0.6%', 'color': '#777777'}, # Gris
-                                {'text': '0.5%', 'color': '#777777'}, # Gris
-                                {'text': '0.4%', 'color': '#777777'}  # Gris
-                            ]
-                            colorful_menu(risk_options, f"risk_{modal_key}", "% Risk", 'risk', trade_data_ref, modal_key)
-
-                            st.markdown("<br>", unsafe_allow_html=True)
-
-                            # 6. RRR
-                            rrr_options = [
-                                {'text': 'A+', 'color': '#337ab7'}, # Azul
-                                {'text': 'A', 'color': '#5cb85c'},  # Verde
-                                {'text': 'B', 'color': '#f0ad4e'},  # Naranja
-                                {'text': 'C', 'color': '#d9534f'}   # Rojo
-                            ]
-                            colorful_menu(rrr_options, f"rrr_{modal_key}", "RRR", 'rrr', trade_data_ref, modal_key)
-
-                            st.markdown("<br>", unsafe_allow_html=True)
-                            
-                            # 7. Trade Type
-                            current_type = trade_data_ref.get('trade_type', '')
-                            new_type = st.text_input("Trade Type", value=current_type, key=f"type_{modal_key}")
-                            trade_data_ref['trade_type'] = new_type
-                            
-                            # 8. Emociones
-                            current_emociones = trade_data_ref.get('emociones', '')
-                            new_emociones = st.text_area("Emociones", value=current_emociones, key=f"emoc_{modal_key}")
-                            trade_data_ref['emociones'] = new_emociones
-                            
-                            # Botón de guardar cambios manual (aunque se guarda al interactuar)
-                            if st.button("Guardar Cambios", key=f"save_trade_{modal_key}", use_container_width=True):
-                                # Al interactuar con los widgets los datos ya se actualizan en db_usuario
-                                st.success("Detalles del trade actualizados correctamente.")
-                                st.rerun()
-
-                        # --- Cámara Modal (Lógica original) ---
-                        if trade_info.get("imagenes"):
+                        if trade.get("imagenes"):
                             id_modal = f"mod_{anio_sel}_{mes_sel}_{dia}"
-                            img_tags = "".join([f'<img src="{img}">' for img in trade_info["imagenes"]])
+                            img_tags = "".join([f'<img src="{img}">' for img in trade["imagenes"]])
                             cam_html = f'<input type="checkbox" id="{id_modal}" class="modal-toggle" style="display:none;"><label for="{id_modal}"><div class="cam-icon">{BTN_CAM_EMOJI}</div></label><div class="fs-modal"><label for="{id_modal}" class="close-btn">{TXT_CERRAR_MODAL}</label>{img_tags}</div>'
                         else:
                             cam_html = ""
                         
-                        # Renderizar la tarjeta del día con trade
-                        st.markdown(f'<div class="card {c_cls}"><div class="day-number">{dia}</div><div class="day-content"><span class="day-pnl">{c_sim}${trade_info["pnl"]:,.2f}</span><br><span class="day-pct">{pct_str}</span></div>{cam_html}</div>', unsafe_allow_html=True)
-                    
+                        st.markdown(f'<div class="card {c_cls}"><div class="day-number">{dia}</div><div class="day-content"><span class="day-pnl">{c_sim}${trade["pnl"]:,.2f}</span><br><span class="day-pct">{pct_str}</span></div>{cam_html}</div>', unsafe_allow_html=True)
                     else:
-                        op = "0.2" if trade_info and not visible else "1"
+                        op = "0.2" if trade and not visible else "1"
                         st.markdown(f'<div class="card cell-empty" style="opacity:{op}"><div class="day-number">{dia}</div></div>', unsafe_allow_html=True)
 
 with col_det:
@@ -1219,11 +892,10 @@ with col_det:
         titulo_str = titulos_semanas[idx] if idx < len(titulos_semanas) else f"Week {num_sem}"
         c_sem, s_sem = get_col_simb(val_sem)
         pct_sem = calc_pct(val_sem)
-        semanas_html += f'<div class="wk-box"><div class="wk-title">{titulo_str}</div><div class="wk-val {c_sem}">{s_sem}${val_sem:,.2f}<br><span style="font-size:{WEEKS_PCT_SIZE}px;">{s_sim}{pct_sem:.2f}%</span></div></div>'
+        semanas_html += f'<div class="wk-box"><div class="wk-title">{titulo_str}</div><div class="wk-val {c_sem}">{s_sem}${val_sem:,.2f}<br><span style="font-size:{WEEKS_PCT_SIZE}px;">{s_sem}{pct_sem:.2f}%</span></div></div>'
 
     st.markdown(f'<div class="weeks-container">{semanas_html}<div class="mo-box"><div class="mo-title">{TXT_MO}</div><div class="mo-val {cM}">{sM}${m_total:,.2f}<br><span style="font-size:{WEEKS_PCT_SIZE}px;">{sM}{pct_m:.2f}%</span></div></div></div>', unsafe_allow_html=True)
-    
-# ==========================================
+    # ==========================================
 # 11. TABLA DE EDICIÓN MANUAL (HISTORIAL LIMPIO POR MES)
 # ==========================================
 st.markdown("<br>", unsafe_allow_html=True)
@@ -1299,21 +971,11 @@ with st.expander("🛠️ OPEN ORDER HISTORY", expanded=False):
                         if nueva_clave != clave:
                             del db_usuario[ctx]["trades"][clave]
                         
-                        # ACTUALIZADO: Conservar los campos avanzados al guardar cambios manuales
                         db_usuario[ctx]["trades"][nueva_clave] = {
                             "pnl": nuevo_pnl,
                             "balance_final": nuevo_bal,
                             "fecha_str": nueva_fecha.strftime("%d/%m/%Y"),
-                            "imagenes": imagenes_restantes,
-                            # Conservar avanzados
-                            "bias": data.get("bias", "NEUTRO"),
-                            "confluencias": data.get("confluencias", []),
-                            "razon_trade": data.get("razon_trade", ""),
-                            "correcciones": data.get("correcciones", ""),
-                            "risk": data.get("risk", "0.5%"),
-                            "rrr": data.get("rrr", "B"),
-                            "trade_type": data.get("trade_type", ""),
-                            "emociones": data.get("emociones", "")
+                            "imagenes": imagenes_restantes
                         }
                         st.rerun()
                         
