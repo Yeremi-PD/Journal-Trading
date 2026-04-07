@@ -187,6 +187,9 @@ FLECHAS_SIZE = 40
 FLECHAS_X = 0 
 FLECHAS_Y = 0   
 
+TXT_MES_COLOR_C = "#000000"
+TXT_MES_COLOR_O = "#FFFFFF"
+
 TXT_DIAS_SEM_SIZE = 15
 TXT_DIAS_SEM_COLOR_C = "#000000"
 TXT_DIAS_SEM_COLOR_O = "#FFFFFF"
@@ -1015,7 +1018,7 @@ with st.expander("🛠️ OPEN ORDER HISTORY", expanded=False):
                     accept_multiple_files=True, 
                     key=upd_key, 
                     on_change=agregar_imagenes_historial, 
-                    args=(ctx, clave, upd_key, counter_key)
+                    args=(ctx, clave, upd_key, counter_main_key)
                 )
 
                 imagenes_restantes = db_usuario[ctx]["trades"][clave].get("imagenes", [])
