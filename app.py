@@ -75,8 +75,8 @@ TEMA_POR_DEFECTO = "Oscuro"
 # ---------------------------------------------------------
 TXT_DASHBOARD = "Dashboard"
 TXT_DASH_SIZE = 60
-TXT_DASH_X = 20         
-TXT_DASH_Y = -20         
+TXT_DASH_X = 20        
+TXT_DASH_Y = -20        
 TXT_DASH_COLOR_C = "#000000"
 TXT_DASH_COLOR_O = "#FFFFFF"
 
@@ -224,6 +224,13 @@ BTN_CAM_BG_C = "rgba(255,255,255,0.8)"
 BTN_CAM_BG_O = "rgba(0,0,0,0.6)"
 
 TXT_CERRAR_MODAL = "✖ CERRAR"
+
+# ---------------------------------------------------------
+# [ BOTÓN DE NOTAS (📝) COORDENADAS ]
+# ---------------------------------------------------------
+BTN_NOTAS_X = 4      # Posición desde la derecha de la tarjeta
+BTN_NOTAS_Y = 4      # Posición desde arriba de la tarjeta
+BTN_NOTAS_SIZE = 14  # Tamaño del emoji dentro del botón
 
 # ---------------------------------------------------------
 # [ TARJETA: NET P&L ]
@@ -683,13 +690,13 @@ st.markdown(f"""
     }}
 
     /* CSS ESTRELLA: BOTON DE NOTAS (📝) SUPERPUESTO (Igual que la cámara, pero arriba) */
-    div[data-testid="stHorizontalBlock"]:has(> div[data-testid="column"]:nth-child(7)) div[data-testid="stPopover"] {{
+    .calendar-wrapper div[data-testid="column"] div[data-testid="stPopover"] {{
         position: absolute !important;
-        top: 4px !important;
-        right: 4px !important;
+        top: {BTN_NOTAS_Y}px !important;
+        right: {BTN_NOTAS_X}px !important;
         z-index: 10 !important;
     }}
-    div[data-testid="stHorizontalBlock"]:has(> div[data-testid="column"]:nth-child(7)) div[data-testid="stPopover"] > button {{
+    .calendar-wrapper div[data-testid="column"] div[data-testid="stPopover"] > button {{
         background: {c_cam_bg} !important;
         border: none !important;
         border-radius: 50% !important;
@@ -698,7 +705,7 @@ st.markdown(f"""
         min-height: 28px !important;
         min-width: 28px !important;
         padding: 0 !important;
-        font-size: 14px !important;
+        font-size: {BTN_NOTAS_SIZE}px !important;
         box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
         display: flex !important;
         justify-content: center !important;
@@ -706,15 +713,16 @@ st.markdown(f"""
         transition: 0.2s !important;
         color: {c_num_dia} !important;
     }}
-    div[data-testid="stHorizontalBlock"]:has(> div[data-testid="column"]:nth-child(7)) div[data-testid="stPopover"] > button:hover {{
+    .calendar-wrapper div[data-testid="column"] div[data-testid="stPopover"] > button:hover {{
         transform: scale(1.1) !important;
     }}
     /* Diseño interno del menú de notas */
     div[data-testid="stPopoverBody"]:has(h3) {{
-        width: 320px !important;
-        padding: 15px !important;
+        width: 450px !important;
+        max-width: 95vw !important;
+        padding: 10px !important;
         border-radius: 10px !important;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1) !important;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.3) !important;
         background-color: {card_bg} !important;
         border: 1px solid {border_color} !important;
         color: {c_dash} !important;
@@ -796,11 +804,13 @@ def colorful_menu(options, state_key, label, value_key, trade_data_ref, modal_ke
     for i, option in enumerate(options):
         with cols[i]:
             text, color = option['text'], option['color']
+            btn_opacity = "1" if i == current_index else "0.3"
+            btn_border = "2px solid white" if i == current_index else "none"
+            btn_scale = "scale(1.05)" if i == current_index else "scale(1)"
             button_style = f"""
                 <style>
-                div[data-testid="column"]:has(> div > button[key="btn_{modal_key}_{value_key}_{i}"]) {{ background-color: {color} !important; border-radius: 5px !important; padding: 0 !important; height: 35px !important; }}
-                div[data-testid="column"]:has(> div > button[key="btn_{modal_key}_{value_key}_{i}"]) button {{ background-color: transparent !important; border: none !important; color: white !important; font-weight: bold !important; font-size: 14px !important; height: 100% !important; width: 100% !important; padding: 0 !important; }}
-                div[data-testid="column"]:has(> div > button[key="btn_{modal_key}_{value_key}_{current_index}"]) button {{ border: 2px solid white !important; }}
+                div[data-testid="column"]:has(> div > button[key="btn_{modal_key}_{value_key}_{i}"]) {{ background-color: {color} !important; border-radius: 5px !important; padding: 0 !important; height: 35px !important; opacity: {btn_opacity} !important; transition: 0.2s !important; transform: {btn_scale} !important; }}
+                div[data-testid="column"]:has(> div > button[key="btn_{modal_key}_{value_key}_{i}"]) button {{ background-color: transparent !important; border: {btn_border} !important; color: white !important; font-weight: bold !important; font-size: 14px !important; height: 100% !important; width: 100% !important; padding: 0 !important; }}
                 </style>
             """
             st.markdown(button_style, unsafe_allow_html=True)
@@ -819,10 +829,11 @@ def colorful_multiselect(options, label, value_key, trade_data_ref, modal_key):
             text, color = option['text'], option['color']
             is_selected = text in current_selections
             btn_border = "2px solid white" if is_selected else "none"
-            btn_opacity = "1" if is_selected else "0.7"
+            btn_opacity = "1" if is_selected else "0.3"
+            btn_scale = "scale(1.05)" if is_selected else "scale(1)"
             button_style = f"""
                 <style>
-                div[data-testid="column"]:has(> div > button[key="multibtn_{modal_key}_{i}"]) {{ background-color: {color} !important; border-radius: 5px !important; padding: 0 !important; margin-bottom: 5px !important; height: 30px !important; opacity: {btn_opacity} !important; }}
+                div[data-testid="column"]:has(> div > button[key="multibtn_{modal_key}_{i}"]) {{ background-color: {color} !important; border-radius: 5px !important; padding: 0 !important; margin-bottom: 5px !important; height: 30px !important; opacity: {btn_opacity} !important; transition: 0.2s !important; transform: {btn_scale} !important; }}
                 div[data-testid="column"]:has(> div > button[key="multibtn_{modal_key}_{i}"]) button {{ background-color: transparent !important; border: {btn_border} !important; color: white !important; font-weight: bold !important; font-size: 12px !important; height: 100% !important; width: 100% !important; padding: 0 !important; }}
                 </style>
             """
@@ -1138,12 +1149,23 @@ if mostrar_tabla:
         
         def style_rows(row):
             pnl_str = row['P&L']
+            
+            # Estilo base según el tema general del dashboard
+            base_style = f'color: {c_dash};'
+            row_styles = [base_style] * len(row)
+            
+            # Definir solo el color específico de P&L
             if pnl_str.startswith('+$'):
-                color = 'color: #00C897; font-weight: bold;'
-            elif pnl_str.startswith('$0.00'):
-                 color = 'color: gray;'
+                pnl_style = 'color: #00C897; font-weight: bold;'
+            elif pnl_str.startswith('$0.00') or pnl_str == '$0.00':
+                pnl_style = 'color: gray;'
             else:
-                 color = 'color: #FF4C4C; font-weight: bold;'
-            return [color] * len(row)
+                pnl_style = 'color: #FF4C4C; font-weight: bold;'
+            
+            # Reemplazar exclusivamente el estilo de P&L
+            pnl_idx = row.index.get_loc('P&L')
+            row_styles[pnl_idx] = pnl_style
+            
+            return row_styles
 
         st.dataframe(df_results.style.apply(style_rows, axis=1), use_container_width=True)
