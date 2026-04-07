@@ -342,7 +342,7 @@ def convertir_img_base64(uploaded_file):
 # ==========================================
 st.sidebar.markdown(f"### 👤 My Account: {usuario}")
 st.sidebar.markdown("---")
-st.sidebar.markdown("### ⚙️ Ajustes")
+st.sidebar.markdown("### ⚙️ Settings")
 
 texto_boton_tema = "🌙 Cambiar a Tema Oscuro" if st.session_state.tema == "Claro" else "☀️ Cambiar a Tema Claro"
 if st.sidebar.button(texto_boton_tema):
