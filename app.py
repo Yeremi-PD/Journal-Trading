@@ -245,7 +245,7 @@ st.markdown(f"""
     [data-testid="stFileUploadDropzone"] {{ 
         background-color: {uploader_fondo_actual} !important; 
         border: 1px solid {border_color} !important; 
-        width: {UPLOADER_ANCHO}px !important;
+        width: 30px !important;
         min-height: {UPLOADER_ALTO}px !important;
         display: flex; justify-content: center; align-items: center; padding: 0 !important;
     }}
