@@ -37,7 +37,8 @@ def inicializar_settings():
         
         # Calendario
         "cal_mes_size": 28, "cal_pnl_size": 30, "cal_pct_size": 25,
-        "cal_dia_size": 20, "cal_cam_size": 30, "cal_scale": 100, "cal_line_height": 1.2
+        "cal_dia_size": 20, "cal_cam_size": 30, "cal_scale": 100, "cal_line_height": 1.2,
+        "cal_txt_y": 0, "cal_txt_pad": 0
     }
 
 if "usuario_actual" not in st.session_state:
@@ -323,7 +324,7 @@ def reset_settings(category):
     elif category == "txt":
         keys = ["size_top_stats", "size_card_titles", "size_box_titles", "size_box_vals", "size_box_pct", "size_box_wl", "pie_size", "pie_y_offset"]
     elif category == "cal":
-        keys = ["cal_mes_size", "cal_pnl_size", "cal_pct_size", "cal_dia_size", "cal_cam_size", "cal_scale", "cal_line_height"]
+        keys = ["cal_mes_size", "cal_pnl_size", "cal_pct_size", "cal_dia_size", "cal_cam_size", "cal_scale", "cal_line_height", "cal_txt_y", "cal_txt_pad"]
     
     for k in keys:
         s[k] = defaults[k]
@@ -333,14 +334,14 @@ def reset_settings(category):
 # ==========================================
 st.sidebar.markdown(f"### 👤 My Account: {usuario}")
 
-st.session_state.dispositivo_actual = st.sidebar.radio("⚙️ Editando Perfil de Diseño para:", ["PC", "Móvil"], index=0 if st.session_state.dispositivo_actual == "PC" else 1, help="Esto guarda tus ajustes por separado. El cambio a móvil es automático según la pantalla.")
+st.session_state.dispositivo_actual = st.sidebar.radio("⚙️ Editing Design Profile for:", ["PC", "Móvil"], index=0 if st.session_state.dispositivo_actual == "PC" else 1, help="This saves your settings separately. Switching to mobile is automatic based on screen size.")
 
 st.sidebar.markdown("---")
 st.sidebar.markdown("### 📊 Metrics")
 mostrar_tabla = st.sidebar.toggle("Show Results Table", value=False)
 
 st.sidebar.markdown("---")
-st.sidebar.markdown("### ⚙️ Settings Básicos")
+st.sidebar.markdown("### ⚙️ Basic Settings")
 
 texto_boton_tema = "🌙 Switch to Dark Theme" if st.session_state.tema == "Claro" else "☀️ Switch to Light Theme"
 if st.sidebar.button(texto_boton_tema):
@@ -371,42 +372,44 @@ if admin_pass == "725166":
 # --- MENÚS EXPANDIBLES (ORDENADOS COMO PEDISTE) ---
 st.sidebar.markdown("---")
 
-with st.sidebar.expander("🖥️ Ajustes de Dashboard"):
+with st.sidebar.expander("🖥️ Dashboard Settings"):
     if st.button("🔄 Reset Dashboard", key="res_dash", use_container_width=True): 
         reset_settings("dash")
         st.rerun()
         
-    st.markdown("**Caja ACCOUNT BALANCE**")
-    user_settings["bal_num_sz"] = st.slider("Tamaño Números Balance", 10, 60, user_settings["bal_num_sz"])
-    user_settings["bal_box_w"] = st.slider("Ancho Fondo Verde (%)", 10, 100, user_settings["bal_box_w"])
-    user_settings["bal_box_pad"] = st.slider("Altura Fondo Verde (Padding)", 0, 50, user_settings["bal_box_pad"])
+    st.markdown("**ACCOUNT BALANCE Box**")
+    user_settings["bal_num_sz"] = st.slider("Balance Numbers Size", 10, 60, user_settings["bal_num_sz"])
+    user_settings["bal_box_w"] = st.slider("Green Background Width (%)", 10, 100, user_settings["bal_box_w"])
+    user_settings["bal_box_pad"] = st.slider("Green Background Height (Padding)", 0, 50, user_settings["bal_box_pad"])
 
-with st.sidebar.expander("🔠 Ajustes de Textos y Gráficos"):
-    if st.button("🔄 Reset Textos y Gráficos", key="res_txt", use_container_width=True): 
+with st.sidebar.expander("🔠 Text & Chart Settings"):
+    if st.button("🔄 Reset Texts & Charts", key="res_txt", use_container_width=True): 
         reset_settings("txt")
         st.rerun()
         
-    user_settings["size_top_stats"] = st.slider("Tamaño Monthly P&L y Win Rate (Top)", 10, 40, user_settings["size_top_stats"])
-    user_settings["size_card_titles"] = st.slider("Tamaño Títulos (All-Time, etc)", 10, 40, user_settings["size_card_titles"])
-    user_settings["size_box_titles"] = st.slider("Tamaño Títulos (Week/Month)", 10, 40, user_settings["size_box_titles"])
-    user_settings["size_box_vals"] = st.slider("Tamaño P&L Cajas", 10, 50, user_settings["size_box_vals"])
-    user_settings["size_box_pct"] = st.slider("Tamaño % Cajas", 10, 40, user_settings["size_box_pct"])
-    user_settings["size_box_wl"] = st.slider("Tamaño W/L Cajas", 10, 40, user_settings["size_box_wl"])
-    user_settings["pie_size"] = st.slider("Tamaño Gráfico de Pastel", 50, 300, user_settings["pie_size"])
-    user_settings["pie_y_offset"] = st.slider("Posición Vertical Gráfico (Arriba/Abajo)", -100, 100, user_settings["pie_y_offset"])
+    user_settings["size_top_stats"] = st.slider("Monthly P&L and Win Rate Size (Top)", 10, 40, user_settings["size_top_stats"])
+    user_settings["size_card_titles"] = st.slider("Titles Size (All-Time, etc)", 10, 40, user_settings["size_card_titles"])
+    user_settings["size_box_titles"] = st.slider("Titles Size (Week/Month)", 10, 40, user_settings["size_box_titles"])
+    user_settings["size_box_vals"] = st.slider("P&L Boxes Size", 10, 50, user_settings["size_box_vals"])
+    user_settings["size_box_pct"] = st.slider("% Boxes Size", 10, 40, user_settings["size_box_pct"])
+    user_settings["size_box_wl"] = st.slider("W/L Boxes Size", 10, 40, user_settings["size_box_wl"])
+    user_settings["pie_size"] = st.slider("Pie Chart Size", 50, 300, user_settings["pie_size"])
+    user_settings["pie_y_offset"] = st.slider("Chart Vertical Position (Up/Down)", -100, 100, user_settings["pie_y_offset"])
 
-with st.sidebar.expander("📅 Ajustes de Calendario"):
-    if st.button("🔄 Reset Calendario", key="res_cal", use_container_width=True): 
+with st.sidebar.expander("📅 Calendar Settings"):
+    if st.button("🔄 Reset Calendar", key="res_cal", use_container_width=True): 
         reset_settings("cal")
         st.rerun()
         
-    user_settings["cal_mes_size"] = st.slider("Tamaño del Mes (Título)", 10, 50, user_settings["cal_mes_size"])
-    user_settings["cal_pnl_size"] = st.slider("Tamaño P&L del Día", 10, 40, user_settings["cal_pnl_size"])
-    user_settings["cal_pct_size"] = st.slider("Tamaño % del Día", 10, 30, user_settings["cal_pct_size"])
-    user_settings["cal_dia_size"] = st.slider("Tamaño Número del Día", 10, 30, user_settings["cal_dia_size"])
-    user_settings["cal_cam_size"] = st.slider("Tamaño Icono Cámara", 10, 50, user_settings["cal_cam_size"])
-    user_settings["cal_scale"] = st.slider("Escala General (Altura del Calendario)", 50, 200, user_settings["cal_scale"])
-    user_settings["cal_line_height"] = st.slider("Altura entre Textos (Espaciado)", 0.5, 3.0, user_settings["cal_line_height"], 0.1)
+    user_settings["cal_mes_size"] = st.slider("Month Size (Title)", 10, 50, user_settings["cal_mes_size"])
+    user_settings["cal_pnl_size"] = st.slider("Day P&L Size", 10, 40, user_settings["cal_pnl_size"])
+    user_settings["cal_pct_size"] = st.slider("Day % Size", 10, 30, user_settings["cal_pct_size"])
+    user_settings["cal_dia_size"] = st.slider("Day Number Size", 10, 30, user_settings["cal_dia_size"])
+    user_settings["cal_cam_size"] = st.slider("Camera Icon Size", 10, 50, user_settings["cal_cam_size"])
+    user_settings["cal_scale"] = st.slider("General Scale (Calendar Height)", 50, 200, user_settings["cal_scale"])
+    user_settings["cal_line_height"] = st.slider("Height Between Texts (Spacing)", 0.5, 3.0, user_settings["cal_line_height"], 0.1)
+    user_settings["cal_txt_y"] = st.slider("Day Text Vertical Position", -50, 50, user_settings.get("cal_txt_y", 0))
+    user_settings["cal_txt_pad"] = st.slider("Day Content Top Padding", -50, 50, user_settings.get("cal_txt_pad", 0))
 
 # --- BOTÓN DE LOG OUT (SIEMPRE AL FINAL) ---
 st.sidebar.markdown("<br><br><br>", unsafe_allow_html=True)
@@ -459,6 +462,8 @@ def gen_css_vars(s):
     --bal-num-sz: {s['bal_num_sz']}px;
     --bal-box-w: {s['bal_box_w']}%;
     --bal-box-pad: {s['bal_box_pad']}px;
+    --cal-txt-y: {s.get('cal_txt_y', 0)}px;
+    --cal-txt-pad: {s.get('cal_txt_pad', 0)}px;
     """
 
 st.markdown(f"""
@@ -544,13 +549,18 @@ st.markdown(f"""
     
     .card {{ padding: 5px !important; border-radius: 10px !important; display: flex !important; flex-direction: column !important; position: relative !important; font-size: 12px !important; margin-bottom: 6px !important; min-height: var(--cal-scale) !important; }}
     .day-number {{ position: absolute !important; top: 6px !important; left: 10px !important; font-size: var(--cal-dia-size) !important; font-weight: bold !important; color: {c_num_dia} !important; }}
-    .day-content {{ margin-top: auto !important; margin-bottom: auto !important; text-align: center !important; width: 100% !important; line-height: var(--cal-line-height) !important; }}
+    .day-content {{ margin-top: auto !important; margin-bottom: auto !important; text-align: center !important; width: 100% !important; line-height: var(--cal-line-height) !important; transform: translateY(var(--cal-txt-y)) !important; padding-top: var(--cal-txt-pad) !important; }}
     .day-pnl {{ font-size: var(--cal-pnl-size) !important; font-weight: bold !important; }}
     .day-pct {{ font-size: var(--cal-pct-size) !important; color: {c_pct_dia} !important; opacity: 0.9 !important; font-weight: 600 !important; display: block !important; }}
     
     .cam-icon {{ position: absolute !important; bottom: {BTN_CAM_Y}px !important; left: 50% !important; transform: translateX(calc(-50% + {BTN_CAM_X}px)) !important; font-size: var(--cal-cam-size) !important; cursor: pointer !important; background: {c_cam_bg} !important; border-radius: 50% !important; padding: 2px 4px !important; box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important; transition: 0.2s !important; }}
     .cam-icon:hover {{ transform: translateX(calc(-50% + {BTN_CAM_X}px)) scale(1.2) !important; }}
     
+    .note-icon {{ position: absolute !important; top: 6px !important; right: 10px !important; font-size: var(--cal-cam-size) !important; cursor: pointer !important; transition: 0.2s !important; text-shadow: 0 2px 4px rgba(0,0,0,0.2) !important; }}
+    .note-icon:hover {{ transform: scale(1.2) !important; }}
+    .note-modal-content {{ background: {card_bg} !important; color: {c_dash} !important; padding: 20px !important; border-radius: 10px !important; max-width: 500px !important; width: 90% !important; border: 1px solid {border_color} !important; box-shadow: 0 0 20px black !important; font-size: 16px !important; z-index: 1000000 !important; overflow-y: auto !important; max-height: 80vh !important; }}
+    .note-modal-content hr {{ border-color: {border_color} !important; }}
+
     .cell-win {{ border: 2px solid #00C897 !important; color: #00664F !important; background-color: #e6f9f4 !important;}}
     .cell-loss {{ border: 2px solid #FF4C4C !important; color: #9B1C1C !important; background-color: #ffeded !important;}}
     .cell-empty {{ border: 1px solid {border_color} !important; background-color: {empty_cell_bg} !important;}}
@@ -815,8 +825,28 @@ with col_cal:
                             cam_html = f'<input type="checkbox" id="{id_modal}" class="modal-toggle" style="display:none;"><label for="{id_modal}"><div class="cam-icon">{BTN_CAM_EMOJI}</div></label><div class="fs-modal"><label for="{id_modal}" class="close-btn">{TXT_CERRAR_MODAL}</label>{img_tags}</div>'
                         else:
                             cam_html = ""
+                            
+                        has_notes = bool(trade.get("razon_trade", "").strip() or trade.get("Corrections", "").strip() or trade.get("Emotions", "").strip() or trade.get("Confluences", []))
+                        if has_notes:
+                            id_note_modal = f"mod_note_{anio_sel}_{mes_sel}_{dia}"
+                            confluences_str = ", ".join(trade.get("Confluences", []))
+                            notes_html = f"""
+                            <div class="note-modal-content">
+                                <h3 style="text-align:center; margin-top:0;">🗒️ Trade Details - {dia}/{mes_sel}/{anio_sel}</h3>
+                                <hr>
+                                <b>Bias:</b> {trade.get("bias", "NEUTRO")}<br><br>
+                                <b>Confluences:</b> {confluences_str}<br><br>
+                                <b>Reason For Trade:</b> {trade.get("razon_trade", "")}<br><br>
+                                <b>Corrections:</b> {trade.get("Corrections", "")}<br><br>
+                                <b>% Risk:</b> {trade.get("risk", "")} | <b>RR:</b> {trade.get("rrr", "")} | <b>Trade Type:</b> {trade.get("trade_type", "")}<br><br>
+                                <b>Emotions:</b> {trade.get("Emotions", "")}
+                            </div>
+                            """
+                            note_html = f'<input type="checkbox" id="{id_note_modal}" class="modal-toggle" style="display:none;"><label for="{id_note_modal}"><div class="note-icon">🗒️</div></label><div class="fs-modal"><label for="{id_note_modal}" class="close-btn">{TXT_CERRAR_MODAL}</label>{notes_html}</div>'
+                        else:
+                            note_html = ""
                         
-                        st.markdown(f'<div class="card {c_cls}"><div class="day-number">{dia}</div><div class="day-content"><span class="day-pnl">{c_sim}${trade["pnl"]:,.2f}</span><br><span class="day-pct">{pct_str}</span></div>{cam_html}</div>', unsafe_allow_html=True)
+                        st.markdown(f'<div class="card {c_cls}"><div class="day-number">{dia}</div><div class="day-content"><span class="day-pnl">{c_sim}${trade["pnl"]:,.2f}</span><br><span class="day-pct">{pct_str}</span></div>{cam_html}{note_html}</div>', unsafe_allow_html=True)
                     else:
                         op = "0.2" if trade and not visible else "1"
                         st.markdown(f'<div class="card cell-empty" style="opacity:{op}"><div class="day-number">{dia}</div></div>', unsafe_allow_html=True)
