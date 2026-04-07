@@ -244,9 +244,9 @@ st.markdown(f"""
     /* ÁREA DE SUBIR IMÁGENES (UPLOAD) LIMPIA */
     [data-testid="stFileUploadDropzone"] {{ 
         background-color: {uploader_fondo_actual} !important; 
-        border: 1px solid {border_color} !important; 
+        border: 100px solid {border_color} !important; 
         width: 30px !important;
-        min-height: {UPLOADER_ALTO}px !important;
+        min-height: 40px !important;
         display: flex; justify-content: center; align-items: center; padding: 0 !important;
     }}
     /* Ocultar el texto basura "200MB" y "Drag and Drop" */
