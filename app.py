@@ -530,7 +530,7 @@ st.markdown(f"""
     div[data-testid="stButton"] > button {{ background-color: {btn_bg} !important; color: {btn_txt} !important; border: 1px solid {border_color} !important; }}
     
     div[data-testid="stPopover"] > button {{ 
-        min-height: {BTN_CAL_H}px !important; height: {BTN_CAL_H}px !important; min-width: 90px !important; 
+        min-height: 90px !important; height: 90px !important; min-width: 90px !important; 
         width: 90px !important; padding: 0 !important; font-size: {BTN_CAL_ICON_SIZE}px !important; 
         border-radius: 8px !important; border: 1px solid {border_color} !important; background-color: {btn_bg} !important; 
         color: {btn_txt} !important; display: flex !important; justify-content: center !important; align-items: center !important; 
