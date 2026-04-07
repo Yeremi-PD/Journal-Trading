@@ -689,7 +689,7 @@ with c1:
             st.rerun()
 
 with c2:
-    st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True) 
+    st.markdown("<div style='height:218px;'></div>", unsafe_allow_html=True) 
     with st.popover(BTN_CAL_EMOJI):
         st.date_input("Fecha oculta", value=hoy, key="input_fecha", label_visibility="collapsed")
 
