@@ -175,7 +175,7 @@ TXT_VALOR_WIN_COLOR_OSCURO = "#FFFFFF"
 BOTON_FONDO_CLARO = "#F3F4F6"
 BOTON_FONDO_OSCURO = "#2D3748"
 
-BOTON_X = 0          
+BOTON_X = 0         
 BOTON_Y = 27         
 BOTON_WIDTH = 45     
 BOTON_HEIGHT = 45    
@@ -526,24 +526,13 @@ with col_cal:
                             if trade.get("imagenes"):
                                 id_modal = f"mod_{anio_sel}_{mes_sel}_{dia}"
                                 img_tags = "".join([f'<img src="{img}">' for img in trade["imagenes"]])
-                                cam_html = ""
+                                # CORRECCIÓN: HTML del modal y botón de cámara en una sola línea para evitar fallos de formato Markdown en Streamlit
+                                cam_html = f'<input type="checkbox" id="{id_modal}" class="modal-toggle" style="display:none;"><label for="{id_modal}"><div class="cam-icon">📷</div></label><div class="fs-modal"><label for="{id_modal}" class="close-btn">✖ CERRAR</label>{img_tags}</div>'
                             else:
                                 cam_html = ""
                             
-                            st.markdown(f'''
-                            <div class="card {c_cls}">
-                                <div class="day-number">{dia}</div>
-                                <div class="day-content">
-                                    <span class="day-pnl">{c_sim}${trade["pnl"]:,.2f}</span><br>
-                                    <span class="day-pct">{pct_str}</span>
-                                </div>
-                                {cam_html}
-                            </div>
-                            ''', unsafe_allow_html=True)
-                            if trade.get("imagenes"):
-    with st.popover("📷", use_container_width=True):
-        for img in trade["imagenes"]:
-            st.image(img)
+                            # CORRECCIÓN: HTML de la tarjeta completa en una sola línea
+                            st.markdown(f'<div class="card {c_cls}"><div class="day-number">{dia}</div><div class="day-content"><span class="day-pnl">{c_sim}${trade["pnl"]:,.2f}</span><br><span class="day-pct">{pct_str}</span></div>{cam_html}</div>', unsafe_allow_html=True)
                         else:
                             op = "0.2" if trade and not visible else "1"
                             st.markdown(f'<div class="card cell-empty" style="opacity:{op}"><div class="day-number">{dia}</div></div>', unsafe_allow_html=True)
