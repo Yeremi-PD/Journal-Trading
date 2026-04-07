@@ -181,8 +181,8 @@ BOTON_WIDTH = 45
 BOTON_HEIGHT = 45    
 BOTON_ICON_SIZE = 22 
 
-FLECHAS_X_AJUSTE = 20 
-FLECHAS_Y_AJUSTE = 40 
+FLECHAS_X_AJUSTE = 0 
+FLECHAS_Y_AJUSTE = 10 
 FLECHAS_SIZE = 16
 
 BALANCE_BOX_X = 0     
@@ -406,7 +406,8 @@ st.markdown(f"""
     .cell-empty {{ border: 1px solid {border_color}; background-color: {empty_cell_bg};}}
 
     /* MODAL DE CÁMARA */
-    .modal-toggle:checked + .fs-modal {{ display: flex !important; }}
+    /* Cambio de + a ~ para que el clic lo active correctamente */
+    .modal-toggle:checked ~ .fs-modal {{ display: flex !important; }}
     .fs-modal {{ display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.95); z-index: 9999999; flex-direction: column; align-items: center; justify-content: center; overflow-y: auto; padding: 50px 0; }}
     .fs-modal img {{ max-width: 90vw; max-height: 80vh; margin-bottom: 20px; box-shadow: 0 0 20px black; border-radius: 10px; object-fit: contain; }}
     .close-btn {{ color: white; font-size: 25px; position: absolute; top: 30px; right: 50px; cursor: pointer; font-weight: bold; background: red; padding: 5px 15px; border-radius: 8px; }}
@@ -426,6 +427,10 @@ st.markdown(f"""
     .lbl-g {{ background-color: #e6f9f4; color: #00C897; padding: 2px 8px; border-radius: 10px; }}
     .lbl-b {{ background-color: #EEF2FF; color: #4F46E5; padding: 2px 8px; border-radius: 10px; }}
     .lbl-r {{ background-color: #ffeded; color: #FF4C4C; padding: 2px 8px; border-radius: 10px; }}
+
+    /* FLECHAS MES */
+    .calendar-wrapper div[data-testid="stButton"] {{ margin-top: {FLECHAS_Y_AJUSTE}px; margin-left: {FLECHAS_X_AJUSTE}px; }}
+    .calendar-wrapper div[data-testid="stButton"] button * {{ font-size: {FLECHAS_SIZE}px !important; }}
     </style>
     """, unsafe_allow_html=True)
 
