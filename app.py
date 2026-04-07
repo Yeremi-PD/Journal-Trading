@@ -33,8 +33,14 @@ def inicializar_settings():
         "size_box_vals": 25,
         "size_box_pct": 20,
         "size_box_wl": 14,
-        "size_gauge": 220,
-        "size_gauge_lbl": 14
+        "pie_size": 120,
+        "pie_y_offset": 0,
+        "cal_mes_size": 28,
+        "cal_pnl_size": 30,
+        "cal_pct_size": 25,
+        "cal_dia_size": 20,
+        "cal_cam_size": 30,
+        "cal_scale": 100
     }
 
 if "usuario_actual" not in st.session_state:
@@ -70,7 +76,7 @@ if st.session_state.usuario_actual is None or st.session_state.usuario_actual no
                     db_global[reg_user] = {
                         "password": reg_pass,
                         "data": inicializar_data_usuario(),
-                        "settings": inicializar_settings()
+                        "settings": {"PC": inicializar_settings(), "Móvil": inicializar_settings()}
                     }
                     st.success("Cuenta creada con éxito. Ya puedes iniciar sesión.")
                 else:
@@ -181,25 +187,17 @@ FLECHAS_SIZE = 40
 FLECHAS_X = 0 
 FLECHAS_Y = 0   
 
-TXT_MES_SIZE = 28
-TXT_MES_COLOR_C = "#000000"
-TXT_MES_COLOR_O = "#FFFFFF"
-
 TXT_DIAS_SEM_SIZE = 15
 TXT_DIAS_SEM_COLOR_C = "#000000"
 TXT_DIAS_SEM_COLOR_O = "#FFFFFF"
 
-TXT_NUM_DIA_SIZE = 20
 TXT_NUM_DIA_COLOR_C = "#000000"
 TXT_NUM_DIA_COLOR_O = "#c0c0c0"
 
-TXT_PNL_DIA_SIZE = 30
-TXT_PCT_DIA_SIZE = 25
 TXT_PCT_DIA_COLOR_C = "#000000"
 TXT_PCT_DIA_COLOR_O = "#000000"
 
 BTN_CAM_EMOJI = "📷"
-BTN_CAM_SIZE = 30                    
 BTN_CAM_X = 0
 BTN_CAM_Y = 2
 BTN_CAM_BG_C = "rgba(0,0,0,0)"
@@ -249,7 +247,7 @@ WEEK_ALIGN = "center"
 
 
 # ==========================================
-# 4. LÓGICA DE ESTADO DEL USUARIO
+# 4. LÓGICA DE ESTADO Y AJUSTES
 # ==========================================
 if "tema" not in st.session_state:
     st.session_state.tema = TEMA_POR_DEFECTO
@@ -257,13 +255,25 @@ if "tema" not in st.session_state:
 if "data_source_sel" not in st.session_state:
     st.session_state.data_source_sel = "Account Real"
 
+if "dispositivo_actual" not in st.session_state:
+    st.session_state.dispositivo_actual = "PC"
+
 usuario = st.session_state.usuario_actual
 db_usuario = db_global[usuario]["data"]
 
-# Inicializar settings en base de datos del usuario si no existe
+# MIGRACIÓN SEGURA PARA USUARIOS ANTIGUOS
 if "settings" not in db_global[usuario]:
-    db_global[usuario]["settings"] = inicializar_settings()
-user_settings = db_global[usuario]["settings"]
+    db_global[usuario]["settings"] = {"PC": inicializar_settings(), "Móvil": inicializar_settings()}
+elif "PC" not in db_global[usuario]["settings"]:
+    old_set = db_global[usuario]["settings"]
+    db_global[usuario]["settings"] = {"PC": old_set.copy(), "Móvil": old_set.copy()}
+
+for dev in ["PC", "Móvil"]:
+    for k, v in inicializar_settings().items():
+        if k not in db_global[usuario]["settings"][dev]:
+            db_global[usuario]["settings"][dev][k] = v
+
+user_settings = db_global[usuario]["settings"][st.session_state.dispositivo_actual]
 
 for cuenta in ["Account Real", "Account Demo"]:
     if cuenta not in db_usuario:
@@ -318,8 +328,9 @@ def convertir_img_base64(uploaded_file):
 # 5. BARRA LATERAL (AJUSTES Y ADMIN)
 # ==========================================
 st.sidebar.markdown(f"### 👤 My Account: {usuario}")
-st.sidebar.markdown("---")
+st.session_state.dispositivo_actual = st.sidebar.radio("💻📱 Perfil de Dispositivo", ["PC", "Móvil"], index=0 if st.session_state.dispositivo_actual == "PC" else 1)
 
+st.sidebar.markdown("---")
 st.sidebar.markdown("### 📊 Metrics")
 mostrar_tabla = st.sidebar.toggle("Show Results Table", value=False)
 
@@ -352,7 +363,7 @@ if admin_pass == "725166":
                 st.session_state.usuario_actual = None
             st.rerun()
 
-# --- NUEVOS SLIDERS: AJUSTES DE TEXTOS Y GRÁFICOS (DEBAJO DE ADMIN) ---
+# --- NUEVOS SLIDERS: AJUSTES DE TEXTOS, GRÁFICOS Y CALENDARIO ---
 st.sidebar.markdown("---")
 with st.sidebar.expander("🔠 Ajustes de Textos y Gráficos"):
     user_settings["size_top_stats"] = st.slider("Tamaño Monthly P&L y Win Rate (Top)", 10, 40, user_settings["size_top_stats"])
@@ -361,8 +372,16 @@ with st.sidebar.expander("🔠 Ajustes de Textos y Gráficos"):
     user_settings["size_box_vals"] = st.slider("Tamaño P&L Cajas", 10, 50, user_settings["size_box_vals"])
     user_settings["size_box_pct"] = st.slider("Tamaño % Cajas", 10, 40, user_settings["size_box_pct"])
     user_settings["size_box_wl"] = st.slider("Tamaño W/L Cajas", 10, 40, user_settings["size_box_wl"])
-    user_settings["size_gauge"] = st.slider("Tamaño Gráfico (Medio Círculo)", 100, 400, user_settings["size_gauge"])
-    user_settings["size_gauge_lbl"] = st.slider("Tamaño Números bajo Gráfico", 10, 30, user_settings["size_gauge_lbl"])
+    user_settings["pie_size"] = st.slider("Tamaño Gráfico de Pastel", 50, 300, user_settings["pie_size"])
+    user_settings["pie_y_offset"] = st.slider("Posición Vertical Gráfico (Arriba/Abajo)", -100, 100, user_settings["pie_y_offset"])
+
+with st.sidebar.expander("📅 Ajustes de Calendario"):
+    user_settings["cal_mes_size"] = st.slider("Tamaño del Mes (Título)", 10, 50, user_settings["cal_mes_size"])
+    user_settings["cal_pnl_size"] = st.slider("Tamaño P&L del Día", 10, 40, user_settings["cal_pnl_size"])
+    user_settings["cal_pct_size"] = st.slider("Tamaño % del Día", 10, 30, user_settings["cal_pct_size"])
+    user_settings["cal_dia_size"] = st.slider("Tamaño Número del Día", 10, 30, user_settings["cal_dia_size"])
+    user_settings["cal_cam_size"] = st.slider("Tamaño Icono Cámara", 10, 50, user_settings["cal_cam_size"])
+    user_settings["cal_scale"] = st.slider("Escala General (Altura del Calendario)", 50, 200, user_settings["cal_scale"])
 
 # --- BOTÓN DE LOG OUT (SIEMPRE AL FINAL) ---
 st.sidebar.markdown("<br><br><br>", unsafe_allow_html=True)
@@ -434,6 +453,14 @@ else:
     c_cam_bg = BTN_CAM_BG_O
     c_linea = LINEA_COLOR_O
 
+# Variables auxiliares para los f-strings CSS
+sz_dia = user_settings["cal_dia_size"]
+sz_pnl = user_settings["cal_pnl_size"]
+sz_pct = user_settings["cal_pct_size"]
+sz_cam = user_settings["cal_cam_size"]
+sz_scl = user_settings["cal_scale"]
+sz_tit = user_settings["size_card_titles"]
+
 # ==========================================
 # 7. INYECCIÓN DE CSS DINÁMICO
 # ==========================================
@@ -502,13 +529,13 @@ st.markdown(f"""
     .calendar-wrapper {{ background: {card_bg} !important; padding: 10px !important; border-radius: 15px !important; border: 1px solid {border_color} !important; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1) !important; }}
     .txt-dias-sem {{ font-size: {TXT_DIAS_SEM_SIZE}px !important; font-weight: bold !important; color: {c_dias_sem} !important; text-align: center !important; }}
     
-    .card {{ aspect-ratio: 1 / 1 !important; padding: 5px !important; border-radius: 10px !important; display: flex !important; flex-direction: column !important; position: relative !important; font-size: 12px !important; margin-bottom: 6px !important; padding-bottom: 25px !important; }}
-    .day-number {{ position: absolute !important; top: 6px !important; left: 10px !important; font-size: {TXT_NUM_DIA_SIZE}px !important; font-weight: bold !important; color: {c_num_dia} !important; }}
+    .card {{ padding: 5px !important; border-radius: 10px !important; display: flex !important; flex-direction: column !important; position: relative !important; font-size: 12px !important; margin-bottom: 6px !important; min-height: {sz_scl}px !important; }}
+    .day-number {{ position: absolute !important; top: 6px !important; left: 10px !important; font-size: {sz_dia}px !important; font-weight: bold !important; color: {c_num_dia} !important; }}
     .day-content {{ margin-top: auto !important; margin-bottom: auto !important; text-align: center !important; width: 100% !important; }}
-    .day-pnl {{ font-size: {TXT_PNL_DIA_SIZE}px !important; font-weight: bold !important; }}
-    .day-pct {{ font-size: {TXT_PCT_DIA_SIZE}px !important; color: {c_pct_dia} !important; opacity: 0.9 !important; font-weight: 600 !important; display: block !important; }}
+    .day-pnl {{ font-size: {sz_pnl}px !important; font-weight: bold !important; }}
+    .day-pct {{ font-size: {sz_pct}px !important; color: {c_pct_dia} !important; opacity: 0.9 !important; font-weight: 600 !important; display: block !important; }}
     
-    .cam-icon {{ position: absolute !important; bottom: {BTN_CAM_Y}px !important; left: 50% !important; transform: translateX(calc(-50% + {BTN_CAM_X}px)) !important; font-size: {BTN_CAM_SIZE}px !important; cursor: pointer !important; background: {c_cam_bg} !important; border-radius: 50% !important; padding: 2px 4px !important; box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important; transition: 0.2s !important; }}
+    .cam-icon {{ position: absolute !important; bottom: {BTN_CAM_Y}px !important; left: 50% !important; transform: translateX(calc(-50% + {BTN_CAM_X}px)) !important; font-size: {sz_cam}px !important; cursor: pointer !important; background: {c_cam_bg} !important; border-radius: 50% !important; padding: 2px 4px !important; box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important; transition: 0.2s !important; }}
     .cam-icon:hover {{ transform: translateX(calc(-50% + {BTN_CAM_X}px)) scale(1.2) !important; }}
     
     .cell-win {{ border: 2px solid #00C897 !important; color: #00664F !important; background-color: #e6f9f4 !important;}}
@@ -525,18 +552,12 @@ st.markdown(f"""
     
     .metric-card {{ background-color: {card_bg} !important; border-radius: 15px !important; padding: 15px 20px !important; border: 1px solid {border_color} !important; }}
     .metric-header {{ display: flex !important; align-items: center !important; gap: 8px !important; margin-bottom: 5px !important; }}
-    .title-net-pnl {{ font-size: {user_settings['size_card_titles']}px !important; font-weight: 700 !important; color: {c_tit_pnl} !important; }}
-    .title-trade-win {{ font-size: {user_settings['size_card_titles']}px !important; font-weight: 700 !important; color: {c_tit_win} !important; }}
+    .title-net-pnl {{ font-size: {sz_tit}px !important; font-weight: 700 !important; color: {c_tit_pnl} !important; }}
+    .title-trade-win {{ font-size: {sz_tit}px !important; font-weight: 700 !important; color: {c_tit_win} !important; }}
     
     .pnl-value {{ font-size: 28px !important; font-weight: 800 !important; color: #00C897 !important; letter-spacing: -0.5px !important; }}
     .pnl-value-loss {{ color: #FF4C4C !important; }}
     .win-value {{ font-size: {CARD_WIN_VALOR_SIZE}px !important; font-weight: 800 !important; color: {c_val_win} !important; letter-spacing: -0.5px !important; }}
-    
-    .gauge-container {{ display: flex !important; flex-direction: column !important; align-items: center !important; gap: 5px !important; }}
-    .gauge-labels {{ display: flex !important; gap: 15px !important; font-weight: 700 !important; margin-top: -5px !important; }}
-    .lbl-g {{ background-color: #e6f9f4 !important; color: #00C897 !important; padding: 2px 8px !important; border-radius: 8px !important; }}
-    .lbl-b {{ background-color: #EEF2FF !important; color: #4F46E5 !important; padding: 2px 8px !important; border-radius: 8px !important; }}
-    .lbl-r {{ background-color: #ffeded !important; color: #FF4C4C !important; padding: 2px 8px !important; border-radius: 8px !important; }}
 
     .calendar-wrapper div[data-testid="column"]:first-child button {{ transform: translate({FLECHAS_X}px, {FLECHAS_Y}px) !important; font-size: {FLECHAS_SIZE}px !important; }}
     .calendar-wrapper div[data-testid="column"]:nth-child(3) button {{ transform: translate(calc({FLECHAS_X}px * -1), {FLECHAS_Y}px) !important; font-size: {FLECHAS_SIZE}px !important; }}
@@ -561,13 +582,6 @@ st.markdown(f"""
         div[data-testid="stNumberInput"] {{ width: 100% !important; max-width: 100% !important; margin: 0 !important; }}
         [data-testid="stFileUploadDropzone"] {{ width: 100% !important; transform: translate(0, 0) !important; }}
         div[data-testid="stPopover"] > button {{ width: 100% !important; margin-top: 5px !important; }}
-        .card {{ min-height: 70px !important; padding-bottom: 15px !important; }}
-        .day-number {{ font-size: 14px !important; left: 4px !important; top: 2px !important; }}
-        .day-pnl {{ font-size: 14px !important; }}
-        .day-pct {{ font-size: 12px !important; }}
-        .cam-icon {{ font-size: 16px !important; bottom: -2px !important; }}
-        .txt-dias-sem {{ font-size: 11px !important; }}
-        .card-pnl, .card-win {{ width: 100% !important; transform: translate(0, 0) !important; height: auto !important; margin-bottom: 15px !important; }}
         .weeks-container {{ transform: translate(0, 0) !important; flex-wrap: wrap !important; justify-content: space-between !important; }}
         .wk-box {{ width: 48% !important; margin-bottom: 5px !important; }}
         .mo-box {{ width: 100% !important; }}
@@ -636,7 +650,6 @@ def colorful_multiselect(options, label, value_key, trade_data_ref):
                 else: trade_data_ref[value_key].append(text)
                 st.rerun()
 
-# 🔴 SOLUCIÓN: CALLBACK PARA EL CUADRO DE SUBIDA PRINCIPAL 🔴
 def agregar_imagenes_main(contexto, llave, widget_id, counter_id, bal_act, f_str):
     archivos_nuevos = st.session_state.get(widget_id)
     if archivos_nuevos:
@@ -674,7 +687,6 @@ clave_actual = (st.session_state.input_fecha.year, st.session_state.input_fecha.
 with c_img:
     st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True) 
     
-    # 🔴 APLICANDO EL CALLBACK AL UPLOADER PRINCIPAL 🔴
     counter_main_key = f"upd_main_counter_{clave_actual}"
     if counter_main_key not in st.session_state:
         st.session_state[counter_main_key] = 0
@@ -736,8 +748,6 @@ mes_sel = st.session_state.cal_month
 nombre_mes = calendar.month_name[mes_sel]
 
 with col_cal:
-    
-    # --- NUEVO: CÁLCULO PARA EL HEADER ---
     trades_mes_top = [v["pnl"] for k, v in db_usuario[ctx]["trades"].items() if k[0] == anio_sel and k[1] == mes_sel]
     total_trades_top = len(trades_mes_top)
     net_pnl_top = sum(trades_mes_top) if total_trades_top > 0 else 0.0
@@ -755,7 +765,7 @@ with col_cal:
     with c_izq: 
         st.button("◀", on_click=cambiar_mes, args=(-1,), use_container_width=True)
     with c_cen: 
-        st.markdown(f'<div style="text-align:center; font-weight:600; font-size:{TXT_MES_SIZE}px; color:{c_mes}; margin-top:2px;">{nombre_mes} {anio_sel}</div>', unsafe_allow_html=True)
+        st.markdown(f'<div style="text-align:center; font-weight:600; font-size:{user_settings["cal_mes_size"]}px; color:{c_mes}; margin-top:2px;">{nombre_mes} {anio_sel}</div>', unsafe_allow_html=True)
     with c_der: 
         st.button("▶", on_click=cambiar_mes, args=(1,), use_container_width=True)
     with c_stats:
@@ -808,7 +818,6 @@ with col_cal:
                         st.markdown(f'<div class="card cell-empty" style="opacity:{op}"><div class="day-number">{dia}</div></div>', unsafe_allow_html=True)
 
 with col_det:
-    
     ver_todo = st.toggle("🌍 View All-Time Stats", value=False)
     
     if ver_todo:
@@ -828,11 +837,6 @@ with col_det:
     ties = len([t for t in trades_lista if t == 0])
     win_pct = (wins / total_trades * 100) if total_trades > 0 else 0.0
     
-    r = 40
-    c = math.pi * r 
-    len_w = (wins / total_trades * c) if total_trades > 0 else 0
-    len_t = (ties / total_trades * c) if total_trades > 0 else 0
-
     color_pnl = "pnl-value" if net_pnl >= 0 else "pnl-value pnl-value-loss"
     simbolo_pnl = "+" if net_pnl > 0 else ""
     
@@ -845,14 +849,28 @@ with col_det:
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # 🔴 SVG DINÁMICO EN TAMAÑO 🔴
-    svg_h = user_settings['size_gauge'] // 2
-    svg_html = f'<svg width="{user_settings["size_gauge"]}" height="{svg_h}" viewBox="0 0 100 50">\n<path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="{border_color}" stroke-width="10"/>\n'
+    # 🔴 GRÁFICO DE PASTEL (CSS PURO Y DINÁMICO) 🔴
     if total_trades > 0:
-        svg_html += f'<path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#FF4C4C" stroke-width="10" stroke-dasharray="{c} {c}"/>\n'
-        svg_html += f'<path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#4F46E5" stroke-width="10" stroke-dasharray="{len_w + len_t} {c}"/>\n'
-        svg_html += f'<path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#00C897" stroke-width="10" stroke-dasharray="{len_w} {c}"/>\n'
-    svg_html += '</svg>'
+        pct_w = (wins / total_trades) * 100
+        pct_l = (losses / total_trades) * 100
+    else:
+        pct_w = 0
+        pct_l = 0
+
+    pie_html = f'''
+    <div style="
+        width: {user_settings["pie_size"]}px; 
+        height: {user_settings["pie_size"]}px; 
+        border-radius: 50%; 
+        background: conic-gradient(
+            #00C897 0% {pct_w}%, 
+            #FF4C4C {pct_w}% {pct_w + pct_l}%, 
+            #4F46E5 {pct_w + pct_l}% 100%
+        );
+        transform: translateY({user_settings["pie_y_offset"]}px);
+        flex-shrink: 0;
+    "></div>
+    '''
 
     st.markdown(f"""
         <div class="metric-card card-win">
@@ -860,14 +878,9 @@ with col_det:
                 <div class="metric-header"><span class="title-trade-win">{titulo_win}</span></div>
                 <div class="win-value">{win_pct:.2f}%</div>
             </div>
-            <div style="display:flex; flex-direction:row; align-items:center; justify-content:center; gap:25px; margin-top:15px;">
-                <div class="gauge-container">
-                    {svg_html}
-                    <div class="gauge-labels" style="font-size: {user_settings['size_gauge_lbl']}px !important;">
-                        <span class="lbl-g">{wins}</span><span class="lbl-b">{ties}</span><span class="lbl-r">{losses}</span>
-                    </div>
-                </div>
-                <div style="font-size: {user_settings['size_box_wl']}px; color: gray; font-weight: 800; text-align:center; white-space:nowrap;">
+            <div style="display:flex; flex-direction:row; align-items:center; justify-content:center; gap:25px; margin-top:15px; padding-bottom:10px;">
+                {pie_html}
+                <div style="font-size: {user_settings['size_box_wl']}px; color: gray; font-weight: 800; text-align:center; white-space:nowrap; transform: translateY({user_settings["pie_y_offset"]}px);">
                     {wins}W / {losses}L
                 </div>
             </div>
@@ -884,7 +897,6 @@ with col_det:
         return (valor / base * 100) if base != 0 else 0.0
     
     if not ver_todo:
-        # LÓGICA DE SEMANAS (MENSUAL)
         semanas_stats = {i: {"pnl": 0.0, "w": 0, "l": 0} for i in range(1, len(mes_matriz) + 1)}
         
         for key, val in db_usuario[ctx]["trades"].items():
@@ -916,7 +928,6 @@ with col_det:
         st.markdown(f'<div class="weeks-container">{semanas_html}<div class="mo-box"><div class="mo-title" style="font-size:{user_settings["size_box_titles"]}px !important;">{TXT_MO}</div><div class="mo-val {cM}" style="font-size:{user_settings["size_box_vals"]}px !important;">{sM}${m_total:,.2f}<br><span style="font-size:{user_settings["size_box_pct"]}px;">{sM}{pct_m:.2f}%</span><br><span style="font-size: {user_settings["size_box_wl"]}px; color: gray; font-weight: 500;">{m_w}W / {m_l}L</span></div></div></div>', unsafe_allow_html=True)
 
     else:
-        # LÓGICA DE TODOS LOS MESES (ALL-TIME)
         meses_stats = {}
         for key, val in db_usuario[ctx]["trades"].items():
             y, m = key[0], key[1]
@@ -948,7 +959,6 @@ with col_det:
 st.markdown("<br>", unsafe_allow_html=True)
 st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
 
-# 🔴 CALLBACKS PARA HISTORIAL 🔴
 def borrar_imagen(contexto, llave, index):
     if len(db_usuario[contexto]["trades"][llave]["imagenes"]) > index:
         db_usuario[contexto]["trades"][llave]["imagenes"].pop(index)
@@ -1128,7 +1138,6 @@ if mostrar_tabla:
         
         def style_rows(row):
             pnl_str = row['P&L']
-            
             row_styles = [''] * len(row) 
             
             if pnl_str.startswith('+$'):
@@ -1140,7 +1149,6 @@ if mostrar_tabla:
             
             pnl_idx = row.index.get_loc('P&L')
             row_styles[pnl_idx] = pnl_style
-            
             return row_styles
 
         st.data_editor(
