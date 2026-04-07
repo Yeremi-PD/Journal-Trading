@@ -65,7 +65,7 @@ if st.session_state.usuario_actual is None or st.session_state.usuario_actual no
     st.stop()
 
 # ==========================================
-# 3. SECCIÓN DE AJUSTES MANUALES (TODO AGRUPADO POR ELEMENTO)
+# 3. SECCIÓN DE AJUSTES MANUALES
 # ==========================================
 
 TEMA_POR_DEFECTO = "Oscuro"
@@ -132,7 +132,7 @@ INPUT_FONDO_C = "#FFFFFF"
 INPUT_FONDO_O = "#1A202C"
 
 # ---------------------------------------------------------
-# [ ETIQUETA: TOTAL BALANCE (Arriba del Dinero Verde) ]
+# [ ETIQUETA: TOTAL BALANCE ]
 # ---------------------------------------------------------
 LBL_BAL_TOTAL = "ACCOUNT BALANCE"
 LBL_BAL_TOTAL_SIZE = 18
@@ -226,7 +226,7 @@ BTN_CAM_BG_O = "rgba(0,0,0,0.6)"
 TXT_CERRAR_MODAL = "✖ CERRAR"
 
 # ---------------------------------------------------------
-# [ BOTÓN DE NOTAS (📝) - MOVER A TU ANTOJO ]
+# [ BOTÓN DE NOTAS (📝) ]
 # ---------------------------------------------------------
 BTN_NOTAS_TOP = "-5px"
 BTN_NOTAS_RIGHT = "-5px"
@@ -465,7 +465,7 @@ else:
     c_linea = LINEA_COLOR_O
 
 # ==========================================
-# 7. INYECCIÓN DE CSS DINÁMICO (MODO DIOS)
+# 7. INYECCIÓN DE CSS DINÁMICO
 # ==========================================
 st.markdown(f"""
     <style>
@@ -508,6 +508,10 @@ st.markdown(f"""
     
     div[data-testid="stNumberInput"] input {{ color: {c_lbl_in} !important; font-size: {INPUT_BAL_TXT_SIZE}px !important; background-color: {input_bg} !important; font-weight: bold !important; height: {INPUT_BAL_H} !important; min-height: {INPUT_BAL_H} !important; box-sizing: border-box !important; padding-top: 0 !important; padding-bottom: 0 !important; }}
 
+    /* FORMULARIO AISLADO PARA BALANCE */
+    [data-testid="stForm"] {{ padding: 0 !important; border: none !important; background: transparent !important; margin: 0 !important; }}
+    [data-testid="stFormSubmitButton"] button {{ background-color: #00C897 !important; color: white !important; font-weight: bold !important; height: 35px !important; min-height: 35px !important; border-radius: 8px !important; border: none !important; width: {INPUT_BAL_W} !important; margin-left: {INPUT_BAL_X}px !important; margin-top: 5px !important; }}
+
     [data-testid="stFileUploader"] {{ transform: translate({DROPZONE_X}px, {DROPZONE_Y}px) !important; background-color: transparent !important; border: none !important; padding: 0 !important; box-shadow: none !important; }}
     [data-testid="stFileUploader"] > section {{ background-color: transparent !important; border: none !important; padding: 0 !important; }}
     
@@ -523,7 +527,7 @@ st.markdown(f"""
     div[data-testid="stButton"] > button {{ background-color: {btn_bg} !important; color: {btn_txt} !important; border: 1px solid {border_color} !important; }}
     div[data-testid="stPopover"] > button {{ min-height: {BTN_CAL_H}px !important; height: {BTN_CAL_H}px !important; min-width: {BTN_CAL_W}px !important; width: {BTN_CAL_W}px !important; padding: 0 !important; font-size: {BTN_CAL_ICON_SIZE}px !important; border-radius: px !important; border: 1px solid {border_color} !important; background-color: {btn_bg} !important; color: {btn_txt} !important; display: flex !important; justify-content: center !important; align-items: center !important; }}
     
-    /* MODAL (POPOVER) REDUCIDO EN BORDES Y AJUSTADO */
+    /* MODAL (POPOVER) MÁS ANCHO Y AJUSTADO */
     div[data-testid="stPopoverBody"] {{ 
         background-color: {card_bg} !important; 
         border: 1px solid {border_color} !important; 
@@ -531,7 +535,7 @@ st.markdown(f"""
         padding: 15px !important; 
     }}
     div[data-testid="stPopoverBody"]:has(h3) {{
-        width: 550px !important;
+        width: 710px !important; /* 29% MAS ANCHO COMO PEDISTE (antes 550px) */
         max-width: 95vw !important;
         max-height: 85vh !important;
         margin-top: 100px !important;
@@ -641,7 +645,7 @@ with col_bal:
 st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
 
 # =========================================================================================
-# 8.5 BLOQUE AISLADO: FUNCIONES PARA DIBUJAR LOS MENÚS CON SELECCIÓN REPARADA 100%
+# 8.5 BLOQUE AISLADO: FUNCIONES PARA DIBUJAR LOS MENÚS
 # =========================================================================================
 def colorful_menu(options, label, value_key, trade_data_ref):
     if value_key not in trade_data_ref: trade_data_ref[value_key] = options[0]
@@ -678,13 +682,19 @@ def colorful_multiselect(options, label, value_key, trade_data_ref):
 
 
 # ==========================================
-# 9. ENTRADA AUTOMÁTICA E IMÁGENES + BOTÓN DE NOTAS (MOVIDO AQUÍ)
+# 9. ENTRADA AUTOMÁTICA E IMÁGENES + BOTÓN DE NOTAS
 # ==========================================
 c1, c2, c_img, c_not, c_espacio = st.columns([1.5, 0.5, 2.5, 0.6, 3.4]) 
 
 with c1:
     st.markdown(f'<div class="lbl-input">{LBL_INPUT}</div>', unsafe_allow_html=True)
-    st.number_input("Balance", value=bal_actual, format="%.2f", key="input_balance", on_change=procesar_cambio, label_visibility="collapsed")
+    # 🔴 SOLUCIÓN: FORMULARIO PARA QUE SOLO SE ACTIVE CON ENTER 🔴
+    with st.form("form_balance", border=False):
+        st.number_input("Balance", value=bal_actual, format="%.2f", key="input_balance", label_visibility="collapsed")
+        guardar_btn = st.form_submit_button("✅ ENTER (Guardar)")
+        if guardar_btn:
+            procesar_cambio()
+            st.rerun()
 
 with c2:
     st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True) 
@@ -702,13 +712,15 @@ with c_img:
         if clave_actual not in db_usuario[ctx]["trades"]:
             db_usuario[ctx]["trades"][clave_actual] = {
                 "pnl": 0.0, "balance_final": bal_actual, "fecha_str": fecha_str_actual, "imagenes": [],
-                "bias": "NEUTRO", "confluencias": [], "razon_trade": "", "correcciones": "", "risk": "0.5%", "rrr": "B", "trade_type": "", "emociones": ""
+                "bias": "NEUTRO", "confluencias": [], "razon_trade": "", "correcciones": "", "risk": "0.5%", "rrr": "B", "trade_type": "A", "emociones": ""
             }
         
         lista_b64 = []
         for img in archivos:
             lista_b64.append(f"data:{img.type};base64,{convertir_img_base64(img)}")
-        db_usuario[ctx]["trades"][clave_actual]["imagenes"].extend(lista_b64)
+        
+        # 🔴 SOLUCIÓN: REEMPLAZAR EN VEZ DE EXTENDER PARA EVITAR DUPLICADOS INFINITOS 🔴
+        db_usuario[ctx]["trades"][clave_actual]["imagenes"] = lista_b64
 
 with c_not:
     st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True) 
@@ -743,8 +755,11 @@ with c_not:
             colorful_menu(rrr_options, "RR", 'rrr', trade_data_ref)
             st.markdown("<br>", unsafe_allow_html=True)
             
-            # TIPO Y EMOCIONES
-            trade_data_ref['trade_type'] = st.text_input("Trade Type", value=trade_data_ref.get('trade_type', ''), key=f"type_main")
+            # 🔴 SOLUCIÓN: TIPO DE TRADE EN BOTONES 🔴
+            trade_type_options = ['A+', 'A', 'B', 'C']
+            colorful_menu(trade_type_options, "Trade Type", 'trade_type', trade_data_ref)
+            st.markdown("<br>", unsafe_allow_html=True)
+
             trade_data_ref['emociones'] = st.text_area("Emociones", value=trade_data_ref.get('emociones', ''), key=f"emoc_main", height=80)
 
 
@@ -982,10 +997,9 @@ with st.expander("🛠️ OPEN ORDER HISTORY", expanded=False):
                         st.rerun()
 
 # =========================================================================================================
-# 12. TABLA DE RESULTADOS (EDITABLE, CON ORDEN ESPECÍFICO Y SINCRONIZACIÓN DE BORRADO/EDICIÓN)
+# 12. TABLA DE RESULTADOS
 # =========================================================================================================
 
-# Función callback para aplicar las eliminaciones y ediciones de la tabla
 def sync_table_edits():
     editor_state = st.session_state.get("table_editor", {})
     contexto = st.session_state.data_source_sel
@@ -1037,7 +1051,6 @@ if mostrar_tabla:
             confluencias_list = trade.get('confluencias', [])
             confluencias_resumen = ", ".join([c.split(". ")[-1] for c in confluencias_list])
 
-            # Orden exacto requerido
             row = {
                 "Fecha": fecha.strftime("%d/%m/%Y"),
                 "Bias": trade.get('bias', ''),
@@ -1052,7 +1065,6 @@ if mostrar_tabla:
             }
             table_data.append(row)
         
-        # Guardamos las claves en session_state para saber qué filas editar/borrar
         st.session_state.current_table_keys = keys_list
         df_results = pd.DataFrame(table_data)
         
