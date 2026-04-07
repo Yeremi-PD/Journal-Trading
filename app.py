@@ -683,7 +683,7 @@ with c1:
     st.markdown(f'<div class="lbl-input">{LBL_INPUT}</div>', unsafe_allow_html=True)
     with st.form("form_balance", border=False):
         st.number_input("Balance", value=bal_actual, format="%.2f", key="input_balance", label_visibility="collapsed")
-        guardar_btn = st.form_submit_button("✅ ENTER (Guardar)")
+        guardar_btn = st.form_submit_button("SAVE")
         if guardar_btn:
             procesar_cambio()
             st.rerun()
