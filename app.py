@@ -626,7 +626,7 @@ with col_bal:
 st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
 
 # =========================================================================================
-# 8.5 BLOQUE AISLADO: FUNCIONES PARA DIBUJAR LOS MENÚS
+# 8.5 BLOQUE AISLADO: FUNCIONES PARA DIBUJAR LOS MENÚS Y ARREGLAR UPLOADER
 # =========================================================================================
 def colorful_menu(options, label, value_key, trade_data_ref):
     if value_key not in trade_data_ref: trade_data_ref[value_key] = options[0]
@@ -661,6 +661,18 @@ def colorful_multiselect(options, label, value_key, trade_data_ref):
                 else: trade_data_ref[value_key].append(text)
                 st.rerun()
 
+# 🔴 SOLUCIÓN: CALLBACK PARA EL CUADRO DE SUBIDA PRINCIPAL 🔴
+def agregar_imagenes_main(contexto, llave, widget_id, counter_id, bal_act, f_str):
+    archivos_nuevos = st.session_state.get(widget_id)
+    if archivos_nuevos:
+        if llave not in db_usuario[contexto]["trades"]:
+            db_usuario[contexto]["trades"][llave] = {
+                "pnl": 0.0, "balance_final": bal_act, "fecha_str": f_str, "imagenes": [],
+                "bias": "NEUTRO", "confluencias": [], "razon_trade": "", "correcciones": "", "risk": "0.5%", "rrr": "B", "trade_type": "A", "emociones": ""
+            }
+        for img in archivos_nuevos:
+            db_usuario[contexto]["trades"][llave]["imagenes"].append(f"data:{img.type};base64,{convertir_img_base64(img)}")
+        st.session_state[counter_id] += 1
 
 # ==========================================
 # 9. ENTRADA AUTOMÁTICA E IMÁGENES + BOTÓN DE NOTAS
@@ -686,20 +698,22 @@ clave_actual = (st.session_state.input_fecha.year, st.session_state.input_fecha.
 
 with c_img:
     st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True) 
-    archivos = st.file_uploader("", accept_multiple_files=True, label_visibility="collapsed", key=f"up_{fecha_str_actual}")
-    if archivos:
-        old_trade_data = db_usuario[ctx]["trades"].get(clave_actual, {})
-        if clave_actual not in db_usuario[ctx]["trades"]:
-            db_usuario[ctx]["trades"][clave_actual] = {
-                "pnl": 0.0, "balance_final": bal_actual, "fecha_str": fecha_str_actual, "imagenes": [],
-                "bias": "NEUTRO", "confluencias": [], "razon_trade": "", "correcciones": "", "risk": "0.5%", "rrr": "B", "trade_type": "A", "emociones": ""
-            }
-        
-        lista_b64 = []
-        for img in archivos:
-            lista_b64.append(f"data:{img.type};base64,{convertir_img_base64(img)}")
-        
-        db_usuario[ctx]["trades"][clave_actual]["imagenes"] = lista_b64
+    
+    # 🔴 APLICANDO EL CALLBACK AL UPLOADER PRINCIPAL 🔴
+    counter_main_key = f"upd_main_counter_{clave_actual}"
+    if counter_main_key not in st.session_state:
+        st.session_state[counter_main_key] = 0
+    
+    upd_main_key = f"up_main_{clave_actual}_{st.session_state[counter_main_key]}"
+    
+    st.file_uploader(
+        "", 
+        accept_multiple_files=True, 
+        label_visibility="collapsed", 
+        key=upd_main_key,
+        on_change=agregar_imagenes_main,
+        args=(ctx, clave_actual, upd_main_key, counter_main_key, bal_actual, fecha_str_actual)
+    )
 
 with c_not:
     st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True) 
@@ -883,12 +897,12 @@ with col_det:
 st.markdown("<br>", unsafe_allow_html=True)
 st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
 
-# 🔴 SOLUCIÓN: FUNCIONES CALLBACK PARA EL BORRADO Y LA SUBIDA 🔴
+# 🔴 CALLBACKS PARA HISTORIAL 🔴
 def borrar_imagen(contexto, llave, index):
     if len(db_usuario[contexto]["trades"][llave]["imagenes"]) > index:
         db_usuario[contexto]["trades"][llave]["imagenes"].pop(index)
 
-def agregar_imagenes(contexto, llave, widget_id, counter_id):
+def agregar_imagenes_historial(contexto, llave, widget_id, counter_id):
     archivos_nuevos = st.session_state.get(widget_id)
     if archivos_nuevos:
         for img in archivos_nuevos:
@@ -930,7 +944,6 @@ with st.expander("🛠️ OPEN ORDER HISTORY", expanded=False):
                 st.markdown("---")
                 st.markdown("**📸 Imágenes Guardadas:**")
                 
-                # 🔴 APLICANDO CALLBACKS PARA SUBIDA Y BORRADO 🔴
                 counter_key = f"upd_counter_{clave}"
                 if counter_key not in st.session_state:
                     st.session_state[counter_key] = 0
@@ -940,7 +953,7 @@ with st.expander("🛠️ OPEN ORDER HISTORY", expanded=False):
                     "Agregar más fotos (se guardan automáticamente)", 
                     accept_multiple_files=True, 
                     key=upd_key, 
-                    on_change=agregar_imagenes, 
+                    on_change=agregar_imagenes_historial, 
                     args=(ctx, clave, upd_key, counter_key)
                 )
 
