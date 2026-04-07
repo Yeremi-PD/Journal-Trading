@@ -549,7 +549,7 @@ st.markdown(f"""
         min-width: {BTN_CAL_W}px !important; width: {BTN_CAL_W}px !important; 
         padding: 0 !important; font-size: {BTN_CAL_ICON_SIZE}px !important; border-radius: px !important; border: 1px solid {border_color} !important; background-color: {btn_bg} !important; color: {btn_txt} !important; display: flex !important; justify-content: center !important; align-items: center !important; 
     }}
-    div[data-testid="stPopoverBody"] {{ background-color: 000000 !important; border: 1px solid {border_color} !important; }}
+    div[data-testid="stPopoverBody"] {{ background-color: {card_bg} !important; border: 1px solid {border_color} !important; }}
 
     /* CALENDARIO Y DÍAS */
     .calendar-wrapper {{ background: {card_bg} !important; padding: 10px !important; border-radius: 15px !important; border: 1px solid {border_color} !important; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1) !important; }}
@@ -699,7 +699,6 @@ mes_sel = st.session_state.cal_month
 nombre_mes = calendar.month_name[mes_sel]
 
 with col_cal:
-    st.markdown('<div class="calendar-wrapper">', unsafe_allow_html=True)
     
     c_izq, c_cen, c_der = st.columns([1, 4, 1])
     with c_izq: st.button("◀", on_click=cambiar_mes, args=(-1,), use_container_width=True)
@@ -746,7 +745,6 @@ with col_cal:
                     else:
                         op = "0.2" if trade and not visible else "1"
                         st.markdown(f'<div class="card cell-empty" style="opacity:{op}"><div class="day-number">{dia}</div></div>', unsafe_allow_html=True)
-    st.markdown('</div>', unsafe_allow_html=True)
 
 with col_det:
     trades_mes = [v["pnl"] for k, v in db_usuario[ctx]["trades"].items() if k[0] == anio_sel and k[1] == mes_sel]
