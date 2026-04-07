@@ -1134,13 +1134,13 @@ section[data-testid="stMain"] div[data-testid="column"]:nth-child(3) {{
     min-width: 100px !important; 
     min-height: 100px !important; 
 }}
-[data-testid="stFileUploadDropzone"] button * {{ color: {u_btn_txt} !important; font-size: 200px !important; }}
-[data-testid="stFileUploadDropzone"] button::after {{ content: "Upload" !important; font-size: 200px !important; }} /* TAMAÑO LETRAS UPLOAD */
+[data-testid="stFileUploadDropzone"] button * {{ color: {u_btn_txt} !important; font-size: 0px !important; }}
+[data-testid="stFileUploadDropzone"] button::after {{ content: "Upload" !important; font-size: 0 !important; }} /* TAMAÑO LETRAS UPLOAD */
 
 /* ================== BOTÓN NOTAS (c_not) ================== */
 /* EDITA AQUÍ SUS MEDIDAS Y POSICIÓN */
 section[data-testid="stMain"] div[data-testid="column"]:nth-child(4) {{
-    transform: translate(0px, 0px) !important;  /* POSICIONAMIENTO LIBRE (X, Y) */
+    transform: translate(50px, 50px) !important;  /* POSICIONAMIENTO LIBRE (X, Y) */
     z-index: 10;
 }}
 div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] > button {{
