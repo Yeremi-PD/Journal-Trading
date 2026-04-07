@@ -230,7 +230,7 @@ TXT_CERRAR_MODAL = "✖ CERRAR"
 # ---------------------------------------------------------
 BTN_NOTAS_TOP = "-5px"
 BTN_NOTAS_RIGHT = "-5px"
-BTN_NOTAS_SIZE = 18
+BTN_NOTAS_SIZE = 60
 
 # ---------------------------------------------------------
 # [ TARJETA: NET P&L ]
