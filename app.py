@@ -38,7 +38,7 @@ def inicializar_settings():
         # Calendario
         "cal_mes_size": 28, "cal_pnl_size": 30, "cal_pct_size": 25,
         "cal_dia_size": 20, "cal_cam_size": 30, "cal_scale": 100, "cal_line_height": 1.2,
-        "cal_txt_y": 0, "cal_txt_pad": 0
+        "cal_txt_y": 0, "cal_txt_pad": 0, "cal_note_size": 30
     }
 
 if "usuario_actual" not in st.session_state:
@@ -324,7 +324,7 @@ def reset_settings(category):
     elif category == "txt":
         keys = ["size_top_stats", "size_card_titles", "size_box_titles", "size_box_vals", "size_box_pct", "size_box_wl", "pie_size", "pie_y_offset"]
     elif category == "cal":
-        keys = ["cal_mes_size", "cal_pnl_size", "cal_pct_size", "cal_dia_size", "cal_cam_size", "cal_scale", "cal_line_height", "cal_txt_y", "cal_txt_pad"]
+        keys = ["cal_mes_size", "cal_pnl_size", "cal_pct_size", "cal_dia_size", "cal_cam_size", "cal_scale", "cal_line_height", "cal_txt_y", "cal_txt_pad", "cal_note_size"]
     
     for k in keys:
         s[k] = defaults[k]
@@ -406,6 +406,7 @@ with st.sidebar.expander("📅 Calendar Settings"):
     user_settings["cal_pct_size"] = st.slider("Day % Size", 10, 30, user_settings["cal_pct_size"])
     user_settings["cal_dia_size"] = st.slider("Day Number Size", 10, 30, user_settings["cal_dia_size"])
     user_settings["cal_cam_size"] = st.slider("Camera Icon Size", 10, 50, user_settings["cal_cam_size"])
+    user_settings["cal_note_size"] = st.slider("Note Icon Size", 10, 50, user_settings.get("cal_note_size", 30))
     user_settings["cal_scale"] = st.slider("General Scale (Calendar Height)", 50, 200, user_settings["cal_scale"])
     user_settings["cal_line_height"] = st.slider("Height Between Texts (Spacing)", 0.5, 3.0, user_settings["cal_line_height"], 0.1)
     user_settings["cal_txt_y"] = st.slider("Day Text Vertical Position", -50, 50, user_settings.get("cal_txt_y", 0))
@@ -457,6 +458,7 @@ def gen_css_vars(s):
     --cal-pct-size: {s['cal_pct_size']}px;
     --cal-dia-size: {s['cal_dia_size']}px;
     --cal-cam-size: {s['cal_cam_size']}px;
+    --cal-note-size: {s.get('cal_note_size', 30)}px;
     --cal-scale: {s['cal_scale']}px;
     --cal-line-height: {s['cal_line_height']};
     --bal-num-sz: {s['bal_num_sz']}px;
@@ -558,7 +560,7 @@ st.markdown(f"""
     .cam-icon {{ position: absolute !important; bottom: {BTN_CAM_Y}px !important; left: 50% !important; transform: translateX(calc(-50% + {BTN_CAM_X}px)) !important; font-size: var(--cal-cam-size) !important; cursor: pointer !important; background: {c_cam_bg} !important; border-radius: 50% !important; padding: 2px 4px !important; box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important; transition: 0.2s !important; }}
     .cam-icon:hover {{ transform: translateX(calc(-50% + {BTN_CAM_X}px)) scale(1.2) !important; }}
     
-    .note-icon {{ position: absolute !important; top: 6px !important; right: 10px !important; font-size: var(--cal-cam-size) !important; cursor: pointer !important; transition: 0.2s !important; text-shadow: 0 2px 4px rgba(0,0,0,0.2) !important; }}
+    .note-icon {{ position: absolute !important; top: 6px !important; right: 10px !important; font-size: var(--cal-note-size) !important; cursor: pointer !important; transition: 0.2s !important; text-shadow: 0 2px 4px rgba(0,0,0,0.2) !important; }}
     .note-icon:hover {{ transform: scale(1.2) !important; }}
     .note-modal-content {{ background: {card_bg} !important; color: {c_dash} !important; padding: 20px !important; border-radius: 10px !important; max-width: 500px !important; width: 90% !important; border: 1px solid {border_color} !important; box-shadow: 0 0 20px black !important; font-size: 16px !important; z-index: 1000000 !important; overflow-y: auto !important; max-height: 80vh !important; }}
     .note-modal-content hr {{ border-color: {border_color} !important; }}
@@ -834,7 +836,7 @@ with col_cal:
                             confluences_str = ", ".join(trade.get("Confluences", []))
                             notes_html = f"""
                             <div class="note-modal-content">
-                                <h3 style="text-align:center; margin-top:0;">📝 Trade Details - {dia}/{mes_sel}/{anio_sel}</h3>
+                                <h3 style="text-align:center; margin-top:0;">🗒️ Trade Details - {dia}/{mes_sel}/{anio_sel}</h3>
                                 <hr>
                                 <b>Bias:</b> {trade.get("bias", "NEUTRO")}<br><br>
                                 <b>Confluences:</b> {confluences_str}<br><br>
@@ -844,7 +846,7 @@ with col_cal:
                                 <b>Emotions:</b> {trade.get("Emotions", "")}
                             </div>
                             """
-                            note_html = f'<input type="checkbox" id="{id_note_modal}" class="modal-toggle" style="display:none;"><label for="{id_note_modal}"><div class="note-icon">📝</div></label><div class="fs-modal"><label for="{id_note_modal}" class="close-btn">{TXT_CERRAR_MODAL}</label>{notes_html}</div>'
+                            note_html = f'<input type="checkbox" id="{id_note_modal}" class="modal-toggle" style="display:none;"><label for="{id_note_modal}"><div class="note-icon">🗒️</div></label><div class="fs-modal"><label for="{id_note_modal}" class="close-btn">{TXT_CERRAR_MODAL}</label>{notes_html}</div>'
                         else:
                             note_html = ""
                         
