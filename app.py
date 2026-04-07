@@ -189,12 +189,12 @@ WEEKS_CONTENEDOR_X = 0
 WEEKS_CONTENEDOR_Y = 15     
 
 WEEK_BOX_W = "31%"          # 31% para que quepan 3 en una fila (ya que ahora son 5)
-WEEK_BOX_H = "100px"         # Un poco más alto para el porcentaje
+WEEK_BOX_H = "120px"         # Un poco más alto para el porcentaje
 WEEK_TITLE_SIZE = 25        
 WEEK_TITLE_COLOR_C = "#000000"
 WEEK_TITLE_COLOR_O = "#FFFFFF"
-WEEK_VAL_SIZE = 20          
-WEEK_PCT_SIZE = 20          # TAMAÑO DEL PORCENTAJE DE LA SEMANA/MES
+WEEK_VAL_SIZE = 25          
+WEEK_PCT_SIZE = 25          # TAMAÑO DEL PORCENTAJE DE LA SEMANA/MES
 WEEK_ALIGN = "center"       
 
 MONTH_BOX_W = "100%"        
