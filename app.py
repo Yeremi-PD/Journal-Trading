@@ -268,7 +268,7 @@ TXT_W3 = "Week 3"
 TXT_W4 = "Week 4"
 TXT_W5 = "Week 5"
 TXT_W6 = "Week 6"
-TXT_MO = "MonAth"
+TXT_MO = "Month"
 
 WEEKS_TITULOS_SIZE = 20        
 WEEKS_TITULOS_COLOR_C = "#000000"
