@@ -36,7 +36,7 @@ def inicializar_settings():
         "size_box_vals": 25, "size_box_pct": 20, "size_box_wl": 14,
         "pie_size": 120, "pie_y_offset": 0,
         
-        # Calendario
+        # Calendario y Notas
         "cal_mes_size": 28, "cal_pnl_size": 30, "cal_pct_size": 25,
         "cal_dia_size": 20, "cal_cam_size": 30, "cal_scale": 100, "cal_line_height": 1.2,
         "cal_txt_y": 0, "cal_txt_pad": 0, "cal_note_size": 30,
@@ -165,7 +165,7 @@ DROPZONE_BG_O = "transparent"
 DROPZONE_BORDER_C = "1px dashed #E2E8F0"  
 DROPZONE_BORDER_O = "1px dashed #4A5568"
 
-BTN_UP_TEXTO = "Upload c c  c c"
+BTN_UP_TEXTO = "Upload"
 BTN_UP_SIZE = "20px"
 BTN_UP_W = "120px"             
 BTN_UP_H = "45px"              
@@ -568,8 +568,11 @@ st.markdown(f"""
     
     .note-icon {{ position: absolute !important; top: 6px !important; right: 10px !important; font-size: var(--cal-note-size) !important; cursor: pointer !important; transition: 0.2s !important; text-shadow: 0 2px 4px rgba(0,0,0,0.2) !important; }}
     .note-icon:hover {{ transform: scale(1.2) !important; }}
-    .note-modal-content {{ background: {card_bg} !important; color: {c_dash} !important; padding: 20px !important; border-radius: 10px !important; max-width: 500px !important; width: 90% !important; border: 1px solid {border_color} !important; box-shadow: 0 0 20px black !important; font-size: 16px !important; z-index: 1000000 !important; overflow-y: auto !important; max-height: 80vh !important; }}
-    .note-modal-content hr {{ border-color: {border_color} !important; }}
+    
+    .note-modal-content {{ background: {card_bg} !important; color: {c_dash} !important; padding: 20px !important; border-radius: 10px !important; max-width: 500px !important; width: 90% !important; border: 1px solid {border_color} !important; box-shadow: 0 0 20px black !important; z-index: 1000000 !important; overflow-y: auto !important; max-height: 80vh !important; }}
+    .note-modal-content b {{ font-size: var(--note-lbl-size) !important; font-weight: bold !important; display: block !important; margin-top: 12px !important; color: {c_dash} !important; }}
+    .note-modal-content span.note-val {{ font-size: var(--note-val-size) !important; display: block !important; margin-bottom: 5px !important; color: {c_dash} !important; }}
+    .note-modal-content hr {{ border-color: {border_color} !important; margin: 10px 0 !important; }}
 
     .cell-win {{ border: 2px solid #00C897 !important; color: #00664F !important; background-color: #e6f9f4 !important;}}
     .cell-loss {{ border: 2px solid #FF4C4C !important; color: #9B1C1C !important; background-color: #ffeded !important;}}
@@ -849,17 +852,17 @@ with col_cal:
                             id_note_modal = f"mod_note_{anio_sel}_{mes_sel}_{dia}"
                             confluences_str = ", ".join(trade.get("Confluences", []))
                             notes_html = f"""
-                            <div class="note-modal-content" style="font-size: var(--note-val-size);">
-                                <h3 style="text-align:center; margin-top:0;">🗒️ Trade Details - {dia}/{mes_sel}/{anio_sel}</h3>
+                            <div class="note-modal-content">
+                                <h3 style="text-align:center; margin-top:0; font-size: var(--note-lbl-size);">🗒️ Trade Details - {dia}/{mes_sel}/{anio_sel}</h3>
                                 <hr>
-                                <b style="font-size: var(--note-lbl-size);">Bias:</b> {trade.get("bias", "NEUTRO")}<br><br>
-                                <b style="font-size: var(--note-lbl-size);">Confluences:</b> {confluences_str}<br><br>
-                                <b style="font-size: var(--note-lbl-size);">Reason For Trade:</b> {trade.get("razon_trade", "")}<br><br>
-                                <b style="font-size: var(--note-lbl-size);">Corrections:</b> {trade.get("Corrections", "")}<br><br>
-                                <b style="font-size: var(--note-lbl-size);">% Risk:</b> {trade.get("risk", "")}<br><br>
-                                <b style="font-size: var(--note-lbl-size);">RR:</b> {trade.get("rrr", "")}<br><br>
-                                <b style="font-size: var(--note-lbl-size);">Trade Type:</b> {trade.get("trade_type", "")}<br><br>
-                                <b style="font-size: var(--note-lbl-size);">Emotions:</b> {trade.get("Emotions", "")}
+                                <b>Bias:</b> <span class="note-val">{trade.get("bias", "NEUTRO")}</span>
+                                <b>Confluences:</b> <span class="note-val">{confluences_str}</span>
+                                <b>Reason For Trade:</b> <span class="note-val">{trade.get("razon_trade", "")}</span>
+                                <b>Corrections:</b> <span class="note-val">{trade.get("Corrections", "")}</span>
+                                <b>% Risk:</b> <span class="note-val">{trade.get("risk", "")}</span>
+                                <b>RR:</b> <span class="note-val">{trade.get("rrr", "")}</span>
+                                <b>Trade Type:</b> <span class="note-val">{trade.get("trade_type", "")}</span>
+                                <b>Emotions:</b> <span class="note-val">{trade.get("Emotions", "")}</span>
                             </div>
                             """
                             note_html = f'<input type="checkbox" id="{id_note_modal}" class="modal-toggle" style="display:none;"><label for="{id_note_modal}"><div class="note-icon">🗒️</div></label><div class="fs-modal"><label for="{id_note_modal}" class="close-btn">{TXT_CERRAR_MODAL}</label>{notes_html}</div>'
