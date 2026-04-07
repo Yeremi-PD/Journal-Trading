@@ -230,12 +230,12 @@ TXT_CERRAR_MODAL = "✖ CERRAR"
 # ---------------------------------------------------------
 BTN_NOTAS_TOP = "-5px"
 BTN_NOTAS_RIGHT = "-5px"
-BTN_NOTAS_SIZE = 60
+BTN_NOTAS_SIZE = 18
 
 # ---------------------------------------------------------
 # [ TARJETA: NET P&L ]
 # ---------------------------------------------------------
-CARD_PNL_TITULO = "Net P&L"
+CARD_PNL_TITULO = "Net P&L Monthly"
 CARD_PNL_TITULO_SIZE = 20
 CARD_PNL_TITULO_COLOR_C = "#000000"
 CARD_PNL_TITULO_COLOR_O = "#FFFFFF"
@@ -248,7 +248,7 @@ CARD_PNL_Y = 0
 # ---------------------------------------------------------
 # [ TARJETA: TRADE WIN % ]
 # ---------------------------------------------------------
-CARD_WIN_TITULO = "WinRate"
+CARD_WIN_TITULO = "Win Rate Monthly"
 CARD_WIN_TITULO_SIZE = 20
 CARD_WIN_TITULO_COLOR_C = "#000000"
 CARD_WIN_TITULO_COLOR_O = "#FFFFFF"
