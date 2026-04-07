@@ -464,9 +464,7 @@ st.markdown(f"""
     /* LÍNEA SEPARADORA */
     .thin-line {{ border-bottom: {LINEA_GROSOR}px solid {c_linea} !important; margin: {LINEA_MARGEN_SUP}px 0px {LINEA_MARGEN_INF}px 0px !important; width: {LINEA_ANCHO}% !important; transform: translateX({LINEA_X}px) !important; }}
 
-    /* OCULTAR ETIQUETAS NATIVAS DE STREAMLIT */
-    div[data-testid="stSelectbox"] label {{ display: none !important; }}
-    div[data-testid="stNumberInput"] label {{ display: none !important; }}
+
 
     /* Fondos de selectores */
     div[data-baseweb="select"] > div {{ background-color: {card_bg} !important; border-color: {border_color} !important; }}
