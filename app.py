@@ -148,7 +148,7 @@ CARD_WIN_Y = 0
 # ---------------------------------------------------------
 UPLOAD_X = 0
 UPLOAD_Y = 0
-UPLOAD_W = "100%"                     # Ancho del botón de carga (Ej: "120px" o "100%")
+UPLOAD_W = "200%"                     # Ancho del botón de carga (Ej: "120px" o "100%")
 UPLOAD_H = "45px"                     # Alto del botón de carga
 UPLOAD_BTN_BG_CLARO = "#E2E8F0"       
 UPLOAD_BTN_BG_OSCURO = "#4A5568"
