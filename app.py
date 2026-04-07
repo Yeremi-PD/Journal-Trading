@@ -27,7 +27,10 @@ def inicializar_data_usuario():
 
 def inicializar_settings():
     return {
-        # Dashboard (Solo quedó la caja de Balance Total)
+        # Dashboard
+        "btn_up_sz": 20, "btn_up_w": 120, "btn_up_h": 45, "btn_up_x": 0, "btn_up_y": 0,
+        "btn_cal_sz": 33, "btn_cal_w": 68, "btn_cal_h": 68, "btn_cal_x": 0, "btn_cal_y": 0,
+        "btn_not_sz": 18, "btn_not_w": 50, "btn_not_h": 50, "btn_not_x": 0, "btn_not_y": 8,
         "bal_num_sz": 30, "bal_box_w": 50, "bal_box_pad": 10,
         
         # Textos y Gráficos
@@ -132,6 +135,7 @@ INPUT_BAL_H = "60px"
 INPUT_BAL_X = 0      
 INPUT_BAL_Y = 0      
 INPUT_BAL_TXT_SIZE = 25       
+
 INPUT_FONDO_C = "#FFFFFF"
 INPUT_FONDO_O = "#1A202C"
 
@@ -163,18 +167,12 @@ DROPZONE_BORDER_C = "1px dashed #E2E8F0"
 DROPZONE_BORDER_O = "1px dashed #4A5568"
 
 BTN_UP_TEXTO = "Upload"
-BTN_UP_SIZE = "20px"
-BTN_UP_W = "120px"             
-BTN_UP_H = "45px"              
 BTN_UP_BG_C = "#E2E8F0"        
 BTN_UP_BG_O = "#4A5568"
 BTN_UP_TXT_C = "#000000"      
 BTN_UP_TXT_O = "#FFFFFF"
 
 BTN_CAL_EMOJI = "🗓️"
-BTN_CAL_W = 68     
-BTN_CAL_H = 68    
-BTN_CAL_ICON_SIZE = 33 
 BTN_CAL_BG_C = "#F3F4F6"
 BTN_CAL_BG_O = "#2D3748"
 
@@ -243,7 +241,7 @@ if "tema" not in st.session_state:
     st.session_state.tema = TEMA_POR_DEFECTO
 
 if "data_source_sel" not in st.session_state:
-    st.session_state.data_source_sel = "Account Real"
+    st.session_state.data_source_sel = OPT_DATA_1
 
 if "dispositivo_actual" not in st.session_state:
     st.session_state.dispositivo_actual = "PC"
@@ -288,8 +286,13 @@ def procesar_cambio():
     ctx = st.session_state.data_source_sel 
     nuevo = st.session_state.input_balance
     viejo = db_usuario[ctx]["balance"]
-    fecha_sel = st.session_state.input_fecha 
     
+    # Manejo seguro si la fecha no ha sido tocada aún por el usuario
+    if "input_fecha" in st.session_state:
+        fecha_sel = st.session_state.input_fecha
+    else:
+        fecha_sel = hoy
+        
     if nuevo != viejo:
         pnl = nuevo - viejo
         clave = (fecha_sel.year, fecha_sel.month, fecha_sel.day)
@@ -319,7 +322,7 @@ def reset_settings(category):
     s = db_global[usuario]["settings"][st.session_state.dispositivo_actual]
     
     if category == "dash":
-        keys = ["bal_num_sz", "bal_box_w", "bal_box_pad"]
+        keys = ["btn_up_sz", "btn_up_w", "btn_up_h", "btn_up_x", "btn_up_y", "btn_cal_sz", "btn_cal_w", "btn_cal_h", "btn_cal_x", "btn_cal_y", "btn_not_sz", "btn_not_w", "btn_not_h", "btn_not_x", "btn_not_y", "bal_num_sz", "bal_box_w", "bal_box_pad"]
     elif category == "txt":
         keys = ["size_top_stats", "size_card_titles", "size_box_titles", "size_box_vals", "size_box_pct", "size_box_wl", "pie_size", "pie_y_offset"]
     elif category == "cal":
@@ -327,6 +330,9 @@ def reset_settings(category):
     
     for k in keys:
         s[k] = defaults[k]
+
+def update_ds():
+    st.session_state.data_source_sel = st.session_state.ds_selector
 
 # ==========================================
 # 5. BARRA LATERAL (AJUSTES Y ADMIN)
@@ -368,7 +374,7 @@ if admin_pass == "725166":
                 st.session_state.usuario_actual = None
             st.rerun()
 
-# --- MENÚS EXPANDIBLES (ORDENADOS COMO PEDISTE) ---
+# --- MENÚS EXPANDIBLES ---
 st.sidebar.markdown("---")
 
 with st.sidebar.expander("🖥️ Ajustes de Dashboard"):
@@ -380,6 +386,27 @@ with st.sidebar.expander("🖥️ Ajustes de Dashboard"):
     user_settings["bal_num_sz"] = st.slider("Tamaño Números Balance", 10, 60, user_settings["bal_num_sz"])
     user_settings["bal_box_w"] = st.slider("Ancho Fondo Verde (%)", 10, 100, user_settings["bal_box_w"])
     user_settings["bal_box_pad"] = st.slider("Altura Fondo Verde (Padding)", 0, 50, user_settings["bal_box_pad"])
+
+    st.markdown("**Botón UPLOAD**")
+    user_settings["btn_up_sz"] = st.slider("Tamaño Texto Upload", 10, 40, user_settings["btn_up_sz"])
+    user_settings["btn_up_w"] = st.slider("Ancho Botón Upload", 50, 300, user_settings["btn_up_w"])
+    user_settings["btn_up_h"] = st.slider("Altura Botón Upload", 20, 100, user_settings["btn_up_h"])
+    user_settings["btn_up_x"] = st.slider("Mover Upload Horiz (X)", -100, 100, user_settings["btn_up_x"])
+    user_settings["btn_up_y"] = st.slider("Mover Upload Vert (Y)", -100, 100, user_settings["btn_up_y"])
+    
+    st.markdown("**Botón CALENDARIO**")
+    user_settings["btn_cal_sz"] = st.slider("Tamaño Emoji Calendario", 10, 60, user_settings["btn_cal_sz"])
+    user_settings["btn_cal_w"] = st.slider("Ancho Botón Calendario", 30, 150, user_settings["btn_cal_w"])
+    user_settings["btn_cal_h"] = st.slider("Altura Botón Calendario", 20, 120, user_settings["btn_cal_h"])
+    user_settings["btn_cal_x"] = st.slider("Mover Calendario Horiz (X)", -100, 100, user_settings["btn_cal_x"])
+    user_settings["btn_cal_y"] = st.slider("Mover Calendario Vert (Y)", -100, 100, user_settings["btn_cal_y"])
+
+    st.markdown("**Botón NOTAS (📝)**")
+    user_settings["btn_not_sz"] = st.slider("Tamaño Emoji Notas", 10, 60, user_settings["btn_not_sz"])
+    user_settings["btn_not_w"] = st.slider("Ancho Botón Notas", 30, 150, user_settings["btn_not_w"])
+    user_settings["btn_not_h"] = st.slider("Altura Botón Notas", 20, 120, user_settings["btn_not_h"])
+    user_settings["btn_not_x"] = st.slider("Mover Notas Horiz (X)", -100, 100, user_settings["btn_not_x"])
+    user_settings["btn_not_y"] = st.slider("Mover Notas Vert (Y)", -100, 100, user_settings["btn_not_y"])
 
 with st.sidebar.expander("🔠 Ajustes de Textos y Gráficos"):
     if st.button("🔄 Reset Textos y Gráficos", key="res_txt", use_container_width=True): 
@@ -456,6 +483,21 @@ def gen_css_vars(s):
     --cal-cam-size: {s['cal_cam_size']}px;
     --cal-scale: {s['cal_scale']}px;
     --cal-line-height: {s['cal_line_height']};
+    --btn-up-sz: {s['btn_up_sz']}px;
+    --btn-up-w: {s['btn_up_w']}px;
+    --btn-up-h: {s['btn_up_h']}px;
+    --btn-up-x: {s['btn_up_x']}px;
+    --btn-up-y: {s['btn_up_y']}px;
+    --btn-cal-sz: {s['btn_cal_sz']}px;
+    --btn-cal-w: {s['btn_cal_w']}px;
+    --btn-cal-h: {s['btn_cal_h']}px;
+    --btn-cal-x: {s['btn_cal_x']}px;
+    --btn-cal-y: {s['btn_cal_y']}px;
+    --btn-not-sz: {s['btn_not_sz']}px;
+    --btn-not-w: {s['btn_not_w']}px;
+    --btn-not-h: {s['btn_not_h']}px;
+    --btn-not-x: {s['btn_not_x']}px;
+    --btn-not-y: {s['btn_not_y']}px;
     --bal-num-sz: {s['bal_num_sz']}px;
     --bal-box-w: {s['bal_box_w']}%;
     --bal-box-pad: {s['bal_box_pad']}px;
@@ -492,8 +534,8 @@ st.markdown(f"""
     li[role="option"] {{ background-color: F3F4F6 !important; }}
     li[role="option"]:hover {{ background-color: {border_color} !important; }}
 
-    /* ======= ESTILO RESTAURADO: CAJA BALANCE Y BOTON SAVE ======= */
-    div[data-testid="stNumberInput"] {{ margin-left: {INPUT_BAL_X}px !important; margin-top: {INPUT_BAL_Y}px !important; width: {INPUT_BAL_W} !important; min-width: {INPUT_BAL_W} !important; max-width: {INPUT_BAL_W} !important; }}
+    /* ======= ESTILO ORIGINAL: CAJA BALANCE Y BOTON SAVE ======= */
+    div[data-testid="column"]:nth-child(1) div[data-testid="stNumberInput"] {{ width: {INPUT_BAL_W} !important; min-width: {INPUT_BAL_W} !important; max-width: {INPUT_BAL_W} !important; margin-left: {INPUT_BAL_X}px !important; margin-top: {INPUT_BAL_Y}px !important; }}
     div[data-testid="stNumberInput"] button {{ display: none !important; }} 
     
     div[data-testid="stNumberInput"] > div:last-child,
@@ -504,14 +546,26 @@ st.markdown(f"""
 
     [data-testid="stForm"] {{ padding: 0 !important; border: none !important; background: transparent !important; margin: 0 !important; }}
     
-    [data-testid="stFormSubmitButton"] button {{ 
+    div[data-testid="column"]:nth-child(1) [data-testid="stFormSubmitButton"] button {{ 
         background-color: #00C897 !important; color: white !important; font-weight: bold !important; 
         height: 35px !important; min-height: 35px !important; border-radius: 8px !important; border: none !important; 
         width: {INPUT_BAL_W} !important; margin-left: {INPUT_BAL_X}px !important; margin-top: 5px !important; 
     }}
 
-    /* ======= ESTILO RESTAURADO: UPLOAD, CALENDARIO, NOTAS ======= */
-    [data-testid="stFileUploader"] {{ transform: translate({DROPZONE_X}px, {DROPZONE_Y}px) !important; background-color: transparent !important; border: none !important; padding: 0 !important; box-shadow: none !important; }}
+    /* ======= MOVIMIENTO LIBRE DE LOS BOTONES: CALENDARIO, UPLOAD, NOTAS ======= */
+    /* Mueve la columna completa en lugar de solo el botón para tener 100% libertad */
+    section[data-testid="stMain"] div[data-testid="column"]:nth-child(2) {{
+        transform: translate(var(--btn-cal-x), var(--btn-cal-y)) !important; z-index: 10;
+    }}
+    section[data-testid="stMain"] div[data-testid="column"]:nth-child(3) {{
+        transform: translate(var(--btn-up-x), var(--btn-up-y)) !important; z-index: 10;
+    }}
+    section[data-testid="stMain"] div[data-testid="column"]:nth-child(4) {{
+        transform: translate(var(--btn-not-x), var(--btn-not-y)) !important; z-index: 10;
+    }}
+
+    /* ESTILOS INTERNOS DE LOS BOTONES */
+    [data-testid="stFileUploader"] {{ background-color: transparent !important; border: none !important; padding: 0 !important; box-shadow: none !important; }}
     [data-testid="stFileUploader"] > section {{ background-color: transparent !important; border: none !important; padding: 0 !important; }}
     
     [data-testid="stFileUploadDropzone"] {{ background-color: {drop_bg} !important; border: {drop_border} !important; border-radius: 8px !important; padding: 0 !important; width: {DROPZONE_W} !important; min-height: {DROPZONE_H} !important; height: {DROPZONE_H} !important; box-shadow: none !important; display: flex !important; justify-content: center !important; align-items: center !important; }}
@@ -520,20 +574,26 @@ st.markdown(f"""
     
     [data-testid="stFileUploadDropzone"] button {{ 
         background-color: {u_btn_bg} !important; color: {u_btn_txt} !important; border: 1px solid {border_color} !important; 
-        border-radius: 6px !important; margin: 0 !important; width: {BTN_UP_W} !important; 
-        min-width: {BTN_UP_W} !important; min-height: {BTN_UP_H} !important; height: {BTN_UP_H} !important; 
+        border-radius: 6px !important; margin: 0 !important; width: var(--btn-up-w) !important; 
+        min-width: var(--btn-up-w) !important; min-height: var(--btn-up-h) !important; height: var(--btn-up-h) !important; 
     }}
-    [data-testid="stFileUploadDropzone"] button * {{ color: {u_btn_txt} !important; font-size: {BTN_UP_SIZE} !important; }}
-    [data-testid="stFileUploadDropzone"] button::after {{ content: "{BTN_UP_TEXTO}" !important; font-size: {BTN_UP_SIZE} !important; }}
+    [data-testid="stFileUploadDropzone"] button * {{ color: {u_btn_txt} !important; font-size: var(--btn-up-sz) !important; }}
+    [data-testid="stFileUploadDropzone"] button::after {{ content: "{BTN_UP_TEXTO}" !important; font-size: var(--btn-up-sz) !important; }}
     [data-testid="stFileUploadDropzone"] button div {{ display: none !important; }}
 
     div[data-testid="stButton"] > button {{ background-color: {btn_bg} !important; color: {btn_txt} !important; border: 1px solid {border_color} !important; }}
     
     div[data-testid="stPopover"] > button {{ 
-        min-height: 90px !important; height: 90px !important; min-width: 90px !important; 
-        width: 90px !important; padding: 0 !important; font-size: {BTN_CAL_ICON_SIZE}px !important; 
+        min-height: var(--btn-cal-h) !important; height: var(--btn-cal-h) !important; min-width: var(--btn-cal-w) !important; 
+        width: var(--btn-cal-w) !important; padding: 0 !important; font-size: var(--btn-cal-sz) !important; 
         border-radius: 8px !important; border: 1px solid {border_color} !important; background-color: {btn_bg} !important; 
         color: {btn_txt} !important; display: flex !important; justify-content: center !important; align-items: center !important; 
+    }}
+    
+    /* Regla separada para el botón de notas (que usa la misma clase stPopover) */
+    div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] > button {{
+        min-height: var(--btn-not-h) !important; height: var(--btn-not-h) !important; min-width: var(--btn-not-w) !important; 
+        width: var(--btn-not-w) !important; font-size: var(--btn-not-sz) !important;
     }}
     
     div[data-testid="stPopoverBody"] {{ background-color: {card_bg} !important; border: 1px solid {border_color} !important; border-radius: 8px !important; padding: 15px !important; }}
@@ -593,6 +653,7 @@ st.markdown(f"""
         .lbl-total-bal, .lbl-filtros, .lbl-data, .lbl-input {{ transform: translate(0, 0) !important; text-align: center !important; width: 100% !important; margin-bottom: 10px !important;}}
         .balance-box {{ width: 100% !important; margin: 0 auto 15px auto !important; transform: translate(0,0) !important;}}
         div[data-testid="column"]:nth-child(1) div[data-testid="stNumberInput"], div[data-testid="column"]:nth-child(1) [data-testid="stFormSubmitButton"] button {{ width: 100% !important; max-width: 100% !important; margin: 0 !important; }}
+        section[data-testid="stMain"] div[data-testid="column"]:nth-child(2), section[data-testid="stMain"] div[data-testid="column"]:nth-child(3), section[data-testid="stMain"] div[data-testid="column"]:nth-child(4) {{ transform: translate(0, 0) !important; }}
         [data-testid="stFileUploadDropzone"] {{ width: 100% !important; transform: translate(0, 0) !important; }}
         div[data-testid="column"]:nth-child(2) div[data-testid="stPopover"] > button, div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] > button {{ width: 100% !important; margin-top: 5px !important; }}
         .weeks-container {{ transform: translate(0, 0) !important; flex-wrap: wrap !important; justify-content: space-between !important; }}
@@ -616,7 +677,8 @@ with col_fil:
 
 with col_data: 
     st.markdown(f'<div class="lbl-data">{LBL_DATA}</div>', unsafe_allow_html=True)
-    st.selectbox("Data Source", [OPT_DATA_1, OPT_DATA_2], key="data_source_sel", label_visibility="collapsed")
+    idx_ds = 0 if st.session_state.data_source_sel == OPT_DATA_1 else 1
+    st.selectbox("Data Source", [OPT_DATA_1, OPT_DATA_2], index=idx_ds, key="ds_selector", on_change=update_ds, label_visibility="collapsed")
 
 ctx = st.session_state.data_source_sel
 bal_actual = db_usuario[ctx]["balance"]
@@ -676,7 +738,7 @@ def agregar_imagenes_main(contexto, llave, widget_id, counter_id, bal_act, f_str
         st.session_state[counter_id] += 1
 
 # ==========================================
-# 9. ENTRADA AUTOMÁTICA E IMÁGENES + BOTÓN DE NOTAS
+# 9. ENTRADA AUTOMÁTICA E IMÁGENES + BOTÓN DE NOTAS (Layout reservado)
 # ==========================================
 c1, c2, c_img, c_not, c_espacio = st.columns([1.5, 0.5, 2.5, 0.6, 3.4]) 
 
@@ -689,58 +751,7 @@ with c1:
             procesar_cambio()
             st.rerun()
 
-with c2:
-    st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True) 
-    with st.popover(BTN_CAL_EMOJI):
-        st.date_input("Fecha oculta", value=hoy, key="input_fecha", label_visibility="collapsed")
-
-fecha_str_actual = st.session_state.input_fecha.strftime("%d/%m/%Y")
-clave_actual = (st.session_state.input_fecha.year, st.session_state.input_fecha.month, st.session_state.input_fecha.day)
-
-with c_img:
-    st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True) 
-    counter_main_key = f"upd_main_counter_{clave_actual}"
-    if counter_main_key not in st.session_state:
-        st.session_state[counter_main_key] = 0
-    upd_main_key = f"up_main_{clave_actual}_{st.session_state[counter_main_key]}"
-    st.file_uploader(
-        "", 
-        accept_multiple_files=True, 
-        label_visibility="collapsed", 
-        key=upd_main_key,
-        on_change=agregar_imagenes_main,
-        args=(ctx, clave_actual, upd_main_key, counter_main_key, bal_actual, fecha_str_actual)
-    )
-
-with c_not:
-    st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True) 
-    with st.popover("📝"):
-        st.markdown("<h3 style='text-align:center; margin-top:0;'>Trade Details</h3>", unsafe_allow_html=True)
-        if clave_actual not in db_usuario[ctx]["trades"]:
-            st.info("Agrega un cambio de balance o una imagen primero para activar las notas en este día.")
-        else:
-            trade_data_ref = db_usuario[ctx]["trades"][clave_actual]
-            
-            bias_options = ['ALCISTA', 'BAJISTA', 'NEUTRO']
-            colorful_menu(bias_options, "&nbsp;&nbsp;&nbsp;Bias", 'bias', trade_data_ref)
-            st.markdown("<br>", unsafe_allow_html=True)
-            Confluences_options = ['BIAS Claro', 'Liq Sweep', 'IFVG', 'FVG', 'EQH / EQL', 'BSL / SSL', 'POI', 'SMT', 'Order Block', 'PDH / PDL', 'Continuación', 'Data High / Data Low', 'CISD']
-            colorful_multiselect(Confluences_options, "&nbsp;&nbsp;&nbsp;Confluences", 'Confluences', trade_data_ref)
-            st.markdown("<br>", unsafe_allow_html=True)
-            trade_data_ref['razon_trade'] = st.text_area("&nbsp;&nbsp;&nbsp;Reason For Trade", value=trade_data_ref.get('razon_trade', ''), key=f"razon_main", height=80)
-            trade_data_ref['Corrections'] = st.text_area("&nbsp;&nbsp;&nbsp;Corrections", value=trade_data_ref.get('Corrections', ''), key=f"corr_main", height=80)
-            
-            risk_options = ['0.6%', '0.5%', '0.4%']
-            colorful_menu(risk_options, "&nbsp;&nbsp;&nbsp;% Risk", 'risk', trade_data_ref)
-            st.markdown("<br>", unsafe_allow_html=True)
-            rrr_options = ['1:1', '1:1.5', '1:2', '1:3', '1:4']
-            colorful_menu(rrr_options, "&nbsp;&nbsp;&nbsp;RR", 'rrr', trade_data_ref)
-            st.markdown("<br>", unsafe_allow_html=True)
-            trade_type_options = ['A+', 'A', 'B', 'C']
-            colorful_menu(trade_type_options, "&nbsp;&nbsp;&nbsp;Trade Type", 'trade_type', trade_data_ref)
-            st.markdown("<br>", unsafe_allow_html=True)
-            trade_data_ref['Emotions'] = st.text_area("&nbsp;&nbsp;&nbsp;Emotions", value=trade_data_ref.get('&nbsp;&nbsp;&nbsp;Emotions', ''), key=f"emoc_main", height=80)
-
+# Los botones (c2, c_img, c_not) se renderizan al final del archivo en la SECCIÓN 13.
 
 # ==========================================
 # 10. CALENDARIO Y RESUMEN
@@ -1021,7 +1032,7 @@ with st.expander("🛠️ OPEN ORDER HISTORY", expanded=False):
             color_md = "green" if pnl_val > 0 else ("red" if pnl_val < 0 else "gray")
             simbolo = "+" if pnl_val > 0 else ""
             
-            with st.expander(f"🗓️ {data['fecha_str']} | P&L: :{color_md}[{simbolo}${pnl_val:,.2f}]"):
+            with st.expander(f"📅 {data['fecha_str']} | P&L: :{color_md}[{simbolo}${pnl_val:,.2f}]"):
                 c_ed1, c_ed2, c_ed3 = st.columns(3)
                 
                 with c_ed1:
@@ -1044,7 +1055,7 @@ with st.expander("🛠️ OPEN ORDER HISTORY", expanded=False):
                     accept_multiple_files=True, 
                     key=upd_key, 
                     on_change=agregar_imagenes_historial, 
-                    args=(ctx, clave, upd_key, counter_main_key)
+                    args=(ctx, clave, upd_key, counter_key)
                 )
 
                 imagenes_restantes = db_usuario[ctx]["trades"][clave].get("imagenes", [])
@@ -1187,3 +1198,63 @@ if mostrar_tabla:
             key="table_editor",
             on_change=sync_table_edits
         )
+
+# =========================================================================================================
+# 13. ZONA AISLADA: BOTONES DE CALENDARIO, UPLOAD Y NOTAS (PARA EDITAR FÁCILMENTE)
+# =========================================================================================================
+# (Aquí se renderizan en el DOM final de la columna de entrada superior)
+
+fecha_str_actual = st.session_state.input_fecha.strftime("%d/%m/%Y") if "input_fecha" in st.session_state else hoy.strftime("%d/%m/%Y")
+if "input_fecha" in st.session_state:
+    clave_actual = (st.session_state.input_fecha.year, st.session_state.input_fecha.month, st.session_state.input_fecha.day)
+else:
+    clave_actual = (hoy.year, hoy.month, hoy.day)
+
+with c2:
+    st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True) 
+    with st.popover(BTN_CAL_EMOJI):
+        st.date_input("Fecha oculta", value=hoy, key="input_fecha", label_visibility="collapsed")
+
+with c_img:
+    st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True) 
+    counter_main_key = f"upd_main_counter_{clave_actual}"
+    if counter_main_key not in st.session_state:
+        st.session_state[counter_main_key] = 0
+    upd_main_key = f"up_main_{clave_actual}_{st.session_state[counter_main_key]}"
+    st.file_uploader(
+        "", 
+        accept_multiple_files=True, 
+        label_visibility="collapsed", 
+        key=upd_main_key,
+        on_change=agregar_imagenes_main,
+        args=(ctx, clave_actual, upd_main_key, counter_main_key, bal_actual, fecha_str_actual)
+    )
+
+with c_not:
+    st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True) 
+    with st.popover("📝"):
+        st.markdown("<h3 style='text-align:center; margin-top:0;'>Trade Details</h3>", unsafe_allow_html=True)
+        if clave_actual not in db_usuario[ctx]["trades"]:
+            st.info("Agrega un cambio de balance o una imagen primero para activar las notas en este día.")
+        else:
+            trade_data_ref = db_usuario[ctx]["trades"][clave_actual]
+            
+            bias_options = ['ALCISTA', 'BAJISTA', 'NEUTRO']
+            colorful_menu(bias_options, "&nbsp;&nbsp;&nbsp;Bias", 'bias', trade_data_ref)
+            st.markdown("<br>", unsafe_allow_html=True)
+            Confluences_options = ['BIAS Claro', 'Liq Sweep', 'IFVG', 'FVG', 'EQH / EQL', 'BSL / SSL', 'POI', 'SMT', 'Order Block', 'PDH / PDL', 'Continuación', 'Data High / Data Low', 'CISD']
+            colorful_multiselect(Confluences_options, "&nbsp;&nbsp;&nbsp;Confluences", 'Confluences', trade_data_ref)
+            st.markdown("<br>", unsafe_allow_html=True)
+            trade_data_ref['razon_trade'] = st.text_area("&nbsp;&nbsp;&nbsp;Reason For Trade", value=trade_data_ref.get('razon_trade', ''), key=f"razon_main", height=80)
+            trade_data_ref['Corrections'] = st.text_area("&nbsp;&nbsp;&nbsp;Corrections", value=trade_data_ref.get('Corrections', ''), key=f"corr_main", height=80)
+            
+            risk_options = ['0.6%', '0.5%', '0.4%']
+            colorful_menu(risk_options, "&nbsp;&nbsp;&nbsp;% Risk", 'risk', trade_data_ref)
+            st.markdown("<br>", unsafe_allow_html=True)
+            rrr_options = ['1:1', '1:1.5', '1:2', '1:3', '1:4']
+            colorful_menu(rrr_options, "&nbsp;&nbsp;&nbsp;RR", 'rrr', trade_data_ref)
+            st.markdown("<br>", unsafe_allow_html=True)
+            trade_type_options = ['A+', 'A', 'B', 'C']
+            colorful_menu(trade_type_options, "&nbsp;&nbsp;&nbsp;Trade Type", 'trade_type', trade_data_ref)
+            st.markdown("<br>", unsafe_allow_html=True)
+            trade_data_ref['Emotions'] = st.text_area("&nbsp;&nbsp;&nbsp;Emotions", value=trade_data_ref.get('Emotions', ''), key=f"emoc_main", height=80)
