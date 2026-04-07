@@ -221,7 +221,7 @@ BTN_CAM_SIZE = 30
 BTN_CAM_X = 0
 BTN_CAM_Y = 2
 BTN_CAM_BG_C = "rgba(255,255,255,0.8)"
-BTN_CAM_BG_O = "rgba(0,0,0,0.6)"
+BTN_CAM_BG_O = "rgba(0,0,0,0)"
 
 TXT_CERRAR_MODAL = "✖ CERRAR"
 
