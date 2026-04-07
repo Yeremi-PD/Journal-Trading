@@ -166,7 +166,7 @@ TXT_TITULO_WIN_COLOR_OSCURO = "#FFFFFF"
 # ---------------------------------------------------------
 # TEXTO 13: El valor del porcentaje grande (Ej: 45.16%)
 # ---------------------------------------------------------
-TXT_VALOR_WIN_SIZE = 28
+TXT_VALOR_WIN_SIZE = 40
 TXT_VALOR_WIN_COLOR_CLARO = "#000000"
 TXT_VALOR_WIN_COLOR_OSCURO = "#FFFFFF"
 
