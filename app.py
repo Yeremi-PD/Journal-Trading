@@ -228,7 +228,7 @@ TXT_CERRAR_MODAL = "✖ CERRAR"
 # ---------------------------------------------------------
 # [ BOTÓN DE NOTAS (📝) COORDENADAS ]
 # ---------------------------------------------------------
-BTN_NOTAS_X = 4      # Posición desde la derecha de la tarjeta
+BTN_NOTAS_X = 50      # Posición desde la derecha de la tarjeta
 BTN_NOTAS_Y = 50      # Posición desde arriba de la tarjeta
 BTN_NOTAS_SIZE = 14  # Tamaño del emoji dentro del botón
 
