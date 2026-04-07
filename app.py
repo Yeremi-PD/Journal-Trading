@@ -146,14 +146,7 @@ CARD_WIN_Y = 0          # Mueve la tarjeta en Vertical
 # ---------------------------------------------------------
 # CONFIGURACIÓN DEL BOTÓN DE UPLOAD (CÁMARA)
 # ---------------------------------------------------------
-UPLOAD_X = 0
-UPLOAD_Y = 0
-UPLOAD_BG_ZONA_CLARO = "OOOOOO"  # Color de la zona detrás del botón
-UPLOAD_BG_ZONA_OSCURO = "OOOOOO" 
-UPLOAD_BTN_BG_CLARO = "#000000"       # Color del botón en sí
-UPLOAD_BTN_BG_OSCURO = "#000000"
-UPLOAD_BTN_TXT_CLARO = "#000000"      # Color del texto/ícono del botón
-UPLOAD_BTN_TXT_OSCURO = "#000000"
+
 
 # ---------------------------------------------------------
 # CONFIGURACIÓN DE FLECHAS (CALENDARIO) Y OTROS
