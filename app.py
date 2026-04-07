@@ -198,7 +198,7 @@ WEEK_PCT_SIZE = 25          # TAMAÑO DEL PORCENTAJE DE LA SEMANA/MES
 WEEK_ALIGN = "center"       
 
 MONTH_BOX_W = "100%"        
-MONTH_BOX_H = "90px"        
+MONTH_BOX_H = "120px"        
 MONTH_TITLE_SIZE = 30       
 MONTH_VAL_SIZE = 25         
 
