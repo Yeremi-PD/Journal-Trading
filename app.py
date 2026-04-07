@@ -229,7 +229,7 @@ TXT_CERRAR_MODAL = "✖ CERRAR"
 # [ BOTÓN DE NOTAS (📝) COORDENADAS ]
 # ---------------------------------------------------------
 BTN_NOTAS_X = 4      # Posición desde la derecha de la tarjeta
-BTN_NOTAS_Y = 4      # Posición desde arriba de la tarjeta
+BTN_NOTAS_Y = 50      # Posición desde arriba de la tarjeta
 BTN_NOTAS_SIZE = 14  # Tamaño del emoji dentro del botón
 
 # ---------------------------------------------------------
@@ -248,7 +248,7 @@ CARD_PNL_Y = 0
 # ---------------------------------------------------------
 # [ TARJETA: TRADE WIN % ]
 # ---------------------------------------------------------
-CARD_WIN_TITULO = "WinRate"
+CARD_WIN_TITULO = "Win Rate"
 CARD_WIN_TITULO_SIZE = 20
 CARD_WIN_TITULO_COLOR_C = "#000000"
 CARD_WIN_TITULO_COLOR_O = "#FFFFFF"
