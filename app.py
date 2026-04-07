@@ -90,7 +90,7 @@ LBL_FILTROS_COLOR_C = "#000000"
 LBL_FILTROS_COLOR_O = "#FFFFFF"
 
     # ( Opciones de adentro del menú Filtros )
-OPT_FILTRO_1 = "Todos"
+OPT_FILTRO_1 = "All"
 OPT_FILTRO_2 = "Ganancias"
 OPT_FILTRO_3 = "Pérdidas"
 OPT_FILTROS_SIZE = 15  
