@@ -87,7 +87,7 @@ LBL_FILTROS_SIZE = 20
 LBL_FILTROS_X = 0
 LBL_FILTROS_Y = 0
 LBL_FILTROS_COLOR_C = "#000000"
-LBL_FILTROS_COLOR_O = "#FFFFFF"
+LBL_FILTROS_COLOR_O = "#000000"
 
     # ( Opciones de adentro del menú Filtros )
 OPT_FILTRO_1 = "Todos"
