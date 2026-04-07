@@ -726,7 +726,7 @@ with c_not:
             trade_data_ref = db_usuario[ctx]["trades"][clave_actual]
             
             bias_options = ['ALCISTA', 'BAJISTA', 'NEUTRO']
-            colorful_menu(bias_options, "3.&nbsp;&nbsp;&nbsp;Bias", 'bias', trade_data_ref)
+            colorful_menu(bias_options, "&nbsp;&nbsp;&nbsp;Bias", 'bias', trade_data_ref)
             st.markdown("<br>", unsafe_allow_html=True)
             
             Confluences_options = ['1. BIAS Claro', '2. Liq Sweep', '4. IFVG', '3. FVG', 'EQH / EQL', 'BSL / SSL', 'PO3', 'SMT', 'Breaker Block', 'Descuento', 'Order Block', 'NYMO', 'PDH', 'PDL', 'Inducement', 'Turtle Soup', 'Continuación', 'Reversal', 'Data High', 'Data Low', 'CISD', 'Nada']
