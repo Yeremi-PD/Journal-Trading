@@ -160,9 +160,9 @@ LINEA_COLOR_O = "#4A5568"
 # [ BOTÓN: SUBIR FOTOS (Upload) ]
 # ---------------------------------------------------------
 BTN_UP_TEXTO = "Upload"
-BTN_UP_SIZE = "20px"
-BTN_UP_W = "100%"                     
-BTN_UP_H = "68px"                     
+BTN_UP_SIZE = "220px"
+BTN_UP_W = "1200%"                     
+BTN_UP_H = "628px"                     
 BTN_UP_X = 0
 BTN_UP_Y = 0
 BTN_UP_BG_C = "#E2E8F0"       
