@@ -83,7 +83,7 @@ TXT_DASH_COLOR_O = "#FFFFFF"
 # [ ETIQUETA: FILTROS ]
 # ---------------------------------------------------------
 LBL_FILTROS = "Filtros"
-LBL_FILTROS_SIZE = 30
+LBL_FILTROS_SIZE = 18
 LBL_FILTROS_X = 0
 LBL_FILTROS_Y = 0
 LBL_FILTROS_COLOR_C = "#000000"
@@ -93,7 +93,7 @@ LBL_FILTROS_COLOR_O = "#FFFFFF"
 OPT_FILTRO_1 = "Todos"
 OPT_FILTRO_2 = "Ganancias"
 OPT_FILTRO_3 = "Pérdidas"
-OPT_FILTROS_SIZE = 14  # Tamaño del texto al desplegar
+OPT_FILTROS_SIZE = 14  
 
 # ---------------------------------------------------------
 # [ ETIQUETA: DATA SOURCE ]
@@ -108,23 +108,24 @@ LBL_DATA_COLOR_O = "#FFFFFF"
     # ( Opciones dentro de Data Source )
 OPT_DATA_1 = "Real Data"
 OPT_DATA_2 = "Demo Data"
-OPT_DATA_SIZE = 14    # Tamaño del texto al desplegar
+OPT_DATA_SIZE = 14    
 
 # ---------------------------------------------------------
-# [ ETIQUETA: BALANCE MANUAL (Input) ]
+# [ ETIQUETA Y CAJA: BALANCE MANUAL (Input) ]
 # ---------------------------------------------------------
 LBL_INPUT = "Balance:"
-LBL_INPUT_SIZE = 40
+LBL_INPUT_SIZE = 18
 LBL_INPUT_X = 0
 LBL_INPUT_Y = 0
 LBL_INPUT_COLOR_C = "#000000"
 LBL_INPUT_COLOR_O = "#FFFFFF"
 
     # ( Caja del Input Manual )
-INPUT_BAL_W = "300"         # Ancho de la caja donde escribes
-INPUT_BAL_H = "500"          # Alto de la caja donde escribes
+INPUT_BAL_W = "200px"         
+INPUT_BAL_H = "45px"          
 INPUT_BAL_X = 0      
-INPUT_BAL_Y = -50      
+INPUT_BAL_Y = 0      
+INPUT_BAL_TXT_SIZE = 18       # <-- NUEVO: TAMAÑO DEL NÚMERO QUE ESCRIBES
 INPUT_FONDO_C = "#FFFFFF"
 INPUT_FONDO_O = "#1A202C"
 
@@ -416,49 +417,52 @@ else:
     c_linea = LINEA_COLOR_O
 
 # ==========================================
-# 7. INYECCIÓN DE CSS DINÁMICO
+# 7. INYECCIÓN DE CSS DINÁMICO (MODO DIOS: REGLAS IRROMPIBLES)
 # ==========================================
 st.markdown(f"""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-    .stApp {{ background-color: {bg_color}; font-family: 'Inter', sans-serif; }}
+    .stApp {{ background-color: {bg_color} !important; font-family: 'Inter', sans-serif !important; }}
+    
+    /* ELIMINAR LIMITES DE COLUMNAS DE STREAMLIT PARA PERMITIR QUE LAS CAJAS CREZCAN */
+    div[data-testid="column"] {{ overflow: visible !important; }}
     
     /* TITULO DASHBOARD */
-    .dashboard-title {{ font-size: {TXT_DASH_SIZE}px !important; font-weight: 800; color: {c_dash} !important; margin-left: {TXT_DASH_X}px; margin-top: {TXT_DASH_Y}px; margin-bottom: 0; line-height: 1.1; letter-spacing: -2px; }}
+    .dashboard-title {{ font-size: {TXT_DASH_SIZE}px !important; font-weight: 800 !important; color: {c_dash} !important; margin-left: {TXT_DASH_X}px !important; margin-top: {TXT_DASH_Y}px !important; margin-bottom: 0 !important; line-height: 1.1 !important; letter-spacing: -2px !important; }}
     
     /* ETIQUETA TOTAL BALANCE */
-    .lbl-total-bal {{ font-size: {LBL_BAL_TOTAL_SIZE}px !important; color: {c_lbl_bal} !important; font-weight: 700; display: inline-block; transform: translate({LBL_BAL_TOTAL_X}px, {LBL_BAL_TOTAL_Y}px); }}
+    .lbl-total-bal {{ font-size: {LBL_BAL_TOTAL_SIZE}px !important; color: {c_lbl_bal} !important; font-weight: 700 !important; display: inline-block !important; transform: translate({LBL_BAL_TOTAL_X}px, {LBL_BAL_TOTAL_Y}px) !important; }}
     
     /* CAJA VERDE BALANCE */
-    .balance-box {{ background: #00C897; color: white; padding: 10px 0px; border-radius: 80px; text-align: center; font-weight: 700; font-size: {BALANCE_SIZE}px; margin-left: {BALANCE_BOX_X}px; margin-top: {BALANCE_BOX_Y}px; width: {BALANCE_BOX_W}%; margin: 0 auto; }}
+    .balance-box {{ background: #00C897 !important; color: white !important; padding: 10px 0px !important; border-radius: 80px !important; text-align: center !important; font-weight: 700 !important; font-size: {BALANCE_SIZE}px !important; margin-left: {BALANCE_BOX_X}px !important; margin-top: {BALANCE_BOX_Y}px !important; width: {BALANCE_BOX_W}% !important; margin: 0 auto !important; }}
     
     /* LÍNEA SEPARADORA */
-    .thin-line {{ border-bottom: {LINEA_GROSOR}px solid {c_linea}; margin: {LINEA_MARGEN_SUP}px 0px {LINEA_MARGEN_INF}px 0px; width: {LINEA_ANCHO}%; transform: translateX({LINEA_X}px); }}
+    .thin-line {{ border-bottom: {LINEA_GROSOR}px solid {c_linea} !important; margin: {LINEA_MARGEN_SUP}px 0px {LINEA_MARGEN_INF}px 0px !important; width: {LINEA_ANCHO}% !important; transform: translateX({LINEA_X}px) !important; }}
 
-    /* ETIQUETAS Y OPCIONES DE FILTROS Y DATA SOURCE (SEPARADOS) */
-    div[data-testid="column"]:nth-of-type(2) label p {{ font-size: {LBL_FILTROS_SIZE}px !important; color: {c_filtros} !important; font-weight: 700; transform: translate({LBL_FILTROS_X}px, {LBL_FILTROS_Y}px) !important; }}
-    div[data-testid="column"]:nth-of-type(3) label p {{ font-size: {LBL_DATA_SIZE}px !important; color: {c_data} !important; font-weight: 700; transform: translate({LBL_DATA_X}px, {LBL_DATA_Y}px) !important; }}
+    /* ETIQUETAS FILTROS Y DATA SOURCE FORZADAS AL EXTREMO */
+    div[data-testid="column"]:nth-of-type(2) label p, div[data-testid="column"]:nth-of-type(2) label {{ font-size: {LBL_FILTROS_SIZE}px !important; color: {c_filtros} !important; font-weight: 700 !important; transform: translate({LBL_FILTROS_X}px, {LBL_FILTROS_Y}px) !important; }}
+    div[data-testid="column"]:nth-of-type(3) label p, div[data-testid="column"]:nth-of-type(3) label {{ font-size: {LBL_DATA_SIZE}px !important; color: {c_data} !important; font-weight: 700 !important; transform: translate({LBL_DATA_X}px, {LBL_DATA_Y}px) !important; }}
     
     /* Fondos y colores de selectores */
     div[data-baseweb="select"] > div {{ background-color: {card_bg} !important; border-color: {border_color} !important; }}
     div[data-baseweb="select"] * {{ color: {c_filtros} !important; }}
     ul[role="listbox"] {{ background-color: {card_bg} !important; }}
     
-    /* TAMAÑO DE LAS OPCIONES DE LOS DROPDOWNS */
-    div[data-testid="column"]:nth-of-type(2) div[data-baseweb="select"] * {{ font-size: {OPT_FILTROS_SIZE}px !important; }}
-    div[data-testid="column"]:nth-of-type(3) div[data-baseweb="select"] * {{ font-size: {OPT_DATA_SIZE}px !important; }}
-    li[role="option"] {{ color: {c_filtros} !important; background-color: {card_bg} !important; font-size: {OPT_FILTROS_SIZE}px !important; }}
+    /* TAMAÑO DE LAS OPCIONES DENTRO DE LOS MENÚS DESPLEGABLES */
+    div[data-testid="column"]:nth-of-type(2) div[data-baseweb="select"] span {{ font-size: {OPT_FILTROS_SIZE}px !important; }}
+    div[data-testid="column"]:nth-of-type(3) div[data-baseweb="select"] span {{ font-size: {OPT_DATA_SIZE}px !important; }}
+    li[role="option"] span, li[role="option"] {{ color: {c_filtros} !important; font-size: {OPT_FILTROS_SIZE}px !important; }}
     li[role="option"]:hover {{ background-color: {border_color} !important; }}
 
-    /* ETIQUETA E INPUT BALANCE (SEPARADOS) */
-    div[data-testid="stNumberInput"] label p {{ font-size: {LBL_INPUT_SIZE}px !important; color: {c_lbl_in} !important; font-weight: 700; transform: translate({LBL_INPUT_X}px, {LBL_INPUT_Y}px) !important; }}
-    div[data-testid="stNumberInput"] {{ margin-left: {INPUT_BAL_X}px !important; margin-top: {INPUT_BAL_Y}px !important; width: {INPUT_BAL_W} !important; max-width: {INPUT_BAL_W} !important; }}
+    /* ETIQUETA E INPUT BALANCE FORZADOS PARA ROMPER LA COLUMNA */
+    div[data-testid="stNumberInput"] label p, div[data-testid="stNumberInput"] label {{ font-size: {LBL_INPUT_SIZE}px !important; color: {c_lbl_in} !important; font-weight: 700 !important; transform: translate({LBL_INPUT_X}px, {LBL_INPUT_Y}px) !important; }}
+    div[data-testid="stNumberInput"] {{ margin-left: {INPUT_BAL_X}px !important; margin-top: {INPUT_BAL_Y}px !important; width: {INPUT_BAL_W} !important; min-width: {INPUT_BAL_W} !important; max-width: {INPUT_BAL_W} !important; z-index: 99 !important; position: relative !important; }}
     div[data-testid="stNumberInput"] button {{ display: none !important; }} 
-    div[data-testid="stNumberInput"] div[data-baseweb="base-input"] {{ background-color: {input_bg} !important; height: {INPUT_BAL_H} !important; }}
+    div[data-testid="stNumberInput"] div[data-baseweb="base-input"] {{ background-color: {input_bg} !important; height: {INPUT_BAL_H} !important; min-height: {INPUT_BAL_H} !important; }}
     div[data-testid="stNumberInput"] div[data-baseweb="input"] {{ background-color: {input_bg} !important; border-color: {border_color} !important; }}
-    div[data-testid="stNumberInput"] input {{ color: {c_lbl_in} !important; background-color: {input_bg} !important; font-weight: bold; height: 100% !important; }}
+    div[data-testid="stNumberInput"] input {{ color: {c_lbl_in} !important; font-size: {INPUT_BAL_TXT_SIZE}px !important; background-color: {input_bg} !important; font-weight: bold !important; height: 100% !important; min-height: {INPUT_BAL_H} !important; }}
 
-    /* DESTRUCCIÓN TOTAL DE FONDOS GRISES EN UPLOAD Y FORZADO A TAMAÑO EXACTO */
+    /* BOTÓN UPLOAD: DESTRUCCIÓN TOTAL DE LÍMITES Y FONDOS GRISES */
     [data-testid="stFileUploader"] {{ transform: translate({BTN_UP_X}px, {BTN_UP_Y}px) !important; background-color: transparent !important; border: none !important; padding: 0 !important; }}
     [data-testid="stFileUploader"] > section, [data-testid="stFileUploader"] > section > div {{ background-color: transparent !important; border: none !important; }}
     [data-testid="stFileUploadDropzone"] {{ background-color: transparent !important; border: none !important; padding: 0 !important; min-height: 0 !important; box-shadow: none !important; }}
@@ -472,18 +476,15 @@ st.markdown(f"""
         border-radius: 6px !important; 
         margin: 0 !important; 
         width: {BTN_UP_W} !important;
+        min-width: {BTN_UP_W} !important;
         min-height: {BTN_UP_H} !important;
         height: {BTN_UP_H} !important;
     }}
-    [data-testid="stFileUploadDropzone"] button * {{ 
-        color: {u_btn_txt} !important; 
-        font-size: {BTN_UP_SIZE} !important;
-    }}
-    /* FORZAR TEXTO DEL BOTÓN UPLOAD (Pseudo-elemento) */
-    [data-testid="stFileUploadDropzone"] button::after {{ content: "{BTN_UP_TEXTO}"; font-size: {BTN_UP_SIZE} !important; }}
+    [data-testid="stFileUploadDropzone"] button * {{ color: {u_btn_txt} !important; font-size: {BTN_UP_SIZE} !important; }}
+    [data-testid="stFileUploadDropzone"] button::after {{ content: "{BTN_UP_TEXTO}" !important; font-size: {BTN_UP_SIZE} !important; }}
     [data-testid="stFileUploadDropzone"] button div {{ display: none !important; }}
 
-    /* BOTÓN CALENDARIO (FORZADO 50% MÁS GRANDE) */
+    /* BOTÓN CALENDARIO FORZADO */
     div[data-testid="stButton"] > button {{ background-color: {btn_bg} !important; color: {btn_txt} !important; border: 1px solid {border_color} !important; }}
     div[data-testid="stPopover"] > button {{ 
         min-height: {BTN_CAL_H}px !important; height: {BTN_CAL_H}px !important; 
@@ -493,55 +494,55 @@ st.markdown(f"""
     div[data-testid="stPopoverBody"] {{ background-color: {card_bg} !important; border: 1px solid {border_color} !important; }}
 
     /* CALENDARIO Y DÍAS */
-    .calendar-wrapper {{ background: {card_bg}; padding: 10px; border-radius: 15px; border: 1px solid {border_color}; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }}
-    .txt-dias-sem {{ font-size: {TXT_DIAS_SEM_SIZE}px; font-weight: bold; color: {c_dias_sem}; text-align: center; }}
+    .calendar-wrapper {{ background: {card_bg} !important; padding: 10px !important; border-radius: 15px !important; border: 1px solid {border_color} !important; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1) !important; }}
+    .txt-dias-sem {{ font-size: {TXT_DIAS_SEM_SIZE}px !important; font-weight: bold !important; color: {c_dias_sem} !important; text-align: center !important; }}
     
     .card {{ 
-        aspect-ratio: 1 / 1; padding: 5px; border-radius: 20px; 
-        display: flex; flex-direction: column; position: relative;
-        font-size: 12px; margin-bottom: 6px !important;
+        aspect-ratio: 1 / 1 !important; padding: 5px !important; border-radius: 20px !important; 
+        display: flex !important; flex-direction: column !important; position: relative !important;
+        font-size: 12px !important; margin-bottom: 6px !important;
         padding-bottom: 25px !important; 
     }}
-    .day-number {{ position: absolute; top: 6px; left: 10px; font-size: {TXT_NUM_DIA_SIZE}px; font-weight: bold; color: {c_num_dia}; }}
-    .day-content {{ margin-top: auto; margin-bottom: auto; text-align: center; width: 100%; }}
-    .day-pnl {{ font-size: {TXT_PNL_DIA_SIZE}px; font-weight: bold; }}
-    .day-pct {{ font-size: {TXT_PCT_DIA_SIZE}px; color: {c_pct_dia}; opacity: 0.9; font-weight: 600; display: block; }}
+    .day-number {{ position: absolute !important; top: 6px !important; left: 10px !important; font-size: {TXT_NUM_DIA_SIZE}px !important; font-weight: bold !important; color: {c_num_dia} !important; }}
+    .day-content {{ margin-top: auto !important; margin-bottom: auto !important; text-align: center !important; width: 100% !important; }}
+    .day-pnl {{ font-size: {TXT_PNL_DIA_SIZE}px !important; font-weight: bold !important; }}
+    .day-pct {{ font-size: {TXT_PCT_DIA_SIZE}px !important; color: {c_pct_dia} !important; opacity: 0.9 !important; font-weight: 600 !important; display: block !important; }}
     
     /* CÁMARA TAMAÑO MODIFICABLE */
     .cam-icon {{ 
-        position: absolute; bottom: {BTN_CAM_Y}px; left: 50%; transform: translateX(calc(-50% + {BTN_CAM_X}px));
-        font-size: {BTN_CAM_SIZE}px; cursor: pointer; background: {c_cam_bg}; 
-        border-radius: 50%; padding: 2px 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: 0.2s; 
+        position: absolute !important; bottom: {BTN_CAM_Y}px !important; left: 50% !important; transform: translateX(calc(-50% + {BTN_CAM_X}px)) !important;
+        font-size: {BTN_CAM_SIZE}px !important; cursor: pointer !important; background: {c_cam_bg} !important; 
+        border-radius: 50% !important; padding: 2px 4px !important; box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important; transition: 0.2s !important; 
     }}
-    .cam-icon:hover {{ transform: translateX(calc(-50% + {BTN_CAM_X}px)) scale(1.2); }}
+    .cam-icon:hover {{ transform: translateX(calc(-50% + {BTN_CAM_X}px)) scale(1.2) !important; }}
     
-    .cell-win {{ border: 2.5px solid #00C897; color: #00664F; background-color: #e6f9f4;}}
-    .cell-loss {{ border: 2.5px solid #FF4C4C; color: #9B1C1C; background-color: #ffeded;}}
-    .cell-empty {{ border: 1px solid {border_color}; background-color: {empty_cell_bg};}}
+    .cell-win {{ border: 2.5px solid #00C897 !important; color: #00664F !important; background-color: #e6f9f4 !important;}}
+    .cell-loss {{ border: 2.5px solid #FF4C4C !important; color: #9B1C1C !important; background-color: #ffeded !important;}}
+    .cell-empty {{ border: 1px solid {border_color} !important; background-color: {empty_cell_bg} !important;}}
 
     .modal-toggle:checked ~ .fs-modal {{ display: flex !important; }}
-    .fs-modal {{ display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.95); z-index: 9999999; flex-direction: column; align-items: center; justify-content: center; overflow-y: auto; padding: 50px 0; }}
-    .fs-modal img {{ max-width: 90vw; max-height: 80vh; margin-bottom: 20px; box-shadow: 0 0 20px black; border-radius: 10px; object-fit: contain; }}
-    .close-btn {{ color: white; font-size: 25px; position: absolute; top: 30px; right: 50px; cursor: pointer; font-weight: bold; background: red; padding: 5px 15px; border-radius: 8px; }}
+    .fs-modal {{ display: none; position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; background: rgba(0,0,0,0.95) !important; z-index: 9999999 !important; flex-direction: column !important; align-items: center !important; justify-content: center !important; overflow-y: auto !important; padding: 50px 0 !important; }}
+    .fs-modal img {{ max-width: 90vw !important; max-height: 80vh !important; margin-bottom: 20px !important; box-shadow: 0 0 20px black !important; border-radius: 10px !important; object-fit: contain !important; }}
+    .close-btn {{ color: white !important; font-size: 25px !important; position: absolute !important; top: 30px !important; right: 50px !important; cursor: pointer !important; font-weight: bold !important; background: red !important; padding: 5px 15px !important; border-radius: 8px !important; }}
 
     /* METRICAS PNL Y WIN */
     .card-pnl {{ width: {CARD_PNL_W} !important; height: {CARD_PNL_H} !important; transform: translate({CARD_PNL_X}px, {CARD_PNL_Y}px) !important; }}
     .card-win {{ width: {CARD_WIN_W} !important; height: {CARD_WIN_H} !important; transform: translate({CARD_WIN_X}px, {CARD_WIN_Y}px) !important; }}
     
-    .metric-card {{ background-color: {card_bg}; border-radius: 20px; padding: 15px 20px; border: 1px solid {border_color}; }}
-    .metric-header {{ display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }}
-    .title-net-pnl {{ font-size: {CARD_PNL_TITULO_SIZE}px; font-weight: 700; color: {c_tit_pnl}; }}
-    .title-trade-win {{ font-size: {CARD_WIN_TITULO_SIZE}px; font-weight: 700; color: {c_tit_win}; }}
+    .metric-card {{ background-color: {card_bg} !important; border-radius: 20px !important; padding: 15px 20px !important; border: 1px solid {border_color} !important; }}
+    .metric-header {{ display: flex !important; align-items: center !important; gap: 8px !important; margin-bottom: 5px !important; }}
+    .title-net-pnl {{ font-size: {CARD_PNL_TITULO_SIZE}px !important; font-weight: 700 !important; color: {c_tit_pnl} !important; }}
+    .title-trade-win {{ font-size: {CARD_WIN_TITULO_SIZE}px !important; font-weight: 700 !important; color: {c_tit_win} !important; }}
     
-    .pnl-value {{ font-size: 28px; font-weight: 800; color: #00C897; letter-spacing: -0.5px; }}
-    .pnl-value-loss {{ color: #FF4C4C; }}
-    .win-value {{ font-size: {CARD_WIN_VALOR_SIZE}px; font-weight: 800; color: {c_val_win}; letter-spacing: -0.5px; }}
+    .pnl-value {{ font-size: 28px !important; font-weight: 800 !important; color: #00C897 !important; letter-spacing: -0.5px !important; }}
+    .pnl-value-loss {{ color: #FF4C4C !important; }}
+    .win-value {{ font-size: {CARD_WIN_VALOR_SIZE}px !important; font-weight: 800 !important; color: {c_val_win} !important; letter-spacing: -0.5px !important; }}
     
-    .gauge-container {{ display: flex; flex-direction: column; align-items: center; gap: 5px; }}
-    .gauge-labels {{ display: flex; gap: 15px; font-size: 11px; font-weight: 700; margin-top: -5px; }}
-    .lbl-g {{ background-color: #e6f9f4; color: #00C897; padding: 2px 8px; border-radius: 10px; }}
-    .lbl-b {{ background-color: #EEF2FF; color: #4F46E5; padding: 2px 8px; border-radius: 10px; }}
-    .lbl-r {{ background-color: #ffeded; color: #FF4C4C; padding: 2px 8px; border-radius: 10px; }}
+    .gauge-container {{ display: flex !important; flex-direction: column !important; align-items: center !important; gap: 5px !important; }}
+    .gauge-labels {{ display: flex !important; gap: 15px !important; font-size: 11px !important; font-weight: 700 !important; margin-top: -5px !important; }}
+    .lbl-g {{ background-color: #e6f9f4 !important; color: #00C897 !important; padding: 2px 8px !important; border-radius: 10px !important; }}
+    .lbl-b {{ background-color: #EEF2FF !important; color: #4F46E5 !important; padding: 2px 8px !important; border-radius: 10px !important; }}
+    .lbl-r {{ background-color: #ffeded !important; color: #FF4C4C !important; padding: 2px 8px !important; border-radius: 10px !important; }}
 
     /* FLECHAS MES */
     .calendar-wrapper div[data-testid="column"]:first-child button {{ transform: translate({FLECHAS_X}px, {FLECHAS_Y}px) !important; font-size: {FLECHAS_SIZE}px !important; }}
@@ -549,30 +550,30 @@ st.markdown(f"""
 
     /* ESTILOS DE LOS CUADROS DE SEMANAS Y MES */
     .weeks-container {{ 
-        transform: translate({WEEKS_CONTENEDOR_X}px, {WEEKS_CONTENEDOR_Y}px);
-        display: flex; flex-wrap: wrap; gap: 10px; justify-content: space-between; 
-        margin-top: 15px;
+        transform: translate({WEEKS_CONTENEDOR_X}px, {WEEKS_CONTENEDOR_Y}px) !important;
+        display: flex !important; flex-wrap: wrap !important; gap: 10px !important; justify-content: space-between !important; 
+        margin-top: 15px !important;
     }}
     .wk-box {{ 
-        width: {WEEK_BOX_W}; height: {WEEK_BOX_H}; 
-        background: {card_bg}; border: 1px solid {border_color}; border-radius: 12px;
-        display: flex; flex-direction: column; align-items: {WEEK_ALIGN}; justify-content: center; padding: 5px;
+        width: {WEEK_BOX_W} !important; height: {WEEK_BOX_H} !important; 
+        background: {card_bg} !important; border: 1px solid {border_color} !important; border-radius: 12px !important;
+        display: flex !important; flex-direction: column !important; align-items: {WEEK_ALIGN} !important; justify-content: center !important; padding: 5px !important;
     }}
-    .wk-title {{ font-size: {WEEKS_TITULOS_SIZE}px; font-weight: 700; color: {wk_tit_c}; margin-bottom: 2px; }}
-    .wk-val {{ font-size: {WEEKS_VALOR_SIZE}px; font-weight: 800; line-height: 1.2; }}
+    .wk-title {{ font-size: {WEEKS_TITULOS_SIZE}px !important; font-weight: 700 !important; color: {wk_tit_c} !important; margin-bottom: 2px !important; }}
+    .wk-val {{ font-size: {WEEKS_VALOR_SIZE}px !important; font-weight: 800 !important; line-height: 1.2 !important; }}
     
     .mo-box {{ 
-        width: {MONTH_BOX_W}; height: {MONTH_BOX_H}; 
-        background: {card_bg}; border: 1px solid {border_color}; border-radius: 15px;
-        display: flex; flex-direction: column; align-items: {WEEK_ALIGN}; justify-content: center; padding: 10px;
-        margin-top: 5px;
+        width: {MONTH_BOX_W} !important; height: {MONTH_BOX_H} !important; 
+        background: {card_bg} !important; border: 1px solid {border_color} !important; border-radius: 15px !important;
+        display: flex !important; flex-direction: column !important; align-items: {WEEK_ALIGN} !important; justify-content: center !important; padding: 10px !important;
+        margin-top: 5px !important;
     }}
-    .mo-title {{ font-size: {MONTH_TITLE_SIZE}px; font-weight: 800; color: {wk_tit_c}; text-transform: uppercase; letter-spacing: 1px; }}
-    .mo-val {{ font-size: {MONTH_VAL_SIZE}px; font-weight: 800; line-height: 1.2; }}
+    .mo-title {{ font-size: {MONTH_TITLE_SIZE}px !important; font-weight: 800 !important; color: {wk_tit_c} !important; text-transform: uppercase !important; letter-spacing: 1px !important; }}
+    .mo-val {{ font-size: {MONTH_VAL_SIZE}px !important; font-weight: 800 !important; line-height: 1.2 !important; }}
     
-    .txt-green {{ color: #00C897; }}
-    .txt-red {{ color: #FF4C4C; }}
-    .txt-gray {{ color: gray; }}
+    .txt-green {{ color: #00C897 !important; }}
+    .txt-red {{ color: #FF4C4C !important; }}
+    .txt-gray {{ color: gray !important; }}
     </style>
     """, unsafe_allow_html=True)
 
