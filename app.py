@@ -122,7 +122,7 @@ LBL_INPUT_COLOR_O = "#FFFFFF"
 
     # ( Caja del Input Manual )
 INPUT_BAL_W = "200px"         
-INPUT_BAL_H = "60px"          # <-- AHORA SÍ CAMBIARÁ LA ALTURA REAL DE LA CAJA
+INPUT_BAL_H = "110px"          # <-- AHORA SÍ CAMBIARÁ LA ALTURA REAL DE LA CAJA
 INPUT_BAL_X = 0      
 INPUT_BAL_Y = 0      
 INPUT_BAL_TXT_SIZE = 22       # <-- TAMAÑO DEL NÚMERO QUE ESCRIBES
