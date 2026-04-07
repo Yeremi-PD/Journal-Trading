@@ -73,7 +73,7 @@ TEMA_POR_DEFECTO = "Oscuro"
 # TEXTOS PRINCIPALES Y DÍAS
 # ---------------------------------------------------------
 TXT_DASHBOARD = "Dashboard"
-TXT_DASH_SIZE = 50
+TXT_DASH_SIZE = 70
 TXT_DASH_COLOR_CLARO = "#000000"
 TXT_DASH_COLOR_OSCURO = "#FFFFFF"
 TITULO_X = 100         
