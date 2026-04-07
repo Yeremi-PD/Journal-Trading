@@ -848,12 +848,11 @@ with col_det:
 
     st.markdown(f'<div class="weeks-container">{semanas_html}<div class="mo-box"><div class="mo-title">{TXT_MO}</div><div class="mo-val {cM}">{sM}${m_total:,.2f}<br><span style="font-size:{WEEKS_PCT_SIZE}px;">{sM}{pct_m:.2f}%</span></div></div></div>', unsafe_allow_html=True)
     # ==========================================
-# 11. TABLA DE EDICIÓN MANUAL (HISTORIAL LIMPIO)
+# 11. TABLA DE EDICIÓN MANUAL (HISTORIAL LIMPIO POR MES)
 # ==========================================
 st.markdown("<br>", unsafe_allow_html=True)
 st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
 
-# 1er Nivel: Desplegable principal para no ensuciar la pantalla
 with st.expander("🛠️ ABRIR HISTORIAL DE OPERACIONES (Editar / Borrar)", expanded=False):
     trades_actuales = db_usuario[ctx]["trades"]
     
@@ -863,15 +862,22 @@ with st.expander("🛠️ ABRIR HISTORIAL DE OPERACIONES (Editar / Borrar)", exp
         # Ordenar los días del más reciente al más antiguo
         trades_ordenados = sorted(trades_actuales.items(), key=lambda x: datetime(x[0][0], x[0][1], x[0][2]), reverse=True)
         
+        mes_actual_dibujado = "" # Variable para saber en qué mes vamos
+        
         for clave, data in trades_ordenados:
-            fecha_dt = datetime(clave[0], clave[1], clave[2])
-            pnl_val = float(data['pnl'])
+            anio_t, mes_t, dia_t = clave
+            fecha_dt = datetime(anio_t, mes_t, dia_t)
             
-            # Lógica de colores para Profit y Stop Loss
+            # Detectar si cambiamos de mes para poner el título separador
+            nombre_mes_grp = f"{calendar.month_name[mes_t]} {anio_t}"
+            if nombre_mes_grp != mes_actual_dibujado:
+                st.markdown(f"<h4 style='color:{c_dash}; margin-top:15px; border-bottom:1px solid gray; padding-bottom:5px;'>🗓️ {nombre_mes_grp}</h4>", unsafe_allow_html=True)
+                mes_actual_dibujado = nombre_mes_grp
+
+            pnl_val = float(data['pnl'])
             color_pnl = "#00C897" if pnl_val > 0 else ("#FF4C4C" if pnl_val < 0 else "gray")
             simbolo = "+" if pnl_val > 0 else ""
             
-            # 2do Nivel: Desplegable por cada día operado
             with st.expander(f"📅 {data['fecha_str']} | P&L: {simbolo}${pnl_val:,.2f}"):
                 c_ed1, c_ed2, c_ed3 = st.columns(3)
                 
@@ -880,7 +886,6 @@ with st.expander("🛠️ ABRIR HISTORIAL DE OPERACIONES (Editar / Borrar)", exp
                 with c_ed2:
                     nuevo_bal = st.number_input("Nuevo Balance", value=float(data['balance_final']), format="%.2f", key=f"b_{clave}")
                 with c_ed3:
-                    # Título coloreado dependiendo de si es Profit o Pérdida
                     st.markdown(f"**Profit / Loss:** <span style='color:{color_pnl}; font-weight:900; font-size:18px;'>{simbolo}${pnl_val:,.2f}</span>", unsafe_allow_html=True)
                     nuevo_pnl = st.number_input("Editar P&L", value=pnl_val, format="%.2f", key=f"p_{clave}", label_visibility="collapsed")
                 
@@ -890,15 +895,12 @@ with st.expander("🛠️ ABRIR HISTORIAL DE OPERACIONES (Editar / Borrar)", exp
                 imagenes_restantes = data.get("imagenes", []).copy()
                 
                 if imagenes_restantes:
-                    # Crea columnas dinámicas según la cantidad de fotos
                     cols_img = st.columns(len(imagenes_restantes))
                     for i, img_b64 in enumerate(imagenes_restantes):
                         with cols_img[i]:
-                            # Muestra la miniatura de la imagen
                             st.markdown(f'<img src="{img_b64}" style="width:100%; border-radius:8px; border:1px solid gray;">', unsafe_allow_html=True)
-                            # Botón para borrar esa imagen exacta
                             if st.button("🗑️ Borrar", key=f"delimg_{clave}_{i}", use_container_width=True):
-                                data["imagenes"].pop(i) # Elimina la foto de la memoria
+                                data["imagenes"].pop(i)
                                 db_usuario[ctx]["trades"][clave]["imagenes"] = data["imagenes"]
                                 st.rerun()
                 else:
@@ -912,18 +914,15 @@ with st.expander("🛠️ ABRIR HISTORIAL DE OPERACIONES (Editar / Borrar)", exp
                 
                 with c_btn1:
                     if st.button("💾 GUARDAR CAMBIOS DEL DÍA", key=f"save_{clave}", use_container_width=True):
-                        # Guardar fotos nuevas si el usuario arrastró alguna
                         if nuevas_imgs:
                             for img in nuevas_imgs:
                                 imagenes_restantes.append(f"data:{img.type};base64,{convertir_img_base64(img)}")
                         
                         nueva_clave = (nueva_fecha.year, nueva_fecha.month, nueva_fecha.day)
                         
-                        # Si cambió de día en el calendario, borra la fecha vieja
                         if nueva_clave != clave:
                             del db_usuario[ctx]["trades"][clave]
                         
-                        # Sobrescribe con los datos frescos
                         db_usuario[ctx]["trades"][nueva_clave] = {
                             "pnl": nuevo_pnl,
                             "balance_final": nuevo_bal,
