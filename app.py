@@ -344,7 +344,7 @@ st.sidebar.markdown(f"### 👤 My Account: {usuario}")
 st.sidebar.markdown("---")
 st.sidebar.markdown("### ⚙️ Settings")
 
-texto_boton_tema = "🌙 Cambiar a Tema Oscuro" if st.session_state.tema == "Claro" else "☀️ Cambiar a Tema Claro"
+texto_boton_tema = "🌙 Switch to Dark Theme" if st.session_state.tema == "Claro" else "☀️ Switch to Light Theme"
 if st.sidebar.button(texto_boton_tema):
     st.session_state.tema = "Oscuro" if st.session_state.tema == "Claro" else "Claro"
     st.rerun()
