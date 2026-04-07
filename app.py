@@ -834,7 +834,7 @@ with col_cal:
                             confluences_str = ", ".join(trade.get("Confluences", []))
                             notes_html = f"""
                             <div class="note-modal-content">
-                                <h3 style="text-align:center; margin-top:0;">🗒️ Trade Details - {dia}/{mes_sel}/{anio_sel}</h3>
+                                <h3 style="text-align:center; margin-top:0;">📝 Trade Details - {dia}/{mes_sel}/{anio_sel}</h3>
                                 <hr>
                                 <b>Bias:</b> {trade.get("bias", "NEUTRO")}<br><br>
                                 <b>Confluences:</b> {confluences_str}<br><br>
@@ -844,7 +844,7 @@ with col_cal:
                                 <b>Emotions:</b> {trade.get("Emotions", "")}
                             </div>
                             """
-                            note_html = f'<input type="checkbox" id="{id_note_modal}" class="modal-toggle" style="display:none;"><label for="{id_note_modal}"><div class="note-icon">🗒️</div></label><div class="fs-modal"><label for="{id_note_modal}" class="close-btn">{TXT_CERRAR_MODAL}</label>{notes_html}</div>'
+                            note_html = f'<input type="checkbox" id="{id_note_modal}" class="modal-toggle" style="display:none;"><label for="{id_note_modal}"><div class="note-icon">📝</div></label><div class="fs-modal"><label for="{id_note_modal}" class="close-btn">{TXT_CERRAR_MODAL}</label>{notes_html}</div>'
                         else:
                             note_html = ""
                         
