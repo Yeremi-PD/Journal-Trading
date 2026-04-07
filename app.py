@@ -226,6 +226,13 @@ BTN_CAM_BG_O = "rgba(0,0,0,0.6)"
 TXT_CERRAR_MODAL = "✖ CERRAR"
 
 # ---------------------------------------------------------
+# [ BOTÓN DE NOTAS (📝) - MOVER A TU ANTOJO ]
+# ---------------------------------------------------------
+BTN_NOTAS_TOP = "-5px"
+BTN_NOTAS_RIGHT = "-5px"
+BTN_NOTAS_SIZE = 18
+
+# ---------------------------------------------------------
 # [ TARJETA: NET P&L ]
 # ---------------------------------------------------------
 CARD_PNL_TITULO = "Net P&L"
@@ -647,7 +654,6 @@ def colorful_menu(options, label, value_key, trade_data_ref):
             btn_label = f"✅ {text}" if is_selected else text
             btn_type = "primary" if is_selected else "secondary"
             
-            # Usando botones nativos, garantizado que se pintan si type="primary"
             if st.button(btn_label, key=f"btn_{value_key}_{i}", use_container_width=True, type=btn_type):
                 trade_data_ref[value_key] = text
                 st.rerun()
@@ -703,13 +709,11 @@ with c_img:
             lista_b64.append(f"data:{img.type};base64,{convertir_img_base64(img)}")
         db_usuario[ctx]["trades"][clave_actual]["imagenes"].extend(lista_b64)
 
-# --------- AQUÍ ESTÁ EL BOTÓN DE NOTAS REUBICADO ---------
 with c_not:
     st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True) 
     with st.popover("📝"):
         st.markdown("<h3 style='text-align:center; margin-top:0;'>Detalles del Trade</h3>", unsafe_allow_html=True)
         
-        # Si el día no existe aún, inicializarlo temporalmente o mostrar advertencia
         if clave_actual not in db_usuario[ctx]["trades"]:
             st.info("Agrega un cambio de balance o una imagen primero para activar las notas en este día.")
         else:
@@ -725,17 +729,17 @@ with c_not:
             colorful_multiselect(confluencias_options, "Confluencias", 'confluencias', trade_data_ref)
             st.markdown("<br>", unsafe_allow_html=True)
 
-            # RAZÓN Y CORRECCIONES (Textareas más pequeños para ahorrar espacio en la altura)
+            # RAZÓN Y CORRECCIONES
             trade_data_ref['razon_trade'] = st.text_area("Razón del Trade", value=trade_data_ref.get('razon_trade', ''), key=f"razon_main", height=80)
             trade_data_ref['correcciones'] = st.text_area("Correcciones", value=trade_data_ref.get('correcciones', ''), key=f"corr_main", height=80)
             
-            # RISK Y RRR
+            # RISK Y RR
             risk_options = ['0.6%', '0.5%', '0.4%']
             colorful_menu(risk_options, "% Risk", 'risk', trade_data_ref)
             st.markdown("<br>", unsafe_allow_html=True)
 
             rrr_options = ['A+', 'A', 'B', 'C']
-            colorful_menu(rrr_options, "RRR", 'rrr', trade_data_ref)
+            colorful_menu(rrr_options, "RR", 'rrr', trade_data_ref)
             st.markdown("<br>", unsafe_allow_html=True)
             
             # TIPO Y EMOCIONES
@@ -976,10 +980,43 @@ with st.expander("🛠️ OPEN ORDER HISTORY", expanded=False):
                         del db_usuario[ctx]["trades"][clave]
                         st.rerun()
 
+# =========================================================================================================
+# 12. TABLA DE RESULTADOS (EDITABLE, CON ORDEN ESPECÍFICO Y SINCRONIZACIÓN DE BORRADO/EDICIÓN)
+# =========================================================================================================
 
-# =========================================================================================================
-# 12. TABLA DE RESULTADOS (EDITABLE Y CON BOTÓN TOGGLE DE METRICS)
-# =========================================================================================================
+# Función callback para aplicar las eliminaciones y ediciones de la tabla
+def sync_table_edits():
+    editor_state = st.session_state.get("table_editor", {})
+    contexto = st.session_state.data_source_sel
+    keys = st.session_state.get("current_table_keys", [])
+    
+    # 1. Aplicar eliminaciones
+    for idx in sorted(editor_state.get("deleted_rows", []), reverse=True):
+        if idx < len(keys):
+            k = keys[idx]
+            if k in db_usuario[contexto]["trades"]:
+                del db_usuario[contexto]["trades"][k]
+                
+    # 2. Aplicar ediciones de texto
+    for idx, edits in editor_state.get("edited_rows", {}).items():
+        if idx < len(keys):
+            k = keys[idx]
+            if k in db_usuario[contexto]["trades"]:
+                t = db_usuario[contexto]["trades"][k]
+                if "Bias" in edits: t["bias"] = edits["Bias"]
+                if "Razón del Trade" in edits: t["razon_trade"] = edits["Razón del Trade"]
+                if "Correcciones" in edits: t["correcciones"] = edits["Correcciones"]
+                if "% Risk" in edits: t["risk"] = edits["% Risk"]
+                if "RR" in edits: t["rrr"] = edits["RR"]
+                if "Trade Type" in edits: t["trade_type"] = edits["Trade Type"]
+                if "Emociones" in edits: t["emociones"] = edits["Emociones"]
+                if "P&L" in edits:
+                    try:
+                        val_str = str(edits["P&L"]).replace('+', '').replace('$', '').replace(',', '').strip()
+                        t["pnl"] = float(val_str)
+                    except:
+                        pass
+
 if mostrar_tabla:
     st.markdown("<br><br><h2 style='text-align:center;'>Tabla de Resultados</h2>", unsafe_allow_html=True)
     all_trades = db_usuario[ctx]["trades"]
@@ -987,8 +1024,11 @@ if mostrar_tabla:
         st.info("No hay trades registrados.")
     else:
         table_data = []
+        keys_list = []
+        
         for key, trade in sorted(all_trades.items(), key=lambda x: date(x[0][0], x[0][1], x[0][2]), reverse=True):
             fecha = date(key[0], key[1], key[2])
+            keys_list.append(key)
             
             pnl = trade.get('pnl', 0)
             pnl_simbol = "+" if pnl > 0 else ""
@@ -996,20 +1036,23 @@ if mostrar_tabla:
             confluencias_list = trade.get('confluencias', [])
             confluencias_resumen = ", ".join([c.split(". ")[-1] for c in confluencias_list])
 
+            # Orden exacto requerido
             row = {
                 "Fecha": fecha.strftime("%d/%m/%Y"),
                 "Bias": trade.get('bias', ''),
                 "Confluencias": confluencias_resumen,
                 "Razón del Trade": trade.get('razon_trade', ''),
-                "Correcciones": trade.get('correcciones', ''),
                 "% Risk": trade.get('risk', ''),
-                "RRR": trade.get('rrr', ''),
+                "RR": trade.get('rrr', ''),
                 "Trade Type": trade.get('trade_type', ''),
-                "P&L": f"{pnl_simbol}${pnl:,.2f}",
-                "Emociones": trade.get('emociones', '')
+                "Emociones": trade.get('emociones', ''),
+                "Correcciones": trade.get('correcciones', ''),
+                "P&L": f"{pnl_simbol}${pnl:,.2f}"
             }
             table_data.append(row)
         
+        # Guardamos las claves en session_state para saber qué filas editar/borrar
+        st.session_state.current_table_keys = keys_list
         df_results = pd.DataFrame(table_data)
         
         def style_rows(row):
@@ -1030,5 +1073,10 @@ if mostrar_tabla:
             
             return row_styles
 
-        # Se hace interactiva y editable con st.data_editor
-        st.data_editor(df_results.style.apply(style_rows, axis=1), use_container_width=True, num_rows="dynamic")
+        st.data_editor(
+            df_results.style.apply(style_rows, axis=1), 
+            use_container_width=True, 
+            num_rows="dynamic",
+            key="table_editor",
+            on_change=sync_table_edits
+        )
