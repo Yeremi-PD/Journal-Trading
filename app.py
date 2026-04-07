@@ -121,8 +121,8 @@ LBL_INPUT_COLOR_C = "#000000"
 LBL_INPUT_COLOR_O = "#FFFFFF"
 
     # ( Caja del Input Manual )
-INPUT_BAL_W = "200px"         
-INPUT_BAL_H = "45px"          
+INPUT_BAL_W = "400px"         
+INPUT_BAL_H = "445px"          
 INPUT_BAL_X = 0      
 INPUT_BAL_Y = 0      
 INPUT_BAL_TXT_SIZE = 40       # <-- NUEVO: TAMAÑO DEL NÚMERO QUE ESCRIBES
