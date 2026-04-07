@@ -74,7 +74,7 @@ TEMA_POR_DEFECTO = "Oscuro"
 # ---------------------------------------------------------
 TXT_DASHBOARD = "Dashboard"
 TXT_DASH_SIZE = 60
-TXT_DASH_X = 100         
+TXT_DASH_X = 30         
 TXT_DASH_Y = -20         
 TXT_DASH_COLOR_C = "#000000"
 TXT_DASH_COLOR_O = "#FFFFFF"
