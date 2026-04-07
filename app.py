@@ -74,7 +74,7 @@ TEMA_POR_DEFECTO = "Oscuro"
 # ---------------------------------------------------------
 TXT_DASHBOARD = "Dashboard"
 TXT_DASH_SIZE = 60
-TXT_DASH_X = 30         
+TXT_DASH_X = 100         
 TXT_DASH_Y = -20         
 TXT_DASH_COLOR_C = "#000000"
 TXT_DASH_COLOR_O = "#FFFFFF"
@@ -94,6 +94,8 @@ OPT_FILTRO_1 = "Todos"
 OPT_FILTRO_2 = "Ganancias"
 OPT_FILTRO_3 = "Pérdidas"
 OPT_FILTROS_SIZE = 14  
+OPT_FILTROS_COLOR_C = "#000000"  # <-- COLOR DEL TEXTO ADENTRO (TEMA CLARO)
+OPT_FILTROS_COLOR_O = "#FFFFFF"  # <-- COLOR DEL TEXTO ADENTRO (TEMA OSCURO)
 
 # ---------------------------------------------------------
 # [ ETIQUETA: DATA SOURCE ] (AQUÍ AHORA ES HTML PURO)
@@ -102,13 +104,15 @@ LBL_DATA = "Data Source"
 LBL_DATA_SIZE = 20              
 LBL_DATA_X = 0
 LBL_DATA_Y = 0
-LBL_DATA_COLOR_C = "#ffffff"
+LBL_DATA_COLOR_C = "#000000"
 LBL_DATA_COLOR_O = "#FFFFFF"
 
     # ( Opciones de adentro del menú Data Source )
 OPT_DATA_1 = "Real Data"
 OPT_DATA_2 = "Demo Data"
 OPT_DATA_SIZE = 14    
+OPT_DATA_COLOR_C = "#000000"     # <-- COLOR DEL TEXTO ADENTRO (TEMA CLARO)
+OPT_DATA_COLOR_O = "#FFFFFF"     # <-- COLOR DEL TEXTO ADENTRO (TEMA OSCURO)
 
 # ---------------------------------------------------------
 # [ ETIQUETA Y CAJA: BALANCE MANUAL (Input) ] (AQUÍ AHORA ES HTML PURO)
@@ -157,22 +161,22 @@ LINEA_COLOR_C = "#E2E8F0"
 LINEA_COLOR_O = "#4A5568"
 
 # ---------------------------------------------------------
-# [ ÁREA DE ARRASTRAR IMÁGENES (DROPZONE) ] <-- NUEVO CONTENEDOR
+# [ ÁREA DE ARRASTRAR IMÁGENES (DROPZONE) ] 
 # ---------------------------------------------------------
 DROPZONE_W = "100%"
-DROPZONE_H = "75px"            # Altura del cuadro donde arrastras
+DROPZONE_H = "75px"            
 DROPZONE_X = 0
 DROPZONE_Y = 0
-DROPZONE_BG_C = "transparent"  # Color de fondo (puedes poner rgba, hex, o transparent)
+DROPZONE_BG_C = "transparent"  
 DROPZONE_BG_O = "transparent"
-DROPZONE_BORDER_C = "1px dashed #E2E8F0"  # Borde (ej: "2px solid red" o "none")
+DROPZONE_BORDER_C = "1px dashed #E2E8F0"  
 DROPZONE_BORDER_O = "1px dashed #4A5568"
 
     # ( Botón de Upload de Adentro )
 BTN_UP_TEXTO = "Upload"
 BTN_UP_SIZE = "20px"
-BTN_UP_W = "120px"             # El ancho del botón de adentro
-BTN_UP_H = "415px"              # El alto del botón de adentro
+BTN_UP_W = "120px"             
+BTN_UP_H = "45px"              
 BTN_UP_BG_C = "#E2E8F0"       
 BTN_UP_BG_O = "#4A5568"
 BTN_UP_TXT_C = "#000000"      
@@ -379,7 +383,9 @@ if st.session_state.tema == "Claro":
     
     c_dash = TXT_DASH_COLOR_C
     c_filtros = LBL_FILTROS_COLOR_C
+    c_opt_filtros = OPT_FILTROS_COLOR_C   # <-- COLOR ASIGNADO
     c_data = LBL_DATA_COLOR_C
+    c_opt_data = OPT_DATA_COLOR_C         # <-- COLOR ASIGNADO
     c_lbl_bal = LBL_BAL_TOTAL_COLOR_C
     c_lbl_in = LBL_INPUT_COLOR_C
     c_mes = TXT_MES_COLOR_C
@@ -407,7 +413,9 @@ else:
     
     c_dash = TXT_DASH_COLOR_O
     c_filtros = LBL_FILTROS_COLOR_O
+    c_opt_filtros = OPT_FILTROS_COLOR_O   # <-- COLOR ASIGNADO
     c_data = LBL_DATA_COLOR_O
+    c_opt_data = OPT_DATA_COLOR_O         # <-- COLOR ASIGNADO
     c_lbl_bal = LBL_BAL_TOTAL_COLOR_O
     c_lbl_in = LBL_INPUT_COLOR_O
     c_mes = TXT_MES_COLOR_O
@@ -460,14 +468,14 @@ st.markdown(f"""
     div[data-testid="stSelectbox"] label {{ display: none !important; }}
     div[data-testid="stNumberInput"] label {{ display: none !important; }}
 
-    /* Fondos y colores de selectores */
+    /* Fondos de selectores */
     div[data-baseweb="select"] > div {{ background-color: {card_bg} !important; border-color: {border_color} !important; }}
     ul[role="listbox"] {{ background-color: {card_bg} !important; }}
     
-    /* TAMAÑO DE LAS OPCIONES DE ADENTRO */
-    div[data-testid="column"]:nth-of-type(2) div[data-baseweb="select"] span {{ font-size: {OPT_FILTROS_SIZE}px !important; color: {c_filtros} !important; }}
-    div[data-testid="column"]:nth-of-type(3) div[data-baseweb="select"] span {{ font-size: {OPT_DATA_SIZE}px !important; color: {c_data} !important; }}
-    li[role="option"] span, li[role="option"] {{ color: {c_filtros} !important; font-size: {OPT_FILTROS_SIZE}px !important; }}
+    /* TAMAÑO Y COLOR DE LAS OPCIONES DE ADENTRO (AHORA INDEPENDIENTE DEL TÍTULO) */
+    div[data-testid="column"]:nth-of-type(2) div[data-baseweb="select"] * {{ font-size: {OPT_FILTROS_SIZE}px !important; color: {c_opt_filtros} !important; }}
+    div[data-testid="column"]:nth-of-type(3) div[data-baseweb="select"] * {{ font-size: {OPT_DATA_SIZE}px !important; color: {c_opt_data} !important; }}
+    li[role="option"], li[role="option"] span {{ font-size: {OPT_FILTROS_SIZE}px !important; color: {c_opt_filtros} !important; }}
     li[role="option"]:hover {{ background-color: {border_color} !important; }}
 
     /* INPUT BALANCE (CAJA DE TEXTO Y NÚMERO) */
