@@ -159,8 +159,8 @@ LINEA_COLOR_O = "#4A5568"
 # ---------------------------------------------------------
 # [ ÁREA DE ARRASTRAR IMÁGENES (DROPZONE) ] <-- NUEVO CONTENEDOR
 # ---------------------------------------------------------
-DROPZONE_W = "1100%"
-DROPZONE_H = "715px"            # Altura del cuadro donde arrastras
+DROPZONE_W = "100%"
+DROPZONE_H = "75px"            # Altura del cuadro donde arrastras
 DROPZONE_X = 0
 DROPZONE_Y = 0
 DROPZONE_BG_C = "transparent"  # Color de fondo (puedes poner rgba, hex, o transparent)
@@ -170,7 +170,7 @@ DROPZONE_BORDER_O = "1px dashed #4A5568"
 
     # ( Botón de Upload de Adentro )
 BTN_UP_TEXTO = "Upload"
-BTN_UP_SIZE = "20px"
+BTN_UP_SIZE = "201px"
 BTN_UP_W = "120px"             # El ancho del botón de adentro
 BTN_UP_H = "45px"              # El alto del botón de adentro
 BTN_UP_BG_C = "#E2E8F0"       
