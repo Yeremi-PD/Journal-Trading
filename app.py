@@ -228,9 +228,9 @@ TXT_CERRAR_MODAL = "✖ CERRAR"
 # ---------------------------------------------------------
 # [ BOTÓN DE NOTAS (📝) COORDENADAS ]
 # ---------------------------------------------------------
-BTN_NOTAS_X = 50      # Posición desde la derecha de la tarjeta
-BTN_NOTAS_Y = 50      # Posición desde arriba de la tarjeta
-BTN_NOTAS_SIZE = 69  # Tamaño del emoji dentro del botón
+BTN_NOTAS_X = 4      # Posición desde la derecha de la tarjeta
+BTN_NOTAS_Y = 4      # Posición desde arriba de la tarjeta
+BTN_NOTAS_SIZE = 14  # Tamaño del emoji dentro del botón
 
 # ---------------------------------------------------------
 # [ TARJETA: NET P&L ]
@@ -694,7 +694,7 @@ st.markdown(f"""
         position: absolute !important;
         top: {BTN_NOTAS_Y}px !important;
         right: {BTN_NOTAS_X}px !important;
-        z-index: 10 !important;
+        z-index: 50 !important;
     }}
     .calendar-wrapper div[data-testid="column"] div[data-testid="stPopover"] > button {{
         background: {c_cam_bg} !important;
