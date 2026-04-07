@@ -526,29 +526,41 @@ st.markdown(f"""
     }}
 
     /* ======= ESTILO RESTAURADO: UPLOAD, CALENDARIO, NOTAS ======= */
-    [data-testid="stFileUploader"] {{ transform: translate({DROPZONE_X}px, {DROPZONE_Y}px) !important; background-color: transparent !important; border: none !important; padding: 0 !important; box-shadow: none !important; }}
-    [data-testid="stFileUploader"] > section {{ background-color: transparent !important; border: none !important; padding: 0 !important; }}
+    [data-testid="stFileUploader"] {{ transform: translate({DROPZONE_X}px, {DROPZONE_Y}px) !important; background-color: transparent !important; border: none !important; padding: 0 !important; box-shadow: none !important; width: {DROPZONE_W} !important; min-width: {DROPZONE_W} !important; }}
+    [data-testid="stFileUploader"] > section {{ background-color: transparent !important; border: none !important; padding: 0 !important; width: 100% !important; }}
     
-    [data-testid="stFileUploadDropzone"] {{ background-color: {drop_bg} !important; border: {drop_border} !important; border-radius: 8px !important; padding: 0 !important; width: {DROPZONE_W} !important; min-height: {DROPZONE_H} !important; height: {DROPZONE_H} !important; box-shadow: none !important; display: flex !important; justify-content: center !important; align-items: center !important; }}
-    [data-testid="stFileUploadDropzone"] > div {{ background-color: transparent !important; border: none !important; }}
+    [data-testid="stFileUploadDropzone"] {{ background-color: {drop_bg} !important; border: {drop_border} !important; border-radius: 8px !important; padding: 0 !important; width: 100% !important; min-width: 100% !important; min-height: {DROPZONE_H} !important; height: {DROPZONE_H} !important; box-shadow: none !important; display: flex !important; justify-content: center !important; align-items: center !important; position: relative !important; }}
+    [data-testid="stFileUploadDropzone"] > div {{ background-color: transparent !important; border: none !important; width: 100% !important; height: 100% !important; display: flex !important; justify-content: center !important; align-items: center !important; z-index: 10 !important; }}
     [data-testid="stFileUploadDropzone"] > div > span, [data-testid="stFileUploadDropzone"] small, [data-testid="stFileUploaderDropzoneInstructions"] {{ display: none !important; }}
     
     [data-testid="stFileUploadDropzone"] button {{ 
         background-color: {u_btn_bg} !important; color: {u_btn_txt} !important; border: 1px solid {border_color} !important; 
-        border-radius: 6px !important; margin: 0 !important; width: {BTN_UP_W} !important; 
-        min-width: {BTN_UP_W} !important; min-height: {BTN_UP_H} !important; height: {BTN_UP_H} !important; 
+        border-radius: 6px !important; margin: 0 auto !important; 
+        width: {BTN_UP_W} !important; min-width: {BTN_UP_W} !important; max-width: {BTN_UP_W} !important; 
+        height: {BTN_UP_H} !important; min-height: {BTN_UP_H} !important; max-height: {BTN_UP_H} !important; 
+        flex: none !important; position: relative !important; z-index: 20 !important; display: flex !important; justify-content: center !important; align-items: center !important;
     }}
     [data-testid="stFileUploadDropzone"] button * {{ color: {u_btn_txt} !important; font-size: {BTN_UP_SIZE} !important; }}
-    [data-testid="stFileUploadDropzone"] button::after {{ content: "{BTN_UP_TEXTO}" !important; font-size: {BTN_UP_SIZE} !important; }}
+    [data-testid="stFileUploadDropzone"] button::after {{ content: "{BTN_UP_TEXTO}" !important; font-size: {BTN_UP_SIZE} !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; width: 100% !important; text-align: center !important; }}
     [data-testid="stFileUploadDropzone"] button div {{ display: none !important; }}
 
     div[data-testid="stButton"] > button {{ background-color: {btn_bg} !important; color: {btn_txt} !important; border: 1px solid {border_color} !important; }}
     
-    div[data-testid="stPopover"] > button {{ 
-        min-height: {BTN_CAL_H}px !important; height: {BTN_CAL_H}px !important; min-width: {BTN_CAL_W}px !important; 
-        width: {BTN_CAL_W}px !important; padding: 0 !important; font-size: {BTN_CAL_ICON_SIZE}px !important; 
+    /* POPOVER (CALENDARIO Y NOTAS) - ELIMINANDO CAPAS INVISIBLES */
+    div[data-testid="stPopover"] {{ 
+        width: {BTN_CAL_W}px !important; min-width: {BTN_CAL_W}px !important; max-width: {BTN_CAL_W}px !important;
+        height: {BTN_CAL_H}px !important; min-height: {BTN_CAL_H}px !important; max-height: {BTN_CAL_H}px !important;
+        display: block !important; flex: none !important; overflow: visible !important; position: relative !important;
+    }}
+    
+    div[data-testid="stPopover"] > button,
+    div[data-testid="stPopover"] > div > button {{ 
+        width: {BTN_CAL_W}px !important; min-width: {BTN_CAL_W}px !important; max-width: {BTN_CAL_W}px !important; 
+        height: {BTN_CAL_H}px !important; min-height: {BTN_CAL_H}px !important; max-height: {BTN_CAL_H}px !important; 
+        padding: 0 !important; font-size: {BTN_CAL_ICON_SIZE}px !important; 
         border-radius: 8px !important; border: 1px solid {border_color} !important; background-color: {btn_bg} !important; 
         color: {btn_txt} !important; display: flex !important; justify-content: center !important; align-items: center !important; 
+        flex: none !important; position: absolute !important; top: 0 !important; left: 0 !important; z-index: 10 !important;
     }}
     
     div[data-testid="stPopoverBody"] {{ background-color: {card_bg} !important; border: 1px solid {border_color} !important; border-radius: 8px !important; padding: 15px !important; }}
