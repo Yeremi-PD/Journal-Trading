@@ -131,6 +131,9 @@ INPUT_BAL_X = 0
 INPUT_BAL_Y = 0      
 INPUT_BAL_TXT_SIZE = 25       
 
+INPUT_FONDO_C = "#FFFFFF"
+INPUT_FONDO_O = "#1A202C"
+
 LBL_BAL_TOTAL = "ACCOUNT BALANCE"
 LBL_BAL_TOTAL_SIZE = 18
 LBL_BAL_TOTAL_X = 0
@@ -149,6 +152,22 @@ LINEA_MARGEN_SUP = 10
 LINEA_MARGEN_INF = 25          
 LINEA_COLOR_C = "#E2E8F0"
 LINEA_COLOR_O = "#4A5568"
+
+# ======= CONSTANTES RESTAURADAS PARA LOS BOTONES =======
+DROPZONE_BG_C = "transparent"  
+DROPZONE_BG_O = "transparent"
+DROPZONE_BORDER_C = "1px dashed #E2E8F0"  
+DROPZONE_BORDER_O = "1px dashed #4A5568"
+
+BTN_UP_BG_C = "#E2E8F0"        
+BTN_UP_BG_O = "#4A5568"
+BTN_UP_TXT_C = "#000000"      
+BTN_UP_TXT_O = "#FFFFFF"
+
+BTN_CAL_EMOJI = "🗓️"
+BTN_CAL_BG_C = "#F3F4F6"
+BTN_CAL_BG_O = "#2D3748"
+# =======================================================
 
 FLECHAS_SIZE = 40
 FLECHAS_X = 0 
@@ -373,6 +392,7 @@ with st.sidebar.expander("📅 Ajustes de Calendario"):
     user_settings["cal_scale"] = st.slider("Escala General (Altura del Calendario)", 50, 200, user_settings["cal_scale"])
     user_settings["cal_line_height"] = st.slider("Altura entre Textos (Espaciado)", 0.5, 3.0, user_settings["cal_line_height"], 0.1)
 
+# --- BOTÓN DE LOG OUT (SIEMPRE AL FINAL) ---
 st.sidebar.markdown("<br><br><br>", unsafe_allow_html=True)
 if st.sidebar.button("🚪 Log Out", use_container_width=True):
     st.session_state.usuario_actual = None
@@ -381,15 +401,6 @@ if st.sidebar.button("🚪 Log Out", use_container_width=True):
 # ==========================================
 # 6. ASIGNACIÓN DE COLORES SEGÚN EL TEMA
 # ==========================================
-# Variables de colores globales inicializadas
-btn_bg = ""
-btn_txt = ""
-input_bg = ""
-drop_bg = ""
-drop_border = ""
-u_btn_bg = ""
-u_btn_txt = ""
-
 if st.session_state.tema == "Claro":
     bg_color, card_bg, border_color, empty_cell_bg = "#F7FAFC", "#FFFFFF", "#E2E8F0", "#FFFFFF"
     c_dash, c_filtros, c_opt_filtros = TXT_DASH_COLOR_C, LBL_FILTROS_COLOR_C, OPT_FILTROS_COLOR_C   
@@ -931,7 +942,7 @@ with st.expander("🛠️ OPEN ORDER HISTORY", expanded=False):
                     accept_multiple_files=True, 
                     key=upd_key, 
                     on_change=agregar_imagenes_historial, 
-                    args=(ctx, clave, upd_key, counter_main_key)
+                    args=(ctx, clave, upd_key, counter_key)
                 )
 
                 imagenes_restantes = db_usuario[ctx]["trades"][clave].get("imagenes", [])
@@ -1079,12 +1090,13 @@ if mostrar_tabla:
 # =========================================================================================================
 # 13. ZONA AISLADA: BOTONES DE CALENDARIO, UPLOAD Y NOTAS
 # =========================================================================================================
-# (Aquí puedes configurar manualmente los px, colores y ubicaciones exactas de estos 3 botones).
+# Aquí están los botones y sus estilos CSS expuestos en variables que puedes editar como quieras.
 
 css_botones_aislados = f"""
 <style>
 
 /* ================== BOTÓN CALENDARIO (c2) ================== */
+/* EDITA AQUÍ SUS MEDIDAS Y POSICIÓN */
 section[data-testid="stMain"] div[data-testid="column"]:nth-child(2) {{
     transform: translate(0px, 0px) !important;  /* POSICIONAMIENTO LIBRE (X, Y) */
     z-index: 10;
@@ -1098,7 +1110,7 @@ div[data-testid="column"]:nth-child(2) div[data-testid="stPopover"] > button {{
     border-radius: 8px !important; 
     border: 1px solid {border_color} !important; 
     background-color: {btn_bg} !important; /* COLOR DE FONDO */
-    color: {btn_txt} !important; 
+    color: {btn_txt} !important;          /* COLOR DE TEXTO */
     display: flex !important; 
     justify-content: center !important; 
     align-items: center !important; 
@@ -1106,13 +1118,14 @@ div[data-testid="column"]:nth-child(2) div[data-testid="stPopover"] > button {{
 }}
 
 /* ================== BOTÓN UPLOAD (c_img) ================== */
+/* EDITA AQUÍ SUS MEDIDAS Y POSICIÓN */
 section[data-testid="stMain"] div[data-testid="column"]:nth-child(3) {{
     transform: translate(0px, 0px) !important;  /* POSICIONAMIENTO LIBRE (X, Y) */
     z-index: 10;
 }}
 [data-testid="stFileUploadDropzone"] button {{ 
     background-color: {u_btn_bg} !important; /* COLOR DE FONDO */
-    color: {u_btn_txt} !important; 
+    color: {u_btn_txt} !important;           /* COLOR DEL TEXTO */
     border: 1px solid {border_color} !important; 
     border-radius: 6px !important; 
     margin: 0 !important; 
@@ -1125,6 +1138,7 @@ section[data-testid="stMain"] div[data-testid="column"]:nth-child(3) {{
 [data-testid="stFileUploadDropzone"] button::after {{ content: "Upload" !important; font-size: 20px !important; }} /* TAMAÑO LETRAS UPLOAD */
 
 /* ================== BOTÓN NOTAS (c_not) ================== */
+/* EDITA AQUÍ SUS MEDIDAS Y POSICIÓN */
 section[data-testid="stMain"] div[data-testid="column"]:nth-child(4) {{
     transform: translate(0px, 0px) !important;  /* POSICIONAMIENTO LIBRE (X, Y) */
     z-index: 10;
