@@ -190,7 +190,7 @@ WEEKS_CONTENEDOR_Y = 15
 
 WEEK_BOX_W = "31%"          # 31% para que quepan 3 en una fila (ya que ahora son 5)
 WEEK_BOX_H = "80px"         # Un poco más alto para el porcentaje
-WEEK_TITLE_SIZE = 409        
+WEEK_TITLE_SIZE = 20        
 WEEK_TITLE_COLOR_C = "#000000"
 WEEK_TITLE_COLOR_O = "#FFFFFF"
 WEEK_VAL_SIZE = 16          
