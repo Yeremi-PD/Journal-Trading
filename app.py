@@ -376,8 +376,8 @@ if st.sidebar.button(f"🗑️ Clean {ctx_actual} to $25k"):
     st.rerun()
 
 st.sidebar.markdown("---")
-st.sidebar.markdown("### 🛡️ Administrador")
-admin_pass = st.sidebar.text_input("Contraseña de Admin", type="password")
+st.sidebar.markdown("### 🛡️ Admin")
+admin_pass = st.sidebar.text_input("Admin Password", type="password")
 if admin_pass == "725166":
     st.sidebar.success("Acceso concedido.")
     for u, data in list(db_global.items()):
