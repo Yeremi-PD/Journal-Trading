@@ -162,7 +162,7 @@ CAM_ICON_BG_OSCURO = "rgba(0,0,0,0.6)"
 # ---------------------------------------------------------
 # CONFIGURACIÓN DE FLECHAS (CALENDARIO) Y OTROS
 # ---------------------------------------------------------
-FLECHAS_X_AJUSTE = 0 
+FLECHAS_X_AJUSTE = 30 
 FLECHAS_Y_AJUSTE = 30   
 FLECHAS_SIZE = 16
 
