@@ -359,7 +359,7 @@ st.sidebar.markdown(f"### 👤 My Account: {usuario}")
 st.sidebar.markdown("---")
 
 st.sidebar.markdown("### 📊 Metrics")
-mostrar_tabla = st.sidebar.toggle("Mostrar tabla de resultados", value=False)
+mostrar_tabla = st.sidebar.toggle("Show Results Table", value=False)
 
 st.sidebar.markdown("---")
 st.sidebar.markdown("### ⚙️ Settings")
