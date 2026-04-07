@@ -193,14 +193,14 @@ WEEK_BOX_H = "120px"         # Un poco más alto para el porcentaje
 WEEK_TITLE_SIZE = 25        
 WEEK_TITLE_COLOR_C = "#000000"
 WEEK_TITLE_COLOR_O = "#FFFFFF"
-WEEK_VAL_SIZE = 25          
+WEEK_VAL_SIZE = 30          
 WEEK_PCT_SIZE = 25          # TAMAÑO DEL PORCENTAJE DE LA SEMANA/MES
 WEEK_ALIGN = "center"       
 
 MONTH_BOX_W = "100%"        
 MONTH_BOX_H = "90px"        
-MONTH_TITLE_SIZE = 14       
-MONTH_VAL_SIZE = 22         
+MONTH_TITLE_SIZE = 30       
+MONTH_VAL_SIZE = 25         
 
 # ==========================================
 # 4. LÓGICA DE ESTADO DEL USUARIO
