@@ -310,8 +310,6 @@ db_usuario = db_global[usuario]["data"]
 # --- 3. PARCHE PARA NOMBRES NUEVOS Y ESCUDO PROTECTOR ---
 if "Real Data" in db_usuario:
     db_usuario["Account Real"] = db_usuario.pop("Real Data")
-if "Demo Data" in db_usuario:
-    db_usuario["Account Demo"] = db_usuario.pop("Demo Data")
 if "Demo Account" in db_usuario:
     db_usuario["Account Demo"] = db_usuario.pop("Demo Account")
 
