@@ -114,7 +114,7 @@ OPT_DATA_SIZE = 14    # Tamaño del texto al desplegar
 # [ ETIQUETA: BALANCE MANUAL (Input) ]
 # ---------------------------------------------------------
 LBL_INPUT = "Balance:"
-LBL_INPUT_SIZE = 18
+LBL_INPUT_SIZE = 40
 LBL_INPUT_X = 0
 LBL_INPUT_Y = 0
 LBL_INPUT_COLOR_C = "#000000"
