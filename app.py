@@ -530,6 +530,16 @@ with col_cal:
                             else:
                                 cam_html = ""
                             
+                            st.markdown(f'''
+                            <div class="card {c_cls}">
+                                <div class="day-number">{dia}</div>
+                                <div class="day-content">
+                                    <span class="day-pnl">{c_sim}${trade["pnl"]:,.2f}</span><br>
+                                    <span class="day-pct">{pct_str}</span>
+                                </div>
+                                {cam_html}
+                            </div>
+                            ''', unsafe_allow_html=True)
                             if trade.get("imagenes"):
     with st.popover("📷", use_container_width=True):
         for img in trade["imagenes"]:
