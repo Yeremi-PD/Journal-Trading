@@ -148,11 +148,11 @@ BALANCE_BOX_Y = 0
 # ---------------------------------------------------------
 # [ LÍNEA SEPARADORA HORIZONTAL ]
 # ---------------------------------------------------------
-LINEA_GROSOR = 1.5             
-LINEA_ANCHO = 50              
+LINEA_GROSOR = 1             
+LINEA_ANCHO = 5              
 LINEA_X = 0                    
-LINEA_MARGEN_SUP = 10          
-LINEA_MARGEN_INF = 25          
+LINEA_MARGEN_SUP = 1          
+LINEA_MARGEN_INF = 1          
 LINEA_COLOR_C = "#E2E8F0"
 LINEA_COLOR_O = "#4A5568"
 
