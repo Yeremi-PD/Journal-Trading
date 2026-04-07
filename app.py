@@ -85,7 +85,7 @@ if st.session_state.usuario_actual is None or st.session_state.usuario_actual no
     st.stop()
 
 # ==========================================
-# 3. SECCIÓN DE AJUSTES MANUALES (CONSTANTES)
+# 3. SECCIÓN DE AJUSTES MANUALES (CONSTANTES ESTRUCTURALES)
 # ==========================================
 
 TEMA_POR_DEFECTO = "Oscuro"
@@ -131,7 +131,6 @@ LBL_INPUT_Y = 0
 LBL_INPUT_COLOR_C = "#000000"
 LBL_INPUT_COLOR_O = "#FFFFFF"
 
-# RESTAURADO: Constantes del Balance Input
 INPUT_BAL_W = "200px"         
 INPUT_BAL_H = "60px"          
 INPUT_BAL_X = 0      
@@ -147,6 +146,9 @@ LBL_BAL_TOTAL_Y = 0
 LBL_BAL_TOTAL_COLOR_C = "#000000"
 LBL_BAL_TOTAL_COLOR_O = "#FFFFFF"
 
+BALANCE_BOX_X = 0     
+BALANCE_BOX_Y = 0     
+
 LINEA_GROSOR = 1.5             
 LINEA_ANCHO = 100              
 LINEA_X = 0                    
@@ -155,6 +157,10 @@ LINEA_MARGEN_INF = 25
 LINEA_COLOR_C = "#E2E8F0"
 LINEA_COLOR_O = "#4A5568"
 
+DROPZONE_W = "100%"
+DROPZONE_H = "75px"            
+DROPZONE_X = 0
+DROPZONE_Y = 0
 DROPZONE_BG_C = "transparent"  
 DROPZONE_BG_O = "transparent"
 DROPZONE_BORDER_C = "1px dashed #E2E8F0"  
@@ -167,6 +173,7 @@ BTN_UP_TXT_C = "#000000"
 BTN_UP_TXT_O = "#FFFFFF"
 
 BTN_CAL_EMOJI = "🗓️"
+BTN_CAL_W = 68
 BTN_CAL_BG_C = "#F3F4F6"
 BTN_CAL_BG_O = "#2D3748"
 
@@ -176,6 +183,7 @@ FLECHAS_Y = 0
 
 TXT_MES_COLOR_C = "#000000"
 TXT_MES_COLOR_O = "#FFFFFF"
+TXT_DIAS_SEM_SIZE = 15
 TXT_DIAS_SEM_COLOR_C = "#000000"
 TXT_DIAS_SEM_COLOR_O = "#FFFFFF"
 TXT_NUM_DIA_COLOR_C = "#000000"
@@ -184,6 +192,8 @@ TXT_PCT_DIA_COLOR_C = "#000000"
 TXT_PCT_DIA_COLOR_O = "#000000"
 
 BTN_CAM_EMOJI = "📷"
+BTN_CAM_X = 0
+BTN_CAM_Y = 2
 BTN_CAM_BG_C = "rgba(0,0,0,0)"
 BTN_CAM_BG_O = "rgba(0,0,0,0)"
 TXT_CERRAR_MODAL = "✖ CERRAR"
@@ -191,11 +201,21 @@ TXT_CERRAR_MODAL = "✖ CERRAR"
 CARD_PNL_TITULO = "Net P&L Monthly"
 CARD_PNL_TITULO_COLOR_C = "#000000"
 CARD_PNL_TITULO_COLOR_O = "#FFFFFF"
+CARD_PNL_W = "100%"     
+CARD_PNL_H = "auto"     
+CARD_PNL_X = 0          
+CARD_PNL_Y = 0 
+
 CARD_WIN_TITULO = "Win Rate Monthly"
 CARD_WIN_TITULO_COLOR_C = "#000000"
 CARD_WIN_TITULO_COLOR_O = "#FFFFFF"
+CARD_WIN_VALOR_SIZE = 28
 CARD_WIN_VALOR_COLOR_C = "#000000"
 CARD_WIN_VALOR_COLOR_O = "#FFFFFF"
+CARD_WIN_W = "100%"     
+CARD_WIN_H = "auto"     
+CARD_WIN_X = 0          
+CARD_WIN_Y = 0   
 
 TXT_W1 = "Week 1"
 TXT_W2 = "Week 2"
@@ -204,8 +224,16 @@ TXT_W4 = "Week 4"
 TXT_W5 = "Week 5"
 TXT_W6 = "Week 6"
 TXT_MO = "Month"
+
 WEEKS_TITULOS_COLOR_C = "#000000"
 WEEKS_TITULOS_COLOR_O = "#FFFFFF"
+WEEK_BOX_W = "31%"          
+WEEK_BOX_H = "120px"         
+Month_BOX_W = "100%"        
+Month_BOX_H = "120px"        
+WEEKS_CONTENEDOR_X = 0      
+WEEKS_CONTENEDOR_Y = 15     
+WEEK_ALIGN = "center"  
 
 # ==========================================
 # 4. LÓGICA DE ESTADO Y AJUSTES
@@ -339,77 +367,73 @@ if admin_pass == "725166":
                 st.session_state.usuario_actual = None
             st.rerun()
 
-# --- NUEVO MENÚ INTUITIVO: SETTINGS 2 ---
+# --- NUEVOS MENÚS DE AJUSTE EXPANDIBLES ---
 st.sidebar.markdown("---")
-with st.sidebar.popover("⚙️ Settings 2 (Ajustes de Diseño)", use_container_width=True):
-    st.markdown(f"<h4 style='text-align:center;'>Perfil actual: {st.session_state.dispositivo_actual}</h4>", unsafe_allow_html=True)
-    
-    t_dash, t_txt, t_cal = st.tabs(["🖥️ Dashboard", "🔠 Textos y Gráficos", "📅 Calendario"])
-    
-    with t_dash:
-        if st.button("🔄 Reset Dashboard", use_container_width=True): 
-            reset_settings("dash")
-            st.rerun()
-            
-        st.markdown("**Caja ACCOUNT BALANCE**")
-        user_settings["bal_num_sz"] = st.slider("Tamaño Números Balance", 10, 60, user_settings["bal_num_sz"])
-        user_settings["bal_box_w"] = st.slider("Ancho Fondo Verde (%)", 10, 100, user_settings["bal_box_w"])
-        user_settings["bal_box_pad"] = st.slider("Altura Fondo Verde (Padding)", 0, 50, user_settings["bal_box_pad"])
 
-        st.markdown("**Botón UPLOAD**")
-        user_settings["btn_up_sz"] = st.slider("Tamaño Texto Upload", 10, 40, user_settings["btn_up_sz"])
-        user_settings["btn_up_w"] = st.slider("Ancho Botón Upload", 50, 300, user_settings["btn_up_w"])
-        user_settings["btn_up_h"] = st.slider("Altura Botón Upload", 20, 100, user_settings["btn_up_h"])
-        user_settings["btn_up_x"] = st.slider("Mover Upload Horiz (X)", -100, 100, user_settings["btn_up_x"])
-        user_settings["btn_up_y"] = st.slider("Mover Upload Vert (Y)", -100, 100, user_settings["btn_up_y"])
+with st.sidebar.expander("🖥️ Ajustes de Dashboard"):
+    if st.button("🔄 Reset Dashboard", key="res_dash", use_container_width=True): 
+        reset_settings("dash")
+        st.rerun()
         
-        st.markdown("**Botón SAVE**")
-        user_settings["btn_save_sz"] = st.slider("Tamaño Texto SAVE", 10, 40, user_settings["btn_save_sz"])
-        user_settings["btn_save_w"] = st.slider("Ancho Botón SAVE", 50, 400, user_settings["btn_save_w"])
-        user_settings["btn_save_h"] = st.slider("Altura Botón SAVE", 20, 100, user_settings["btn_save_h"])
-        user_settings["btn_save_x"] = st.slider("Mover SAVE Horiz (X)", -100, 100, user_settings["btn_save_x"])
-        user_settings["btn_save_y"] = st.slider("Mover SAVE Vert (Y)", -100, 100, user_settings["btn_save_y"])
+    st.markdown("**Caja ACCOUNT BALANCE**")
+    user_settings["bal_num_sz"] = st.slider("Tamaño Números Balance", 10, 60, user_settings["bal_num_sz"])
+    user_settings["bal_box_w"] = st.slider("Ancho Fondo Verde (%)", 10, 100, user_settings["bal_box_w"])
+    user_settings["bal_box_pad"] = st.slider("Altura Fondo Verde (Padding)", 0, 50, user_settings["bal_box_pad"])
+
+    st.markdown("**Botón UPLOAD**")
+    user_settings["btn_up_sz"] = st.slider("Tamaño Texto Upload", 10, 40, user_settings["btn_up_sz"])
+    user_settings["btn_up_w"] = st.slider("Ancho Botón Upload", 50, 300, user_settings["btn_up_w"])
+    user_settings["btn_up_h"] = st.slider("Altura Botón Upload", 20, 100, user_settings["btn_up_h"])
+    user_settings["btn_up_x"] = st.slider("Mover Upload Horiz (X)", -100, 100, user_settings["btn_up_x"])
+    user_settings["btn_up_y"] = st.slider("Mover Upload Vert (Y)", -100, 100, user_settings["btn_up_y"])
+    
+    st.markdown("**Botón SAVE**")
+    user_settings["btn_save_sz"] = st.slider("Tamaño Texto SAVE", 10, 40, user_settings["btn_save_sz"])
+    user_settings["btn_save_w"] = st.slider("Ancho Botón SAVE", 50, 400, user_settings["btn_save_w"])
+    user_settings["btn_save_h"] = st.slider("Altura Botón SAVE", 20, 100, user_settings["btn_save_h"])
+    user_settings["btn_save_x"] = st.slider("Mover SAVE Horiz (X)", -100, 100, user_settings["btn_save_x"])
+    user_settings["btn_save_y"] = st.slider("Mover SAVE Vert (Y)", -100, 100, user_settings["btn_save_y"])
+    
+    st.markdown("**Botón CALENDARIO**")
+    user_settings["btn_cal_sz"] = st.slider("Tamaño Emoji Calendario", 10, 60, user_settings["btn_cal_sz"])
+    user_settings["btn_cal_w"] = st.slider("Ancho Botón Calendario", 30, 150, user_settings["btn_cal_w"])
+    user_settings["btn_cal_h"] = st.slider("Altura Botón Calendario", 20, 120, user_settings["btn_cal_h"])
+    user_settings["btn_cal_x"] = st.slider("Mover Calendario Horiz (X)", -100, 100, user_settings["btn_cal_x"])
+    user_settings["btn_cal_y"] = st.slider("Mover Calendario Vert (Y)", -100, 100, user_settings["btn_cal_y"])
+
+    st.markdown("**Botón NOTAS (📝)**")
+    user_settings["btn_not_sz"] = st.slider("Tamaño Emoji Notas", 10, 60, user_settings["btn_not_sz"])
+    user_settings["btn_not_w"] = st.slider("Ancho Botón Notas", 30, 150, user_settings["btn_not_w"])
+    user_settings["btn_not_h"] = st.slider("Altura Botón Notas", 20, 120, user_settings["btn_not_h"])
+    user_settings["btn_not_x"] = st.slider("Mover Notas Horiz (X)", -100, 100, user_settings["btn_not_x"])
+    user_settings["btn_not_y"] = st.slider("Mover Notas Vert (Y)", -100, 100, user_settings["btn_not_y"])
+
+with st.sidebar.expander("🔠 Ajustes de Textos y Gráficos"):
+    if st.button("🔄 Reset Textos y Gráficos", key="res_txt", use_container_width=True): 
+        reset_settings("txt")
+        st.rerun()
         
-        st.markdown("**Botón CALENDARIO**")
-        user_settings["btn_cal_sz"] = st.slider("Tamaño Emoji Calendario", 10, 60, user_settings["btn_cal_sz"])
-        user_settings["btn_cal_w"] = st.slider("Ancho Botón Calendario", 30, 150, user_settings["btn_cal_w"])
-        user_settings["btn_cal_h"] = st.slider("Altura Botón Calendario", 20, 120, user_settings["btn_cal_h"])
-        user_settings["btn_cal_x"] = st.slider("Mover Calendario Horiz (X)", -100, 100, user_settings["btn_cal_x"])
-        user_settings["btn_cal_y"] = st.slider("Mover Calendario Vert (Y)", -100, 100, user_settings["btn_cal_y"])
+    user_settings["size_top_stats"] = st.slider("Tamaño Monthly P&L y Win Rate (Top)", 10, 40, user_settings["size_top_stats"])
+    user_settings["size_card_titles"] = st.slider("Tamaño Títulos (All-Time, etc)", 10, 40, user_settings["size_card_titles"])
+    user_settings["size_box_titles"] = st.slider("Tamaño Títulos (Week/Month)", 10, 40, user_settings["size_box_titles"])
+    user_settings["size_box_vals"] = st.slider("Tamaño P&L Cajas", 10, 50, user_settings["size_box_vals"])
+    user_settings["size_box_pct"] = st.slider("Tamaño % Cajas", 10, 40, user_settings["size_box_pct"])
+    user_settings["size_box_wl"] = st.slider("Tamaño W/L Cajas", 10, 40, user_settings["size_box_wl"])
+    user_settings["pie_size"] = st.slider("Tamaño Gráfico de Pastel", 50, 300, user_settings["pie_size"])
+    user_settings["pie_y_offset"] = st.slider("Posición Vertical Gráfico (Arriba/Abajo)", -100, 100, user_settings["pie_y_offset"])
 
-        st.markdown("**Botón NOTAS (📝)**")
-        user_settings["btn_not_sz"] = st.slider("Tamaño Emoji Notas", 10, 60, user_settings["btn_not_sz"])
-        user_settings["btn_not_w"] = st.slider("Ancho Botón Notas", 30, 150, user_settings["btn_not_w"])
-        user_settings["btn_not_h"] = st.slider("Altura Botón Notas", 20, 120, user_settings["btn_not_h"])
-        user_settings["btn_not_x"] = st.slider("Mover Notas Horiz (X)", -100, 100, user_settings["btn_not_x"])
-        user_settings["btn_not_y"] = st.slider("Mover Notas Vert (Y)", -100, 100, user_settings["btn_not_y"])
-
-    with t_txt:
-        if st.button("🔄 Reset Textos y Gráficos", use_container_width=True): 
-            reset_settings("txt")
-            st.rerun()
-            
-        user_settings["size_top_stats"] = st.slider("Tamaño Monthly P&L y Win Rate (Top)", 10, 40, user_settings["size_top_stats"])
-        user_settings["size_card_titles"] = st.slider("Tamaño Títulos (All-Time, etc)", 10, 40, user_settings["size_card_titles"])
-        user_settings["size_box_titles"] = st.slider("Tamaño Títulos (Week/Month)", 10, 40, user_settings["size_box_titles"])
-        user_settings["size_box_vals"] = st.slider("Tamaño P&L Cajas", 10, 50, user_settings["size_box_vals"])
-        user_settings["size_box_pct"] = st.slider("Tamaño % Cajas", 10, 40, user_settings["size_box_pct"])
-        user_settings["size_box_wl"] = st.slider("Tamaño W/L Cajas", 10, 40, user_settings["size_box_wl"])
-        user_settings["pie_size"] = st.slider("Tamaño Gráfico de Pastel", 50, 300, user_settings["pie_size"])
-        user_settings["pie_y_offset"] = st.slider("Posición Vertical Gráfico (Arriba/Abajo)", -100, 100, user_settings["pie_y_offset"])
-
-    with t_cal:
-        if st.button("🔄 Reset Calendario", use_container_width=True): 
-            reset_settings("cal")
-            st.rerun()
-            
-        user_settings["cal_mes_size"] = st.slider("Tamaño del Mes (Título)", 10, 50, user_settings["cal_mes_size"])
-        user_settings["cal_pnl_size"] = st.slider("Tamaño P&L del Día", 10, 40, user_settings["cal_pnl_size"])
-        user_settings["cal_pct_size"] = st.slider("Tamaño % del Día", 10, 30, user_settings["cal_pct_size"])
-        user_settings["cal_dia_size"] = st.slider("Tamaño Número del Día", 10, 30, user_settings["cal_dia_size"])
-        user_settings["cal_cam_size"] = st.slider("Tamaño Icono Cámara", 10, 50, user_settings["cal_cam_size"])
-        user_settings["cal_scale"] = st.slider("Escala General (Altura del Calendario)", 50, 200, user_settings["cal_scale"])
-        user_settings["cal_line_height"] = st.slider("Altura entre Textos (Espaciado)", 0.5, 3.0, user_settings["cal_line_height"], 0.1)
+with st.sidebar.expander("📅 Ajustes de Calendario"):
+    if st.button("🔄 Reset Calendario", key="res_cal", use_container_width=True): 
+        reset_settings("cal")
+        st.rerun()
+        
+    user_settings["cal_mes_size"] = st.slider("Tamaño del Mes (Título)", 10, 50, user_settings["cal_mes_size"])
+    user_settings["cal_pnl_size"] = st.slider("Tamaño P&L del Día", 10, 40, user_settings["cal_pnl_size"])
+    user_settings["cal_pct_size"] = st.slider("Tamaño % del Día", 10, 30, user_settings["cal_pct_size"])
+    user_settings["cal_dia_size"] = st.slider("Tamaño Número del Día", 10, 30, user_settings["cal_dia_size"])
+    user_settings["cal_cam_size"] = st.slider("Tamaño Icono Cámara", 10, 50, user_settings["cal_cam_size"])
+    user_settings["cal_scale"] = st.slider("Escala General (Altura del Calendario)", 50, 200, user_settings["cal_scale"])
+    user_settings["cal_line_height"] = st.slider("Altura entre Textos (Espaciado)", 0.5, 3.0, user_settings["cal_line_height"], 0.1)
 
 # --- BOTÓN DE LOG OUT (SIEMPRE AL FINAL) ---
 st.sidebar.markdown("<br><br><br>", unsafe_allow_html=True)
@@ -503,7 +527,7 @@ st.markdown(f"""
     .lbl-data {{ font-size: {LBL_DATA_SIZE}px !important; color: {c_data} !important; font-weight: 700 !important; transform: translate({LBL_DATA_X}px, {LBL_DATA_Y}px) !important; margin-bottom: 5px !important; }}
     .lbl-input {{ font-size: {LBL_INPUT_SIZE}px !important; color: {c_lbl_in} !important; font-weight: 700 !important; transform: translate({LBL_INPUT_X}px, {LBL_INPUT_Y}px) !important; margin-bottom: 5px !important; }}
     
-    .balance-box {{ background: #00C897 !important; color: white !important; padding: var(--bal-box-pad) 0px !important; border-radius: 80px !important; text-align: center !important; font-weight: 700 !important; font-size: var(--bal-num-sz) !important; width: var(--bal-box-w) !important; margin: 0 auto !important; }}
+    .balance-box {{ background: #00C897 !important; color: white !important; padding: var(--bal-box-pad) 0px !important; border-radius: 80px !important; text-align: center !important; font-weight: 700 !important; font-size: var(--bal-num-sz) !important; width: var(--bal-box-w) !important; margin: 0 auto !important; transform: translate({BALANCE_BOX_X}px, {BALANCE_BOX_Y}px) !important; }}
     
     .thin-line {{ border-bottom: {LINEA_GROSOR}px solid {c_linea} !important; margin: {LINEA_MARGEN_SUP}px 0px {LINEA_MARGEN_INF}px 0px !important; width: {LINEA_ANCHO}% !important; transform: translateX({LINEA_X}px) !important; }}
 
@@ -515,7 +539,7 @@ st.markdown(f"""
     li[role="option"] {{ background-color: F3F4F6 !important; }}
     li[role="option"]:hover {{ background-color: {border_color} !important; }}
 
-    div[data-testid="column"]:nth-child(1) div[data-testid="stNumberInput"] {{ width: var(--btn-save-w) !important; min-width: var(--btn-save-w) !important; max-width: var(--btn-save-w) !important; }}
+    div[data-testid="column"]:nth-child(1) div[data-testid="stNumberInput"] {{ width: var(--btn-save-w) !important; min-width: var(--btn-save-w) !important; max-width: var(--btn-save-w) !important; margin-left: {INPUT_BAL_X}px !important; margin-top: {INPUT_BAL_Y}px !important; }}
     div[data-testid="stNumberInput"] button {{ display: none !important; }} 
     div[data-testid="stNumberInput"] > div:last-child, div[data-testid="stNumberInput"] div[data-baseweb="base-input"], div[data-testid="stNumberInput"] div[data-baseweb="input"] {{ height: {INPUT_BAL_H} !important; min-height: {INPUT_BAL_H} !important; background-color: {input_bg} !important; border-color: {border_color} !important; }}
     div[data-testid="stNumberInput"] input {{ color: {c_lbl_in} !important; font-size: {INPUT_BAL_TXT_SIZE}px !important; background-color: {input_bg} !important; font-weight: bold !important; height: {INPUT_BAL_H} !important; min-height: {INPUT_BAL_H} !important; box-sizing: border-box !important; padding-top: 0 !important; padding-bottom: 0 !important; }}
@@ -928,7 +952,6 @@ with col_det:
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # 🔴 LLAMADA AL GRÁFICO SVG PASTEL 🔴
     pie_html = get_pie_svg(wins, losses, ties)
 
     st.markdown(f"""
@@ -1076,7 +1099,7 @@ with st.expander("🛠️ OPEN ORDER HISTORY", expanded=False):
                     accept_multiple_files=True, 
                     key=upd_key, 
                     on_change=agregar_imagenes_historial, 
-                    args=(ctx, clave, upd_key, counter_main_key)
+                    args=(ctx, clave, upd_key, counter_key)
                 )
 
                 imagenes_restantes = db_usuario[ctx]["trades"][clave].get("imagenes", [])
