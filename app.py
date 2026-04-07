@@ -192,7 +192,7 @@ BTN_CAL_ICON_SIZE = 33
 BTN_CAL_BG_C = "#F3F4F6"
 BTN_CAL_BG_O = "#2D3748"
 
-FLECHAS_SIZE = 50
+FLECHAS_SIZE = 16
 FLECHAS_X = 0 
 FLECHAS_Y = 0   
 
@@ -702,7 +702,7 @@ with col_cal:
     
     c_izq, c_cen, c_der = st.columns([1, 4, 1])
     with c_izq: st.button("◀", on_click=cambiar_mes, args=(-1,), use_container_width=True)
-    with c_cen: st.markdown(f'<div style="text-align:center; font-weight:800; font-size:{TXT_MES_SIZE}px; color:{c_mes}; margin-top:5px;">{nombre_mes} {anio_sel}</div>', unsafe_allow_html=True)
+    with c_cen: st.markdown(f'<div style="text-align:center; font-weight:400; font-size:{TXT_MES_SIZE}px; color:{c_mes}; margin-top:5px;">{nombre_mes} {anio_sel}</div>', unsafe_allow_html=True)
     with c_der: st.button("▶", on_click=cambiar_mes, args=(1,), use_container_width=True)
     
     st.markdown("<br>", unsafe_allow_html=True)
