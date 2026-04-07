@@ -56,8 +56,8 @@ def get_global_db():
                 headers = filas[0]
                 for row in filas[1:]:
                     row_data = dict(zip(headers, row + [''] * (len(headers) - len(row))))
-                    user = str(row_data.get('Usuario', ''))
-                    if not user: continue
+                    user = str(row_data.get('Usuario', '')).strip()
+                    if not user: continue  # IGNORA FILAS SIN USUARIO
                     
                     if user not in db_temp:
                         db_temp[user] = {
@@ -106,7 +106,7 @@ def get_global_db():
 
 db_global = get_global_db()
 
-# --- FUNCIÓN CENTRAL DE GUARDADO A LA NUBE (ALINEADA Y COMPLETA) ---
+# --- FUNCIÓN CENTRAL DE GUARDADO A LA NUBE (BLINDADA CONTRA ERRORES) ---
 def registrar_en_excel(usuario, password, cuenta, fecha_obj, balance, pnl, trade_data, settings_pc, settings_movil):
     if hoja_excel:
         try:
@@ -114,19 +114,23 @@ def registrar_en_excel(usuario, password, cuenta, fecha_obj, balance, pnl, trade
             lista_imgs = trade_data.get("imagenes", [])
             imgs_texto = "|".join(lista_imgs) if lista_imgs else ""
             
-            set_pc_str = json.dumps(settings_pc)
-            set_mov_str = json.dumps(settings_movil)
+            set_pc_str = json.dumps(settings_pc) if settings_pc else "{}"
+            set_mov_str = json.dumps(settings_movil) if settings_movil else "{}"
             
             extra_data = {k:v for k,v in trade_data.items() if k not in ['pnl', 'balance_final', 'fecha_str', 'imagenes']}
             extra_str = json.dumps(extra_data)
 
+            # BLINDAJE: Si por alguna razón el usuario está vacío, pone "Desconocido"
+            safe_user = str(usuario).strip() if usuario else "Desconocido"
+            safe_pass = str(password).strip() if password else "123"
+
             # Las 10 columnas exactas que pedimos
-            nueva_fila = [usuario, password, cuenta, fecha_texto, balance, pnl, imgs_texto, set_pc_str, set_mov_str, extra_str]
+            nueva_fila = [safe_user, safe_pass, str(cuenta), fecha_texto, float(balance), float(pnl), imgs_texto, set_pc_str, set_mov_str, extra_str]
             hoja_excel.append_row(nueva_fila)
         except Exception:
             pass
 
-# --- LOGIN ---
+# --- LOGIN (CON CANDADOS DE SEGURIDAD) ---
 if "usuario_actual" not in st.session_state:
     st.session_state.usuario_actual = None
 
@@ -144,24 +148,29 @@ if st.session_state.usuario_actual is None or st.session_state.usuario_actual no
             log_user = st.text_input("Usuario", key="log_user")
             log_pass = st.text_input("Contraseña", type="password", key="log_pass")
             if st.button("Acceder", use_container_width=True):
-                if log_user not in db_global:
-                    db_global[log_user] = {
-                        "password": log_pass,
-                        "data": inicializar_data_usuario(),
-                        "settings": {"PC": inicializar_settings(), "Móvil": inicializar_settings()}
-                    }
-                
-                if log_user in db_global and db_global[log_user]["password"] == log_pass:
-                    st.session_state.usuario_actual = log_user
-                    st.rerun()
+                if not log_user.strip():
+                    st.error("⚠️ El campo Usuario no puede estar vacío.")
                 else:
-                    st.error("Usuario o contraseña incorrectos.")
+                    if log_user not in db_global:
+                        db_global[log_user] = {
+                            "password": log_pass,
+                            "data": inicializar_data_usuario(),
+                            "settings": {"PC": inicializar_settings(), "Móvil": inicializar_settings()}
+                        }
+                    
+                    if db_global[log_user]["password"] == log_pass:
+                        st.session_state.usuario_actual = log_user
+                        st.rerun()
+                    else:
+                        st.error("Usuario o contraseña incorrectos.")
                     
         with tab2:
             reg_user = st.text_input("Nuevo Usuario", key="reg_user")
             reg_pass = st.text_input("Nueva Contraseña", type="password", key="reg_pass")
             if st.button("Crear Cuenta", use_container_width=True):
-                if reg_user in db_global:
+                if not reg_user.strip():
+                    st.error("⚠️ Debes escribir un nombre de Usuario válido.")
+                elif reg_user in db_global:
                     st.warning("El usuario ya existe.")
                 elif len(reg_user) > 0 and len(reg_pass) > 0:
                     db_global[reg_user] = {
@@ -169,7 +178,6 @@ if st.session_state.usuario_actual is None or st.session_state.usuario_actual no
                         "data": inicializar_data_usuario(),
                         "settings": {"PC": inicializar_settings(), "Móvil": inicializar_settings()}
                     }
-                    # Pasar los datos explícitamente evita el problema de las celdas corridas
                     registrar_en_excel(reg_user, reg_pass, "Account Real", datetime.now(), 25000.0, 0.0, {}, db_global[reg_user]["settings"]["PC"], db_global[reg_user]["settings"]["Móvil"])
                     st.success("Cuenta creada con éxito. Ya puedes iniciar sesión.")
                 else:
