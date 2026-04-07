@@ -99,7 +99,7 @@ OPT_FILTROS_SIZE = 14
 # [ ETIQUETA: DATA SOURCE ]
 # ---------------------------------------------------------
 LBL_DATA = "Data Source"
-LBL_DATA_SIZE = 18
+LBL_DATA_SIZE = 40
 LBL_DATA_X = 0
 LBL_DATA_Y = 0
 LBL_DATA_COLOR_C = "#000000"
