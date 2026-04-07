@@ -146,7 +146,7 @@ CARD_WIN_Y = 0
 # ---------------------------------------------------------
 # CONFIGURACIÓN DEL BOTÓN DE UPLOAD Y CÁMARA
 # ---------------------------------------------------------
-UPLOAD_X = 0
+UPLOAD_X = 40
 UPLOAD_Y = 0
 UPLOAD_W = "100%"                     # Ancho del botón de carga (Ej: "120px" o "100%")
 UPLOAD_H = "45px"                     # Alto del botón de carga
