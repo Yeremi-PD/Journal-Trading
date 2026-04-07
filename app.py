@@ -888,7 +888,7 @@ with st.expander("🛠️ OPEN ORDER HISTORY", expanded=False):
                     nuevo_pnl = st.number_input("Editar P&L", value=pnl_val, format="%.2f", key=f"p_{clave}", label_visibility="collapsed")
                 
                 st.markdown("---")
-                st.markdown("**📸 Tus Imágenes (Haz clic en '🗑️' para borrar una específica):**")
+                st.markdown("**📸:**")
                 
                 imagenes_restantes = data.get("imagenes", []).copy()
                 
