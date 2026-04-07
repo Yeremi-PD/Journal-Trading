@@ -752,7 +752,7 @@ with c_not:
 
 
 # ==========================================
-# 10. CALENDARIO Y RESUMEN
+# 10. CALENDARIO Y RESUMEN (MODIFICADO PARA MATCH CON IMAGEN)
 # ==========================================
 col_cal, col_det = st.columns([2, 1]) 
 
@@ -761,14 +761,48 @@ mes_sel = st.session_state.cal_month
 nombre_mes = calendar.month_name[mes_sel]
 
 with col_cal:
+    # --- CÁLCULO DE STATS PARA EL HEADER ---
+    trades_mes_header = [v["pnl"] for k, v in db_usuario[ctx]["trades"].items() if k[0] == anio_sel and k[1] == mes_sel]
+    total_trades_h = len(trades_mes_header)
+    net_pnl_h = sum(trades_mes_header) if total_trades_h > 0 else 0.0
+    # Calculamos el % basado en el balance actual (o podrías usar el inicial del mes)
+    base_calc = bal_actual - net_pnl_h
+    pct_mensual_h = (net_pnl_h / base_calc * 100) if base_calc != 0 else 0.0
     
-    c_izq, c_cen, c_der = st.columns([1, 4, 1])
-    with c_izq: st.button("◀", on_click=cambiar_mes, args=(-1,), use_container_width=True)
-    with c_cen: st.markdown(f'<div style="text-align:center; font-weight:400; font-size:{TXT_MES_SIZE}px; color:{c_mes}; margin-top:5px;">{nombre_mes} {anio_sel}</div>', unsafe_allow_html=True)
-    with c_der: st.button("▶", on_click=cambiar_mes, args=(1,), use_container_width=True)
+    # --- HEADER ESTILO IMAGEN ---
+    # Usamos 3 columnas: Flechas/Mes, Espacio, y Stats
+    c_header_left, c_header_mid, c_header_right = st.columns([1.5, 1, 1.5])
     
+    with c_header_left:
+        # Contenedor para Flecha - Mes - Flecha
+        st.markdown(f"""
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <span style="cursor:pointer; font-size: 20px;" onclick="document.querySelector('button[kind=secondary]').click()">◀</span>
+                <span style="font-size: 24px; font-weight: 700; color: {c_mes}; white-space: nowrap;">
+                    {nombre_mes} {anio_sel}
+                </span>
+                <span style="cursor:pointer; font-size: 20px;">▶</span>
+            </div>
+        """, unsafe_allow_html=True)
+        # Nota: Los botones invisibles de Streamlit para que funcionen los clics
+        col_b1, col_b2 = st.columns([1,1])
+        with col_b1: st.button(" ", key="btn_prev", on_click=cambiar_mes, args=(-1,), help="Anterior")
+        with col_b2: st.button(" ", key="btn_next", on_click=cambiar_mes, args=(1,), help="Siguiente")
+
+    with c_header_right:
+        # El estilo de la burbuja verde de la imagen
+        st.markdown(f"""
+            <div style="display: flex; justify-content: flex-end; align-items: center; gap: 10px; height: 100%;">
+                <span style="font-size: 18px; font-weight: 600; color: {c_mes};">Monthly stats:</span>
+                <span style="background-color: #e6f9f4; color: #00C897; padding: 4px 12px; border-radius: 12px; font-weight: 700; font-size: 18px;">
+                    {pct_mensual_h:.2f}%
+                </span>
+            </div>
+        """, unsafe_allow_html=True)
+
     st.markdown("<br>", unsafe_allow_html=True)
     
+    # --- DIBUJO DE LA REJILLA DEL CALENDARIO ---
     dias_semana = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
     calendar.setfirstweekday(calendar.SUNDAY)
     mes_matriz = calendar.monthcalendar(anio_sel, mes_sel)
@@ -781,7 +815,8 @@ with col_cal:
         d_cols = st.columns(7)
         for i, dia in enumerate(semana_dias):
             with d_cols[i]:
-                if dia == 0: st.markdown('<div class="card cell-empty"></div>', unsafe_allow_html=True)
+                if dia == 0: 
+                    st.markdown('<div class="card cell-empty"></div>', unsafe_allow_html=True)
                 else:
                     trade = db_usuario[ctx]["trades"].get((anio_sel, mes_sel, dia))
                     visible = True
@@ -791,7 +826,6 @@ with col_cal:
                     if trade and visible:
                         c_cls = "cell-win" if trade["pnl"] > 0 else "cell-loss"
                         c_sim = "+" if trade["pnl"] > 0 else ""
-                        
                         bal_ini = trade["balance_final"] - trade["pnl"]
                         pct = (trade["pnl"] / bal_ini * 100) if bal_ini != 0 else 0
                         pct_str = f"{c_sim}{pct:.2f}%"
@@ -807,89 +841,6 @@ with col_cal:
                     else:
                         op = "0.2" if trade and not visible else "1"
                         st.markdown(f'<div class="card cell-empty" style="opacity:{op}"><div class="day-number">{dia}</div></div>', unsafe_allow_html=True)
-
-with col_det:
-    trades_mes = [v["pnl"] for k, v in db_usuario[ctx]["trades"].items() if k[0] == anio_sel and k[1] == mes_sel]
-    total_trades = len(trades_mes)
-    
-    net_pnl = sum(trades_mes) if total_trades > 0 else 0.0
-    wins = len([t for t in trades_mes if t > 0])
-    losses = len([t for t in trades_mes if t < 0])
-    ties = len([t for t in trades_mes if t == 0])
-    win_pct = (wins / total_trades * 100) if total_trades > 0 else 0.0
-    
-    r = 40
-    c = math.pi * r 
-    len_w = (wins / total_trades * c) if total_trades > 0 else 0
-    len_t = (ties / total_trades * c) if total_trades > 0 else 0
-
-    color_pnl = "pnl-value" if net_pnl >= 0 else "pnl-value pnl-value-loss"
-    simbolo_pnl = "+" if net_pnl > 0 else ""
-    
-    st.markdown(f"""
-        <div class="metric-card card-pnl">
-            <div class="metric-header"><span class="title-net-pnl">{CARD_PNL_TITULO}</span></div>
-            <div class="{color_pnl}">{simbolo_pnl}${net_pnl:,.2f}</div>
-        </div>
-    """, unsafe_allow_html=True)
-
-    st.markdown("<br>", unsafe_allow_html=True)
-
-    svg_html = f'<svg width="120" height="60" viewBox="0 0 100 50">\n<path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="{border_color}" stroke-width="10"/>\n'
-    if total_trades > 0:
-        svg_html += f'<path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#FF4C4C" stroke-width="10" stroke-dasharray="{c} {c}"/>\n'
-        svg_html += f'<path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#4F46E5" stroke-width="10" stroke-dasharray="{len_w + len_t} {c}"/>\n'
-        svg_html += f'<path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#00C897" stroke-width="10" stroke-dasharray="{len_w} {c}"/>\n'
-    svg_html += '</svg>'
-
-    st.markdown(f"""
-        <div class="metric-card card-win">
-            <div>
-                <div class="metric-header"><span class="title-trade-win">{CARD_WIN_TITULO}</span></div>
-                <div class="win-value">{win_pct:.2f}%</div>
-            </div>
-            <div class="gauge-container">
-                {svg_html}
-                <div class="gauge-labels"><span class="lbl-g">{wins}</span><span class="lbl-b">{ties}</span><span class="lbl-r">{losses}</span></div>
-            </div>
-        </div>
-    """, unsafe_allow_html=True)
-    
-    semanas_totales = {i: 0.0 for i in range(1, len(mes_matriz) + 1)}
-    
-    for key, val in db_usuario[ctx]["trades"].items():
-        if key[0] == anio_sel and key[1] == mes_sel:
-            dia = key[2]
-            for idx, semana in enumerate(mes_matriz):
-                if dia in semana:
-                    semanas_totales[idx + 1] += val["pnl"]
-                    break
-
-    m_total = sum(semanas_totales.values())
-    
-    def get_col_simb(valor):
-        if valor > 0: return "txt-green", "+"
-        elif valor < 0: return "txt-red", ""
-        else: return "txt-gray", ""
-
-    def calc_pct(valor):
-        base = bal_actual - valor
-        return (valor / base * 100) if base != 0 else 0.0
-
-    cM, sM = get_col_simb(m_total)
-    pct_m = calc_pct(m_total)
-
-    titulos_semanas = [TXT_W1, TXT_W2, TXT_W3, TXT_W4, TXT_W5, TXT_W6]
-    
-    semanas_html = ""
-    for idx, (num_sem, val_sem) in enumerate(semanas_totales.items()):
-        titulo_str = titulos_semanas[idx] if idx < len(titulos_semanas) else f"Week {num_sem}"
-        c_sem, s_sem = get_col_simb(val_sem)
-        pct_sem = calc_pct(val_sem)
-        semanas_html += f'<div class="wk-box"><div class="wk-title">{titulo_str}</div><div class="wk-val {c_sem}">{s_sem}${val_sem:,.2f}<br><span style="font-size:{WEEKS_PCT_SIZE}px;">{s_sem}{pct_sem:.2f}%</span></div></div>'
-
-    st.markdown(f'<div class="weeks-container">{semanas_html}<div class="mo-box"><div class="mo-title">{TXT_MO}</div><div class="mo-val {cM}">{sM}${m_total:,.2f}<br><span style="font-size:{WEEKS_PCT_SIZE}px;">{sM}{pct_m:.2f}%</span></div></div></div>', unsafe_allow_html=True)
-
 
 # ==========================================
 # 11. TABLA DE EDICIÓN MANUAL (HISTORIAL LIMPIO POR MES)
