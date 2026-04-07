@@ -132,7 +132,7 @@ TXT_DIAS_SEM_COLOR_OSCURO = "#FFFFFF"
 # ---------------------------------------------------------
 TXT_NUM_DIA_SIZE = 15
 TXT_NUM_DIA_COLOR_CLARO = "#000000"
-TXT_NUM_DIA_COLOR_OSCURO = "#000000"
+TXT_NUM_DIA_COLOR_OSCURO = "##0000ff"
 
 # ---------------------------------------------------------
 # TEXTO 9: El dinero dentro de la tarjeta (Ej: +$50.00)
