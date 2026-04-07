@@ -545,8 +545,8 @@ st.markdown(f"""
     div[data-testid="stButton"] > button {{ background-color: {btn_bg} !important; color: {btn_txt} !important; border: 1px solid {border_color} !important; }}
     
     div[data-testid="stPopover"] > button {{ 
-        min-height: 90px !important; height: 90px !important; min-width: 90px !important; 
-        width: 90px !important; padding: 0 !important; font-size: {BTN_CAL_ICON_SIZE}px !important; 
+        min-height: {BTN_CAL_H}px !important; height: {BTN_CAL_H}px !important; min-width: {BTN_CAL_W}px !important; 
+        width: {BTN_CAL_W}px !important; padding: 0 !important; font-size: {BTN_CAL_ICON_SIZE}px !important; 
         border-radius: 8px !important; border: 1px solid {border_color} !important; background-color: {btn_bg} !important; 
         color: {btn_txt} !important; display: flex !important; justify-content: center !important; align-items: center !important; 
     }}
@@ -772,6 +772,7 @@ with c_not:
             
             st.markdown('<div style="font-weight:bold; font-size:15pt; margin-bottom:5px;">&nbsp;&nbsp;&nbsp;Emotions</div>', unsafe_allow_html=True)
             trade_data_ref['Emotions'] = st.text_area("Emotions", value=trade_data_ref.get('Emotions', ''), key=f"emoc_main", height=80, label_visibility="collapsed")
+
 
 # ==========================================
 # 10. CALENDARIO Y RESUMEN
