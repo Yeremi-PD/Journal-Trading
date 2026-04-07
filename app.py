@@ -950,7 +950,7 @@ with st.expander("🛠️ OPEN ORDER HISTORY", expanded=False):
                 
                 upd_key = f"upd_{clave}_{st.session_state[counter_key]}"
                 st.file_uploader(
-                    "⬇️", 
+                    "Agregar más foto (se guardan automáticamente)", 
                     accept_multiple_files=True, 
                     key=upd_key, 
                     on_change=agregar_imagenes_historial, 
