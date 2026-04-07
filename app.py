@@ -83,7 +83,7 @@ TXT_DASH_COLOR_O = "#FFFFFF"
 # [ ETIQUETA: FILTROS ]
 # ---------------------------------------------------------
 LBL_FILTROS = "Filtros"
-LBL_FILTROS_SIZE = 18
+LBL_FILTROS_SIZE = 30
 LBL_FILTROS_X = 0
 LBL_FILTROS_Y = 0
 LBL_FILTROS_COLOR_C = "#000000"
