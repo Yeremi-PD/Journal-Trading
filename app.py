@@ -193,8 +193,8 @@ WEEK_BOX_H = "80px"         # Un poco más alto para el porcentaje
 WEEK_TITLE_SIZE = 25        
 WEEK_TITLE_COLOR_C = "#000000"
 WEEK_TITLE_COLOR_O = "#FFFFFF"
-WEEK_VAL_SIZE = 16          
-WEEK_PCT_SIZE = 11          # TAMAÑO DEL PORCENTAJE DE LA SEMANA/MES
+WEEK_VAL_SIZE = 20          
+WEEK_PCT_SIZE = 20          # TAMAÑO DEL PORCENTAJE DE LA SEMANA/MES
 WEEK_ALIGN = "center"       
 
 MONTH_BOX_W = "100%"        
