@@ -83,8 +83,8 @@ TXT_DASH_COLOR_O = "#FFFFFF"
 # [ ETIQUETA: FILTROS ]
 # ---------------------------------------------------------
 LBL_FILTROS = "Filtros"
-LBL_FILTROS_SIZE = 20           # <-- TAMAÑO FIJADO A 20
-LBL_FILTROS_X = 0
+LBL_FILTROS_SIZE = 90           # <-- TAMAÑO FIJADO A 20
+LBL_FILTROS_X = 90
 LBL_FILTROS_Y = 0
 LBL_FILTROS_COLOR_C = "#000000"
 LBL_FILTROS_COLOR_O = "#FFFFFF"
@@ -93,7 +93,7 @@ LBL_FILTROS_COLOR_O = "#FFFFFF"
 OPT_FILTRO_1 = "Todos"
 OPT_FILTRO_2 = "Ganancias"
 OPT_FILTRO_3 = "Pérdidas"
-OPT_FILTROS_SIZE = 14  
+OPT_FILTROS_SIZE = 90  
 
 # ---------------------------------------------------------
 # [ ETIQUETA: DATA SOURCE ]
