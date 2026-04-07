@@ -226,11 +226,13 @@ BTN_CAM_BG_O = "rgba(0,0,0,0.6)"
 TXT_CERRAR_MODAL = "✖ CERRAR"
 
 # ---------------------------------------------------------
-# [ BOTÓN DE NOTAS (📝) COORDENADAS ]
+# [ BOTÓN DE NOTAS (📝) - MOVER A TU ANTOJO ]
 # ---------------------------------------------------------
-BTN_NOTAS_X = 4      # Posición desde la derecha de la tarjeta
-BTN_NOTAS_Y = 4      # Posición desde arriba de la tarjeta
-BTN_NOTAS_SIZE = 14  # Tamaño del emoji dentro del botón
+# Puedes usar valores negativos o positivos ("10px", "-5px", "50%", etc.)
+# Esto ubica el botón libremente desde arriba y desde la derecha de la tarjeta.
+BTN_NOTAS_TOP = "-5px"
+BTN_NOTAS_RIGHT = "-5px"
+BTN_NOTAS_SIZE = 18
 
 # ---------------------------------------------------------
 # [ TARJETA: NET P&L ]
@@ -248,7 +250,7 @@ CARD_PNL_Y = 0
 # ---------------------------------------------------------
 # [ TARJETA: TRADE WIN % ]
 # ---------------------------------------------------------
-CARD_WIN_TITULO = "Win Rate"
+CARD_WIN_TITULO = "WinRate"
 CARD_WIN_TITULO_SIZE = 20
 CARD_WIN_TITULO_COLOR_C = "#000000"
 CARD_WIN_TITULO_COLOR_O = "#FFFFFF"
@@ -474,7 +476,7 @@ st.markdown(f"""
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
     .stApp {{ background-color: {bg_color} !important; font-family: 'Inter', sans-serif !important; }}
     
-    div[data-testid="column"] {{ overflow: visible !important; }}
+    div[data-testid="column"] {{ overflow: visible !important; position: relative !important; }}
     
     /* TITULO DASHBOARD */
     .dashboard-title {{ font-size: {TXT_DASH_SIZE}px !important; font-weight: 800 !important; color: {c_dash} !important; margin-left: {TXT_DASH_X}px !important; margin-top: {TXT_DASH_Y}px !important; margin-bottom: 0 !important; line-height: 1.1 !important; letter-spacing: -2px !important; }}
@@ -689,21 +691,21 @@ st.markdown(f"""
         div[data-testid="stPopoverBody"]:has(h3) {{ width: 100vw !important; left: 0 !important; border-radius: 0 !important; padding: 10px !important; }}
     }}
 
-    /* CSS ESTRELLA: BOTON DE NOTAS (📝) SUPERPUESTO (Igual que la cámara, pero arriba) */
+    /* CSS ESTRELLA: BOTON DE NOTAS (📝) MOVIDO CON ABSOLUTE */
     .calendar-wrapper div[data-testid="column"] div[data-testid="stPopover"] {{
         position: absolute !important;
-        top: {BTN_NOTAS_Y}px !important;
-        right: {BTN_NOTAS_X}px !important;
-        z-index: 50 !important;
+        top: {BTN_NOTAS_TOP} !important;
+        right: {BTN_NOTAS_RIGHT} !important;
+        z-index: 10 !important;
     }}
     .calendar-wrapper div[data-testid="column"] div[data-testid="stPopover"] > button {{
         background: {c_cam_bg} !important;
         border: none !important;
         border-radius: 50% !important;
-        width: 28px !important;
-        height: 28px !important;
-        min-height: 28px !important;
-        min-width: 28px !important;
+        width: 32px !important;
+        height: 32px !important;
+        min-height: 32px !important;
+        min-width: 32px !important;
         padding: 0 !important;
         font-size: {BTN_NOTAS_SIZE}px !important;
         box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
@@ -716,16 +718,20 @@ st.markdown(f"""
     .calendar-wrapper div[data-testid="column"] div[data-testid="stPopover"] > button:hover {{
         transform: scale(1.1) !important;
     }}
-    /* Diseño interno del menú de notas */
+    
+    /* MODAL MÁS GRANDE Y CÓMODO */
     div[data-testid="stPopoverBody"]:has(h3) {{
-        width: 450px !important;
+        width: 700px !important;
         max-width: 95vw !important;
-        padding: 10px !important;
-        border-radius: 10px !important;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.3) !important;
+        height: auto !important;
+        max-height: 85vh !important;
+        padding: 20px !important;
+        border-radius: 15px !important;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.4) !important;
         background-color: {card_bg} !important;
         border: 1px solid {border_color} !important;
         color: {c_dash} !important;
+        overflow-y: auto !important;
     }}
     </style>
     """, unsafe_allow_html=True)
@@ -789,28 +795,28 @@ with c_img:
         db_usuario[ctx]["trades"][clave_actual]["imagenes"].extend(lista_b64)
 
 # =========================================================================================
-# 9.5 BLOQUE AISLADO: FUNCIONES PARA DIBUJAR LOS MENÚS DE COLOR
-# (Debe estar aquí obligatoriamente para que Python pueda usarlas en el calendario abajo)
+# 9.5 BLOQUE AISLADO: FUNCIONES PARA DIBUJAR LOS MENÚS DE COLOR Y SELECCIÓN EXACTA
 # =========================================================================================
 def colorful_menu(options, state_key, label, value_key, trade_data_ref, modal_key):
     if value_key not in trade_data_ref: trade_data_ref[value_key] = options[0]['text']
     st.markdown(f"<div style='margin-bottom: 5px; font-weight: bold;'>{label}</div>", unsafe_allow_html=True)
     selected_value = trade_data_ref[value_key]
-    current_index = 0
-    for i, opt in enumerate(options):
-        if opt['text'] == selected_value: current_index = i
             
     cols = st.columns(len(options))
     for i, option in enumerate(options):
         with cols[i]:
             text, color = option['text'], option['color']
-            btn_opacity = "1" if i == current_index else "0.3"
-            btn_border = "2px solid white" if i == current_index else "none"
-            btn_scale = "scale(1.05)" if i == current_index else "scale(1)"
+            is_selected = (text == selected_value)
+            
+            # Si NO está seleccionado, el fondo es transparente y las letras del color.
+            bg_color = color if is_selected else "transparent"
+            txt_color = "white" if is_selected else color
+            border = "2px solid white" if is_selected else f"1px solid {color}"
+            
             button_style = f"""
                 <style>
-                div[data-testid="column"]:has(> div > button[key="btn_{modal_key}_{value_key}_{i}"]) {{ background-color: {color} !important; border-radius: 5px !important; padding: 0 !important; height: 35px !important; opacity: {btn_opacity} !important; transition: 0.2s !important; transform: {btn_scale} !important; }}
-                div[data-testid="column"]:has(> div > button[key="btn_{modal_key}_{value_key}_{i}"]) button {{ background-color: transparent !important; border: {btn_border} !important; color: white !important; font-weight: bold !important; font-size: 14px !important; height: 100% !important; width: 100% !important; padding: 0 !important; }}
+                div[data-testid="column"]:has(> div > button[key="btn_{modal_key}_{value_key}_{i}"]) {{ padding: 0 !important; margin-bottom: 5px !important; height: 35px !important; }}
+                div[data-testid="column"]:has(> div > button[key="btn_{modal_key}_{value_key}_{i}"]) button {{ background-color: {bg_color} !important; border: {border} !important; color: {txt_color} !important; font-weight: bold !important; font-size: 13px !important; height: 100% !important; width: 100% !important; padding: 0 !important; border-radius: 6px !important; transition: 0.1s !important; }}
                 </style>
             """
             st.markdown(button_style, unsafe_allow_html=True)
@@ -827,14 +833,16 @@ def colorful_multiselect(options, label, value_key, trade_data_ref, modal_key):
     for i, option in enumerate(options):
         with cols[i % 3]:
             text, color = option['text'], option['color']
-            is_selected = text in current_selections
-            btn_border = "2px solid white" if is_selected else "none"
-            btn_opacity = "1" if is_selected else "0.3"
-            btn_scale = "scale(1.05)" if is_selected else "scale(1)"
+            is_selected = (text in current_selections)
+            
+            bg_color = color if is_selected else "transparent"
+            txt_color = "white" if is_selected else color
+            border = "2px solid white" if is_selected else f"1px solid {color}"
+            
             button_style = f"""
                 <style>
-                div[data-testid="column"]:has(> div > button[key="multibtn_{modal_key}_{i}"]) {{ background-color: {color} !important; border-radius: 5px !important; padding: 0 !important; margin-bottom: 5px !important; height: 30px !important; opacity: {btn_opacity} !important; transition: 0.2s !important; transform: {btn_scale} !important; }}
-                div[data-testid="column"]:has(> div > button[key="multibtn_{modal_key}_{i}"]) button {{ background-color: transparent !important; border: {btn_border} !important; color: white !important; font-weight: bold !important; font-size: 12px !important; height: 100% !important; width: 100% !important; padding: 0 !important; }}
+                div[data-testid="column"]:has(> div > button[key="multibtn_{modal_key}_{i}"]) {{ padding: 0 !important; margin-bottom: 8px !important; height: 32px !important; }}
+                div[data-testid="column"]:has(> div > button[key="multibtn_{modal_key}_{i}"]) button {{ background-color: {bg_color} !important; border: {border} !important; color: {txt_color} !important; font-weight: bold !important; font-size: 12px !important; height: 100% !important; width: 100% !important; padding: 0 !important; border-radius: 6px !important; transition: 0.1s !important; }}
                 </style>
             """
             st.markdown(button_style, unsafe_allow_html=True)
@@ -890,7 +898,7 @@ with col_cal:
                         pct = (trade["pnl"] / bal_ini * 100) if bal_ini != 0 else 0
                         pct_str = f"{c_sim}{pct:.2f}%"
                         
-                        # --- BOTÓN DE NOTAS (📝) QUE VIVE AQUÍ DENTRO DE LA TARJETA ---
+                        # --- BOTÓN DE NOTAS (📝) ---
                         popover_key = f"pop_{anio_sel}_{mes_sel}_{dia}"
                         with st.popover("📝", key=popover_key):
                             st.markdown("<h3 style='text-align:center;'>Detalles del Trade</h3>", unsafe_allow_html=True)
@@ -1150,11 +1158,9 @@ if mostrar_tabla:
         def style_rows(row):
             pnl_str = row['P&L']
             
-            # Estilo base según el tema general del dashboard
             base_style = f'color: {c_dash};'
             row_styles = [base_style] * len(row)
             
-            # Definir solo el color específico de P&L
             if pnl_str.startswith('+$'):
                 pnl_style = 'color: #00C897; font-weight: bold;'
             elif pnl_str.startswith('$0.00') or pnl_str == '$0.00':
@@ -1162,7 +1168,6 @@ if mostrar_tabla:
             else:
                 pnl_style = 'color: #FF4C4C; font-weight: bold;'
             
-            # Reemplazar exclusivamente el estilo de P&L
             pnl_idx = row.index.get_loc('P&L')
             row_styles[pnl_idx] = pnl_style
             
