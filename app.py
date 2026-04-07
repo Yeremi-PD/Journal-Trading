@@ -733,7 +733,7 @@ with c_not:
             colorful_multiselect(confluencias_options, "Confluencias", 'confluencias', trade_data_ref)
             st.markdown("<br>", unsafe_allow_html=True)
 
-            trade_data_ref['razon_trade'] = st.text_area("Razón del Trade", value=trade_data_ref.get('razon_trade', ''), key=f"razon_main", height=80)
+            trade_data_ref['razon_trade'] = st.text_area("Reason For Trade", value=trade_data_ref.get('razon_trade', ''), key=f"razon_main", height=80)
             trade_data_ref['correcciones'] = st.text_area("Correcciones", value=trade_data_ref.get('correcciones', ''), key=f"corr_main", height=80)
             
             risk_options = ['0.6%', '0.5%', '0.4%']
@@ -950,7 +950,7 @@ with st.expander("🛠️ OPEN ORDER HISTORY", expanded=False):
                 
                 upd_key = f"upd_{clave}_{st.session_state[counter_key]}"
                 st.file_uploader(
-                    "🢛🢛🢛🢛🢛🢛🢛🢛🢛🢛🢛🢛", 
+                    " 🢛🢛🢛🢛🢛🢛🢛🢛🢛🢛🢛", 
                     accept_multiple_files=True, 
                     key=upd_key, 
                     on_change=agregar_imagenes_historial, 
@@ -1026,7 +1026,7 @@ def sync_table_edits():
             if k in db_usuario[contexto]["trades"]:
                 t = db_usuario[contexto]["trades"][k]
                 if "Bias" in edits: t["bias"] = edits["Bias"]
-                if "Razón del Trade" in edits: t["razon_trade"] = edits["Razón del Trade"]
+                if "Reason For Trade" in edits: t["razon_trade"] = edits["Reason For Trade"]
                 if "Correcciones" in edits: t["correcciones"] = edits["Correcciones"]
                 if "% Risk" in edits: t["risk"] = edits["% Risk"]
                 if "RR" in edits: t["rrr"] = edits["RR"]
@@ -1062,7 +1062,7 @@ if mostrar_tabla:
                 "Fecha": fecha.strftime("%d/%m/%Y"),
                 "Bias": trade.get('bias', ''),
                 "Confluencias": confluencias_resumen,
-                "Razón del Trade": trade.get('razon_trade', ''),
+                "Reason For Trade": trade.get('razon_trade', ''),
                 "% Risk": trade.get('risk', ''),
                 "RR": trade.get('rrr', ''),
                 "Trade Type": trade.get('trade_type', ''),
