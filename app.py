@@ -148,14 +148,14 @@ CARD_WIN_Y = 0
 # ---------------------------------------------------------
 UPLOAD_X = 0
 UPLOAD_Y = 0
-UPLOAD_W = "150%"                     # Ancho del botón de carga (Ej: "120px" o "100%")
-UPLOAD_H = "85px"                     # Alto del botón de carga
+UPLOAD_W = "100%"                     # Ancho del botón de carga (Ej: "120px" o "100%")
+UPLOAD_H = "45px"                     # Alto del botón de carga
 UPLOAD_BTN_BG_CLARO = "#E2E8F0"       
 UPLOAD_BTN_BG_OSCURO = "#4A5568"
 UPLOAD_BTN_TXT_CLARO = "#000000"      
 UPLOAD_BTN_TXT_OSCURO = "#FFFFFF"
 
-CAM_ICON_SIZE = 15                    # TAMAÑO DEL BOTÓN DE VER FOTOS EN EL DÍA
+CAM_ICON_SIZE = 20                    # TAMAÑO DEL BOTÓN DE VER FOTOS EN EL DÍA
 CAM_ICON_BG_CLARO = "rgba(255,255,255,0.8)"
 CAM_ICON_BG_OSCURO = "rgba(0,0,0,0.6)"
 
