@@ -281,10 +281,10 @@ WEEKS_PCT_SIZE = 20
 
 WEEK_BOX_W = "31%"          
 WEEK_BOX_H = "120px"         
-MONTH_BOX_W = "100%"        
-MONTH_BOX_H = "120px"        
-MONTH_TITLE_SIZE = 30       
-MONTH_VAL_SIZE = 25         
+Month_BOX_W = "100%"        
+Month_BOX_H = "120px"        
+Month_TITLE_SIZE = 30       
+Month_VAL_SIZE = 25         
 
 WEEKS_CONTENEDOR_X = 0      
 WEEKS_CONTENEDOR_Y = 15     
@@ -571,9 +571,9 @@ st.markdown(f"""
     .wk-title {{ font-size: {WEEKS_TITULOS_SIZE}px !important; font-weight: 700 !important; color: {wk_tit_c} !important; margin-bottom: 2px !important; }}
     .wk-val {{ font-size: {WEEKS_VALOR_SIZE}px !important; font-weight: 800 !important; line-height: 1.2 !important; }}
     
-    .mo-box {{ width: {MONTH_BOX_W} !important; height: {MONTH_BOX_H} !important; background: {card_bg} !important; border: 1px solid {border_color} !important; border-radius: 15px !important; display: flex !important; flex-direction: column !important; align-items: {WEEK_ALIGN} !important; justify-content: center !important; padding: 10px !important; margin-top: 5px !important; }}
-    .mo-title {{ font-size: {MONTH_TITLE_SIZE}px !important; font-weight: 800 !important; color: {wk_tit_c} !important; text-transform: uppercase !important; letter-spacing: 1px !important; }}
-    .mo-val {{ font-size: {MONTH_VAL_SIZE}px !important; font-weight: 800 !important; line-height: 1.2 !important; }}
+    .mo-box {{ width: {Month_BOX_W} !important; height: {Month_BOX_H} !important; background: {card_bg} !important; border: 1px solid {border_color} !important; border-radius: 15px !important; display: flex !important; flex-direction: column !important; align-items: {WEEK_ALIGN} !important; justify-content: center !important; padding: 10px !important; margin-top: 5px !important; }}
+    .mo-title {{ font-size: {Month_TITLE_SIZE}px !important; font-weight: 800 !important; color: {wk_tit_c} !important; text-transform: uppercase !important; letter-spacing: 1px !important; }}
+    .mo-val {{ font-size: {Month_VAL_SIZE}px !important; font-weight: 800 !important; line-height: 1.2 !important; }}
     
     .txt-green {{ color: #00C897 !important; }}
     .txt-red {{ color: #FF4C4C !important; }}
