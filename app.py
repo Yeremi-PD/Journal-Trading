@@ -942,20 +942,12 @@ with st.expander("🛠️ OPEN ORDER HISTORY", expanded=False):
                     nuevo_pnl = st.number_input("Editar P&L", value=pnl_val, format="%.2f", key=f"p_{clave}")
                 
                 st.markdown("---")
-                st.markdown("**📸 Imágenes Guardadas:**")
+                st.markdown("**📸 Saved Images::**")
                 
                 counter_key = f"upd_counter_{clave}"
                 if counter_key not in st.session_state:
                     st.session_state[counter_key] = 0
                 
-                upd_key = f"upd_{clave}_{st.session_state[counter_key]}"
-                st.file_uploader(
-                    "Agregar más fotos (se guardan automáticamente)", 
-                    accept_multiple_files=True, 
-                    key=upd_key, 
-                    on_change=agregar_imagenes_historial, 
-                    args=(ctx, clave, upd_key, counter_key)
-                )
 
                 imagenes_restantes = db_usuario[ctx]["trades"][clave].get("imagenes", [])
                 
