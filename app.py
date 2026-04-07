@@ -851,7 +851,7 @@ with col_det:
 st.markdown("<br>", unsafe_allow_html=True)
 st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
 
-with st.expander("🛠️ ABRIR HISTORIAL DE OPERACIONES (Editar / Borrar)", expanded=False):
+with st.expander("🛠️ OPEN ORDER HISTORY)", expanded=False):
     trades_actuales = db_usuario[ctx]["trades"]
     
     if not trades_actuales:
