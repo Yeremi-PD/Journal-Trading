@@ -1059,7 +1059,7 @@ if mostrar_tabla:
             Confluences_resumen = ", ".join([c.split(". ")[-1] for c in Confluences_list])
 
             row = {
-                "Fecha": fecha.strftime("%d/%m/%Y"),
+                "Date": fecha.strftime("%d/%m/%Y"),
                 "Bias": trade.get('bias', ''),
                 "Confluences": Confluences_resumen,
                 "Reason For Trade": trade.get('razon_trade', ''),
