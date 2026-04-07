@@ -183,18 +183,17 @@ BTN_UP_TXT_C = "#000000"
 BTN_UP_TXT_O = "#FFFFFF"
 
 # ---------------------------------------------------------
-# [ BOTÓN: CALENDARIO Y FLECHAS ]
+# [ FLECHAS DEL CALENDARIO (IZQ / DER) ]
 # ---------------------------------------------------------
-BTN_CAL_EMOJI = "🗓️"
-BTN_CAL_W = 68     
-BTN_CAL_H = 68    
-BTN_CAL_ICON_SIZE = 33 
-BTN_CAL_BG_C = "#F3F4F6"
-BTN_CAL_BG_O = "#2D3748"
-
-FLECHAS_SIZE = 16
-FLECHAS_X = 0 
-FLECHAS_Y = 0   
+FLECHAS_W = "100px"          # Ancho de cada botón de flecha
+FLECHAS_H = "50px"           # Alto de cada botón de flecha
+FLECHAS_X = 0                # Mover a los lados
+FLECHAS_Y = 0                # Mover arriba o abajo
+FLECHAS_ICON_SIZE = 20       # Tamaño del triangulito (◀ / ▶)
+FLECHAS_BG_C = "#F3F4F6"     # Color fondo Tema Claro
+FLECHAS_BG_O = "#2D3748"     # Color fondo Tema Oscuro
+FLECHAS_TXT_C = "#000000"    # Color triangulito Tema Claro
+FLECHAS_TXT_O = "#FFFFFF"    # Color triangulito Tema Oscuro
 
 # ---------------------------------------------------------
 # [ CALENDARIO: MES Y DÍAS DE LA SEMANA ]
