@@ -246,7 +246,7 @@ CARD_PNL_Y = 0
 # ---------------------------------------------------------
 # [ TARJETA: TRADE WIN % ]
 # ---------------------------------------------------------
-CARD_WIN_TITULO = "WINRATE"
+CARD_WIN_TITULO = "WinRate"
 CARD_WIN_TITULO_SIZE = 20
 CARD_WIN_TITULO_COLOR_C = "#000000"
 CARD_WIN_TITULO_COLOR_O = "#FFFFFF"
