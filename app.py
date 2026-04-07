@@ -27,7 +27,10 @@ def inicializar_data_usuario():
 
 def inicializar_settings():
     return {
-        # Dashboard (Solo quedó la caja grande de Balance Total)
+        # Dashboard
+        "btn_up_sz": 20, "btn_up_w": 120, "btn_up_h": 45, "btn_up_x": 0, "btn_up_y": 0,
+        "btn_cal_sz": 33, "btn_cal_w": 68, "btn_cal_h": 68, "btn_cal_x": 0, "btn_cal_y": 0,
+        "btn_not_sz": 18, "btn_not_w": 50, "btn_not_h": 50, "btn_not_x": 0, "btn_not_y": 8,
         "bal_num_sz": 30, "bal_box_w": 50, "bal_box_pad": 10,
         
         # Textos y Gráficos
@@ -81,7 +84,7 @@ if st.session_state.usuario_actual is None or st.session_state.usuario_actual no
     st.stop()
 
 # ==========================================
-# 3. SECCIÓN DE AJUSTES MANUALES (CONSTANTES ESTRUCTURALES)
+# 3. SECCIÓN DE AJUSTES MANUALES (CONSTANTES)
 # ==========================================
 
 TEMA_POR_DEFECTO = "Oscuro"
@@ -127,6 +130,15 @@ LBL_INPUT_Y = 0
 LBL_INPUT_COLOR_C = "#000000"
 LBL_INPUT_COLOR_O = "#FFFFFF"
 
+INPUT_BAL_W = "200px"         
+INPUT_BAL_H = "60px"          
+INPUT_BAL_X = 0      
+INPUT_BAL_Y = 0      
+INPUT_BAL_TXT_SIZE = 25       
+
+INPUT_FONDO_C = "#FFFFFF"
+INPUT_FONDO_O = "#1A202C"
+
 LBL_BAL_TOTAL = "ACCOUNT BALANCE"
 LBL_BAL_TOTAL_SIZE = 18
 LBL_BAL_TOTAL_X = 0
@@ -145,7 +157,24 @@ LINEA_MARGEN_INF = 25
 LINEA_COLOR_C = "#E2E8F0"
 LINEA_COLOR_O = "#4A5568"
 
+DROPZONE_W = "100%"
+DROPZONE_H = "75px"            
+DROPZONE_X = 0
+DROPZONE_Y = 0
+DROPZONE_BG_C = "transparent"  
+DROPZONE_BG_O = "transparent"
+DROPZONE_BORDER_C = "1px dashed #E2E8F0"  
+DROPZONE_BORDER_O = "1px dashed #4A5568"
+
+BTN_UP_TEXTO = "Upload"
+BTN_UP_BG_C = "#E2E8F0"        
+BTN_UP_BG_O = "#4A5568"
+BTN_UP_TXT_C = "#000000"      
+BTN_UP_TXT_O = "#FFFFFF"
+
 BTN_CAL_EMOJI = "🗓️"
+BTN_CAL_BG_C = "#F3F4F6"
+BTN_CAL_BG_O = "#2D3748"
 
 FLECHAS_SIZE = 40
 FLECHAS_X = 0 
@@ -220,6 +249,7 @@ if "dispositivo_actual" not in st.session_state:
 usuario = st.session_state.usuario_actual
 db_usuario = db_global[usuario]["data"]
 
+# MIGRACIÓN SEGURA PARA USUARIOS ANTIGUOS
 if "settings" not in db_global[usuario]:
     db_global[usuario]["settings"] = {"PC": inicializar_settings(), "Móvil": inicializar_settings()}
 elif "PC" not in db_global[usuario]["settings"]:
@@ -257,6 +287,7 @@ def procesar_cambio():
     nuevo = st.session_state.input_balance
     viejo = db_usuario[ctx]["balance"]
     
+    # Manejo seguro si la fecha no ha sido tocada aún por el usuario
     if "input_fecha" in st.session_state:
         fecha_sel = st.session_state.input_fecha
     else:
@@ -291,7 +322,7 @@ def reset_settings(category):
     s = db_global[usuario]["settings"][st.session_state.dispositivo_actual]
     
     if category == "dash":
-        keys = ["bal_num_sz", "bal_box_w", "bal_box_pad"]
+        keys = ["btn_up_sz", "btn_up_w", "btn_up_h", "btn_up_x", "btn_up_y", "btn_cal_sz", "btn_cal_w", "btn_cal_h", "btn_cal_x", "btn_cal_y", "btn_not_sz", "btn_not_w", "btn_not_h", "btn_not_x", "btn_not_y", "bal_num_sz", "bal_box_w", "bal_box_pad"]
     elif category == "txt":
         keys = ["size_top_stats", "size_card_titles", "size_box_titles", "size_box_vals", "size_box_pct", "size_box_wl", "pie_size", "pie_y_offset"]
     elif category == "cal":
@@ -351,10 +382,31 @@ with st.sidebar.expander("🖥️ Ajustes de Dashboard"):
         reset_settings("dash")
         st.rerun()
         
-    st.markdown("**Caja ACCOUNT BALANCE (Total)**")
+    st.markdown("**Caja ACCOUNT BALANCE**")
     user_settings["bal_num_sz"] = st.slider("Tamaño Números Balance", 10, 60, user_settings["bal_num_sz"])
     user_settings["bal_box_w"] = st.slider("Ancho Fondo Verde (%)", 10, 100, user_settings["bal_box_w"])
     user_settings["bal_box_pad"] = st.slider("Altura Fondo Verde (Padding)", 0, 50, user_settings["bal_box_pad"])
+
+    st.markdown("**Botón UPLOAD**")
+    user_settings["btn_up_sz"] = st.slider("Tamaño Texto Upload", 10, 40, user_settings["btn_up_sz"])
+    user_settings["btn_up_w"] = st.slider("Ancho Botón Upload", 50, 300, user_settings["btn_up_w"])
+    user_settings["btn_up_h"] = st.slider("Altura Botón Upload", 20, 100, user_settings["btn_up_h"])
+    user_settings["btn_up_x"] = st.slider("Mover Upload Horiz (X)", -100, 100, user_settings["btn_up_x"])
+    user_settings["btn_up_y"] = st.slider("Mover Upload Vert (Y)", -100, 100, user_settings["btn_up_y"])
+    
+    st.markdown("**Botón CALENDARIO**")
+    user_settings["btn_cal_sz"] = st.slider("Tamaño Emoji Calendario", 10, 60, user_settings["btn_cal_sz"])
+    user_settings["btn_cal_w"] = st.slider("Ancho Botón Calendario", 30, 150, user_settings["btn_cal_w"])
+    user_settings["btn_cal_h"] = st.slider("Altura Botón Calendario", 20, 120, user_settings["btn_cal_h"])
+    user_settings["btn_cal_x"] = st.slider("Mover Calendario Horiz (X)", -100, 100, user_settings["btn_cal_x"])
+    user_settings["btn_cal_y"] = st.slider("Mover Calendario Vert (Y)", -100, 100, user_settings["btn_cal_y"])
+
+    st.markdown("**Botón NOTAS (📝)**")
+    user_settings["btn_not_sz"] = st.slider("Tamaño Emoji Notas", 10, 60, user_settings["btn_not_sz"])
+    user_settings["btn_not_w"] = st.slider("Ancho Botón Notas", 30, 150, user_settings["btn_not_w"])
+    user_settings["btn_not_h"] = st.slider("Altura Botón Notas", 20, 120, user_settings["btn_not_h"])
+    user_settings["btn_not_x"] = st.slider("Mover Notas Horiz (X)", -100, 100, user_settings["btn_not_x"])
+    user_settings["btn_not_y"] = st.slider("Mover Notas Vert (Y)", -100, 100, user_settings["btn_not_y"])
 
 with st.sidebar.expander("🔠 Ajustes de Textos y Gráficos"):
     if st.button("🔄 Reset Textos y Gráficos", key="res_txt", use_container_width=True): 
@@ -398,14 +450,18 @@ if st.session_state.tema == "Claro":
     c_data, c_opt_data, c_lbl_bal, c_lbl_in = LBL_DATA_COLOR_C, OPT_DATA_COLOR_C, LBL_BAL_TOTAL_COLOR_C, LBL_INPUT_COLOR_C
     c_mes, c_dias_sem, c_num_dia, c_pct_dia = TXT_MES_COLOR_C, TXT_DIAS_SEM_COLOR_C, TXT_NUM_DIA_COLOR_C, TXT_PCT_DIA_COLOR_C
     c_tit_pnl, c_tit_win, c_val_win = CARD_PNL_TITULO_COLOR_C, CARD_WIN_TITULO_COLOR_C, CARD_WIN_VALOR_COLOR_C
-    wk_tit_c, c_linea = WEEKS_TITULOS_COLOR_C, LINEA_COLOR_C
+    btn_bg, btn_txt, input_bg = BTN_CAL_BG_C, "#000000", INPUT_FONDO_C
+    drop_bg, drop_border, u_btn_bg, u_btn_txt = DROPZONE_BG_C, DROPZONE_BORDER_C, BTN_UP_BG_C, BTN_UP_TXT_C
+    wk_tit_c, c_cam_bg, c_linea = WEEKS_TITULOS_COLOR_C, BTN_CAM_BG_C, LINEA_COLOR_C
 else:
     bg_color, card_bg, border_color, empty_cell_bg = "#1A202C", "#2D3748", "#4A5568", "#1A202C"
     c_dash, c_filtros, c_opt_filtros = TXT_DASH_COLOR_O, LBL_FILTROS_COLOR_O, OPT_FILTROS_COLOR_O   
     c_data, c_opt_data, c_lbl_bal, c_lbl_in = LBL_DATA_COLOR_O, OPT_DATA_COLOR_O, LBL_BAL_TOTAL_COLOR_O, LBL_INPUT_COLOR_O
     c_mes, c_dias_sem, c_num_dia, c_pct_dia = TXT_MES_COLOR_O, TXT_DIAS_SEM_COLOR_O, TXT_NUM_DIA_COLOR_O, TXT_PCT_DIA_COLOR_O
     c_tit_pnl, c_tit_win, c_val_win = CARD_PNL_TITULO_COLOR_O, CARD_WIN_TITULO_COLOR_O, CARD_WIN_VALOR_COLOR_O
-    wk_tit_c, c_linea = WEEKS_TITULOS_COLOR_O, LINEA_COLOR_O
+    btn_bg, btn_txt, input_bg = BTN_CAL_BG_O, "#FFFFFF", INPUT_FONDO_O
+    drop_bg, drop_border, u_btn_bg, u_btn_txt = DROPZONE_BG_O, DROPZONE_BORDER_O, BTN_UP_BG_O, BTN_UP_TXT_O
+    wk_tit_c, c_cam_bg, c_linea = WEEKS_TITULOS_COLOR_O, BTN_CAM_BG_O, LINEA_COLOR_O
 
 # ==========================================
 # 7. INYECCIÓN DE CSS DINÁMICO VARIABLES CSS
@@ -427,6 +483,21 @@ def gen_css_vars(s):
     --cal-cam-size: {s['cal_cam_size']}px;
     --cal-scale: {s['cal_scale']}px;
     --cal-line-height: {s['cal_line_height']};
+    --btn-up-sz: {s['btn_up_sz']}px;
+    --btn-up-w: {s['btn_up_w']}px;
+    --btn-up-h: {s['btn_up_h']}px;
+    --btn-up-x: {s['btn_up_x']}px;
+    --btn-up-y: {s['btn_up_y']}px;
+    --btn-cal-sz: {s['btn_cal_sz']}px;
+    --btn-cal-w: {s['btn_cal_w']}px;
+    --btn-cal-h: {s['btn_cal_h']}px;
+    --btn-cal-x: {s['btn_cal_x']}px;
+    --btn-cal-y: {s['btn_cal_y']}px;
+    --btn-not-sz: {s['btn_not_sz']}px;
+    --btn-not-w: {s['btn_not_w']}px;
+    --btn-not-h: {s['btn_not_h']}px;
+    --btn-not-x: {s['btn_not_x']}px;
+    --btn-not-y: {s['btn_not_y']}px;
     --bal-num-sz: {s['bal_num_sz']}px;
     --bal-box-w: {s['bal_box_w']}%;
     --bal-box-pad: {s['bal_box_pad']}px;
@@ -463,8 +534,68 @@ st.markdown(f"""
     li[role="option"] {{ background-color: F3F4F6 !important; }}
     li[role="option"]:hover {{ background-color: {border_color} !important; }}
 
-    [data-testid="stForm"] {{ padding: 0 !important; border: none !important; background: transparent !important; margin: 0 !important; }}
+    /* ======= ESTILO ORIGINAL: CAJA BALANCE Y BOTON SAVE ======= */
+    div[data-testid="column"]:nth-child(1) div[data-testid="stNumberInput"] {{ width: {INPUT_BAL_W} !important; min-width: {INPUT_BAL_W} !important; max-width: {INPUT_BAL_W} !important; margin-left: {INPUT_BAL_X}px !important; margin-top: {INPUT_BAL_Y}px !important; }}
+    div[data-testid="stNumberInput"] button {{ display: none !important; }} 
+    
+    div[data-testid="stNumberInput"] > div:last-child,
+    div[data-testid="stNumberInput"] div[data-baseweb="base-input"],
+    div[data-testid="stNumberInput"] div[data-baseweb="input"] {{ height: {INPUT_BAL_H} !important; min-height: {INPUT_BAL_H} !important; background-color: {input_bg} !important; border-color: {border_color} !important; }}
+    
+    div[data-testid="stNumberInput"] input {{ color: {c_lbl_in} !important; font-size: {INPUT_BAL_TXT_SIZE}px !important; background-color: {input_bg} !important; font-weight: bold !important; height: {INPUT_BAL_H} !important; min-height: {INPUT_BAL_H} !important; box-sizing: border-box !important; padding-top: 0 !important; padding-bottom: 0 !important; }}
 
+    [data-testid="stForm"] {{ padding: 0 !important; border: none !important; background: transparent !important; margin: 0 !important; }}
+    
+    div[data-testid="column"]:nth-child(1) [data-testid="stFormSubmitButton"] button {{ 
+        background-color: #00C897 !important; color: white !important; font-weight: bold !important; 
+        height: 35px !important; min-height: 35px !important; border-radius: 8px !important; border: none !important; 
+        width: {INPUT_BAL_W} !important; margin-left: {INPUT_BAL_X}px !important; margin-top: 5px !important; 
+    }}
+
+    /* ======= MOVIMIENTO LIBRE DE LOS BOTONES: CALENDARIO, UPLOAD, NOTAS ======= */
+    /* Mueve la columna completa en lugar de solo el botón para tener 100% libertad */
+    section[data-testid="stMain"] div[data-testid="column"]:nth-child(2) {{
+        transform: translate(var(--btn-cal-x), var(--btn-cal-y)) !important; z-index: 10;
+    }}
+    section[data-testid="stMain"] div[data-testid="column"]:nth-child(3) {{
+        transform: translate(var(--btn-up-x), var(--btn-up-y)) !important; z-index: 10;
+    }}
+    section[data-testid="stMain"] div[data-testid="column"]:nth-child(4) {{
+        transform: translate(var(--btn-not-x), var(--btn-not-y)) !important; z-index: 10;
+    }}
+
+    /* ESTILOS INTERNOS DE LOS BOTONES */
+    [data-testid="stFileUploader"] {{ background-color: transparent !important; border: none !important; padding: 0 !important; box-shadow: none !important; }}
+    [data-testid="stFileUploader"] > section {{ background-color: transparent !important; border: none !important; padding: 0 !important; }}
+    
+    [data-testid="stFileUploadDropzone"] {{ background-color: {drop_bg} !important; border: {drop_border} !important; border-radius: 8px !important; padding: 0 !important; width: {DROPZONE_W} !important; min-height: {DROPZONE_H} !important; height: {DROPZONE_H} !important; box-shadow: none !important; display: flex !important; justify-content: center !important; align-items: center !important; }}
+    [data-testid="stFileUploadDropzone"] > div {{ background-color: transparent !important; border: none !important; }}
+    [data-testid="stFileUploadDropzone"] > div > span, [data-testid="stFileUploadDropzone"] small, [data-testid="stFileUploaderDropzoneInstructions"] {{ display: none !important; }}
+    
+    [data-testid="stFileUploadDropzone"] button {{ 
+        background-color: {u_btn_bg} !important; color: {u_btn_txt} !important; border: 1px solid {border_color} !important; 
+        border-radius: 6px !important; margin: 0 !important; width: var(--btn-up-w) !important; 
+        min-width: var(--btn-up-w) !important; min-height: var(--btn-up-h) !important; height: var(--btn-up-h) !important; 
+    }}
+    [data-testid="stFileUploadDropzone"] button * {{ color: {u_btn_txt} !important; font-size: var(--btn-up-sz) !important; }}
+    [data-testid="stFileUploadDropzone"] button::after {{ content: "{BTN_UP_TEXTO}" !important; font-size: var(--btn-up-sz) !important; }}
+    [data-testid="stFileUploadDropzone"] button div {{ display: none !important; }}
+
+    div[data-testid="stButton"] > button {{ background-color: {btn_bg} !important; color: {btn_txt} !important; border: 1px solid {border_color} !important; }}
+    
+    div[data-testid="stPopover"] > button {{ 
+        min-height: var(--btn-cal-h) !important; height: var(--btn-cal-h) !important; min-width: var(--btn-cal-w) !important; 
+        width: var(--btn-cal-w) !important; padding: 0 !important; font-size: var(--btn-cal-sz) !important; 
+        border-radius: 8px !important; border: 1px solid {border_color} !important; background-color: {btn_bg} !important; 
+        color: {btn_txt} !important; display: flex !important; justify-content: center !important; align-items: center !important; 
+    }}
+    
+    /* Regla separada para el botón de notas (que usa la misma clase stPopover) */
+    div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] > button {{
+        min-height: var(--btn-not-h) !important; height: var(--btn-not-h) !important; min-width: var(--btn-not-w) !important; 
+        width: var(--btn-not-w) !important; font-size: var(--btn-not-sz) !important;
+    }}
+    
     div[data-testid="stPopoverBody"] {{ background-color: {card_bg} !important; border: 1px solid {border_color} !important; border-radius: 8px !important; padding: 15px !important; }}
     div[data-testid="stPopoverBody"]:has(h3) {{ width: 710px !important; max-width: 95vw !important; max-height: 85vh !important; margin-top: 100px !important; overflow-y: auto !important; box-shadow: 0 4px 20px rgba(0,0,0,0.3) !important; }}
 
@@ -477,7 +608,7 @@ st.markdown(f"""
     .day-pnl {{ font-size: var(--cal-pnl-size) !important; font-weight: bold !important; }}
     .day-pct {{ font-size: var(--cal-pct-size) !important; color: {c_pct_dia} !important; opacity: 0.9 !important; font-weight: 600 !important; display: block !important; }}
     
-    .cam-icon {{ position: absolute !important; bottom: {BTN_CAM_Y}px !important; left: 50% !important; transform: translateX(calc(-50% + {BTN_CAM_X}px)) !important; font-size: var(--cal-cam-size) !important; cursor: pointer !important; background: transparent !important; border-radius: 50% !important; padding: 2px 4px !important; box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important; transition: 0.2s !important; }}
+    .cam-icon {{ position: absolute !important; bottom: {BTN_CAM_Y}px !important; left: 50% !important; transform: translateX(calc(-50% + {BTN_CAM_X}px)) !important; font-size: var(--cal-cam-size) !important; cursor: pointer !important; background: {c_cam_bg} !important; border-radius: 50% !important; padding: 2px 4px !important; box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important; transition: 0.2s !important; }}
     .cam-icon:hover {{ transform: translateX(calc(-50% + {BTN_CAM_X}px)) scale(1.2) !important; }}
     
     .cell-win {{ border: 2px solid #00C897 !important; color: #00664F !important; background-color: #e6f9f4 !important;}}
@@ -522,6 +653,9 @@ st.markdown(f"""
         .lbl-total-bal, .lbl-filtros, .lbl-data, .lbl-input {{ transform: translate(0, 0) !important; text-align: center !important; width: 100% !important; margin-bottom: 10px !important;}}
         .balance-box {{ width: 100% !important; margin: 0 auto 15px auto !important; transform: translate(0,0) !important;}}
         div[data-testid="column"]:nth-child(1) div[data-testid="stNumberInput"], div[data-testid="column"]:nth-child(1) [data-testid="stFormSubmitButton"] button {{ width: 100% !important; max-width: 100% !important; margin: 0 !important; }}
+        section[data-testid="stMain"] div[data-testid="column"]:nth-child(2), section[data-testid="stMain"] div[data-testid="column"]:nth-child(3), section[data-testid="stMain"] div[data-testid="column"]:nth-child(4) {{ transform: translate(0, 0) !important; }}
+        [data-testid="stFileUploadDropzone"] {{ width: 100% !important; transform: translate(0, 0) !important; }}
+        div[data-testid="column"]:nth-child(2) div[data-testid="stPopover"] > button, div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] > button {{ width: 100% !important; margin-top: 5px !important; }}
         .weeks-container {{ transform: translate(0, 0) !important; flex-wrap: wrap !important; justify-content: space-between !important; }}
         .wk-box {{ width: 48% !important; margin-bottom: 5px !important; }}
         .mo-box {{ width: 100% !important; }}
@@ -604,7 +738,7 @@ def agregar_imagenes_main(contexto, llave, widget_id, counter_id, bal_act, f_str
         st.session_state[counter_id] += 1
 
 # ==========================================
-# 9. ENTRADA AUTOMÁTICA (El Resto se mueve a la Sección 13)
+# 9. ENTRADA AUTOMÁTICA E IMÁGENES + BOTÓN DE NOTAS (Layout reservado)
 # ==========================================
 c1, c2, c_img, c_not, c_espacio = st.columns([1.5, 0.5, 2.5, 0.6, 3.4]) 
 
@@ -617,6 +751,7 @@ with c1:
             procesar_cambio()
             st.rerun()
 
+# Los botones (c2, c_img, c_not) se renderizan al final del archivo en la SECCIÓN 13.
 
 # ==========================================
 # 10. CALENDARIO Y RESUMEN
@@ -1065,85 +1200,10 @@ if mostrar_tabla:
         )
 
 # =========================================================================================================
-# 13. ZONA AISLADA: BOTONES DE CALENDARIO, UPLOAD Y NOTAS
+# 13. ZONA AISLADA: BOTONES DE CALENDARIO, UPLOAD Y NOTAS (PARA EDITAR FÁCILMENTE)
 # =========================================================================================================
-# Aquí están los botones y sus estilos CSS expuestos en variables que puedes editar como quieras.
+# (Aquí se renderizan en el DOM final de la columna de entrada superior)
 
-css_botones_aislados = f"""
-<style>
-
-/* ================== BOTÓN CALENDARIO (c2) ================== */
-section[data-testid="stMain"] div[data-testid="column"]:nth-child(2) {{
-    transform: translate(0px, 0px) !important;  /* POSICIONAMIENTO LIBRE (X, Y) */
-    z-index: 10;
-}}
-div[data-testid="column"]:nth-child(2) div[data-testid="stPopover"] > button {{ 
-    width: 68px !important;              /* ANCHO */
-    height: 68px !important;             /* ALTO */
-    min-width: 68px !important; 
-    min-height: 68px !important; 
-    font-size: 33px !important;          /* TAMAÑO DEL EMOJI */
-    border-radius: 8px !important; 
-    border: 1px solid {border_color} !important; 
-    background-color: {btn_bg} !important; /* COLOR DE FONDO */
-    color: {btn_txt} !important; 
-    display: flex !important; 
-    justify-content: center !important; 
-    align-items: center !important; 
-    padding: 0 !important;
-}}
-
-/* ================== BOTÓN UPLOAD (c_img) ================== */
-section[data-testid="stMain"] div[data-testid="column"]:nth-child(3) {{
-    transform: translate(0px, 0px) !important;  /* POSICIONAMIENTO LIBRE (X, Y) */
-    z-index: 10;
-}}
-[data-testid="stFileUploadDropzone"] button {{ 
-    background-color: {u_btn_bg} !important; /* COLOR DE FONDO */
-    color: {u_btn_txt} !important; 
-    border: 1px solid {border_color} !important; 
-    border-radius: 6px !important; 
-    margin: 0 !important; 
-    width: 120px !important;             /* ANCHO */
-    height: 45px !important;             /* ALTO */
-    min-width: 120px !important; 
-    min-height: 45px !important; 
-}}
-[data-testid="stFileUploadDropzone"] button * {{ color: {u_btn_txt} !important; font-size: 20px !important; }}
-[data-testid="stFileUploadDropzone"] button::after {{ content: "Upload" !important; font-size: 20px !important; }} /* TAMAÑO LETRAS UPLOAD */
-
-/* ================== BOTÓN NOTAS (c_not) ================== */
-section[data-testid="stMain"] div[data-testid="column"]:nth-child(4) {{
-    transform: translate(0px, 0px) !important;  /* POSICIONAMIENTO LIBRE (X, Y) */
-    z-index: 10;
-}}
-div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] > button {{
-    width: 50px !important;              /* ANCHO */
-    height: 50px !important;             /* ALTO */
-    min-width: 50px !important; 
-    min-height: 50px !important; 
-    font-size: 18px !important;          /* TAMAÑO DEL EMOJI */
-    border-radius: 8px !important; 
-    border: 1px solid {border_color} !important; 
-    background-color: {btn_bg} !important; /* COLOR DE FONDO */
-    color: {btn_txt} !important; 
-    display: flex !important; 
-    justify-content: center !important; 
-    align-items: center !important; 
-    padding: 0 !important;
-}}
-
-/* REGLAS MÓVILES (Opcional, para resetear posición en celulares) */
-@media (max-width: 768px) {{
-    section[data-testid="stMain"] div[data-testid="column"]:nth-child(2), 
-    section[data-testid="stMain"] div[data-testid="column"]:nth-child(3), 
-    section[data-testid="stMain"] div[data-testid="column"]:nth-child(4) {{ transform: translate(0, 0) !important; }}
-}}
-</style>
-"""
-st.markdown(css_botones_aislados, unsafe_allow_html=True)
-
-# Lógica y renderizado de los botones
 fecha_str_actual = st.session_state.input_fecha.strftime("%d/%m/%Y") if "input_fecha" in st.session_state else hoy.strftime("%d/%m/%Y")
 if "input_fecha" in st.session_state:
     clave_actual = (st.session_state.input_fecha.year, st.session_state.input_fecha.month, st.session_state.input_fecha.day)
@@ -1152,7 +1212,7 @@ else:
 
 with c2:
     st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True) 
-    with st.popover("🗓️"):
+    with st.popover(BTN_CAL_EMOJI):
         st.date_input("Fecha oculta", value=hoy, key="input_fecha", label_visibility="collapsed")
 
 with c_img:
