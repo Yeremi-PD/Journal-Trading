@@ -216,7 +216,7 @@ if st.session_state.tema == "Claro":
     select_fondo_actual, select_texto_actual = SELECT_FONDO_CLARO, SELECT_TEXTO_CLARO
     uploader_fondo_actual = UPLOADER_FONDO_CLARO
 else:
-    bg_color, text_color = "#1A202C", "#E2E8F0"
+    bg_color, text_color = "#ffffff", "#ffffff"
     card_bg, border_color, empty_cell_bg = "#2D3748", "#4A5568", "#1A202C"
     btn_bg, btn_text = BOTON_FONDO_OSCURO, BOTON_TEXTO_OSCURO
     titulo_color_actual, mes_color_actual = TITULO_COLOR_W, MES_TEXTO_COLOR_W
