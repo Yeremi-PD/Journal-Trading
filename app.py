@@ -292,9 +292,6 @@ WEEK_ALIGN = "center"
 # ==========================================
 # 4. LÓGICA DE ESTADO DEL USUARIO
 # ==========================================
-# ==========================================
-# 4. LÓGICA DE ESTADO DEL USUARIO
-# ==========================================
 
 # --- 1. INICIALIZAR VARIABLES DE SESIÓN (ESTO ARREGLA EL ERROR DEL CELULAR) ---
 if "tema" not in st.session_state:
@@ -355,6 +352,7 @@ def procesar_cambio():
 
 def convertir_img_base64(uploaded_file):
     return base64.b64encode(uploaded_file.getvalue()).decode()
+
 # ==========================================
 # 5. BARRA LATERAL (AJUSTES Y ADMIN)
 # ==========================================
@@ -650,6 +648,58 @@ st.markdown(f"""
     .txt-green {{ color: #00C897 !important; }}
     .txt-red {{ color: #FF4C4C !important; }}
     .txt-gray {{ color: gray !important; }}
+    
+    /* ==========================================
+       📱 MODO RESPONSIVE (MÓVILES Y PANTALLAS PEQUEÑAS)
+       ========================================== */
+    @media (max-width: 768px) {{
+        /* Título Dashboard centrado */
+        .dashboard-title {{ font-size: 38px !important; margin: 10px auto !important; text-align: center !important; line-height: 1 !important;}}
+        
+        /* Textos e Inputs */
+        .lbl-total-bal, .lbl-filtros, .lbl-data, .lbl-input {{ transform: translate(0, 0) !important; text-align: center !important; width: 100% !important; margin-bottom: 10px !important;}}
+        .balance-box {{ width: 100% !important; margin: 0 auto 15px auto !important; transform: translate(0,0) !important;}}
+        div[data-testid="stNumberInput"] {{ width: 100% !important; max-width: 100% !important; margin: 0 !important; }}
+        
+        /* Dropzone para subir imágenes */
+        [data-testid="stFileUploadDropzone"] {{ width: 100% !important; transform: translate(0, 0) !important; }}
+        
+        /* Botón Calendario Inputs */
+        div[data-testid="stPopover"] > button {{ width: 100% !important; margin-top: 5px !important; }}
+        
+        /* =========================================
+           🗓️ REGLA MÁGICA PARA EL CALENDARIO 
+           ========================================= */
+        /* Detecta filas con 7 columnas (Los días) y evita que se apilen hacia abajo */
+        div[data-testid="stHorizontalBlock"]:has(> div[data-testid="column"]:nth-child(7)) {{
+            flex-wrap: nowrap !important;
+            overflow-x: auto !important;
+            padding-bottom: 5px !important;
+        }}
+        div[data-testid="stHorizontalBlock"]:has(> div[data-testid="column"]:nth-child(7)) > div[data-testid="column"] {{
+            min-width: 48px !important; 
+            flex: 1 1 auto !important;
+        }}
+        
+        /* Ajustar tamaños dentro de los días del calendario */
+        .card {{ min-height: 70px !important; padding-bottom: 15px !important; }}
+        .day-number {{ font-size: 14px !important; left: 4px !important; top: 2px !important; }}
+        .day-pnl {{ font-size: 14px !important; }}
+        .day-pct {{ font-size: 12px !important; }}
+        .cam-icon {{ font-size: 16px !important; bottom: -2px !important; }}
+        .txt-dias-sem {{ font-size: 11px !important; }}
+        
+        /* Cuadros de Resumen P&L y WinRate */
+        .card-pnl, .card-win {{ width: 100% !important; transform: translate(0, 0) !important; height: auto !important; margin-bottom: 15px !important; }}
+        
+        /* Semanas y Mes */
+        .weeks-container {{ transform: translate(0, 0) !important; flex-wrap: wrap !important; justify-content: space-between !important; }}
+        .wk-box {{ width: 48% !important; margin-bottom: 5px !important; }}
+        .mo-box {{ width: 100% !important; }}
+        
+        /* Líneas separadoras */
+        .thin-line {{ width: 100% !important; transform: translate(0, 0) !important; }}
+    }}
     </style>
     """, unsafe_allow_html=True)
 
