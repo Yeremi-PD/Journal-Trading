@@ -163,7 +163,7 @@ LINEA_COLOR_O = "#4A5568"
 # ---------------------------------------------------------
 # [ ÁREA DE ARRASTRAR IMÁGENES (DROPZONE) ] 
 # ---------------------------------------------------------
-DROPZONE_W = "100%"
+DROPZONE_W = "10%"
 DROPZONE_H = "75px"            
 DROPZONE_X = 0
 DROPZONE_Y = 0
