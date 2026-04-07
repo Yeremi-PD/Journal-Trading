@@ -526,29 +526,41 @@ st.markdown(f"""
     }}
 
     /* ======= ESTILO RESTAURADO: UPLOAD, CALENDARIO, NOTAS ======= */
-    [data-testid="stFileUploader"] {{ transform: translate({DROPZONE_X}px, {DROPZONE_Y}px) !important; background-color: transparent !important; border: none !important; padding: 0 !important; box-shadow: none !important; }}
-    [data-testid="stFileUploader"] > section {{ background-color: transparent !important; border: none !important; padding: 0 !important; }}
+    [data-testid="stFileUploader"] {{ transform: translate({DROPZONE_X}px, {DROPZONE_Y}px) !important; background-color: transparent !important; border: none !important; padding: 0 !important; box-shadow: none !important; width: {DROPZONE_W} !important; min-width: {DROPZONE_W} !important; }}
+    [data-testid="stFileUploader"] > section {{ background-color: transparent !important; border: none !important; padding: 0 !important; width: 100% !important; }}
     
-    [data-testid="stFileUploadDropzone"] {{ background-color: {drop_bg} !important; border: {drop_border} !important; border-radius: 8px !important; padding: 0 !important; width: {DROPZONE_W} !important; min-height: {DROPZONE_H} !important; height: {DROPZONE_H} !important; box-shadow: none !important; display: flex !important; justify-content: center !important; align-items: center !important; }}
-    [data-testid="stFileUploadDropzone"] > div {{ background-color: transparent !important; border: none !important; }}
+    [data-testid="stFileUploadDropzone"] {{ background-color: {drop_bg} !important; border: {drop_border} !important; border-radius: 8px !important; padding: 0 !important; width: 100% !important; min-width: 100% !important; min-height: {DROPZONE_H} !important; height: {DROPZONE_H} !important; box-shadow: none !important; display: flex !important; justify-content: center !important; align-items: center !important; position: relative !important; }}
+    [data-testid="stFileUploadDropzone"] > div {{ background-color: transparent !important; border: none !important; width: 100% !important; height: 100% !important; display: flex !important; justify-content: center !important; align-items: center !important; z-index: 10 !important; }}
     [data-testid="stFileUploadDropzone"] > div > span, [data-testid="stFileUploadDropzone"] small, [data-testid="stFileUploaderDropzoneInstructions"] {{ display: none !important; }}
     
     [data-testid="stFileUploadDropzone"] button {{ 
         background-color: {u_btn_bg} !important; color: {u_btn_txt} !important; border: 1px solid {border_color} !important; 
-        border-radius: 6px !important; margin: 0 !important; width: {BTN_UP_W} !important; 
-        min-width: {BTN_UP_W} !important; min-height: {BTN_UP_H} !important; height: {BTN_UP_H} !important; 
+        border-radius: 6px !important; margin: 0 auto !important; 
+        width: {BTN_UP_W} !important; min-width: {BTN_UP_W} !important; max-width: {BTN_UP_W} !important; 
+        height: {BTN_UP_H} !important; min-height: {BTN_UP_H} !important; max-height: {BTN_UP_H} !important; 
+        flex: none !important; position: relative !important; z-index: 20 !important; display: flex !important; justify-content: center !important; align-items: center !important;
     }}
     [data-testid="stFileUploadDropzone"] button * {{ color: {u_btn_txt} !important; font-size: {BTN_UP_SIZE} !important; }}
-    [data-testid="stFileUploadDropzone"] button::after {{ content: "{BTN_UP_TEXTO}" !important; font-size: {BTN_UP_SIZE} !important; }}
+    [data-testid="stFileUploadDropzone"] button::after {{ content: "{BTN_UP_TEXTO}" !important; font-size: {BTN_UP_SIZE} !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; width: 100% !important; text-align: center !important; }}
     [data-testid="stFileUploadDropzone"] button div {{ display: none !important; }}
 
     div[data-testid="stButton"] > button {{ background-color: {btn_bg} !important; color: {btn_txt} !important; border: 1px solid {border_color} !important; }}
     
-    div[data-testid="stPopover"] > button {{ 
-        min-height: {BTN_CAL_H}px !important; height: {BTN_CAL_H}px !important; min-width: {BTN_CAL_W}px !important; 
-        width: {BTN_CAL_W}px !important; padding: 0 !important; font-size: {BTN_CAL_ICON_SIZE}px !important; 
+    /* POPOVER (CALENDARIO Y NOTAS) */
+    div[data-testid="stPopover"] {{ 
+        width: {BTN_CAL_W}px !important; min-width: {BTN_CAL_W}px !important; max-width: {BTN_CAL_W}px !important;
+        height: {BTN_CAL_H}px !important; min-height: {BTN_CAL_H}px !important; max-height: {BTN_CAL_H}px !important;
+        display: block !important; flex: none !important; overflow: visible !important; position: relative !important;
+    }}
+    
+    div[data-testid="stPopover"] > button,
+    div[data-testid="stPopover"] > div > button {{ 
+        width: {BTN_CAL_W}px !important; min-width: {BTN_CAL_W}px !important; max-width: {BTN_CAL_W}px !important; 
+        height: {BTN_CAL_H}px !important; min-height: {BTN_CAL_H}px !important; max-height: {BTN_CAL_H}px !important; 
+        padding: 0 !important; font-size: {BTN_CAL_ICON_SIZE}px !important; 
         border-radius: 8px !important; border: 1px solid {border_color} !important; background-color: {btn_bg} !important; 
         color: {btn_txt} !important; display: flex !important; justify-content: center !important; align-items: center !important; 
+        flex: none !important; position: absolute !important; top: 0 !important; left: 0 !important; z-index: 10 !important;
     }}
     
     div[data-testid="stPopoverBody"] {{ background-color: {card_bg} !important; border: 1px solid {border_color} !important; border-radius: 8px !important; padding: 15px !important; }}
@@ -581,7 +593,7 @@ st.markdown(f"""
     .modal-toggle:checked ~ .fs-modal {{ display: flex !important; }}
     .fs-modal {{ display: none; position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; background: rgba(0,0,0,0.95) !important; z-index: 9999999 !important; flex-direction: column !important; align-items: center !important; justify-content: center !important; overflow-y: auto !important; padding: 50px 0 !important; }}
     .fs-modal img {{ max-width: 90vw !important; max-height: 80vh !important; margin-bottom: 20px !important; box-shadow: 0 0 20px black !important; border-radius: 10px !important; object-fit: contain !important; }}
-    .close-btn {{ color: white !important; font-size: 25px !important; position: absolute !important; top: 30px !important; right: 50px !important; cursor: pointer !important; font-weight: bold !important; background: red !important; padding: 5px 15px !important; border-radius: 8px !important; }}
+    .close-btn {{ color: white !important; font-size: 25px !important; position: absolute !important; top: 30px !important; right: 50px !important; cursor: pointer !important; font-weight: bold !important; background: red !important; padding: 5px 15px !important; border-radius: 8px !important; z-index: 10000000; }}
 
     .card-pnl {{ width: {CARD_PNL_W} !important; height: {CARD_PNL_H} !important; transform: translate({CARD_PNL_X}px, {CARD_PNL_Y}px) !important; }}
     .card-win {{ width: {CARD_WIN_W} !important; height: {CARD_WIN_H} !important; transform: translate({CARD_WIN_X}px, {CARD_WIN_Y}px) !important; }}
@@ -611,16 +623,54 @@ st.markdown(f"""
     .txt-red {{ color: #FF4C4C !important; }}
     .txt-gray {{ color: gray !important; }}
     
+    /* ========================================================= */
+    /* RESPONSIVE (MÓVIL) - CORRECCIÓN DE OVERLAP Y APILAMIENTO */
+    /* ========================================================= */
     @media (max-width: 768px) {{
-        .dashboard-title {{ font-size: 38px !important; margin: 10px auto !important; text-align: center !important; line-height: 1 !important;}}
+        .dashboard-title {{ font-size: 38px !important; margin: 10px auto !important; text-align: center !important; line-height: 1 !important; transform: translate(0,0) !important;}}
         .lbl-total-bal, .lbl-filtros, .lbl-data, .lbl-input {{ transform: translate(0, 0) !important; text-align: center !important; width: 100% !important; margin-bottom: 10px !important;}}
         .balance-box {{ width: 100% !important; margin: 0 auto 15px auto !important; transform: translate(0,0) !important;}}
-        div[data-testid="column"]:nth-child(1) div[data-testid="stNumberInput"], div[data-testid="column"]:nth-child(1) [data-testid="stFormSubmitButton"] button {{ width: 100% !important; max-width: 100% !important; margin: 0 !important; }}
-        [data-testid="stFileUploadDropzone"] {{ width: 100% !important; transform: translate(0, 0) !important; }}
-        div[data-testid="column"]:nth-child(2) div[data-testid="stPopover"] > button, div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] > button {{ width: 100% !important; margin-top: 5px !important; }}
-        .weeks-container {{ transform: translate(0, 0) !important; flex-wrap: wrap !important; justify-content: space-between !important; }}
-        .wk-box {{ width: 48% !important; margin-bottom: 5px !important; }}
-        .mo-box {{ width: 100% !important; }}
+        
+        /* Apilamiento perfecto de la fila principal de inputs */
+        div[data-testid="column"] {{ width: 100% !important; flex: 1 1 100% !important; min-width: 100% !important; display: block !important; margin-bottom: 15px !important; }}
+        
+        div[data-testid="stNumberInput"],
+        div[data-testid="stNumberInput"] button,
+        div[data-testid="stFormSubmitButton"] button,
+        div[data-testid="stPopover"],
+        div[data-testid="stPopover"] > button,
+        div[data-testid="stPopover"] > div > button,
+        [data-testid="stFileUploader"],
+        [data-testid="stFileUploadDropzone"],
+        [data-testid="stFileUploadDropzone"] button {{
+            width: 100% !important;
+            max-width: 100% !important;
+            min-width: 100% !important;
+            transform: translate(0,0) !important;
+            margin-left: 0 !important;
+        }}
+
+        /* EXCEPCIÓN: EL CALENDARIO SE MANTIENE EN 7 COLUMNAS */
+        .calendar-wrapper div[data-testid="column"],
+        div[data-testid="stHorizontalBlock"]:has(.card) > div[data-testid="column"],
+        div[data-testid="stHorizontalBlock"]:has(.txt-dias-sem) > div[data-testid="column"] {{
+            width: 14.28% !important;
+            min-width: 14.28% !important;
+            flex: 0 0 14.28% !important;
+            display: flex !important;
+            margin-bottom: 0 !important;
+        }}
+        div[data-testid="stHorizontalBlock"]:has(.card),
+        div[data-testid="stHorizontalBlock"]:has(.txt-dias-sem) {{
+            display: flex !important;
+            flex-wrap: nowrap !important;
+            overflow-x: hidden !important; 
+        }}
+
+        .weeks-container {{ transform: translate(0, 0) !important; flex-wrap: wrap !important; justify-content: space-between !important; display: flex !important; }}
+        .wk-box {{ width: 48% !important; margin-bottom: 10px !important; height: auto !important; padding: 10px !important; }}
+        .mo-box {{ width: 100% !important; height: auto !important; margin-top: 10px !important; padding: 10px !important; }}
+        .card-pnl, .card-win {{ width: 100% !important; transform: translate(0,0) !important; height: auto !important; margin-top: 10px !important; }}
     }}
     </style>
     """, unsafe_allow_html=True)
@@ -773,7 +823,6 @@ with c_not:
             st.markdown('<div style="font-weight:bold; font-size:15pt; margin-bottom:5px;">&nbsp;&nbsp;&nbsp;Emotions</div>', unsafe_allow_html=True)
             trade_data_ref['Emotions'] = st.text_area("Emotions", value=trade_data_ref.get('Emotions', ''), key=f"emoc_main", height=80, label_visibility="collapsed")
 
-
 # ==========================================
 # 10. CALENDARIO Y RESUMEN
 # ==========================================
@@ -841,10 +890,11 @@ with col_cal:
                         pct = (trade["pnl"] / bal_ini * 100) if bal_ini != 0 else 0
                         pct_str = f"{c_sim}{pct:.2f}%"
 
+                        # === AQUÍ ESTÁ EL ARREGLO DE LOS MODALES AISLADOS ===
                         if trade.get("imagenes"):
                             id_modal = f"mod_{anio_sel}_{mes_sel}_{dia}"
                             img_tags = "".join([f'<img src="{img}">' for img in trade["imagenes"]])
-                            cam_html = f'<input type="checkbox" id="{id_modal}" class="modal-toggle" style="display:none;"><label for="{id_modal}"><div class="cam-icon">{BTN_CAM_EMOJI}</div></label><div class="fs-modal"><label for="{id_modal}" class="close-btn">{TXT_CERRAR_MODAL}</label>{img_tags}</div>'
+                            cam_html = f'<div><input type="checkbox" id="{id_modal}" class="modal-toggle" style="display:none;"><label for="{id_modal}"><div class="cam-icon">{BTN_CAM_EMOJI}</div></label><div class="fs-modal"><label for="{id_modal}" class="close-btn">{TXT_CERRAR_MODAL}</label>{img_tags}</div></div>'
                         else:
                             cam_html = ""
                             
@@ -866,7 +916,7 @@ with col_cal:
                                 <b>Emotions:</b> <span class="note-val">{trade.get("Emotions", "")}</span>
                             </div>
                             """
-                            note_html = f'<input type="checkbox" id="{id_note_modal}" class="modal-toggle" style="display:none;"><label for="{id_note_modal}"><div class="note-icon">🗒️</div></label><div class="fs-modal"><label for="{id_note_modal}" class="close-btn">{TXT_CERRAR_MODAL}</label>{notes_html}</div>'
+                            note_html = f'<div><input type="checkbox" id="{id_note_modal}" class="modal-toggle" style="display:none;"><label for="{id_note_modal}"><div class="note-icon">🗒️</div></label><div class="fs-modal"><label for="{id_note_modal}" class="close-btn">{TXT_CERRAR_MODAL}</label>{notes_html}</div></div>'
                         else:
                             note_html = ""
                         
