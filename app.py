@@ -301,7 +301,7 @@ if "tema" not in st.session_state:
     st.session_state.tema = TEMA_POR_DEFECTO
 
 if "data_source_sel" not in st.session_state:
-    st.session_state.data_source_sel = "Account Demo"
+    st.session_state.data_source_sel = "Account Real"
 
 # --- 2. CARGAR DATOS DEL USUARIO ---
 usuario = st.session_state.usuario_actual
