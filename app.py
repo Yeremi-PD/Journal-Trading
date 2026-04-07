@@ -28,9 +28,8 @@ if "usuario_actual" not in st.session_state:
     st.session_state.usuario_actual = None
 
 # --- PANTALLA DE LOGIN CON PARCHE DE SEGURIDAD ---
-# Si no hay usuario, O si el usuario en sesión ya no existe en la DB global (porque el servidor se reinició)
 if st.session_state.usuario_actual is None or st.session_state.usuario_actual not in db_global:
-    st.session_state.usuario_actual = None  # Cierra la sesión fantasma por seguridad
+    st.session_state.usuario_actual = None 
     
     st.markdown("<h1 style='text-align:center; font-family:sans-serif;'>Yeremi Journal Pro</h1>", unsafe_allow_html=True)
     
@@ -60,10 +59,10 @@ if st.session_state.usuario_actual is None or st.session_state.usuario_actual no
                         "password": reg_pass,
                         "data": inicializar_data_usuario()
                     }
-                    st.success("Cuenta creada con éxito. Ya puedes iniciar sesión en la pestaña 'Entrar'.")
+                    st.success("Cuenta creada con éxito. Ya puedes iniciar sesión.")
                 else:
                     st.warning("Completa todos los campos.")
-    st.stop() # Detiene la app aquí si no hay sesión válida iniciada
+    st.stop()
 
 # ==========================================
 # 3. SECCIÓN DE AJUSTES MANUALES
@@ -115,27 +114,28 @@ LBL_INPUT_BAL_X = 0
 LBL_INPUT_BAL_Y = 0
 
 INPUT_FONDO_CLARO = "#FFFFFF"
-INPUT_TEXTO_CLARO = "#00C897"
+INPUT_TEXTO_CLARO = "#1A202C"   # Texto NEGRO en tema Claro
 INPUT_FONDO_OSCURO = "#1A202C"
-INPUT_TEXTO_OSCURO = "#00C897" 
+INPUT_TEXTO_OSCURO = "#FFFFFF"  # Texto BLANCO en tema Oscuro
 
 # --- ZONA 5: CALENDARIO Y BOTONES ---
 BOTON_FONDO_CLARO = "#F3F4F6"
 BOTON_TEXTO_CLARO = "#1A202C"
-BOTON_FONDO_OSCURO = "#ffffff"
+BOTON_FONDO_OSCURO = "#2D3748"
 BOTON_TEXTO_OSCURO = "#FFFFFF"
 
-BOTON_X = 10          
-BOTON_Y = 200         
-BOTON_WIDTH = 10     
-BOTON_HEIGHT = 10    
+# Botón 🗓️ (Posición relativa a su columna para que no desaparezca en móviles)
+BOTON_X = 0          
+BOTON_Y = 27         
+BOTON_WIDTH = 45     
+BOTON_HEIGHT = 45    
 BOTON_ICON_SIZE = 22 
 
 MES_TEXTO_X = 0
 MES_TEXTO_Y = 10      
 MES_TEXTO_SIZE = 22
-MES_TEXTO_COLOR_W = "#ffffff" 
-MES_TEXTO_COLOR_B = "#ffffff" 
+MES_TEXTO_COLOR_W = "#FFFFFF" # Texto BLANCO en tema oscuro
+MES_TEXTO_COLOR_B = "#1A202C" # Texto NEGRO en tema claro
 
 FLECHAS_X_AJUSTE = 0 
 FLECHAS_Y_AJUSTE = 10 
@@ -149,12 +149,6 @@ CARD_PNL_W = 80
 CARD_WIN_X = 0       
 CARD_WIN_Y = 20      
 CARD_WIN_W = 80      
-
-# --- ZONA 7: ÁREA DE SUBIR IMÁGENES ---
-UPLOADER_ANCHO = 100      
-UPLOADER_ALTO = 100       
-UPLOADER_FONDO_CLARO = "#FFFFFF"
-UPLOADER_FONDO_OSCURO = "#ffffff"
 
 # ==========================================
 # 4. LÓGICA DE ESTADO DEL USUARIO
@@ -205,34 +199,7 @@ def convertir_img_base64(uploaded_file):
     return base64.b64encode(uploaded_file.getvalue()).decode()
 
 # ==========================================
-# 5. BARRA LATERAL (MENÚ Y CUENTAS)
-# ==========================================
-st.sidebar.markdown(f"### 👤 Mi Cuenta: {usuario}")
-if st.sidebar.button("🚪 Cerrar Sesión"):
-    st.session_state.usuario_actual = None
-    st.rerun()
-
-st.sidebar.markdown("---")
-st.sidebar.markdown("### ⚙️ Ajustes")
-
-texto_boton_tema = "🌙 Cambiar a Tema Oscuro" if st.session_state.tema == "Claro" else "☀️ Cambiar a Tema Claro"
-if st.sidebar.button(texto_boton_tema):
-    st.session_state.tema = "Oscuro" if st.session_state.tema == "Claro" else "Claro"
-    st.rerun()
-
-ctx_actual = st.session_state.data_source_sel
-if st.sidebar.button(f"🗑️ Limpiar {ctx_actual} a $25k"):
-    db_usuario[ctx_actual]["balance"] = 25000.00
-    db_usuario[ctx_actual]["trades"] = {}
-    st.rerun()
-
-st.sidebar.markdown("---")
-st.sidebar.markdown("### 👥 Cuentas Registradas")
-for user in db_global.keys():
-    st.sidebar.markdown(f"- {user}")
-
-# ==========================================
-# 6. COLORES DEL TEMA Y CSS DINÁMICO
+# 5. COLORES DEL TEMA Y CSS DINÁMICO
 # ==========================================
 if st.session_state.tema == "Claro":
     bg_color, text_color = "#F7FAFC", "#2D3748"
@@ -241,7 +208,6 @@ if st.session_state.tema == "Claro":
     titulo_color_actual, mes_color_actual = TITULO_COLOR_B, MES_TEXTO_COLOR_B
     input_fondo_actual, input_texto_actual = INPUT_FONDO_CLARO, INPUT_TEXTO_CLARO
     select_fondo_actual, select_texto_actual = SELECT_FONDO_CLARO, SELECT_TEXTO_CLARO
-    uploader_fondo_actual = UPLOADER_FONDO_CLARO
 else:
     bg_color, text_color = "#1A202C", "#E2E8F0"
     card_bg, border_color, empty_cell_bg = "#2D3748", "#4A5568", "#1A202C"
@@ -249,7 +215,6 @@ else:
     titulo_color_actual, mes_color_actual = TITULO_COLOR_W, MES_TEXTO_COLOR_W
     input_fondo_actual, input_texto_actual = INPUT_FONDO_OSCURO, INPUT_TEXTO_OSCURO
     select_fondo_actual, select_texto_actual = SELECT_FONDO_OSCURO, SELECT_TEXTO_OSCURO
-    uploader_fondo_actual = UPLOADER_FONDO_OSCURO
 
 st.markdown(f"""
     <style>
@@ -262,27 +227,39 @@ st.markdown(f"""
     div[data-testid="column"]:nth-of-type(3) {{ margin-left: {DATA_SRC_X}px; margin-top: {DATA_SRC_Y}px; z-index: 10; }}
     div[data-testid="column"]:nth-of-type(4) {{ margin-left: {BALANCE_BOX_X}px; margin-top: {BALANCE_BOX_Y}px; }}
 
+    /* COLORES SELECTORES */
     div[data-baseweb="select"] > div {{ background-color: {select_fondo_actual} !important; border-color: {border_color} !important; }}
     div[data-baseweb="select"] * {{ color: {select_texto_actual} !important; }}
     ul[role="listbox"] {{ background-color: {select_fondo_actual} !important; }}
     li[role="option"] {{ color: {select_texto_actual} !important; background-color: {select_fondo_actual} !important; }}
     li[role="option"]:hover {{ background-color: {border_color} !important; }}
-    
-    [data-testid="stFileUploadDropzone"] {{ 
-        background-color: {uploader_fondo_actual} !important; 
-        border: 2px dashed {border_color} !important; 
-        width: {UPLOADER_ANCHO}px !important;
-        min-height: {UPLOADER_ALTO}px !important;
-        display: flex; justify-content: center; align-items: center;
-    }}
-    [data-testid="stFileUploadDropzone"] * {{ color: {text_color} !important; }}
-    [data-testid="stFileUploadDropzone"] button {{ display: none; }} 
 
+    /* CONFIGURACIÓN DEL INPUT DE BALANCE */
     div[data-testid="stNumberInput"] {{ margin-left: {INPUT_BAL_X}px !important; margin-top: {INPUT_BAL_Y}px !important; max-width: 200px !important; }}
     div[data-testid="stNumberInput"] button {{ display: none !important; }} 
     div[data-testid="stNumberInput"] div[data-baseweb="base-input"] {{ background-color: {input_fondo_actual} !important; }}
     div[data-testid="stNumberInput"] div[data-baseweb="input"] {{ background-color: {input_fondo_actual} !important; border-color: {border_color} !important; }}
     div[data-testid="stNumberInput"] input {{ color: {input_texto_actual} !important; background-color: {input_fondo_actual} !important; font-weight: bold; }}
+
+    /* ÁREA DE UPLOAD LIMPIA (SOLO BOTÓN) */
+    [data-testid="stFileUploadDropzone"] {{ 
+        background: transparent !important; 
+        border: none !important; 
+        padding: 0 !important; 
+        min-height: 0 !important; 
+        margin-top: 25px; /* Alineación con el balance */
+    }}
+    [data-testid="stFileUploadDropzone"] > div > span {{ display: none !important; }} /* Oculta arrastrar... */
+    [data-testid="stFileUploadDropzone"] small {{ display: none !important; }} /* Oculta límite de 200MB */
+    [data-testid="stFileUploadDropzone"] button {{ 
+        background-color: {btn_bg} !important; 
+        color: {btn_text} !important; 
+        border: 1px solid {border_color} !important; 
+        border-radius: 8px !important;
+        padding: 10px 20px !important;
+        display: flex !important; align-items: center; justify-content: center;
+    }}
+    [data-testid="stFileUploadDropzone"] button * {{ color: {btn_text} !important; }}
 
     div[data-testid="column"]:nth-of-type(2) label {{ margin-left: {LBL_FILTROS_X}px !important; margin-top: {LBL_FILTROS_Y}px !important; display: inline-block; }}
     div[data-testid="column"]:nth-of-type(3) label {{ margin-left: {LBL_DATA_X}px !important; margin-top: {LBL_DATA_Y}px !important; display: inline-block; }}
@@ -290,20 +267,24 @@ st.markdown(f"""
     .lbl-total-bal {{ margin-left: {LBL_TOTAL_BAL_X}px; margin-top: {LBL_TOTAL_BAL_Y}px; display: block; }}
 
     .dashboard-title {{ font-size: {TITULO_SIZE}px !important; font-weight: 800 !important; color: {titulo_color_actual} !important; margin-bottom: 0 !important; line-height: 1.1 !important; letter-spacing: -2px !important; }}
-    
     .balance-box {{ background: #00C897; color: white; padding: 10px 0px; border-radius: 80px; text-align: center; font-weight: 700; font-size: {BALANCE_SIZE}px; width: {BALANCE_BOX_W}%; margin: 0 auto; }}
-    
     .thin-line {{ border-bottom: 1.5px solid {border_color}; margin: 10px 0px 25px 0px; width: 100%; }}
 
     .calendar-wrapper {{ background: {card_bg}; padding: 10px; border-radius: 15px; border: 1px solid {border_color}; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }}
-    .card {{ aspect-ratio: 1 / 1; padding: 5px; border-radius: 20px; display: flex; flex-direction: column; justify-content: center; align-items: center; font-size: 12px; margin-bottom: 6px !important; position: relative; }}
+    
+    /* ALINEACIÓN DE LAS TARJETAS DE DÍA (Número siempre arriba) */
+    .card {{ 
+        aspect-ratio: 1 / 1; padding: 8px 5px; border-radius: 20px; 
+        display: flex; flex-direction: column; justify-content: flex-start; /* <--- Ancla todo arriba */
+        align-items: center; font-size: 12px; margin-bottom: 6px !important; position: relative;
+    }}
     .card b {{ font-size: 18px !important; }}
     .cell-win {{ border: 2.5px solid #00C897; color: #00664F; background-color: #e6f9f4;}}
     .cell-loss {{ border: 2.5px solid #FF4C4C; color: #9B1C1C; background-color: #ffeded;}}
     .cell-empty {{ border: 1px solid {border_color}; color: #A0AEC0; background-color: {empty_cell_bg};}}
     
-    /* EL TRUCO DEL MODAL SIN JAVASCRIPT */
-    .cam-icon {{ font-size: 18px; margin-top: 3px; cursor: pointer; background: rgba(255,255,255,0.7); border-radius: 50%; padding: 2px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: 0.2s; }}
+    /* MODAL DE CÁMARA PANTALLA COMPLETA */
+    .cam-icon {{ font-size: 15px; margin-top: 5px; cursor: pointer; background: rgba(255,255,255,0.7); border-radius: 50%; padding: 2px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: 0.2s; }}
     .cam-icon:hover {{ transform: scale(1.2); }}
     
     .modal-toggle:checked + .fs-modal {{ display: flex !important; }}
@@ -318,18 +299,20 @@ st.markdown(f"""
     label {{ font-weight: 700 !important; color: {text_color} !important; font-size: 14px !important; }}
     p, div {{ color: {text_color}; }}
 
+    /* BOTONES FLECHAS Y CALENDARIO */
     div[data-testid="stButton"] > button {{
         background-color: {btn_bg} !important; color: {btn_text} !important; border: 1px solid {border_color} !important;
         margin-left: {FLECHAS_X_AJUSTE}px !important; margin-top: {FLECHAS_Y_AJUSTE}px !important; font-size: {FLECHAS_SIZE}px !important;
     }}
     
-    div[data-testid="stPopover"] {{ position: absolute !important; left: {BOTON_X}px !important; top: {BOTON_Y}px !important; z-index: 9999 !important; }}
+    div[data-testid="stPopover"] {{ margin-left: {BOTON_X}px !important; margin-top: {BOTON_Y}px !important; }}
     div[data-testid="stPopover"] > button {{
         width: {BOTON_WIDTH}px !important; height: {BOTON_HEIGHT}px !important;
         font-size: {BOTON_ICON_SIZE}px !important; padding: 0 !important; border-radius: 8px !important;
         border: 1px solid {border_color} !important; background-color: {btn_bg} !important; color: {btn_text} !important;
         display: flex !important; justify-content: center !important; align-items: center !important; margin: 0 !important;
     }}
+    
     div[data-testid="stPopoverBody"] {{ background-color: {card_bg} !important; border: 1px solid {border_color} !important; }}
     div[data-testid="stPopoverBody"] * {{ color: {text_color} !important; }}
 
@@ -343,10 +326,50 @@ st.markdown(f"""
     @media (max-width: 768px) {{
         .dashboard-title {{ margin-left: 0 !important; text-align: center; }}
         div[data-testid="stNumberInput"] {{ margin-left: 0 !important; width: 100% !important; max-width: none !important; }}
-        div[data-testid="stPopover"] {{ position: relative !important; left: 0 !important; top: 10px !important; }}
+        div[data-testid="stPopover"] {{ margin-left: 0 !important; margin-top: 10px !important; }}
     }}
     </style>
     """, unsafe_allow_html=True)
+
+# ==========================================
+# 6. BARRA LATERAL (AJUSTES, ADMIN Y LOGOUT)
+# ==========================================
+st.sidebar.markdown(f"### 👤 Mi Cuenta: {usuario}")
+
+st.sidebar.markdown("---")
+st.sidebar.markdown("### ⚙️ Ajustes")
+texto_boton_tema = "🌙 Cambiar a Tema Oscuro" if st.session_state.tema == "Claro" else "☀️ Cambiar a Tema Claro"
+if st.sidebar.button(texto_boton_tema):
+    st.session_state.tema = "Oscuro" if st.session_state.tema == "Claro" else "Claro"
+    st.rerun()
+
+ctx_actual = st.session_state.data_source_sel
+if st.sidebar.button(f"🗑️ Limpiar {ctx_actual} a $25k"):
+    db_usuario[ctx_actual]["balance"] = 25000.00
+    db_usuario[ctx_actual]["trades"] = {}
+    st.rerun()
+
+# PANEL DE ADMINISTRADOR SECRETO
+st.sidebar.markdown("---")
+st.sidebar.markdown("### 🛡️ Administrador")
+admin_pass = st.sidebar.text_input("Contraseña de Admin", type="password")
+if admin_pass == "725166":
+    st.sidebar.success("Acceso concedido.")
+    for u, data in list(db_global.items()):
+        col_u, col_p, col_btn = st.sidebar.columns([2, 2, 1])
+        col_u.write(f"**{u}**")
+        col_p.write(f"{data['password']}")
+        if col_btn.button("❌", key=f"del_{u}"):
+            del db_global[u]
+            if st.session_state.usuario_actual == u:
+                st.session_state.usuario_actual = None
+            st.rerun()
+
+st.sidebar.markdown("---")
+# Botón de Cerrar Sesión en la parte más baja
+if st.sidebar.button("🚪 Cerrar Sesión", use_container_width=True):
+    st.session_state.usuario_actual = None
+    st.rerun()
 
 # ==========================================
 # 7. HEADER (BARRA SUPERIOR)
@@ -369,7 +392,8 @@ st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
 # ==========================================
 # 8. ENTRADA AUTOMÁTICA E IMÁGENES
 # ==========================================
-c1, c2, c_espacio, c_img = st.columns([1.2, 0.4, 0.8, 2]) 
+# Columnas más compactas como solicitaste
+c1, c2, c_img, c_espacio = st.columns([1.2, 0.4, 1.5, 2.5]) 
 
 with c1:
     st.number_input(INPUT_BAL_TEXTO, value=bal_actual, format="%.2f", key="input_balance", on_change=procesar_cambio)
@@ -436,7 +460,11 @@ with col_cal:
                             c_cls = "cell-win" if trade["pnl"] > 0 else "cell-loss"
                             c_sim = "+" if trade["pnl"] > 0 else ""
                             
-                            # MAGIA CSS MODAL
+                            # CALCULO DE PORCENTAJE (Respecto al balance de inicio de día)
+                            bal_ini = trade["balance_final"] - trade["pnl"]
+                            pct = (trade["pnl"] / bal_ini * 100) if bal_ini != 0 else 0
+                            pct_str = f"({c_sim}{pct:.2f}%)"
+                            
                             if trade.get("imagenes"):
                                 id_modal = f"mod_{anio_sel}_{mes_sel}_{dia}"
                                 img_tags = "".join([f'<img src="{img}">' for img in trade["imagenes"]])
@@ -451,10 +479,10 @@ with col_cal:
                             else:
                                 cam_html = ""
                                 
-                            st.markdown(f'<div class="card {c_cls}"><b>{dia}</b><br>{c_sim}${trade["pnl"]:,.2f}{cam_html}</div>', unsafe_allow_html=True)
+                            st.markdown(f'<div class="card {c_cls}"><b>{dia}</b><div style="text-align:center; margin-top:2px;">{c_sim}${trade["pnl"]:,.2f}<br><span style="font-size:10px; opacity:0.8;">{pct_str}</span></div>{cam_html}</div>', unsafe_allow_html=True)
                         else:
                             op = "0.2" if trade and not visible else "1"
-                            st.markdown(f'<div class="card cell-empty" style="opacity:{op}">{dia}</div>', unsafe_allow_html=True)
+                            st.markdown(f'<div class="card cell-empty" style="opacity:{op}"><b>{dia}</b></div>', unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
 with col_det:
