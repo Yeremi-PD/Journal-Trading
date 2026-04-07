@@ -226,6 +226,13 @@ BTN_CAM_BG_O = "rgba(0,0,0,0.6)"
 TXT_CERRAR_MODAL = "✖ CERRAR"
 
 # ---------------------------------------------------------
+# [ BOTÓN DE NOTAS (📝) ]
+# ---------------------------------------------------------
+BTN_NOTAS_TOP = "-5px"
+BTN_NOTAS_RIGHT = "-5px"
+BTN_NOTAS_SIZE = 18
+
+# ---------------------------------------------------------
 # [ TARJETA: NET P&L ]
 # ---------------------------------------------------------
 CARD_PNL_TITULO = "Net P&L"
@@ -869,11 +876,24 @@ with col_det:
 
     st.markdown(f'<div class="weeks-container">{semanas_html}<div class="mo-box"><div class="mo-title">{TXT_MO}</div><div class="mo-val {cM}">{sM}${m_total:,.2f}<br><span style="font-size:{WEEKS_PCT_SIZE}px;">{sM}{pct_m:.2f}%</span></div></div></div>', unsafe_allow_html=True)
 
+
 # ==========================================
 # 11. TABLA DE EDICIÓN MANUAL (HISTORIAL LIMPIO POR MES)
 # ==========================================
 st.markdown("<br>", unsafe_allow_html=True)
 st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
+
+# 🔴 SOLUCIÓN: FUNCIONES CALLBACK PARA EL BORRADO Y LA SUBIDA 🔴
+def borrar_imagen(contexto, llave, index):
+    if len(db_usuario[contexto]["trades"][llave]["imagenes"]) > index:
+        db_usuario[contexto]["trades"][llave]["imagenes"].pop(index)
+
+def agregar_imagenes(contexto, llave, widget_id, counter_id):
+    archivos_nuevos = st.session_state.get(widget_id)
+    if archivos_nuevos:
+        for img in archivos_nuevos:
+            db_usuario[contexto]["trades"][llave]["imagenes"].append(f"data:{img.type};base64,{convertir_img_base64(img)}")
+        st.session_state[counter_id] += 1
 
 with st.expander("🛠️ OPEN ORDER HISTORY", expanded=False):
     trades_actuales = db_usuario[ctx]["trades"]
@@ -894,8 +914,6 @@ with st.expander("🛠️ OPEN ORDER HISTORY", expanded=False):
                 mes_actual_dibujado = nombre_mes_grp
 
             pnl_val = float(data['pnl'])
-            
-            # 🟢 SOLUCIÓN: TÍTULO DEL EXPANDER CON COLORES DE STREAMLIT (Markdown) 🔴
             color_md = "green" if pnl_val > 0 else ("red" if pnl_val < 0 else "gray")
             simbolo = "+" if pnl_val > 0 else ""
             
@@ -912,33 +930,34 @@ with st.expander("🛠️ OPEN ORDER HISTORY", expanded=False):
                 st.markdown("---")
                 st.markdown("**📸 Imágenes Guardadas:**")
                 
-                # 🟢 SOLUCIÓN: LÓGICA INSTANTÁNEA PARA LAS NUEVAS IMÁGENES 🟢
+                # 🔴 APLICANDO CALLBACKS PARA SUBIDA Y BORRADO 🔴
                 counter_key = f"upd_counter_{clave}"
                 if counter_key not in st.session_state:
                     st.session_state[counter_key] = 0
                 
                 upd_key = f"upd_{clave}_{st.session_state[counter_key]}"
-                nuevas_imgs = st.file_uploader("Agregar más fotos (se guardan automáticamente)", accept_multiple_files=True, key=upd_key)
-                
-                # Si arrastra algo, lo agrega al instante a la lista principal, limpia el uploader y recarga
-                if nuevas_imgs:
-                    for img in nuevas_imgs:
-                        data["imagenes"].append(f"data:{img.type};base64,{convertir_img_base64(img)}")
-                    db_usuario[ctx]["trades"][clave]["imagenes"] = data["imagenes"]
-                    st.session_state[counter_key] += 1
-                    st.rerun()
+                st.file_uploader(
+                    "Agregar más fotos (se guardan automáticamente)", 
+                    accept_multiple_files=True, 
+                    key=upd_key, 
+                    on_change=agregar_imagenes, 
+                    args=(ctx, clave, upd_key, counter_key)
+                )
 
-                imagenes_restantes = data.get("imagenes", []).copy()
+                imagenes_restantes = db_usuario[ctx]["trades"][clave].get("imagenes", [])
                 
                 if imagenes_restantes:
                     cols_img = st.columns(len(imagenes_restantes))
                     for i, img_b64 in enumerate(imagenes_restantes):
                         with cols_img[i]:
                             st.markdown(f'<img src="{img_b64}" style="width:100%; border-radius:20px; border:1px solid gray;">', unsafe_allow_html=True)
-                            if st.button("🗑️ Delete", key=f"delimg_{clave}_{i}", use_container_width=True):
-                                data["imagenes"].pop(i)
-                                db_usuario[ctx]["trades"][clave]["imagenes"] = data["imagenes"]
-                                st.rerun()
+                            st.button(
+                                "🗑️ Delete", 
+                                key=f"delimg_{clave}_{i}_{len(imagenes_restantes)}", 
+                                on_click=borrar_imagen, 
+                                args=(ctx, clave, i), 
+                                use_container_width=True
+                            )
                 else:
                     st.caption("No hay imágenes guardadas en este día.")
                 
@@ -956,7 +975,7 @@ with st.expander("🛠️ OPEN ORDER HISTORY", expanded=False):
                             "pnl": nuevo_pnl,
                             "balance_final": nuevo_bal,
                             "fecha_str": nueva_fecha.strftime("%d/%m/%Y"),
-                            "imagenes": imagenes_restantes,
+                            "imagenes": db_usuario[ctx]["trades"].get(clave, {}).get("imagenes", imagenes_restantes),
                             "bias": data.get("bias", "NEUTRO"),
                             "confluencias": data.get("confluencias", []),
                             "razon_trade": data.get("razon_trade", ""),
@@ -982,14 +1001,12 @@ def sync_table_edits():
     contexto = st.session_state.data_source_sel
     keys = st.session_state.get("current_table_keys", [])
     
-    # 1. Aplicar eliminaciones
     for idx in sorted(editor_state.get("deleted_rows", []), reverse=True):
         if idx < len(keys):
             k = keys[idx]
             if k in db_usuario[contexto]["trades"]:
                 del db_usuario[contexto]["trades"][k]
                 
-    # 2. Aplicar ediciones de texto
     for idx, edits in editor_state.get("edited_rows", {}).items():
         if idx < len(keys):
             k = keys[idx]
@@ -1045,11 +1062,9 @@ if mostrar_tabla:
         st.session_state.current_table_keys = keys_list
         df_results = pd.DataFrame(table_data)
         
-        # 🟢 SOLUCIÓN: COLOREAR SOLAMENTE LA COLUMNA DE P&L 🟢
         def style_rows(row):
             pnl_str = row['P&L']
             
-            # String vacío para dejar que Streamlit decida el color del texto por defecto
             row_styles = [''] * len(row) 
             
             if pnl_str.startswith('+$'):
