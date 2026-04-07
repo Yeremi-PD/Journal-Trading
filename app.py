@@ -1120,19 +1120,19 @@ div[data-testid="column"]:nth-child(2) div[data-testid="stPopover"] > button {{
 /* ================== BOTÓN UPLOAD (c_img) ================== */
 /* EDITA AQUÍ SUS MEDIDAS Y POSICIÓN */
 section[data-testid="stMain"] div[data-testid="column"]:nth-child(3) {{
-    transform: translate(100px, 100px) !important;  /* POSICIONAMIENTO LIBRE (X, Y) */
-    z-index: 10;
+    transform: translate(px, 0px) !important;  /* POSICIONAMIENTO LIBRE (X, Y) */
+    z-index: 100px;
 }}
 [data-testid="stFileUploadDropzone"] button {{ 
     background-color: {u_btn_bg} !important; /* COLOR DE FONDO */
     color: {u_btn_txt} !important;           /* COLOR DEL TEXTO */
     border: 1px solid {border_color} !important; 
-    border-radius: 6px !important; 
+    border-radius: 100pxpx !important; 
     margin: 0 !important; 
     width: 120px !important;             /* ANCHO */
-    height: 45px !important;             /* ALTO */
-    min-width: 120px !important; 
-    min-height: 45px !important; 
+    height: 100px !important;             /* ALTO */
+    min-width: 100px !important; 
+    min-height: 100px !important; 
 }}
 [data-testid="stFileUploadDropzone"] button * {{ color: {u_btn_txt} !important; font-size: 20px !important; }}
 [data-testid="stFileUploadDropzone"] button::after {{ content: "Upload" !important; font-size: 20px !important; }} /* TAMAÑO LETRAS UPLOAD */
