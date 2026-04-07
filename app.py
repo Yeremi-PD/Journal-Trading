@@ -1021,7 +1021,7 @@ with st.expander("🛠️ OPEN ORDER HISTORY", expanded=False):
             color_md = "green" if pnl_val > 0 else ("red" if pnl_val < 0 else "gray")
             simbolo = "+" if pnl_val > 0 else ""
             
-            with st.expander(f"📅 {data['fecha_str']} | P&L: :{color_md}[{simbolo}${pnl_val:,.2f}]"):
+            with st.expander(f"🗓️ {data['fecha_str']} | P&L: :{color_md}[{simbolo}${pnl_val:,.2f}]"):
                 c_ed1, c_ed2, c_ed3 = st.columns(3)
                 
                 with c_ed1:
