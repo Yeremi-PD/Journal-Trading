@@ -121,8 +121,8 @@ LBL_INPUT_COLOR_C = "#000000"
 LBL_INPUT_COLOR_O = "#FFFFFF"
 
     # ( Caja del Input Manual )
-INPUT_BAL_W = "200px"         # Ancho de la caja donde escribes
-INPUT_BAL_H = "45px"          # Alto de la caja donde escribes
+INPUT_BAL_W = "300"         # Ancho de la caja donde escribes
+INPUT_BAL_H = "399"          # Alto de la caja donde escribes
 INPUT_BAL_X = 0      
 INPUT_BAL_Y = 0      
 INPUT_FONDO_C = "#FFFFFF"
