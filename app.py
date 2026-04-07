@@ -108,8 +108,8 @@ LBL_DATA_COLOR_C = "#000000"
 LBL_DATA_COLOR_O = "#FFFFFF"
 
     # ( Opciones de adentro del menú Data Source )
-OPT_DATA_1 = "Real Data"
-OPT_DATA_2 = "Demo Data"
+OPT_DATA_1 = "Account Real"
+OPT_DATA_2 = "Account Demo"
 OPT_DATA_SIZE = 14    
 OPT_DATA_COLOR_C = "#000000"     # <-- COLOR DEL TEXTO ADENTRO (TEMA CLARO)
 OPT_DATA_COLOR_O = "#FFFFFF"     # <-- COLOR DEL TEXTO ADENTRO (TEMA OSCURO)
