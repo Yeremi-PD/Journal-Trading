@@ -70,7 +70,7 @@ if st.session_state.usuario_actual is None or st.session_state.usuario_actual no
 TEMA_POR_DEFECTO = "Oscuro"
 
 # ---------------------------------------------------------
-# TEXTO 1: Título Principal "Dashboard"
+# TEXTOS PRINCIPALES Y DÍAS
 # ---------------------------------------------------------
 TXT_DASHBOARD = "Dashboard"
 TXT_DASH_SIZE = 50
@@ -79,114 +79,94 @@ TXT_DASH_COLOR_OSCURO = "#FFFFFF"
 TITULO_X = 100         
 TITULO_Y = -20         
 
-# ---------------------------------------------------------
-# TEXTO 2: Etiqueta "Filtros"
-# ---------------------------------------------------------
 TXT_FILTROS = "Filtros"
 TXT_FILTROS_SIZE = 14
 TXT_FILTROS_COLOR_CLARO = "#000000"
 TXT_FILTROS_COLOR_OSCURO = "#FFFFFF"
 
-# ---------------------------------------------------------
-# TEXTO 3: Etiqueta "Data Source"
-# ---------------------------------------------------------
 TXT_DATA = "Data Source"
 TXT_DATA_SIZE = 14
 TXT_DATA_COLOR_CLARO = "#000000"
 TXT_DATA_COLOR_OSCURO = "#FFFFFF"
 
-# ---------------------------------------------------------
-# TEXTO 4: Etiqueta "TOTAL BALANCE" (El texto pequeñito arriba de los $25,000)
-# ---------------------------------------------------------
 TXT_LBL_BAL = "TOTAL BALANCE"
 TXT_LBL_BAL_SIZE = 12
 TXT_LBL_BAL_COLOR_CLARO = "#000000"
 TXT_LBL_BAL_COLOR_OSCURO = "#FFFFFF"
 
-# ---------------------------------------------------------
-# TEXTO 5: Etiqueta "Balance:" (La que está encima del cuadro donde escribes/pegas)
-# ---------------------------------------------------------
 TXT_LBL_INPUT = "Balance:"
 TXT_LBL_INPUT_SIZE = 14
 TXT_LBL_INPUT_COLOR_CLARO = "#000000"
 TXT_LBL_INPUT_COLOR_OSCURO = "#FFFFFF"
 
-# ---------------------------------------------------------
-# TEXTO 6: El Nombre del Mes (Ejemplo: April 2026)
-# ---------------------------------------------------------
 TXT_MES_SIZE = 22
 TXT_MES_COLOR_CLARO = "#000000"
 TXT_MES_COLOR_OSCURO = "#FFFFFF"
-MES_TEXTO_X = 0
-MES_TEXTO_Y = 10 
 
-# ---------------------------------------------------------
-# TEXTO 7: Días de la semana (Dom, Lun, Mar...)
-# ---------------------------------------------------------
 TXT_DIAS_SEM_SIZE = 13
 TXT_DIAS_SEM_COLOR_CLARO = "#000000"
 TXT_DIAS_SEM_COLOR_OSCURO = "#FFFFFF"
 
-# ---------------------------------------------------------
-# TEXTO 8: Número del Día dentro de la tarjeta (1, 2, 3...)
-# ---------------------------------------------------------
 TXT_NUM_DIA_SIZE = 15
 TXT_NUM_DIA_COLOR_CLARO = "#000000"
 TXT_NUM_DIA_COLOR_OSCURO = "#FFFFFF"
 
-# ---------------------------------------------------------
-# TEXTO 9: El dinero dentro de la tarjeta (Ej: +$50.00)
-# (Mantiene su color verde o rojo automático, pero puedes cambiar el TAMAÑO)
-# ---------------------------------------------------------
 TXT_PNL_DIA_SIZE = 16
-
-# ---------------------------------------------------------
-# TEXTO 10: El Porcentaje dentro de la tarjeta (Ej: +1.50%)
-# ---------------------------------------------------------
 TXT_PCT_DIA_SIZE = 11
 TXT_PCT_DIA_COLOR_CLARO = "#000000"
 TXT_PCT_DIA_COLOR_OSCURO = "#FFFFFF"
 
 # ---------------------------------------------------------
-# TEXTO 11: Título "Net P&L"
+# CONFIGURACIONES DE TARJETAS (PNL Y WIN) - TAMAÑOS Y POSICIÓN
 # ---------------------------------------------------------
 TXT_TITULO_PNL = "Net P&L"
 TXT_TITULO_PNL_SIZE = 14
 TXT_TITULO_PNL_COLOR_CLARO = "#000000"
 TXT_TITULO_PNL_COLOR_OSCURO = "#FFFFFF"
 
-# ---------------------------------------------------------
-# TEXTO 12: Título "Trade win %" (El texto Twin que mencionaste)
-# ---------------------------------------------------------
 TXT_TITULO_WIN = "Trade win %"
 TXT_TITULO_WIN_SIZE = 14
 TXT_TITULO_WIN_COLOR_CLARO = "#000000"
 TXT_TITULO_WIN_COLOR_OSCURO = "#FFFFFF"
 
-# ---------------------------------------------------------
-# TEXTO 13: El valor del porcentaje grande (Ej: 45.16%)
-# ---------------------------------------------------------
 TXT_VALOR_WIN_SIZE = 28
 TXT_VALOR_WIN_COLOR_CLARO = "#000000"
 TXT_VALOR_WIN_COLOR_OSCURO = "#FFFFFF"
 
+CARD_PNL_W = "100%"     # Ej: "100%" o "250px"
+CARD_PNL_H = "auto"     # Ej: "auto" o "120px"
+CARD_PNL_X = 0          # Mueve la tarjeta en Horizontal
+CARD_PNL_Y = 0          # Mueve la tarjeta en Vertical
 
-# --- CONFIGURACIONES DE BOTONES, CAJAS Y FLECHAS ---
+CARD_WIN_W = "100%"     # Ej: "100%" o "250px"
+CARD_WIN_H = "auto"     # Ej: "auto" o "200px"
+CARD_WIN_X = 0          # Mueve la tarjeta en Horizontal
+CARD_WIN_Y = 0          # Mueve la tarjeta en Vertical
+
+# ---------------------------------------------------------
+# CONFIGURACIÓN DEL BOTÓN DE UPLOAD (CÁMARA)
+# ---------------------------------------------------------
+UPLOAD_X = 0
+UPLOAD_Y = 0
+UPLOAD_BG_ZONA_CLARO = "transparent"  # Color de la zona detrás del botón
+UPLOAD_BG_ZONA_OSCURO = "transparent" 
+UPLOAD_BTN_BG_CLARO = "#E2E8F0"       # Color del botón en sí
+UPLOAD_BTN_BG_OSCURO = "#4A5568"
+UPLOAD_BTN_TXT_CLARO = "#000000"      # Color del texto/ícono del botón
+UPLOAD_BTN_TXT_OSCURO = "#FFFFFF"
+
+# ---------------------------------------------------------
+# CONFIGURACIÓN DE FLECHAS (CALENDARIO) Y OTROS
+# ---------------------------------------------------------
+FLECHAS_X_AJUSTE = 0 
+FLECHAS_Y_AJUSTE = 0   # Si pones 10 bajará 10px, si pones -10 subirá
+FLECHAS_SIZE = 16
+
 BOTON_FONDO_CLARO = "#F3F4F6"
 BOTON_FONDO_OSCURO = "#2D3748"
-
-BOTON_X = 0         
-BOTON_Y = 27         
 BOTON_WIDTH = 45     
 BOTON_HEIGHT = 45    
 BOTON_ICON_SIZE = 22 
-
-FLECHAS_X_AJUSTE = 0 
-FLECHAS_Y_AJUSTE = -50 
-FLECHAS_SIZE = 16
-
-UPLOAD_X = 400         # <- MUEVE EL BOTÓN DE UPLOAD A LA DERECHA/IZQUIERDA
-UPLOAD_Y = 0         # <- MUEVE EL BOTÓN DE UPLOAD ARRIBA/ABAJO
 
 BALANCE_BOX_X = 0     
 BALANCE_BOX_Y = 0     
@@ -198,12 +178,24 @@ INPUT_BAL_Y = 0
 INPUT_FONDO_CLARO = "#FFFFFF"
 INPUT_FONDO_OSCURO = "#1A202C"
 
-CARD_PNL_X = 0       
-CARD_PNL_Y = 10      
-CARD_PNL_W = 80      
-CARD_WIN_X = 0       
-CARD_WIN_Y = 20      
-CARD_WIN_W = 80      
+# ---------------------------------------------------------
+# NUEVAS TARJETAS DE SEMANA Y MES (WEEK / MONTH)
+# ---------------------------------------------------------
+WEEKS_CONTENEDOR_X = 0      # Mueve todo el bloque de semanas entero
+WEEKS_CONTENEDOR_Y = 15     # Ajusta la distancia hacia arriba o abajo
+
+WEEK_BOX_W = "48%"          # Ancho de los cuadritos de semanas
+WEEK_BOX_H = "70px"         # Alto de los cuadritos
+WEEK_TITLE_SIZE = 12        # Tamaño del texto "Week 1"
+WEEK_TITLE_COLOR_C = "#000000"
+WEEK_TITLE_COLOR_O = "#FFFFFF"
+WEEK_VAL_SIZE = 16          # Tamaño del dinero
+WEEK_ALIGN = "center"       # Alineación interna (center, flex-start, flex-end)
+
+MONTH_BOX_W = "100%"        # Ancho del cuadro de MES
+MONTH_BOX_H = "80px"        # Alto del cuadro de MES
+MONTH_TITLE_SIZE = 14       
+MONTH_VAL_SIZE = 22         
 
 # ==========================================
 # 4. LÓGICA DE ESTADO DEL USUARIO
@@ -313,6 +305,11 @@ if st.session_state.tema == "Claro":
     btn_bg = BOTON_FONDO_CLARO
     btn_txt = "#000000" 
     input_bg = INPUT_FONDO_CLARO
+    
+    u_zone_bg = UPLOAD_BG_ZONA_CLARO
+    u_btn_bg = UPLOAD_BTN_BG_CLARO
+    u_btn_txt = UPLOAD_BTN_TXT_CLARO
+    wk_tit_c = WEEK_TITLE_COLOR_C
 else:
     bg_color, card_bg, border_color, empty_cell_bg = "#1A202C", "#2D3748", "#4A5568", "#1A202C"
     
@@ -332,6 +329,11 @@ else:
     btn_bg = BOTON_FONDO_OSCURO
     btn_txt = "#FFFFFF" 
     input_bg = INPUT_FONDO_OSCURO
+    
+    u_zone_bg = UPLOAD_BG_ZONA_OSCURO
+    u_btn_bg = UPLOAD_BTN_BG_OSCURO
+    u_btn_txt = UPLOAD_BTN_TXT_OSCURO
+    wk_tit_c = WEEK_TITLE_COLOR_O
 
 # ==========================================
 # 7. INYECCIÓN DE CSS DINÁMICO
@@ -366,12 +368,12 @@ st.markdown(f"""
     div[data-testid="stNumberInput"] div[data-baseweb="input"] {{ background-color: {input_bg} !important; border-color: {border_color} !important; }}
     div[data-testid="stNumberInput"] input {{ color: {c_lbl_in} !important; background-color: {input_bg} !important; font-weight: bold; }}
 
-    /* ÁREA DE UPLOAD (FONDO TRANSPARENTE, SIN TEXTOS EXTRA) */
-    [data-testid="stFileUploader"] {{ background-color: transparent !important; margin-left: {UPLOAD_X}px !important; margin-top: {UPLOAD_Y}px !important; }}
+    /* ÁREA DE UPLOAD (COMPLETAMENTE MODIFICABLE) */
+    [data-testid="stFileUploader"] {{ transform: translate({UPLOAD_X}px, {UPLOAD_Y}px) !important; background-color: {u_zone_bg} !important; border-radius: 8px; }}
     [data-testid="stFileUploadDropzone"] {{ background-color: transparent !important; border: none !important; padding: 0 !important; min-height: 0 !important; }}
     [data-testid="stFileUploadDropzone"] > div > span, [data-testid="stFileUploadDropzone"] small, [data-testid="stFileUploaderDropzoneInstructions"] {{ display: none !important; }}
-    [data-testid="stFileUploadDropzone"] button {{ background-color: {btn_bg} !important; color: {btn_txt} !important; border: 1px solid {border_color} !important; border-radius: 6px !important; margin: 0 !important; }}
-    [data-testid="stFileUploadDropzone"] button * {{ color: {btn_txt} !important; }}
+    [data-testid="stFileUploadDropzone"] button {{ background-color: {u_btn_bg} !important; color: {u_btn_txt} !important; border: 1px solid {border_color} !important; border-radius: 6px !important; margin: 0 !important; }}
+    [data-testid="stFileUploadDropzone"] button * {{ color: {u_btn_txt} !important; }}
 
     /* BOTONES GENERALES */
     div[data-testid="stButton"] > button {{ background-color: {btn_bg} !important; color: {btn_txt} !important; border: 1px solid {border_color} !important; }}
@@ -386,17 +388,13 @@ st.markdown(f"""
         aspect-ratio: 1 / 1; padding: 5px; border-radius: 20px; 
         display: flex; flex-direction: column; position: relative;
         font-size: 12px; margin-bottom: 6px !important;
-        padding-bottom: 25px !important; /* DA ESPACIO PARA LA CÁMARA ABAJO */
+        padding-bottom: 25px !important; 
     }}
-    /* Numero del dia anclado arriba a la izquierda */
     .day-number {{ position: absolute; top: 6px; left: 10px; font-size: {TXT_NUM_DIA_SIZE}px; font-weight: bold; color: {c_num_dia}; }}
-    
-    /* Contenido de dinero y pct */
     .day-content {{ margin-top: auto; margin-bottom: auto; text-align: center; width: 100%; }}
     .day-pnl {{ font-size: {TXT_PNL_DIA_SIZE}px; font-weight: bold; }}
     .day-pct {{ font-size: {TXT_PCT_DIA_SIZE}px; color: {c_pct_dia}; opacity: 0.9; font-weight: 600; display: block; }}
     
-    /* Camara SOLDADA a la parte inferior central */
     .cam-icon {{ 
         position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%);
         font-size: 15px; cursor: pointer; background: rgba(255,255,255,0.7); 
@@ -408,14 +406,15 @@ st.markdown(f"""
     .cell-loss {{ border: 2.5px solid #FF4C4C; color: #9B1C1C; background-color: #ffeded;}}
     .cell-empty {{ border: 1px solid {border_color}; background-color: {empty_cell_bg};}}
 
-    /* MODAL DE CÁMARA */
-    /* Cambio de + a ~ para que el clic lo active correctamente */
     .modal-toggle:checked ~ .fs-modal {{ display: flex !important; }}
     .fs-modal {{ display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.95); z-index: 9999999; flex-direction: column; align-items: center; justify-content: center; overflow-y: auto; padding: 50px 0; }}
     .fs-modal img {{ max-width: 90vw; max-height: 80vh; margin-bottom: 20px; box-shadow: 0 0 20px black; border-radius: 10px; object-fit: contain; }}
     .close-btn {{ color: white; font-size: 25px; position: absolute; top: 30px; right: 50px; cursor: pointer; font-weight: bold; background: red; padding: 5px 15px; border-radius: 8px; }}
 
-    /* METRICAS */
+    /* METRICAS PNL Y WIN (TAMAÑOS Y POSICIONES FORZADAS) */
+    .card-pnl {{ width: {CARD_PNL_W} !important; height: {CARD_PNL_H} !important; transform: translate({CARD_PNL_X}px, {CARD_PNL_Y}px) !important; }}
+    .card-win {{ width: {CARD_WIN_W} !important; height: {CARD_WIN_H} !important; transform: translate({CARD_WIN_X}px, {CARD_WIN_Y}px) !important; }}
+    
     .metric-card {{ background-color: {card_bg}; border-radius: 20px; padding: 15px 20px; border: 1px solid {border_color}; }}
     .metric-header {{ display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }}
     .title-net-pnl {{ font-size: {TXT_TITULO_PNL_SIZE}px; font-weight: 700; color: {c_tit_pnl}; }}
@@ -431,9 +430,36 @@ st.markdown(f"""
     .lbl-b {{ background-color: #EEF2FF; color: #4F46E5; padding: 2px 8px; border-radius: 10px; }}
     .lbl-r {{ background-color: #ffeded; color: #FF4C4C; padding: 2px 8px; border-radius: 10px; }}
 
-    /* FLECHAS MES - ¡CON !IMPORTANT PARA FORZAR EL MOVIMIENTO! */
-    .calendar-wrapper [data-testid="stButton"], .calendar-wrapper .stButton {{ margin-top: {FLECHAS_Y_AJUSTE}px !important; margin-left: {FLECHAS_X_AJUSTE}px !important; }}
-    .calendar-wrapper div[data-testid="stButton"] button * {{ font-size: {FLECHAS_SIZE}px !important; }}
+    /* FLECHAS MES - ¡AHORA USAN TRANSFORM PARA GARANTIZAR MOVIMIENTO! */
+    .calendar-wrapper div[data-testid="column"]:first-child button {{ transform: translate({FLECHAS_X_AJUSTE}px, {FLECHAS_Y_AJUSTE}px) !important; font-size: {FLECHAS_SIZE}px !important; }}
+    .calendar-wrapper div[data-testid="column"]:nth-child(3) button {{ transform: translate(calc({FLECHAS_X_AJUSTE}px * -1), {FLECHAS_Y_AJUSTE}px) !important; font-size: {FLECHAS_SIZE}px !important; }}
+
+    /* ESTILOS DE LOS CUADROS DE SEMANAS Y MES */
+    .weeks-container {{ 
+        transform: translate({WEEKS_CONTENEDOR_X}px, {WEEKS_CONTENEDOR_Y}px);
+        display: flex; flex-wrap: wrap; gap: 10px; justify-content: space-between; 
+        margin-top: 15px;
+    }}
+    .wk-box {{ 
+        width: {WEEK_BOX_W}; height: {WEEK_BOX_H}; 
+        background: {card_bg}; border: 1px solid {border_color}; border-radius: 12px;
+        display: flex; flex-direction: column; align-items: {WEEK_ALIGN}; justify-content: center; padding: 5px;
+    }}
+    .wk-title {{ font-size: {WEEK_TITLE_SIZE}px; font-weight: 700; color: {wk_tit_c}; margin-bottom: 2px; }}
+    .wk-val {{ font-size: {WEEK_VAL_SIZE}px; font-weight: 800; }}
+    
+    .mo-box {{ 
+        width: {MONTH_BOX_W}; height: {MONTH_BOX_H}; 
+        background: {card_bg}; border: 1px solid {border_color}; border-radius: 15px;
+        display: flex; flex-direction: column; align-items: {WEEK_ALIGN}; justify-content: center; padding: 10px;
+        margin-top: 5px;
+    }}
+    .mo-title {{ font-size: {MONTH_TITLE_SIZE}px; font-weight: 800; color: {wk_tit_c}; text-transform: uppercase; letter-spacing: 1px; }}
+    .mo-val {{ font-size: {MONTH_VAL_SIZE}px; font-weight: 800; }}
+    
+    .txt-green {{ color: #00C897; }}
+    .txt-red {{ color: #FF4C4C; }}
+    .txt-gray {{ color: gray; }}
     </style>
     """, unsafe_allow_html=True)
 
@@ -534,12 +560,10 @@ with col_cal:
                             if trade.get("imagenes"):
                                 id_modal = f"mod_{anio_sel}_{mes_sel}_{dia}"
                                 img_tags = "".join([f'<img src="{img}">' for img in trade["imagenes"]])
-                                # CORRECCIÓN: HTML del modal y botón de cámara en una sola línea para evitar fallos de formato Markdown en Streamlit
                                 cam_html = f'<input type="checkbox" id="{id_modal}" class="modal-toggle" style="display:none;"><label for="{id_modal}"><div class="cam-icon">📷</div></label><div class="fs-modal"><label for="{id_modal}" class="close-btn">✖ CERRAR</label>{img_tags}</div>'
                             else:
                                 cam_html = ""
                             
-                            # CORRECCIÓN: HTML de la tarjeta completa en una sola línea
                             st.markdown(f'<div class="card {c_cls}"><div class="day-number">{dia}</div><div class="day-content"><span class="day-pnl">{c_sim}${trade["pnl"]:,.2f}</span><br><span class="day-pct">{pct_str}</span></div>{cam_html}</div>', unsafe_allow_html=True)
                         else:
                             op = "0.2" if trade and not visible else "1"
@@ -547,6 +571,7 @@ with col_cal:
     st.markdown('</div>', unsafe_allow_html=True)
 
 with col_det:
+    # --- CÁLCULOS PNL ---
     trades_mes = [v["pnl"] for k, v in db_usuario[ctx]["trades"].items() if k[0] == anio_sel and k[1] == mes_sel]
     total_trades = len(trades_mes)
     
@@ -564,6 +589,7 @@ with col_det:
     color_pnl = "pnl-value" if net_pnl >= 0 else "pnl-value pnl-value-loss"
     simbolo_pnl = "+" if net_pnl > 0 else ""
     
+    # --- RENDERIZADO TARJETA PNL ---
     st.markdown(f"""
         <div class="metric-card card-pnl">
             <div class="metric-header"><span class="title-net-pnl">{TXT_TITULO_PNL}</span></div>
@@ -580,6 +606,7 @@ with col_det:
         svg_html += f'<path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#00C897" stroke-width="10" stroke-dasharray="{len_w} {c}"/>\n'
     svg_html += '</svg>'
 
+    # --- RENDERIZADO TARJETA WIN % ---
     st.markdown(f"""
         <div class="metric-card card-win">
             <div>
@@ -591,4 +618,38 @@ with col_det:
                 <div class="gauge-labels"><span class="lbl-g">{wins}</span><span class="lbl-b">{ties}</span><span class="lbl-r">{losses}</span></div>
             </div>
         </div>
+    """, unsafe_allow_html=True)
+    
+    # --- CÁLCULOS DE SEMANAS (WEEK 1 A 4) ---
+    w1, w2, w3, w4 = 0.0, 0.0, 0.0, 0.0
+    for key, val in db_usuario[ctx]["trades"].items():
+        if key[0] == anio_sel and key[1] == mes_sel:
+            dia = key[2]
+            if dia <= 7: w1 += val["pnl"]
+            elif dia <= 14: w2 += val["pnl"]
+            elif dia <= 21: w3 += val["pnl"]
+            else: w4 += val["pnl"]
+    
+    m_total = w1 + w2 + w3 + w4
+    
+    def get_col_simb(valor):
+        if valor > 0: return "txt-green", "+"
+        elif valor < 0: return "txt-red", ""
+        else: return "txt-gray", ""
+
+    c1, s1 = get_col_simb(w1)
+    c2, s2 = get_col_simb(w2)
+    c3, s3 = get_col_simb(w3)
+    c4, s4 = get_col_simb(w4)
+    cM, sM = get_col_simb(m_total)
+
+    # --- RENDERIZADO DE LOS CUADROS DE SEMANAS Y MES ---
+    st.markdown(f"""
+    <div class="weeks-container">
+        <div class="wk-box"><div class="wk-title">Week 1</div><div class="wk-val {c1}">{s1}${w1:,.2f}</div></div>
+        <div class="wk-box"><div class="wk-title">Week 2</div><div class="wk-val {c2}">{s2}${w2:,.2f}</div></div>
+        <div class="wk-box"><div class="wk-title">Week 3</div><div class="wk-val {c3}">{s3}${w3:,.2f}</div></div>
+        <div class="wk-box"><div class="wk-title">Week 4</div><div class="wk-val {c4}">{s4}${w4:,.2f}</div></div>
+        <div class="mo-box"><div class="mo-title">Month</div><div class="mo-val {cM}">{sM}${m_total:,.2f}</div></div>
+    </div>
     """, unsafe_allow_html=True)
