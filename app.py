@@ -475,7 +475,7 @@ st.markdown(f"""
     /* TAMAÑO Y COLOR DE LAS OPCIONES DE ADENTRO FORZADO DIRECTAMENTE A LOS COMPONENTES */
     div[data-testid="stSelectbox"] div[data-baseweb="select"] * {{ font-size: {OPT_FILTROS_SIZE}px !important; color: {c_opt_filtros} !important; }}
     div[data-testid="stSelectbox"] div[data-baseweb="select"] svg {{ fill: 00000 !important; color: 00000 !important; }}
-    div[data-testid="stSelectbox"] input {{ color: FFFFFF !important; }}
+    div[data-testid="stSelectbox"] input {{ color: 00000 !important; }}
     
     ul[role="listbox"] * {{ font-size: {OPT_FILTROS_SIZE}px !important; color: {c_opt_filtros} !important; }}
     li[role="option"] {{ background-color: {card_bg} !important; }}
