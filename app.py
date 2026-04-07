@@ -236,7 +236,6 @@ BTN_NOTAS_SIZE = 18
 # [ TARJETA: NET P&L ]
 # ---------------------------------------------------------
 CARD_PNL_TITULO = "Net P&L Monthly"
-CARD_PNL_TITULO_SIZE = 20
 CARD_PNL_TITULO_COLOR_C = "#000000"
 CARD_PNL_TITULO_COLOR_O = "#FFFFFF"
 
@@ -249,7 +248,6 @@ CARD_PNL_Y = 0
 # [ TARJETA: TRADE WIN % ]
 # ---------------------------------------------------------
 CARD_WIN_TITULO = "Win Rate Monthly"
-CARD_WIN_TITULO_SIZE = 20
 CARD_WIN_TITULO_COLOR_C = "#000000"
 CARD_WIN_TITULO_COLOR_O = "#FFFFFF"
 CARD_WIN_VALOR_SIZE = 28
@@ -360,6 +358,17 @@ st.sidebar.markdown("---")
 
 st.sidebar.markdown("### 📊 Metrics")
 mostrar_tabla = st.sidebar.toggle("Show Results Table", value=False)
+
+st.sidebar.markdown("---")
+st.sidebar.markdown("### 🔠 Ajustes de Texto")
+if "size_top_stats" not in st.session_state:
+    st.session_state.size_top_stats = 18
+if "size_card_titles" not in st.session_state:
+    st.session_state.size_card_titles = 20
+
+st.session_state.size_top_stats = st.sidebar.slider("Tamaño Monthly P&L y Win Rate (Top)", 10, 40, st.session_state.size_top_stats)
+st.session_state.size_card_titles = st.sidebar.slider("Tamaño Títulos (All-Time, etc)", 10, 40, st.session_state.size_card_titles)
+
 
 st.sidebar.markdown("---")
 st.sidebar.markdown("### ⚙️ Settings")
@@ -550,8 +559,8 @@ st.markdown(f"""
     
     .metric-card {{ background-color: {card_bg} !important; border-radius: 15px !important; padding: 15px 20px !important; border: 1px solid {border_color} !important; }}
     .metric-header {{ display: flex !important; align-items: center !important; gap: 8px !important; margin-bottom: 5px !important; }}
-    .title-net-pnl {{ font-size: {CARD_PNL_TITULO_SIZE}px !important; font-weight: 700 !important; color: {c_tit_pnl} !important; }}
-    .title-trade-win {{ font-size: {CARD_WIN_TITULO_SIZE}px !important; font-weight: 700 !important; color: {c_tit_win} !important; }}
+    .title-net-pnl {{ font-size: {st.session_state.size_card_titles}px !important; font-weight: 700 !important; color: {c_tit_pnl} !important; }}
+    .title-trade-win {{ font-size: {st.session_state.size_card_titles}px !important; font-weight: 700 !important; color: {c_tit_win} !important; }}
     
     .pnl-value {{ font-size: 28px !important; font-weight: 800 !important; color: #00C897 !important; letter-spacing: -0.5px !important; }}
     .pnl-value-loss {{ color: #FF4C4C !important; }}
@@ -729,7 +738,7 @@ with c_not:
             colorful_menu(bias_options, "&nbsp;&nbsp;&nbsp;Bias", 'bias', trade_data_ref)
             st.markdown("<br>", unsafe_allow_html=True)
             
-            Confluences_options = ['BIAS Claro', 'Liq Sweep', 'IFVG', 'FVG', 'EQH / EQL', 'BSL / SSL', 'POI', 'SMT', 'Order Block', 'PDH / PDL', 'Continuación', 'Data High / Data Low' 'CISD']
+            Confluences_options = ['BIAS Claro', 'Liq Sweep', 'IFVG', 'FVG', 'EQH / EQL', 'BSL / SSL', 'POI', 'SMT', 'Order Block', 'PDH / PDL', 'Continuación', 'Data High / Data Low', 'CISD']
             colorful_multiselect(Confluences_options, "&nbsp;&nbsp;&nbsp;Confluences", 'Confluences', trade_data_ref)
             st.markdown("<br>", unsafe_allow_html=True)
 
@@ -786,8 +795,8 @@ with col_cal:
     with c_stats:
         st.markdown(f'''
             <div style="display:flex; justify-content:flex-end; align-items:center; gap:20px; margin-top:8px;">
-                <div style="font-weight:700; font-size:18px; color:{c_mes}; display:flex; align-items:center; gap:8px;">Monthly P&L: <span style="background-color:{bg_pnl_top}; color:{color_pnl_top}; padding:4px 12px; border-radius:12px; font-weight:800;">{simb_pnl_top}${net_pnl_top:,.2f}</span></div>
-                <div style="font-weight:700; font-size:18px; color:{c_mes}; display:flex; align-items:center; gap:8px;">Win Rate: <span style="background-color:{bg_win_top}; color:{color_win_top}; padding:4px 12px; border-radius:12px; font-weight:800;">{win_pct_top:.1f}%</span></div>
+                <div style="font-weight:700; font-size:{st.session_state.size_top_stats}px; color:{c_mes}; display:flex; align-items:center; gap:8px;">Monthly P&L: <span style="background-color:{bg_pnl_top}; color:{color_pnl_top}; padding:4px 12px; border-radius:12px; font-weight:800;">{simb_pnl_top}${net_pnl_top:,.2f}</span></div>
+                <div style="font-weight:700; font-size:{st.session_state.size_top_stats}px; color:{c_mes}; display:flex; align-items:center; gap:8px;">Win Rate: <span style="background-color:{bg_win_top}; color:{color_win_top}; padding:4px 12px; border-radius:12px; font-weight:800;">{win_pct_top:.1f}%</span></div>
             </div>
         ''', unsafe_allow_html=True)
     
@@ -881,7 +890,7 @@ with col_det:
         <div class="metric-card card-win">
             <div>
                 <div class="metric-header"><span class="title-trade-win">{titulo_win}</span></div>
-                <div class="win-value">{win_pct:.2f}%</div>
+                <div class="win-value">{win_pct:.2f}%<br><span style="font-size: 16px; color: gray; font-weight: 600;">{wins}W / {losses}L</span></div>
             </div>
             <div class="gauge-container">
                 {svg_html}
@@ -901,47 +910,57 @@ with col_det:
     
     if not ver_todo:
         # LÓGICA DE SEMANAS (MENSUAL)
-        semanas_totales = {i: 0.0 for i in range(1, len(mes_matriz) + 1)}
+        semanas_stats = {i: {"pnl": 0.0, "w": 0, "l": 0} for i in range(1, len(mes_matriz) + 1)}
         
         for key, val in db_usuario[ctx]["trades"].items():
             if key[0] == anio_sel and key[1] == mes_sel:
                 dia = key[2]
                 for idx, semana in enumerate(mes_matriz):
                     if dia in semana:
-                        semanas_totales[idx + 1] += val["pnl"]
+                        semanas_stats[idx + 1]["pnl"] += val["pnl"]
+                        if val["pnl"] > 0: semanas_stats[idx + 1]["w"] += 1
+                        elif val["pnl"] < 0: semanas_stats[idx + 1]["l"] += 1
                         break
 
-        m_total = sum(semanas_totales.values())
+        m_total = sum(s["pnl"] for s in semanas_stats.values())
+        m_w = sum(s["w"] for s in semanas_stats.values())
+        m_l = sum(s["l"] for s in semanas_stats.values())
+        
         cM, sM = get_col_simb(m_total)
         pct_m = calc_pct(m_total)
 
         titulos_semanas = [TXT_W1, TXT_W2, TXT_W3, TXT_W4, TXT_W5, TXT_W6]
         
         semanas_html = ""
-        for idx, (num_sem, val_sem) in enumerate(semanas_totales.items()):
+        for idx, (num_sem, stats) in enumerate(semanas_stats.items()):
             titulo_str = titulos_semanas[idx] if idx < len(titulos_semanas) else f"Week {num_sem}"
-            c_sem, s_sem = get_col_simb(val_sem)
-            pct_sem = calc_pct(val_sem)
-            semanas_html += f'<div class="wk-box"><div class="wk-title">{titulo_str}</div><div class="wk-val {c_sem}">{s_sem}${val_sem:,.2f}<br><span style="font-size:{WEEKS_PCT_SIZE}px;">{s_sem}{pct_sem:.2f}%</span></div></div>'
+            c_sem, s_sem = get_col_simb(stats["pnl"])
+            pct_sem = calc_pct(stats["pnl"])
+            semanas_html += f'<div class="wk-box"><div class="wk-title">{titulo_str}</div><div class="wk-val {c_sem}">{s_sem}${stats["pnl"]:,.2f}<br><span style="font-size:{WEEKS_PCT_SIZE}px;">{s_sem}{pct_sem:.2f}%</span><br><span style="font-size: 14px; color: gray; font-weight: 500;">{stats["w"]}W / {stats["l"]}L</span></div></div>'
 
-        st.markdown(f'<div class="weeks-container">{semanas_html}<div class="mo-box"><div class="mo-title">{TXT_MO}</div><div class="mo-val {cM}">{sM}${m_total:,.2f}<br><span style="font-size:{WEEKS_PCT_SIZE}px;">{sM}{pct_m:.2f}%</span></div></div></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="weeks-container">{semanas_html}<div class="mo-box"><div class="mo-title">{TXT_MO}</div><div class="mo-val {cM}">{sM}${m_total:,.2f}<br><span style="font-size:{WEEKS_PCT_SIZE}px;">{sM}{pct_m:.2f}%</span><br><span style="font-size: 16px; color: gray; font-weight: 500;">{m_w}W / {m_l}L</span></div></div></div>', unsafe_allow_html=True)
 
     else:
         # LÓGICA DE TODOS LOS MESES (ALL-TIME)
-        meses_totales = {}
+        meses_stats = {}
         for key, val in db_usuario[ctx]["trades"].items():
             y, m = key[0], key[1]
-            if (y, m) not in meses_totales:
-                meses_totales[(y, m)] = 0.0
-            meses_totales[(y, m)] += val["pnl"]
+            if (y, m) not in meses_stats:
+                meses_stats[(y, m)] = {"pnl": 0.0, "w": 0, "l": 0}
+            meses_stats[(y, m)]["pnl"] += val["pnl"]
+            if val["pnl"] > 0: meses_stats[(y, m)]["w"] += 1
+            elif val["pnl"] < 0: meses_stats[(y, m)]["l"] += 1
             
         meses_html = ""
-        for (y, m) in sorted(meses_totales.keys()):
-            val_m = meses_totales[(y, m)]
+        for (y, m) in sorted(meses_stats.keys()):
+            val_m = meses_stats[(y, m)]["pnl"]
+            w_m = meses_stats[(y, m)]["w"]
+            l_m = meses_stats[(y, m)]["l"]
+            
             nombre_m = f"{calendar.month_abbr[m]} {y}"
             c_m, s_m = get_col_simb(val_m)
             pct_m_box = calc_pct(val_m)
-            meses_html += f'<div class="wk-box"><div class="wk-title" style="font-size:16px;">{nombre_m}</div><div class="wk-val {c_m}">{s_m}${val_m:,.2f}<br><span style="font-size:{WEEKS_PCT_SIZE}px;">{s_m}{pct_m_box:.2f}%</span></div></div>'
+            meses_html += f'<div class="wk-box"><div class="wk-title" style="font-size:16px;">{nombre_m}</div><div class="wk-val {c_m}">{s_m}${val_m:,.2f}<br><span style="font-size:{WEEKS_PCT_SIZE}px;">{s_m}{pct_m_box:.2f}%</span><br><span style="font-size: 14px; color: gray; font-weight: 500;">{w_m}W / {l_m}L</span></div></div>'
         
         if meses_html:
             st.markdown(f'<div class="weeks-container">{meses_html}</div>', unsafe_allow_html=True)
@@ -999,7 +1018,7 @@ with st.expander("🛠️ OPEN ORDER HISTORY", expanded=False):
                     nuevo_pnl = st.number_input("Editar P&L", value=pnl_val, format="%.2f", key=f"p_{clave}")
                 
                 st.markdown("---")
-                st.markdown("**📸 Saved Images::**")
+                st.markdown("**📸 Saved Images:**")
                 
                 counter_key = f"upd_counter_{clave}"
                 if counter_key not in st.session_state:
