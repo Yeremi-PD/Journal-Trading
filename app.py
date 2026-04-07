@@ -470,8 +470,10 @@ st.markdown(f"""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
     
-    /* MEDIA QUERIES PARA CAMBIO AUTOMÁTICO PC/MÓVIL */
-    :root {{ {gen_css_vars(db_global[usuario]["settings"]["PC"])} }}
+    /* VISTA PREVIA EN TIEMPO REAL DEL PERFIL SELECCIONADO */
+    :root {{ {gen_css_vars(user_settings)} }}
+    
+    /* CAMBIO AUTOMÁTICO A MÓVIL EN PANTALLAS PEQUEÑAS (CUANDO ESTÁ EN PERFIL PC) */
     @media (max-width: 768px) {{ :root {{ {gen_css_vars(db_global[usuario]["settings"]["Móvil"])} }} }}
 
     .stApp {{ background-color: {bg_color} !important; font-family: 'Inter', sans-serif !important; }}
