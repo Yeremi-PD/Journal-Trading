@@ -5,6 +5,9 @@ import math
 import base64
 import pandas as pd
 from datetime import datetime, date
+import json
+import gspread
+from google.oauth2.service_account import Credentials
 
 # ==========================================
 # 1. CONFIGURACIÓN INICIAL
@@ -12,13 +15,18 @@ from datetime import datetime, date
 st.set_page_config(page_title="Yeremi Journal Pro", layout="wide")
 
 # ==========================================
-# 2. BASE DE DATOS GLOBAL Y LOGIN
+# 2. BASE DE DATOS GLOBAL Y LOGIN (GOOGLE SHEETS)
 # ==========================================
-@st.cache_resource
-def get_global_db():
-    return {}
+def conectar_google_sheets():
+    try:
+        scope = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
+        creds = Credentials.from_service_account_info(st.secrets["gcp_service_account"], scopes=scope)
+        client = gspread.authorize(creds)
+        return client.open("Trading_Journal_DB").sheet1
+    except Exception as e:
+        return None
 
-db_global = get_global_db()
+hoja_excel = conectar_google_sheets()
 
 def inicializar_data_usuario():
     return {
@@ -28,21 +36,88 @@ def inicializar_data_usuario():
 
 def inicializar_settings():
     return {
-        # Dashboard (Solo quedó la caja de Balance Total)
         "bal_num_sz": 30, "bal_box_w": 50, "bal_box_pad": 10,
-        
-        # Textos y Gráficos
         "size_top_stats": 18, "size_card_titles": 20, "size_box_titles": 20,
         "size_box_vals": 25, "size_box_pct": 20, "size_box_wl": 14,
         "pie_size": 120, "pie_y_offset": 0,
-        
-        # Calendario y Notas
         "cal_mes_size": 28, "cal_pnl_size": 30, "cal_pct_size": 25,
         "cal_dia_size": 20, "cal_cam_size": 30, "cal_scale": 100, "cal_line_height": 1.2,
         "cal_txt_y": 0, "cal_txt_pad": 0, "cal_note_size": 30,
         "note_lbl_size": 16, "note_val_size": 16
     }
 
+@st.cache_resource
+def get_global_db():
+    db_temp = {}
+    if hoja_excel:
+        try:
+            filas = hoja_excel.get_all_values()
+            if len(filas) > 1:
+                headers = filas[0]
+                for row in filas[1:]:
+                    # Emparejar con los encabezados de la fila
+                    row_data = dict(zip(headers, row + [''] * (len(headers) - len(row))))
+                    user = str(row_data.get('Usuario', ''))
+                    if not user: continue
+                    
+                    if user not in db_temp:
+                        db_temp[user] = {
+                            "password": str(row_data.get('Password', '123')), 
+                            "data": inicializar_data_usuario(),
+                            "settings": {"PC": inicializar_settings(), "Móvil": inicializar_settings()}
+                        }
+                    
+                    cuenta = row_data.get('Cuenta', 'Account Real')
+                    f_str = row_data.get('Fecha', '')
+                    try:
+                        d_obj = datetime.strptime(f_str, "%d/%m/%Y")
+                        clave = (d_obj.year, d_obj.month, d_obj.day)
+                    except: continue
+
+                    trade_info = {
+                        "pnl": float(row_data.get('PnL', 0) or 0),
+                        "balance_final": float(row_data.get('Balance_Final', 0) or 0),
+                        "fecha_str": f_str,
+                        "imagenes": str(row_data.get('Imagenes_Base64', '')).split("|") if row_data.get('Imagenes_Base64') else [],
+                        "bias": "NEUTRO", "Confluences": [], "razon_trade": "", "Corrections": "", "risk": "0.5%", "rrr": "B", "trade_type": "", "Emotions": ""
+                    }
+                    
+                    extra = row_data.get('ExtraData', '')
+                    if extra:
+                        try:
+                            trade_info.update(json.loads(extra))
+                        except: pass
+                        
+                    db_temp[user]["data"][cuenta]["trades"][clave] = trade_info
+                    db_temp[user]["data"][cuenta]["balance"] = float(row_data.get('Balance_Final', 0) or 0)
+        except Exception:
+            pass
+    return db_temp
+
+db_global = get_global_db()
+
+# --- FUNCIÓN CENTRAL DE GUARDADO A LA NUBE ---
+def registrar_en_excel(cuenta, fecha_obj, balance, pnl, trade_data):
+    if hoja_excel:
+        try:
+            fecha_texto = fecha_obj.strftime("%d/%m/%Y")
+            lista_imgs = trade_data.get("imagenes", [])
+            imgs_texto = "|".join(lista_imgs) if lista_imgs else ""
+            
+            # Guardamos las notas personalizadas como JSON
+            extra_data = {k:v for k,v in trade_data.items() if k not in ['pnl', 'balance_final', 'fecha_str', 'imagenes']}
+            extra_str = json.dumps(extra_data)
+
+            # Crea los encabezados automáticos si el Excel está vacío
+            if len(hoja_excel.get_all_values()) == 0:
+                hoja_excel.append_row(["Usuario", "Password", "Cuenta", "Fecha", "Balance_Final", "PnL", "Imagenes_Base64", "ExtraData"])
+
+            nueva_fila = [st.session_state.usuario_actual, db_global[st.session_state.usuario_actual]["password"], cuenta, fecha_texto, balance, pnl, imgs_texto, extra_str]
+            hoja_excel.append_row(nueva_fila)
+        except Exception:
+            pass
+
+# --- LOGIN ---
 if "usuario_actual" not in st.session_state:
     st.session_state.usuario_actual = None
 
@@ -60,6 +135,14 @@ if st.session_state.usuario_actual is None or st.session_state.usuario_actual no
             log_user = st.text_input("Usuario", key="log_user")
             log_pass = st.text_input("Contraseña", type="password", key="log_pass")
             if st.button("Acceder", use_container_width=True):
+                # Si la base de datos acaba de empezar o es nueva, permitir entrada directa
+                if log_user not in db_global:
+                    db_global[log_user] = {
+                        "password": log_pass,
+                        "data": inicializar_data_usuario(),
+                        "settings": {"PC": inicializar_settings(), "Móvil": inicializar_settings()}
+                    }
+                
                 if log_user in db_global and db_global[log_user]["password"] == log_pass:
                     st.session_state.usuario_actual = log_user
                     st.rerun()
@@ -78,6 +161,8 @@ if st.session_state.usuario_actual is None or st.session_state.usuario_actual no
                         "data": inicializar_data_usuario(),
                         "settings": {"PC": inicializar_settings(), "Móvil": inicializar_settings()}
                     }
+                    # Crear fila inicial en Google Sheets
+                    registrar_en_excel("Account Real", datetime.now(), 25000.0, 0.0, {})
                     st.success("Cuenta creada con éxito. Ya puedes iniciar sesión.")
                 else:
                     st.warning("Completa todos los campos.")
@@ -97,7 +182,7 @@ TXT_DASH_COLOR_C = "#000000"
 TXT_DASH_COLOR_O = "#FFFFFF"
 
 LBL_FILTROS = "Filters"
-LBL_FILTROS_SIZE = 20            
+LBL_FILTROS_SIZE = 20           
 LBL_FILTROS_X = 0
 LBL_FILTROS_Y = 0
 LBL_FILTROS_COLOR_C = "#000000"
@@ -169,7 +254,7 @@ BTN_UP_TEXTO = "Upload"
 BTN_UP_SIZE = "20px"
 BTN_UP_W = "120px"             
 BTN_UP_H = "45px"              
-BTN_UP_BG_C = "#E2E8F0"        
+BTN_UP_BG_C = "#E2E8F0"       
 BTN_UP_BG_O = "#4A5568"
 BTN_UP_TXT_C = "#000000"      
 BTN_UP_TXT_O = "#FFFFFF"
@@ -313,6 +398,9 @@ def procesar_cambio():
             "Emotions": old_trade.get("Emotions", "")
         }
         db_usuario[ctx]["balance"] = nuevo
+        
+        # SINCRONIZACIÓN CON GOOGLE SHEETS
+        registrar_en_excel(ctx, fecha_sel, nuevo, pnl, db_usuario[ctx]["trades"][clave])
 
 def convertir_img_base64(uploaded_file):
     return base64.b64encode(uploaded_file.getvalue()).decode()
@@ -671,6 +759,13 @@ st.markdown(f"""
         .wk-box {{ width: 48% !important; margin-bottom: 10px !important; height: auto !important; padding: 10px !important; }}
         .mo-box {{ width: 100% !important; height: auto !important; margin-top: 10px !important; padding: 10px !important; }}
         .card-pnl, .card-win {{ width: 100% !important; transform: translate(0,0) !important; height: auto !important; margin-top: 10px !important; }}
+        
+        /* HACER TABLA RESPONSIVA EN MÓVIL (EVITAR QUE SE SALGA DE LA PANTALLA) */
+        div[data-testid="stDataFrame"] {{
+            width: 100% !important;
+            max-width: 100vw !important;
+            overflow-x: auto !important;
+        }}
     }}
     </style>
     """, unsafe_allow_html=True)
@@ -746,6 +841,11 @@ def agregar_imagenes_main(contexto, llave, widget_id, counter_id, bal_act, f_str
             }
         for img in archivos_nuevos:
             db_usuario[contexto]["trades"][llave]["imagenes"].append(f"data:{img.type};base64,{convertir_img_base64(img)}")
+        
+        # SINCRONIZAR A GOOGLE SHEETS AL AÑADIR IMÁGENES
+        fecha_obj = datetime(llave[0], llave[1], llave[2])
+        registrar_en_excel(contexto, fecha_obj, db_usuario[contexto]["trades"][llave]["balance_final"], db_usuario[contexto]["trades"][llave]["pnl"], db_usuario[contexto]["trades"][llave])
+        
         st.session_state[counter_id] += 1
 
 # ==========================================
@@ -1095,12 +1195,21 @@ st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
 def borrar_imagen(contexto, llave, index):
     if len(db_usuario[contexto]["trades"][llave]["imagenes"]) > index:
         db_usuario[contexto]["trades"][llave]["imagenes"].pop(index)
+        
+        # SINCRONIZAR A GOOGLE SHEETS
+        fecha_obj = datetime(llave[0], llave[1], llave[2])
+        registrar_en_excel(contexto, fecha_obj, db_usuario[contexto]["trades"][llave]["balance_final"], db_usuario[contexto]["trades"][llave]["pnl"], db_usuario[contexto]["trades"][llave])
 
 def agregar_imagenes_historial(contexto, llave, widget_id, counter_id):
     archivos_nuevos = st.session_state.get(widget_id)
     if archivos_nuevos:
         for img in archivos_nuevos:
             db_usuario[contexto]["trades"][llave]["imagenes"].append(f"data:{img.type};base64,{convertir_img_base64(img)}")
+        
+        # SINCRONIZAR A GOOGLE SHEETS
+        fecha_obj = datetime(llave[0], llave[1], llave[2])
+        registrar_en_excel(contexto, fecha_obj, db_usuario[contexto]["trades"][llave]["balance_final"], db_usuario[contexto]["trades"][llave]["pnl"], db_usuario[contexto]["trades"][llave])
+        
         st.session_state[counter_id] += 1
 
 with st.expander("🛠️ OPEN ORDER HISTORY", expanded=False):
@@ -1192,6 +1301,10 @@ with st.expander("🛠️ OPEN ORDER HISTORY", expanded=False):
                             "trade_type": data.get("trade_type", ""),
                             "Emotions": data.get("Emotions", "")
                         }
+                        
+                        # SINCRONIZAR EDICIÓN A GOOGLE SHEETS
+                        registrar_en_excel(ctx, nueva_fecha, nuevo_bal, nuevo_pnl, db_usuario[ctx]["trades"][nueva_clave])
+                        
                         st.rerun()
                         
                 with c_btn2:
@@ -1232,6 +1345,10 @@ def sync_table_edits():
                         t["pnl"] = float(val_str)
                     except:
                         pass
+                
+                # SINCRONIZAR A GOOGLE SHEETS LAS EDICIONES DE LA TABLA
+                fecha_obj = datetime(k[0], k[1], k[2])
+                registrar_en_excel(contexto, fecha_obj, t.get("balance_final", 25000), t["pnl"], t)
 
 if mostrar_tabla:
     st.markdown("<br><br><h2 style='text-align:center;'>Results Table</h2>", unsafe_allow_html=True)
