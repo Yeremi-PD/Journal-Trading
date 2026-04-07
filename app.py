@@ -477,7 +477,7 @@ st.markdown(f"""
     div[data-testid="stSelectbox"] div[data-baseweb="select"] svg {{ fill: 00000 !important; color: 00000 !important; }}
     div[data-testid="stSelectbox"] input {{ color: 00000 !important; }}
     
-    ul[role="listbox"] * {{ font-size: {OPT_FILTROS_SIZE}px !important; color: 00000 !important; }}
+    ul[role="listbox"] * {{ font-size: {OPT_FILTROS_SIZE}px !important; color: FFFFFF !important; }}
     li[role="option"] {{ background-color: 00000 !important; }}
     li[role="option"]:hover {{ background-color: {border_color} !important; }}
 
