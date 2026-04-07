@@ -345,7 +345,7 @@ def procesar_cambio():
             "risk": old_trade.get("risk", "0.5%"),
             "rrr": old_trade.get("rrr", "B"),
             "trade_type": old_trade.get("trade_type", ""),
-            "emociones": old_trade.get("emociones", "")
+            "Emotions": old_trade.get("Emotions", "")
         }
         db_usuario[ctx]["balance"] = nuevo
 
@@ -668,7 +668,7 @@ def agregar_imagenes_main(contexto, llave, widget_id, counter_id, bal_act, f_str
         if llave not in db_usuario[contexto]["trades"]:
             db_usuario[contexto]["trades"][llave] = {
                 "pnl": 0.0, "balance_final": bal_act, "fecha_str": f_str, "imagenes": [],
-                "bias": "NEUTRO", "Confluences": [], "razon_trade": "", "correcciones": "", "risk": "0.5%", "rrr": "B", "trade_type": "A", "emociones": ""
+                "bias": "NEUTRO", "Confluences": [], "razon_trade": "", "correcciones": "", "risk": "0.5%", "rrr": "B", "trade_type": "A", "Emotions": ""
             }
         for img in archivos_nuevos:
             db_usuario[contexto]["trades"][llave]["imagenes"].append(f"data:{img.type};base64,{convertir_img_base64(img)}")
@@ -748,7 +748,7 @@ with c_not:
             colorful_menu(trade_type_options, "Trade Type", 'trade_type', trade_data_ref)
             st.markdown("<br>", unsafe_allow_html=True)
 
-            trade_data_ref['emociones'] = st.text_area("Emociones", value=trade_data_ref.get('emociones', ''), key=f"emoc_main", height=80)
+            trade_data_ref['Emotions'] = st.text_area("Emotions", value=trade_data_ref.get('Emotions', ''), key=f"emoc_main", height=80)
 
 
 # ==========================================
@@ -996,7 +996,7 @@ with st.expander("🛠️ OPEN ORDER HISTORY", expanded=False):
                             "risk": data.get("risk", "0.5%"),
                             "rrr": data.get("rrr", "B"),
                             "trade_type": data.get("trade_type", ""),
-                            "emociones": data.get("emociones", "")
+                            "Emotions": data.get("Emotions", "")
                         }
                         st.rerun()
                         
@@ -1031,7 +1031,7 @@ def sync_table_edits():
                 if "% Risk" in edits: t["risk"] = edits["% Risk"]
                 if "RR" in edits: t["rrr"] = edits["RR"]
                 if "Trade Type" in edits: t["trade_type"] = edits["Trade Type"]
-                if "Emociones" in edits: t["emociones"] = edits["Emociones"]
+                if "Emotions" in edits: t["Emotions"] = edits["Emotions"]
                 if "P&L" in edits:
                     try:
                         val_str = str(edits["P&L"]).replace('+', '').replace('$', '').replace(',', '').strip()
@@ -1066,7 +1066,7 @@ if mostrar_tabla:
                 "% Risk": trade.get('risk', ''),
                 "RR": trade.get('rrr', ''),
                 "Trade Type": trade.get('trade_type', ''),
-                "Emociones": trade.get('emociones', ''),
+                "Emotions": trade.get('Emotions', ''),
                 "Correcciones": trade.get('correcciones', ''),
                 "P&L": f"{pnl_simbol}${pnl:,.2f}"
             }
