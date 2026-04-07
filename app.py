@@ -718,7 +718,7 @@ with c_img:
 with c_not:
     st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True) 
     with st.popover("📝"):
-        st.markdown("<h3 style='text-align:center; margin-top:0;'>Detalles del Trade</h3>", unsafe_allow_html=True)
+        st.markdown("<h3 style='text-align:center; margin-top:0;'>Trade Details</h3>", unsafe_allow_html=True)
         
         if clave_actual not in db_usuario[ctx]["trades"]:
             st.info("Agrega un cambio de balance o una imagen primero para activar las notas en este día.")
@@ -733,7 +733,7 @@ with c_not:
             colorful_multiselect(Confluences_options, "&nbsp;&nbsp;&nbsp;Confluences", 'Confluences', trade_data_ref)
             st.markdown("<br>", unsafe_allow_html=True)
 
-            trade_data_ref['razon_trade'] = st.text_area("&nbsp;&nbsp;&nbsp;Reason For Trade", value=trade_data_ref.get('razon_trade', ''), key=f"razon_main", height=90)
+            trade_data_ref['razon_trade'] = st.text_area("&nbsp;&nbsp;&nbsp;Reason For Trade", value=trade_data_ref.get('razon_trade', ''), key=f"razon_main", height=80)
             trade_data_ref['Corrections'] = st.text_area("&nbsp;&nbsp;&nbsp;Corrections", value=trade_data_ref.get('Corrections', ''), key=f"corr_main", height=80)
             
             risk_options = ['0.6%', '0.5%', '0.4%']
