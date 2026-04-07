@@ -170,9 +170,9 @@ DROPZONE_BORDER_O = "1px dashed #4A5568"
 
     # ( Botón de Upload de Adentro )
 BTN_UP_TEXTO = "Upload"
-BTN_UP_SIZE = "201px"
-BTN_UP_W = "120px"             # El ancho del botón de adentro
-BTN_UP_H = "45px"              # El alto del botón de adentro
+BTN_UP_SIZE = "20px"
+BTN_UP_W = "1120px"             # El ancho del botón de adentro
+BTN_UP_H = "415px"              # El alto del botón de adentro
 BTN_UP_BG_C = "#E2E8F0"       
 BTN_UP_BG_O = "#4A5568"
 BTN_UP_TXT_C = "#000000"      
