@@ -138,14 +138,14 @@ TXT_NUM_DIA_COLOR_OSCURO = "#FFFFFF"
 # TEXTO 9: El dinero dentro de la tarjeta (Ej: +$50.00)
 # (Mantiene su color verde o rojo automático, pero puedes cambiar el TAMAÑO)
 # ---------------------------------------------------------
-TXT_PNL_DIA_SIZE = 16
+TXT_PNL_DIA_SIZE = 19
 
 # ---------------------------------------------------------
 # TEXTO 10: El Porcentaje dentro de la tarjeta (Ej: +1.50%)
 # ---------------------------------------------------------
-TXT_PCT_DIA_SIZE = 11
+TXT_PCT_DIA_SIZE = 15
 TXT_PCT_DIA_COLOR_CLARO = "#000000"
-TXT_PCT_DIA_COLOR_OSCURO = "#FFFFFF"
+TXT_PCT_DIA_COLOR_OSCURO = "#000000"
 
 # ---------------------------------------------------------
 # TEXTO 11: Título "Net P&L"
