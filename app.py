@@ -733,7 +733,7 @@ with c_not:
             colorful_multiselect(Confluences_options, "&nbsp;&nbsp;&nbsp;Confluences", 'Confluences', trade_data_ref)
             st.markdown("<br>", unsafe_allow_html=True)
 
-            trade_data_ref['razon_trade'] = st.text_area("Reason For Trade", value=trade_data_ref.get('razon_trade', ''), key=f"razon_main", height=80)
+            trade_data_ref['razon_trade'] = st.text_area("&nbsp;&nbsp;&nbsp;Reason For Trade", value=trade_data_ref.get('razon_trade', ''), key=f"razon_main", height=80)
             trade_data_ref['Corrections'] = st.text_area("&nbsp;&nbsp;&nbsp;Corrections", value=trade_data_ref.get('Corrections', ''), key=f"corr_main", height=80)
             
             risk_options = ['0.6%', '0.5%', '0.4%']
