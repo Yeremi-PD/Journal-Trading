@@ -1,4 +1,5 @@
 import streamlit as st
+import streamlit.components.v1 as components
 import calendar
 import math
 import base64
@@ -38,7 +39,8 @@ def inicializar_settings():
         # Calendario
         "cal_mes_size": 28, "cal_pnl_size": 30, "cal_pct_size": 25,
         "cal_dia_size": 20, "cal_cam_size": 30, "cal_scale": 100, "cal_line_height": 1.2,
-        "cal_txt_y": 0, "cal_txt_pad": 0, "cal_note_size": 30
+        "cal_txt_y": 0, "cal_txt_pad": 0, "cal_note_size": 30,
+        "note_lbl_size": 16, "note_val_size": 16
     }
 
 if "usuario_actual" not in st.session_state:
@@ -324,7 +326,7 @@ def reset_settings(category):
     elif category == "txt":
         keys = ["size_top_stats", "size_card_titles", "size_box_titles", "size_box_vals", "size_box_pct", "size_box_wl", "pie_size", "pie_y_offset"]
     elif category == "cal":
-        keys = ["cal_mes_size", "cal_pnl_size", "cal_pct_size", "cal_dia_size", "cal_cam_size", "cal_scale", "cal_line_height", "cal_txt_y", "cal_txt_pad", "cal_note_size"]
+        keys = ["cal_mes_size", "cal_pnl_size", "cal_pct_size", "cal_dia_size", "cal_cam_size", "cal_scale", "cal_line_height", "cal_txt_y", "cal_txt_pad", "cal_note_size", "note_lbl_size", "note_val_size"]
     
     for k in keys:
         s[k] = defaults[k]
@@ -407,6 +409,8 @@ with st.sidebar.expander("📅 Calendar Settings"):
     user_settings["cal_dia_size"] = st.slider("Day Number Size", 10, 30, user_settings["cal_dia_size"])
     user_settings["cal_cam_size"] = st.slider("Camera Icon Size", 10, 50, user_settings["cal_cam_size"])
     user_settings["cal_note_size"] = st.slider("Note Icon Size", 10, 50, user_settings.get("cal_note_size", 30))
+    user_settings["note_lbl_size"] = st.slider("Note Labels Size (Bias, RR...)", 10, 40, user_settings.get("note_lbl_size", 16))
+    user_settings["note_val_size"] = st.slider("Note Values Size", 10, 40, user_settings.get("note_val_size", 16))
     user_settings["cal_scale"] = st.slider("General Scale (Calendar Height)", 50, 200, user_settings["cal_scale"])
     user_settings["cal_line_height"] = st.slider("Height Between Texts (Spacing)", 0.5, 3.0, user_settings["cal_line_height"], 0.1)
     user_settings["cal_txt_y"] = st.slider("Day Text Vertical Position", -50, 50, user_settings.get("cal_txt_y", 0))
@@ -466,6 +470,8 @@ def gen_css_vars(s):
     --bal-box-pad: {s['bal_box_pad']}px;
     --cal-txt-y: {s.get('cal_txt_y', 0)}px;
     --cal-txt-pad: {s.get('cal_txt_pad', 0)}px;
+    --note-lbl-size: {s.get('note_lbl_size', 16)}px;
+    --note-val-size: {s.get('note_val_size', 16)}px;
     """
 
 st.markdown(f"""
@@ -835,15 +841,17 @@ with col_cal:
                             id_note_modal = f"mod_note_{anio_sel}_{mes_sel}_{dia}"
                             confluences_str = ", ".join(trade.get("Confluences", []))
                             notes_html = f"""
-                            <div class="note-modal-content">
+                            <div class="note-modal-content" style="font-size: var(--note-val-size);">
                                 <h3 style="text-align:center; margin-top:0;">🗒️ Trade Details - {dia}/{mes_sel}/{anio_sel}</h3>
                                 <hr>
-                                <b>Bias:</b> {trade.get("bias", "NEUTRO")}<br><br>
-                                <b>Confluences:</b> {confluences_str}<br><br>
-                                <b>Reason For Trade:</b> {trade.get("razon_trade", "")}<br><br>
-                                <b>Corrections:</b> {trade.get("Corrections", "")}<br><br>
-                                <b>% Risk:</b> {trade.get("risk", "")} | <b>RR:</b> {trade.get("rrr", "")} | <b>Trade Type:</b> {trade.get("trade_type", "")}<br><br>
-                                <b>Emotions:</b> {trade.get("Emotions", "")}
+                                <b style="font-size: var(--note-lbl-size);">Bias:</b> {trade.get("bias", "NEUTRO")}<br><br>
+                                <b style="font-size: var(--note-lbl-size);">Confluences:</b> {confluences_str}<br><br>
+                                <b style="font-size: var(--note-lbl-size);">Reason For Trade:</b> {trade.get("razon_trade", "")}<br><br>
+                                <b style="font-size: var(--note-lbl-size);">Corrections:</b> {trade.get("Corrections", "")}<br><br>
+                                <b style="font-size: var(--note-lbl-size);">% Risk:</b> {trade.get("risk", "")}<br><br>
+                                <b style="font-size: var(--note-lbl-size);">RR:</b> {trade.get("rrr", "")}<br><br>
+                                <b style="font-size: var(--note-lbl-size);">Trade Type:</b> {trade.get("trade_type", "")}<br><br>
+                                <b style="font-size: var(--note-lbl-size);">Emotions:</b> {trade.get("Emotions", "")}
                             </div>
                             """
                             note_html = f'<input type="checkbox" id="{id_note_modal}" class="modal-toggle" style="display:none;"><label for="{id_note_modal}"><div class="note-icon">🗒️</div></label><div class="fs-modal"><label for="{id_note_modal}" class="close-btn">{TXT_CERRAR_MODAL}</label>{notes_html}</div>'
@@ -1221,3 +1229,18 @@ if mostrar_tabla:
             key="table_editor",
             on_change=sync_table_edits
         )
+
+# ==========================================
+# SCRIPT PARA CERRAR MODALES CON ESCAPE
+# ==========================================
+components.html("""
+<script>
+const doc = window.parent.document;
+doc.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        const modals = doc.querySelectorAll('.modal-toggle');
+        modals.forEach(m => m.checked = false);
+    }
+});
+</script>
+""", height=0, width=0)
