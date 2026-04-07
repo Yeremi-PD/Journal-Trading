@@ -148,8 +148,8 @@ CARD_WIN_Y = 0          # Mueve la tarjeta en Vertical
 # ---------------------------------------------------------
 UPLOAD_X = 0
 UPLOAD_Y = 0
-UPLOAD_BG_ZONA_CLARO = "transparent"  # Color de la zona detrás del botón
-UPLOAD_BG_ZONA_OSCURO = "transparent" 
+UPLOAD_BG_ZONA_CLARO = "OOOOOO"  # Color de la zona detrás del botón
+UPLOAD_BG_ZONA_OSCURO = "OOOOOO" 
 UPLOAD_BTN_BG_CLARO = "#E2E8F0"       # Color del botón en sí
 UPLOAD_BTN_BG_OSCURO = "#4A5568"
 UPLOAD_BTN_TXT_CLARO = "#000000"      # Color del texto/ícono del botón
