@@ -64,10 +64,99 @@ if st.session_state.usuario_actual is None or st.session_state.usuario_actual no
     st.stop()
 
 # ==========================================
-# 3. LÓGICA DE ESTADO Y CALENDARIO
+# 3. SECCIÓN DE AJUSTES MANUALES (¡FALTABA ESTO!)
 # ==========================================
+
+# --- ZONA 0: TEMA PRINCIPAL ---
 TEMA_POR_DEFECTO = "Oscuro"
 
+# --- ZONA 1: TÍTULO PRINCIPAL ---
+TITULO_TEXTO = "Dashboard"
+TITULO_X = 100         
+TITULO_Y = -20         
+TITULO_SIZE = 50     
+TITULO_COLOR_W = "#FFFFFF" 
+TITULO_COLOR_B = "#000000" 
+
+# --- ZONA 2: SELECTORES SUPERIORES ---
+FILTROS_TEXTO = "Filtros"
+FILTROS_X = 0        
+FILTROS_Y = 0        
+LBL_FILTROS_X = 0    
+LBL_FILTROS_Y = 0
+
+DATA_SRC_TEXTO = "Data Source"
+DATA_SRC_X = 0
+DATA_SRC_Y = 0
+LBL_DATA_X = 0       
+LBL_DATA_Y = 0
+
+SELECT_FONDO_CLARO = "#FFFFFF"
+SELECT_TEXTO_CLARO = "#1A202C"
+SELECT_FONDO_OSCURO = "#2D3748"
+SELECT_TEXTO_OSCURO = "#E2E8F0"
+
+# --- ZONA 3: CAJA DE TOTAL BALANCE ---
+TOTAL_BAL_TEXTO = "TOTAL BALANCE"
+BALANCE_BOX_X = 0     
+BALANCE_BOX_Y = 0     
+BALANCE_BOX_W = 50  
+BALANCE_SIZE = 30    
+LBL_TOTAL_BAL_X = 0  
+LBL_TOTAL_BAL_Y = 0
+
+# --- ZONA 4: INPUT DE BALANCE ---
+INPUT_BAL_TEXTO = "Balance:"
+INPUT_BAL_X = 0      
+INPUT_BAL_Y = 0      
+LBL_INPUT_BAL_X = 0  
+LBL_INPUT_BAL_Y = 0
+
+INPUT_FONDO_CLARO = "#FFFFFF"
+INPUT_TEXTO_CLARO = "#1A202C"   
+INPUT_FONDO_OSCURO = "#1A202C"
+INPUT_TEXTO_OSCURO = "#FFFFFF"  
+
+# --- ZONA 5: CALENDARIO Y BOTONES ---
+BOTON_FONDO_CLARO = "#F3F4F6"
+BOTON_TEXTO_CLARO = "#1A202C"
+BOTON_FONDO_OSCURO = "#2D3748"
+BOTON_TEXTO_OSCURO = "#FFFFFF"
+
+BOTON_X = 0          
+BOTON_Y = 27         
+BOTON_WIDTH = 45     
+BOTON_HEIGHT = 45    
+BOTON_ICON_SIZE = 22 
+
+MES_TEXTO_X = 0
+MES_TEXTO_Y = 10      
+MES_TEXTO_SIZE = 22
+MES_TEXTO_COLOR_W = "#FFFFFF" 
+MES_TEXTO_COLOR_B = "#1A202C" 
+
+FLECHAS_X_AJUSTE = 0 
+FLECHAS_Y_AJUSTE = 10 
+FLECHAS_SIZE = 16
+
+# --- ZONA 6: TARJETAS DE MÉTRICAS ---
+CARD_PNL_X = 0       
+CARD_PNL_Y = 10      
+CARD_PNL_W = 80      
+
+CARD_WIN_X = 0       
+CARD_WIN_Y = 20      
+CARD_WIN_W = 80      
+
+# --- ZONA 7: ÁREA DE SUBIR IMÁGENES ---
+UPLOADER_ANCHO = 300      
+UPLOADER_ALTO = 60       
+UPLOADER_FONDO_CLARO = "#FFFFFF"   
+UPLOADER_FONDO_OSCURO = "#FFFFFF"
+
+# ==========================================
+# 4. LÓGICA DE ESTADO Y CALENDARIO
+# ==========================================
 usuario = st.session_state.usuario_actual
 db_usuario = db_global[usuario]["data"]
 
@@ -114,7 +203,7 @@ def convertir_img_base64(uploaded_file):
     return base64.b64encode(uploaded_file.getvalue()).decode()
 
 # ==========================================
-# 4. BARRA LATERAL (AJUSTES Y ADMIN)
+# 5. BARRA LATERAL (AJUSTES Y ADMIN)
 # ==========================================
 st.sidebar.markdown(f"### 👤 Mi Cuenta: {usuario}")
 st.sidebar.markdown("---")
@@ -153,30 +242,36 @@ if st.sidebar.button("🚪 Cerrar Sesión", use_container_width=True):
     st.rerun()
 
 # ==========================================
-# 5. COLORES DEL TEMA Y CSS ESTABLE
+# 6. COLORES DEL TEMA Y CSS ESTABLE
 # ==========================================
 if st.session_state.tema == "Claro":
     bg_color, text_color = "#F7FAFC", "#2D3748"
     card_bg, border_color, empty_cell_bg = "#FFFFFF", "#E2E8F0", "#FFFFFF"
     
-    # Textos dinámicos que pediste
-    titulo_color_actual = "#000000"
-    mes_color_actual = "#000000"
-    input_fondo_actual = "#FFFFFF"
-    input_texto_actual = "#000000"
-    btn_bg = "#F3F4F6"
-    btn_text = "#000000" # Letras del botón Upload (Negro en tema claro)
+    titulo_color_actual = TITULO_COLOR_B
+    mes_color_actual = MES_TEXTO_COLOR_B
+    input_fondo_actual = INPUT_FONDO_CLARO
+    input_texto_actual = INPUT_TEXTO_CLARO
+    select_fondo_actual = SELECT_FONDO_CLARO
+    select_texto_actual = SELECT_TEXTO_CLARO
+    uploader_fondo_actual = UPLOADER_FONDO_CLARO
+    
+    btn_bg = BOTON_FONDO_CLARO
+    btn_text = BOTON_TEXTO_CLARO 
 else:
     bg_color, text_color = "#1A202C", "#E2E8F0"
     card_bg, border_color, empty_cell_bg = "#2D3748", "#4A5568", "#1A202C"
     
-    # Textos dinámicos que pediste
-    titulo_color_actual = "#FFFFFF"
-    mes_color_actual = "#FFFFFF"
-    input_fondo_actual = "#1A202C"
-    input_texto_actual = "#FFFFFF"
-    btn_bg = "#2D3748"
-    btn_text = "#FFFFFF" # Letras del botón Upload (Blanco en tema oscuro)
+    titulo_color_actual = TITULO_COLOR_W
+    mes_color_actual = MES_TEXTO_COLOR_W
+    input_fondo_actual = INPUT_FONDO_OSCURO
+    input_texto_actual = INPUT_TEXTO_OSCURO
+    select_fondo_actual = SELECT_FONDO_OSCURO
+    select_texto_actual = SELECT_TEXTO_OSCURO
+    uploader_fondo_actual = UPLOADER_FONDO_OSCURO
+    
+    btn_bg = BOTON_FONDO_OSCURO
+    btn_text = BOTON_TEXTO_OSCURO 
 
 st.markdown(f"""
     <style>
@@ -184,13 +279,28 @@ st.markdown(f"""
     .stApp {{ background-color: {bg_color}; color: {text_color}; font-family: 'Inter', sans-serif; }}
     
     /* TITULO */
-    .dashboard-title {{ font-size: 50px; font-weight: 800; color: {titulo_color_actual}; margin-bottom: 0; line-height: 1.1; letter-spacing: -2px; }}
+    .dashboard-title {{ font-size: {TITULO_SIZE}px; font-weight: 800; color: {titulo_color_actual}; margin-left: {TITULO_X}px; margin-top: {TITULO_Y}px; margin-bottom: 0; line-height: 1.1; letter-spacing: -2px; }}
     
     /* BALANCE BOX */
-    .balance-box {{ background: #00C897; color: white; padding: 10px 0px; border-radius: 80px; text-align: center; font-weight: 700; font-size: 30px; margin: 0 auto; }}
+    .balance-box {{ background: #00C897; color: white; padding: 10px 0px; border-radius: 80px; text-align: center; font-weight: 700; font-size: {BALANCE_SIZE}px; margin-left: {BALANCE_BOX_X}px; margin-top: {BALANCE_BOX_Y}px; width: {BALANCE_BOX_W}%; margin: 0 auto; }}
     .thin-line {{ border-bottom: 1.5px solid {border_color}; margin: 10px 0px 25px 0px; width: 100%; }}
 
+    /* SELECTORES Y LABELS */
+    div[data-testid="column"]:nth-of-type(2) {{ margin-left: {FILTROS_X}px; margin-top: {FILTROS_Y}px; }}
+    div[data-testid="column"]:nth-of-type(3) {{ margin-left: {DATA_SRC_X}px; margin-top: {DATA_SRC_Y}px; }}
+    div[data-baseweb="select"] > div {{ background-color: {select_fondo_actual} !important; border-color: {border_color} !important; }}
+    div[data-baseweb="select"] * {{ color: {select_texto_actual} !important; }}
+    ul[role="listbox"] {{ background-color: {select_fondo_actual} !important; }}
+    li[role="option"] {{ color: {select_texto_actual} !important; background-color: {select_fondo_actual} !important; }}
+    li[role="option"]:hover {{ background-color: {border_color} !important; }}
+    
+    div[data-testid="column"]:nth-of-type(2) label {{ margin-left: {LBL_FILTROS_X}px !important; margin-top: {LBL_FILTROS_Y}px !important; display: inline-block; }}
+    div[data-testid="column"]:nth-of-type(3) label {{ margin-left: {LBL_DATA_X}px !important; margin-top: {LBL_DATA_Y}px !important; display: inline-block; }}
+    div[data-testid="stNumberInput"] label {{ margin-left: {LBL_INPUT_BAL_X}px !important; margin-top: {LBL_INPUT_BAL_Y}px !important; display: inline-block; }}
+    .lbl-total-bal {{ margin-left: {LBL_TOTAL_BAL_X}px; margin-top: {LBL_TOTAL_BAL_Y}px; display: block; }}
+
     /* INPUT BALANCE ESTÉTICA */
+    div[data-testid="stNumberInput"] {{ margin-left: {INPUT_BAL_X}px !important; margin-top: {INPUT_BAL_Y}px !important; max-width: 200px !important; }}
     div[data-testid="stNumberInput"] button {{ display: none !important; }} 
     div[data-testid="stNumberInput"] div[data-baseweb="base-input"] {{ background-color: {input_fondo_actual} !important; }}
     div[data-testid="stNumberInput"] div[data-baseweb="input"] {{ background-color: {input_fondo_actual} !important; border-color: {border_color} !important; }}
@@ -198,7 +308,7 @@ st.markdown(f"""
 
     /* ÁREA DE UPLOAD LIMPIA */
     [data-testid="stFileUploadDropzone"] {{ 
-        background: transparent !important; border: none !important; padding: 0 !important; min-height: 0 !important; 
+        background-color: {uploader_fondo_actual} !important; border: 1px solid {border_color} !important; padding: 0 !important; min-height: {UPLOADER_ALTO}px !important; width: {UPLOADER_ANCHO}px !important; display: flex; justify-content: center; align-items: center; border-radius: 8px;
     }}
     /* Ocultar textos basura del uploader nativo */
     [data-testid="stFileUploadDropzone"] > div > span {{ display: none !important; }}
@@ -206,7 +316,7 @@ st.markdown(f"""
     /* Botón del Uploader con los colores dinámicos */
     [data-testid="stFileUploadDropzone"] button {{ 
         background-color: {btn_bg} !important; color: {btn_text} !important;
-        border: 1px solid {border_color} !important; border-radius: 6px !important; margin: 0 !important;
+        border: 1px solid {border_color} !important; border-radius: 6px !important; margin: 0 !important; padding: 8px 16px !important;
     }}
     [data-testid="stFileUploadDropzone"] button * {{ color: {btn_text} !important; }}
 
@@ -253,17 +363,21 @@ st.markdown(f"""
     /* BOTONES GLOBALES Y POPOVER */
     div[data-testid="stButton"] > button {{
         background-color: {btn_bg} !important; color: {btn_text} !important; border: 1px solid {border_color} !important;
+        margin-left: {FLECHAS_X_AJUSTE}px !important; margin-top: {FLECHAS_Y_AJUSTE}px !important; font-size: {FLECHAS_SIZE}px !important;
     }}
+    div[data-testid="stPopover"] {{ margin-left: {BOTON_X}px !important; margin-top: {BOTON_Y}px !important; }}
     div[data-testid="stPopover"] > button {{
-        height: 40px !important; width: 40px !important; padding: 0 !important;
-        font-size: 20px !important; border-radius: 8px !important;
+        height: {BOTON_HEIGHT}px !important; width: {BOTON_WIDTH}px !important; padding: 0 !important;
+        font-size: {BOTON_ICON_SIZE}px !important; border-radius: 8px !important;
         border: 1px solid {border_color} !important; background-color: {btn_bg} !important; color: {btn_text} !important;
-        display: flex !important; justify-content: center !important; align-items: center !important;
+        display: flex !important; justify-content: center !important; align-items: center !important; margin: 0 !important;
     }}
     div[data-testid="stPopoverBody"] {{ background-color: {card_bg} !important; border: 1px solid {border_color} !important; }}
 
     /* METRICAS */
     .metric-card {{ background-color: {card_bg}; border-radius: 20px; padding: 15px 20px; border: 1px solid {border_color}; }}
+    .card-pnl {{ margin-left: {CARD_PNL_X}px; margin-top: {CARD_PNL_Y}px; width: {CARD_PNL_W}%; }}
+    .card-win {{ margin-left: {CARD_WIN_X}px; margin-top: {CARD_WIN_Y}px; width: {CARD_WIN_W}%; display: flex; justify-content: space-between; align-items: center; }}
     .metric-header {{ display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }}
     .metric-title {{ font-size: 14px; font-weight: 500; color: #6B7280; }}
     .pnl-value {{ font-size: 28px; font-weight: 800; color: #00C897; letter-spacing: -0.5px; }}
@@ -278,33 +392,32 @@ st.markdown(f"""
     """, unsafe_allow_html=True)
 
 # ==========================================
-# 6. HEADER (BARRA SUPERIOR COMPACTA)
+# 7. HEADER (BARRA SUPERIOR COMPACTA)
 # ==========================================
 col_t, col_fil, col_data, col_bal = st.columns([3, 1.5, 1.5, 2])
 
 with col_t: st.markdown(f'<p class="dashboard-title">{TITULO_TEXTO}</p>', unsafe_allow_html=True)
-with col_fil: filtro = st.selectbox("Filtros", ["Todos", "Ganancias", "Pérdidas"])
-with col_data: st.selectbox("Data Source", ["Real Data", "Demo Data"], key="data_source_sel")
+with col_fil: filtro = st.selectbox(FILTROS_TEXTO, ["Todos", "Ganancias", "Pérdidas"])
+with col_data: st.selectbox(DATA_SRC_TEXTO, ["Real Data", "Demo Data"], key="data_source_sel")
 
 ctx = st.session_state.data_source_sel
 bal_actual = db_usuario[ctx]["balance"]
 
 with col_bal:
-    st.markdown(f'<div style="text-align:center; margin-bottom:5px;"><small>TOTAL BALANCE</small></div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="lbl-total-bal" style="text-align:center; margin-bottom:5px;"><small>{TOTAL_BAL_TEXTO}</small></div>', unsafe_allow_html=True)
     st.markdown(f'<div class="balance-box">${bal_actual:,.2f}</div>', unsafe_allow_html=True)
 
 st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
 
 # ==========================================
-# 7. ENTRADA AUTOMÁTICA E IMÁGENES (COMPACTO)
+# 8. ENTRADA AUTOMÁTICA E IMÁGENES (COMPACTO)
 # ==========================================
-# Usamos las columnas nativas para no forzar CSS
 c1, c2, c_img, c_espacio = st.columns([1.5, 0.5, 2.5, 4]) 
 
 with c1:
-    st.number_input("Balance:", value=bal_actual, format="%.2f", key="input_balance", on_change=procesar_cambio)
+    st.number_input(INPUT_BAL_TEXTO, value=bal_actual, format="%.2f", key="input_balance", on_change=procesar_cambio)
 with c2:
-    st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True) # Espaciador para alinear
+    st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True) 
     with st.popover("🗓️"):
         st.date_input("Fecha oculta", value=hoy, key="input_fecha", label_visibility="collapsed")
 
@@ -312,7 +425,7 @@ fecha_str_actual = st.session_state.input_fecha.strftime("%d/%m/%Y")
 clave_actual = (st.session_state.input_fecha.year, st.session_state.input_fecha.month, st.session_state.input_fecha.day)
 
 with c_img:
-    st.markdown("<div style='height:22px;'></div>", unsafe_allow_html=True) # Espaciador
+    st.markdown("<div style='height:22px;'></div>", unsafe_allow_html=True) 
     archivos = st.file_uploader("", accept_multiple_files=True, label_visibility="collapsed", key=f"up_{fecha_str_actual}")
     if archivos:
         if clave_actual not in db_usuario[ctx]["trades"]:
@@ -324,9 +437,9 @@ with c_img:
         db_usuario[ctx]["trades"][clave_actual]["imagenes"] = lista_b64
 
 # ==========================================
-# 8. CALENDARIO Y RESUMEN
+# 9. CALENDARIO Y RESUMEN
 # ==========================================
-col_cal, col_det = st.columns([2, 1]) # Proporciones compactas
+col_cal, col_det = st.columns([2, 1]) 
 
 anio_sel = st.session_state.cal_year
 mes_sel = st.session_state.cal_month
@@ -337,7 +450,7 @@ with col_cal:
     
     c_izq, c_cen, c_der = st.columns([1, 4, 1])
     with c_izq: st.button("◀", on_click=cambiar_mes, args=(-1,), use_container_width=True)
-    with c_cen: st.markdown(f'<div style="text-align:center; font-weight:800; font-size:22px; color:{mes_color_actual}; margin-top:5px;">{nombre_mes} {anio_sel}</div>', unsafe_allow_html=True)
+    with c_cen: st.markdown(f'<div style="text-align:center; font-weight:800; font-size:{MES_TEXTO_SIZE}px; color:{mes_color_actual}; margin-left:{MES_TEXTO_X}px; margin-top:{MES_TEXTO_Y}px;">{nombre_mes} {anio_sel}</div>', unsafe_allow_html=True)
     with c_der: st.button("▶", on_click=cambiar_mes, args=(1,), use_container_width=True)
     
     st.markdown("<br>", unsafe_allow_html=True)
@@ -420,7 +533,7 @@ with col_det:
     simbolo_pnl = "+" if net_pnl > 0 else ""
     
     st.markdown(f"""
-        <div class="metric-card">
+        <div class="metric-card card-pnl">
             <div class="metric-header"><span class="metric-title">Net P&L</span></div>
             <div class="{color_pnl}">{simbolo_pnl}${net_pnl:,.2f}</div>
         </div>
@@ -436,7 +549,7 @@ with col_det:
     svg_html += '</svg>'
 
     st.markdown(f"""
-        <div class="metric-card">
+        <div class="metric-card card-win">
             <div>
                 <div class="metric-header"><span class="metric-title">Trade win %</span></div>
                 <div class="win-value">{win_pct:.2f}%</div>
