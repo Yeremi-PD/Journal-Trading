@@ -590,7 +590,7 @@ with st.form(key=f"form_main_entry_{st.session_state.form_reset_key}", border=Fa
             
             nuevo_bias = st.radio("Bias", ['LONG', 'SHORT', 'NONE'], index=2, horizontal=True)
             nuevo_conf = st.multiselect("Confluences", ['BIAS WELL', 'LIQ SWEEP', 'IFVG', 'FVG', 'EQH / EQL', 'BSL / SSL', 'POI', 'SMT', 'Order Block', 'PDH / PDL', 'Continuation', 'Data High / Data Low', 'CISD'], default=[])
-            nuevo_razon = st.text_area("&nbsp&nbsp&nbsp Reason For Trade", value='', height=50)
+            nuevo_razon = st.text_area("    Reason For Trade", value='', height=50)
             nuevo_corr = st.text_area("Corrections", value='', height=50)
             
             risk_opts = ['1%', '0.9%', '0.8%', '0.7%', '0.6%', '0.5%', '0.4%']
