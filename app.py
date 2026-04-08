@@ -9,6 +9,7 @@ import json
 import gspread
 from google.oauth2.service_account import Credentials
 import io
+import zipfile
 from PIL import Image
 
 # ==========================================
@@ -30,14 +31,33 @@ def conectar_google_sheets():
 
 hoja_excel = conectar_google_sheets()
 
-def procesar_y_comprimir_imagen(uploaded_file):
+def procesar_y_comprimir_imagen(uploaded_file, total_imgs=1):
     try:
         img = Image.open(uploaded_file)
         if img.mode in ("RGBA", "P"): img = img.convert("RGB")
-        img.thumbnail((700, 700), Image.Resampling.LANCZOS)
+        
+        # ALTA CALIDAD: Calculamos el espacio máximo permitido en el Excel
+        max_chars = 48000 // max(total_imgs, 1)
+        
+        # Mantenemos alta resolución para Full Screen
+        img.thumbnail((1600, 1600), Image.Resampling.LANCZOS)
+        
         output = io.BytesIO()
-        img.save(output, format="JPEG", quality=50)
-        return f"data:image/jpeg;base64,{base64.b64encode(output.getvalue()).decode()}"
+        img.save(output, format="JPEG", quality=85) 
+        b64 = base64.b64encode(output.getvalue()).decode()
+        
+        # Si sigue siendo muy pesada para Excel, bajamos la calidad poco a poco
+        if len(b64) > max_chars:
+            output = io.BytesIO()
+            img.save(output, format="JPEG", quality=60)
+            b64 = base64.b64encode(output.getvalue()).decode()
+            if len(b64) > max_chars:
+                img.thumbnail((1000, 1000), Image.Resampling.LANCZOS)
+                output = io.BytesIO()
+                img.save(output, format="JPEG", quality=40)
+                b64 = base64.b64encode(output.getvalue()).decode()
+
+        return f"data:image/jpeg;base64,{b64}"
     except Exception:
         return f"data:{uploaded_file.type};base64,{base64.b64encode(uploaded_file.getvalue()).decode()}"
 
@@ -114,7 +134,7 @@ def get_global_db():
 
 db_global = get_global_db()
 
-# --- FUNCIÓN CENTRAL DE GUARDADO A LA NUBE (SOLO POR BOTÓN) ---
+# --- FUNCIÓN CENTRAL DE GUARDADO A LA NUBE (SOLO MANUAL) ---
 def registrar_en_excel(usuario, password, cuenta, fecha_obj, balance, pnl, trade_data, settings_pc, settings_movil):
     if hoja_excel:
         try:
@@ -137,7 +157,7 @@ def registrar_en_excel(usuario, password, cuenta, fecha_obj, balance, pnl, trade
         except Exception:
             pass
 
-# --- LOGIN CON CHECKBOX MÓVIL ---
+# --- LOGIN CON CHECKBOX DE MODO ---
 if "usuario_actual" not in st.session_state:
     st.session_state.usuario_actual = None
 
@@ -148,7 +168,7 @@ if st.session_state.usuario_actual is None or st.session_state.usuario_actual no
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
         st.markdown("<h3 style='text-align:center; color:gray;'>Iniciar Sesión</h3>", unsafe_allow_html=True)
-        modo_movil_login = st.checkbox("📱 Activar Modo Móvil (Diseño encogido)", value=False)
+        modo_movil_login = st.checkbox("📱 Iniciar en Modo Móvil", value=False)
         tab1, tab2 = st.tabs(["Entrar", "Registrarse"])
         
         with tab1:
@@ -288,8 +308,9 @@ def procesar_cambio():
     }
     db_usuario[ctx]["balance"] = nuevo
     
+    # ÚNICO LUGAR DONDE SE AUTO-GUARDA
     registrar_en_excel(usuario, db_global[usuario]["password"], ctx, fecha_sel, nuevo, db_usuario[ctx]["trades"][clave]["pnl"], db_usuario[ctx]["trades"][clave], db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
-    st.success("✅ Guardado en Google Sheets")
+    st.success("✅ Día guardado en Excel")
 
 def reset_settings(category):
     defaults = inicializar_settings()
@@ -387,6 +408,34 @@ with st.sidebar.expander("📅 Calendar Settings"):
     user_settings["cal_txt_y"] = st.slider("Day Text Vertical Position", -50, 50, user_settings.get("cal_txt_y", 0))
     user_settings["cal_txt_pad"] = st.slider("Day Content Top Padding", -50, 50, user_settings.get("cal_txt_pad", 0))
 
+st.sidebar.markdown("---")
+st.sidebar.markdown("### 📥 Descargas")
+
+# BOTÓN PARA DESCARGAR EL ZIP
+if db_usuario[ctx_actual]["trades"]:
+    @st.cache_data
+    def generar_zip(trades_dict):
+        zip_buffer = io.BytesIO()
+        with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zf:
+            for c_key, t_data in trades_dict.items():
+                f_nombre = t_data.get("fecha_str", "00-00-0000").replace("/", "-")
+                for idx_i, img_str in enumerate(t_data.get("imagenes", [])):
+                    if img_str.startswith("data:image"):
+                        try:
+                            img_data = base64.b64decode(img_str.split(",")[1])
+                            zf.writestr(f"Trade_{f_nombre}_{idx_i+1}.jpg", img_data)
+                        except: pass
+        return zip_buffer.getvalue()
+        
+    zip_bytes = generar_zip(db_usuario[ctx_actual]["trades"])
+    st.sidebar.download_button(
+        label="📦 Descargar Todas las Fotos (ZIP)",
+        data=zip_bytes,
+        file_name=f"Fotos_Journal_{ctx_actual}.zip",
+        mime="application/zip",
+        use_container_width=True
+    )
+
 st.sidebar.markdown("<br><br><br>", unsafe_allow_html=True)
 if st.sidebar.button("🚪 Log Out", use_container_width=True): st.session_state.usuario_actual = None; st.rerun()
 
@@ -483,9 +532,37 @@ st.markdown(f"""
     .cell-empty {{ border: 1px solid {border_color} !important; background-color: {empty_cell_bg} !important;}}
 
     .modal-toggle:checked ~ .fs-modal {{ display: flex !important; }}
-    .fs-modal {{ display: none; position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; background: rgba(0,0,0,0.95) !important; z-index: 9999999 !important; flex-direction: column !important; align-items: center !important; justify-content: center !important; overflow-y: auto !important; padding: 50px 0 !important; }}
-    .fs-modal img {{ max-width: 90vw !important; max-height: 80vh !important; margin-bottom: 20px !important; box-shadow: 0 0 20px black !important; border-radius: 10px !important; object-fit: contain !important; }}
-    .close-btn {{ color: white !important; font-size: 25px !important; position: absolute !important; top: 30px !important; right: 50px !important; cursor: pointer !important; font-weight: bold !important; background: red !important; padding: 5px 15px !important; border-radius: 8px !important; z-index: 10000000; }}
+    
+    /* MODAL FULL SCREEN Y ALTA CALIDAD */
+    .fs-modal {{ 
+        display: none; 
+        position: fixed !important; 
+        top: 0 !important; left: 0 !important; 
+        width: 100vw !important; height: 100vh !important; 
+        background: rgba(0,0,0,0.98) !important; 
+        z-index: 9999999 !important; 
+        flex-direction: column !important; 
+        align-items: center !important; justify-content: center !important; 
+        padding: 0 !important; margin: 0 !important;
+    }}
+    .fs-modal img {{ 
+        width: 100vw !important; 
+        height: 100vh !important; 
+        max-width: 100vw !important; 
+        max-height: 100vh !important; 
+        margin: 0 !important; 
+        box-shadow: none !important; 
+        border-radius: 0 !important; 
+        object-fit: contain !important; 
+    }}
+    .close-btn {{ 
+        position: absolute !important; 
+        top: 15px !important; right: 25px !important; 
+        font-size: 20px !important; 
+        background-color: #FF4C4C !important; color: white !important; 
+        padding: 8px 15px !important; border-radius: 8px !important; 
+        cursor: pointer !important; z-index: 10000000 !important; font-weight: bold !important; 
+    }}
 
     .card-pnl {{ width: {CARD_PNL_W} !important; height: {CARD_PNL_H} !important; transform: translate({CARD_PNL_X}px, {CARD_PNL_Y}px) !important; }}
     .card-win {{ width: {CARD_WIN_W} !important; height: {CARD_WIN_H} !important; transform: translate({CARD_WIN_X}px, {CARD_WIN_Y}px) !important; }}
@@ -540,6 +617,36 @@ with col_bal:
 
 st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
 
+def colorful_menu(options, label, value_key, trade_data_ref):
+    if value_key not in trade_data_ref: trade_data_ref[value_key] = options[0]
+    st.markdown(f"<div style='margin-bottom: 5px; font-weight: bold;'>{label}</div>", unsafe_allow_html=True)
+    selected_value = trade_data_ref[value_key]
+    cols = st.columns(len(options))
+    for i, text in enumerate(options):
+        with cols[i]:
+            is_selected = (text == selected_value)
+            btn_label = f"✅ {text}" if is_selected else text
+            btn_type = "primary" if is_selected else "secondary"
+            # Actualiza memoria pero NO autoguarda en Excel (cero lag remoto)
+            if st.button(btn_label, key=f"btn_{value_key}_{i}", use_container_width=True, type=btn_type):
+                trade_data_ref[value_key] = text
+                st.rerun()
+
+def colorful_multiselect(options, label, value_key, trade_data_ref):
+    if value_key not in trade_data_ref: trade_data_ref[value_key] = []
+    st.markdown(f"<div style='margin-bottom: 5px; font-weight: bold;'>{label}</div>", unsafe_allow_html=True)
+    current_selections = trade_data_ref[value_key]
+    cols = st.columns(3) 
+    for i, text in enumerate(options):
+        with cols[i % 3]:
+            is_selected = (text in current_selections)
+            btn_label = f"✅ {text}" if is_selected else text
+            btn_type = "primary" if is_selected else "secondary"
+            if st.button(btn_label, key=f"multibtn_{value_key}_{i}", use_container_width=True, type=btn_type):
+                if text in current_selections: trade_data_ref[value_key].remove(text)
+                else: trade_data_ref[value_key].append(text)
+                st.rerun()
+
 def agregar_imagenes_main(contexto, llave, widget_id, counter_id, bal_act, f_str):
     archivos_nuevos = st.session_state.get(widget_id)
     if archivos_nuevos:
@@ -549,8 +656,9 @@ def agregar_imagenes_main(contexto, llave, widget_id, counter_id, bal_act, f_str
                 "bias": "NEUTRO", "Confluences": [], "razon_trade": "", "Corrections": "", "risk": "0.5%", "RR": "1:2", "trade_type": "A", "Emotions": ""
             }
         for img in archivos_nuevos:
-            b64_comprimido = procesar_y_comprimir_imagen(img)
+            b64_comprimido = procesar_y_comprimir_imagen(img, len(archivos_nuevos))
             db_usuario[contexto]["trades"][llave]["imagenes"].append(b64_comprimido)
+        # Se guarda solo en memoria temporal hasta que presiones SAVE MAIN o SAVE NOTAS
         st.session_state[counter_id] += 1
 
 # ==========================================
@@ -599,41 +707,39 @@ with c_not:
         else:
             trade_data_ref = db_usuario[ctx]["trades"][clave_actual]
             
-            st.markdown('<div style="font-weight:bold; font-size:15pt; margin-bottom:5px;">&nbsp;&nbsp;&nbsp;Bias</div>', unsafe_allow_html=True)
-            b_index = ['ALCISTA', 'BAJISTA', 'NEUTRO'].index(trade_data_ref.get('bias', 'NEUTRO'))
-            trade_data_ref['bias'] = st.radio("Bias", ['ALCISTA', 'BAJISTA', 'NEUTRO'], index=b_index, horizontal=True, label_visibility="collapsed", key="bias_main")
+            bias_options = ['ALCISTA', 'BAJISTA', 'NEUTRO']
+            colorful_menu(bias_options, '<span style="font-weight:bold; font-size:15pt;">&nbsp;&nbsp;&nbsp;Bias</span>', 'bias', trade_data_ref)
+            st.markdown("<br>", unsafe_allow_html=True)
             
-            st.markdown('<div style="font-weight:bold; font-size:15pt; margin-bottom:5px;">&nbsp;&nbsp;&nbsp;Confluences</div>', unsafe_allow_html=True)
-            conf_opts = ['BIAS Claro', 'Liq Sweep', 'IFVG', 'FVG', 'EQH / EQL', 'BSL / SSL', 'POI', 'SMT', 'Order Block', 'PDH / PDL', 'Continuación', 'Data High / Data Low', 'CISD']
-            trade_data_ref['Confluences'] = st.multiselect("Confluences", conf_opts, default=trade_data_ref.get('Confluences', []), label_visibility="collapsed", key="conf_main")
+            Confluences_options = ['BIAS Claro', 'Liq Sweep', 'IFVG', 'FVG', 'EQH / EQL', 'BSL / SSL', 'POI', 'SMT', 'Order Block', 'PDH / PDL', 'Continuación', 'Data High / Data Low', 'CISD']
+            colorful_multiselect(Confluences_options, '<span style="font-weight:bold; font-size:15pt;">&nbsp;&nbsp;&nbsp;Confluences</span>', 'Confluences', trade_data_ref)
+            st.markdown("<br>", unsafe_allow_html=True)
             
             st.markdown('<div style="font-weight:bold; font-size:15pt; margin-bottom:5px;">&nbsp;&nbsp;&nbsp;Reason For Trade</div>', unsafe_allow_html=True)
-            trade_data_ref['razon_trade'] = st.text_area("Reason For Trade", value=trade_data_ref.get('razon_trade', ''), key="razon_main", height=80, label_visibility="collapsed")
+            trade_data_ref['razon_trade'] = st.text_area("Reason For Trade", value=trade_data_ref.get('razon_trade', ''), key=f"razon_main", height=80, label_visibility="collapsed")
             
             st.markdown('<div style="font-weight:bold; font-size:15pt; margin-bottom:5px;">&nbsp;&nbsp;&nbsp;Corrections</div>', unsafe_allow_html=True)
-            trade_data_ref['Corrections'] = st.text_area("Corrections", value=trade_data_ref.get('Corrections', ''), key="corr_main", height=80, label_visibility="collapsed")
+            trade_data_ref['Corrections'] = st.text_area("Corrections", value=trade_data_ref.get('Corrections', ''), key=f"corr_main", height=80, label_visibility="collapsed")
             
-            st.markdown('<div style="font-weight:bold; font-size:15pt; margin-bottom:5px;">&nbsp;&nbsp;&nbsp;% Risk</div>', unsafe_allow_html=True)
-            r_index = ['0.6%', '0.5%', '0.4%'].index(trade_data_ref.get('risk', '0.5%')) if trade_data_ref.get('risk', '0.5%') in ['0.6%', '0.5%', '0.4%'] else 1
-            trade_data_ref['risk'] = st.radio("Risk", ['0.6%', '0.5%', '0.4%'], index=r_index, horizontal=True, label_visibility="collapsed", key="risk_main")
+            risk_options = ['0.6%', '0.5%', '0.4%']
+            colorful_menu(risk_options, '<span style="font-weight:bold; font-size:15pt;">&nbsp;&nbsp;&nbsp;% Risk</span>', 'risk', trade_data_ref)
+            st.markdown("<br>", unsafe_allow_html=True)
             
-            st.markdown('<div style="font-weight:bold; font-size:15pt; margin-bottom:5px;">&nbsp;&nbsp;&nbsp;RR</div>', unsafe_allow_html=True)
-            rr_opts = ['1:1', '1:1.5', '1:2', '1:3', '1:4']
-            rr_index = rr_opts.index(trade_data_ref.get('RR', '1:2')) if trade_data_ref.get('RR', '1:2') in rr_opts else 2
-            trade_data_ref['RR'] = st.radio("RR", rr_opts, index=rr_index, horizontal=True, label_visibility="collapsed", key="rr_main")
+            rrr_options = ['1:1', '1:1.5', '1:2', '1:3', '1:4']
+            colorful_menu(rrr_options, '<span style="font-weight:bold; font-size:15pt;">&nbsp;&nbsp;&nbsp;RR</span>', 'RR', trade_data_ref)
+            st.markdown("<br>", unsafe_allow_html=True)
             
-            st.markdown('<div style="font-weight:bold; font-size:15pt; margin-bottom:5px;">&nbsp;&nbsp;&nbsp;Trade Type</div>', unsafe_allow_html=True)
-            tt_opts = ['A+', 'A', 'B', 'C']
-            tt_index = tt_opts.index(trade_data_ref.get('trade_type', 'A')) if trade_data_ref.get('trade_type', 'A') in tt_opts else 1
-            trade_data_ref['trade_type'] = st.radio("Trade Type", tt_opts, index=tt_index, horizontal=True, label_visibility="collapsed", key="tt_main")
+            trade_type_options = ['A+', 'A', 'B', 'C']
+            colorful_menu(trade_type_options, '<span style="font-weight:bold; font-size:15pt;">&nbsp;&nbsp;&nbsp;Trade Type</span>', 'trade_type', trade_data_ref)
+            st.markdown("<br>", unsafe_allow_html=True)
             
             st.markdown('<div style="font-weight:bold; font-size:15pt; margin-bottom:5px;">&nbsp;&nbsp;&nbsp;Emotions</div>', unsafe_allow_html=True)
-            trade_data_ref['Emotions'] = st.text_area("Emotions", value=trade_data_ref.get('Emotions', ''), key="emoc_main", height=80, label_visibility="collapsed")
+            trade_data_ref['Emotions'] = st.text_area("Emotions", value=trade_data_ref.get('Emotions', ''), key=f"emoc_main", height=80, label_visibility="collapsed")
             
             if st.button("💾 Guardar Cambios en la Nube", use_container_width=True):
                 fecha_obj_notas = datetime(clave_actual[0], clave_actual[1], clave_actual[2])
                 registrar_en_excel(usuario, db_global[usuario]["password"], ctx, fecha_obj_notas, bal_actual, trade_data_ref["pnl"], trade_data_ref, db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
-                st.success("Notas e Imágenes guardadas en la Nube.")
+                st.success("✅ Notas e Imágenes guardadas.")
 
 # ==========================================
 # 10. CALENDARIO Y RESUMEN
@@ -905,7 +1011,7 @@ def agregar_imagenes_historial(contexto, llave, widget_id, counter_id):
     archivos_nuevos = st.session_state.get(widget_id)
     if archivos_nuevos:
         for img in archivos_nuevos:
-            b64_comprimido = procesar_y_comprimir_imagen(img)
+            b64_comprimido = procesar_y_comprimir_imagen(img, len(archivos_nuevos))
             db_usuario[contexto]["trades"][llave]["imagenes"].append(b64_comprimido)
         st.session_state[counter_id] += 1
 
@@ -1001,7 +1107,7 @@ with st.expander("🛠️ OPEN ORDER HISTORY", expanded=False):
                         
                         fecha_obj_edit = datetime(nueva_clave[0], nueva_clave[1], nueva_clave[2])
                         registrar_en_excel(usuario, db_global[usuario]["password"], ctx, fecha_obj_edit, nuevo_bal, nuevo_pnl, db_usuario[ctx]["trades"][nueva_clave], db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
-                        st.rerun()
+                        st.success("✅ Día guardado correctamente en la nube.")
                         
                 with c_btn2:
                     if st.button("❌ DELETE FULL DAY", key=f"del_{clave}", use_container_width=True):
