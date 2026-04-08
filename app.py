@@ -1128,12 +1128,12 @@ with col_mitad_2:
                 hide_index=False,  # <--- FALSE: ¡Esto hace que APAREZCA el index (contador de filas)!
                 key=f"tabla_resultados_v6_{ctx}", # <--- v6 para aplicar el cambio de inmediato
                 column_config={
-                    "Corrections": st.column_config.Column(width="small"), 
-                    "Emotions": st.column_config.Column(width="small"),
+                    "   Corrections": st.column_config.Column(width="small"), 
+                    "   Emotions": st.column_config.Column(width="small"),
                     "Reason For Trade": st.column_config.Column(width="medium"),
                     "Confluences": st.column_config.Column(width="large"),
-                    "Date": st.column_config.Column(width="small"),
-                    "    P&L": st.column_config.Column(width="small")
+                    "   Date": st.column_config.Column(width="small"),
+                    "      P&L": st.column_config.Column(width="small")
                 }
             )
 # ==========================================
