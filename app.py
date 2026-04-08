@@ -89,7 +89,7 @@ def get_global_db():
                         "balance_final": float(row_data.get('Balance', 0) or 0),
                         "fecha_str": f_str,
                         "imagenes": str(row_data.get('Imagenes', '')).split("|") if row_data.get('Imagenes') else [],
-                        "bias": "NEUTRO", "Confluences": [], "razon_trade": "", "Corrections": "", "risk": "0.5%", "rrr": "B", "trade_type": "", "Emotions": ""
+                        "bias": "NEUTRO", "Confluences": [], "razon_trade": "", "Corrections": "", "risk": "0.5%", "RR": "1:2", "trade_type": "", "Emotions": ""
                     }
                     
                     extra = row_data.get('ExtraData', '')
@@ -106,13 +106,15 @@ def get_global_db():
 
 db_global = get_global_db()
 
-# --- FUNCIÓN CENTRAL DE GUARDADO A LA NUBE (BLINDADA CONTRA ERRORES) ---
+# --- FUNCIÓN CENTRAL DE GUARDADO A LA NUBE ---
 def registrar_en_excel(usuario, password, cuenta, fecha_obj, balance, pnl, trade_data, settings_pc, settings_movil):
     if hoja_excel:
         try:
             fecha_texto = fecha_obj.strftime("%d/%m/%Y")
             lista_imgs = trade_data.get("imagenes", [])
+            # Acortamos el texto de las imágenes si es muy largo para que no rompa Google Sheets (Temporal)
             imgs_texto = "|".join(lista_imgs) if lista_imgs else ""
+            if len(imgs_texto) > 45000: imgs_texto = "IMAGEN_MUY_GRANDE"
             
             set_pc_str = json.dumps(settings_pc) if settings_pc else "{}"
             set_mov_str = json.dumps(settings_movil) if settings_movil else "{}"
@@ -120,17 +122,15 @@ def registrar_en_excel(usuario, password, cuenta, fecha_obj, balance, pnl, trade
             extra_data = {k:v for k,v in trade_data.items() if k not in ['pnl', 'balance_final', 'fecha_str', 'imagenes']}
             extra_str = json.dumps(extra_data)
 
-            # BLINDAJE: Si por alguna razón el usuario está vacío, pone "Desconocido"
             safe_user = str(usuario).strip() if usuario else "Desconocido"
             safe_pass = str(password).strip() if password else "123"
 
-            # Las 10 columnas exactas que pedimos
             nueva_fila = [safe_user, safe_pass, str(cuenta), fecha_texto, float(balance), float(pnl), imgs_texto, set_pc_str, set_mov_str, extra_str]
             hoja_excel.append_row(nueva_fila)
         except Exception:
             pass
 
-# --- LOGIN (CON CANDADOS DE SEGURIDAD) ---
+# --- LOGIN MEJORADO (UN SOLO CLIC) ---
 if "usuario_actual" not in st.session_state:
     st.session_state.usuario_actual = None
 
@@ -145,43 +145,49 @@ if st.session_state.usuario_actual is None or st.session_state.usuario_actual no
         tab1, tab2 = st.tabs(["Entrar", "Registrarse"])
         
         with tab1:
-            log_user = st.text_input("Usuario", key="log_user")
-            log_pass = st.text_input("Contraseña", type="password", key="log_pass")
-            if st.button("Acceder", use_container_width=True):
-                if not log_user.strip():
-                    st.error("⚠️ El campo Usuario no puede estar vacío.")
-                else:
-                    if log_user not in db_global:
-                        db_global[log_user] = {
-                            "password": log_pass,
+            with st.form("login_form"):
+                log_user = st.text_input("Usuario")
+                log_pass = st.text_input("Contraseña", type="password")
+                submit_login = st.form_submit_button("Acceder", use_container_width=True)
+                
+                if submit_login:
+                    if not log_user.strip():
+                        st.error("⚠️ El campo Usuario no puede estar vacío.")
+                    else:
+                        if log_user not in db_global:
+                            db_global[log_user] = {
+                                "password": log_pass,
+                                "data": inicializar_data_usuario(),
+                                "settings": {"PC": inicializar_settings(), "Móvil": inicializar_settings()}
+                            }
+                        
+                        if db_global[log_user]["password"] == log_pass:
+                            st.session_state.usuario_actual = log_user
+                            st.rerun()
+                        else:
+                            st.error("Usuario o contraseña incorrectos.")
+                    
+        with tab2:
+            with st.form("register_form"):
+                reg_user = st.text_input("Nuevo Usuario")
+                reg_pass = st.text_input("Nueva Contraseña", type="password")
+                submit_register = st.form_submit_button("Crear Cuenta", use_container_width=True)
+                
+                if submit_register:
+                    if not reg_user.strip():
+                        st.error("⚠️ Debes escribir un nombre de Usuario válido.")
+                    elif reg_user in db_global:
+                        st.warning("El usuario ya existe.")
+                    elif len(reg_user) > 0 and len(reg_pass) > 0:
+                        db_global[reg_user] = {
+                            "password": reg_pass,
                             "data": inicializar_data_usuario(),
                             "settings": {"PC": inicializar_settings(), "Móvil": inicializar_settings()}
                         }
-                    
-                    if db_global[log_user]["password"] == log_pass:
-                        st.session_state.usuario_actual = log_user
-                        st.rerun()
+                        registrar_en_excel(reg_user, reg_pass, "Account Real", datetime.now(), 25000.0, 0.0, {}, db_global[reg_user]["settings"]["PC"], db_global[reg_user]["settings"]["Móvil"])
+                        st.success("Cuenta creada con éxito. Ya puedes iniciar sesión.")
                     else:
-                        st.error("Usuario o contraseña incorrectos.")
-                    
-        with tab2:
-            reg_user = st.text_input("Nuevo Usuario", key="reg_user")
-            reg_pass = st.text_input("Nueva Contraseña", type="password", key="reg_pass")
-            if st.button("Crear Cuenta", use_container_width=True):
-                if not reg_user.strip():
-                    st.error("⚠️ Debes escribir un nombre de Usuario válido.")
-                elif reg_user in db_global:
-                    st.warning("El usuario ya existe.")
-                elif len(reg_user) > 0 and len(reg_pass) > 0:
-                    db_global[reg_user] = {
-                        "password": reg_pass,
-                        "data": inicializar_data_usuario(),
-                        "settings": {"PC": inicializar_settings(), "Móvil": inicializar_settings()}
-                    }
-                    registrar_en_excel(reg_user, reg_pass, "Account Real", datetime.now(), 25000.0, 0.0, {}, db_global[reg_user]["settings"]["PC"], db_global[reg_user]["settings"]["Móvil"])
-                    st.success("Cuenta creada con éxito. Ya puedes iniciar sesión.")
-                else:
-                    st.warning("Completa todos los campos.")
+                        st.warning("Completa todos los campos.")
     st.stop()
 
 # ==========================================
@@ -355,7 +361,6 @@ if "dispositivo_actual" not in st.session_state:
 usuario = st.session_state.usuario_actual
 db_usuario = db_global[usuario]["data"]
 
-# MIGRACIÓN SEGURA PARA USUARIOS ANTIGUOS
 if "settings" not in db_global[usuario]:
     db_global[usuario]["settings"] = {"PC": inicializar_settings(), "Móvil": inicializar_settings()}
 elif "PC" not in db_global[usuario]["settings"]:
@@ -409,13 +414,12 @@ def procesar_cambio():
             "razon_trade": old_trade.get("razon_trade", ""),
             "Corrections": old_trade.get("Corrections", ""),
             "risk": old_trade.get("risk", "0.5%"),
-            "rrr": old_trade.get("rrr", "B"),
+            "RR": old_trade.get("RR", "1:2"),
             "trade_type": old_trade.get("trade_type", ""),
             "Emotions": old_trade.get("Emotions", "")
         }
         db_usuario[ctx]["balance"] = nuevo
         
-        # SINCRONIZACIÓN CON GOOGLE SHEETS GUARDANDO TODO
         registrar_en_excel(usuario, db_global[usuario]["password"], ctx, fecha_sel, nuevo, pnl, db_usuario[ctx]["trades"][clave], db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
 
 def convertir_img_base64(uploaded_file):
@@ -440,9 +444,8 @@ def reset_settings(category):
 # ==========================================
 st.sidebar.markdown(f"### 👤 My Account: {usuario}")
 
-st.session_state.dispositivo_actual = st.sidebar.radio("⚙️ Editing Design Profile for:", ["PC", "Móvil"], index=0 if st.session_state.dispositivo_actual == "PC" else 1, help="This saves your settings separately. Switching to mobile is automatic based on screen size.")
+st.session_state.dispositivo_actual = st.sidebar.radio("⚙️ Editing Design Profile for:", ["PC", "Móvil"], index=0 if st.session_state.dispositivo_actual == "PC" else 1, help="This saves your settings separately.")
 
-# BOTÓN PARA GUARDAR DISEÑO EN LA NUBE
 if st.sidebar.button("💾 Save Design Settings to Cloud", use_container_width=True):
     ctx_act = st.session_state.data_source_sel
     bal_act = db_usuario[ctx_act]["balance"]
@@ -461,11 +464,26 @@ if st.sidebar.button(texto_boton_tema):
     st.session_state.tema = "Oscuro" if st.session_state.tema == "Claro" else "Claro"
     st.rerun()
 
+# --- BOTÓN DE LIMPIAR CUENTA CON CONFIRMACIÓN ---
 ctx_actual = st.session_state.data_source_sel
+if "confirm_clear" not in st.session_state:
+    st.session_state.confirm_clear = False
+
 if st.sidebar.button(f"🗑️ Clean {ctx_actual} to $25k"):
-    db_usuario[ctx_actual]["balance"] = 25000.00
-    db_usuario[ctx_actual]["trades"] = {}
-    st.rerun()
+    st.session_state.confirm_clear = True
+
+if st.session_state.confirm_clear:
+    st.sidebar.warning(f"⚠️ ¿Estás seguro que quieres borrar todo el historial de {ctx_actual}?")
+    c_yes, c_no = st.sidebar.columns(2)
+    if c_yes.button("SÍ, BORRAR"):
+        db_usuario[ctx_actual]["balance"] = 25000.00
+        db_usuario[ctx_actual]["trades"] = {}
+        st.session_state.confirm_clear = False
+        st.rerun()
+    if c_no.button("CANCELAR"):
+        st.session_state.confirm_clear = False
+        st.rerun()
+# ------------------------------------------------
 
 st.sidebar.markdown("---")
 st.sidebar.markdown("### 🛡️ Admin")
@@ -482,7 +500,7 @@ if admin_pass == "725166":
                 st.session_state.usuario_actual = None
             st.rerun()
 
-# --- MENÚS EXPANDIBLES (ORDENADOS COMO PEDISTE) ---
+# --- MENÚS EXPANDIBLES ---
 st.sidebar.markdown("---")
 
 with st.sidebar.expander("🖥️ Dashboard Settings"):
@@ -527,7 +545,6 @@ with st.sidebar.expander("📅 Calendar Settings"):
     user_settings["cal_txt_y"] = st.slider("Day Text Vertical Position", -50, 50, user_settings.get("cal_txt_y", 0))
     user_settings["cal_txt_pad"] = st.slider("Day Content Top Padding", -50, 50, user_settings.get("cal_txt_pad", 0))
 
-# --- BOTÓN DE LOG OUT (SIEMPRE AL FINAL) ---
 st.sidebar.markdown("<br><br><br>", unsafe_allow_html=True)
 if st.sidebar.button("🚪 Log Out", use_container_width=True):
     st.session_state.usuario_actual = None
@@ -589,10 +606,7 @@ st.markdown(f"""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
     
-    /* VISTA PREVIA EN TIEMPO REAL DEL PERFIL SELECCIONADO */
     :root {{ {gen_css_vars(user_settings)} }}
-    
-    /* CAMBIO AUTOMÁTICO A MÓVIL EN PANTALLAS PEQUEÑAS (CUANDO ESTÁ EN PERFIL PC) */
     @media (max-width: 768px) {{ :root {{ {gen_css_vars(db_global[usuario]["settings"]["Móvil"])} }} }}
 
     .stApp {{ background-color: {bg_color} !important; font-family: 'Inter', sans-serif !important; }}
@@ -618,7 +632,6 @@ st.markdown(f"""
     li[role="option"] {{ background-color: F3F4F6 !important; }}
     li[role="option"]:hover {{ background-color: {border_color} !important; }}
 
-    /* ======= ESTILO RESTAURADO: CAJA BALANCE Y BOTON SAVE ======= */
     div[data-testid="stNumberInput"] {{ margin-left: {INPUT_BAL_X}px !important; margin-top: {INPUT_BAL_Y}px !important; width: {INPUT_BAL_W} !important; min-width: {INPUT_BAL_W} !important; max-width: {INPUT_BAL_W} !important; }}
     div[data-testid="stNumberInput"] button {{ display: none !important; }} 
     
@@ -636,7 +649,6 @@ st.markdown(f"""
         width: {INPUT_BAL_W} !important; margin-left: {INPUT_BAL_X}px !important; margin-top: 5px !important; 
     }}
 
-    /* ======= ESTILO RESTAURADO: UPLOAD, CALENDARIO, NOTAS ======= */
     [data-testid="stFileUploader"] {{ transform: translate({DROPZONE_X}px, {DROPZONE_Y}px) !important; background-color: transparent !important; border: none !important; padding: 0 !important; box-shadow: none !important; width: {DROPZONE_W} !important; min-width: {DROPZONE_W} !important; }}
     [data-testid="stFileUploader"] > section {{ background-color: transparent !important; border: none !important; padding: 0 !important; width: 100% !important; }}
     
@@ -657,7 +669,6 @@ st.markdown(f"""
 
     div[data-testid="stButton"] > button {{ background-color: {btn_bg} !important; color: {btn_txt} !important; border: 1px solid {border_color} !important; }}
     
-    /* POPOVER (CALENDARIO Y NOTAS) */
     div[data-testid="stPopover"] {{ 
         width: {BTN_CAL_W}px !important; min-width: {BTN_CAL_W}px !important; max-width: {BTN_CAL_W}px !important;
         height: {BTN_CAL_H}px !important; min-height: {BTN_CAL_H}px !important; max-height: {BTN_CAL_H}px !important;
@@ -734,15 +745,11 @@ st.markdown(f"""
     .txt-red {{ color: #FF4C4C !important; }}
     .txt-gray {{ color: gray !important; }}
     
-    /* ========================================================= */
-    /* RESPONSIVE (MÓVIL) - CORRECCIÓN DE OVERLAP Y APILAMIENTO */
-    /* ========================================================= */
     @media (max-width: 768px) {{
         .dashboard-title {{ font-size: 38px !important; margin: 10px auto !important; text-align: center !important; line-height: 1 !important; transform: translate(0,0) !important;}}
         .lbl-total-bal, .lbl-filtros, .lbl-data, .lbl-input {{ transform: translate(0, 0) !important; text-align: center !important; width: 100% !important; margin-bottom: 10px !important;}}
         .balance-box {{ width: 100% !important; margin: 0 auto 15px auto !important; transform: translate(0,0) !important;}}
         
-        /* Apilamiento perfecto de la fila principal de inputs */
         div[data-testid="column"] {{ width: 100% !important; flex: 1 1 100% !important; min-width: 100% !important; display: block !important; margin-bottom: 15px !important; }}
         
         div[data-testid="stNumberInput"],
@@ -761,7 +768,6 @@ st.markdown(f"""
             margin-left: 0 !important;
         }}
 
-        /* EXCEPCIÓN: EL CALENDARIO SE MANTIENE EN 7 COLUMNAS */
         .calendar-wrapper div[data-testid="column"],
         div[data-testid="stHorizontalBlock"]:has(.card) > div[data-testid="column"],
         div[data-testid="stHorizontalBlock"]:has(.txt-dias-sem) > div[data-testid="column"] {{
@@ -783,7 +789,6 @@ st.markdown(f"""
         .mo-box {{ width: 100% !important; height: auto !important; margin-top: 10px !important; padding: 10px !important; }}
         .card-pnl, .card-win {{ width: 100% !important; transform: translate(0,0) !important; height: auto !important; margin-top: 10px !important; }}
         
-        /* HACER TABLA RESPONSIVA EN MÓVIL (EVITAR QUE SE SALGA DE LA PANTALLA) */
         div[data-testid="stDataFrame"] {{
             width: 100% !important;
             max-width: 100vw !important;
@@ -860,12 +865,11 @@ def agregar_imagenes_main(contexto, llave, widget_id, counter_id, bal_act, f_str
         if llave not in db_usuario[contexto]["trades"]:
             db_usuario[contexto]["trades"][llave] = {
                 "pnl": 0.0, "balance_final": bal_act, "fecha_str": f_str, "imagenes": [],
-                "bias": "NEUTRO", "Confluences": [], "razon_trade": "", "Corrections": "", "risk": "0.5%", "rrr": "B", "trade_type": "A", "Emotions": ""
+                "bias": "NEUTRO", "Confluences": [], "razon_trade": "", "Corrections": "", "risk": "0.5%", "RR": "1:2", "trade_type": "A", "Emotions": ""
             }
         for img in archivos_nuevos:
             db_usuario[contexto]["trades"][llave]["imagenes"].append(f"data:{img.type};base64,{convertir_img_base64(img)}")
         
-        # SINCRONIZAR A GOOGLE SHEETS AL AÑADIR IMÁGENES
         fecha_obj = datetime(llave[0], llave[1], llave[2])
         registrar_en_excel(usuario, db_global[usuario]["password"], contexto, fecha_obj, db_usuario[contexto]["trades"][llave]["balance_final"], db_usuario[contexto]["trades"][llave]["pnl"], db_usuario[contexto]["trades"][llave], db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
         
@@ -936,7 +940,7 @@ with c_not:
             st.markdown("<br>", unsafe_allow_html=True)
             
             rrr_options = ['1:1', '1:1.5', '1:2', '1:3', '1:4']
-            colorful_menu(rrr_options, '<span style="font-weight:bold; font-size:15pt;">&nbsp;&nbsp;&nbsp;RR</span>', 'rrr', trade_data_ref)
+            colorful_menu(rrr_options, '<span style="font-weight:bold; font-size:15pt;">&nbsp;&nbsp;&nbsp;RR</span>', 'RR', trade_data_ref)
             st.markdown("<br>", unsafe_allow_html=True)
             
             trade_type_options = ['A+', 'A', 'B', 'C']
@@ -1013,7 +1017,6 @@ with col_cal:
                         pct = (trade["pnl"] / bal_ini * 100) if bal_ini != 0 else 0
                         pct_str = f"{c_sim}{pct:.2f}%"
 
-                        # === AQUÍ ESTÁ EL ARREGLO DE LOS MODALES AISLADOS ===
                         if trade.get("imagenes"):
                             id_modal = f"mod_{anio_sel}_{mes_sel}_{dia}"
                             img_tags = "".join([f'<img src="{img}">' for img in trade["imagenes"]])
@@ -1034,7 +1037,7 @@ with col_cal:
                                 <b>Reason For Trade:</b> <span class="note-val">{trade.get("razon_trade", "")}</span>
                                 <b>Corrections:</b> <span class="note-val">{trade.get("Corrections", "")}</span>
                                 <b>% Risk:</b> <span class="note-val">{trade.get("risk", "")}</span>
-                                <b>RR:</b> <span class="note-val">{trade.get("rrr", "")}</span>
+                                <b>RR:</b> <span class="note-val">{trade.get("RR", "")}</span>
                                 <b>Trade Type:</b> <span class="note-val">{trade.get("trade_type", "")}</span>
                                 <b>Emotions:</b> <span class="note-val">{trade.get("Emotions", "")}</span>
                             </div>
@@ -1218,8 +1221,6 @@ st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
 def borrar_imagen(contexto, llave, index):
     if len(db_usuario[contexto]["trades"][llave]["imagenes"]) > index:
         db_usuario[contexto]["trades"][llave]["imagenes"].pop(index)
-        
-        # SINCRONIZAR A GOOGLE SHEETS
         fecha_obj = datetime(llave[0], llave[1], llave[2])
         registrar_en_excel(usuario, db_global[usuario]["password"], contexto, fecha_obj, db_usuario[contexto]["trades"][llave]["balance_final"], db_usuario[contexto]["trades"][llave]["pnl"], db_usuario[contexto]["trades"][llave], db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
 
@@ -1229,10 +1230,8 @@ def agregar_imagenes_historial(contexto, llave, widget_id, counter_id):
         for img in archivos_nuevos:
             db_usuario[contexto]["trades"][llave]["imagenes"].append(f"data:{img.type};base64,{convertir_img_base64(img)}")
         
-        # SINCRONIZAR A GOOGLE SHEETS
         fecha_obj = datetime(llave[0], llave[1], llave[2])
         registrar_en_excel(usuario, db_global[usuario]["password"], contexto, fecha_obj, db_usuario[contexto]["trades"][llave]["balance_final"], db_usuario[contexto]["trades"][llave]["pnl"], db_usuario[contexto]["trades"][llave], db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
-        
         st.session_state[counter_id] += 1
 
 with st.expander("🛠️ OPEN ORDER HISTORY", expanded=False):
@@ -1320,14 +1319,12 @@ with st.expander("🛠️ OPEN ORDER HISTORY", expanded=False):
                             "razon_trade": data.get("razon_trade", ""),
                             "Corrections": data.get("Corrections", ""),
                             "risk": data.get("risk", "0.5%"),
-                            "rrr": data.get("rrr", "B"),
+                            "RR": data.get("RR", "1:2"),
                             "trade_type": data.get("trade_type", ""),
                             "Emotions": data.get("Emotions", "")
                         }
                         
-                        # SINCRONIZAR EDICIÓN A GOOGLE SHEETS
                         registrar_en_excel(usuario, db_global[usuario]["password"], ctx, nueva_fecha, nuevo_bal, nuevo_pnl, db_usuario[ctx]["trades"][nueva_clave], db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
-                        
                         st.rerun()
                         
                 with c_btn2:
@@ -1359,7 +1356,7 @@ def sync_table_edits():
                 if "Reason For Trade" in edits: t["razon_trade"] = edits["Reason For Trade"]
                 if "Corrections" in edits: t["Corrections"] = edits["Corrections"]
                 if "% Risk" in edits: t["risk"] = edits["% Risk"]
-                if "RR" in edits: t["rrr"] = edits["RR"]
+                if "RR" in edits: t["RR"] = edits["RR"]
                 if "Trade Type" in edits: t["trade_type"] = edits["Trade Type"]
                 if "Emotions" in edits: t["Emotions"] = edits["Emotions"]
                 if "P&L" in edits:
@@ -1369,7 +1366,6 @@ def sync_table_edits():
                     except:
                         pass
                 
-                # SINCRONIZAR A GOOGLE SHEETS LAS EDICIONES DE LA TABLA
                 fecha_obj = datetime(k[0], k[1], k[2])
                 registrar_en_excel(usuario, db_global[usuario]["password"], contexto, fecha_obj, t.get("balance_final", 25000), t["pnl"], t, db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
 
@@ -1398,7 +1394,7 @@ if mostrar_tabla:
                 "Confluences": Confluences_resumen,
                 "Reason For Trade": trade.get('razon_trade', ''),
                 "% Risk": trade.get('risk', ''),
-                "RR": trade.get('rrr', ''),
+                "RR": trade.get('RR', ''),
                 "Trade Type": trade.get('trade_type', ''),
                 "Emotions": trade.get('Emotions', ''),
                 "Corrections": trade.get('Corrections', ''),
