@@ -572,11 +572,11 @@ st.markdown("""
     <style>
     /* Reduce el espacio del título del radio al primer botón */
     div[data-testid="stWidgetLabel"] + div[data-testid="stHorizontalBlock"] div[data-testid="stMarkdownContainer"] {
-        padding-right: 20px;
+        padding-right: 210px;
     }
     /* Junta los circulitos de las opciones */
     div[data-testid="stHorizontalBlock"] div[role="radiogroup"] > div {
-        margin-right: -10px; /* Ajusta este número si los quieres más o menos pegados */
+        margin-right: -110px; /* Ajusta este número si los quieres más o menos pegados */
     }
     </style>
 """, unsafe_allow_html=True)
