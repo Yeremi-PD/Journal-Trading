@@ -607,7 +607,7 @@ with st.form(key=f"form_main_entry_{st.session_state.form_reset_key}", border=Fa
         st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True) 
         imgs_subidas = st.file_uploader("", accept_multiple_files=True, label_visibility="collapsed")
         st.markdown(f'<div class="lbl-link">{LBL_LINK}</div>', unsafe_allow_html=True)
-        link_imagen = st.text_input("Link", value="", label_visibility="collapsed", placeholder="Image Link")
+        link_imagen = st.text_input("Link", value="", label_visibility="collapsed", placeholder="Paste the Image Link")
         
     with c_not:
         st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True) 
