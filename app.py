@@ -114,7 +114,7 @@ def get_global_db():
 
 db_global = get_global_db()
 
-# --- FUNCIÓN CENTRAL DE GUARDADO A LA NUBE ---
+# --- FUNCIÓN CENTRAL DE GUARDADO A LA NUBE (SOLO POR BOTÓN) ---
 def registrar_en_excel(usuario, password, cuenta, fecha_obj, balance, pnl, trade_data, settings_pc, settings_movil):
     if hoja_excel:
         try:
@@ -540,36 +540,6 @@ with col_bal:
 
 st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
 
-def colorful_menu(options, label, value_key, trade_data_ref):
-    if value_key not in trade_data_ref: trade_data_ref[value_key] = options[0]
-    st.markdown(f"<div style='margin-bottom: 5px; font-weight: bold;'>{label}</div>", unsafe_allow_html=True)
-    selected_value = trade_data_ref[value_key]
-    cols = st.columns(len(options))
-    for i, text in enumerate(options):
-        with cols[i]:
-            is_selected = (text == selected_value)
-            btn_label = f"✅ {text}" if is_selected else text
-            btn_type = "primary" if is_selected else "secondary"
-            # Actualiza memoria pero NO autoguarda en Excel (cero lag)
-            if st.button(btn_label, key=f"btn_{value_key}_{i}", use_container_width=True, type=btn_type):
-                trade_data_ref[value_key] = text
-                st.rerun()
-
-def colorful_multiselect(options, label, value_key, trade_data_ref):
-    if value_key not in trade_data_ref: trade_data_ref[value_key] = []
-    st.markdown(f"<div style='margin-bottom: 5px; font-weight: bold;'>{label}</div>", unsafe_allow_html=True)
-    current_selections = trade_data_ref[value_key]
-    cols = st.columns(3) 
-    for i, text in enumerate(options):
-        with cols[i % 3]:
-            is_selected = (text in current_selections)
-            btn_label = f"✅ {text}" if is_selected else text
-            btn_type = "primary" if is_selected else "secondary"
-            if st.button(btn_label, key=f"multibtn_{value_key}_{i}", use_container_width=True, type=btn_type):
-                if text in current_selections: trade_data_ref[value_key].remove(text)
-                else: trade_data_ref[value_key].append(text)
-                st.rerun()
-
 def agregar_imagenes_main(contexto, llave, widget_id, counter_id, bal_act, f_str):
     archivos_nuevos = st.session_state.get(widget_id)
     if archivos_nuevos:
@@ -581,7 +551,6 @@ def agregar_imagenes_main(contexto, llave, widget_id, counter_id, bal_act, f_str
         for img in archivos_nuevos:
             b64_comprimido = procesar_y_comprimir_imagen(img)
             db_usuario[contexto]["trades"][llave]["imagenes"].append(b64_comprimido)
-        # Se guarda solo en memoria temporal hasta que presiones SAVE MAIN o SAVE NOTAS
         st.session_state[counter_id] += 1
 
 # ==========================================
@@ -630,34 +599,36 @@ with c_not:
         else:
             trade_data_ref = db_usuario[ctx]["trades"][clave_actual]
             
-            bias_options = ['ALCISTA', 'BAJISTA', 'NEUTRO']
-            colorful_menu(bias_options, '<span style="font-weight:bold; font-size:15pt;">&nbsp;&nbsp;&nbsp;Bias</span>', 'bias', trade_data_ref)
-            st.markdown("<br>", unsafe_allow_html=True)
+            st.markdown('<div style="font-weight:bold; font-size:15pt; margin-bottom:5px;">&nbsp;&nbsp;&nbsp;Bias</div>', unsafe_allow_html=True)
+            b_index = ['ALCISTA', 'BAJISTA', 'NEUTRO'].index(trade_data_ref.get('bias', 'NEUTRO'))
+            trade_data_ref['bias'] = st.radio("Bias", ['ALCISTA', 'BAJISTA', 'NEUTRO'], index=b_index, horizontal=True, label_visibility="collapsed", key="bias_main")
             
-            Confluences_options = ['BIAS Claro', 'Liq Sweep', 'IFVG', 'FVG', 'EQH / EQL', 'BSL / SSL', 'POI', 'SMT', 'Order Block', 'PDH / PDL', 'Continuación', 'Data High / Data Low', 'CISD']
-            colorful_multiselect(Confluences_options, '<span style="font-weight:bold; font-size:15pt;">&nbsp;&nbsp;&nbsp;Confluences</span>', 'Confluences', trade_data_ref)
-            st.markdown("<br>", unsafe_allow_html=True)
+            st.markdown('<div style="font-weight:bold; font-size:15pt; margin-bottom:5px;">&nbsp;&nbsp;&nbsp;Confluences</div>', unsafe_allow_html=True)
+            conf_opts = ['BIAS Claro', 'Liq Sweep', 'IFVG', 'FVG', 'EQH / EQL', 'BSL / SSL', 'POI', 'SMT', 'Order Block', 'PDH / PDL', 'Continuación', 'Data High / Data Low', 'CISD']
+            trade_data_ref['Confluences'] = st.multiselect("Confluences", conf_opts, default=trade_data_ref.get('Confluences', []), label_visibility="collapsed", key="conf_main")
             
             st.markdown('<div style="font-weight:bold; font-size:15pt; margin-bottom:5px;">&nbsp;&nbsp;&nbsp;Reason For Trade</div>', unsafe_allow_html=True)
-            trade_data_ref['razon_trade'] = st.text_area("Reason For Trade", value=trade_data_ref.get('razon_trade', ''), key=f"razon_main", height=80, label_visibility="collapsed")
+            trade_data_ref['razon_trade'] = st.text_area("Reason For Trade", value=trade_data_ref.get('razon_trade', ''), key="razon_main", height=80, label_visibility="collapsed")
             
             st.markdown('<div style="font-weight:bold; font-size:15pt; margin-bottom:5px;">&nbsp;&nbsp;&nbsp;Corrections</div>', unsafe_allow_html=True)
-            trade_data_ref['Corrections'] = st.text_area("Corrections", value=trade_data_ref.get('Corrections', ''), key=f"corr_main", height=80, label_visibility="collapsed")
+            trade_data_ref['Corrections'] = st.text_area("Corrections", value=trade_data_ref.get('Corrections', ''), key="corr_main", height=80, label_visibility="collapsed")
             
-            risk_options = ['0.6%', '0.5%', '0.4%']
-            colorful_menu(risk_options, '<span style="font-weight:bold; font-size:15pt;">&nbsp;&nbsp;&nbsp;% Risk</span>', 'risk', trade_data_ref)
-            st.markdown("<br>", unsafe_allow_html=True)
+            st.markdown('<div style="font-weight:bold; font-size:15pt; margin-bottom:5px;">&nbsp;&nbsp;&nbsp;% Risk</div>', unsafe_allow_html=True)
+            r_index = ['0.6%', '0.5%', '0.4%'].index(trade_data_ref.get('risk', '0.5%')) if trade_data_ref.get('risk', '0.5%') in ['0.6%', '0.5%', '0.4%'] else 1
+            trade_data_ref['risk'] = st.radio("Risk", ['0.6%', '0.5%', '0.4%'], index=r_index, horizontal=True, label_visibility="collapsed", key="risk_main")
             
-            rrr_options = ['1:1', '1:1.5', '1:2', '1:3', '1:4']
-            colorful_menu(rrr_options, '<span style="font-weight:bold; font-size:15pt;">&nbsp;&nbsp;&nbsp;RR</span>', 'RR', trade_data_ref)
-            st.markdown("<br>", unsafe_allow_html=True)
+            st.markdown('<div style="font-weight:bold; font-size:15pt; margin-bottom:5px;">&nbsp;&nbsp;&nbsp;RR</div>', unsafe_allow_html=True)
+            rr_opts = ['1:1', '1:1.5', '1:2', '1:3', '1:4']
+            rr_index = rr_opts.index(trade_data_ref.get('RR', '1:2')) if trade_data_ref.get('RR', '1:2') in rr_opts else 2
+            trade_data_ref['RR'] = st.radio("RR", rr_opts, index=rr_index, horizontal=True, label_visibility="collapsed", key="rr_main")
             
-            trade_type_options = ['A+', 'A', 'B', 'C']
-            colorful_menu(trade_type_options, '<span style="font-weight:bold; font-size:15pt;">&nbsp;&nbsp;&nbsp;Trade Type</span>', 'trade_type', trade_data_ref)
-            st.markdown("<br>", unsafe_allow_html=True)
+            st.markdown('<div style="font-weight:bold; font-size:15pt; margin-bottom:5px;">&nbsp;&nbsp;&nbsp;Trade Type</div>', unsafe_allow_html=True)
+            tt_opts = ['A+', 'A', 'B', 'C']
+            tt_index = tt_opts.index(trade_data_ref.get('trade_type', 'A')) if trade_data_ref.get('trade_type', 'A') in tt_opts else 1
+            trade_data_ref['trade_type'] = st.radio("Trade Type", tt_opts, index=tt_index, horizontal=True, label_visibility="collapsed", key="tt_main")
             
             st.markdown('<div style="font-weight:bold; font-size:15pt; margin-bottom:5px;">&nbsp;&nbsp;&nbsp;Emotions</div>', unsafe_allow_html=True)
-            trade_data_ref['Emotions'] = st.text_area("Emotions", value=trade_data_ref.get('Emotions', ''), key=f"emoc_main", height=80, label_visibility="collapsed")
+            trade_data_ref['Emotions'] = st.text_area("Emotions", value=trade_data_ref.get('Emotions', ''), key="emoc_main", height=80, label_visibility="collapsed")
             
             if st.button("💾 Guardar Cambios en la Nube", use_container_width=True):
                 fecha_obj_notas = datetime(clave_actual[0], clave_actual[1], clave_actual[2])
@@ -1030,7 +1001,7 @@ with st.expander("🛠️ OPEN ORDER HISTORY", expanded=False):
                         
                         fecha_obj_edit = datetime(nueva_clave[0], nueva_clave[1], nueva_clave[2])
                         registrar_en_excel(usuario, db_global[usuario]["password"], ctx, fecha_obj_edit, nuevo_bal, nuevo_pnl, db_usuario[ctx]["trades"][nueva_clave], db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
-                        st.success("✅ Día guardado correctamente en la nube.")
+                        st.rerun()
                         
                 with c_btn2:
                     if st.button("❌ DELETE FULL DAY", key=f"del_{clave}", use_container_width=True):
