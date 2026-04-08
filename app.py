@@ -217,6 +217,7 @@ DROPZONE_W, DROPZONE_H, DROPZONE_X, DROPZONE_Y = "100%", "75px", 0, 0
 DROPZONE_BG_C, DROPZONE_BG_O = "transparent", "transparent"
 DROPZONE_BORDER_C, DROPZONE_BORDER_O = "1px dashed #E2E8F0", "1px dashed #4A5568"
 BTN_UP_TEXTO, BTN_UP_SIZE, BTN_UP_W, BTN_UP_H = "Upload", "20px", "120px", "45px"
+BTN_UP_BG_C, BTN_UP_BG_O, BTN_UP_TXT_C, BTN_UP_TXT_O = "#E2E8F0", "#4A5568", "#000000", "#FFFFFF"
 BTN_CAL_EMOJI, BTN_CAL_W, BTN_CAL_H, BTN_CAL_ICON_SIZE, BTN_CAL_BG_C, BTN_CAL_BG_O = "🗓️", 68, 68, 33, "#F3F4F6", "#2D3748"
 FLECHAS_SIZE, FLECHAS_X, FLECHAS_Y = 40, 0, 0
 TXT_MES_COLOR_C, TXT_MES_COLOR_O, TXT_DIAS_SEM_SIZE, TXT_DIAS_SEM_COLOR_C, TXT_DIAS_SEM_COLOR_O = "#000000", "#FFFFFF", 15, "#000000", "#FFFFFF"
@@ -246,6 +247,7 @@ for dev in ["PC", "Móvil"]:
         if k not in db_global[usuario]["settings"][dev]:
             db_global[usuario]["settings"][dev][k] = v
 
+# EL DISEÑO ACTIVO AHORA DEPENDE DEL CHECKBOX, NO DE LA PANTALLA
 user_settings = db_global[usuario]["settings"][st.session_state.dispositivo_actual]
 
 for cuenta in ["Account Real", "Account Demo"]:
@@ -287,6 +289,7 @@ def procesar_cambio():
     }
     db_usuario[ctx]["balance"] = nuevo
     
+    # ESTE ES EL ÚNICO LUGAR DONDE SE AUTO-GUARDA AL DARLE A SAVE MAIN
     registrar_en_excel(usuario, db_global[usuario]["password"], ctx, fecha_sel, nuevo, db_usuario[ctx]["trades"][clave]["pnl"], db_usuario[ctx]["trades"][clave], db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
     st.success("✅ Guardado en Google Sheets")
 
@@ -303,6 +306,7 @@ def reset_settings(category):
 # ==========================================
 st.sidebar.markdown(f"### 👤 Mi Cuenta: {usuario}")
 
+# SELECCIÓN MANUAL DE PERFIL A EDITAR (Vuelve a ser radio button manual)
 st.session_state.dispositivo_actual = st.sidebar.radio("⚙️ Perfil de Diseño Actual:", ["PC", "Móvil"], index=0 if st.session_state.dispositivo_actual == "PC" else 1)
 
 if st.sidebar.button("💾 Save Design Settings to Cloud", use_container_width=True):
@@ -414,6 +418,7 @@ else:
 def gen_css_vars(s):
     return f"--size-top-stats:{s['size_top_stats']}px;--size-card-titles:{s['size_card_titles']}px;--size-box-titles:{s['size_box_titles']}px;--size-box-vals:{s['size_box_vals']}px;--size-box-pct:{s['size_box_pct']}px;--size-box-wl:{s['size_box_wl']}px;--pie-size:{s['pie_size']}px;--pie-y-offset:{s['pie_y_offset']}px;--cal-mes-size:{s['cal_mes_size']}px;--cal-pnl-size:{s['cal_pnl_size']}px;--cal-pct-size:{s['cal_pct_size']}px;--cal-dia-size:{s['cal_dia_size']}px;--cal-cam-size:{s['cal_cam_size']}px;--cal-note-size:{s.get('cal_note_size',30)}px;--cal-scale:{s['cal_scale']}px;--cal-line-height:{s['cal_line_height']};--bal-num-sz:{s['bal_num_sz']}px;--bal-box-w:{s['bal_box_w']}%;--bal-box-pad:{s['bal_box_pad']}px;--cal-txt-y:{s.get('cal_txt_y',0)}px;--cal-txt-pad:{s.get('cal_txt_pad',0)}px;--note-lbl-size:{s.get('note_lbl_size',16)}px;--note-val-size:{s.get('note_val_size',16)}px;"
 
+# SE ELIMINARON POR COMPLETO LAS REGLAS RESPONSIVE DE CSS
 st.markdown(f"""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
@@ -926,6 +931,7 @@ st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
 def borrar_imagen(contexto, llave, index):
     if len(db_usuario[contexto]["trades"][llave]["imagenes"]) > index:
         db_usuario[contexto]["trades"][llave]["imagenes"].pop(index)
+        # Se borra en memoria, debes darle a GUARDAR CAMBIOS para enviarlo a Sheets
 
 def agregar_imagenes_historial(contexto, llave, widget_id, counter_id):
     archivos_nuevos = st.session_state.get(widget_id)
