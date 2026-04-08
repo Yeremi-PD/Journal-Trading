@@ -588,21 +588,21 @@ with st.form(key=f"form_main_entry_{st.session_state.form_reset_key}", border=Fa
         with st.popover("📝"):
             st.markdown("<h3 style='text-align:center; margin-top:0;'>Trade Details</h3>", unsafe_allow_html=True)
             
-            nuevo_bias = st.radio("Bias", ['LONG', 'SHORT', 'NONE'], index=2, horizontal=True)
+            nuevo_bias = st.radio("&nbsp; \n &nbsp; \n Bias", ['LONG', 'SHORT', 'NONE'], index=2, horizontal=True)
             nuevo_conf = st.multiselect("Confluences", ['BIAS WELL', 'LIQ SWEEP', 'IFVG', 'FVG', 'EQH / EQL', 'BSL / SSL', 'POI', 'SMT', 'Order Block', 'PDH / PDL', 'Continuation', 'Data High / Data Low', 'CISD'], default=[])
             nuevo_razon = st.text_area("&nbsp; \n &nbsp; \n Reason For Trade", value='', height=50)
-            nuevo_corr = st.text_area("Corrections", value='', height=50)
+            nuevo_corr = st.text_area("&nbsp; \n &nbsp; \n Corrections", value='', height=50)
             
-            risk_opts = ['&nbsp; \n 1%', '0.9%', '0.8%', '0.7%', '0.6%', '0.5%', '0.4%']
+            risk_opts = ['1%', '0.9%', '0.8%', '0.7%', '0.6%', '0.5%', '0.4%']
             nuevo_risk = st.radio("% Risk", risk_opts, index=5, horizontal=True)
             
             rr_opts = ['1:1', '1:1.5', '1:2', '1:3', '1:4']
-            nuevo_rr = st.radio("RR", rr_opts, index=2, horizontal=True)
+            nuevo_rr = st.radio("&nbsp; \n &nbsp; \n RR", rr_opts, index=2, horizontal=True)
             
             tt_opts = ['A+', 'A', 'B', 'C']
-            nuevo_tt = st.radio("Trade Type", tt_opts, index=0, horizontal=True)
+            nuevo_tt = st.radio("&nbsp; \n &nbsp; \n Trade Type", tt_opts, index=0, horizontal=True)
             
-            nuevo_emo = st.text_area("Emotions", value='', height=80)
+            nuevo_emo = st.text_area("&nbsp; \n &nbsp; \n Emotions", value='', height=80)
 
     if btn_save:
         viejo = db_usuario[ctx]["balance"]
