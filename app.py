@@ -470,11 +470,11 @@ st.markdown(f"""
     div[data-testid="stPopoverBody"] {{ background-color: {card_bg} !important; border: 1px solid {border_color} !important; border-radius: 8px !important; padding: 15px !important; }}
     div[data-testid="stPopoverBody"]:has(h3) {{ width: 710px !important; max-width: 95vw !important; max-height: 85vh !important; margin-top: 100px !important; overflow-y: auto !important; box-shadow: 0 4px 20px rgba(0,0,0,0.3) !important; }}
 
-/* ESTILOS PARA AGRANDAR MUCHO LAS LETRAS EN TRADE DETAILS */
+    /* ESTILOS PARA AGRANDAR MUCHO LAS LETRAS EN TRADE DETAILS */
     div[data-testid="stPopoverBody"] label {{ font-size: 20px !important; font-weight: 800 !important; }}
     div[data-testid="stPopoverBody"] p, div[data-testid="stPopoverBody"] span, div[data-testid="stPopoverBody"] div {{ font-size: 18px !important; }}
     div[data-testid="stPopoverBody"] .stTextArea textarea, div[data-testid="stPopoverBody"] input {{ font-size: 18px !important; }}
-    
+
     .calendar-wrapper {{ background: {card_bg} !important; padding: 10px !important; border-radius: 15px !important; border: 1px solid {border_color} !important; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1) !important; }}
     .txt-dias-sem {{ font-size: {TXT_DIAS_SEM_SIZE}px !important; font-weight: bold !important; color: {c_dias_sem} !important; text-align: center !important; }}
     .card {{ padding: 5px !important; border-radius: 10px !important; display: flex !important; flex-direction: column !important; position: relative !important; font-size: 12px !important; margin-bottom: 6px !important; min-height: var(--cal-scale) !important; }}
@@ -559,7 +559,6 @@ st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
 # ==========================================
 # 9. ENTRADA AUTOMÁTICA E IMÁGENES + NOTAS (TODO EN UN SOLO FORMULARIO - CERO PARPADEOS)
 # ==========================================
-# Aquí TODO está agrupado. Nada de esto interactúa con Excel ni parpadea la app hasta presionar el SAVE.
 with st.form("form_main_entry", border=False):
     c1, c2, c_img, c_not, c_espacio = st.columns([1.5, 0.5, 2.5, 0.6, 3.4]) 
     
@@ -576,15 +575,18 @@ with st.form("form_main_entry", border=False):
             
     with c_img:
         st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True) 
-        # Ya no hay on_change, la foto no sube hasta presionar SAVE
-        imgs_subidas = st.file_uploader("", accept_multiple_files=True, label_visibility="collapsed")
+        
+        # Llave dinámica para que el uploader se limpie al guardar
+        if "upd_main_key" not in st.session_state:
+            st.session_state.upd_main_key = 0
+            
+        imgs_subidas = st.file_uploader("", accept_multiple_files=True, label_visibility="collapsed", key=f"upd_main_form_{st.session_state.upd_main_key}")
         
     with c_not:
         st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True) 
         with st.popover("📝"):
             st.markdown("<h3 style='text-align:center; margin-top:0;'>Trade Details</h3>", unsafe_allow_html=True)
             
-            # Buscamos si ya hay un trade para HOY y usarlo de placeholder predeterminado
             clave_actual = (hoy.year, hoy.month, hoy.day)
             t_ref = db_usuario[ctx]["trades"].get(clave_actual, {})
             
@@ -593,11 +595,11 @@ with st.form("form_main_entry", border=False):
             nuevo_razon = st.text_area("Reason For Trade", value=t_ref.get('razon_trade', ''), height=80)
             nuevo_corr = st.text_area("Corrections", value=t_ref.get('Corrections', ''), height=80)
             
-            risk_opts = ['0.6%', '0.5%', '0.4%']
-            nuevo_risk = st.radio("% Risk", risk_opts, index=risk_opts.index(t_ref.get('risk', '0.5%')) if t_ref.get('risk', '0.5%') in risk_opts else 1, horizontal=True)
+            risk_opts = ['1%', '0.9%', '0.8%', '0.7%', '0.6%', '0.5%', '0.4%']
+            nuevo_risk = st.radio("% Risk", risk_opts, index=risk_opts.index(t_ref.get('risk', '0.5%')) if t_ref.get('risk', '0.5%') in risk_opts else 5, horizontal=True)
             
             rr_opts = ['1:1', '1:1.5', '1:2', '1:3', '1:4']
-            nuevo_rr = st.selectbox("RR", rr_opts, index=rr_opts.index(t_ref.get('RR', '1:2')) if t_ref.get('RR', '1:2') in rr_opts else 2)
+            nuevo_rr = st.radio("RR", rr_opts, index=rr_opts.index(t_ref.get('RR', '1:2')) if t_ref.get('RR', '1:2') in rr_opts else 2, horizontal=True)
             
             tt_opts = ['A+', 'A', 'B', 'C']
             nuevo_tt = st.radio("Trade Type", tt_opts, index=tt_opts.index(t_ref.get('trade_type', 'A+')) if t_ref.get('trade_type', 'A+') in tt_opts else 0, horizontal=True)
@@ -611,13 +613,11 @@ with st.form("form_main_entry", border=False):
         clave_final = (fecha_sel.year, fecha_sel.month, fecha_sel.day)
         old_trade = db_usuario[ctx]["trades"].get(clave_final, {})
         
-        # Procesar las fotos solmanete ahora
         imgs_finales = old_trade.get("imagenes", []).copy()
         if imgs_subidas:
             for img in imgs_subidas:
                 imgs_finales.append(convertir_img_base64(img))
         
-        # Actualizar diccionario interno
         db_usuario[ctx]["trades"][clave_final] = {
             "pnl": pnl if nuevo_bal != viejo else old_trade.get("pnl", 0.0),
             "balance_final": nuevo_bal,
@@ -634,8 +634,10 @@ with st.form("form_main_entry", border=False):
         }
         db_usuario[ctx]["balance"] = nuevo_bal
         
-        # Autoguardado al excel
         registrar_en_excel(usuario, db_global[usuario]["password"], ctx, fecha_sel, nuevo_bal, db_usuario[ctx]["trades"][clave_final]["pnl"], db_usuario[ctx]["trades"][clave_final], db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
+        
+        # Incrementamos la llave para que el recuadro de fotos se limpie automáticamente
+        st.session_state.upd_main_key += 1
         
         st.success("✅ ¡Datos guardados de forma segura!")
         st.rerun()
