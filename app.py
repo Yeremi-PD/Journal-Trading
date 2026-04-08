@@ -524,6 +524,8 @@ if db_usuario[ctx_actual]["trades"]:
 st.sidebar.markdown("<div style='margin-top: 110px;'></div>", unsafe_allow_html=True)
 
 # BOTÓN DE SINCRONIZACIÓN FORZADA
+st.sidebar.markdown("---")
+st.sidebar.markdown("### 🛡️ Admin")
 if st.sidebar.button("🔄 Force Sync with Google Sheets", use_container_width=True):
     get_global_db.clear()
     st.rerun()
