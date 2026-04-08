@@ -283,10 +283,10 @@ st.sidebar.markdown(f"### 👤 Mi Cuenta: {usuario}")
 
 st.session_state.dispositivo_actual = st.sidebar.radio("Current Design:", ["🖥️ PC", "📱 Móvil"], index=0 if st.session_state.dispositivo_actual == "PC" else 1)
 
-if st.sidebar.button("💾 Save Design Settings to Cloud", use_container_width=True):
+if st.sidebar.button("💾 Save Design Settings", use_container_width=True):
     ctx_act = st.session_state.data_source_sel
     bal_act = db_usuario[ctx_act]["balance"]
-    registrar_en_excel(usuario, db_global[usuario]["password"], ctx_act, datetime.now(), bal_act, 0.0, {}, db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
+    registrar_en_excel(usuario, db_global[usuario]["password"], ctx_act, datetime.now(), bal_act, 0.0, {}, db_global[usuario]["settings"]["🖥️ PC"], db_global[usuario]["settings"]["📱 Móvil"])
     st.sidebar.success("✅ Ajustes guardados en la nube!")
 
 st.sidebar.markdown("---")
