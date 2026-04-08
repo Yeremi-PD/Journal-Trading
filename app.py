@@ -559,7 +559,7 @@ st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
 # 9. ENTRADA DE TRADES (TODO EN UN SOLO FORMULARIO - AUTO LIMPIEZA)
 # ==========================================
 with st.form(key=f"form_main_entry_{st.session_state.form_reset_key}", border=False):
-    c1, c2, c_img, c_not, c_espacio = st.columns([1, 0.5, 2.5, 0.6, 3.4]) 
+    c1, c2, c_img, c_not, c_espacio = st.columns([1.5, 0.5, 2.5, 0.6, 3.4]) 
     
     with c1:
         st.markdown(f'<div class="lbl-input">{LBL_INPUT}</div>', unsafe_allow_html=True)
