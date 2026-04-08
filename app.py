@@ -593,7 +593,7 @@ with st.form(key=f"form_main_entry_{st.session_state.form_reset_key}", border=Fa
             nuevo_razon = st.text_area("&nbsp; \n &nbsp; \n Reason For Trade", value='', height=50)
             nuevo_corr = st.text_area("Corrections", value='', height=50)
             
-            risk_opts = ['1%', '0.9%', '0.8%', '0.7%', '0.6%', '0.5%', '0.4%']
+            risk_opts = ['&nbsp; \n 1%', '0.9%', '0.8%', '0.7%', '0.6%', '0.5%', '0.4%']
             nuevo_risk = st.radio("% Risk", risk_opts, index=5, horizontal=True)
             
             rr_opts = ['1:1', '1:1.5', '1:2', '1:3', '1:4']
