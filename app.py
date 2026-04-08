@@ -481,12 +481,20 @@ if db_usuario[ctx_actual]["trades"]:
         mime="application/zip",
         use_container_width=True
     )
-# BOTÓN DE SINCRONIZACIÓN FORZADA (CORTA EL CACHÉ Y OBLIGA A LEER EXCEL AL INSTANTE)
+# ==========================================
+# ESPACIO PARA EMPUJAR LOS BOTONES HACIA ABAJO
+# Cambia "250px" por un número mayor (ej. 350px, 500px) si quieres bajarlos aún más.
+# ==========================================
+st.sidebar.markdown("<div style='margin-top: 250px;'></div>", unsafe_allow_html=True)
+
+# BOTÓN DE SINCRONIZACIÓN FORZADA
 if st.sidebar.button("🔄 Force Sync with Google Sheets", use_container_width=True):
     get_global_db.clear()
     st.rerun()
 
-st.sidebar.markdown("<br><br><br><div style='margin-top:30px;'></div>", unsafe_allow_html=True)
+st.sidebar.markdown("<br>", unsafe_allow_html=True) # Pequeño espacio entre los botones
+
+# BOTÓN DE CERRAR SESIÓN
 if st.sidebar.button("🚪 Log Out", use_container_width=True): 
     st.session_state.usuario_actual = None
     try: st.query_params.clear()
