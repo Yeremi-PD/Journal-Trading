@@ -155,7 +155,7 @@ try:
 except:
     pass
 
-# --- LOGIN (SIN TABS PARA EVITAR EL BUG DE STREAMLIT) ---
+# --- LOGIN (MODIFICADO SIN st.form PARA EVITAR EL BUG DE MISSING BUTTON AL REFRESCAR) ---
 if "usuario_actual" not in st.session_state:
     st.session_state.usuario_actual = None
 
@@ -171,46 +171,44 @@ if st.session_state.usuario_actual is None or st.session_state.usuario_actual no
         modo_acceso = st.radio("Opciones:", ["Entrar", "Registrarse"], horizontal=True)
         
         if modo_acceso == "Entrar":
-            with st.form("login_form"):
-                log_user = st.text_input("Usuario")
-                log_pass = st.text_input("Contraseña", type="password")
-                submit_login = st.form_submit_button("Acceder", use_container_width=True)
-                
-                if submit_login:
-                    if not log_user.strip():
-                        st.error("⚠️ El campo Usuario no puede estar vacío.")
+            log_user = st.text_input("Usuario")
+            log_pass = st.text_input("Contraseña", type="password")
+            submit_login = st.button("Acceder", use_container_width=True)
+            
+            if submit_login:
+                if not log_user.strip():
+                    st.error("⚠️ El campo Usuario no puede estar vacío.")
+                else:
+                    if log_user not in db_global:
+                        db_global[log_user] = {"password": log_pass, "data": inicializar_data_usuario(), "settings": {"PC": inicializar_settings(), "Móvil": inicializar_settings()}}
+                    
+                    if db_global[log_user]["password"] == log_pass:
+                        st.session_state.usuario_actual = log_user
+                        st.session_state.dispositivo_actual = "Móvil" if modo_movil_login else "PC"
+                        try: 
+                            st.query_params["user"] = log_user
+                            st.query_params["device"] = st.session_state.dispositivo_actual
+                        except: pass
+                        st.rerun()
                     else:
-                        if log_user not in db_global:
-                            db_global[log_user] = {"password": log_pass, "data": inicializar_data_usuario(), "settings": {"PC": inicializar_settings(), "Móvil": inicializar_settings()}}
-                        
-                        if db_global[log_user]["password"] == log_pass:
-                            st.session_state.usuario_actual = log_user
-                            st.session_state.dispositivo_actual = "Móvil" if modo_movil_login else "PC"
-                            try: 
-                                st.query_params["user"] = log_user
-                                st.query_params["device"] = st.session_state.dispositivo_actual
-                            except: pass
-                            st.rerun()
-                        else:
-                            st.error("Usuario o contraseña incorrectos.")
+                        st.error("Usuario o contraseña incorrectos.")
                     
         else:
-            with st.form("register_form"):
-                reg_user = st.text_input("Nuevo Usuario")
-                reg_pass = st.text_input("Nueva Contraseña", type="password")
-                submit_register = st.form_submit_button("Crear Cuenta", use_container_width=True)
-                
-                if submit_register:
-                    if not reg_user.strip():
-                        st.error("⚠️ Debes escribir un nombre de Usuario válido.")
-                    elif reg_user in db_global:
-                        st.warning("El usuario ya existe.")
-                    elif len(reg_user) > 0 and len(reg_pass) > 0:
-                        db_global[reg_user] = {"password": reg_pass, "data": inicializar_data_usuario(), "settings": {"PC": inicializar_settings(), "Móvil": inicializar_settings()}}
-                        registrar_en_excel(reg_user, reg_pass, "Account Real", datetime.now(), 25000.0, 0.0, {}, db_global[reg_user]["settings"]["PC"], db_global[reg_user]["settings"]["Móvil"])
-                        st.success("Cuenta creada. Ya puedes iniciar sesión seleccionando 'Entrar'.")
-                    else:
-                        st.warning("Completa todos los campos.")
+            reg_user = st.text_input("Nuevo Usuario")
+            reg_pass = st.text_input("Nueva Contraseña", type="password")
+            submit_register = st.button("Crear Cuenta", use_container_width=True)
+            
+            if submit_register:
+                if not reg_user.strip():
+                    st.error("⚠️ Debes escribir un nombre de Usuario válido.")
+                elif reg_user in db_global:
+                    st.warning("El usuario ya existe.")
+                elif len(reg_user) > 0 and len(reg_pass) > 0:
+                    db_global[reg_user] = {"password": reg_pass, "data": inicializar_data_usuario(), "settings": {"PC": inicializar_settings(), "Móvil": inicializar_settings()}}
+                    registrar_en_excel(reg_user, reg_pass, "Account Real", datetime.now(), 25000.0, 0.0, {}, db_global[reg_user]["settings"]["PC"], db_global[reg_user]["settings"]["Móvil"])
+                    st.success("Cuenta creada. Ya puedes iniciar sesión seleccionando 'Entrar'.")
+                else:
+                    st.warning("Completa todos los campos.")
     st.stop()
 
 # ==========================================
@@ -1051,7 +1049,6 @@ with col_mitad_1:
                                 data["balance_final"] = nuevo_bal
                                 data["fecha_str"] = nueva_fecha.strftime("%d/%m/%Y")
                                 
-                                # Guardar los nuevos Trade Details
                                 data["bias"] = e_bias
                                 data["Confluences"] = e_conf
                                 data["risk"] = e_risk
@@ -1073,7 +1070,6 @@ with col_mitad_1:
                                 registrar_en_excel(usuario, db_global[usuario]["password"], ctx, fecha_obj_edit, nuevo_bal, nuevo_pnl, data, db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
                                 st.rerun()
 
-                    # BOTÓN SAFACÓN
                     with c_trash:
                         if st.button("🗑️", key=f"trash_{clave}_{i}", use_container_width=True):
                             db_usuario[ctx]["trades"][clave].pop(i)
@@ -1123,7 +1119,8 @@ with col_mitad_2:
                 row_styles[row.index.get_loc('P&L')] = pnl_style
                 return row_styles
 
-            st.dataframe(df_results.style.apply(style_rows, axis=1), use_container_width=True)
+            # AQUÍ ESTÁ EL AJUSTE PARA GUARDAR EL ORDEN DE LAS COLUMNAS AL REFRESCAR LA PÁGINA (parámetro key)
+            st.dataframe(df_results.style.apply(style_rows, axis=1), use_container_width=True, key=f"tabla_resultados_{ctx}")
 
 # ==========================================
 # SCRIPT PARA CERRAR MODALES CON ESCAPE
