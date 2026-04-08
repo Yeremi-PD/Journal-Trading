@@ -953,7 +953,7 @@ with col_det:
     simbolo_pnl = "+" if net_pnl > 0 else ""
     c_win_card = "#00C897" if win_pct >= 50 else "#FF4C4C"
     
-st.markdown(f"""
+    st.markdown(f"""
         <div class="metric-card card-pnl">
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <div>
