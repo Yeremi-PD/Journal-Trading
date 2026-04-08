@@ -30,10 +30,6 @@ def conectar_google_sheets():
 
 hoja_excel = conectar_google_sheets()
 
-# FOTOS A 100% DE CALIDAD (SIN COMPRIMIR)
-def convertir_img_base64(uploaded_file):
-    return f"data:{uploaded_file.type};base64,{base64.b64encode(uploaded_file.getvalue()).decode()}"
-
 def inicializar_data_usuario():
     return {
         "Account Real": {"balance": 25000.00, "trades": {}},
@@ -90,8 +86,7 @@ def get_global_db():
                         "pnl": float(row_data.get('PnL', 0) or 0),
                         "balance_final": float(row_data.get('Balance', 0) or 0),
                         "fecha_str": f_str,
-                        # Las fotos cargadas desde Excel no existirán porque no las subimos allá, se leen de la RAM actual
-                        "imagenes": [],
+                        "imagenes": [], # Las leemos directo de la memoria RAM activa
                         "bias": "NEUTRO", "Confluences": [], "razon_trade": "", "Corrections": "", "risk": "0.5%", "RR": "1:2", "trade_type": "", "Emotions": ""
                     }
                     
@@ -108,15 +103,15 @@ def get_global_db():
 
 db_global = get_global_db()
 
-# --- FUNCIÓN CENTRAL DE GUARDADO A LA NUBE (CERO LAG, NO SUBE IMÁGENES AL EXCEL) ---
+# --- FUNCIÓN CENTRAL DE GUARDADO A LA NUBE (SÓLO CUANDO LE DAS A SAVE) ---
 def registrar_en_excel(usuario, password, cuenta, fecha_obj, balance, pnl, trade_data, settings_pc, settings_movil):
     if hoja_excel:
         try:
             fecha_texto = fecha_obj.strftime("%d/%m/%Y")
             
-            # NO ENVIAMOS LAS FOTOS A GOOGLE SHEETS PARA EVITAR LÍMITES Y LAG
+            # NO SUBIMOS IMÁGENES AL EXCEL PARA NO COLAPSARLO, SE QUEDAN EN MEMORIA CON CALIDAD 100%
             num_fotos = len(trade_data.get("imagenes", []))
-            imgs_texto = f"Tiene {num_fotos} foto(s) en la app local" if num_fotos > 0 else ""
+            imgs_texto = f"📸 Tiene {num_fotos} foto(s) local(es)" if num_fotos > 0 else ""
             
             set_pc_str = json.dumps(settings_pc) if settings_pc else "{}"
             set_mov_str = json.dumps(settings_movil) if settings_movil else "{}"
@@ -132,7 +127,14 @@ def registrar_en_excel(usuario, password, cuenta, fecha_obj, balance, pnl, trade
         except Exception:
             pass
 
-# --- LOGIN ---
+# --- LOGIN CON PERSISTENCIA DE SESIÓN ---
+# Leemos si la URL ya tiene nuestra sesión guardada para no tener que loguearse al dar F5
+try:
+    if "user" in st.query_params and st.query_params["user"] in db_global:
+        st.session_state.usuario_actual = st.query_params["user"]
+except:
+    pass
+
 if "usuario_actual" not in st.session_state:
     st.session_state.usuario_actual = None
 
@@ -162,6 +164,8 @@ if st.session_state.usuario_actual is None or st.session_state.usuario_actual no
                         if db_global[log_user]["password"] == log_pass:
                             st.session_state.usuario_actual = log_user
                             st.session_state.dispositivo_actual = "Móvil" if modo_movil_login else "PC"
+                            try: st.query_params["user"] = log_user
+                            except: pass
                             st.rerun()
                         else:
                             st.error("Usuario o contraseña incorrectos.")
@@ -228,6 +232,7 @@ WEEKS_TITULOS_COLOR_C, WEEKS_TITULOS_COLOR_O, WEEK_BOX_W, WEEK_BOX_H, Month_BOX_
 # ==========================================
 if "tema" not in st.session_state: st.session_state.tema = TEMA_POR_DEFECTO
 if "data_source_sel" not in st.session_state: st.session_state.data_source_sel = "Account Real"
+if "dispositivo_actual" not in st.session_state: st.session_state.dispositivo_actual = "PC"
 
 usuario = st.session_state.usuario_actual
 db_usuario = db_global[usuario]["data"]
@@ -283,7 +288,7 @@ def procesar_cambio():
     }
     db_usuario[ctx]["balance"] = nuevo
     
-    # ÚNICO LUGAR DE AUTO-GUARDADO (AL DARLE A SAVE)
+    # EL ÚNICO LUGAR DONDE SE AUTOGUARDA AL EXCEL ES AL HACER CLIC EN 'SAVE' MAIN
     registrar_en_excel(usuario, db_global[usuario]["password"], ctx, fecha_sel, nuevo, db_usuario[ctx]["trades"][clave]["pnl"], db_usuario[ctx]["trades"][clave], db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
     st.success("✅ Guardado en Google Sheets")
 
@@ -302,7 +307,7 @@ st.sidebar.markdown(f"### 👤 Mi Cuenta: {usuario}")
 
 st.session_state.dispositivo_actual = st.sidebar.radio("⚙️ Perfil de Diseño Actual:", ["PC", "Móvil"], index=0 if st.session_state.dispositivo_actual == "PC" else 1)
 
-if st.sidebar.button("💾 Save Design Settings to Cloud", use_container_width=True):
+if st.sidebar.button("💾 Guardar Diseño Manualmente", use_container_width=True):
     ctx_act = st.session_state.data_source_sel
     bal_act = db_usuario[ctx_act]["balance"]
     registrar_en_excel(usuario, db_global[usuario]["password"], ctx_act, datetime.now(), bal_act, 0.0, {}, db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
@@ -347,7 +352,10 @@ if admin_pass == "725166":
         col_p.write(f"{data['password']}")
         if col_btn.button("❌", key=f"del_{u}"):
             del db_global[u]
-            if st.session_state.usuario_actual == u: st.session_state.usuario_actual = None
+            if st.session_state.usuario_actual == u: 
+                st.session_state.usuario_actual = None
+                try: st.query_params.clear()
+                except: pass
             st.rerun()
 
 st.sidebar.markdown("---")
@@ -411,7 +419,11 @@ if db_usuario[ctx_actual]["trades"]:
     )
 
 st.sidebar.markdown("<br><br><br>", unsafe_allow_html=True)
-if st.sidebar.button("🚪 Log Out", use_container_width=True): st.session_state.usuario_actual = None; st.rerun()
+if st.sidebar.button("🚪 Log Out", use_container_width=True): 
+    st.session_state.usuario_actual = None
+    try: st.query_params.clear()
+    except: pass
+    st.rerun()
 
 # ==========================================
 # 6. ASIGNACIÓN DE COLORES
@@ -507,36 +519,10 @@ st.markdown(f"""
 
     .modal-toggle:checked ~ .fs-modal {{ display: flex !important; }}
     
-    /* MODAL DE IMÁGENES 100% PANTALLA COMPLETA */
-    .fs-modal {{ 
-        display: none; 
-        position: fixed !important; 
-        top: 0 !important; left: 0 !important; 
-        width: 100vw !important; height: 100vh !important; 
-        background: rgba(0,0,0,0.98) !important; 
-        z-index: 9999999 !important; 
-        flex-direction: column !important; 
-        align-items: center !important; justify-content: center !important; 
-        padding: 0 !important; margin: 0 !important;
-    }}
-    .fs-modal img {{ 
-        width: 100vw !important; 
-        height: 100vh !important; 
-        max-width: 100vw !important; 
-        max-height: 100vh !important; 
-        margin: 0 !important; 
-        box-shadow: none !important; 
-        border-radius: 0 !important; 
-        object-fit: contain !important; 
-    }}
-    .close-btn {{ 
-        position: absolute !important; 
-        top: 15px !important; right: 25px !important; 
-        font-size: 20px !important; 
-        background-color: #FF4C4C !important; color: white !important; 
-        padding: 8px 15px !important; border-radius: 8px !important; 
-        cursor: pointer !important; z-index: 10000000 !important; font-weight: bold !important; 
-    }}
+    /* MODAL PANTALLA COMPLETA */
+    .fs-modal {{ display: none; position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; background: rgba(0,0,0,0.98) !important; z-index: 9999999 !important; flex-direction: column !important; align-items: center !important; justify-content: center !important; padding: 0 !important; margin: 0 !important; }}
+    .fs-modal img {{ width: 100vw !important; height: 100vh !important; max-width: 100vw !important; max-height: 100vh !important; margin: 0 !important; box-shadow: none !important; border-radius: 0 !important; object-fit: contain !important; }}
+    .close-btn {{ position: absolute !important; top: 15px !important; right: 25px !important; font-size: 20px !important; background-color: #FF4C4C !important; color: white !important; padding: 8px 15px !important; border-radius: 8px !important; cursor: pointer !important; z-index: 10000000 !important; font-weight: bold !important; }}
 
     .card-pnl {{ width: {CARD_PNL_W} !important; height: {CARD_PNL_H} !important; transform: translate({CARD_PNL_X}px, {CARD_PNL_Y}px) !important; }}
     .card-win {{ width: {CARD_WIN_W} !important; height: {CARD_WIN_H} !important; transform: translate({CARD_WIN_X}px, {CARD_WIN_Y}px) !important; }}
@@ -591,36 +577,6 @@ with col_bal:
 
 st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
 
-# --- MENÚ DE COLORES ORIGINAL (SIN RETRASO PORQUE NO GUARDA EN SHEETS AL TOCARLO) ---
-def colorful_menu(options, label, value_key, trade_data_ref):
-    if value_key not in trade_data_ref: trade_data_ref[value_key] = options[0]
-    st.markdown(f"<div style='margin-bottom: 5px; font-weight: bold;'>{label}</div>", unsafe_allow_html=True)
-    selected_value = trade_data_ref[value_key]
-    cols = st.columns(len(options))
-    for i, text in enumerate(options):
-        with cols[i]:
-            is_selected = (text == selected_value)
-            btn_label = f"✅ {text}" if is_selected else text
-            btn_type = "primary" if is_selected else "secondary"
-            if st.button(btn_label, key=f"btn_{value_key}_{i}", use_container_width=True, type=btn_type):
-                trade_data_ref[value_key] = text
-                st.rerun()
-
-def colorful_multiselect(options, label, value_key, trade_data_ref):
-    if value_key not in trade_data_ref: trade_data_ref[value_key] = []
-    st.markdown(f"<div style='margin-bottom: 5px; font-weight: bold;'>{label}</div>", unsafe_allow_html=True)
-    current_selections = trade_data_ref[value_key]
-    cols = st.columns(3) 
-    for i, text in enumerate(options):
-        with cols[i % 3]:
-            is_selected = (text in current_selections)
-            btn_label = f"✅ {text}" if is_selected else text
-            btn_type = "primary" if is_selected else "secondary"
-            if st.button(btn_label, key=f"multibtn_{value_key}_{i}", use_container_width=True, type=btn_type):
-                if text in current_selections: trade_data_ref[value_key].remove(text)
-                else: trade_data_ref[value_key].append(text)
-                st.rerun()
-
 def agregar_imagenes_main(contexto, llave, widget_id, counter_id, bal_act, f_str):
     archivos_nuevos = st.session_state.get(widget_id)
     if archivos_nuevos:
@@ -630,12 +586,12 @@ def agregar_imagenes_main(contexto, llave, widget_id, counter_id, bal_act, f_str
                 "bias": "NEUTRO", "Confluences": [], "razon_trade": "", "Corrections": "", "risk": "0.5%", "RR": "1:2", "trade_type": "A", "Emotions": ""
             }
         for img in archivos_nuevos:
-            b64_comprimido = convertir_img_base64(img) # FOTO ORIGINAL 100%
-            db_usuario[contexto]["trades"][llave]["imagenes"].append(b64_comprimido)
+            b64_pura = convertir_img_base64(img)
+            db_usuario[contexto]["trades"][llave]["imagenes"].append(b64_pura)
         st.session_state[counter_id] += 1
 
 # ==========================================
-# 9. ENTRADA AUTOMÁTICA E IMÁGENES + BOTÓN DE NOTAS
+# 9. ENTRADA AUTOMÁTICA E IMÁGENES + BOTÓN DE NOTAS (NATIVO, SIN LAG)
 # ==========================================
 c1, c2, c_img, c_not, c_espacio = st.columns([1.5, 0.5, 2.5, 0.6, 3.4]) 
 
@@ -680,47 +636,39 @@ with c_not:
         else:
             trade_data_ref = db_usuario[ctx]["trades"][clave_actual]
             
-            bias_options = ['ALCISTA', 'BAJISTA', 'NEUTRO']
-            colorful_menu(bias_options, '<span style="font-weight:bold; font-size:15pt;">&nbsp;&nbsp;&nbsp;Bias</span>', 'bias', trade_data_ref)
-            st.markdown("<br>", unsafe_allow_html=True)
+            # --- SELECTORES NATIVOS (FLUIDOS, CERO PARPADEO) ---
+            st.markdown("<b>Bias</b>", unsafe_allow_html=True)
+            opts_bias = ['ALCISTA', 'BAJISTA', 'NEUTRO']
+            idx_bias = opts_bias.index(trade_data_ref.get('bias', 'NEUTRO')) if trade_data_ref.get('bias', 'NEUTRO') in opts_bias else 2
+            trade_data_ref['bias'] = st.radio("Bias", opts_bias, index=idx_bias, horizontal=True, label_visibility="collapsed")
             
-            Confluences_options = ['BIAS Claro', 'Liq Sweep', 'IFVG', 'FVG', 'EQH / EQL', 'BSL / SSL', 'POI', 'SMT', 'Order Block', 'PDH / PDL', 'Continuación', 'Data High / Data Low', 'CISD']
-            colorful_multiselect(Confluences_options, '<span style="font-weight:bold; font-size:15pt;">&nbsp;&nbsp;&nbsp;Confluences</span>', 'Confluences', trade_data_ref)
-            st.markdown("<br>", unsafe_allow_html=True)
+            st.markdown("<b>Confluences</b>", unsafe_allow_html=True)
+            conf_opts = ['BIAS Claro', 'Liq Sweep', 'IFVG', 'FVG', 'EQH / EQL', 'BSL / SSL', 'POI', 'SMT', 'Order Block', 'PDH / PDL', 'Continuación', 'Data High / Data Low', 'CISD']
+            trade_data_ref['Confluences'] = st.multiselect("Confluences", conf_opts, default=trade_data_ref.get('Confluences', []), label_visibility="collapsed")
             
-            # EL FORMULARIO EVITA QUE EL TEXTO PARPADEE MIENTRAS ESCRIBES
-            with st.form(key=f"form_textos_{clave_actual}"):
-                st.markdown('<div style="font-weight:bold; font-size:15pt; margin-bottom:5px;">&nbsp;&nbsp;&nbsp;Reason For Trade</div>', unsafe_allow_html=True)
-                r_trade = st.text_area("Reason For Trade", value=trade_data_ref.get('razon_trade', ''), height=80, label_visibility="collapsed")
-                
-                st.markdown('<div style="font-weight:bold; font-size:15pt; margin-bottom:5px;">&nbsp;&nbsp;&nbsp;Corrections</div>', unsafe_allow_html=True)
-                c_trade = st.text_area("Corrections", value=trade_data_ref.get('Corrections', ''), height=80, label_visibility="collapsed")
-                
-                st.markdown('<div style="font-weight:bold; font-size:15pt; margin-bottom:5px;">&nbsp;&nbsp;&nbsp;Emotions</div>', unsafe_allow_html=True)
-                e_trade = st.text_area("Emotions", value=trade_data_ref.get('Emotions', ''), height=80, label_visibility="collapsed")
-                
-                if st.form_submit_button("💾 Guardar Textos"):
-                    trade_data_ref['razon_trade'] = r_trade
-                    trade_data_ref['Corrections'] = c_trade
-                    trade_data_ref['Emotions'] = e_trade
-                    st.success("Textos guardados en memoria.")
-
-            risk_options = ['0.6%', '0.5%', '0.4%']
-            colorful_menu(risk_options, '<span style="font-weight:bold; font-size:15pt;">&nbsp;&nbsp;&nbsp;% Risk</span>', 'risk', trade_data_ref)
-            st.markdown("<br>", unsafe_allow_html=True)
+            st.markdown("<b>Reason For Trade</b>", unsafe_allow_html=True)
+            trade_data_ref['razon_trade'] = st.text_area("Reason For Trade", value=trade_data_ref.get('razon_trade', ''), height=80, label_visibility="collapsed")
             
-            rrr_options = ['1:1', '1:1.5', '1:2', '1:3', '1:4']
-            colorful_menu(rrr_options, '<span style="font-weight:bold; font-size:15pt;">&nbsp;&nbsp;&nbsp;RR</span>', 'RR', trade_data_ref)
-            st.markdown("<br>", unsafe_allow_html=True)
+            st.markdown("<b>Corrections</b>", unsafe_allow_html=True)
+            trade_data_ref['Corrections'] = st.text_area("Corrections", value=trade_data_ref.get('Corrections', ''), height=80, label_visibility="collapsed")
             
-            trade_type_options = ['A+', 'A', 'B', 'C']
-            colorful_menu(trade_type_options, '<span style="font-weight:bold; font-size:15pt;">&nbsp;&nbsp;&nbsp;Trade Type</span>', 'trade_type', trade_data_ref)
-            st.markdown("<br>", unsafe_allow_html=True)
+            st.markdown("<b>% Risk</b>", unsafe_allow_html=True)
+            opts_risk = ['0.6%', '0.5%', '0.4%']
+            idx_risk = opts_risk.index(trade_data_ref.get('risk', '0.5%')) if trade_data_ref.get('risk', '0.5%') in opts_risk else 1
+            trade_data_ref['risk'] = st.radio("Risk", opts_risk, index=idx_risk, horizontal=True, label_visibility="collapsed")
             
-            if st.button("💾 Guardar Cambios en la Nube", use_container_width=True):
-                fecha_obj_notas = datetime(clave_actual[0], clave_actual[1], clave_actual[2])
-                registrar_en_excel(usuario, db_global[usuario]["password"], ctx, fecha_obj_notas, bal_actual, trade_data_ref["pnl"], trade_data_ref, db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
-                st.success("✅ Notas guardadas en el Excel.")
+            st.markdown("<b>RR</b>", unsafe_allow_html=True)
+            opts_rr = ['1:1', '1:1.5', '1:2', '1:3', '1:4']
+            idx_rr = opts_rr.index(trade_data_ref.get('RR', '1:2')) if trade_data_ref.get('RR', '1:2') in opts_rr else 2
+            trade_data_ref['RR'] = st.radio("RR", opts_rr, index=idx_rr, horizontal=True, label_visibility="collapsed")
+            
+            st.markdown("<b>Trade Type</b>", unsafe_allow_html=True)
+            opts_tt = ['A+', 'A', 'B', 'C']
+            idx_tt = opts_tt.index(trade_data_ref.get('trade_type', 'A')) if trade_data_ref.get('trade_type', 'A') in opts_tt else 1
+            trade_data_ref['trade_type'] = st.radio("Trade Type", opts_tt, index=idx_tt, horizontal=True, label_visibility="collapsed")
+            
+            st.markdown("<b>Emotions</b>", unsafe_allow_html=True)
+            trade_data_ref['Emotions'] = st.text_area("Emotions", value=trade_data_ref.get('Emotions', ''), height=80, label_visibility="collapsed")
 
 # ==========================================
 # 10. CALENDARIO Y RESUMEN
@@ -992,8 +940,8 @@ def agregar_imagenes_historial(contexto, llave, widget_id, counter_id):
     archivos_nuevos = st.session_state.get(widget_id)
     if archivos_nuevos:
         for img in archivos_nuevos:
-            b64_comprimido = convertir_img_base64(img)
-            db_usuario[contexto]["trades"][llave]["imagenes"].append(b64_comprimido)
+            b64_pura = convertir_img_base64(img)
+            db_usuario[contexto]["trades"][llave]["imagenes"].append(b64_pura)
         st.session_state[counter_id] += 1
 
 with st.expander("🛠️ OPEN ORDER HISTORY", expanded=False):
