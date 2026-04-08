@@ -1025,7 +1025,7 @@ with col_mitad_1:
                             st.markdown("**📸 Saved Images:**")
                             
                             upd_key = f"upd_{clave}_{i}"
-                            st.file_uploader("🢛 Subir Nuevas Fotos 🢛", accept_multiple_files=True, key=upd_key, on_change=agregar_imagenes_historial, args=(ctx, clave, i, upd_key))
+                            st.file_uploader("🢛 Upload New Photos 🢛", accept_multiple_files=True, key=upd_key, on_change=agregar_imagenes_historial, args=(ctx, clave, i, upd_key))
                             
                             link_key = f"link_upd_{clave}_{i}"
                             nuevo_link_edit = st.text_input("🔗 Paste The Image Link:", key=link_key, placeholder="http...")
