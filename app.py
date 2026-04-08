@@ -1129,14 +1129,14 @@ with col_mitad_2:
                 key=f"tabla_resultados_v3_{ctx}", # Cambiamos a v3 para resetear la memoria
                 column_config={
                     # 1. Si quieres OCULTAR una columna para siempre, ponle None
-                    "Corrections": None, 
-                    "Emotions": None,
+                    "Corrections": small, 
+                    "Emotions": small,
                     
                     # 2. Si quieres forzar un TAMAÑO (small, medium, large) para el AutoSize
-                    "Reason For Trade": st.column_config.Column(width="large"),
+                    "Reason For Trade": st.column_config.Column(width="medium"),
                     "Confluences": st.column_config.Column(width="large"),
                     "Date": st.column_config.Column(width="small"),
-                    "P&L": st.column_config.Column(width="medium")
+                    "P&L": st.column_config.Column(width="small")
                 }
             )
 
