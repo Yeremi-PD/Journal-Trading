@@ -1124,22 +1124,18 @@ with col_mitad_2:
 # AQUÍ CONFIGURAS LA TABLA PARA SIEMPRE
             st.dataframe(
                 df_results.style.apply(style_rows, axis=1),
-                use_container_width=False, # <-- FALSE: ESTO ES LO QUE DEJA EL AUTOSIZE ACTIVO
-                hide_index=True, # Esto oculta la columna inútil de números de la izquierda
-                key=f"tabla_resultados_v5_{ctx}", # <-- v5 para resetear la memoria forzosamente
+                use_container_width=False, 
+                hide_index=False,  # <--- FALSE: ¡Esto hace que APAREZCA el index (contador de filas)!
+                key=f"tabla_resultados_v6_{ctx}", # <--- v6 para aplicar el cambio de inmediato
                 column_config={
-                    # Tamaños corregidos (no se puede poner "small" solo entre comillas)
                     "Corrections": st.column_config.Column(width="small"), 
                     "Emotions": st.column_config.Column(width="small"),
-                    
-                    # Tamaños forzados para el AutoSize
                     "Reason For Trade": st.column_config.Column(width="medium"),
                     "Confluences": st.column_config.Column(width="large"),
                     "Date": st.column_config.Column(width="small"),
                     "P&L": st.column_config.Column(width="small")
                 }
             )
-
 # ==========================================
 # SCRIPT PARA CERRAR MODALES CON ESCAPE
 # ==========================================
