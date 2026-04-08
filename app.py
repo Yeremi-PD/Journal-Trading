@@ -988,7 +988,7 @@ with col_det:
                 <div style="width: var(--pie-size); height: var(--pie-size); transform: translateY(var(--pie-y-offset)); flex-shrink: 0; display:flex; margin: -15px 0;">
                     {pie_html}
                 </div>
-                <div style="font-size: var(--size-box-wl); color: white; font-weight: 800; text-align:center; white-space:nowrap; transform: translateY(var(--pie-y-offset));">
+                <div style="font-size: calc(var(--size-box-wl) * 1.5); color: white; font-weight: 800; text-align:center; white-space:nowrap; transform: translateY(var(--pie-y-offset));">
                     {wins}W / {losses}L
                 </div>
             </div>
