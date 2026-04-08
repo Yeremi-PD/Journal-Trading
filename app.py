@@ -590,8 +590,8 @@ with st.form(key=f"form_main_entry_{st.session_state.form_reset_key}", border=Fa
             
             nuevo_bias = st.radio("Bias", ['LONG', 'SHORT', 'NONE'], index=2, horizontal=True)
             nuevo_conf = st.multiselect("Confluences", ['BIAS WELL', 'LIQ SWEEP', 'IFVG', 'FVG', 'EQH / EQL', 'BSL / SSL', 'POI', 'SMT', 'Order Block', 'PDH / PDL', 'Continuation', 'Data High / Data Low', 'CISD'], default=[])
-            nuevo_razon = st.text_area("Reason For Trade", value='', height=80)
-            nuevo_corr = st.text_area("Corrections", value='', height=80)
+            nuevo_razon = st.text_area("Reason For Trade", value='', height=50)
+            nuevo_corr = st.text_area("Corrections", value='', height=50)
             
             risk_opts = ['1%', '0.9%', '0.8%', '0.7%', '0.6%', '0.5%', '0.4%']
             nuevo_risk = st.radio("% Risk", risk_opts, index=5, horizontal=True)
@@ -738,7 +738,7 @@ with col_cal:
                                 confluences_str = ", ".join(t.get("Confluences", []))
                                 
                                 # CÓDIGO HTML ARREGLADO (En una sola línea para evitar problemas con Markdown)
-                                notas_html_contenido += f'<div style="margin-bottom: 15px;"><h4 style="color:#00C897; margin:0;">▶ Trade #{idx_t+1} (PnL: {t["pnl"]})</h4><b>Bias:</b> <span class="note-val">{t.get("bias", "NEUTRO")}</span><br><b>Confluences:</b> <span class="note-val">{confluences_str}</span><br><b> For Trade:</b> <span class="note-val">{t.get("razon_trade", "")}</span><br><b>Corrections:</b> <span class="note-val">{t.get("Corrections", "")}</span><br><b>% Risk:</b> <span class="note-val">{t.get("risk", "")}</span><br><b>RR:</b> <span class="note-val">{t.get("RR", "")}</span><br><b>Trade Type:</b> <span class="note-val">{t.get("trade_type", "")}</span><br><b>Emotions:</b> <span class="note-val">{t.get("Emotions", "")}</span></div>'
+                                notas_html_contenido += f'<div style="margin-bottom: 15px;"><h4 style="color:#00C897; margin:0;">▶ Trade #{idx_t+1} (PnL: {t["pnl"]})</h4><b>Bias:</b> <span class="note-val">{t.get("bias", "NEUTRO")}</span><br><b>Confluences:</b> <span class="note-val">{confluences_str}</span><br><b>Reason For Trade:</b> <span class="note-val">{t.get("razon_trade", "")}</span><br><b>Corrections:</b> <span class="note-val">{t.get("Corrections", "")}</span><br><b>% Risk:</b> <span class="note-val">{t.get("risk", "")}</span><br><b>RR:</b> <span class="note-val">{t.get("RR", "")}</span><br><b>Trade Type:</b> <span class="note-val">{t.get("trade_type", "")}</span><br><b>Emotions:</b> <span class="note-val">{t.get("Emotions", "")}</span></div>'
                                 
                         if has_notes:
                             id_note_modal = f"mod_note_{anio_sel}_{mes_sel}_{dia}"
