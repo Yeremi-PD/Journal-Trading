@@ -1277,7 +1277,7 @@ with col_mitad_2:
                     key=f"tabla_resultados_v6_{ctx}", 
                     column_config={
                         "Corrections": st.column_config.Column(width="medium"), 
-                        "Emotions": st.column_config.Column(width="large"),
+                        "Emotions": st.column_config.Column(width="medium"),
                         "Reason For Trade": st.column_config.Column(width="medium"),
                         " Confluences": st.column_config.Column(width="large"),
                         "Date": st.column_config.Column(width="small"),
