@@ -1133,7 +1133,7 @@ with col_mitad_2:
                     "Corrections": st.column_config.Column(width="small"), 
                     "Emotions": st.column_config.Column(width="small"),
                     "Reason For Trade": st.column_config.Column(width="medium"),
-                    "Confluences": st.column_config.Column(width="large"),
+                    " Confluences": st.column_config.Column(width="large"),
                     "Date": st.column_config.Column(width="small"),
                     "P&L": st.column_config.Column(width="small")
                 }
