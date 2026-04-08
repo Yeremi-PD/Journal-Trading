@@ -107,7 +107,7 @@ def get_global_db():
 
 db_global = get_global_db()
 
-# --- FUNCIÓN CENTRAL DE GUARDADO AL EXCEL (NO SUBE FOTOS) ---
+# --- FUNCIÓN CENTRAL DE GUARDADO AL EXCEL (SOLO SE EJECUTA AL DAR CLICK EN BOTONES DE GUARDADO) ---
 def registrar_en_excel(usuario, password, cuenta, fecha_obj, balance, pnl, trade_data, settings_pc, settings_movil):
     if hoja_excel:
         try:
@@ -290,7 +290,7 @@ def procesar_cambio():
     }
     db_usuario[ctx]["balance"] = nuevo
     
-    # EL ÚNICO LUGAR DONDE SE AUTOGUARDA AL EXCEL ES AL HACER CLIC EN 'SAVE' MAIN
+    # EL ÚNICO LUGAR DONDE SE AUTOGUARDA AL EXCEL DE LA PANTALLA PRINCIPAL
     registrar_en_excel(usuario, db_global[usuario]["password"], ctx, fecha_sel, nuevo, db_usuario[ctx]["trades"][clave]["pnl"], db_usuario[ctx]["trades"][clave], db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
     st.success("✅ Datos guardados de forma segura en Google Sheets")
 
@@ -429,7 +429,7 @@ if st.sidebar.button("🚪 Log Out", use_container_width=True):
     st.rerun()
 
 # ==========================================
-# 6. ASIGNACIÓN DE COLORES
+# 6. ASIGNACIÓN DE COLORES Y CSS
 # ==========================================
 if st.session_state.tema == "Claro":
     bg_color, card_bg, border_color, empty_cell_bg = "#F7FAFC", "#FFFFFF", "#E2E8F0", "#FFFFFF"
@@ -526,9 +526,9 @@ st.markdown(f"""
 
     .modal-toggle:checked ~ .fs-modal {{ display: flex !important; }}
     
-    /* MODAL PANTALLA COMPLETA 100% PURA */
+    /* MODAL PANTALLA COMPLETA REDUCIDA (20% MÁS PEQUEÑA Y 100% NÍTIDA) */
     .fs-modal {{ display: none; position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; background: rgba(0,0,0,0.98) !important; z-index: 9999999 !important; flex-direction: column !important; align-items: center !important; justify-content: center !important; padding: 0 !important; margin: 0 !important; }}
-    .fs-modal img {{ width: 100vw !important; height: 100vh !important; max-width: 100vw !important; max-height: 100vh !important; margin: 0 !important; box-shadow: none !important; border-radius: 0 !important; object-fit: contain !important; }}
+    .fs-modal img {{ width: 80vw !important; height: 80vh !important; max-width: 80vw !important; max-height: 80vh !important; margin: auto !important; box-shadow: 0px 10px 30px rgba(0,0,0,0.5) !important; border-radius: 10px !important; object-fit: contain !important; image-rendering: high-quality !important; }}
     .close-btn {{ position: absolute !important; top: 15px !important; right: 25px !important; font-size: 20px !important; background-color: #FF4C4C !important; color: white !important; padding: 8px 15px !important; border-radius: 8px !important; cursor: pointer !important; z-index: 10000000 !important; font-weight: bold !important; }}
 
     .card-pnl {{ width: {CARD_PNL_W} !important; height: {CARD_PNL_H} !important; transform: translate({CARD_PNL_X}px, {CARD_PNL_Y}px) !important; }}
@@ -584,35 +584,7 @@ with col_bal:
 
 st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
 
-# --- MENÚ DE COLORES ORIGINAL (SIN RETRASO PORQUE SE GUARDA EN MEMORIA AL TOCARLO) ---
-def colorful_menu(options, label, value_key, trade_data_ref):
-    if value_key not in trade_data_ref: trade_data_ref[value_key] = options[0]
-    st.markdown(f"<div style='margin-bottom: 5px; font-weight: bold;'>{label}</div>", unsafe_allow_html=True)
-    selected_value = trade_data_ref[value_key]
-    cols = st.columns(len(options))
-    for i, text in enumerate(options):
-        with cols[i]:
-            is_selected = (text == selected_value)
-            btn_label = f"✅ {text}" if is_selected else text
-            btn_type = "primary" if is_selected else "secondary"
-            if st.button(btn_label, key=f"btn_{value_key}_{i}", use_container_width=True, type=btn_type):
-                trade_data_ref[value_key] = text
-                st.rerun()
-
-def colorful_multiselect(options, label, value_key, trade_data_ref):
-    if value_key not in trade_data_ref: trade_data_ref[value_key] = []
-    st.markdown(f"<div style='margin-bottom: 5px; font-weight: bold;'>{label}</div>", unsafe_allow_html=True)
-    current_selections = trade_data_ref[value_key]
-    cols = st.columns(3) 
-    for i, text in enumerate(options):
-        with cols[i % 3]:
-            is_selected = (text in current_selections)
-            btn_label = f"✅ {text}" if is_selected else text
-            btn_type = "primary" if is_selected else "secondary"
-            if st.button(btn_label, key=f"multibtn_{value_key}_{i}", use_container_width=True, type=btn_type):
-                if text in current_selections: trade_data_ref[value_key].remove(text)
-                else: trade_data_ref[value_key].append(text)
-                st.rerun()
+# --- LAS FUNCIONES COLORFUL_MENU Y COLORFUL_MULTISELECT FUERON ELIMINADAS PARA EVITAR EL PARPADEO EXTREMO ---
 
 def agregar_imagenes_main(contexto, llave, widget_id, counter_id, bal_act, f_str):
     archivos_nuevos = st.session_state.get(widget_id)
@@ -628,7 +600,7 @@ def agregar_imagenes_main(contexto, llave, widget_id, counter_id, bal_act, f_str
         st.session_state[counter_id] += 1
 
 # ==========================================
-# 9. ENTRADA AUTOMÁTICA E IMÁGENES + BOTÓN DE NOTAS
+# 9. ENTRADA AUTOMÁTICA E IMÁGENES + BOTÓN DE NOTAS (SIN PARPADEOS)
 # ==========================================
 c1, c2, c_img, c_not, c_espacio = st.columns([1.5, 0.5, 2.5, 0.6, 3.4]) 
 
@@ -673,35 +645,47 @@ with c_not:
         else:
             trade_data_ref = db_usuario[ctx]["trades"][clave_actual]
             
-            bias_options = ['ALCISTA', 'BAJISTA', 'NEUTRO']
-            colorful_menu(bias_options, '&nbsp;&nbsp;&nbsp;Bias', 'bias', trade_data_ref)
-            st.markdown("<br>", unsafe_allow_html=True)
-            
-            Confluences_options = ['BIAS Claro', 'Liq Sweep', 'IFVG', 'FVG', 'EQH / EQL', 'BSL / SSL', 'POI', 'SMT', 'Order Block', 'PDH / PDL', 'Continuación', 'Data High / Data Low', 'CISD']
-            colorful_multiselect(Confluences_options, '&nbsp;&nbsp;&nbsp;Confluences', 'Confluences', trade_data_ref)
-            st.markdown("<br>", unsafe_allow_html=True)
-            
-            st.markdown('<div style="font-weight:bold; font-size:18px; margin-bottom:5px;">&nbsp;&nbsp;&nbsp;Reason For Trade</div>', unsafe_allow_html=True)
-            trade_data_ref['razon_trade'] = st.text_area("Reason For Trade", value=trade_data_ref.get('razon_trade', ''), key=f"razon_main_{clave_actual}", height=80, label_visibility="collapsed")
-            
-            st.markdown('<div style="font-weight:bold; font-size:18px; margin-bottom:5px;">&nbsp;&nbsp;&nbsp;Corrections</div>', unsafe_allow_html=True)
-            trade_data_ref['Corrections'] = st.text_area("Corrections", value=trade_data_ref.get('Corrections', ''), key=f"corr_main_{clave_actual}", height=80, label_visibility="collapsed")
-            
-            risk_options = ['0.6%', '0.5%', '0.4%']
-            colorful_menu(risk_options, '&nbsp;&nbsp;&nbsp;% Risk', 'risk', trade_data_ref)
-            st.markdown("<br>", unsafe_allow_html=True)
-            
-            rrr_options = ['1:1', '1:1.5', '1:2', '1:3', '1:4']
-            colorful_menu(rrr_options, '&nbsp;&nbsp;&nbsp;RR', 'RR', trade_data_ref)
-            st.markdown("<br>", unsafe_allow_html=True)
-            
-            trade_type_options = ['A+', 'A', 'B', 'C']
-            colorful_menu(trade_type_options, '&nbsp;&nbsp;&nbsp;Trade Type', 'trade_type', trade_data_ref)
-            st.markdown("<br>", unsafe_allow_html=True)
-            
-            st.markdown('<div style="font-weight:bold; font-size:18px; margin-bottom:5px;">&nbsp;&nbsp;&nbsp;Emotions</div>', unsafe_allow_html=True)
-            trade_data_ref['Emotions'] = st.text_area("Emotions", value=trade_data_ref.get('Emotions', ''), key=f"emoc_main_{clave_actual}", height=80, label_visibility="collapsed")
-            # Ya no hay botón de guardar textos. Se guardan en memoria instantáneamente al dar un click fuera de la caja.
+            # --- FORMULARIO OPTIMIZADO PARA NO PARPADEAR ---
+            with st.form(key=f"form_notas_{clave_actual}", border=False):
+                
+                nuevo_bias = st.radio("Bias", ['ALCISTA', 'BAJISTA', 'NEUTRO'], 
+                                      index=['ALCISTA', 'BAJISTA', 'NEUTRO'].index(trade_data_ref.get('bias', 'NEUTRO')), 
+                                      horizontal=True)
+                
+                nuevo_conf = st.multiselect("Confluences", 
+                                            ['BIAS Claro', 'Liq Sweep', 'IFVG', 'FVG', 'EQH / EQL', 'BSL / SSL', 'POI', 'SMT', 'Order Block', 'PDH / PDL', 'Continuación', 'Data High / Data Low', 'CISD'], 
+                                            default=trade_data_ref.get('Confluences', []))
+                
+                nuevo_razon = st.text_area("Reason For Trade", value=trade_data_ref.get('razon_trade', ''), height=80)
+                
+                nuevo_corr = st.text_area("Corrections", value=trade_data_ref.get('Corrections', ''), height=80)
+                
+                risk_opts = ['0.6%', '0.5%', '0.4%']
+                risk_idx = risk_opts.index(trade_data_ref.get('risk', '0.5%')) if trade_data_ref.get('risk', '0.5%') in risk_opts else 1
+                nuevo_risk = st.radio("% Risk", risk_opts, index=risk_idx, horizontal=True)
+                
+                rr_opts = ['1:1', '1:1.5', '1:2', '1:3', '1:4']
+                rr_idx = rr_opts.index(trade_data_ref.get('RR', '1:2')) if trade_data_ref.get('RR', '1:2') in rr_opts else 2
+                nuevo_rr = st.selectbox("RR", rr_opts, index=rr_idx)
+                
+                tt_opts = ['A+', 'A', 'B', 'C']
+                tt_idx = tt_opts.index(trade_data_ref.get('trade_type', 'A+')) if trade_data_ref.get('trade_type', 'A+') in tt_opts else 0
+                nuevo_tt = st.radio("Trade Type", tt_opts, index=tt_idx, horizontal=True)
+                
+                nuevo_emo = st.text_area("Emotions", value=trade_data_ref.get('Emotions', ''), height=80)
+
+                # ESTE BOTÓN ES EL ÚNICO QUE GUARDA EN MEMORIA
+                if st.form_submit_button("💾 Save All Details", use_container_width=True):
+                    trade_data_ref['bias'] = nuevo_bias
+                    trade_data_ref['Confluences'] = nuevo_conf
+                    trade_data_ref['razon_trade'] = nuevo_razon
+                    trade_data_ref['Corrections'] = nuevo_corr
+                    trade_data_ref['risk'] = nuevo_risk
+                    trade_data_ref['RR'] = nuevo_rr
+                    trade_data_ref['trade_type'] = nuevo_tt
+                    trade_data_ref['Emotions'] = nuevo_emo
+                    st.success("✅ Detalles guardados correctamente en memoria. Para asegurar en la nube, presiona el SAVE del balance.")
+                    st.rerun()
 
 # ==========================================
 # 10. CALENDARIO Y RESUMEN
@@ -842,343 +826,4 @@ def get_pie_svg(w, l, t):
     return svg
 
 with col_det:
-    ver_todo = st.toggle("🌍 View All-Time Stats", value=False)
-    
-    if ver_todo:
-        trades_lista = [v["pnl"] for k, v in db_usuario[ctx]["trades"].items()]
-        titulo_pnl = "Net P&L All-Time"
-        titulo_win = "Win Rate All-Time"
-    else:
-        trades_lista = [v["pnl"] for k, v in db_usuario[ctx]["trades"].items() if k[0] == anio_sel and k[1] == mes_sel]
-        titulo_pnl = CARD_PNL_TITULO
-        titulo_win = CARD_WIN_TITULO
-        
-    total_trades = len(trades_lista)
-    
-    net_pnl = sum(trades_lista) if total_trades > 0 else 0.0
-    wins = len([t for t in trades_lista if t > 0])
-    losses = len([t for t in trades_lista if t < 0])
-    ties = len([t for t in trades_lista if t == 0])
-    win_pct = (wins / total_trades * 100) if total_trades > 0 else 0.0
-    
-    color_pnl = "pnl-value" if net_pnl >= 0 else "pnl-value pnl-value-loss"
-    simbolo_pnl = "+" if net_pnl > 0 else ""
-    c_win_card = "#00C897" if win_pct >= 50 else "#FF4C4C"
-    
-    st.markdown(f"""
-        <div class="metric-card card-pnl">
-            <div class="metric-header"><span class="title-net-pnl">{titulo_pnl}</span></div>
-            <div class="{color_pnl}">{simbolo_pnl}${net_pnl:,.2f}</div>
-        </div>
-    """, unsafe_allow_html=True)
-
-    st.markdown("<br>", unsafe_allow_html=True)
-
-    pie_html = get_pie_svg(wins, losses, ties)
-
-    st.markdown(f"""
-        <div class="metric-card card-win">
-            <div>
-                <div class="metric-header"><span class="title-trade-win">{titulo_win}</span></div>
-                <div class="win-value" style="color: {c_win_card};">{win_pct:.2f}%</div>
-            </div>
-            <div style="display:flex; flex-direction:row; align-items:center; justify-content:center; gap:25px; margin-top:15px; padding-bottom:10px;">
-                <div style="width: var(--pie-size); height: var(--pie-size); transform: translateY(var(--pie-y-offset)); flex-shrink: 0; display:flex;">
-                    {pie_html}
-                </div>
-                <div style="font-size: var(--size-box-wl); color: gray; font-weight: 800; text-align:center; white-space:nowrap; transform: translateY(var(--pie-y-offset));">
-                    {wins}W / {losses}L
-                </div>
-            </div>
-        </div>
-    """, unsafe_allow_html=True)
-    
-    def get_col_simb(valor):
-        if valor > 0: return "txt-green", "+"
-        elif valor < 0: return "txt-red", ""
-        else: return "txt-gray", ""
-
-    def calc_pct(valor):
-        base = bal_actual - valor
-        return (valor / base * 100) if base != 0 else 0.0
-    
-    if not ver_todo:
-        semanas_stats = {i: {"pnl": 0.0, "w": 0, "l": 0} for i in range(1, len(mes_matriz) + 1)}
-        
-        for key, val in db_usuario[ctx]["trades"].items():
-            if key[0] == anio_sel and key[1] == mes_sel:
-                dia = key[2]
-                for idx, semana in enumerate(mes_matriz):
-                    if dia in semana:
-                        semanas_stats[idx + 1]["pnl"] += val["pnl"]
-                        if val["pnl"] > 0: semanas_stats[idx + 1]["w"] += 1
-                        elif val["pnl"] < 0: semanas_stats[idx + 1]["l"] += 1
-                        break
-
-        m_total = sum(s["pnl"] for s in semanas_stats.values())
-        m_w = sum(s["w"] for s in semanas_stats.values())
-        m_l = sum(s["l"] for s in semanas_stats.values())
-        
-        cM, sM = get_col_simb(m_total)
-        pct_m = calc_pct(m_total)
-
-        titulos_semanas = [TXT_W1, TXT_W2, TXT_W3, TXT_W4, TXT_W5, TXT_W6]
-        
-        semanas_html = ""
-        for idx, (num_sem, stats) in enumerate(semanas_stats.items()):
-            titulo_str = titulos_semanas[idx] if idx < len(titulos_semanas) else f"Week {num_sem}"
-            c_sem, s_sem = get_col_simb(stats["pnl"])
-            pct_sem = calc_pct(stats["pnl"])
-            semanas_html += f'<div class="wk-box"><div class="wk-title" style="font-size:var(--size-box-titles) !important;">{titulo_str}</div><div class="wk-val {c_sem}" style="font-size:var(--size-box-vals) !important;">{s_sem}${stats["pnl"]:,.2f}<br><span style="font-size:var(--size-box-pct);">{s_sem}{pct_sem:.2f}%</span><br><span style="font-size: var(--size-box-wl); color: gray; font-weight: 500;">{stats["w"]}W / {stats["l"]}L</span></div></div>'
-
-        st.markdown(f'<div class="weeks-container">{semanas_html}<div class="mo-box"><div class="mo-title" style="font-size:var(--size-box-titles) !important;">{TXT_MO}</div><div class="mo-val {cM}" style="font-size:var(--size-box-vals) !important;">{sM}${m_total:,.2f}<br><span style="font-size:var(--size-box-pct);">{sM}{pct_m:.2f}%</span><br><span style="font-size: var(--size-box-wl); color: gray; font-weight: 500;">{m_w}W / {m_l}L</span></div></div></div>', unsafe_allow_html=True)
-
-    else:
-        meses_stats = {}
-        for key, val in db_usuario[ctx]["trades"].items():
-            y, m = key[0], key[1]
-            if (y, m) not in meses_stats:
-                meses_stats[(y, m)] = {"pnl": 0.0, "w": 0, "l": 0}
-            meses_stats[(y, m)]["pnl"] += val["pnl"]
-            if val["pnl"] > 0: meses_stats[(y, m)]["w"] += 1
-            elif val["pnl"] < 0: meses_stats[(y, m)]["l"] += 1
-            
-        meses_html = ""
-        for (y, m) in sorted(meses_stats.keys()):
-            val_m = meses_stats[(y, m)]["pnl"]
-            w_m = meses_stats[(y, m)]["w"]
-            l_m = meses_stats[(y, m)]["l"]
-            
-            nombre_m = f"{calendar.month_abbr[m]} {y}"
-            c_m, s_m = get_col_simb(val_m)
-            pct_m_box = calc_pct(val_m)
-            meses_html += f'<div class="wk-box"><div class="wk-title" style="font-size:var(--size-box-titles) !important;">{nombre_m}</div><div class="wk-val {c_m}" style="font-size:var(--size-box-vals) !important;">{s_m}${val_m:,.2f}<br><span style="font-size:var(--size-box-pct);">{s_m}{pct_m_box:.2f}%</span><br><span style="font-size: var(--size-box-wl); color: gray; font-weight: 500;">{w_m}W / {l_m}L</span></div></div>'
-        
-        if meses_html:
-            st.markdown(f'<div class="weeks-container">{meses_html}</div>', unsafe_allow_html=True)
-        else:
-            st.info("No hay meses con trades registrados aún.")
-
-# ==========================================
-# 11. TABLA DE EDICIÓN MANUAL (HISTORIAL LIMPIO POR MES)
-# ==========================================
-st.markdown("<br>", unsafe_allow_html=True)
-st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
-
-def borrar_imagen(contexto, llave, index):
-    if len(db_usuario[contexto]["trades"][llave]["imagenes"]) > index:
-        db_usuario[contexto]["trades"][llave]["imagenes"].pop(index)
-
-def agregar_imagenes_historial(contexto, llave, widget_id, counter_id):
-    archivos_nuevos = st.session_state.get(widget_id)
-    if archivos_nuevos:
-        for img in archivos_nuevos:
-            b64_pura = convertir_img_base64(img)
-            db_usuario[contexto]["trades"][llave]["imagenes"].append(b64_pura)
-        st.session_state[counter_id] += 1
-
-with st.expander("🛠️ OPEN ORDER HISTORY", expanded=False):
-    trades_actuales = db_usuario[ctx]["trades"]
-    
-    if not trades_actuales:
-        st.info("No hay operaciones registradas en esta cuenta aún.")
-    else:
-        trades_ordenados = sorted(trades_actuales.items(), key=lambda x: datetime(x[0][0], x[0][1], x[0][2]), reverse=True)
-        mes_actual_dibujado = "" 
-        
-        for clave, data in trades_ordenados:
-            anio_t, mes_t, dia_t = clave
-            fecha_dt = datetime(anio_t, mes_t, dia_t)
-            
-            nombre_mes_grp = f"{calendar.month_name[mes_t]} {anio_t}"
-            if nombre_mes_grp != mes_actual_dibujado:
-                st.markdown(f"<h4 style='color:{c_dash}; margin-top:15px; border-bottom:1px solid gray; padding-bottom:5px;'>🗓️ {nombre_mes_grp}</h4>", unsafe_allow_html=True)
-                mes_actual_dibujado = nombre_mes_grp
-
-            pnl_val = float(data['pnl'])
-            color_md = "green" if pnl_val > 0 else ("red" if pnl_val < 0 else "gray")
-            simbolo = "+" if pnl_val > 0 else ""
-            
-            with st.expander(f"🗓️ {data['fecha_str']} | P&L: :{color_md}[{simbolo}${pnl_val:,.2f}]"):
-                c_ed1, c_ed2, c_ed3 = st.columns(3)
-                
-                with c_ed1:
-                    nueva_fecha = st.date_input("Day", value=fecha_dt, key=f"f_{clave}")
-                with c_ed2:
-                    nuevo_bal = st.number_input("Nuevo Balance", value=float(data['balance_final']), format="%.2f", key=f"b_{clave}")
-                with c_ed3:
-                    nuevo_pnl = st.number_input("Editar P&L", value=pnl_val, format="%.2f", key=f"p_{clave}")
-                
-                st.markdown("---")
-                st.markdown("**📸 Saved Images:**")
-                
-                counter_key = f"upd_counter_{clave}"
-                if counter_key not in st.session_state:
-                    st.session_state[counter_key] = 0
-                
-                upd_key = f"upd_{clave}_{st.session_state[counter_key]}"
-                st.file_uploader(
-                    "🢛🢛🢛🢛🢛🢛🢛🢛🢛🢛🢛🢛🢛", 
-                    accept_multiple_files=True, 
-                    key=upd_key, 
-                    on_change=agregar_imagenes_historial, 
-                    args=(ctx, clave, upd_key, counter_main_key)
-                )
-
-                imagenes_restantes = db_usuario[ctx]["trades"][clave].get("imagenes", [])
-                
-                if imagenes_restantes:
-                    cols_img = st.columns(len(imagenes_restantes))
-                    for i, img_b64 in enumerate(imagenes_restantes):
-                        with cols_img[i]:
-                            st.markdown(f'<img src="{img_b64}" style="width:100%; border-radius:20px; border:1px solid gray;">', unsafe_allow_html=True)
-                            st.button(
-                                "🗑️ Delete", 
-                                key=f"delimg_{clave}_{i}_{len(imagenes_restantes)}", 
-                                on_click=borrar_imagen, 
-                                args=(ctx, clave, i), 
-                                use_container_width=True
-                            )
-                else:
-                    st.caption("No hay imágenes guardadas en este día.")
-                
-                st.markdown("---")
-                c_btn1, c_btn2 = st.columns(2)
-                
-                with c_btn1:
-                    if st.button("💾 SAVE TODAY'S CHANGES", key=f"save_{clave}", use_container_width=True):
-                        nueva_clave = (nueva_fecha.year, nueva_fecha.month, nueva_fecha.day)
-                        
-                        if nueva_clave != clave:
-                            del db_usuario[ctx]["trades"][clave]
-                        
-                        db_usuario[ctx]["trades"][nueva_clave] = {
-                            "pnl": nuevo_pnl,
-                            "balance_final": nuevo_bal,
-                            "fecha_str": nueva_fecha.strftime("%d/%m/%Y"),
-                            "imagenes": db_usuario[ctx]["trades"].get(clave, {}).get("imagenes", imagenes_restantes),
-                            "bias": data.get("bias", "NEUTRO"),
-                            "Confluences": data.get("Confluences", []),
-                            "razon_trade": data.get("razon_trade", ""),
-                            "Corrections": data.get("Corrections", ""),
-                            "risk": data.get("risk", "0.5%"),
-                            "RR": data.get("RR", "1:2"),
-                            "trade_type": data.get("trade_type", ""),
-                            "Emotions": data.get("Emotions", "")
-                        }
-                        
-                        fecha_obj_edit = datetime(nueva_clave[0], nueva_clave[1], nueva_clave[2])
-                        registrar_en_excel(usuario, db_global[usuario]["password"], ctx, fecha_obj_edit, nuevo_bal, nuevo_pnl, db_usuario[ctx]["trades"][nueva_clave], db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
-                        st.rerun()
-                        
-                with c_btn2:
-                    if st.button("❌ DELETE FULL DAY", key=f"del_{clave}", use_container_width=True):
-                        del db_usuario[ctx]["trades"][clave]
-                        st.rerun()
-
-# =========================================================================================================
-# 12. TABLA DE RESULTADOS
-# =========================================================================================================
-def sync_table_edits():
-    editor_state = st.session_state.get("table_editor", {})
-    contexto = st.session_state.data_source_sel
-    keys = st.session_state.get("current_table_keys", [])
-    
-    for idx in sorted(editor_state.get("deleted_rows", []), reverse=True):
-        if idx < len(keys):
-            k = keys[idx]
-            if k in db_usuario[contexto]["trades"]: del db_usuario[contexto]["trades"][k]
-                
-    for idx, edits in editor_state.get("edited_rows", {}).items():
-        if idx < len(keys):
-            k = keys[idx]
-            if k in db_usuario[contexto]["trades"]:
-                t = db_usuario[contexto]["trades"][k]
-                if "Bias" in edits: t["bias"] = edits["Bias"]
-                if "Reason For Trade" in edits: t["razon_trade"] = edits["Reason For Trade"]
-                if "Corrections" in edits: t["Corrections"] = edits["Corrections"]
-                if "% Risk" in edits: t["risk"] = edits["% Risk"]
-                if "RR" in edits: t["RR"] = edits["RR"]
-                if "Trade Type" in edits: t["trade_type"] = edits["Trade Type"]
-                if "Emotions" in edits: t["Emotions"] = edits["Emotions"]
-                if "P&L" in edits:
-                    try:
-                        val_str = str(edits["P&L"]).replace('+', '').replace('$', '').replace(',', '').strip()
-                        t["pnl"] = float(val_str)
-                    except: pass
-
-if mostrar_tabla:
-    st.markdown("<br><br><h2 style='text-align:center;'>Results Table</h2>", unsafe_allow_html=True)
-    all_trades = db_usuario[ctx]["trades"]
-    if not all_trades:
-        st.info("No hay trades registrados.")
-    else:
-        table_data = []
-        keys_list = []
-        for key, trade in sorted(all_trades.items(), key=lambda x: date(x[0][0], x[0][1], x[0][2]), reverse=True):
-            fecha = date(key[0], key[1], key[2])
-            keys_list.append(key)
-            pnl = trade.get('pnl', 0)
-            pnl_simbol = "+" if pnl > 0 else ""
-            Confluences_list = trade.get('Confluences', [])
-            Confluences_resumen = ", ".join([c.split(". ")[-1] for c in Confluences_list])
-
-            row = {
-                "Date": fecha.strftime("%d/%m/%Y"),
-                "Bias": trade.get('bias', ''),
-                "Confluences": Confluences_resumen,
-                "Reason For Trade": trade.get('razon_trade', ''),
-                "% Risk": trade.get('risk', ''),
-                "RR": trade.get('RR', ''),
-                "Trade Type": trade.get('trade_type', ''),
-                "Emotions": trade.get('Emotions', ''),
-                "Corrections": trade.get('Corrections', ''),
-                "P&L": f"{pnl_simbol}${pnl:,.2f}"
-            }
-            table_data.append(row)
-        
-        st.session_state.current_table_keys = keys_list
-        df_results = pd.DataFrame(table_data)
-        
-        def style_rows(row):
-            pnl_str = row['P&L']
-            row_styles = [''] * len(row) 
-            if pnl_str.startswith('+$'): pnl_style = 'color: #00C897; font-weight: bold;'
-            elif pnl_str.startswith('$0.00') or pnl_str == '$0.00': pnl_style = 'color: gray;'
-            else: pnl_style = 'color: #FF4C4C; font-weight: bold;'
-            row_styles[row.index.get_loc('P&L')] = pnl_style
-            return row_styles
-
-        st.data_editor(df_results.style.apply(style_rows, axis=1), use_container_width=True, num_rows="dynamic", key="table_editor", on_change=sync_table_edits)
-        
-        if st.button("💾 Guardar Ediciones de la Tabla", use_container_width=True):
-            ediciones_guardadas = 0
-            editor_state = st.session_state.get("table_editor", {})
-            keys = st.session_state.get("current_table_keys", [])
-            for idx, edits in editor_state.get("edited_rows", {}).items():
-                if idx < len(keys):
-                    k = keys[idx]
-                    if k in db_usuario[ctx]["trades"]:
-                        t = db_usuario[ctx]["trades"][k]
-                        fecha_obj = datetime(k[0], k[1], k[2])
-                        registrar_en_excel(usuario, db_global[usuario]["password"], ctx, fecha_obj, t.get("balance_final", 25000), t["pnl"], t, db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
-                        ediciones_guardadas += 1
-            if ediciones_guardadas > 0:
-                st.success(f"✅ {ediciones_guardadas} trades actualizados en Google Sheets.")
-            else:
-                st.info("No hay nuevas ediciones en la tabla para guardar.")
-
-# ==========================================
-# SCRIPT PARA CERRAR MODALES CON ESCAPE
-# ==========================================
-components.html("""
-<script>
-const doc = window.parent.document;
-doc.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-        const modals = doc.querySelectorAll('.modal-toggle');
-        modals.forEach(m => m.checked = false);
-    }
-});
-</script>
-""", height=0, width=0)
+    ver_todo = st.toggle("🌍 View All-Time Stats", value=
