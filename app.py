@@ -361,10 +361,6 @@ def reset_settings(category):
 # ==========================================
 st.sidebar.markdown(f"<div style='margin-top:-15px;'>👤 My Account: {usuario}</div>", unsafe_allow_html=True)
 
-# BOTÓN DE SINCRONIZACIÓN FORZADA (CORTA EL CACHÉ Y OBLIGA A LEER EXCEL AL INSTANTE)
-if st.sidebar.button("🔄 Force Sync with Google Sheets", use_container_width=True):
-    get_global_db.clear()
-    st.rerun()
 
 dispositivo_visual = st.sidebar.radio("Current Design:", ["🖥️ PC", "📱 Móvil"], index=0 if "PC" in st.session_state.dispositivo_actual else 1)
 st.session_state.dispositivo_actual = "PC" if "🖥️ PC" in dispositivo_visual else "Móvil"
@@ -486,6 +482,10 @@ if st.sidebar.button("🚪 Log Out", use_container_width=True):
     except: pass
     st.rerun()
 
+# BOTÓN DE SINCRONIZACIÓN FORZADA (CORTA EL CACHÉ Y OBLIGA A LEER EXCEL AL INSTANTE)
+if st.sidebar.button("🔄 Force Sync with Google Sheets", use_container_width=True):
+    get_global_db.clear()
+    st.rerun()
 # ==========================================
 # 6. ASIGNACIÓN DE COLORES Y CSS
 # ==========================================
