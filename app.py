@@ -566,22 +566,6 @@ st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
 # ==========================================
 # 9. ENTRADA DE TRADES (TODO EN UN SOLO FORMULARIO - AUTO LIMPIEZA)
 # ==========================================
-
-# CSS para hacer compactos TODOS los botones de radio horizontales
-st.markdown("""
-    <style>
-    /* Reduce el espacio del título del radio al primer botón */
-    div[data-testid="stWidgetLabel"] + div[data-testid="stHorizontalBlock"] div[data-testid="stMarkdownContainer"] {
-        padding-right: 210px;
-    }
-    /* Junta los circulitos de las opciones */
-    div[data-testid="stHorizontalBlock"] div[role="radiogroup"] > div {
-        margin-right: -110px; /* Ajusta este número si los quieres más o menos pegados */
-    }
-    </style>
-""", unsafe_allow_html=True)
-
-
 with st.form(key=f"form_main_entry_{st.session_state.form_reset_key}", border=False):
     c1, c2, c_img, c_not, c_espacio = st.columns([1.5, 0.5, 2.5, 0.6, 3.4]) 
     
