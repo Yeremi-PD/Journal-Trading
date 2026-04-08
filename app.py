@@ -361,7 +361,6 @@ def reset_settings(category):
 # ==========================================
 st.sidebar.markdown(f"<div style='margin-top:-15px;'>👤 My Account: {usuario}</div>", unsafe_allow_html=True)
 
-
 dispositivo_visual = st.sidebar.radio("Current Design:", ["🖥️ PC", "📱 Móvil"], index=0 if "PC" in st.session_state.dispositivo_actual else 1)
 st.session_state.dispositivo_actual = "PC" if "🖥️ PC" in dispositivo_visual else "Móvil"
 try: st.query_params["device"] = st.session_state.dispositivo_actual
@@ -474,7 +473,6 @@ if db_usuario[ctx_actual]["trades"]:
         mime="application/zip",
         use_container_width=True
     )
-
 # BOTÓN DE SINCRONIZACIÓN FORZADA (CORTA EL CACHÉ Y OBLIGA A LEER EXCEL AL INSTANTE)
 if st.sidebar.button("🔄 Force Sync with Google Sheets", use_container_width=True):
     get_global_db.clear()
@@ -1020,15 +1018,6 @@ def agregar_imagenes_historial(contexto, clave, idx_trade, widget_id):
             b64_pura = convertir_img_base64(img)
             db_usuario[contexto]["trades"][clave][idx_trade]["imagenes"].append(b64_pura)
 
-# --- ESTADOS PARA FLECHAS DEL HISTORIAL ---
-if "hist_month" not in st.session_state: st.session_state.hist_month = hoy.month
-if "hist_year" not in st.session_state: st.session_state.hist_year = hoy.year
-
-def cambiar_mes_hist(delta):
-    st.session_state.hist_month += delta
-    if st.session_state.hist_month > 12: st.session_state.hist_month = 1; st.session_state.hist_year += 1
-    elif st.session_state.hist_month < 1: st.session_state.hist_month = 12; st.session_state.hist_year -= 1
-
 with col_mitad_1:
     with st.expander("🛠️ OPEN ORDER HISTORY", expanded=False):
         trades_actuales = db_usuario[ctx]["trades"]
@@ -1036,22 +1025,24 @@ with col_mitad_1:
         if not trades_actuales:
             st.info("No hay operaciones registradas en esta cuenta aún.")
         else:
-            # --- NUEVAS FLECHAS DE NAVEGACIÓN ---
+            # --- FLECHAS CONECTADAS AL MES GLOBAL ---
             c_h1, c_h2, c_h3 = st.columns([1, 2, 1])
-            with c_h1: st.button("◀", on_click=cambiar_mes_hist, args=(-1,), key="btn_h_prev", use_container_width=True)
-            with c_h2: st.markdown(f"<h4 style='text-align:center; color:{c_dash}; margin-top:5px;'>🗓️ {calendar.month_name[st.session_state.hist_month]} {st.session_state.hist_year}</h4>", unsafe_allow_html=True)
-            with c_h3: st.button("▶", on_click=cambiar_mes_hist, args=(1,), key="btn_h_next", use_container_width=True)
+            with c_h1: st.button("◀", on_click=cambiar_mes, args=(-1,), key="btn_h_prev", use_container_width=True)
+            with c_h2: st.markdown(f"<h4 style='text-align:center; color:{c_dash}; margin-top:5px;'>🗓️ {calendar.month_name[st.session_state.cal_month]} {st.session_state.cal_year}</h4>", unsafe_allow_html=True)
+            with c_h3: st.button("▶", on_click=cambiar_mes, args=(1,), key="btn_h_next", use_container_width=True)
             st.markdown("---")
 
             trades_ordenados = sorted(trades_actuales.items(), key=lambda x: datetime(x[0][0], x[0][1], x[0][2]), reverse=True)
             
+            trades_en_mes = 0 # Contador para saber si hay trades este mes
             for clave, lista_trades in trades_ordenados:
                 anio_t, mes_t, dia_t = clave
                 
-                # --- FILTRAR PARA QUE SOLO MUESTRE EL MES SELECCIONADO ---
-                if anio_t != st.session_state.hist_year or mes_t != st.session_state.hist_month:
+                # --- FILTRAR PARA QUE SOLO MUESTRE EL MES GLOBAL SELECCIONADO ---
+                if anio_t != st.session_state.cal_year or mes_t != st.session_state.cal_month:
                     continue
-
+                
+                trades_en_mes += len(lista_trades)
                 fecha_dt = datetime(anio_t, mes_t, dia_t)
 
                 for i, data in enumerate(lista_trades):
@@ -1158,6 +1149,9 @@ with col_mitad_1:
                                 del db_usuario[ctx]["trades"][clave]
                             reescribir_excel_usuario(usuario)
                             st.rerun()
+            
+            if trades_en_mes == 0:
+                st.info("No hay trades en este mes específico.")
 
 # COLUMNA 2: TABLA DE RESULTADOS A LA MITAD
 with col_mitad_2:
@@ -1166,8 +1160,19 @@ with col_mitad_2:
         if not all_trades:
             st.info("No hay trades registrados.")
         else:
+            # --- FLECHAS DE LA TABLA (Conectadas al mes global) ---
+            c_t1, c_t2, c_t3 = st.columns([1, 2, 1])
+            with c_t1: st.button("◀", on_click=cambiar_mes, args=(-1,), key="btn_t_prev", use_container_width=True)
+            with c_t2: st.markdown(f"<h4 style='text-align:center; color:{c_dash}; margin-top:5px;'>🗓️ {calendar.month_name[st.session_state.cal_month]} {st.session_state.cal_year}</h4>", unsafe_allow_html=True)
+            with c_t3: st.button("▶", on_click=cambiar_mes, args=(1,), key="btn_t_next", use_container_width=True)
+            st.markdown("---")
+
             table_data = []
             for key, list_t in sorted(all_trades.items(), key=lambda x: date(x[0][0], x[0][1], x[0][2]), reverse=True):
+                # --- FILTRAMOS PARA MOSTRAR SOLO EL MES ACTUAL ---
+                if key[0] != st.session_state.cal_year or key[1] != st.session_state.cal_month:
+                    continue
+
                 for i, trade in enumerate(list_t):
                     fecha = date(key[0], key[1], key[2])
                     pnl = trade.get('pnl', 0)
@@ -1190,32 +1195,40 @@ with col_mitad_2:
                     }
                     table_data.append(row)
             
-            df_results = pd.DataFrame(table_data)
-            
-            def style_rows(row):
-                pnl_str = row['P&L']
-                row_styles = [''] * len(row) 
-                if pnl_str.startswith('+$'): pnl_style = 'color: #00C897; font-weight: bold;'
-                elif pnl_str.startswith('$0.00') or pnl_str == '$0.00': pnl_style = 'color: gray;'
-                else: pnl_style = 'color: #FF4C4C; font-weight: bold;'
-                row_styles[row.index.get_loc('P&L')] = pnl_style
-                return row_styles
+            if not table_data:
+                st.info("No hay trades en este mes específico para mostrar en la tabla.")
+            else:
+                df_results = pd.DataFrame(table_data)
+                
+                def style_rows(row):
+                    pnl_str = row['P&L']
+                    row_styles = [''] * len(row) 
+                    if pnl_str.startswith('+$'): pnl_style = 'color: #00C897; font-weight: bold;'
+                    elif pnl_str.startswith('$0.00') or pnl_str == '$0.00': pnl_style = 'color: gray;'
+                    else: pnl_style = 'color: #FF4C4C; font-weight: bold;'
+                    row_styles[row.index.get_loc('P&L')] = pnl_style
+                    return row_styles
 
-            st.dataframe(
-                df_results.style.apply(style_rows, axis=1),
-                use_container_width=True,
-                height=800,
-                hide_index=False, 
-                key=f"tabla_resultados_v6_{ctx}", 
-                column_config={
-                    "Corrections": st.column_config.Column(width="small"), 
-                    "Emotions": st.column_config.Column(width="small"),
-                    "Reason For Trade": st.column_config.Column(width="medium"),
-                    " Confluences": st.column_config.Column(width="large"),
-                    "Date": st.column_config.Column(width="small"),
-                    " P&L": st.column_config.Column(width="small")
-                }
-            )
+                # --- ALTURA DINÁMICA DE LA TABLA ---
+                # Multiplicamos la cantidad de filas por 38px (aprox. la altura de una fila) y le sumamos 80px de holgura.
+                altura_dinamica = max(150, len(df_results) * 38 + 80)
+
+                st.dataframe(
+                    df_results.style.apply(style_rows, axis=1),
+                    use_container_width=True,
+                    height=altura_dinamica,  # Altura dinámica implementada aquí
+                    hide_index=False, 
+                    key=f"tabla_resultados_v6_{ctx}", 
+                    column_config={
+                        "Corrections": st.column_config.Column(width="small"), 
+                        "Emotions": st.column_config.Column(width="small"),
+                        "Reason For Trade": st.column_config.Column(width="medium"),
+                        " Confluences": st.column_config.Column(width="large"),
+                        "Date": st.column_config.Column(width="small"),
+                        " P&L": st.column_config.Column(width="small")
+                    }
+                )
+
 # ==========================================
 # SCRIPT PARA CERRAR MODALES CON ESCAPE
 # ==========================================
