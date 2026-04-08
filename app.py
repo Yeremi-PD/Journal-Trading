@@ -280,7 +280,7 @@ def reset_settings(category):
 # 5. BARRA LATERAL (AJUSTES Y ADMIN)
 # ==========================================
 # Título subido 15px con margen negativo
-st.sidebar.markdown(f"<div style='margin-top:-15px;'>### 👤 Mi Cuenta: {usuario}</div>", unsafe_allow_html=True)
+st.sidebar.markdown(f"<div style='margin-top:-15px;'>👤 My Account: {usuario}</div>", unsafe_allow_html=True)
 
 # Radio buttons con emojis
 dispositivo_visual = st.sidebar.radio("Current Design:", ["🖥️ PC", "📱 Móvil"], index=0 if "PC" in st.session_state.dispositivo_actual else 1)
