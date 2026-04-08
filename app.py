@@ -389,6 +389,7 @@ st.sidebar.markdown(f"""
 """, unsafe_allow_html=True)
 
 # Tu código original (sin cambios en la lógica)
+st.sidebar.markdown("---")
 dispositivo_visual = st.sidebar.radio(
     "Current Design:", 
     ["🖥️ PC", "📱 Móvil"], 
