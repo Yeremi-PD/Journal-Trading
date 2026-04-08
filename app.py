@@ -580,8 +580,8 @@ with st.form(key=f"form_main_entry_{st.session_state.form_reset_key}", border=Fa
         with st.popover("📝"):
             st.markdown("<h3 style='text-align:center; margin-top:0;'>Trade Details</h3>", unsafe_allow_html=True)
             
-            nuevo_bias = st.radio("Bias", ['ALCISTA', 'BAJISTA', 'NEUTRO'], index=2, horizontal=True)
-            nuevo_conf = st.multiselect("Confluences", ['BIAS Claro', 'Liq Sweep', 'IFVG', 'FVG', 'EQH / EQL', 'BSL / SSL', 'POI', 'SMT', 'Order Block', 'PDH / PDL', 'Continuación', 'Data High / Data Low', 'CISD'], default=[])
+            nuevo_bias = st.radio("Bias", ['LONG', 'SHORT', 'NONE'], index=2, horizontal=True)
+            nuevo_conf = st.multiselect("Confluences", ['BIAS WELL', 'LIQ SWEEP', 'IFVG', 'FVG', 'EQH / EQL', 'BSL / SSL', 'POI', 'SMT', 'Order Block', 'PDH / PDL', 'Continuation', 'Data High / Data Low', 'CISD'], default=[])
             nuevo_razon = st.text_area("Reason For Trade", value='', height=80)
             nuevo_corr = st.text_area("Corrections", value='', height=80)
             
