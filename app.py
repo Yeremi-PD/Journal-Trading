@@ -279,9 +279,14 @@ def reset_settings(category):
 # ==========================================
 # 5. BARRA LATERAL (AJUSTES Y ADMIN)
 # ==========================================
-st.sidebar.markdown(f"### 👤 Mi Cuenta: {usuario}")
+# Título subido 15px con margen negativo
+st.sidebar.markdown(f"<div style='margin-top:-15px;'>### 👤 Mi Cuenta: {usuario}</div>", unsafe_allow_html=True)
 
-st.session_state.dispositivo_actual = st.sidebar.radio("Current Design:", ["PC", "Móvil"], index=0 if st.session_state.dispositivo_actual == "PC" else 1)
+# Radio buttons con emojis
+dispositivo_visual = st.sidebar.radio("Current Design:", ["🖥️ PC", "📱 Móvil"], index=0 if "PC" in st.session_state.dispositivo_actual else 1)
+
+# Lógica para guardar sin emojis y no romper el script
+st.session_state.dispositivo_actual = "PC" if "🖥️ PC" in dispositivo_visual else "Móvil"
 
 if st.sidebar.button("💾 Save Design Settings to Cloud", use_container_width=True):
     ctx_act = st.session_state.data_source_sel
@@ -391,7 +396,8 @@ if db_usuario[ctx_actual]["trades"]:
         use_container_width=True
     )
 
-st.sidebar.markdown("<br><br><br>", unsafe_allow_html=True)
+# Separación y botón de Log Out bajado 30px
+st.sidebar.markdown("<br><br><br><div style='margin-top:30px;'></div>", unsafe_allow_html=True)
 if st.sidebar.button("🚪 Log Out", use_container_width=True): 
     st.session_state.usuario_actual = None
     try: st.query_params.clear()
@@ -467,7 +473,9 @@ st.markdown(f"""
     div[data-testid="stButton"] > button {{ background-color: {btn_bg} !important; color: {btn_txt} !important; border: 1px solid {border_color} !important; }}
     div[data-testid="stPopover"] {{ width: {BTN_CAL_W}px !important; min-width: {BTN_CAL_W}px !important; height: {BTN_CAL_H}px !important; display: block !important; position: relative !important; }}
     div[data-testid="stPopover"] > button, div[data-testid="stPopover"] > div > button {{ width: {BTN_CAL_W}px !important; height: {BTN_CAL_H}px !important; padding: 0 !important; font-size: {BTN_CAL_ICON_SIZE}px !important; border-radius: 8px !important; border: 1px solid {border_color} !important; background-color: {btn_bg} !important; color: {btn_txt} !important; display: flex !important; justify-content: center !important; align-items: center !important; position: absolute !important; top: 0 !important; left: 0 !important; z-index: 10 !important; }}
-    div[data-testid="stPopoverBody"] {{ background-color: {card_bg} !important; border: 1px solid {border_color} !important; border-radius: 8px !important; padding: 15px !important; }}
+    
+    /* FONDO DE LOS POPOVERS / TRADE DETAILS IGUAL AL COLOR DEL BORDE */
+    div[data-testid="stPopoverBody"] {{ background-color: {border_color} !important; border: 1px solid {border_color} !important; border-radius: 8px !important; padding: 15px !important; }}
     div[data-testid="stPopoverBody"]:has(h3) {{ width: 710px !important; max-width: 95vw !important; max-height: 85vh !important; margin-top: 100px !important; overflow-y: auto !important; box-shadow: 0 4px 20px rgba(0,0,0,0.3) !important; }}
 
     /* ESTILOS PARA AGRANDAR MUCHO LAS LETRAS EN TRADE DETAILS */
@@ -887,7 +895,7 @@ with col_det:
                 meses_stats[(y, m)]["pnl"] += val["pnl"]
                 if val["pnl"] > 0: meses_stats[(y, m)]["w"] += 1
                 elif val["pnl"] < 0: meses_stats[(y, m)]["l"] += 1
-            
+        
         meses_html = ""
         for (y, m) in sorted(meses_stats.keys()):
             val_m = meses_stats[(y, m)]["pnl"]
