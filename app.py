@@ -24,13 +24,12 @@ def conectar_google_sheets():
         scope = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
         creds = Credentials.from_service_account_info(st.secrets["gcp_service_account"], scopes=scope)
         client = gspread.authorize(creds)
-        return client.open("Trading_Journal_DB") # Ahora retorna todo el documento
+        return client.open("Trading_Journal_DB")
     except Exception as e:
         return None
 
 db_spreadsheet = conectar_google_sheets()
 
-# --- CONVIERTE IMAGEN A 100% CALIDAD PURA ---
 def convertir_img_base64(uploaded_file):
     return f"data:{uploaded_file.type};base64,{base64.b64encode(uploaded_file.getvalue()).decode()}"
 
@@ -52,14 +51,13 @@ def inicializar_settings():
         "note_lbl_size": 16, "note_val_size": 16
     }
 
-# ttl=600 significa que actualizará la base de datos automáticamente cada 600 segundos (10 minutos)
 @st.cache_resource(ttl=600)
 def get_global_db():
     db_temp = {}
     if db_spreadsheet:
         for hoja in db_spreadsheet.worksheets():
-            user = hoja.title
-            if user == "Sheet1": continue # Ignorar la hoja por defecto
+            user = str(hoja.title).strip()
+            if user.lower() in ["sheet1", "hoja 1", "hoja1"]: continue 
             
             db_temp[user] = {
                 "password": "123", 
@@ -70,58 +68,85 @@ def get_global_db():
             try:
                 filas = hoja.get_all_values()
                 if len(filas) > 1:
-                    headers = filas[0]
-                    first_row = dict(zip(headers, filas[1] + [''] * (len(headers) - len(filas[1]))))
-                    db_temp[user]["password"] = str(first_row.get('Password', '123'))
+                    # Limpiamos espacios en los headers
+                    headers = [str(h).strip() for h in filas[0]]
+                    
+                    # BÚSQUEDA INTELIGENTE DE CONTRASEÑA (Por si la primera fila está vacía)
+                    try: pass_idx = headers.index("Password")
+                    except: pass_idx = 1
+                    
+                    for r in filas[1:]:
+                        if len(r) > pass_idx and str(r[pass_idx]).strip():
+                            db_temp[user]["password"] = str(r[pass_idx]).strip()
+                            break
 
                     for row in filas[1:]:
-                        row_data = dict(zip(headers, row + [''] * (len(headers) - len(row))))
-                        
                         try:
-                            set_pc = json.loads(row_data.get('Settings_PC', '{}'))
-                            if set_pc: db_temp[user]["settings"]["PC"].update(set_pc)
-                            set_mov = json.loads(row_data.get('Settings_Movil', '{}'))
-                            if set_mov: db_temp[user]["settings"]["Móvil"].update(set_mov)
-                        except: pass
-                        
-                        cuenta = row_data.get('Cuenta', 'Account Real')
-                        f_str = row_data.get('Fecha', '')
-                        try:
-                            d_obj = datetime.strptime(f_str, "%d/%m/%Y")
-                            clave = (d_obj.year, d_obj.month, d_obj.day)
-                        except: continue
-
-                        trade_info = {
-                            "pnl": float(row_data.get('PnL', 0) or 0),
-                            "balance_final": float(row_data.get('Balance', 0) or 0),
-                            "fecha_str": f_str,
-                            "imagenes": [], 
-                            "bias": "NEUTRO", "Confluences": [], "razon_trade": "", "Corrections": "", "risk": "0.5%", "RR": "1:2", "trade_type": "A", "Emotions": ""
-                        }
-                        
-                        # Recuperar links de imágenes si están guardados
-                        img_col_str = row[6] if len(row) > 6 else ""
-                        if "http" in img_col_str:
-                            links_guardados = [u.strip() for u in img_col_str.split(",") if "http" in u]
-                            trade_info["imagenes"].extend(links_guardados)
-                        
-                        extra = row_data.get('ExtraData', '')
-                        if extra:
-                            try: trade_info.update(json.loads(extra))
-                            except: pass
-                        
-                        if clave not in db_temp[user]["data"][cuenta]["trades"]:
-                            db_temp[user]["data"][cuenta]["trades"][clave] = []
+                            # Emparejamos los datos asegurando que tengan la misma longitud que los headers
+                            row_data = dict(zip(headers, row + [''] * (len(headers) - len(row))))
                             
-                        db_temp[user]["data"][cuenta]["trades"][clave].append(trade_info)
-                        db_temp[user]["data"][cuenta]["balance"] = float(row_data.get('Balance', 0) or 0)
+                            # Evitamos que la app colapse si el JSON de settings está roto
+                            try:
+                                set_pc = json.loads(str(row_data.get('Settings_PC', '{}')).strip() or '{}')
+                                if set_pc: db_temp[user]["settings"]["PC"].update(set_pc)
+                                set_mov = json.loads(str(row_data.get('Settings_Movil', '{}')).strip() or '{}')
+                                if set_mov: db_temp[user]["settings"]["Móvil"].update(set_mov)
+                            except: pass
+                            
+                            cuenta = str(row_data.get('Cuenta', 'Account Real')).strip()
+                            if not cuenta: cuenta = 'Account Real'
+                            
+                            f_str = str(row_data.get('Fecha', '')).strip()
+                            if not f_str: continue # Ignorar filas sin fecha
+                            
+                            try:
+                                d_obj = datetime.strptime(f_str, "%d/%m/%Y")
+                                clave = (d_obj.year, d_obj.month, d_obj.day)
+                            except: continue
+
+                            # Convertidor robusto para números mal formateados
+                            def safe_float(val):
+                                try:
+                                    v = str(val).replace(',', '').replace('$', '').strip()
+                                    return float(v) if v else 0.0
+                                except: return 0.0
+
+                            trade_info = {
+                                "pnl": safe_float(row_data.get('PnL', 0)),
+                                "balance_final": safe_float(row_data.get('Balance', 0)),
+                                "fecha_str": f_str,
+                                "imagenes": [], 
+                                "bias": "NEUTRO", "Confluences": [], "razon_trade": "", "Corrections": "", "risk": "0.5%", "RR": "1:2", "trade_type": "A", "Emotions": ""
+                            }
+                            
+                            img_col_str = str(row_data.get('Imagenes', ''))
+                            if "http" in img_col_str:
+                                links_guardados = [u.strip() for u in img_col_str.split(",") if "http" in u]
+                                trade_info["imagenes"].extend(links_guardados)
+                            
+                            extra = str(row_data.get('ExtraData', ''))
+                            if extra:
+                                try: trade_info.update(json.loads(extra))
+                                except: pass
+                            
+                            if cuenta not in db_temp[user]["data"]:
+                                db_temp[user]["data"][cuenta] = {"balance": 25000.00, "trades": {}}
+                                
+                            if clave not in db_temp[user]["data"][cuenta]["trades"]:
+                                db_temp[user]["data"][cuenta]["trades"][clave] = []
+                                
+                            db_temp[user]["data"][cuenta]["trades"][clave].append(trade_info)
+                            
+                            # Actualizamos el balance global al último leído
+                            db_temp[user]["data"][cuenta]["balance"] = safe_float(row_data.get('Balance', 0))
+                        except Exception:
+                            pass
             except Exception:
                 pass
     return db_temp
 
 db_global = get_global_db()
 
-# --- FUNCIÓN CENTRAL DE GUARDADO AL EXCEL (HOJA INDIVIDUAL) ---
 def registrar_en_excel(usuario, password, cuenta, fecha_obj, balance, pnl, trade_data, settings_pc, settings_movil):
     if db_spreadsheet:
         try:
@@ -132,25 +157,22 @@ def registrar_en_excel(usuario, password, cuenta, fecha_obj, balance, pnl, trade
                 hoja_user.append_row(headers)
 
             fecha_texto = fecha_obj.strftime("%d/%m/%Y")
-            
             links = [img for img in trade_data.get("imagenes", []) if img.startswith("http")]
             num_fotos = len(trade_data.get("imagenes", []))
             
             if links:
                 imgs_texto = ", ".join(links)
             else:
-                imgs_texto = f"📸 Tiene {num_fotos} foto(s) en memoria" if num_fotos > 0 else ""
+                imgs_texto = f"📸 Tiene {num_fotos} foto(s)" if num_fotos > 0 else ""
             
             set_pc_str = json.dumps(settings_pc) if settings_pc else "{}"
             set_mov_str = json.dumps(settings_movil) if settings_movil else "{}"
-            
             extra_data = {k:v for k,v in trade_data.items() if k not in ['pnl', 'balance_final', 'fecha_str', 'imagenes']}
-            extra_str = json.dumps(extra_data)
-
+            
             safe_user = str(usuario).strip() if usuario else "Desconocido"
             safe_pass = str(password).strip() if password else "123"
 
-            nueva_fila = [safe_user, safe_pass, str(cuenta), fecha_texto, float(balance), float(pnl), imgs_texto, set_pc_str, set_mov_str, extra_str]
+            nueva_fila = [safe_user, safe_pass, str(cuenta), fecha_texto, float(balance), float(pnl), imgs_texto, set_pc_str, set_mov_str, json.dumps(extra_data)]
             hoja_user.append_row(nueva_fila)
         except Exception:
             pass
@@ -182,8 +204,7 @@ def reescribir_excel_usuario(usuario):
     except Exception:
         pass
 
-
-# --- RECUERDA LA SESIÓN Y DISPOSITIVO AL RECARGAR (F5) ---
+# --- RECUERDA LA SESIÓN Y DISPOSITIVO AL RECARGAR ---
 if "dispositivo_actual" not in st.session_state: st.session_state.dispositivo_actual = "PC"
 
 try:
@@ -194,7 +215,7 @@ try:
 except:
     pass
 
-# --- LOGIN (SIN TABS PARA EVITAR EL BUG DE STREAMLIT) ---
+# --- LOGIN ---
 if "usuario_actual" not in st.session_state:
     st.session_state.usuario_actual = None
 
@@ -340,6 +361,11 @@ def reset_settings(category):
 # ==========================================
 st.sidebar.markdown(f"<div style='margin-top:-15px;'>👤 My Account: {usuario}</div>", unsafe_allow_html=True)
 
+# BOTÓN DE SINCRONIZACIÓN FORZADA (CORTA EL CACHÉ Y OBLIGA A LEER EXCEL AL INSTANTE)
+if st.sidebar.button("🔄 Force Sync with Google Sheets", use_container_width=True):
+    get_global_db.clear()
+    st.rerun()
+
 dispositivo_visual = st.sidebar.radio("Current Design:", ["🖥️ PC", "📱 Móvil"], index=0 if "PC" in st.session_state.dispositivo_actual else 1)
 st.session_state.dispositivo_actual = "PC" if "🖥️ PC" in dispositivo_visual else "Móvil"
 try: st.query_params["device"] = st.session_state.dispositivo_actual
@@ -368,7 +394,7 @@ if st.session_state.confirm_clear:
     if c_yes.button("SÍ, BORRAR"):
         db_usuario[ctx_actual]["balance"] = 25000.00
         db_usuario[ctx_actual]["trades"] = {}
-        reescribir_excel_usuario(usuario) # Actualizamos la DB limpia
+        reescribir_excel_usuario(usuario)
         st.session_state.confirm_clear = False
         st.rerun()
     if c_no.button("CANCELAR"):
@@ -1120,7 +1146,6 @@ with col_mitad_1:
                                         db_usuario[ctx]["trades"][nueva_clave] = []
                                     db_usuario[ctx]["trades"][nueva_clave].append(trade_movido)
                                 
-                                # AQUÍ LLAMAMOS A LA SINCRONIZACIÓN AL EDITAR
                                 reescribir_excel_usuario(usuario)
                                 st.rerun()
 
@@ -1129,7 +1154,6 @@ with col_mitad_1:
                             db_usuario[ctx]["trades"][clave].pop(i)
                             if not db_usuario[ctx]["trades"][clave]:
                                 del db_usuario[ctx]["trades"][clave]
-                            # AQUÍ LLAMAMOS A LA SINCRONIZACIÓN AL BORRAR
                             reescribir_excel_usuario(usuario)
                             st.rerun()
 
@@ -1177,8 +1201,8 @@ with col_mitad_2:
 
             st.dataframe(
                 df_results.style.apply(style_rows, axis=1),
-                use_container_width=True,  # ESTO LO HACE MÁS ANCHO
-                height=800,                # ESTO LO HACE MÁS ALTO
+                use_container_width=True,
+                height=800,
                 hide_index=False, 
                 key=f"tabla_resultados_v6_{ctx}", 
                 column_config={
@@ -1187,7 +1211,7 @@ with col_mitad_2:
                     "Reason For Trade": st.column_config.Column(width="medium"),
                     " Confluences": st.column_config.Column(width="large"),
                     "Date": st.column_config.Column(width="small"),
-                    "     P&L": st.column_config.Column(width="small")
+                    "P&L": st.column_config.Column(width="small")
                 }
             )
 # ==========================================
