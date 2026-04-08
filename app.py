@@ -1106,7 +1106,6 @@ with col_mitad_2:
                         "Trade Type": trade.get('trade_type', ''),
                         "Emotions": trade.get('Emotions', ''),
                         "Corrections": trade.get('Corrections', ''),
-                        "P&L": f"{pnl_simbol}${pnl:,.2f}"
                     }
                     table_data.append(row)
             
