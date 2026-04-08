@@ -1122,17 +1122,12 @@ with col_mitad_2:
                 return row_styles
 
 # AQUÍ LA TABLA EN AUTOSIZE PERFECTO
+# EL TRUCO PARA EL AUTOSIZE REAL: use_container_width=False
             st.dataframe(
                 df_results.style.apply(style_rows, axis=1),
-                use_container_width=True, # Hace que la tabla ocupe todo el ancho disponible
-                hide_index=True, # Quita los números feos de la izquierda (0, 1, 2...)
-                key=f"tabla_resultados_v4_{ctx}", # v4 para que olvide cualquier ajuste viejo
-                column_config={
-                    # Si quieres ocultar alguna, ponle None. 
-                    # Si quieres que se vea, ¡simplemente BÓRRALA de esta lista y se pondrá en AutoSize sola!
-                    "Emotions": None, 
-                    "Corrections": None 
-                }
+                use_container_width=False, # <-- ¡ESTO ES LO QUE LO ARREGLA! Estaba en True.
+                hide_index=True, 
+                key=f"tabla_resultados_definitiva_{ctx}"
             )
 # ==========================================
 # SCRIPT PARA CERRAR MODALES CON ESCAPE
