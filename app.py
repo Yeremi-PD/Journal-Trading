@@ -155,7 +155,7 @@ try:
 except:
     pass
 
-# --- LOGIN (MODIFICADO SIN st.form PARA EVITAR EL BUG DE MISSING BUTTON AL REFRESCAR) ---
+# --- LOGIN (SIN TABS PARA EVITAR EL BUG DE STREAMLIT) ---
 if "usuario_actual" not in st.session_state:
     st.session_state.usuario_actual = None
 
@@ -760,7 +760,8 @@ with col_cal:
                                 has_notes = True
                                 confluences_str = ", ".join(t.get("Confluences", []))
                                 
-                                notas_html_contenido += f'<div style="margin-bottom: 15px;"><h4 style="color:#00C897; margin:0;">▶ Trade #{idx_t+1} (PnL: {t["pnl"]})</h4><b>Bias:</b> <span class="note-val">{t.get("bias", "NEUTRO")}</span><br><b>Confluences:</b> <span class="note-val">{confluences_str}</span><br><b>Reason For Trade:</b> <span class="note-val">{t.get("razon_trade", "")}</span><br><b>Corrections:</b> <span class="note-val">{t.get("Corrections", "")}</span><br><b>% Risk:</b> <span class="note-val">{t.get("risk", "")}</span><br><b>RR:</b> <span class="note-val">{t.get("RR", "")}</span><br><b>Trade Type:</b> <span class="note-val">{t.get("trade_type", "")}</span><br><b>Emotions:</b> <span class="note-val">{t.get("Emotions", "")}</span></div>'
+                                # AQUI ESTÁ EL ARREGLO DEL PNL CON DOS DECIMALES PARA EL MODAL DE NOTAS
+                                notas_html_contenido += f'<div style="margin-bottom: 15px;"><h4 style="color:#00C897; margin:0;">▶ Trade #{idx_t+1} (PnL: ${t["pnl"]:,.2f})</h4><b>Bias:</b> <span class="note-val">{t.get("bias", "NEUTRO")}</span><br><b>Confluences:</b> <span class="note-val">{confluences_str}</span><br><b>Reason For Trade:</b> <span class="note-val">{t.get("razon_trade", "")}</span><br><b>Corrections:</b> <span class="note-val">{t.get("Corrections", "")}</span><br><b>% Risk:</b> <span class="note-val">{t.get("risk", "")}</span><br><b>RR:</b> <span class="note-val">{t.get("RR", "")}</span><br><b>Trade Type:</b> <span class="note-val">{t.get("trade_type", "")}</span><br><b>Emotions:</b> <span class="note-val">{t.get("Emotions", "")}</span></div>'
                                 
                         if has_notes:
                             id_note_modal = f"mod_note_{anio_sel}_{mes_sel}_{dia}"
@@ -1119,7 +1120,6 @@ with col_mitad_2:
                 row_styles[row.index.get_loc('P&L')] = pnl_style
                 return row_styles
 
-            # AQUÍ ESTÁ EL AJUSTE PARA GUARDAR EL ORDEN DE LAS COLUMNAS AL REFRESCAR LA PÁGINA (parámetro key)
             st.dataframe(df_results.style.apply(style_rows, axis=1), use_container_width=True, key=f"tabla_resultados_{ctx}")
 
 # ==========================================
