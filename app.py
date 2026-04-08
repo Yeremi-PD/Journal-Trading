@@ -90,7 +90,7 @@ def get_global_db():
                         "pnl": float(row_data.get('PnL', 0) or 0),
                         "balance_final": float(row_data.get('Balance', 0) or 0),
                         "fecha_str": f_str,
-                        "imagenes": [], # No leemos imgs del Excel para que no colapse, se viven en memoria
+                        "imagenes": [], 
                         "bias": "NEUTRO", "Confluences": [], "razon_trade": "", "Corrections": "", "risk": "0.5%", "RR": "1:2", "trade_type": "", "Emotions": ""
                     }
                     
@@ -107,7 +107,7 @@ def get_global_db():
 
 db_global = get_global_db()
 
-# --- FUNCIÓN CENTRAL DE GUARDADO AL EXCEL (SOLO SE EJECUTA AL DAR CLICK EN BOTONES DE GUARDADO) ---
+# --- FUNCIÓN CENTRAL DE GUARDADO AL EXCEL ---
 def registrar_en_excel(usuario, password, cuenta, fecha_obj, balance, pnl, trade_data, settings_pc, settings_movil):
     if hoja_excel:
         try:
@@ -263,36 +263,6 @@ def cambiar_mes(delta):
     st.session_state.cal_month += delta
     if st.session_state.cal_month > 12: st.session_state.cal_month = 1; st.session_state.cal_year += 1
     elif st.session_state.cal_month < 1: st.session_state.cal_month = 12; st.session_state.cal_year -= 1
-
-def procesar_cambio():
-    ctx = st.session_state.data_source_sel 
-    nuevo = st.session_state.input_balance
-    viejo = db_usuario[ctx]["balance"]
-    fecha_sel = st.session_state.input_fecha 
-    
-    pnl = nuevo - viejo if nuevo != viejo else 0.0
-    clave = (fecha_sel.year, fecha_sel.month, fecha_sel.day)
-    old_trade = db_usuario[ctx]["trades"].get(clave, {})
-    
-    db_usuario[ctx]["trades"][clave] = {
-        "pnl": pnl if nuevo != viejo else old_trade.get("pnl", 0.0),
-        "balance_final": nuevo,
-        "fecha_str": fecha_sel.strftime("%d/%m/%Y"),
-        "imagenes": old_trade.get("imagenes", []),
-        "bias": old_trade.get("bias", "NEUTRO"),
-        "Confluences": old_trade.get("Confluences", []),
-        "razon_trade": old_trade.get("razon_trade", ""),
-        "Corrections": old_trade.get("Corrections", ""),
-        "risk": old_trade.get("risk", "0.5%"),
-        "RR": old_trade.get("RR", "1:2"),
-        "trade_type": old_trade.get("trade_type", ""),
-        "Emotions": old_trade.get("Emotions", "")
-    }
-    db_usuario[ctx]["balance"] = nuevo
-    
-    # EL ÚNICO LUGAR DONDE SE AUTOGUARDA AL EXCEL DE LA PANTALLA PRINCIPAL
-    registrar_en_excel(usuario, db_global[usuario]["password"], ctx, fecha_sel, nuevo, db_usuario[ctx]["trades"][clave]["pnl"], db_usuario[ctx]["trades"][clave], db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
-    st.success("✅ Datos guardados de forma segura en Google Sheets")
 
 def reset_settings(category):
     defaults = inicializar_settings()
@@ -500,9 +470,10 @@ st.markdown(f"""
     div[data-testid="stPopoverBody"] {{ background-color: {card_bg} !important; border: 1px solid {border_color} !important; border-radius: 8px !important; padding: 15px !important; }}
     div[data-testid="stPopoverBody"]:has(h3) {{ width: 710px !important; max-width: 95vw !important; max-height: 85vh !important; margin-top: 100px !important; overflow-y: auto !important; box-shadow: 0 4px 20px rgba(0,0,0,0.3) !important; }}
 
-    /* ESTILOS NUEVOS PARA AGRANDAR LAS LETRAS DE TRADE DETAILS */
-    div[data-testid="stPopoverBody"] div[data-testid="stButton"] button p {{ font-size: 18px !important; font-weight: 700 !important; }}
-    div[data-testid="stPopoverBody"] textarea {{ font-size: 16px !important; }}
+    /* ESTILOS PARA AGRANDAR MUCHO LAS LETRAS EN TRADE DETAILS */
+    div[data-testid="stPopoverBody"] label { font-size: 20px !important; font-weight: 800 !important; }
+    div[data-testid="stPopoverBody"] p, div[data-testid="stPopoverBody"] span, div[data-testid="stPopoverBody"] div { font-size: 18px !important; }
+    div[data-testid="stPopoverBody"] .stTextArea textarea, div[data-testid="stPopoverBody"] input { font-size: 18px !important; }
 
     .calendar-wrapper {{ background: {card_bg} !important; padding: 10px !important; border-radius: 15px !important; border: 1px solid {border_color} !important; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1) !important; }}
     .txt-dias-sem {{ font-size: {TXT_DIAS_SEM_SIZE}px !important; font-weight: bold !important; color: {c_dias_sem} !important; text-align: center !important; }}
@@ -526,9 +497,9 @@ st.markdown(f"""
 
     .modal-toggle:checked ~ .fs-modal {{ display: flex !important; }}
     
-    /* MODAL PANTALLA COMPLETA REDUCIDA (20% MÁS PEQUEÑA Y 100% NÍTIDA) */
+    /* MODAL PANTALLA COMPLETA 100% NÍTIDA (CALIDAD MÁXIMA) Y REDUCIDA */
     .fs-modal {{ display: none; position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; background: rgba(0,0,0,0.98) !important; z-index: 9999999 !important; flex-direction: column !important; align-items: center !important; justify-content: center !important; padding: 0 !important; margin: 0 !important; }}
-    .fs-modal img {{ width: 80vw !important; height: 80vh !important; max-width: 80vw !important; max-height: 80vh !important; margin: auto !important; box-shadow: 0px 10px 30px rgba(0,0,0,0.5) !important; border-radius: 10px !important; object-fit: contain !important; image-rendering: high-quality !important; }}
+    .fs-modal img {{ width: 80vw !important; height: 80vh !important; max-width: 80vw !important; max-height: 80vh !important; margin: auto !important; box-shadow: 0px 10px 30px rgba(0,0,0,0.5) !important; border-radius: 10px !important; object-fit: contain !important; image-rendering: high-quality !important; image-rendering: crisp-edges !important; }}
     .close-btn {{ position: absolute !important; top: 15px !important; right: 25px !important; font-size: 20px !important; background-color: #FF4C4C !important; color: white !important; padding: 8px 15px !important; border-radius: 8px !important; cursor: pointer !important; z-index: 10000000 !important; font-weight: bold !important; }}
 
     .card-pnl {{ width: {CARD_PNL_W} !important; height: {CARD_PNL_H} !important; transform: translate({CARD_PNL_X}px, {CARD_PNL_Y}px) !important; }}
@@ -584,108 +555,90 @@ with col_bal:
 
 st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
 
-# --- LAS FUNCIONES COLORFUL_MENU Y COLORFUL_MULTISELECT FUERON ELIMINADAS PARA EVITAR EL PARPADEO EXTREMO ---
-
-def agregar_imagenes_main(contexto, llave, widget_id, counter_id, bal_act, f_str):
-    archivos_nuevos = st.session_state.get(widget_id)
-    if archivos_nuevos:
-        if llave not in db_usuario[contexto]["trades"]:
-            db_usuario[contexto]["trades"][llave] = {
-                "pnl": 0.0, "balance_final": bal_act, "fecha_str": f_str, "imagenes": [],
-                "bias": "NEUTRO", "Confluences": [], "razon_trade": "", "Corrections": "", "risk": "0.5%", "RR": "1:2", "trade_type": "A", "Emotions": ""
-            }
-        for img in archivos_nuevos:
-            b64_pura = convertir_img_base64(img)
-            db_usuario[contexto]["trades"][llave]["imagenes"].append(b64_pura)
-        st.session_state[counter_id] += 1
 
 # ==========================================
-# 9. ENTRADA AUTOMÁTICA E IMÁGENES + BOTÓN DE NOTAS (SIN PARPADEOS)
+# 9. ENTRADA AUTOMÁTICA E IMÁGENES + NOTAS (TODO EN UN SOLO FORMULARIO - CERO PARPADEOS)
 # ==========================================
-c1, c2, c_img, c_not, c_espacio = st.columns([1.5, 0.5, 2.5, 0.6, 3.4]) 
-
-with c1:
-    st.markdown(f'<div class="lbl-input">{LBL_INPUT}</div>', unsafe_allow_html=True)
-    with st.form("form_balance", border=False):
-        st.number_input("Balance", value=bal_actual, format="%.2f", key="input_balance", label_visibility="collapsed")
-        guardar_btn = st.form_submit_button("SAVE")
-        if guardar_btn:
-            procesar_cambio()
-            st.rerun()
-
-with c2:
-    st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True) 
-    with st.popover(BTN_CAL_EMOJI):
-        st.date_input("Fecha oculta", value=hoy, key="input_fecha", label_visibility="collapsed")
-
-fecha_str_actual = st.session_state.input_fecha.strftime("%d/%m/%Y")
-clave_actual = (st.session_state.input_fecha.year, st.session_state.input_fecha.month, st.session_state.input_fecha.day)
-
-with c_img:
-    st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True) 
-    counter_main_key = f"upd_main_counter_{clave_actual}"
-    if counter_main_key not in st.session_state:
-        st.session_state[counter_main_key] = 0
-    upd_main_key = f"up_main_{clave_actual}_{st.session_state[counter_main_key]}"
-    st.file_uploader(
-        "", 
-        accept_multiple_files=True, 
-        label_visibility="collapsed", 
-        key=upd_main_key,
-        on_change=agregar_imagenes_main,
-        args=(ctx, clave_actual, upd_main_key, counter_main_key, bal_actual, fecha_str_actual)
-    )
-
-with c_not:
-    st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True) 
-    with st.popover("📝"):
-        st.markdown("<h3 style='text-align:center; margin-top:0;'>Trade Details</h3>", unsafe_allow_html=True)
-        if clave_actual not in db_usuario[ctx]["trades"]:
-            st.info("Agrega un cambio de balance o una imagen primero para activar las notas en este día.")
-        else:
-            trade_data_ref = db_usuario[ctx]["trades"][clave_actual]
+# Aquí TODO está agrupado. Nada de esto interactúa con Excel ni parpadea la app hasta presionar el SAVE.
+with st.form("form_main_entry", border=False):
+    c1, c2, c_img, c_not, c_espacio = st.columns([1.5, 0.5, 2.5, 0.6, 3.4]) 
+    
+    with c1:
+        st.markdown(f'<div class="lbl-input">{LBL_INPUT}</div>', unsafe_allow_html=True)
+        nuevo_bal = st.number_input("Balance", value=bal_actual, format="%.2f", label_visibility="collapsed")
+        # ESTE ES EL ÚNICO BOTÓN QUE GUARDA Y EJECUTA ACCIONES REALES
+        btn_save = st.form_submit_button("SAVE")
+        
+    with c2:
+        st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True) 
+        with st.popover(BTN_CAL_EMOJI):
+            fecha_sel = st.date_input("Fecha oculta", value=hoy, label_visibility="collapsed")
             
-            # --- FORMULARIO OPTIMIZADO PARA NO PARPADEAR ---
-            with st.form(key=f"form_notas_{clave_actual}", border=False):
-                
-                nuevo_bias = st.radio("Bias", ['ALCISTA', 'BAJISTA', 'NEUTRO'], 
-                                      index=['ALCISTA', 'BAJISTA', 'NEUTRO'].index(trade_data_ref.get('bias', 'NEUTRO')), 
-                                      horizontal=True)
-                
-                nuevo_conf = st.multiselect("Confluences", 
-                                            ['BIAS Claro', 'Liq Sweep', 'IFVG', 'FVG', 'EQH / EQL', 'BSL / SSL', 'POI', 'SMT', 'Order Block', 'PDH / PDL', 'Continuación', 'Data High / Data Low', 'CISD'], 
-                                            default=trade_data_ref.get('Confluences', []))
-                
-                nuevo_razon = st.text_area("Reason For Trade", value=trade_data_ref.get('razon_trade', ''), height=80)
-                
-                nuevo_corr = st.text_area("Corrections", value=trade_data_ref.get('Corrections', ''), height=80)
-                
-                risk_opts = ['0.6%', '0.5%', '0.4%']
-                risk_idx = risk_opts.index(trade_data_ref.get('risk', '0.5%')) if trade_data_ref.get('risk', '0.5%') in risk_opts else 1
-                nuevo_risk = st.radio("% Risk", risk_opts, index=risk_idx, horizontal=True)
-                
-                rr_opts = ['1:1', '1:1.5', '1:2', '1:3', '1:4']
-                rr_idx = rr_opts.index(trade_data_ref.get('RR', '1:2')) if trade_data_ref.get('RR', '1:2') in rr_opts else 2
-                nuevo_rr = st.selectbox("RR", rr_opts, index=rr_idx)
-                
-                tt_opts = ['A+', 'A', 'B', 'C']
-                tt_idx = tt_opts.index(trade_data_ref.get('trade_type', 'A+')) if trade_data_ref.get('trade_type', 'A+') in tt_opts else 0
-                nuevo_tt = st.radio("Trade Type", tt_opts, index=tt_idx, horizontal=True)
-                
-                nuevo_emo = st.text_area("Emotions", value=trade_data_ref.get('Emotions', ''), height=80)
+    with c_img:
+        st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True) 
+        # Ya no hay on_change, la foto no sube hasta presionar SAVE
+        imgs_subidas = st.file_uploader("", accept_multiple_files=True, label_visibility="collapsed")
+        
+    with c_not:
+        st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True) 
+        with st.popover("📝"):
+            st.markdown("<h3 style='text-align:center; margin-top:0;'>Trade Details</h3>", unsafe_allow_html=True)
+            
+            # Buscamos si ya hay un trade para HOY y usarlo de placeholder predeterminado
+            clave_actual = (hoy.year, hoy.month, hoy.day)
+            t_ref = db_usuario[ctx]["trades"].get(clave_actual, {})
+            
+            nuevo_bias = st.radio("Bias", ['ALCISTA', 'BAJISTA', 'NEUTRO'], index=['ALCISTA', 'BAJISTA', 'NEUTRO'].index(t_ref.get('bias', 'NEUTRO')), horizontal=True)
+            nuevo_conf = st.multiselect("Confluences", ['BIAS Claro', 'Liq Sweep', 'IFVG', 'FVG', 'EQH / EQL', 'BSL / SSL', 'POI', 'SMT', 'Order Block', 'PDH / PDL', 'Continuación', 'Data High / Data Low', 'CISD'], default=t_ref.get('Confluences', []))
+            nuevo_razon = st.text_area("Reason For Trade", value=t_ref.get('razon_trade', ''), height=80)
+            nuevo_corr = st.text_area("Corrections", value=t_ref.get('Corrections', ''), height=80)
+            
+            risk_opts = ['0.6%', '0.5%', '0.4%']
+            nuevo_risk = st.radio("% Risk", risk_opts, index=risk_opts.index(t_ref.get('risk', '0.5%')) if t_ref.get('risk', '0.5%') in risk_opts else 1, horizontal=True)
+            
+            rr_opts = ['1:1', '1:1.5', '1:2', '1:3', '1:4']
+            nuevo_rr = st.selectbox("RR", rr_opts, index=rr_opts.index(t_ref.get('RR', '1:2')) if t_ref.get('RR', '1:2') in rr_opts else 2)
+            
+            tt_opts = ['A+', 'A', 'B', 'C']
+            nuevo_tt = st.radio("Trade Type", tt_opts, index=tt_opts.index(t_ref.get('trade_type', 'A+')) if t_ref.get('trade_type', 'A+') in tt_opts else 0, horizontal=True)
+            
+            nuevo_emo = st.text_area("Emotions", value=t_ref.get('Emotions', ''), height=80)
 
-                # ESTE BOTÓN ES EL ÚNICO QUE GUARDA EN MEMORIA
-                if st.form_submit_button("💾 Save All Details", use_container_width=True):
-                    trade_data_ref['bias'] = nuevo_bias
-                    trade_data_ref['Confluences'] = nuevo_conf
-                    trade_data_ref['razon_trade'] = nuevo_razon
-                    trade_data_ref['Corrections'] = nuevo_corr
-                    trade_data_ref['risk'] = nuevo_risk
-                    trade_data_ref['RR'] = nuevo_rr
-                    trade_data_ref['trade_type'] = nuevo_tt
-                    trade_data_ref['Emotions'] = nuevo_emo
-                    st.success("✅ Detalles guardados correctamente en memoria. Para asegurar en la nube, presiona el SAVE del balance.")
-                    st.rerun()
+    # Lógica que se dispara SOLAMENTE al apretar SAVE
+    if btn_save:
+        viejo = db_usuario[ctx]["balance"]
+        pnl = nuevo_bal - viejo if nuevo_bal != viejo else 0.0
+        clave_final = (fecha_sel.year, fecha_sel.month, fecha_sel.day)
+        old_trade = db_usuario[ctx]["trades"].get(clave_final, {})
+        
+        # Procesar las fotos solmanete ahora
+        imgs_finales = old_trade.get("imagenes", []).copy()
+        if imgs_subidas:
+            for img in imgs_subidas:
+                imgs_finales.append(convertir_img_base64(img))
+        
+        # Actualizar diccionario interno
+        db_usuario[ctx]["trades"][clave_final] = {
+            "pnl": pnl if nuevo_bal != viejo else old_trade.get("pnl", 0.0),
+            "balance_final": nuevo_bal,
+            "fecha_str": fecha_sel.strftime("%d/%m/%Y"),
+            "imagenes": imgs_finales,
+            "bias": nuevo_bias,
+            "Confluences": nuevo_conf,
+            "razon_trade": nuevo_razon,
+            "Corrections": nuevo_corr,
+            "risk": nuevo_risk,
+            "RR": nuevo_rr,
+            "trade_type": nuevo_tt,
+            "Emotions": nuevo_emo
+        }
+        db_usuario[ctx]["balance"] = nuevo_bal
+        
+        # Autoguardado al excel
+        registrar_en_excel(usuario, db_global[usuario]["password"], ctx, fecha_sel, nuevo_bal, db_usuario[ctx]["trades"][clave_final]["pnl"], db_usuario[ctx]["trades"][clave_final], db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
+        
+        st.success("✅ ¡Datos guardados de forma segura!")
+        st.rerun()
 
 # ==========================================
 # 10. CALENDARIO Y RESUMEN
@@ -1006,7 +959,7 @@ with st.expander("🛠️ OPEN ORDER HISTORY", expanded=False):
                     accept_multiple_files=True, 
                     key=upd_key, 
                     on_change=agregar_imagenes_historial, 
-                    args=(ctx, clave, upd_key, counter_main_key)
+                    args=(ctx, clave, upd_key, counter_key)
                 )
 
                 imagenes_restantes = db_usuario[ctx]["trades"][clave].get("imagenes", [])
