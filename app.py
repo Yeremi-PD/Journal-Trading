@@ -433,7 +433,7 @@ if st.session_state.confirm_clear:
         st.rerun()
         
 st.sidebar.markdown("---")
-st.sidebar.markdown("### ⚙️ Basic Settings")
+st.sidebar.markdown("### 🛡️ Admin")
 with st.sidebar.expander("🛡️ Admin Settings"):
     admin_pass = st.text_input("Admin Password", type="password")
     
