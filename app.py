@@ -94,6 +94,12 @@ def get_global_db():
                         "bias": "NEUTRO", "Confluences": [], "razon_trade": "", "Corrections": "", "risk": "0.5%", "RR": "1:2", "trade_type": "A", "Emotions": ""
                     }
                     
+                    # Recuperar links de imágenes si están guardados en la columna G (índice 6)
+                    img_col_str = row[6] if len(row) > 6 else ""
+                    if "http" in img_col_str:
+                        links_guardados = [u.strip() for u in img_col_str.split(",") if "http" in u]
+                        trade_info["imagenes"].extend(links_guardados)
+                    
                     extra = row_data.get('ExtraData', '')
                     if extra:
                         try: trade_info.update(json.loads(extra))
@@ -115,8 +121,15 @@ def registrar_en_excel(usuario, password, cuenta, fecha_obj, balance, pnl, trade
     if hoja_excel:
         try:
             fecha_texto = fecha_obj.strftime("%d/%m/%Y")
+            
+            # Detectar si hay enlaces URLs guardados para la columna de Imágenes (Columna G)
+            links = [img for img in trade_data.get("imagenes", []) if img.startswith("http")]
             num_fotos = len(trade_data.get("imagenes", []))
-            imgs_texto = f"📸 Tiene {num_fotos} foto(s) en memoria" if num_fotos > 0 else ""
+            
+            if links:
+                imgs_texto = ", ".join(links)
+            else:
+                imgs_texto = f"📸 Tiene {num_fotos} foto(s) en memoria" if num_fotos > 0 else ""
             
             set_pc_str = json.dumps(settings_pc) if settings_pc else "{}"
             set_mov_str = json.dumps(settings_movil) if settings_movil else "{}"
@@ -222,6 +235,12 @@ DROPZONE_BG_C, DROPZONE_BG_O = "transparent", "transparent"
 DROPZONE_BORDER_C, DROPZONE_BORDER_O = "1px dashed #E2E8F0", "1px dashed #4A5568"
 BTN_UP_TEXTO, BTN_UP_SIZE, BTN_UP_W, BTN_UP_H = "Upload", "20px", "120px", "45px"
 BTN_UP_BG_C, BTN_UP_BG_O, BTN_UP_TXT_C, BTN_UP_TXT_O = "#E2E8F0", "#4A5568", "#000000", "#FFFFFF"
+
+# ====== NUEVAS VARIABLES PARA EL CUADRO DE LINK DE IMAGEN ======
+LBL_LINK, LBL_LINK_SIZE, LBL_LINK_X, LBL_LINK_Y = "Image URL:", 15, 0, 10
+LINK_IMG_W, LINK_IMG_H, LINK_IMG_X, LINK_IMG_Y, LINK_IMG_TXT_SIZE = "100%", "45px", 0, 0, 15
+# ===============================================================
+
 BTN_CAL_EMOJI, BTN_CAL_W, BTN_CAL_H, BTN_CAL_ICON_SIZE, BTN_CAL_BG_C, BTN_CAL_BG_O = "🗓️", 80, 68, 33, "#F3F4F6", "#2D3748"
 FLECHAS_SIZE, FLECHAS_X, FLECHAS_Y = 40, 0, 0
 TXT_MES_COLOR_C, TXT_MES_COLOR_O, TXT_DIAS_SEM_SIZE, TXT_DIAS_SEM_COLOR_C, TXT_DIAS_SEM_COLOR_O = "#000000", "#FFFFFF", 15, "#000000", "#FFFFFF"
@@ -444,6 +463,11 @@ st.markdown(f"""
     .lbl-data {{ font-size: {LBL_DATA_SIZE}px !important; color: {c_data} !important; font-weight: 700 !important; transform: translate({LBL_DATA_X}px, {LBL_DATA_Y}px) !important; margin-bottom: 5px !important; }}
     .lbl-input {{ font-size: {LBL_INPUT_SIZE}px !important; color: {c_lbl_in} !important; font-weight: 700 !important; transform: translate({LBL_INPUT_X}px, {LBL_INPUT_Y}px) !important; margin-bottom: 5px !important; }}
     
+    /* ESTILOS DEL LINK DE IMAGEN */
+    .lbl-link {{ font-size: {LBL_LINK_SIZE}px !important; color: {c_dash} !important; font-weight: 700 !important; transform: translate({LBL_LINK_X}px, {LBL_LINK_Y}px) !important; margin-bottom: 5px !important; display: block !important; }}
+    div[data-testid="stTextInput"]:has(input[aria-label="Link"]) {{ width: {LINK_IMG_W} !important; min-width: {LINK_IMG_W} !important; transform: translate({LINK_IMG_X}px, {LINK_IMG_Y}px) !important; }}
+    input[aria-label="Link"] {{ height: {LINK_IMG_H} !important; font-size: {LINK_IMG_TXT_SIZE}px !important; }}
+
     .balance-box {{ background: #00C897 !important; color: white !important; padding: var(--bal-box-pad) 0px !important; border-radius: 80px !important; text-align: center !important; font-weight: 700 !important; font-size: var(--bal-num-sz) !important; width: var(--bal-box-w) !important; margin: 0 auto !important; transform: translate({BALANCE_BOX_X}px, {BALANCE_BOX_Y}px) !important; }}
     .thin-line {{ border-bottom: {LINEA_GROSOR}px solid {c_linea} !important; margin: {LINEA_MARGEN_SUP}px 0px {LINEA_MARGEN_INF}px 0px !important; width: {LINEA_ANCHO}% !important; transform: translateX({LINEA_X}px) !important; }}
 
@@ -582,6 +606,8 @@ with st.form(key=f"form_main_entry_{st.session_state.form_reset_key}", border=Fa
     with c_img:
         st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True) 
         imgs_subidas = st.file_uploader("", accept_multiple_files=True, label_visibility="collapsed")
+        st.markdown(f'<div class="lbl-link">{LBL_LINK}</div>', unsafe_allow_html=True)
+        link_imagen = st.text_input("Link", value="", label_visibility="collapsed", placeholder="https://www.tradingview.com/x/...")
         
     with c_not:
         st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True) 
@@ -613,6 +639,10 @@ with st.form(key=f"form_main_entry_{st.session_state.form_reset_key}", border=Fa
         if imgs_subidas:
             for img in imgs_subidas:
                 imgs_finales.append(convertir_img_base64(img))
+        
+        # Guardar el link tal cual si se proporcionó uno
+        if link_imagen.strip().startswith("http"):
+            imgs_finales.append(link_imagen.strip())
         
         trade_nuevo = {
             "pnl": pnl,
@@ -737,7 +767,6 @@ with col_cal:
                                 has_notes = True
                                 confluences_str = ", ".join(t.get("Confluences", []))
                                 
-                                # CÓDIGO HTML ARREGLADO (En una sola línea para evitar problemas con Markdown)
                                 notas_html_contenido += f'<div style="margin-bottom: 15px;"><h4 style="color:#00C897; margin:0;">▶ Trade #{idx_t+1} (PnL: {t["pnl"]})</h4><b>Bias:</b> <span class="note-val">{t.get("bias", "NEUTRO")}</span><br><b>Confluences:</b> <span class="note-val">{confluences_str}</span><br><b>Reason For Trade:</b> <span class="note-val">{t.get("razon_trade", "")}</span><br><b>Corrections:</b> <span class="note-val">{t.get("Corrections", "")}</span><br><b>% Risk:</b> <span class="note-val">{t.get("risk", "")}</span><br><b>RR:</b> <span class="note-val">{t.get("RR", "")}</span><br><b>Trade Type:</b> <span class="note-val">{t.get("trade_type", "")}</span><br><b>Emotions:</b> <span class="note-val">{t.get("Emotions", "")}</span></div>'
                                 
                         if has_notes:
