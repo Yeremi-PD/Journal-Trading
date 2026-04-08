@@ -37,6 +37,7 @@ hoja_excel, drive_service = conectar_servicios()
 
 def subir_a_google_drive(archivo_streamlit):
     if not drive_service:
+        st.error("🚨 Error: Servicio de Google Drive no está conectado.")
         return None
     try:
         file_metadata = {
@@ -51,6 +52,7 @@ def subir_a_google_drive(archivo_streamlit):
         drive_service.permissions().create(fileId=file_id, body={'type': 'anyone', 'role': 'reader'}).execute()
         return f"https://drive.google.com/uc?id={file_id}"
     except Exception as e:
+        st.error(f"🚨 Error Drive: Asegúrate de darle permiso de 'Editor' a la carpeta al correo robot. Detalle: {e}")
         return None
 
 def inicializar_data_usuario():
@@ -82,7 +84,7 @@ def get_global_db():
                 for row in filas[1:]:
                     row_data = dict(zip(headers, row + [''] * (len(headers) - len(row))))
                     user = str(row_data.get('Usuario', '')).strip()
-                    if not user: continue  # IGNORA FILAS SIN USUARIO
+                    if not user: continue
                     
                     if user not in db_temp:
                         db_temp[user] = {
@@ -91,7 +93,6 @@ def get_global_db():
                             "settings": {"PC": inicializar_settings(), "Móvil": inicializar_settings()}
                         }
                     
-                    # Cargar Settings si existen en la fila
                     try:
                         set_pc = json.loads(row_data.get('Settings_PC', '{}'))
                         if set_pc: db_temp[user]["settings"]["PC"].update(set_pc)
@@ -138,7 +139,7 @@ def registrar_en_excel(usuario, password, cuenta, fecha_obj, balance, pnl, trade
             fecha_texto = fecha_obj.strftime("%d/%m/%Y")
             lista_imgs = trade_data.get("imagenes", [])
             imgs_texto = "|".join(lista_imgs) if lista_imgs else ""
-            if len(imgs_texto) > 45000: imgs_texto = "IMAGEN_MUY_GRANDE"
+            if len(imgs_texto) > 45000: imgs_texto = "IMAGEN_MUY_GRANDE_NO_GUARDADA_EN_EXCEL"
             
             set_pc_str = json.dumps(settings_pc) if settings_pc else "{}"
             set_mov_str = json.dumps(settings_movil) if settings_movil else "{}"
@@ -154,7 +155,7 @@ def registrar_en_excel(usuario, password, cuenta, fecha_obj, balance, pnl, trade
         except Exception:
             pass
 
-# --- LOGIN MEJORADO (UN SOLO CLIC CON FORMULARIO) ---
+# --- LOGIN (Directo, sin formulario complejo) ---
 if "usuario_actual" not in st.session_state:
     st.session_state.usuario_actual = None
 
@@ -169,218 +170,101 @@ if st.session_state.usuario_actual is None or st.session_state.usuario_actual no
         tab1, tab2 = st.tabs(["Entrar", "Registrarse"])
         
         with tab1:
-            with st.form("login_form"):
-                log_user = st.text_input("Usuario")
-                log_pass = st.text_input("Contraseña", type="password")
-                submit_login = st.form_submit_button("Acceder", use_container_width=True)
-                
-                if submit_login:
-                    if not log_user.strip():
-                        st.error("⚠️ El campo Usuario no puede estar vacío.")
-                    else:
-                        if log_user not in db_global:
-                            db_global[log_user] = {
-                                "password": log_pass,
-                                "data": inicializar_data_usuario(),
-                                "settings": {"PC": inicializar_settings(), "Móvil": inicializar_settings()}
-                            }
-                        
-                        if db_global[log_user]["password"] == log_pass:
-                            st.session_state.usuario_actual = log_user
-                            st.rerun()
-                        else:
-                            st.error("Usuario o contraseña incorrectos.")
-                    
-        with tab2:
-            with st.form("register_form"):
-                reg_user = st.text_input("Nuevo Usuario")
-                reg_pass = st.text_input("Nueva Contraseña", type="password")
-                submit_register = st.form_submit_button("Crear Cuenta", use_container_width=True)
-                
-                if submit_register:
-                    if not reg_user.strip():
-                        st.error("⚠️ Debes escribir un nombre de Usuario válido.")
-                    elif reg_user in db_global:
-                        st.warning("El usuario ya existe.")
-                    elif len(reg_user) > 0 and len(reg_pass) > 0:
-                        db_global[reg_user] = {
-                            "password": reg_pass,
+            log_user = st.text_input("Usuario", key="l_user")
+            log_pass = st.text_input("Contraseña", type="password", key="l_pass")
+            if st.button("Acceder", use_container_width=True):
+                if not log_user.strip():
+                    st.error("⚠️ El campo Usuario no puede estar vacío.")
+                else:
+                    if log_user not in db_global:
+                        db_global[log_user] = {
+                            "password": log_pass,
                             "data": inicializar_data_usuario(),
                             "settings": {"PC": inicializar_settings(), "Móvil": inicializar_settings()}
                         }
-                        registrar_en_excel(reg_user, reg_pass, "Account Real", datetime.now(), 25000.0, 0.0, {}, db_global[reg_user]["settings"]["PC"], db_global[reg_user]["settings"]["Móvil"])
-                        st.success("Cuenta creada con éxito. Ya puedes iniciar sesión.")
+                    
+                    if db_global[log_user]["password"] == log_pass:
+                        st.session_state.usuario_actual = log_user
+                        st.rerun()
                     else:
-                        st.warning("Completa todos los campos.")
+                        st.error("Usuario o contraseña incorrectos.")
+                    
+        with tab2:
+            reg_user = st.text_input("Nuevo Usuario", key="r_user")
+            reg_pass = st.text_input("Nueva Contraseña", type="password", key="r_pass")
+            if st.button("Crear Cuenta", use_container_width=True):
+                if not reg_user.strip():
+                    st.error("⚠️ Debes escribir un nombre de Usuario válido.")
+                elif reg_user in db_global:
+                    st.warning("El usuario ya existe.")
+                elif len(reg_user) > 0 and len(reg_pass) > 0:
+                    db_global[reg_user] = {
+                        "password": reg_pass,
+                        "data": inicializar_data_usuario(),
+                        "settings": {"PC": inicializar_settings(), "Móvil": inicializar_settings()}
+                    }
+                    registrar_en_excel(reg_user, reg_pass, "Account Real", datetime.now(), 25000.0, 0.0, {}, db_global[reg_user]["settings"]["PC"], db_global[reg_user]["settings"]["Móvil"])
+                    st.success("Cuenta creada con éxito. Ya puedes iniciar sesión.")
+                else:
+                    st.warning("Completa todos los campos.")
     st.stop()
 
 # ==========================================
 # 3. SECCIÓN DE AJUSTES MANUALES (CONSTANTES)
 # ==========================================
-
 TEMA_POR_DEFECTO = "Oscuro"
-
-TXT_DASHBOARD = "Dashboard"
-TXT_DASH_SIZE = 60
-TXT_DASH_X = 20        
-TXT_DASH_Y = -20        
-TXT_DASH_COLOR_C = "#000000"
-TXT_DASH_COLOR_O = "#FFFFFF"
-
-LBL_FILTROS = "Filters"
-LBL_FILTROS_SIZE = 20           
-LBL_FILTROS_X = 0
-LBL_FILTROS_Y = 0
-LBL_FILTROS_COLOR_C = "#000000"
-LBL_FILTROS_COLOR_O = "#FFFFFF"
-
-OPT_FILTRO_1 = "All"
-OPT_FILTRO_2 = "Take Profit"
-OPT_FILTRO_3 = "Stop Loss"
-OPT_FILTROS_SIZE = 15  
-OPT_FILTROS_COLOR_C = "#000000"  
-OPT_FILTROS_COLOR_O = "#FFFFFF"  
-
-LBL_DATA = "Data Source"
-LBL_DATA_SIZE = 20              
-LBL_DATA_X = 0
-LBL_DATA_Y = 0
-LBL_DATA_COLOR_C = "#000000"
-LBL_DATA_COLOR_O = "#FFFFFF"
-
-OPT_DATA_1 = "Account Real"
-OPT_DATA_2 = "Account Demo"
-OPT_DATA_SIZE = 14    
-OPT_DATA_COLOR_C = "#000000"     
-OPT_DATA_COLOR_O = "#FFFFFF"     
-
-LBL_INPUT = "Balance:"
-LBL_INPUT_SIZE = 20             
-LBL_INPUT_X = 0
-LBL_INPUT_Y = 0
-LBL_INPUT_COLOR_C = "#000000"
-LBL_INPUT_COLOR_O = "#FFFFFF"
-
-INPUT_BAL_W = "200px"         
-INPUT_BAL_H = "60px"          
-INPUT_BAL_X = 0      
-INPUT_BAL_Y = 0      
-INPUT_BAL_TXT_SIZE = 25       
-INPUT_FONDO_C = "#FFFFFF"
-INPUT_FONDO_O = "#1A202C"
-
-LBL_BAL_TOTAL = "ACCOUNT BALANCE"
-LBL_BAL_TOTAL_SIZE = 18
-LBL_BAL_TOTAL_X = 0
-LBL_BAL_TOTAL_Y = 0
-LBL_BAL_TOTAL_COLOR_C = "#000000"
-LBL_BAL_TOTAL_COLOR_O = "#FFFFFF"
-
-BALANCE_BOX_X = 0     
-BALANCE_BOX_Y = 0     
-
-LINEA_GROSOR = 1.5             
-LINEA_ANCHO = 100              
-LINEA_X = 0                    
-LINEA_MARGEN_SUP = 10          
-LINEA_MARGEN_INF = 25          
-LINEA_COLOR_C = "#E2E8F0"
-LINEA_COLOR_O = "#4A5568"
-
-DROPZONE_W = "100%"
-DROPZONE_H = "75px"            
-DROPZONE_X = 0
-DROPZONE_Y = 0
-DROPZONE_BG_C = "transparent"  
-DROPZONE_BG_O = "transparent"
-DROPZONE_BORDER_C = "1px dashed #E2E8F0"  
-DROPZONE_BORDER_O = "1px dashed #4A5568"
-
-BTN_UP_TEXTO = "Upload"
-BTN_UP_SIZE = "20px"
-BTN_UP_W = "120px"             
-BTN_UP_H = "45px"              
-BTN_UP_BG_C = "#E2E8F0"       
-BTN_UP_BG_O = "#4A5568"
-BTN_UP_TXT_C = "#000000"      
-BTN_UP_TXT_O = "#FFFFFF"
-
-BTN_CAL_EMOJI = "🗓️"
-BTN_CAL_W = 68     
-BTN_CAL_H = 68    
-BTN_CAL_ICON_SIZE = 33 
-BTN_CAL_BG_C = "#F3F4F6"
-BTN_CAL_BG_O = "#2D3748"
-
-FLECHAS_SIZE = 40
-FLECHAS_X = 0 
-FLECHAS_Y = 0   
-
-TXT_MES_COLOR_C = "#000000"
-TXT_MES_COLOR_O = "#FFFFFF"
-TXT_DIAS_SEM_SIZE = 15
-TXT_DIAS_SEM_COLOR_C = "#000000"
-TXT_DIAS_SEM_COLOR_O = "#FFFFFF"
-TXT_NUM_DIA_COLOR_C = "#000000"
-TXT_NUM_DIA_COLOR_O = "#c0c0c0"
-TXT_PCT_DIA_COLOR_C = "#000000"
-TXT_PCT_DIA_COLOR_O = "#000000"
-
-BTN_CAM_EMOJI = "📷"
-BTN_CAM_X = 0
-BTN_CAM_Y = 2
-BTN_CAM_BG_C = "rgba(0,0,0,0)"
-BTN_CAM_BG_O = "rgba(0,0,0,0)"
+TXT_DASHBOARD, TXT_DASH_SIZE, TXT_DASH_X, TXT_DASH_Y = "Dashboard", 60, 20, -20
+TXT_DASH_COLOR_C, TXT_DASH_COLOR_O = "#000000", "#FFFFFF"
+LBL_FILTROS, LBL_FILTROS_SIZE, LBL_FILTROS_X, LBL_FILTROS_Y = "Filters", 20, 0, 0
+LBL_FILTROS_COLOR_C, LBL_FILTROS_COLOR_O = "#000000", "#FFFFFF"
+OPT_FILTRO_1, OPT_FILTRO_2, OPT_FILTRO_3 = "All", "Take Profit", "Stop Loss"
+OPT_FILTROS_SIZE, OPT_FILTROS_COLOR_C, OPT_FILTROS_COLOR_O = 15, "#000000", "#FFFFFF"
+LBL_DATA, LBL_DATA_SIZE, LBL_DATA_X, LBL_DATA_Y = "Data Source", 20, 0, 0
+LBL_DATA_COLOR_C, LBL_DATA_COLOR_O = "#000000", "#FFFFFF"
+OPT_DATA_1, OPT_DATA_2 = "Account Real", "Account Demo"
+OPT_DATA_SIZE, OPT_DATA_COLOR_C, OPT_DATA_COLOR_O = 14, "#000000", "#FFFFFF"
+LBL_INPUT, LBL_INPUT_SIZE, LBL_INPUT_X, LBL_INPUT_Y = "Balance:", 20, 0, 0
+LBL_INPUT_COLOR_C, LBL_INPUT_COLOR_O = "#000000", "#FFFFFF"
+INPUT_BAL_W, INPUT_BAL_H, INPUT_BAL_X, INPUT_BAL_Y, INPUT_BAL_TXT_SIZE = "200px", "60px", 0, 0, 25
+INPUT_FONDO_C, INPUT_FONDO_O = "#FFFFFF", "#1A202C"
+LBL_BAL_TOTAL, LBL_BAL_TOTAL_SIZE, LBL_BAL_TOTAL_X, LBL_BAL_TOTAL_Y = "ACCOUNT BALANCE", 18, 0, 0
+LBL_BAL_TOTAL_COLOR_C, LBL_BAL_TOTAL_COLOR_O = "#000000", "#FFFFFF"
+BALANCE_BOX_X, BALANCE_BOX_Y = 0, 0
+LINEA_GROSOR, LINEA_ANCHO, LINEA_X, LINEA_MARGEN_SUP, LINEA_MARGEN_INF = 1.5, 100, 0, 10, 25
+LINEA_COLOR_C, LINEA_COLOR_O = "#E2E8F0", "#4A5568"
+DROPZONE_W, DROPZONE_H, DROPZONE_X, DROPZONE_Y = "100%", "75px", 0, 0
+DROPZONE_BG_C, DROPZONE_BG_O = "transparent", "transparent"
+DROPZONE_BORDER_C, DROPZONE_BORDER_O = "1px dashed #E2E8F0", "1px dashed #4A5568"
+BTN_UP_TEXTO, BTN_UP_SIZE, BTN_UP_W, BTN_UP_H = "Upload", "20px", "120px", "45px"
+BTN_UP_BG_C, BTN_UP_BG_O, BTN_UP_TXT_C, BTN_UP_TXT_O = "#E2E8F0", "#4A5568", "#000000", "#FFFFFF"
+BTN_CAL_EMOJI, BTN_CAL_W, BTN_CAL_H, BTN_CAL_ICON_SIZE = "🗓️", 68, 68, 33
+BTN_CAL_BG_C, BTN_CAL_BG_O = "#F3F4F6", "#2D3748"
+FLECHAS_SIZE, FLECHAS_X, FLECHAS_Y = 40, 0, 0
+TXT_MES_COLOR_C, TXT_MES_COLOR_O = "#000000", "#FFFFFF"
+TXT_DIAS_SEM_SIZE, TXT_DIAS_SEM_COLOR_C, TXT_DIAS_SEM_COLOR_O = 15, "#000000", "#FFFFFF"
+TXT_NUM_DIA_COLOR_C, TXT_NUM_DIA_COLOR_O = "#000000", "#c0c0c0"
+TXT_PCT_DIA_COLOR_C, TXT_PCT_DIA_COLOR_O = "#000000", "#000000"
+BTN_CAM_EMOJI, BTN_CAM_X, BTN_CAM_Y = "📷", 0, 2
+BTN_CAM_BG_C, BTN_CAM_BG_O = "rgba(0,0,0,0)", "rgba(0,0,0,0)"
 TXT_CERRAR_MODAL = "✖ CERRAR"
-
-CARD_PNL_TITULO = "Net P&L Monthly"
-CARD_PNL_TITULO_COLOR_C = "#000000"
-CARD_PNL_TITULO_COLOR_O = "#FFFFFF"
-CARD_PNL_W = "100%"     
-CARD_PNL_H = "auto"     
-CARD_PNL_X = 0          
-CARD_PNL_Y = 0 
-
-CARD_WIN_TITULO = "Win Rate Monthly"
-CARD_WIN_TITULO_COLOR_C = "#000000"
-CARD_WIN_TITULO_COLOR_O = "#FFFFFF"
-CARD_WIN_VALOR_SIZE = 28
-CARD_WIN_VALOR_COLOR_C = "#000000"
-CARD_WIN_VALOR_COLOR_O = "#FFFFFF"
-CARD_WIN_W = "100%"     
-CARD_WIN_H = "auto"     
-CARD_WIN_X = 0          
-CARD_WIN_Y = 0   
-
-TXT_W1 = "Week 1"
-TXT_W2 = "Week 2"
-TXT_W3 = "Week 3"
-TXT_W4 = "Week 4"
-TXT_W5 = "Week 5"
-TXT_W6 = "Week 6"
-TXT_MO = "Month"
-
-WEEKS_TITULOS_COLOR_C = "#000000"
-WEEKS_TITULOS_COLOR_O = "#FFFFFF"
-WEEK_BOX_W = "31%"          
-WEEK_BOX_H = "120px"         
-Month_BOX_W = "100%"        
-Month_BOX_H = "120px"        
-WEEKS_CONTENEDOR_X = 0      
-WEEKS_CONTENEDOR_Y = 15     
-WEEK_ALIGN = "center"  
+CARD_PNL_TITULO, CARD_PNL_TITULO_COLOR_C, CARD_PNL_TITULO_COLOR_O = "Net P&L Monthly", "#000000", "#FFFFFF"
+CARD_PNL_W, CARD_PNL_H, CARD_PNL_X, CARD_PNL_Y = "100%", "auto", 0, 0
+CARD_WIN_TITULO, CARD_WIN_TITULO_COLOR_C, CARD_WIN_TITULO_COLOR_O = "Win Rate Monthly", "#000000", "#FFFFFF"
+CARD_WIN_VALOR_SIZE, CARD_WIN_VALOR_COLOR_C, CARD_WIN_VALOR_COLOR_O = 28, "#000000", "#FFFFFF"
+CARD_WIN_W, CARD_WIN_H, CARD_WIN_X, CARD_WIN_Y = "100%", "auto", 0, 0
+TXT_W1, TXT_W2, TXT_W3, TXT_W4, TXT_W5, TXT_W6, TXT_MO = "Week 1", "Week 2", "Week 3", "Week 4", "Week 5", "Week 6", "Month"
+WEEKS_TITULOS_COLOR_C, WEEKS_TITULOS_COLOR_O = "#000000", "#FFFFFF"
+WEEK_BOX_W, WEEK_BOX_H, Month_BOX_W, Month_BOX_H = "31%", "120px", "100%", "120px"
+WEEKS_CONTENEDOR_X, WEEKS_CONTENEDOR_Y, WEEK_ALIGN = 0, 15, "center"
 
 # ==========================================
 # 4. LÓGICA DE ESTADO Y AJUSTES
 # ==========================================
-if "tema" not in st.session_state:
-    st.session_state.tema = TEMA_POR_DEFECTO
+if "tema" not in st.session_state: st.session_state.tema = TEMA_POR_DEFECTO
+if "data_source_sel" not in st.session_state: st.session_state.data_source_sel = "Account Real"
 
-if "data_source_sel" not in st.session_state:
-    st.session_state.data_source_sel = "Account Real"
-
-if "dispositivo_actual" not in st.session_state:
-    st.session_state.dispositivo_actual = "PC"
+# Siempre forzamos a PC para ignorar lo responsive
+st.session_state.dispositivo_actual = "PC"
 
 usuario = st.session_state.usuario_actual
 db_usuario = db_global[usuario]["data"]
@@ -396,76 +280,57 @@ for dev in ["PC", "Móvil"]:
         if k not in db_global[usuario]["settings"][dev]:
             db_global[usuario]["settings"][dev][k] = v
 
-user_settings = db_global[usuario]["settings"][st.session_state.dispositivo_actual]
+user_settings = db_global[usuario]["settings"]["PC"]
 
 for cuenta in ["Account Real", "Account Demo"]:
     if cuenta not in db_usuario:
         db_usuario[cuenta] = {"balance": 25000.00, "trades": {}}
 
 hoy = datetime.now()
-if "cal_month" not in st.session_state:
-    st.session_state.cal_month = hoy.month
-if "cal_year" not in st.session_state:
-    st.session_state.cal_year = hoy.year
+if "cal_month" not in st.session_state: st.session_state.cal_month = hoy.month
+if "cal_year" not in st.session_state: st.session_state.cal_year = hoy.year
 
 def cambiar_mes(delta):
     st.session_state.cal_month += delta
     if st.session_state.cal_month > 12:
-        st.session_state.cal_month = 1
-        st.session_state.cal_year += 1
+        st.session_state.cal_month = 1; st.session_state.cal_year += 1
     elif st.session_state.cal_month < 1:
-        st.session_state.cal_month = 12
-        st.session_state.cal_year -= 1
+        st.session_state.cal_month = 12; st.session_state.cal_year -= 1
 
 def procesar_cambio():
     ctx = st.session_state.data_source_sel 
     nuevo = st.session_state.input_balance
     viejo = db_usuario[ctx]["balance"]
     fecha_sel = st.session_state.input_fecha 
-    
     if nuevo != viejo:
         pnl = nuevo - viejo
         clave = (fecha_sel.year, fecha_sel.month, fecha_sel.day)
         old_trade = db_usuario[ctx]["trades"].get(clave, {})
-        
         db_usuario[ctx]["trades"][clave] = {
-            "pnl": pnl,
-            "balance_final": nuevo,
-            "fecha_str": fecha_sel.strftime("%d/%m/%Y"),
-            "imagenes": old_trade.get("imagenes", []),
-            "bias": old_trade.get("bias", "NEUTRO"),
-            "Confluences": old_trade.get("Confluences", []),
-            "razon_trade": old_trade.get("razon_trade", ""),
-            "Corrections": old_trade.get("Corrections", ""),
-            "risk": old_trade.get("risk", "0.5%"),
-            "RR": old_trade.get("RR", "1:2"),
-            "trade_type": old_trade.get("trade_type", ""),
-            "Emotions": old_trade.get("Emotions", "")
+            "pnl": pnl, "balance_final": nuevo, "fecha_str": fecha_sel.strftime("%d/%m/%Y"),
+            "imagenes": old_trade.get("imagenes", []), "bias": old_trade.get("bias", "NEUTRO"),
+            "Confluences": old_trade.get("Confluences", []), "razon_trade": old_trade.get("razon_trade", ""),
+            "Corrections": old_trade.get("Corrections", ""), "risk": old_trade.get("risk", "0.5%"),
+            "RR": old_trade.get("RR", "1:2"), "trade_type": old_trade.get("trade_type", ""), "Emotions": old_trade.get("Emotions", "")
         }
         db_usuario[ctx]["balance"] = nuevo
-        
         registrar_en_excel(usuario, db_global[usuario]["password"], ctx, fecha_sel, nuevo, pnl, db_usuario[ctx]["trades"][clave], db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
+
+def convertir_img_base64(uploaded_file):
+    return base64.b64encode(uploaded_file.getvalue()).decode()
 
 def reset_settings(category):
     defaults = inicializar_settings()
-    s = db_global[usuario]["settings"][st.session_state.dispositivo_actual]
-    
-    if category == "dash":
-        keys = ["bal_num_sz", "bal_box_w", "bal_box_pad"]
-    elif category == "txt":
-        keys = ["size_top_stats", "size_card_titles", "size_box_titles", "size_box_vals", "size_box_pct", "size_box_wl", "pie_size", "pie_y_offset"]
-    elif category == "cal":
-        keys = ["cal_mes_size", "cal_pnl_size", "cal_pct_size", "cal_dia_size", "cal_cam_size", "cal_scale", "cal_line_height", "cal_txt_y", "cal_txt_pad", "cal_note_size", "note_lbl_size", "note_val_size"]
-    
-    for k in keys:
-        s[k] = defaults[k]
+    s = db_global[usuario]["settings"]["PC"]
+    if category == "dash": keys = ["bal_num_sz", "bal_box_w", "bal_box_pad"]
+    elif category == "txt": keys = ["size_top_stats", "size_card_titles", "size_box_titles", "size_box_vals", "size_box_pct", "size_box_wl", "pie_size", "pie_y_offset"]
+    elif category == "cal": keys = ["cal_mes_size", "cal_pnl_size", "cal_pct_size", "cal_dia_size", "cal_cam_size", "cal_scale", "cal_line_height", "cal_txt_y", "cal_txt_pad", "cal_note_size", "note_lbl_size", "note_val_size"]
+    for k in keys: s[k] = defaults[k]
 
 # ==========================================
 # 5. BARRA LATERAL (AJUSTES Y ADMIN)
 # ==========================================
 st.sidebar.markdown(f"### 👤 My Account: {usuario}")
-
-st.session_state.dispositivo_actual = st.sidebar.radio("⚙️ Editing Design Profile for:", ["PC", "Móvil"], index=0 if st.session_state.dispositivo_actual == "PC" else 1, help="This saves your settings separately.")
 
 if st.sidebar.button("💾 Save Design Settings to Cloud", use_container_width=True):
     ctx_act = st.session_state.data_source_sel
@@ -504,7 +369,6 @@ if st.session_state.confirm_clear:
     if c_no.button("CANCELAR"):
         st.session_state.confirm_clear = False
         st.rerun()
-# ------------------------------------------------
 
 st.sidebar.markdown("---")
 st.sidebar.markdown("### 🛡️ Admin")
@@ -523,12 +387,9 @@ if admin_pass == "725166":
 
 # --- MENÚS EXPANDIBLES ---
 st.sidebar.markdown("---")
-
 with st.sidebar.expander("🖥️ Dashboard Settings"):
     if st.button("🔄 Reset Dashboard", key="res_dash", use_container_width=True): 
-        reset_settings("dash")
-        st.rerun()
-        
+        reset_settings("dash"); st.rerun()
     st.markdown("**ACCOUNT BALANCE Box**")
     user_settings["bal_num_sz"] = st.slider("Balance Numbers Size", 10, 60, user_settings["bal_num_sz"])
     user_settings["bal_box_w"] = st.slider("Green Background Width (%)", 10, 100, user_settings["bal_box_w"])
@@ -536,9 +397,7 @@ with st.sidebar.expander("🖥️ Dashboard Settings"):
 
 with st.sidebar.expander("🔠 Text & Chart Settings"):
     if st.button("🔄 Reset Texts & Charts", key="res_txt", use_container_width=True): 
-        reset_settings("txt")
-        st.rerun()
-        
+        reset_settings("txt"); st.rerun()
     user_settings["size_top_stats"] = st.slider("Monthly P&L and Win Rate Size (Top)", 10, 40, user_settings["size_top_stats"])
     user_settings["size_card_titles"] = st.slider("Titles Size (All-Time, etc)", 10, 40, user_settings["size_card_titles"])
     user_settings["size_box_titles"] = st.slider("Titles Size (Week/Month)", 10, 40, user_settings["size_box_titles"])
@@ -550,9 +409,7 @@ with st.sidebar.expander("🔠 Text & Chart Settings"):
 
 with st.sidebar.expander("📅 Calendar Settings"):
     if st.button("🔄 Reset Calendar", key="res_cal", use_container_width=True): 
-        reset_settings("cal")
-        st.rerun()
-        
+        reset_settings("cal"); st.rerun()
     user_settings["cal_mes_size"] = st.slider("Month Size (Title)", 10, 50, user_settings["cal_mes_size"])
     user_settings["cal_pnl_size"] = st.slider("Day P&L Size", 10, 40, user_settings["cal_pnl_size"])
     user_settings["cal_pct_size"] = st.slider("Day % Size", 10, 30, user_settings["cal_pct_size"])
@@ -628,7 +485,6 @@ st.markdown(f"""
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
     
     :root {{ {gen_css_vars(user_settings)} }}
-    @media (max-width: 768px) {{ :root {{ {gen_css_vars(db_global[usuario]["settings"]["Móvil"])} }} }}
 
     .stApp {{ background-color: {bg_color} !important; font-family: 'Inter', sans-serif !important; }}
     
@@ -765,57 +621,6 @@ st.markdown(f"""
     .txt-green {{ color: #00C897 !important; }}
     .txt-red {{ color: #FF4C4C !important; }}
     .txt-gray {{ color: gray !important; }}
-    
-    @media (max-width: 768px) {{
-        .dashboard-title {{ font-size: 38px !important; margin: 10px auto !important; text-align: center !important; line-height: 1 !important; transform: translate(0,0) !important;}}
-        .lbl-total-bal, .lbl-filtros, .lbl-data, .lbl-input {{ transform: translate(0, 0) !important; text-align: center !important; width: 100% !important; margin-bottom: 10px !important;}}
-        .balance-box {{ width: 100% !important; margin: 0 auto 15px auto !important; transform: translate(0,0) !important;}}
-        
-        div[data-testid="column"] {{ width: 100% !important; flex: 1 1 100% !important; min-width: 100% !important; display: block !important; margin-bottom: 15px !important; }}
-        
-        div[data-testid="stNumberInput"],
-        div[data-testid="stNumberInput"] button,
-        div[data-testid="stFormSubmitButton"] button,
-        div[data-testid="stPopover"],
-        div[data-testid="stPopover"] > button,
-        div[data-testid="stPopover"] > div > button,
-        [data-testid="stFileUploader"],
-        [data-testid="stFileUploadDropzone"],
-        [data-testid="stFileUploadDropzone"] button {{
-            width: 100% !important;
-            max-width: 100% !important;
-            min-width: 100% !important;
-            transform: translate(0,0) !important;
-            margin-left: 0 !important;
-        }}
-
-        .calendar-wrapper div[data-testid="column"],
-        div[data-testid="stHorizontalBlock"]:has(.card) > div[data-testid="column"],
-        div[data-testid="stHorizontalBlock"]:has(.txt-dias-sem) > div[data-testid="column"] {{
-            width: 14.28% !important;
-            min-width: 14.28% !important;
-            flex: 0 0 14.28% !important;
-            display: flex !important;
-            margin-bottom: 0 !important;
-        }}
-        div[data-testid="stHorizontalBlock"]:has(.card),
-        div[data-testid="stHorizontalBlock"]:has(.txt-dias-sem) {{
-            display: flex !important;
-            flex-wrap: nowrap !important;
-            overflow-x: hidden !important; 
-        }}
-
-        .weeks-container {{ transform: translate(0, 0) !important; flex-wrap: wrap !important; justify-content: space-between !important; display: flex !important; }}
-        .wk-box {{ width: 48% !important; margin-bottom: 10px !important; height: auto !important; padding: 10px !important; }}
-        .mo-box {{ width: 100% !important; height: auto !important; margin-top: 10px !important; padding: 10px !important; }}
-        .card-pnl, .card-win {{ width: 100% !important; transform: translate(0,0) !important; height: auto !important; margin-top: 10px !important; }}
-        
-        div[data-testid="stDataFrame"] {{
-            width: 100% !important;
-            max-width: 100vw !important;
-            overflow-x: auto !important;
-        }}
-    }}
     </style>
     """, unsafe_allow_html=True)
 
@@ -892,10 +697,13 @@ def agregar_imagenes_main(contexto, llave, widget_id, counter_id, bal_act, f_str
             url_drive = subir_a_google_drive(img)
             if url_drive:
                 db_usuario[contexto]["trades"][llave]["imagenes"].append(url_drive)
+            else:
+                # PLAN B DE EMERGENCIA: Si Drive falla, lo guarda temporalmente para que aparezca la cámara.
+                b64 = f"data:{img.type};base64,{convertir_img_base64(img)}"
+                db_usuario[contexto]["trades"][llave]["imagenes"].append(b64)
         
         fecha_obj = datetime(llave[0], llave[1], llave[2])
         registrar_en_excel(usuario, db_global[usuario]["password"], contexto, fecha_obj, db_usuario[contexto]["trades"][llave]["balance_final"], db_usuario[contexto]["trades"][llave]["pnl"], db_usuario[contexto]["trades"][llave], db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
-        
         st.session_state[counter_id] += 1
 
 # ==========================================
@@ -1074,7 +882,7 @@ with col_cal:
                         op = "0.2" if trade and not visible else "1"
                         st.markdown(f'<div class="card cell-empty" style="opacity:{op}"><div class="day-number">{dia}</div></div>', unsafe_allow_html=True)
 
-# 🔴 FUNCIÓN PARA CREAR EL GRÁFICO DE PASTEL SVG RESPONSIVO 🔴
+# 🔴 FUNCIÓN PARA CREAR EL GRÁFICO DE PASTEL SVG 🔴
 def get_pie_svg(w, l, t):
     tot = w + l + t
     if tot == 0:
@@ -1254,6 +1062,9 @@ def agregar_imagenes_historial(contexto, llave, widget_id, counter_id):
             url_drive = subir_a_google_drive(img)
             if url_drive:
                 db_usuario[contexto]["trades"][llave]["imagenes"].append(url_drive)
+            else:
+                b64 = f"data:{img.type};base64,{convertir_img_base64(img)}"
+                db_usuario[contexto]["trades"][llave]["imagenes"].append(b64)
         
         fecha_obj = datetime(llave[0], llave[1], llave[2])
         registrar_en_excel(usuario, db_global[usuario]["password"], contexto, fecha_obj, db_usuario[contexto]["trades"][llave]["balance_final"], db_usuario[contexto]["trades"][llave]["pnl"], db_usuario[contexto]["trades"][llave], db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
