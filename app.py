@@ -1098,7 +1098,7 @@ with col_mitad_2:
                     row = {
                         "Date": fecha.strftime("%d/%m/%Y"),
                         "Trade": f"#{i+1}",
-                        "&nbsp; \n &nbsp; \n P&L": f"{pnl_simbol}${pnl:,.2f}", # <-- P&L movido aquí arriba
+                        "&nbspP&L": f"{pnl_simbol}${pnl:,.2f}", # <-- P&L movido aquí arriba
                         "Trade Type": trade.get('trade_type', ''),
                         "Bias": trade.get('bias', ''),
                         "RR": trade.get('RR', ''),
