@@ -114,7 +114,7 @@ def get_global_db():
 
 db_global = get_global_db()
 
-# --- FUNCIÓN CENTRAL DE GUARDADO A LA NUBE (SOLO POR BOTÓN) ---
+# --- FUNCIÓN CENTRAL DE GUARDADO A LA NUBE ---
 def registrar_en_excel(usuario, password, cuenta, fecha_obj, balance, pnl, trade_data, settings_pc, settings_movil):
     if hoja_excel:
         try:
@@ -247,7 +247,6 @@ for dev in ["PC", "Móvil"]:
         if k not in db_global[usuario]["settings"][dev]:
             db_global[usuario]["settings"][dev][k] = v
 
-# EL DISEÑO ACTIVO AHORA DEPENDE DEL CHECKBOX, NO DE LA PANTALLA
 user_settings = db_global[usuario]["settings"][st.session_state.dispositivo_actual]
 
 for cuenta in ["Account Real", "Account Demo"]:
@@ -289,7 +288,6 @@ def procesar_cambio():
     }
     db_usuario[ctx]["balance"] = nuevo
     
-    # ESTE ES EL ÚNICO LUGAR DONDE SE AUTO-GUARDA AL DARLE A SAVE MAIN
     registrar_en_excel(usuario, db_global[usuario]["password"], ctx, fecha_sel, nuevo, db_usuario[ctx]["trades"][clave]["pnl"], db_usuario[ctx]["trades"][clave], db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
     st.success("✅ Guardado en Google Sheets")
 
@@ -306,7 +304,6 @@ def reset_settings(category):
 # ==========================================
 st.sidebar.markdown(f"### 👤 Mi Cuenta: {usuario}")
 
-# SELECCIÓN MANUAL DE PERFIL A EDITAR (Vuelve a ser radio button manual)
 st.session_state.dispositivo_actual = st.sidebar.radio("⚙️ Perfil de Diseño Actual:", ["PC", "Móvil"], index=0 if st.session_state.dispositivo_actual == "PC" else 1)
 
 if st.sidebar.button("💾 Save Design Settings to Cloud", use_container_width=True):
@@ -418,7 +415,6 @@ else:
 def gen_css_vars(s):
     return f"--size-top-stats:{s['size_top_stats']}px;--size-card-titles:{s['size_card_titles']}px;--size-box-titles:{s['size_box_titles']}px;--size-box-vals:{s['size_box_vals']}px;--size-box-pct:{s['size_box_pct']}px;--size-box-wl:{s['size_box_wl']}px;--pie-size:{s['pie_size']}px;--pie-y-offset:{s['pie_y_offset']}px;--cal-mes-size:{s['cal_mes_size']}px;--cal-pnl-size:{s['cal_pnl_size']}px;--cal-pct-size:{s['cal_pct_size']}px;--cal-dia-size:{s['cal_dia_size']}px;--cal-cam-size:{s['cal_cam_size']}px;--cal-note-size:{s.get('cal_note_size',30)}px;--cal-scale:{s['cal_scale']}px;--cal-line-height:{s['cal_line_height']};--bal-num-sz:{s['bal_num_sz']}px;--bal-box-w:{s['bal_box_w']}%;--bal-box-pad:{s['bal_box_pad']}px;--cal-txt-y:{s.get('cal_txt_y',0)}px;--cal-txt-pad:{s.get('cal_txt_pad',0)}px;--note-lbl-size:{s.get('note_lbl_size',16)}px;--note-val-size:{s.get('note_val_size',16)}px;"
 
-# SE ELIMINARON POR COMPLETO LAS REGLAS RESPONSIVE DE CSS
 st.markdown(f"""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
@@ -554,6 +550,7 @@ def colorful_menu(options, label, value_key, trade_data_ref):
             is_selected = (text == selected_value)
             btn_label = f"✅ {text}" if is_selected else text
             btn_type = "primary" if is_selected else "secondary"
+            # Actualiza memoria pero NO autoguarda en Excel (cero lag)
             if st.button(btn_label, key=f"btn_{value_key}_{i}", use_container_width=True, type=btn_type):
                 trade_data_ref[value_key] = text
                 st.rerun()
@@ -584,6 +581,7 @@ def agregar_imagenes_main(contexto, llave, widget_id, counter_id, bal_act, f_str
         for img in archivos_nuevos:
             b64_comprimido = procesar_y_comprimir_imagen(img)
             db_usuario[contexto]["trades"][llave]["imagenes"].append(b64_comprimido)
+        # Se guarda solo en memoria temporal hasta que presiones SAVE MAIN o SAVE NOTAS
         st.session_state[counter_id] += 1
 
 # ==========================================
@@ -664,7 +662,7 @@ with c_not:
             if st.button("💾 Guardar Cambios en la Nube", use_container_width=True):
                 fecha_obj_notas = datetime(clave_actual[0], clave_actual[1], clave_actual[2])
                 registrar_en_excel(usuario, db_global[usuario]["password"], ctx, fecha_obj_notas, bal_actual, trade_data_ref["pnl"], trade_data_ref, db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
-                st.success("Notas e Imágenes guardadas.")
+                st.success("Notas e Imágenes guardadas en la Nube.")
 
 # ==========================================
 # 10. CALENDARIO Y RESUMEN
@@ -931,7 +929,6 @@ st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
 def borrar_imagen(contexto, llave, index):
     if len(db_usuario[contexto]["trades"][llave]["imagenes"]) > index:
         db_usuario[contexto]["trades"][llave]["imagenes"].pop(index)
-        # Se borra en memoria, debes darle a GUARDAR CAMBIOS para enviarlo a Sheets
 
 def agregar_imagenes_historial(contexto, llave, widget_id, counter_id):
     archivos_nuevos = st.session_state.get(widget_id)
@@ -1033,7 +1030,7 @@ with st.expander("🛠️ OPEN ORDER HISTORY", expanded=False):
                         
                         fecha_obj_edit = datetime(nueva_clave[0], nueva_clave[1], nueva_clave[2])
                         registrar_en_excel(usuario, db_global[usuario]["password"], ctx, fecha_obj_edit, nuevo_bal, nuevo_pnl, db_usuario[ctx]["trades"][nueva_clave], db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
-                        st.rerun()
+                        st.success("✅ Día guardado correctamente en la nube.")
                         
                 with c_btn2:
                     if st.button("❌ DELETE FULL DAY", key=f"del_{clave}", use_container_width=True):
@@ -1116,7 +1113,21 @@ if mostrar_tabla:
         st.data_editor(df_results.style.apply(style_rows, axis=1), use_container_width=True, num_rows="dynamic", key="table_editor", on_change=sync_table_edits)
         
         if st.button("💾 Guardar Ediciones de la Tabla", use_container_width=True):
-            st.success("Cambios en la tabla guardados en memoria. Presiona 'Save Design Settings to Cloud' o haz un 'SAVE' principal para enviarlos al Excel.")
+            ediciones_guardadas = 0
+            editor_state = st.session_state.get("table_editor", {})
+            keys = st.session_state.get("current_table_keys", [])
+            for idx, edits in editor_state.get("edited_rows", {}).items():
+                if idx < len(keys):
+                    k = keys[idx]
+                    if k in db_usuario[ctx]["trades"]:
+                        t = db_usuario[ctx]["trades"][k]
+                        fecha_obj = datetime(k[0], k[1], k[2])
+                        registrar_en_excel(usuario, db_global[usuario]["password"], ctx, fecha_obj, t.get("balance_final", 25000), t["pnl"], t, db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
+                        ediciones_guardadas += 1
+            if ediciones_guardadas > 0:
+                st.success(f"✅ {ediciones_guardadas} trades actualizados en Google Sheets.")
+            else:
+                st.info("No hay nuevas ediciones en la tabla para guardar.")
 
 # ==========================================
 # SCRIPT PARA CERRAR MODALES CON ESCAPE
