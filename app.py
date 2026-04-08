@@ -1276,8 +1276,8 @@ with col_mitad_2:
                     hide_index=False, 
                     key=f"tabla_resultados_v6_{ctx}", 
                     column_config={
-                        "Corrections": st.column_config.Column(width="small"), 
-                        "Emotions": st.column_config.Column(width="small"),
+                        "Corrections": st.column_config.Column(width="medium"), 
+                        "Emotions": st.column_config.Column(width="medium"),
                         "Reason For Trade": st.column_config.Column(width="medium"),
                         " Confluences": st.column_config.Column(width="large"),
                         "Date": st.column_config.Column(width="small"),
