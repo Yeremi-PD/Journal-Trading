@@ -198,7 +198,7 @@ if st.session_state.usuario_actual is None or st.session_state.usuario_actual no
 # 3. SECCIÓN DE AJUSTES MANUALES (CONSTANTES)
 # ==========================================
 TEMA_POR_DEFECTO = "Oscuro"
-TXT_DASHBOARD, TXT_DASH_SIZE, TXT_DASH_X, TXT_DASH_Y = "Dashboard", 60, 20, 0
+TXT_DASHBOARD, TXT_DASH_SIZE, TXT_DASH_X, TXT_DASH_Y = "Dashboard", 60, 0, -20
 TXT_DASH_COLOR_C, TXT_DASH_COLOR_O = "#000000", "#FFFFFF"
 LBL_FILTROS, LBL_FILTROS_SIZE, LBL_FILTROS_X, LBL_FILTROS_Y = "Filters", 20, 0, 0
 LBL_FILTROS_COLOR_C, LBL_FILTROS_COLOR_O = "#000000", "#FFFFFF"
