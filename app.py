@@ -369,10 +369,38 @@ st.sidebar.markdown(
     unsafe_allow_html=True
 )
 
-dispositivo_visual = st.sidebar.radio("Current Design:", ["🖥️ PC", "📱 Móvil"], index=0 if "PC" in st.session_state.dispositivo_actual else 1)
+# --- AJUSTA LOS TAMAÑOS AQUÍ A TU ANTOJO ---
+tamanio_titulo = "18px"    # Tamaño del texto "Current Design:"
+tamanio_opciones = "16px"  # Tamaño del texto "🖥️ PC" y "📱 Móvil"
+
+# Inyectamos el CSS personalizado para la barra lateral
+st.sidebar.markdown(f"""
+    <style>
+    /* Cambia el tamaño del título del radio */
+    section[data-testid="stSidebar"] div[data-testid="stRadio"] > label p {{
+        font-size: {tamanio_titulo} !important;
+        font-weight: bold !important;
+    }}
+    /* Cambia el tamaño de las opciones del radio */
+    section[data-testid="stSidebar"] div[data-testid="stRadio"] div[role="radiogroup"] label p {{
+        font-size: {tamanio_opciones} !important;
+    }}
+    </style>
+""", unsafe_allow_html=True)
+
+# Tu código original (sin cambios en la lógica)
+dispositivo_visual = st.sidebar.radio(
+    "Current Design:", 
+    ["🖥️ PC", "📱 Móvil"], 
+    index=0 if "PC" in st.session_state.dispositivo_actual else 1
+)
+
 st.session_state.dispositivo_actual = "PC" if "🖥️ PC" in dispositivo_visual else "Móvil"
-try: st.query_params["device"] = st.session_state.dispositivo_actual
-except: pass
+
+try: 
+    st.query_params["device"] = st.session_state.dispositivo_actual
+except: 
+    pass
 
 if st.sidebar.button("💾 Save Design Settings to Cloud", use_container_width=True):
     ctx_act = st.session_state.data_source_sel
