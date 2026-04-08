@@ -470,11 +470,11 @@ st.markdown(f"""
     div[data-testid="stPopoverBody"] {{ background-color: {card_bg} !important; border: 1px solid {border_color} !important; border-radius: 8px !important; padding: 15px !important; }}
     div[data-testid="stPopoverBody"]:has(h3) {{ width: 710px !important; max-width: 95vw !important; max-height: 85vh !important; margin-top: 100px !important; overflow-y: auto !important; box-shadow: 0 4px 20px rgba(0,0,0,0.3) !important; }}
 
-    /* ESTILOS PARA AGRANDAR MUCHO LAS LETRAS EN TRADE DETAILS */
-    div[data-testid="stPopoverBody"] label { font-size: 20px !important; font-weight: 800 !important; }
-    div[data-testid="stPopoverBody"] p, div[data-testid="stPopoverBody"] span, div[data-testid="stPopoverBody"] div { font-size: 18px !important; }
-    div[data-testid="stPopoverBody"] .stTextArea textarea, div[data-testid="stPopoverBody"] input { font-size: 18px !important; }
-
+/* ESTILOS PARA AGRANDAR MUCHO LAS LETRAS EN TRADE DETAILS */
+    div[data-testid="stPopoverBody"] label {{ font-size: 20px !important; font-weight: 800 !important; }}
+    div[data-testid="stPopoverBody"] p, div[data-testid="stPopoverBody"] span, div[data-testid="stPopoverBody"] div {{ font-size: 18px !important; }}
+    div[data-testid="stPopoverBody"] .stTextArea textarea, div[data-testid="stPopoverBody"] input {{ font-size: 18px !important; }}
+    
     .calendar-wrapper {{ background: {card_bg} !important; padding: 10px !important; border-radius: 15px !important; border: 1px solid {border_color} !important; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1) !important; }}
     .txt-dias-sem {{ font-size: {TXT_DIAS_SEM_SIZE}px !important; font-weight: bold !important; color: {c_dias_sem} !important; text-align: center !important; }}
     .card {{ padding: 5px !important; border-radius: 10px !important; display: flex !important; flex-direction: column !important; position: relative !important; font-size: 12px !important; margin-bottom: 6px !important; min-height: var(--cal-scale) !important; }}
