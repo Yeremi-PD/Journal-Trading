@@ -1121,7 +1121,7 @@ with col_mitad_2:
                 row_styles[row.index.get_loc('P&L')] = pnl_style
                 return row_styles
 
-            st.dataframe(df_results.style.apply(style_rows, axis=1), use_container_width=True, key=f"tabla_resultados_{ctx}")
+            st.dataframe(df_results.style.apply(style_rows, axis=1), use_container_width=True, key=f"tabla_resultados_v2_{ctx}")
 
 # ==========================================
 # SCRIPT PARA CERRAR MODALES CON ESCAPE
