@@ -1102,8 +1102,8 @@ with col_mitad_2:
                         "Trade Type": trade.get('trade_type', ''),
                         "Bias": trade.get('bias', ''),
                         "% Risk": trade.get('risk', ''),
-                        "RR": trade.get('RR', ''),
                         "Confluences": Confluences_resumen,
+                        "RR": trade.get('RR', ''),
                         "Reason For Trade": trade.get('razon_trade', ''),
                         "Corrections": trade.get('Corrections', ''),
                         "Emotions": trade.get('Emotions', '')
