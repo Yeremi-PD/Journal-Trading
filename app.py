@@ -953,10 +953,18 @@ with col_det:
     simbolo_pnl = "+" if net_pnl > 0 else ""
     c_win_card = "#00C897" if win_pct >= 50 else "#FF4C4C"
     
-    st.markdown(f"""
+st.markdown(f"""
         <div class="metric-card card-pnl">
-            <div class="metric-header"><span class="title-net-pnl">{titulo_pnl}</span></div>
-            <div class="{color_pnl}">{simbolo_pnl}${net_pnl:,.2f}</div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <div class="metric-header"><span class="title-net-pnl">{titulo_pnl}</span></div>
+                    <div class="{color_pnl}">{simbolo_pnl}${net_pnl:,.2f}</div>
+                </div>
+                <div style="text-align: right;">
+                    <div class="metric-header" style="justify-content: flex-end;"><span class="title-net-pnl">Total Trades</span></div>
+                    <div class="win-value" style="color: gray;">{total_trades}</div>
+                </div>
+            </div>
         </div>
     """, unsafe_allow_html=True)
 
