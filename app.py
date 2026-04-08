@@ -566,6 +566,22 @@ st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
 # ==========================================
 # 9. ENTRADA DE TRADES (TODO EN UN SOLO FORMULARIO - AUTO LIMPIEZA)
 # ==========================================
+
+# CSS para hacer compactos TODOS los botones de radio horizontales
+st.markdown("""
+    <style>
+    /* Reduce el espacio del título del radio al primer botón */
+    div[data-testid="stWidgetLabel"] + div[data-testid="stHorizontalBlock"] div[data-testid="stMarkdownContainer"] {
+        padding-right: 0px;
+    }
+    /* Junta los circulitos de las opciones */
+    div[data-testid="stHorizontalBlock"] div[role="radiogroup"] > div {
+        margin-right: -10px; /* Ajusta este número si los quieres más o menos pegados */
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+
 with st.form(key=f"form_main_entry_{st.session_state.form_reset_key}", border=False):
     c1, c2, c_img, c_not, c_espacio = st.columns([1.5, 0.5, 2.5, 0.6, 3.4]) 
     
@@ -593,24 +609,8 @@ with st.form(key=f"form_main_entry_{st.session_state.form_reset_key}", border=Fa
             nuevo_razon = st.text_area("&nbsp; \n &nbsp; \n Reason For Trade", value='', height=50)
             nuevo_corr = st.text_area("&nbsp; \n &nbsp; \n Corrections", value='', height=50)
             
-# CSS para reducir el espacio entre las opciones del radio horizontal
-st.markdown("""
-    <style>
-    /* Buscamos el contenedor de los items del radio horizontal */
-    div[data-testid="stWidgetLabel"] + div[data-testid="stHorizontalBlock"] div[data-testid="stMarkdownContainer"] {
-        padding-right: 0px;
-    }
-    
-    /* Ajusta el espacio entre cada botón de radio */
-    div[data-testid="stHorizontalBlock"] div[role="radiogroup"] > div {
-        margin-right: -15px; /* Valor negativo para juntarlos más */
-    }
-    </style>
-    """, unsafe_allow_html=True)
-
-# Tu código original
-risk_opts = ['1%', '0.9%', '0.8%', '0.7%', '0.6%', '0.5%', '0.4%']
-nuevo_risk = st.radio("&nbsp; \n &nbsp; \n % Risk", risk_opts, index=5, horizontal=True)
+            risk_opts = ['1%', '0.9%', '0.8%', '0.7%', '0.6%', '0.5%', '0.4%']
+            nuevo_risk = st.radio("&nbsp; \n &nbsp; \n % Risk", risk_opts, index=5, horizontal=True)
             
             rr_opts = ['1:1', '1:1.5', '1:2', '1:3', '1:4']
             nuevo_rr = st.radio("&nbsp; \n &nbsp; \n RR", rr_opts, index=2, horizontal=True)
