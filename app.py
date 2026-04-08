@@ -1039,7 +1039,7 @@ with col_mitad_1:
                                         st.markdown(f'<img src="{img_b64}" style="width:100%; border-radius:10px; border:1px solid gray;">', unsafe_allow_html=True)
                                         st.button("🗑️ Delete Image", key=f"delimg_{clave}_{i}_{idx_img}", on_click=borrar_imagen_historial, args=(ctx, clave, i, idx_img), use_container_width=True)
                             else:
-                                st.caption("No hay imágenes guardadas.")
+                                st.caption("There are no saved images.")
                             
                             if st.button("💾 SAVE EDITS", key=f"save_{clave}_{i}", use_container_width=True):
                                 if nuevo_link_edit.strip().startswith("http"):
