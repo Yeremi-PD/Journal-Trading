@@ -24,11 +24,11 @@ def conectar_google_sheets():
         scope = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
         creds = Credentials.from_service_account_info(st.secrets["gcp_service_account"], scopes=scope)
         client = gspread.authorize(creds)
-        return client.open("Trading_Journal_DB").sheet1
+        return client.open("Trading_Journal_DB") # Ahora retorna todo el documento
     except Exception as e:
         return None
 
-hoja_excel = conectar_google_sheets()
+db_spreadsheet = conectar_google_sheets()
 
 # --- CONVIERTE IMAGEN A 100% CALIDAD PURA ---
 def convertir_img_base64(uploaded_file):
@@ -56,72 +56,81 @@ def inicializar_settings():
 @st.cache_resource(ttl=600)
 def get_global_db():
     db_temp = {}
-    if hoja_excel:
-        # ... resto de tu código
-        try:
-            filas = hoja_excel.get_all_values()
-            if len(filas) > 1:
-                headers = filas[0]
-                for row in filas[1:]:
-                    row_data = dict(zip(headers, row + [''] * (len(headers) - len(row))))
-                    user = str(row_data.get('Usuario', '')).strip()
-                    if not user: continue  
-                    
-                    if user not in db_temp:
-                        db_temp[user] = {
-                            "password": str(row_data.get('Password', '123')), 
-                            "data": inicializar_data_usuario(),
-                            "settings": {"PC": inicializar_settings(), "Móvil": inicializar_settings()}
-                        }
-                    
-                    try:
-                        set_pc = json.loads(row_data.get('Settings_PC', '{}'))
-                        if set_pc: db_temp[user]["settings"]["PC"].update(set_pc)
-                        set_mov = json.loads(row_data.get('Settings_Movil', '{}'))
-                        if set_mov: db_temp[user]["settings"]["Móvil"].update(set_mov)
-                    except: pass
-                    
-                    cuenta = row_data.get('Cuenta', 'Account Real')
-                    f_str = row_data.get('Fecha', '')
-                    try:
-                        d_obj = datetime.strptime(f_str, "%d/%m/%Y")
-                        clave = (d_obj.year, d_obj.month, d_obj.day)
-                    except: continue
+    if db_spreadsheet:
+        for hoja in db_spreadsheet.worksheets():
+            user = hoja.title
+            if user == "Sheet1": continue # Ignorar la hoja por defecto
+            
+            db_temp[user] = {
+                "password": "123", 
+                "data": inicializar_data_usuario(),
+                "settings": {"PC": inicializar_settings(), "Móvil": inicializar_settings()}
+            }
+            
+            try:
+                filas = hoja.get_all_values()
+                if len(filas) > 1:
+                    headers = filas[0]
+                    first_row = dict(zip(headers, filas[1] + [''] * (len(headers) - len(filas[1]))))
+                    db_temp[user]["password"] = str(first_row.get('Password', '123'))
 
-                    trade_info = {
-                        "pnl": float(row_data.get('PnL', 0) or 0),
-                        "balance_final": float(row_data.get('Balance', 0) or 0),
-                        "fecha_str": f_str,
-                        "imagenes": [], 
-                        "bias": "NEUTRO", "Confluences": [], "razon_trade": "", "Corrections": "", "risk": "0.5%", "RR": "1:2", "trade_type": "A", "Emotions": ""
-                    }
-                    
-                    # Recuperar links de imágenes si están guardados
-                    img_col_str = row[6] if len(row) > 6 else ""
-                    if "http" in img_col_str:
-                        links_guardados = [u.strip() for u in img_col_str.split(",") if "http" in u]
-                        trade_info["imagenes"].extend(links_guardados)
-                    
-                    extra = row_data.get('ExtraData', '')
-                    if extra:
-                        try: trade_info.update(json.loads(extra))
-                        except: pass
-                    
-                    if clave not in db_temp[user]["data"][cuenta]["trades"]:
-                        db_temp[user]["data"][cuenta]["trades"][clave] = []
+                    for row in filas[1:]:
+                        row_data = dict(zip(headers, row + [''] * (len(headers) - len(row))))
                         
-                    db_temp[user]["data"][cuenta]["trades"][clave].append(trade_info)
-                    db_temp[user]["data"][cuenta]["balance"] = float(row_data.get('Balance', 0) or 0)
-        except Exception:
-            pass
+                        try:
+                            set_pc = json.loads(row_data.get('Settings_PC', '{}'))
+                            if set_pc: db_temp[user]["settings"]["PC"].update(set_pc)
+                            set_mov = json.loads(row_data.get('Settings_Movil', '{}'))
+                            if set_mov: db_temp[user]["settings"]["Móvil"].update(set_mov)
+                        except: pass
+                        
+                        cuenta = row_data.get('Cuenta', 'Account Real')
+                        f_str = row_data.get('Fecha', '')
+                        try:
+                            d_obj = datetime.strptime(f_str, "%d/%m/%Y")
+                            clave = (d_obj.year, d_obj.month, d_obj.day)
+                        except: continue
+
+                        trade_info = {
+                            "pnl": float(row_data.get('PnL', 0) or 0),
+                            "balance_final": float(row_data.get('Balance', 0) or 0),
+                            "fecha_str": f_str,
+                            "imagenes": [], 
+                            "bias": "NEUTRO", "Confluences": [], "razon_trade": "", "Corrections": "", "risk": "0.5%", "RR": "1:2", "trade_type": "A", "Emotions": ""
+                        }
+                        
+                        # Recuperar links de imágenes si están guardados
+                        img_col_str = row[6] if len(row) > 6 else ""
+                        if "http" in img_col_str:
+                            links_guardados = [u.strip() for u in img_col_str.split(",") if "http" in u]
+                            trade_info["imagenes"].extend(links_guardados)
+                        
+                        extra = row_data.get('ExtraData', '')
+                        if extra:
+                            try: trade_info.update(json.loads(extra))
+                            except: pass
+                        
+                        if clave not in db_temp[user]["data"][cuenta]["trades"]:
+                            db_temp[user]["data"][cuenta]["trades"][clave] = []
+                            
+                        db_temp[user]["data"][cuenta]["trades"][clave].append(trade_info)
+                        db_temp[user]["data"][cuenta]["balance"] = float(row_data.get('Balance', 0) or 0)
+            except Exception:
+                pass
     return db_temp
 
 db_global = get_global_db()
 
-# --- FUNCIÓN CENTRAL DE GUARDADO AL EXCEL ---
+# --- FUNCIÓN CENTRAL DE GUARDADO AL EXCEL (HOJA INDIVIDUAL) ---
 def registrar_en_excel(usuario, password, cuenta, fecha_obj, balance, pnl, trade_data, settings_pc, settings_movil):
-    if hoja_excel:
+    if db_spreadsheet:
         try:
+            try: hoja_user = db_spreadsheet.worksheet(usuario)
+            except gspread.exceptions.WorksheetNotFound:
+                hoja_user = db_spreadsheet.add_worksheet(title=usuario, rows="1000", cols="20")
+                headers = ["Usuario", "Password", "Cuenta", "Fecha", "Balance", "PnL", "Imagenes", "Settings_PC", "Settings_Movil", "ExtraData"]
+                hoja_user.append_row(headers)
+
             fecha_texto = fecha_obj.strftime("%d/%m/%Y")
             
             links = [img for img in trade_data.get("imagenes", []) if img.startswith("http")]
@@ -142,9 +151,37 @@ def registrar_en_excel(usuario, password, cuenta, fecha_obj, balance, pnl, trade
             safe_pass = str(password).strip() if password else "123"
 
             nueva_fila = [safe_user, safe_pass, str(cuenta), fecha_texto, float(balance), float(pnl), imgs_texto, set_pc_str, set_mov_str, extra_str]
-            hoja_excel.append_row(nueva_fila)
+            hoja_user.append_row(nueva_fila)
         except Exception:
             pass
+
+def reescribir_excel_usuario(usuario):
+    if not db_spreadsheet: return
+    try:
+        hoja_user = db_spreadsheet.worksheet(usuario)
+        hoja_user.clear()
+        
+        filas_a_insertar = [["Usuario", "Password", "Cuenta", "Fecha", "Balance", "PnL", "Imagenes", "Settings_PC", "Settings_Movil", "ExtraData"]]
+        pwd = db_global[usuario]["password"]
+        set_pc_str = json.dumps(db_global[usuario]["settings"]["PC"])
+        set_mov_str = json.dumps(db_global[usuario]["settings"]["Móvil"])
+
+        for cuenta, d_cuenta in db_global[usuario]["data"].items():
+            for clave, lista_t in sorted(d_cuenta["trades"].items()):
+                for t in lista_t:
+                    links = [img for img in t.get("imagenes", []) if img.startswith("http")]
+                    num_fotos = len(t.get("imagenes", []))
+                    imgs_texto = ", ".join(links) if links else (f"📸 Tiene {num_fotos} foto(s)" if num_fotos > 0 else "")
+                    extra_data = {k:v for k,v in t.items() if k not in ['pnl', 'balance_final', 'fecha_str', 'imagenes']}
+                    
+                    filas_a_insertar.append([
+                        usuario, pwd, cuenta, t["fecha_str"], float(t["balance_final"]), float(t["pnl"]), 
+                        imgs_texto, set_pc_str, set_mov_str, json.dumps(extra_data)
+                    ])
+        hoja_user.update(filas_a_insertar)
+    except Exception:
+        pass
+
 
 # --- RECUERDA LA SESIÓN Y DISPOSITIVO AL RECARGAR (F5) ---
 if "dispositivo_actual" not in st.session_state: st.session_state.dispositivo_actual = "PC"
@@ -331,7 +368,7 @@ if st.session_state.confirm_clear:
     if c_yes.button("SÍ, BORRAR"):
         db_usuario[ctx_actual]["balance"] = 25000.00
         db_usuario[ctx_actual]["trades"] = {}
-        registrar_en_excel(usuario, db_global[usuario]["password"], ctx_actual, datetime.now(), 25000.00, 0.0, {}, db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
+        reescribir_excel_usuario(usuario) # Actualizamos la DB limpia
         st.session_state.confirm_clear = False
         st.rerun()
     if c_no.button("CANCELAR"):
@@ -762,7 +799,6 @@ with col_cal:
                                 has_notes = True
                                 confluences_str = ", ".join(t.get("Confluences", []))
                                 
-                                # AQUI ESTÁ EL ARREGLO DEL PNL CON DOS DECIMALES PARA EL MODAL DE NOTAS
                                 notas_html_contenido += f'<div style="margin-bottom: 15px;"><h4 style="color:#00C897; margin:0;">▶ Trade #{idx_t+1} (PnL: ${t["pnl"]:,.2f})</h4><b>Bias:</b> <span class="note-val">{t.get("bias", "NEUTRO")}</span><br><b>Confluences:</b> <span class="note-val">{confluences_str}</span><br><b>Reason For Trade:</b> <span class="note-val">{t.get("razon_trade", "")}</span><br><b>Corrections:</b> <span class="note-val">{t.get("Corrections", "")}</span><br><b>% Risk:</b> <span class="note-val">{t.get("risk", "")}</span><br><b>RR:</b> <span class="note-val">{t.get("RR", "")}</span><br><b>Trade Type:</b> <span class="note-val">{t.get("trade_type", "")}</span><br><b>Emotions:</b> <span class="note-val">{t.get("Emotions", "")}</span></div>'
                                 
                         if has_notes:
@@ -956,6 +992,15 @@ def agregar_imagenes_historial(contexto, clave, idx_trade, widget_id):
             b64_pura = convertir_img_base64(img)
             db_usuario[contexto]["trades"][clave][idx_trade]["imagenes"].append(b64_pura)
 
+# --- ESTADOS PARA FLECHAS DEL HISTORIAL ---
+if "hist_month" not in st.session_state: st.session_state.hist_month = hoy.month
+if "hist_year" not in st.session_state: st.session_state.hist_year = hoy.year
+
+def cambiar_mes_hist(delta):
+    st.session_state.hist_month += delta
+    if st.session_state.hist_month > 12: st.session_state.hist_month = 1; st.session_state.hist_year += 1
+    elif st.session_state.hist_month < 1: st.session_state.hist_month = 12; st.session_state.hist_year -= 1
+
 with col_mitad_1:
     with st.expander("🛠️ OPEN ORDER HISTORY", expanded=False):
         trades_actuales = db_usuario[ctx]["trades"]
@@ -963,17 +1008,23 @@ with col_mitad_1:
         if not trades_actuales:
             st.info("No hay operaciones registradas en esta cuenta aún.")
         else:
+            # --- NUEVAS FLECHAS DE NAVEGACIÓN ---
+            c_h1, c_h2, c_h3 = st.columns([1, 2, 1])
+            with c_h1: st.button("◀", on_click=cambiar_mes_hist, args=(-1,), key="btn_h_prev", use_container_width=True)
+            with c_h2: st.markdown(f"<h4 style='text-align:center; color:{c_dash}; margin-top:5px;'>🗓️ {calendar.month_name[st.session_state.hist_month]} {st.session_state.hist_year}</h4>", unsafe_allow_html=True)
+            with c_h3: st.button("▶", on_click=cambiar_mes_hist, args=(1,), key="btn_h_next", use_container_width=True)
+            st.markdown("---")
+
             trades_ordenados = sorted(trades_actuales.items(), key=lambda x: datetime(x[0][0], x[0][1], x[0][2]), reverse=True)
-            mes_actual_dibujado = "" 
             
             for clave, lista_trades in trades_ordenados:
                 anio_t, mes_t, dia_t = clave
-                fecha_dt = datetime(anio_t, mes_t, dia_t)
                 
-                nombre_mes_grp = f"{calendar.month_name[mes_t]} {anio_t}"
-                if nombre_mes_grp != mes_actual_dibujado:
-                    st.markdown(f"<h4 style='color:{c_dash}; margin-top:15px; border-bottom:1px solid gray; padding-bottom:5px;'>🗓️ {nombre_mes_grp}</h4>", unsafe_allow_html=True)
-                    mes_actual_dibujado = nombre_mes_grp
+                # --- FILTRAR PARA QUE SOLO MUESTRE EL MES SELECCIONADO ---
+                if anio_t != st.session_state.hist_year or mes_t != st.session_state.hist_month:
+                    continue
+
+                fecha_dt = datetime(anio_t, mes_t, dia_t)
 
                 for i, data in enumerate(lista_trades):
                     pnl_val = float(data['pnl'])
@@ -1069,8 +1120,8 @@ with col_mitad_1:
                                         db_usuario[ctx]["trades"][nueva_clave] = []
                                     db_usuario[ctx]["trades"][nueva_clave].append(trade_movido)
                                 
-                                fecha_obj_edit = datetime(nueva_clave[0], nueva_clave[1], nueva_clave[2])
-                                registrar_en_excel(usuario, db_global[usuario]["password"], ctx, fecha_obj_edit, nuevo_bal, nuevo_pnl, data, db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
+                                # AQUÍ LLAMAMOS A LA SINCRONIZACIÓN AL EDITAR
+                                reescribir_excel_usuario(usuario)
                                 st.rerun()
 
                     with c_trash:
@@ -1078,6 +1129,8 @@ with col_mitad_1:
                             db_usuario[ctx]["trades"][clave].pop(i)
                             if not db_usuario[ctx]["trades"][clave]:
                                 del db_usuario[ctx]["trades"][clave]
+                            # AQUÍ LLAMAMOS A LA SINCRONIZACIÓN AL BORRAR
+                            reescribir_excel_usuario(usuario)
                             st.rerun()
 
 # COLUMNA 2: TABLA DE RESULTADOS A LA MITAD
@@ -1096,11 +1149,10 @@ with col_mitad_2:
                     Confluences_list = trade.get('Confluences', [])
                     Confluences_resumen = ", ".join([c.split(". ")[-1] for c in Confluences_list])
 
-# ORGANIZA ESTAS LÍNEAS EN EL ORDEN EXACTO QUE QUIERAS VER LAS COLUMNAS:
                     row = {
                         "Date": fecha.strftime("%d/%m/%Y"),
                         "Trade": f"#{i+1}",
-                        "P&L": f"{pnl_simbol}${pnl:,.2f}", # <-- P&L movido aquí arriba
+                        "P&L": f"{pnl_simbol}${pnl:,.2f}",
                         "Trade Type": trade.get('trade_type', ''),
                         "Bias": trade.get('bias', ''),
                         "RR": trade.get('RR', ''),
@@ -1123,12 +1175,12 @@ with col_mitad_2:
                 row_styles[row.index.get_loc('P&L')] = pnl_style
                 return row_styles
 
-# AQUÍ CONFIGURAS LA TABLA PARA SIEMPRE
             st.dataframe(
                 df_results.style.apply(style_rows, axis=1),
-                use_container_width=False, 
-                hide_index=False,  # <--- FALSE: ¡Esto hace que APAREZCA el index (contador de filas)!
-                key=f"tabla_resultados_v6_{ctx}", # <--- v6 para aplicar el cambio de inmediato
+                use_container_width=True,  # ESTO LO HACE MÁS ANCHO
+                height=800,                # ESTO LO HACE MÁS ALTO
+                hide_index=False, 
+                key=f"tabla_resultados_v6_{ctx}", 
                 column_config={
                     "Corrections": st.column_config.Column(width="small"), 
                     "Emotions": st.column_config.Column(width="small"),
