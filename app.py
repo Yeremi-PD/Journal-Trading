@@ -1068,6 +1068,16 @@ def agregar_imagenes_historial(contexto, clave, idx_trade, widget_id):
             b64_pura = convertir_img_base64(img)
             db_usuario[contexto]["trades"][clave][idx_trade]["imagenes"].append(b64_pura)
 
+@st.dialog("⚠️ Confirmar Borrado de Trade")
+def ventana_borrar_trade(ctx, clave, i, usuario_actual):
+    st.write("¿Estás seguro de que quieres borrar este trade? Esta acción no se puede deshacer.")
+    if st.button("SÍ, BORRAR TRADE", type="primary", use_container_width=True):
+        db_usuario[ctx]["trades"][clave].pop(i)
+        if not db_usuario[ctx]["trades"][clave]:
+            del db_usuario[ctx]["trades"][clave]
+        reescribir_excel_usuario(usuario_actual)
+        st.rerun()
+
 with col_mitad_1:
     with st.expander("🛠️ OPEN ORDER HISTORY", expanded=False):
         trades_actuales = db_usuario[ctx]["trades"]
