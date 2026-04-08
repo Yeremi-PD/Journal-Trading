@@ -91,15 +91,19 @@ def get_global_db():
                         "balance_final": float(row_data.get('Balance', 0) or 0),
                         "fecha_str": f_str,
                         "imagenes": [], 
-                        "bias": "NEUTRO", "Confluences": [], "razon_trade": "", "Corrections": "", "risk": "0.5%", "RR": "1:2", "trade_type": "", "Emotions": ""
+                        "bias": "NEUTRO", "Confluences": [], "razon_trade": "", "Corrections": "", "risk": "0.5%", "RR": "1:2", "trade_type": "A", "Emotions": ""
                     }
                     
                     extra = row_data.get('ExtraData', '')
                     if extra:
                         try: trade_info.update(json.loads(extra))
                         except: pass
+                    
+                    # Convertir a formato de LISTAS para soportar múltiples trades por día
+                    if clave not in db_temp[user]["data"][cuenta]["trades"]:
+                        db_temp[user]["data"][cuenta]["trades"][clave] = []
                         
-                    db_temp[user]["data"][cuenta]["trades"][clave] = trade_info
+                    db_temp[user]["data"][cuenta]["trades"][clave].append(trade_info)
                     db_temp[user]["data"][cuenta]["balance"] = float(row_data.get('Balance', 0) or 0)
         except Exception:
             pass
@@ -235,6 +239,8 @@ WEEKS_TITULOS_COLOR_C, WEEKS_TITULOS_COLOR_O, WEEK_BOX_W, WEEK_BOX_H, Month_BOX_
 if "tema" not in st.session_state: st.session_state.tema = TEMA_POR_DEFECTO
 if "data_source_sel" not in st.session_state: st.session_state.data_source_sel = "Account Real"
 if "dispositivo_actual" not in st.session_state: st.session_state.dispositivo_actual = "PC"
+# LLAVE PARA RESETEAR EL FORMULARIO ENTERO (LIMPIA FOTOS Y TEXTOS)
+if "form_reset_key" not in st.session_state: st.session_state.form_reset_key = 0
 
 usuario = st.session_state.usuario_actual
 db_usuario = db_global[usuario]["data"]
@@ -366,20 +372,20 @@ with st.sidebar.expander("📅 Calendar Settings"):
 st.sidebar.markdown("---")
 st.sidebar.markdown("### 📥 Descargas")
 
-# BOTÓN PARA DESCARGAR TODAS LAS FOTOS EN UN ZIP
 if db_usuario[ctx_actual]["trades"]:
     @st.cache_data
     def generar_zip(trades_dict):
         zip_buffer = io.BytesIO()
         with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zf:
-            for c_key, t_data in trades_dict.items():
-                f_nombre = t_data.get("fecha_str", "00-00-0000").replace("/", "-")
-                for idx_i, img_str in enumerate(t_data.get("imagenes", [])):
-                    if img_str.startswith("data:image"):
-                        try:
-                            img_data = base64.b64decode(img_str.split(",")[1])
-                            zf.writestr(f"Trade_{f_nombre}_{idx_i+1}.jpg", img_data)
-                        except: pass
+            for c_key, t_list in trades_dict.items():
+                for idx_t, t_data in enumerate(t_list):
+                    f_nombre = t_data.get("fecha_str", "00-00-0000").replace("/", "-")
+                    for idx_i, img_str in enumerate(t_data.get("imagenes", [])):
+                        if img_str.startswith("data:image"):
+                            try:
+                                img_data = base64.b64decode(img_str.split(",")[1])
+                                zf.writestr(f"Trade_{f_nombre}_T{idx_t+1}_{idx_i+1}.jpg", img_data)
+                            except: pass
         return zip_buffer.getvalue()
         
     zip_bytes = generar_zip(db_usuario[ctx_actual]["trades"])
@@ -555,17 +561,17 @@ with col_bal:
 
 st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
 
-
 # ==========================================
-# 9. ENTRADA AUTOMÁTICA E IMÁGENES + NOTAS (TODO EN UN SOLO FORMULARIO - CERO PARPADEOS)
+# 9. ENTRADA DE TRADES (TODO EN UN SOLO FORMULARIO - AUTO LIMPIEZA)
 # ==========================================
-with st.form("form_main_entry", border=False):
+# Usamos form_reset_key para que al guardar el form se destruya y se cree limpio (sin fotos ni notas viejas)
+with st.form(key=f"form_main_entry_{st.session_state.form_reset_key}", border=False):
     c1, c2, c_img, c_not, c_espacio = st.columns([1.5, 0.5, 2.5, 0.6, 3.4]) 
     
     with c1:
         st.markdown(f'<div class="lbl-input">{LBL_INPUT}</div>', unsafe_allow_html=True)
         nuevo_bal = st.number_input("Balance", value=bal_actual, format="%.2f", label_visibility="collapsed")
-        # ESTE ES EL ÚNICO BOTÓN QUE GUARDA Y EJECUTA ACCIONES REALES
+        # ESTE ES EL ÚNICO BOTÓN QUE GUARDA
         btn_save = st.form_submit_button("SAVE")
         
     with c2:
@@ -575,51 +581,42 @@ with st.form("form_main_entry", border=False):
             
     with c_img:
         st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True) 
-        
-        # Llave dinámica para que el uploader se limpie al guardar
-        if "upd_main_key" not in st.session_state:
-            st.session_state.upd_main_key = 0
-            
-        imgs_subidas = st.file_uploader("", accept_multiple_files=True, label_visibility="collapsed", key=f"upd_main_form_{st.session_state.upd_main_key}")
+        imgs_subidas = st.file_uploader("", accept_multiple_files=True, label_visibility="collapsed")
         
     with c_not:
         st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True) 
         with st.popover("📝"):
             st.markdown("<h3 style='text-align:center; margin-top:0;'>Trade Details</h3>", unsafe_allow_html=True)
             
-            clave_actual = (hoy.year, hoy.month, hoy.day)
-            t_ref = db_usuario[ctx]["trades"].get(clave_actual, {})
-            
-            nuevo_bias = st.radio("Bias", ['ALCISTA', 'BAJISTA', 'NEUTRO'], index=['ALCISTA', 'BAJISTA', 'NEUTRO'].index(t_ref.get('bias', 'NEUTRO')), horizontal=True)
-            nuevo_conf = st.multiselect("Confluences", ['BIAS Claro', 'Liq Sweep', 'IFVG', 'FVG', 'EQH / EQL', 'BSL / SSL', 'POI', 'SMT', 'Order Block', 'PDH / PDL', 'Continuación', 'Data High / Data Low', 'CISD'], default=t_ref.get('Confluences', []))
-            nuevo_razon = st.text_area("Reason For Trade", value=t_ref.get('razon_trade', ''), height=80)
-            nuevo_corr = st.text_area("Corrections", value=t_ref.get('Corrections', ''), height=80)
+            nuevo_bias = st.radio("Bias", ['ALCISTA', 'BAJISTA', 'NEUTRO'], index=2, horizontal=True)
+            nuevo_conf = st.multiselect("Confluences", ['BIAS Claro', 'Liq Sweep', 'IFVG', 'FVG', 'EQH / EQL', 'BSL / SSL', 'POI', 'SMT', 'Order Block', 'PDH / PDL', 'Continuación', 'Data High / Data Low', 'CISD'], default=[])
+            nuevo_razon = st.text_area("Reason For Trade", value='', height=80)
+            nuevo_corr = st.text_area("Corrections", value='', height=80)
             
             risk_opts = ['1%', '0.9%', '0.8%', '0.7%', '0.6%', '0.5%', '0.4%']
-            nuevo_risk = st.radio("% Risk", risk_opts, index=risk_opts.index(t_ref.get('risk', '0.5%')) if t_ref.get('risk', '0.5%') in risk_opts else 5, horizontal=True)
+            nuevo_risk = st.radio("% Risk", risk_opts, index=5, horizontal=True)
             
             rr_opts = ['1:1', '1:1.5', '1:2', '1:3', '1:4']
-            nuevo_rr = st.radio("RR", rr_opts, index=rr_opts.index(t_ref.get('RR', '1:2')) if t_ref.get('RR', '1:2') in rr_opts else 2, horizontal=True)
+            nuevo_rr = st.radio("RR", rr_opts, index=2, horizontal=True)
             
             tt_opts = ['A+', 'A', 'B', 'C']
-            nuevo_tt = st.radio("Trade Type", tt_opts, index=tt_opts.index(t_ref.get('trade_type', 'A+')) if t_ref.get('trade_type', 'A+') in tt_opts else 0, horizontal=True)
+            nuevo_tt = st.radio("Trade Type", tt_opts, index=0, horizontal=True)
             
-            nuevo_emo = st.text_area("Emotions", value=t_ref.get('Emotions', ''), height=80)
+            nuevo_emo = st.text_area("Emotions", value='', height=80)
 
     # Lógica que se dispara SOLAMENTE al apretar SAVE
     if btn_save:
         viejo = db_usuario[ctx]["balance"]
         pnl = nuevo_bal - viejo if nuevo_bal != viejo else 0.0
         clave_final = (fecha_sel.year, fecha_sel.month, fecha_sel.day)
-        old_trade = db_usuario[ctx]["trades"].get(clave_final, {})
         
-        imgs_finales = old_trade.get("imagenes", []).copy()
+        imgs_finales = []
         if imgs_subidas:
             for img in imgs_subidas:
                 imgs_finales.append(convertir_img_base64(img))
         
-        db_usuario[ctx]["trades"][clave_final] = {
-            "pnl": pnl if nuevo_bal != viejo else old_trade.get("pnl", 0.0),
+        trade_nuevo = {
+            "pnl": pnl,
             "balance_final": nuevo_bal,
             "fecha_str": fecha_sel.strftime("%d/%m/%Y"),
             "imagenes": imgs_finales,
@@ -632,18 +629,23 @@ with st.form("form_main_entry", border=False):
             "trade_type": nuevo_tt,
             "Emotions": nuevo_emo
         }
+        
+        if clave_final not in db_usuario[ctx]["trades"]:
+            db_usuario[ctx]["trades"][clave_final] = []
+            
+        db_usuario[ctx]["trades"][clave_final].append(trade_nuevo)
         db_usuario[ctx]["balance"] = nuevo_bal
         
-        registrar_en_excel(usuario, db_global[usuario]["password"], ctx, fecha_sel, nuevo_bal, db_usuario[ctx]["trades"][clave_final]["pnl"], db_usuario[ctx]["trades"][clave_final], db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
+        registrar_en_excel(usuario, db_global[usuario]["password"], ctx, fecha_sel, nuevo_bal, pnl, trade_nuevo, db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
         
-        # Incrementamos la llave para que el recuadro de fotos se limpie automáticamente
-        st.session_state.upd_main_key += 1
+        # INCREMENTAR LA KEY DEL FORMULARIO LIMPIA TODO (FOTOS, NOTAS, ETC.) PARA EL PRÓXIMO TRADE
+        st.session_state.form_reset_key += 1
         
-        st.success("✅ ¡Datos guardados de forma segura!")
+        st.success("✅ ¡Trade guardado y panel limpiado para el siguiente!")
         st.rerun()
 
 # ==========================================
-# 10. CALENDARIO Y RESUMEN
+# 10. CALENDARIO Y RESUMEN (AHORA SOPORTA MÚLTIPLES TRADES POR DÍA)
 # ==========================================
 col_cal, col_det = st.columns([2, 1]) 
 
@@ -651,8 +653,14 @@ anio_sel = st.session_state.cal_year
 mes_sel = st.session_state.cal_month
 nombre_mes = calendar.month_name[mes_sel]
 
+# Aplanar trades para calcular stats del mes
+trades_mes_top = []
+for k, lista_t in db_usuario[ctx]["trades"].items():
+    if k[0] == anio_sel and k[1] == mes_sel:
+        for t in lista_t:
+            trades_mes_top.append(t["pnl"])
+
 with col_cal:
-    trades_mes_top = [v["pnl"] for k, v in db_usuario[ctx]["trades"].items() if k[0] == anio_sel and k[1] == mes_sel]
     total_trades_top = len(trades_mes_top)
     net_pnl_top = sum(trades_mes_top) if total_trades_top > 0 else 0.0
     wins_top = len([t for t in trades_mes_top if t > 0])
@@ -696,51 +704,69 @@ with col_cal:
             with d_cols[i]:
                 if dia == 0: st.markdown('<div class="card cell-empty"></div>', unsafe_allow_html=True)
                 else:
-                    trade = db_usuario[ctx]["trades"].get((anio_sel, mes_sel, dia))
-                    visible = True
-                    if filtro == OPT_FILTRO_2 and (not trade or trade["pnl"] <= 0): visible = False
-                    if filtro == OPT_FILTRO_3 and (not trade or trade["pnl"] >= 0): visible = False
+                    dia_trades = db_usuario[ctx]["trades"].get((anio_sel, mes_sel, dia), [])
+                    
+                    # Filtrar trades si se seleccionó Take Profit o Stop Loss
+                    trades_visibles = []
+                    for t in dia_trades:
+                        if filtro == OPT_FILTRO_2 and t["pnl"] <= 0: continue
+                        if filtro == OPT_FILTRO_3 and t["pnl"] >= 0: continue
+                        trades_visibles.append(t)
 
-                    if trade and visible:
-                        c_cls = "cell-win" if trade["pnl"] > 0 else "cell-loss"
-                        c_sim = "+" if trade["pnl"] > 0 else ""
+                    if trades_visibles:
+                        # Sumar el PNL del día de todos los trades visibles
+                        pnl_dia = sum(t["pnl"] for t in trades_visibles)
+                        c_cls = "cell-win" if pnl_dia > 0 else "cell-loss"
+                        c_sim = "+" if pnl_dia > 0 else ""
                         
-                        bal_ini = trade["balance_final"] - trade["pnl"]
-                        pct = (trade["pnl"] / bal_ini * 100) if bal_ini != 0 else 0
+                        # Usar el último balance conocido para el pct del día
+                        bal_ini = trades_visibles[-1]["balance_final"] - pnl_dia
+                        pct = (pnl_dia / bal_ini * 100) if bal_ini != 0 else 0
                         pct_str = f"{c_sim}{pct:.2f}%"
 
-                        if trade.get("imagenes"):
+                        # Juntar todas las imágenes de los trades de ese día
+                        todas_imagenes = []
+                        for t in trades_visibles:
+                            todas_imagenes.extend(t.get("imagenes", []))
+                            
+                        if todas_imagenes:
                             id_modal = f"mod_{anio_sel}_{mes_sel}_{dia}"
-                            img_tags = "".join([f'<img src="{img}">' for img in trade["imagenes"]])
+                            img_tags = "".join([f'<img src="{img}">' for img in todas_imagenes])
                             cam_html = f'<div><input type="checkbox" id="{id_modal}" class="modal-toggle" style="display:none;"><label for="{id_modal}"><div class="cam-icon">{BTN_CAM_EMOJI}</div></label><div class="fs-modal"><label for="{id_modal}" class="close-btn">{TXT_CERRAR_MODAL}</label>{img_tags}</div></div>'
                         else:
                             cam_html = ""
                             
-                        has_notes = bool(trade.get("razon_trade", "").strip() or trade.get("Corrections", "").strip() or trade.get("Emotions", "").strip() or trade.get("Confluences", []))
+                        # Construir el modal de notas con la info de cada trade
+                        notas_html_contenido = f"<h3 style='text-align:center; margin-top:0; font-size: var(--note-lbl-size);'>🗒️ Trades - {dia}/{mes_sel}/{anio_sel}</h3><hr>"
+                        has_notes = False
+                        
+                        for idx_t, t in enumerate(trades_visibles):
+                            if bool(t.get("razon_trade", "").strip() or t.get("Corrections", "").strip() or t.get("Emotions", "").strip() or t.get("Confluences", [])):
+                                has_notes = True
+                                confluences_str = ", ".join(t.get("Confluences", []))
+                                notas_html_contenido += f"""
+                                <div style="margin-bottom: 20px;">
+                                    <h4 style="color:#00C897; margin:0;">▶ Trade #{idx_t+1} (PnL: {t['pnl']})</h4>
+                                    <b>Bias:</b> <span class="note-val">{t.get("bias", "NEUTRO")}</span>
+                                    <b>Confluences:</b> <span class="note-val">{confluences_str}</span>
+                                    <b>Reason For Trade:</b> <span class="note-val">{t.get("razon_trade", "")}</span>
+                                    <b>Corrections:</b> <span class="note-val">{t.get("Corrections", "")}</span>
+                                    <b>% Risk:</b> <span class="note-val">{t.get("risk", "")}</span>
+                                    <b>RR:</b> <span class="note-val">{t.get("RR", "")}</span>
+                                    <b>Trade Type:</b> <span class="note-val">{t.get("trade_type", "")}</span>
+                                    <b>Emotions:</b> <span class="note-val">{t.get("Emotions", "")}</span>
+                                </div>
+                                """
+                                
                         if has_notes:
                             id_note_modal = f"mod_note_{anio_sel}_{mes_sel}_{dia}"
-                            confluences_str = ", ".join(trade.get("Confluences", []))
-                            notes_html = f"""
-                            <div class="note-modal-content">
-                                <h3 style="text-align:center; margin-top:0; font-size: var(--note-lbl-size);">🗒️ Trade Details - {dia}/{mes_sel}/{anio_sel}</h3>
-                                <hr>
-                                <b>Bias:</b> <span class="note-val">{trade.get("bias", "NEUTRO")}</span>
-                                <b>Confluences:</b> <span class="note-val">{confluences_str}</span>
-                                <b>Reason For Trade:</b> <span class="note-val">{trade.get("razon_trade", "")}</span>
-                                <b>Corrections:</b> <span class="note-val">{trade.get("Corrections", "")}</span>
-                                <b>% Risk:</b> <span class="note-val">{trade.get("risk", "")}</span>
-                                <b>RR:</b> <span class="note-val">{trade.get("RR", "")}</span>
-                                <b>Trade Type:</b> <span class="note-val">{trade.get("trade_type", "")}</span>
-                                <b>Emotions:</b> <span class="note-val">{trade.get("Emotions", "")}</span>
-                            </div>
-                            """
-                            note_html = f'<div><input type="checkbox" id="{id_note_modal}" class="modal-toggle" style="display:none;"><label for="{id_note_modal}"><div class="note-icon">🗒️</div></label><div class="fs-modal"><label for="{id_note_modal}" class="close-btn">{TXT_CERRAR_MODAL}</label>{notes_html}</div></div>'
+                            note_html = f'<div><input type="checkbox" id="{id_note_modal}" class="modal-toggle" style="display:none;"><label for="{id_note_modal}"><div class="note-icon">🗒️</div></label><div class="fs-modal"><label for="{id_note_modal}" class="close-btn">{TXT_CERRAR_MODAL}</label><div class="note-modal-content">{notas_html_contenido}</div></div></div>'
                         else:
                             note_html = ""
                         
-                        st.markdown(f'<div class="card {c_cls}"><div class="day-number">{dia}</div><div class="day-content"><span class="day-pnl">{c_sim}${trade["pnl"]:,.2f}</span><br><span class="day-pct">{pct_str}</span></div>{cam_html}{note_html}</div>', unsafe_allow_html=True)
+                        st.markdown(f'<div class="card {c_cls}"><div class="day-number">{dia}</div><div class="day-content"><span class="day-pnl">{c_sim}${pnl_dia:,.2f}</span><br><span class="day-pct">{pct_str}</span></div>{cam_html}{note_html}</div>', unsafe_allow_html=True)
                     else:
-                        op = "0.2" if trade and not visible else "1"
+                        op = "0.2" if len(dia_trades) > 0 else "1"
                         st.markdown(f'<div class="card cell-empty" style="opacity:{op}"><div class="day-number">{dia}</div></div>', unsafe_allow_html=True)
 
 def get_pie_svg(w, l, t):
@@ -783,12 +809,17 @@ def get_pie_svg(w, l, t):
 with col_det:
     ver_todo = st.toggle("🌍 View All-Time Stats", value=False)
     
+    # Aplanar todos los trades de las listas
+    todos_los_trades_planos = []
+    for k, lista in db_usuario[ctx]["trades"].items():
+        todos_los_trades_planos.extend(lista)
+        
     if ver_todo:
-        trades_lista = [v["pnl"] for k, v in db_usuario[ctx]["trades"].items()]
+        trades_lista = [t["pnl"] for t in todos_los_trades_planos]
         titulo_pnl = "Net P&L All-Time"
         titulo_win = "Win Rate All-Time"
     else:
-        trades_lista = [v["pnl"] for k, v in db_usuario[ctx]["trades"].items() if k[0] == anio_sel and k[1] == mes_sel]
+        trades_lista = trades_mes_top
         titulo_pnl = CARD_PNL_TITULO
         titulo_win = CARD_WIN_TITULO
         
@@ -844,14 +875,15 @@ with col_det:
     if not ver_todo:
         semanas_stats = {i: {"pnl": 0.0, "w": 0, "l": 0} for i in range(1, len(mes_matriz) + 1)}
         
-        for key, val in db_usuario[ctx]["trades"].items():
+        for key, lista_t in db_usuario[ctx]["trades"].items():
             if key[0] == anio_sel and key[1] == mes_sel:
                 dia = key[2]
                 for idx, semana in enumerate(mes_matriz):
                     if dia in semana:
-                        semanas_stats[idx + 1]["pnl"] += val["pnl"]
-                        if val["pnl"] > 0: semanas_stats[idx + 1]["w"] += 1
-                        elif val["pnl"] < 0: semanas_stats[idx + 1]["l"] += 1
+                        for val in lista_t:
+                            semanas_stats[idx + 1]["pnl"] += val["pnl"]
+                            if val["pnl"] > 0: semanas_stats[idx + 1]["w"] += 1
+                            elif val["pnl"] < 0: semanas_stats[idx + 1]["l"] += 1
                         break
 
         m_total = sum(s["pnl"] for s in semanas_stats.values())
@@ -874,13 +906,14 @@ with col_det:
 
     else:
         meses_stats = {}
-        for key, val in db_usuario[ctx]["trades"].items():
+        for key, lista_t in db_usuario[ctx]["trades"].items():
             y, m = key[0], key[1]
             if (y, m) not in meses_stats:
                 meses_stats[(y, m)] = {"pnl": 0.0, "w": 0, "l": 0}
-            meses_stats[(y, m)]["pnl"] += val["pnl"]
-            if val["pnl"] > 0: meses_stats[(y, m)]["w"] += 1
-            elif val["pnl"] < 0: meses_stats[(y, m)]["l"] += 1
+            for val in lista_t:
+                meses_stats[(y, m)]["pnl"] += val["pnl"]
+                if val["pnl"] > 0: meses_stats[(y, m)]["w"] += 1
+                elif val["pnl"] < 0: meses_stats[(y, m)]["l"] += 1
             
         meses_html = ""
         for (y, m) in sorted(meses_stats.keys()):
@@ -904,17 +937,16 @@ with col_det:
 st.markdown("<br>", unsafe_allow_html=True)
 st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
 
-def borrar_imagen(contexto, llave, index):
-    if len(db_usuario[contexto]["trades"][llave]["imagenes"]) > index:
-        db_usuario[contexto]["trades"][llave]["imagenes"].pop(index)
+def borrar_imagen_historial(contexto, clave, idx_trade, idx_img):
+    if len(db_usuario[contexto]["trades"][clave][idx_trade]["imagenes"]) > idx_img:
+        db_usuario[contexto]["trades"][clave][idx_trade]["imagenes"].pop(idx_img)
 
-def agregar_imagenes_historial(contexto, llave, widget_id, counter_id):
+def agregar_imagenes_historial(contexto, clave, idx_trade, widget_id):
     archivos_nuevos = st.session_state.get(widget_id)
     if archivos_nuevos:
         for img in archivos_nuevos:
             b64_pura = convertir_img_base64(img)
-            db_usuario[contexto]["trades"][llave]["imagenes"].append(b64_pura)
-        st.session_state[counter_id] += 1
+            db_usuario[contexto]["trades"][clave][idx_trade]["imagenes"].append(b64_pura)
 
 with st.expander("🛠️ OPEN ORDER HISTORY", expanded=False):
     trades_actuales = db_usuario[ctx]["trades"]
@@ -925,7 +957,7 @@ with st.expander("🛠️ OPEN ORDER HISTORY", expanded=False):
         trades_ordenados = sorted(trades_actuales.items(), key=lambda x: datetime(x[0][0], x[0][1], x[0][2]), reverse=True)
         mes_actual_dibujado = "" 
         
-        for clave, data in trades_ordenados:
+        for clave, lista_trades in trades_ordenados:
             anio_t, mes_t, dia_t = clave
             fecha_dt = datetime(anio_t, mes_t, dia_t)
             
@@ -934,118 +966,86 @@ with st.expander("🛠️ OPEN ORDER HISTORY", expanded=False):
                 st.markdown(f"<h4 style='color:{c_dash}; margin-top:15px; border-bottom:1px solid gray; padding-bottom:5px;'>🗓️ {nombre_mes_grp}</h4>", unsafe_allow_html=True)
                 mes_actual_dibujado = nombre_mes_grp
 
-            pnl_val = float(data['pnl'])
-            color_md = "green" if pnl_val > 0 else ("red" if pnl_val < 0 else "gray")
-            simbolo = "+" if pnl_val > 0 else ""
-            
-            with st.expander(f"🗓️ {data['fecha_str']} | P&L: :{color_md}[{simbolo}${pnl_val:,.2f}]"):
-                c_ed1, c_ed2, c_ed3 = st.columns(3)
+            for i, data in enumerate(lista_trades):
+                pnl_val = float(data['pnl'])
+                color_md = "green" if pnl_val > 0 else ("red" if pnl_val < 0 else "gray")
+                simbolo = "+" if pnl_val > 0 else ""
                 
-                with c_ed1:
-                    nueva_fecha = st.date_input("Day", value=fecha_dt, key=f"f_{clave}")
-                with c_ed2:
-                    nuevo_bal = st.number_input("Nuevo Balance", value=float(data['balance_final']), format="%.2f", key=f"b_{clave}")
-                with c_ed3:
-                    nuevo_pnl = st.number_input("Editar P&L", value=pnl_val, format="%.2f", key=f"p_{clave}")
-                
-                st.markdown("---")
-                st.markdown("**📸 Saved Images:**")
-                
-                counter_key = f"upd_counter_{clave}"
-                if counter_key not in st.session_state:
-                    st.session_state[counter_key] = 0
-                
-                upd_key = f"upd_{clave}_{st.session_state[counter_key]}"
-                st.file_uploader(
-                    "🢛🢛🢛🢛🢛🢛🢛🢛🢛🢛🢛🢛🢛", 
-                    accept_multiple_files=True, 
-                    key=upd_key, 
-                    on_change=agregar_imagenes_historial, 
-                    args=(ctx, clave, upd_key, counter_key)
-                )
+                with st.expander(f"🗓️ {data['fecha_str']} (Trade #{i+1}) | P&L: :{color_md}[{simbolo}${pnl_val:,.2f}]"):
+                    c_ed1, c_ed2, c_ed3 = st.columns(3)
+                    
+                    with c_ed1:
+                        nueva_fecha = st.date_input("Day", value=fecha_dt, key=f"f_{clave}_{i}")
+                    with c_ed2:
+                        nuevo_bal = st.number_input("Nuevo Balance", value=float(data['balance_final']), format="%.2f", key=f"b_{clave}_{i}")
+                    with c_ed3:
+                        nuevo_pnl = st.number_input("Editar P&L", value=pnl_val, format="%.2f", key=f"p_{clave}_{i}")
+                    
+                    st.markdown("---")
+                    st.markdown("**📸 Saved Images:**")
+                    
+                    upd_key = f"upd_{clave}_{i}"
+                    st.file_uploader(
+                        "🢛 Subir Nuevas Fotos 🢛", 
+                        accept_multiple_files=True, 
+                        key=upd_key, 
+                        on_change=agregar_imagenes_historial, 
+                        args=(ctx, clave, i, upd_key)
+                    )
 
-                imagenes_restantes = db_usuario[ctx]["trades"][clave].get("imagenes", [])
-                
-                if imagenes_restantes:
-                    cols_img = st.columns(len(imagenes_restantes))
-                    for i, img_b64 in enumerate(imagenes_restantes):
-                        with cols_img[i]:
-                            st.markdown(f'<img src="{img_b64}" style="width:100%; border-radius:20px; border:1px solid gray;">', unsafe_allow_html=True)
-                            st.button(
-                                "🗑️ Delete", 
-                                key=f"delimg_{clave}_{i}_{len(imagenes_restantes)}", 
-                                on_click=borrar_imagen, 
-                                args=(ctx, clave, i), 
-                                use_container_width=True
-                            )
-                else:
-                    st.caption("No hay imágenes guardadas en este día.")
-                
-                st.markdown("---")
-                c_btn1, c_btn2 = st.columns(2)
-                
-                with c_btn1:
-                    if st.button("💾 SAVE TODAY'S CHANGES", key=f"save_{clave}", use_container_width=True):
-                        nueva_clave = (nueva_fecha.year, nueva_fecha.month, nueva_fecha.day)
-                        
-                        if nueva_clave != clave:
-                            del db_usuario[ctx]["trades"][clave]
-                        
-                        db_usuario[ctx]["trades"][nueva_clave] = {
-                            "pnl": nuevo_pnl,
-                            "balance_final": nuevo_bal,
-                            "fecha_str": nueva_fecha.strftime("%d/%m/%Y"),
-                            "imagenes": db_usuario[ctx]["trades"].get(clave, {}).get("imagenes", imagenes_restantes),
-                            "bias": data.get("bias", "NEUTRO"),
-                            "Confluences": data.get("Confluences", []),
-                            "razon_trade": data.get("razon_trade", ""),
-                            "Corrections": data.get("Corrections", ""),
-                            "risk": data.get("risk", "0.5%"),
-                            "RR": data.get("RR", "1:2"),
-                            "trade_type": data.get("trade_type", ""),
-                            "Emotions": data.get("Emotions", "")
-                        }
-                        
-                        fecha_obj_edit = datetime(nueva_clave[0], nueva_clave[1], nueva_clave[2])
-                        registrar_en_excel(usuario, db_global[usuario]["password"], ctx, fecha_obj_edit, nuevo_bal, nuevo_pnl, db_usuario[ctx]["trades"][nueva_clave], db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
-                        st.rerun()
-                        
-                with c_btn2:
-                    if st.button("❌ DELETE FULL DAY", key=f"del_{clave}", use_container_width=True):
-                        del db_usuario[ctx]["trades"][clave]
-                        st.rerun()
+                    imagenes_restantes = db_usuario[ctx]["trades"][clave][i].get("imagenes", [])
+                    
+                    if imagenes_restantes:
+                        cols_img = st.columns(len(imagenes_restantes))
+                        for idx_img, img_b64 in enumerate(imagenes_restantes):
+                            with cols_img[idx_img]:
+                                st.markdown(f'<img src="{img_b64}" style="width:100%; border-radius:20px; border:1px solid gray;">', unsafe_allow_html=True)
+                                st.button(
+                                    "🗑️ Delete", 
+                                    key=f"delimg_{clave}_{i}_{idx_img}", 
+                                    on_click=borrar_imagen_historial, 
+                                    args=(ctx, clave, i, idx_img), 
+                                    use_container_width=True
+                                )
+                    else:
+                        st.caption("No hay imágenes guardadas en este trade.")
+                    
+                    st.markdown("---")
+                    c_btn1, c_btn2 = st.columns(2)
+                    
+                    with c_btn1:
+                        if st.button("💾 SAVE TRADE EDITS", key=f"save_{clave}_{i}", use_container_width=True):
+                            nueva_clave = (nueva_fecha.year, nueva_fecha.month, nueva_fecha.day)
+                            
+                            # Actualizar datos
+                            data["pnl"] = nuevo_pnl
+                            data["balance_final"] = nuevo_bal
+                            data["fecha_str"] = nueva_fecha.strftime("%d/%m/%Y")
+                            
+                            if nueva_clave != clave:
+                                # Mover el trade a la nueva fecha
+                                trade_movido = db_usuario[ctx]["trades"][clave].pop(i)
+                                if not db_usuario[ctx]["trades"][clave]:
+                                    del db_usuario[ctx]["trades"][clave]
+                                
+                                if nueva_clave not in db_usuario[ctx]["trades"]:
+                                    db_usuario[ctx]["trades"][nueva_clave] = []
+                                db_usuario[ctx]["trades"][nueva_clave].append(trade_movido)
+                            
+                            fecha_obj_edit = datetime(nueva_clave[0], nueva_clave[1], nueva_clave[2])
+                            registrar_en_excel(usuario, db_global[usuario]["password"], ctx, fecha_obj_edit, nuevo_bal, nuevo_pnl, data, db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
+                            st.rerun()
+                            
+                    with c_btn2:
+                        if st.button("❌ DELETE THIS TRADE", key=f"del_{clave}_{i}", use_container_width=True):
+                            db_usuario[ctx]["trades"][clave].pop(i)
+                            if not db_usuario[ctx]["trades"][clave]:
+                                del db_usuario[ctx]["trades"][clave]
+                            st.rerun()
 
 # =========================================================================================================
 # 12. TABLA DE RESULTADOS
 # =========================================================================================================
-def sync_table_edits():
-    editor_state = st.session_state.get("table_editor", {})
-    contexto = st.session_state.data_source_sel
-    keys = st.session_state.get("current_table_keys", [])
-    
-    for idx in sorted(editor_state.get("deleted_rows", []), reverse=True):
-        if idx < len(keys):
-            k = keys[idx]
-            if k in db_usuario[contexto]["trades"]: del db_usuario[contexto]["trades"][k]
-                
-    for idx, edits in editor_state.get("edited_rows", {}).items():
-        if idx < len(keys):
-            k = keys[idx]
-            if k in db_usuario[contexto]["trades"]:
-                t = db_usuario[contexto]["trades"][k]
-                if "Bias" in edits: t["bias"] = edits["Bias"]
-                if "Reason For Trade" in edits: t["razon_trade"] = edits["Reason For Trade"]
-                if "Corrections" in edits: t["Corrections"] = edits["Corrections"]
-                if "% Risk" in edits: t["risk"] = edits["% Risk"]
-                if "RR" in edits: t["RR"] = edits["RR"]
-                if "Trade Type" in edits: t["trade_type"] = edits["Trade Type"]
-                if "Emotions" in edits: t["Emotions"] = edits["Emotions"]
-                if "P&L" in edits:
-                    try:
-                        val_str = str(edits["P&L"]).replace('+', '').replace('$', '').replace(',', '').strip()
-                        t["pnl"] = float(val_str)
-                    except: pass
-
 if mostrar_tabla:
     st.markdown("<br><br><h2 style='text-align:center;'>Results Table</h2>", unsafe_allow_html=True)
     all_trades = db_usuario[ctx]["trades"]
@@ -1053,30 +1053,30 @@ if mostrar_tabla:
         st.info("No hay trades registrados.")
     else:
         table_data = []
-        keys_list = []
-        for key, trade in sorted(all_trades.items(), key=lambda x: date(x[0][0], x[0][1], x[0][2]), reverse=True):
-            fecha = date(key[0], key[1], key[2])
-            keys_list.append(key)
-            pnl = trade.get('pnl', 0)
-            pnl_simbol = "+" if pnl > 0 else ""
-            Confluences_list = trade.get('Confluences', [])
-            Confluences_resumen = ", ".join([c.split(". ")[-1] for c in Confluences_list])
+        # Solo lectura para no romper índices al ordenar
+        for key, list_t in sorted(all_trades.items(), key=lambda x: date(x[0][0], x[0][1], x[0][2]), reverse=True):
+            for i, trade in enumerate(list_t):
+                fecha = date(key[0], key[1], key[2])
+                pnl = trade.get('pnl', 0)
+                pnl_simbol = "+" if pnl > 0 else ""
+                Confluences_list = trade.get('Confluences', [])
+                Confluences_resumen = ", ".join([c.split(". ")[-1] for c in Confluences_list])
 
-            row = {
-                "Date": fecha.strftime("%d/%m/%Y"),
-                "Bias": trade.get('bias', ''),
-                "Confluences": Confluences_resumen,
-                "Reason For Trade": trade.get('razon_trade', ''),
-                "% Risk": trade.get('risk', ''),
-                "RR": trade.get('RR', ''),
-                "Trade Type": trade.get('trade_type', ''),
-                "Emotions": trade.get('Emotions', ''),
-                "Corrections": trade.get('Corrections', ''),
-                "P&L": f"{pnl_simbol}${pnl:,.2f}"
-            }
-            table_data.append(row)
+                row = {
+                    "Date": fecha.strftime("%d/%m/%Y"),
+                    "Trade #": f"#{i+1}",
+                    "Bias": trade.get('bias', ''),
+                    "Confluences": Confluences_resumen,
+                    "Reason For Trade": trade.get('razon_trade', ''),
+                    "% Risk": trade.get('risk', ''),
+                    "RR": trade.get('RR', ''),
+                    "Trade Type": trade.get('trade_type', ''),
+                    "Emotions": trade.get('Emotions', ''),
+                    "Corrections": trade.get('Corrections', ''),
+                    "P&L": f"{pnl_simbol}${pnl:,.2f}"
+                }
+                table_data.append(row)
         
-        st.session_state.current_table_keys = keys_list
         df_results = pd.DataFrame(table_data)
         
         def style_rows(row):
@@ -1088,24 +1088,7 @@ if mostrar_tabla:
             row_styles[row.index.get_loc('P&L')] = pnl_style
             return row_styles
 
-        st.data_editor(df_results.style.apply(style_rows, axis=1), use_container_width=True, num_rows="dynamic", key="table_editor", on_change=sync_table_edits)
-        
-        if st.button("💾 Guardar Ediciones de la Tabla", use_container_width=True):
-            ediciones_guardadas = 0
-            editor_state = st.session_state.get("table_editor", {})
-            keys = st.session_state.get("current_table_keys", [])
-            for idx, edits in editor_state.get("edited_rows", {}).items():
-                if idx < len(keys):
-                    k = keys[idx]
-                    if k in db_usuario[ctx]["trades"]:
-                        t = db_usuario[ctx]["trades"][k]
-                        fecha_obj = datetime(k[0], k[1], k[2])
-                        registrar_en_excel(usuario, db_global[usuario]["password"], ctx, fecha_obj, t.get("balance_final", 25000), t["pnl"], t, db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
-                        ediciones_guardadas += 1
-            if ediciones_guardadas > 0:
-                st.success(f"✅ {ediciones_guardadas} trades actualizados en Google Sheets.")
-            else:
-                st.info("No hay nuevas ediciones en la tabla para guardar.")
+        st.dataframe(df_results.style.apply(style_rows, axis=1), use_container_width=True)
 
 # ==========================================
 # SCRIPT PARA CERRAR MODALES CON ESCAPE
