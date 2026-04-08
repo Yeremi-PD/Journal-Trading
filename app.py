@@ -1101,9 +1101,9 @@ with col_mitad_2:
                         "P&L": f"{pnl_simbol}${pnl:,.2f}", # <-- P&L movido aquí arriba
                         "Trade Type": trade.get('trade_type', ''),
                         "Bias": trade.get('bias', ''),
-                        "% Risk": trade.get('risk', ''),
-                        "Confluences": Confluences_resumen,
                         "RR": trade.get('RR', ''),
+                        "Confluences": Confluences_resumen,
+                        "% Risk": trade.get('risk', ''),
                         "Reason For Trade": trade.get('razon_trade', ''),
                         "Corrections": trade.get('Corrections', ''),
                         "Emotions": trade.get('Emotions', '')
