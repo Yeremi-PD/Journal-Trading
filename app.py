@@ -10,7 +10,6 @@ import gspread
 from google.oauth2.service_account import Credentials
 import io
 import zipfile
-from PIL import Image
 
 # ==========================================
 # 1. CONFIGURACIÓN INICIAL
@@ -31,35 +30,9 @@ def conectar_google_sheets():
 
 hoja_excel = conectar_google_sheets()
 
-def procesar_y_comprimir_imagen(uploaded_file, total_imgs=1):
-    try:
-        img = Image.open(uploaded_file)
-        if img.mode in ("RGBA", "P"): img = img.convert("RGB")
-        
-        # ALTA CALIDAD: Calculamos el espacio máximo permitido en el Excel
-        max_chars = 48000 // max(total_imgs, 1)
-        
-        # Mantenemos alta resolución para Full Screen
-        img.thumbnail((1600, 1600), Image.Resampling.LANCZOS)
-        
-        output = io.BytesIO()
-        img.save(output, format="JPEG", quality=85) 
-        b64 = base64.b64encode(output.getvalue()).decode()
-        
-        # Si sigue siendo muy pesada para Excel, bajamos la calidad poco a poco
-        if len(b64) > max_chars:
-            output = io.BytesIO()
-            img.save(output, format="JPEG", quality=60)
-            b64 = base64.b64encode(output.getvalue()).decode()
-            if len(b64) > max_chars:
-                img.thumbnail((1000, 1000), Image.Resampling.LANCZOS)
-                output = io.BytesIO()
-                img.save(output, format="JPEG", quality=40)
-                b64 = base64.b64encode(output.getvalue()).decode()
-
-        return f"data:image/jpeg;base64,{b64}"
-    except Exception:
-        return f"data:{uploaded_file.type};base64,{base64.b64encode(uploaded_file.getvalue()).decode()}"
+# FOTOS A 100% DE CALIDAD (SIN COMPRIMIR)
+def convertir_img_base64(uploaded_file):
+    return f"data:{uploaded_file.type};base64,{base64.b64encode(uploaded_file.getvalue()).decode()}"
 
 def inicializar_data_usuario():
     return {
@@ -117,7 +90,8 @@ def get_global_db():
                         "pnl": float(row_data.get('PnL', 0) or 0),
                         "balance_final": float(row_data.get('Balance', 0) or 0),
                         "fecha_str": f_str,
-                        "imagenes": str(row_data.get('Imagenes', '')).split("|") if row_data.get('Imagenes') else [],
+                        # Las fotos cargadas desde Excel no existirán porque no las subimos allá, se leen de la RAM actual
+                        "imagenes": [],
                         "bias": "NEUTRO", "Confluences": [], "razon_trade": "", "Corrections": "", "risk": "0.5%", "RR": "1:2", "trade_type": "", "Emotions": ""
                     }
                     
@@ -134,14 +108,15 @@ def get_global_db():
 
 db_global = get_global_db()
 
-# --- FUNCIÓN CENTRAL DE GUARDADO A LA NUBE (SOLO MANUAL) ---
+# --- FUNCIÓN CENTRAL DE GUARDADO A LA NUBE (CERO LAG, NO SUBE IMÁGENES AL EXCEL) ---
 def registrar_en_excel(usuario, password, cuenta, fecha_obj, balance, pnl, trade_data, settings_pc, settings_movil):
     if hoja_excel:
         try:
             fecha_texto = fecha_obj.strftime("%d/%m/%Y")
-            lista_imgs = trade_data.get("imagenes", [])
-            imgs_texto = "|".join(lista_imgs) if lista_imgs else ""
-            if len(imgs_texto) > 48000: imgs_texto = imgs_texto[:48000] 
+            
+            # NO ENVIAMOS LAS FOTOS A GOOGLE SHEETS PARA EVITAR LÍMITES Y LAG
+            num_fotos = len(trade_data.get("imagenes", []))
+            imgs_texto = f"Tiene {num_fotos} foto(s) en la app local" if num_fotos > 0 else ""
             
             set_pc_str = json.dumps(settings_pc) if settings_pc else "{}"
             set_mov_str = json.dumps(settings_movil) if settings_movil else "{}"
@@ -157,7 +132,7 @@ def registrar_en_excel(usuario, password, cuenta, fecha_obj, balance, pnl, trade
         except Exception:
             pass
 
-# --- LOGIN CON CHECKBOX DE MODO ---
+# --- LOGIN ---
 if "usuario_actual" not in st.session_state:
     st.session_state.usuario_actual = None
 
@@ -308,9 +283,9 @@ def procesar_cambio():
     }
     db_usuario[ctx]["balance"] = nuevo
     
-    # ÚNICO LUGAR DONDE SE AUTO-GUARDA
+    # ÚNICO LUGAR DE AUTO-GUARDADO (AL DARLE A SAVE)
     registrar_en_excel(usuario, db_global[usuario]["password"], ctx, fecha_sel, nuevo, db_usuario[ctx]["trades"][clave]["pnl"], db_usuario[ctx]["trades"][clave], db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
-    st.success("✅ Día guardado en Excel")
+    st.success("✅ Guardado en Google Sheets")
 
 def reset_settings(category):
     defaults = inicializar_settings()
@@ -411,7 +386,6 @@ with st.sidebar.expander("📅 Calendar Settings"):
 st.sidebar.markdown("---")
 st.sidebar.markdown("### 📥 Descargas")
 
-# BOTÓN PARA DESCARGAR EL ZIP
 if db_usuario[ctx_actual]["trades"]:
     @st.cache_data
     def generar_zip(trades_dict):
@@ -533,7 +507,7 @@ st.markdown(f"""
 
     .modal-toggle:checked ~ .fs-modal {{ display: flex !important; }}
     
-    /* MODAL FULL SCREEN Y ALTA CALIDAD */
+    /* MODAL DE IMÁGENES 100% PANTALLA COMPLETA */
     .fs-modal {{ 
         display: none; 
         position: fixed !important; 
@@ -617,6 +591,7 @@ with col_bal:
 
 st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
 
+# --- MENÚ DE COLORES ORIGINAL (SIN RETRASO PORQUE NO GUARDA EN SHEETS AL TOCARLO) ---
 def colorful_menu(options, label, value_key, trade_data_ref):
     if value_key not in trade_data_ref: trade_data_ref[value_key] = options[0]
     st.markdown(f"<div style='margin-bottom: 5px; font-weight: bold;'>{label}</div>", unsafe_allow_html=True)
@@ -627,7 +602,6 @@ def colorful_menu(options, label, value_key, trade_data_ref):
             is_selected = (text == selected_value)
             btn_label = f"✅ {text}" if is_selected else text
             btn_type = "primary" if is_selected else "secondary"
-            # Actualiza memoria pero NO autoguarda en Excel (cero lag remoto)
             if st.button(btn_label, key=f"btn_{value_key}_{i}", use_container_width=True, type=btn_type):
                 trade_data_ref[value_key] = text
                 st.rerun()
@@ -656,9 +630,8 @@ def agregar_imagenes_main(contexto, llave, widget_id, counter_id, bal_act, f_str
                 "bias": "NEUTRO", "Confluences": [], "razon_trade": "", "Corrections": "", "risk": "0.5%", "RR": "1:2", "trade_type": "A", "Emotions": ""
             }
         for img in archivos_nuevos:
-            b64_comprimido = procesar_y_comprimir_imagen(img, len(archivos_nuevos))
+            b64_comprimido = convertir_img_base64(img) # FOTO ORIGINAL 100%
             db_usuario[contexto]["trades"][llave]["imagenes"].append(b64_comprimido)
-        # Se guarda solo en memoria temporal hasta que presiones SAVE MAIN o SAVE NOTAS
         st.session_state[counter_id] += 1
 
 # ==========================================
@@ -715,12 +688,23 @@ with c_not:
             colorful_multiselect(Confluences_options, '<span style="font-weight:bold; font-size:15pt;">&nbsp;&nbsp;&nbsp;Confluences</span>', 'Confluences', trade_data_ref)
             st.markdown("<br>", unsafe_allow_html=True)
             
-            st.markdown('<div style="font-weight:bold; font-size:15pt; margin-bottom:5px;">&nbsp;&nbsp;&nbsp;Reason For Trade</div>', unsafe_allow_html=True)
-            trade_data_ref['razon_trade'] = st.text_area("Reason For Trade", value=trade_data_ref.get('razon_trade', ''), key=f"razon_main", height=80, label_visibility="collapsed")
-            
-            st.markdown('<div style="font-weight:bold; font-size:15pt; margin-bottom:5px;">&nbsp;&nbsp;&nbsp;Corrections</div>', unsafe_allow_html=True)
-            trade_data_ref['Corrections'] = st.text_area("Corrections", value=trade_data_ref.get('Corrections', ''), key=f"corr_main", height=80, label_visibility="collapsed")
-            
+            # EL FORMULARIO EVITA QUE EL TEXTO PARPADEE MIENTRAS ESCRIBES
+            with st.form(key=f"form_textos_{clave_actual}"):
+                st.markdown('<div style="font-weight:bold; font-size:15pt; margin-bottom:5px;">&nbsp;&nbsp;&nbsp;Reason For Trade</div>', unsafe_allow_html=True)
+                r_trade = st.text_area("Reason For Trade", value=trade_data_ref.get('razon_trade', ''), height=80, label_visibility="collapsed")
+                
+                st.markdown('<div style="font-weight:bold; font-size:15pt; margin-bottom:5px;">&nbsp;&nbsp;&nbsp;Corrections</div>', unsafe_allow_html=True)
+                c_trade = st.text_area("Corrections", value=trade_data_ref.get('Corrections', ''), height=80, label_visibility="collapsed")
+                
+                st.markdown('<div style="font-weight:bold; font-size:15pt; margin-bottom:5px;">&nbsp;&nbsp;&nbsp;Emotions</div>', unsafe_allow_html=True)
+                e_trade = st.text_area("Emotions", value=trade_data_ref.get('Emotions', ''), height=80, label_visibility="collapsed")
+                
+                if st.form_submit_button("💾 Guardar Textos"):
+                    trade_data_ref['razon_trade'] = r_trade
+                    trade_data_ref['Corrections'] = c_trade
+                    trade_data_ref['Emotions'] = e_trade
+                    st.success("Textos guardados en memoria.")
+
             risk_options = ['0.6%', '0.5%', '0.4%']
             colorful_menu(risk_options, '<span style="font-weight:bold; font-size:15pt;">&nbsp;&nbsp;&nbsp;% Risk</span>', 'risk', trade_data_ref)
             st.markdown("<br>", unsafe_allow_html=True)
@@ -733,13 +717,10 @@ with c_not:
             colorful_menu(trade_type_options, '<span style="font-weight:bold; font-size:15pt;">&nbsp;&nbsp;&nbsp;Trade Type</span>', 'trade_type', trade_data_ref)
             st.markdown("<br>", unsafe_allow_html=True)
             
-            st.markdown('<div style="font-weight:bold; font-size:15pt; margin-bottom:5px;">&nbsp;&nbsp;&nbsp;Emotions</div>', unsafe_allow_html=True)
-            trade_data_ref['Emotions'] = st.text_area("Emotions", value=trade_data_ref.get('Emotions', ''), key=f"emoc_main", height=80, label_visibility="collapsed")
-            
             if st.button("💾 Guardar Cambios en la Nube", use_container_width=True):
                 fecha_obj_notas = datetime(clave_actual[0], clave_actual[1], clave_actual[2])
                 registrar_en_excel(usuario, db_global[usuario]["password"], ctx, fecha_obj_notas, bal_actual, trade_data_ref["pnl"], trade_data_ref, db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
-                st.success("✅ Notas e Imágenes guardadas.")
+                st.success("✅ Notas guardadas en el Excel.")
 
 # ==========================================
 # 10. CALENDARIO Y RESUMEN
@@ -1011,7 +992,7 @@ def agregar_imagenes_historial(contexto, llave, widget_id, counter_id):
     archivos_nuevos = st.session_state.get(widget_id)
     if archivos_nuevos:
         for img in archivos_nuevos:
-            b64_comprimido = procesar_y_comprimir_imagen(img, len(archivos_nuevos))
+            b64_comprimido = convertir_img_base64(img)
             db_usuario[contexto]["trades"][llave]["imagenes"].append(b64_comprimido)
         st.session_state[counter_id] += 1
 
