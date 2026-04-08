@@ -1094,18 +1094,19 @@ with col_mitad_2:
                     Confluences_list = trade.get('Confluences', [])
                     Confluences_resumen = ", ".join([c.split(". ")[-1] for c in Confluences_list])
 
+# ORGANIZA ESTAS LÍNEAS EN EL ORDEN EXACTO QUE QUIERAS VER LAS COLUMNAS:
                     row = {
                         "Date": fecha.strftime("%d/%m/%Y"),
-                        "P&L": f"{pnl_simbol}${pnl:,.2f}"
                         "Trade": f"#{i+1}",
+                        "P&L": f"{pnl_simbol}${pnl:,.2f}", # <-- P&L movido aquí arriba
+                        "Trade Type": trade.get('trade_type', ''),
                         "Bias": trade.get('bias', ''),
-                        "Confluences": Confluences_resumen,
-                        "Reason For Trade": trade.get('razon_trade', ''),
                         "% Risk": trade.get('risk', ''),
                         "RR": trade.get('RR', ''),
-                        "Trade Type": trade.get('trade_type', ''),
-                        "Emotions": trade.get('Emotions', ''),
+                        "Confluences": Confluences_resumen,
+                        "Reason For Trade": trade.get('razon_trade', ''),
                         "Corrections": trade.get('Corrections', ''),
+                        "Emotions": trade.get('Emotions', '')
                     }
                     table_data.append(row)
             
