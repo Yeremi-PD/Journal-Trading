@@ -359,7 +359,15 @@ def reset_settings(category):
 # ==========================================
 # 5. BARRA LATERAL (AJUSTES Y ADMIN)
 # ==========================================
-st.sidebar.markdown(f"<div style='margin-top:-15px;'>👤 My Account: {usuario}</div>", unsafe_allow_html=True)
+# TAMAÑO DEL TEXTO DEL USUARIO: Cambia "22px" por el número que quieras (ej. 18px, 25px, 30px).
+tamanio_texto_cuenta = "22px"
+
+st.sidebar.markdown(
+    f"<div style='margin-top:-15px; font-size: {tamanio_texto_cuenta}; font-weight: bold;'>"
+    f"👤 My Account: <span style='color: #00C897;'>{usuario}</span>"
+    f"</div>", 
+    unsafe_allow_html=True
+)
 
 dispositivo_visual = st.sidebar.radio("Current Design:", ["🖥️ PC", "📱 Móvil"], index=0 if "PC" in st.session_state.dispositivo_actual else 1)
 st.session_state.dispositivo_actual = "PC" if "🖥️ PC" in dispositivo_visual else "Móvil"
