@@ -1096,6 +1096,7 @@ with col_mitad_2:
 
                     row = {
                         "Date": fecha.strftime("%d/%m/%Y"),
+                        "P&L": f"{pnl_simbol}${pnl:,.2f}"
                         "Trade": f"#{i+1}",
                         "Bias": trade.get('bias', ''),
                         "Confluences": Confluences_resumen,
