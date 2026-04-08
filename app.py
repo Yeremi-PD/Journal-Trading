@@ -431,10 +431,11 @@ if st.session_state.confirm_clear:
     if c_no.button("CANCELAR"):
         st.session_state.confirm_clear = False
         st.rerun()
-
+        
+st.sidebar.markdown("---")
 with st.sidebar.expander("🛡️ Admin Settings"):
     admin_pass = st.text_input("Admin Password", type="password")
-   st.sidebar.markdown("---") 
+    
     @st.dialog("⚠️ Confirmar Acción")
     def ventana_borrar_usuario(u):
         st.write(f"¿Seguro que quieres borrar permanentemente al usuario **{u}**?")
