@@ -69,12 +69,12 @@ def get_global_db():
                         db_temp[user] = {
                             "password": str(row_data.get('Password', '123')), 
                             "data": inicializar_data_usuario(),
-                            "settings": {🖥️ PC: inicializar_settings(), "Móvil": inicializar_settings()}
+                            "settings": {"PC": inicializar_settings(), "Móvil": inicializar_settings()}
                         }
                     
                     try:
                         set_pc = json.loads(row_data.get('Settings_PC', '{}'))
-                        if set_pc: db_temp[user]["settings"][🖥️ PC].update(set_pc)
+                        if set_pc: db_temp[user]["settings"]["PC"].update(set_pc)
                         set_mov = json.loads(row_data.get('Settings_Movil', '{}'))
                         if set_mov: db_temp[user]["settings"]["Móvil"].update(set_mov)
                     except: pass
@@ -164,11 +164,11 @@ if st.session_state.usuario_actual is None or st.session_state.usuario_actual no
                         st.error("⚠️ El campo Usuario no puede estar vacío.")
                     else:
                         if log_user not in db_global:
-                            db_global[log_user] = {"password": log_pass, "data": inicializar_data_usuario(), "settings": {🖥️ PC: inicializar_settings(), "Móvil": inicializar_settings()}}
+                            db_global[log_user] = {"password": log_pass, "data": inicializar_data_usuario(), "settings": {"PC": inicializar_settings(), "Móvil": inicializar_settings()}}
                         
                         if db_global[log_user]["password"] == log_pass:
                             st.session_state.usuario_actual = log_user
-                            st.session_state.dispositivo_actual = "Móvil" if modo_movil_login else 🖥️ PC
+                            st.session_state.dispositivo_actual = "Móvil" if modo_movil_login else "PC"
                             try: st.query_params["user"] = log_user
                             except: pass
                             st.rerun()
@@ -187,8 +187,8 @@ if st.session_state.usuario_actual is None or st.session_state.usuario_actual no
                     elif reg_user in db_global:
                         st.warning("El usuario ya existe.")
                     elif len(reg_user) > 0 and len(reg_pass) > 0:
-                        db_global[reg_user] = {"password": reg_pass, "data": inicializar_data_usuario(), "settings": {🖥️ PC: inicializar_settings(), "Móvil": inicializar_settings()}}
-                        registrar_en_excel(reg_user, reg_pass, "Account Real", datetime.now(), 25000.0, 0.0, {}, db_global[reg_user]["settings"][🖥️ PC], db_global[reg_user]["settings"]["Móvil"])
+                        db_global[reg_user] = {"password": reg_pass, "data": inicializar_data_usuario(), "settings": {"PC": inicializar_settings(), "Móvil": inicializar_settings()}}
+                        registrar_en_excel(reg_user, reg_pass, "Account Real", datetime.now(), 25000.0, 0.0, {}, db_global[reg_user]["settings"]["PC"], db_global[reg_user]["settings"]["Móvil"])
                         st.success("Cuenta creada. Ya puedes iniciar sesión en la pestaña 'Entrar'.")
                     else:
                         st.warning("Completa todos los campos.")
@@ -237,18 +237,18 @@ WEEKS_TITULOS_COLOR_C, WEEKS_TITULOS_COLOR_O, WEEK_BOX_W, WEEK_BOX_H, Month_BOX_
 # ==========================================
 if "tema" not in st.session_state: st.session_state.tema = TEMA_POR_DEFECTO
 if "data_source_sel" not in st.session_state: st.session_state.data_source_sel = "Account Real"
-if "dispositivo_actual" not in st.session_state: st.session_state.dispositivo_actual = 🖥️ PC
+if "dispositivo_actual" not in st.session_state: st.session_state.dispositivo_actual = "PC"
 if "form_reset_key" not in st.session_state: st.session_state.form_reset_key = 0
 
 usuario = st.session_state.usuario_actual
 db_usuario = db_global[usuario]["data"]
 
 if "settings" not in db_global[usuario]:
-    db_global[usuario]["settings"] = {🖥️ PC: inicializar_settings(), "Móvil": inicializar_settings()}
-elif 🖥️ PC not in db_global[usuario]["settings"]:
-    db_global[usuario]["settings"] = {🖥️ PC: db_global[usuario]["settings"].copy(), "Móvil": db_global[usuario]["settings"].copy()}
+    db_global[usuario]["settings"] = {"PC": inicializar_settings(), "Móvil": inicializar_settings()}
+elif "PC" not in db_global[usuario]["settings"]:
+    db_global[usuario]["settings"] = {"PC": db_global[usuario]["settings"].copy(), "Móvil": db_global[usuario]["settings"].copy()}
 
-for dev in [🖥️ PC, "Móvil"]:
+for dev in ["PC", "Móvil"]:
     for k, v in inicializar_settings().items():
         if k not in db_global[usuario]["settings"][dev]:
             db_global[usuario]["settings"][dev][k] = v
@@ -281,12 +281,12 @@ def reset_settings(category):
 # ==========================================
 st.sidebar.markdown(f"### 👤 Mi Cuenta: {usuario}")
 
-st.session_state.dispositivo_actual = st.sidebar.radio("Current Design:", ["🖥️ PC", "📱 Móvil"], index=0 if st.session_state.dispositivo_actual ==  else 1)
+st.session_state.dispositivo_actual = st.sidebar.radio("Current Design:", ["PC", "Móvil"], index=0 if st.session_state.dispositivo_actual == "PC" else 1)
 
-if st.sidebar.button("💾 Save Design Settings", use_container_width=True):
+if st.sidebar.button("💾 Save Design Settings to Cloud", use_container_width=True):
     ctx_act = st.session_state.data_source_sel
     bal_act = db_usuario[ctx_act]["balance"]
-    registrar_en_excel(usuario, db_global[usuario]["password"], ctx_act, datetime.now(), bal_act, 0.0, {}, db_global[usuario]["settings"][🖥️ PC], db_global[usuario]["settings"]["Móvil"])
+    registrar_en_excel(usuario, db_global[usuario]["password"], ctx_act, datetime.now(), bal_act, 0.0, {}, db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
     st.sidebar.success("✅ Ajustes guardados en la nube!")
 
 st.sidebar.markdown("---")
@@ -306,7 +306,7 @@ if st.session_state.confirm_clear:
     if c_yes.button("SÍ, BORRAR"):
         db_usuario[ctx_actual]["balance"] = 25000.00
         db_usuario[ctx_actual]["trades"] = {}
-        registrar_en_excel(usuario, db_global[usuario]["password"], ctx_actual, datetime.now(), 25000.00, 0.0, {}, db_global[usuario]["settings"][🖥️ PC], db_global[usuario]["settings"]["Móvil"])
+        registrar_en_excel(usuario, db_global[usuario]["password"], ctx_actual, datetime.now(), 25000.00, 0.0, {}, db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
         st.session_state.confirm_clear = False
         st.rerun()
     if c_no.button("CANCELAR"):
@@ -627,7 +627,7 @@ with st.form(key=f"form_main_entry_{st.session_state.form_reset_key}", border=Fa
         db_usuario[ctx]["trades"][clave_final].append(trade_nuevo)
         db_usuario[ctx]["balance"] = nuevo_bal
         
-        registrar_en_excel(usuario, db_global[usuario]["password"], ctx, fecha_sel, nuevo_bal, pnl, trade_nuevo, db_global[usuario]["settings"][🖥️ PC], db_global[usuario]["settings"]["Móvil"])
+        registrar_en_excel(usuario, db_global[usuario]["password"], ctx, fecha_sel, nuevo_bal, pnl, trade_nuevo, db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
         
         st.session_state.form_reset_key += 1
         
@@ -992,7 +992,7 @@ with col_mitad_1:
                                     db_usuario[ctx]["trades"][nueva_clave].append(trade_movido)
                                 
                                 fecha_obj_edit = datetime(nueva_clave[0], nueva_clave[1], nueva_clave[2])
-                                registrar_en_excel(usuario, db_global[usuario]["password"], ctx, fecha_obj_edit, nuevo_bal, nuevo_pnl, data, db_global[usuario]["settings"][🖥️ PC], db_global[usuario]["settings"]["Móvil"])
+                                registrar_en_excel(usuario, db_global[usuario]["password"], ctx, fecha_obj_edit, nuevo_bal, nuevo_pnl, data, db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
                                 st.rerun()
 
                     # BOTÓN SAFACÓN (BASURA) DIRECTO SIN ABRIR EL EXPANDER
