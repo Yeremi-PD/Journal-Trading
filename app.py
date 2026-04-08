@@ -237,7 +237,6 @@ BTN_UP_TEXTO, BTN_UP_SIZE, BTN_UP_W, BTN_UP_H = "Upload", "20px", "120px", "45px
 BTN_UP_BG_C, BTN_UP_BG_O, BTN_UP_TXT_C, BTN_UP_TXT_O = "#E2E8F0", "#4A5568", "#000000", "#FFFFFF"
 
 # ====== NUEVAS VARIABLES PARA EL CUADRO DE LINK DE IMAGEN ======
-LBL_LINK, LBL_LINK_SIZE, LBL_LINK_X, LBL_LINK_Y = "Image URL:", 15, 0, 10
 LINK_IMG_W, LINK_IMG_H, LINK_IMG_X, LINK_IMG_Y, LINK_IMG_TXT_SIZE = "100%", "45px", 0, 0, 15
 # ===============================================================
 
