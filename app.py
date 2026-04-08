@@ -279,16 +279,42 @@ def reset_settings(category):
 # ==========================================
 # 5. BARRA LATERAL (AJUSTES Y ADMIN)
 # ==========================================
-st.sidebar.markdown(f"### 👤 Mi Cuenta: {usuario}")
+# 1. Asegurar consistencia en los nombres de las opciones
+opciones_diseno = ["🖥️ PC", "📱 Móvil"]
 
-st.session_state.dispositivo_actual = st.sidebar.radio("Current Design:", ["🖥️ PC", "📱 Móvil"], index=0 if st.session_state.dispositivo_actual == "PC" else 1)
+# 2. Corregir la lógica del radio para que coincida con las opciones
+index_actual = 0 if st.session_state.get("dispositivo_actual") == opciones_diseno[0] else 1
+
+st.session_state.dispositivo_actual = st.sidebar.radio(
+    "Current Design:", 
+    opciones_diseno, 
+    index=index_actual
+)
 
 if st.sidebar.button("💾 Save Design Settings", use_container_width=True):
-    ctx_act = st.session_state.data_source_sel
-    bal_act = db_usuario[ctx_act]["balance"]
-    registrar_en_excel(usuario, db_global[usuario]["password"], ctx_act, datetime.now(), bal_act, 0.0, {}, db_global[usuario]["settings"]["🖥️ PC"], db_global[usuario]["settings"]["📱 Móvil"])
-    st.sidebar.success("✅ Ajustes guardados en la nube!")
+    # Verificamos que las llaves existan antes de operar
+    try:
+        ctx_act = st.session_state.get("data_source_sel", "default_context")
+        bal_act = db_usuario[ctx_act]["balance"]
+        
+        # Acceso seguro a la configuración
+        pc_settings = db_global[usuario]["settings"].get("🖥️ PC", {})
+        movil_settings = db_global[usuario]["settings"].get("📱 Móvil", {})
 
+        registrar_en_excel(
+            usuario, 
+            db_global[usuario]["password"], 
+            ctx_act, 
+            datetime.now(), 
+            bal_act, 
+            0.0, 
+            {}, 
+            pc_settings, 
+            movil_settings
+        )
+        st.sidebar.success("✅ Ajustes guardados en la nube!")
+    except KeyError as e:
+        st.sidebar.error(f"❌ Error de datos: No se encontró la llave {e}")
 st.sidebar.markdown("---")
 st.sidebar.markdown("### ⚙️ Basic Settings")
 
