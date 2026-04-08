@@ -812,7 +812,7 @@ def get_pie_svg(w, l, t):
     return svg
 
 with col_det:
-    ver_todo = st.toggle("🌍 View All-Time Stats", value=False)
+    ver_todo = st.toggle("View All-Time", value=False)
     
     todos_los_trades_planos = []
     for k, lista in db_usuario[ctx]["trades"].items():
