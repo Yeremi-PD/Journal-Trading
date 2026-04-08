@@ -1135,7 +1135,7 @@ with col_mitad_2:
                     "Reason For Trade": st.column_config.Column(width="medium"),
                     "Confluences": st.column_config.Column(width="large"),
                     "   Date": st.column_config.Column(width="small"),
-                    "       P&L     ": st.column_config.Column(width="small")
+                    "      P&L": st.column_config.Column(width="small")
                 }
             )
 # ==========================================
