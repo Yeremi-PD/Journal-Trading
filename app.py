@@ -94,7 +94,7 @@ def get_global_db():
                         "bias": "NEUTRO", "Confluences": [], "razon_trade": "", "Corrections": "", "risk": "0.5%", "RR": "1:2", "trade_type": "A", "Emotions": ""
                     }
                     
-                    # Recuperar links de imágenes si están guardados en la columna G (índice 6)
+                    # Recuperar links de imágenes si están guardados
                     img_col_str = row[6] if len(row) > 6 else ""
                     if "http" in img_col_str:
                         links_guardados = [u.strip() for u in img_col_str.split(",") if "http" in u]
@@ -122,7 +122,6 @@ def registrar_en_excel(usuario, password, cuenta, fecha_obj, balance, pnl, trade
         try:
             fecha_texto = fecha_obj.strftime("%d/%m/%Y")
             
-            # Detectar si hay enlaces URLs guardados para la columna de Imágenes (Columna G)
             links = [img for img in trade_data.get("imagenes", []) if img.startswith("http")]
             num_fotos = len(trade_data.get("imagenes", []))
             
@@ -156,7 +155,7 @@ try:
 except:
     pass
 
-# --- LOGIN ---
+# --- LOGIN (SIN TABS PARA EVITAR EL BUG DE STREAMLIT) ---
 if "usuario_actual" not in st.session_state:
     st.session_state.usuario_actual = None
 
@@ -167,15 +166,15 @@ if st.session_state.usuario_actual is None or st.session_state.usuario_actual no
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
         st.markdown("<h3 style='text-align:center; color:gray;'>Iniciar Sesión</h3>", unsafe_allow_html=True)
-        modo_movil_login = st.checkbox("📱 Start on Mobile", value=False)
-        tab1, tab2 = st.tabs(["Entrar", "Registrarse"])
+        modo_movil_login = st.checkbox("📱 Start on Mobile", value=(st.session_state.dispositivo_actual == "Móvil"))
         
-        with tab1:
+        modo_acceso = st.radio("Opciones:", ["Entrar", "Registrarse"], horizontal=True)
+        
+        if modo_acceso == "Entrar":
             with st.form("login_form"):
                 log_user = st.text_input("Usuario")
                 log_pass = st.text_input("Contraseña", type="password")
-                # Llave fija asignada para evitar el error de submit fantasma
-                submit_login = st.form_submit_button("Acceder", use_container_width=True, key="submit_login_btn")
+                submit_login = st.form_submit_button("Acceder", use_container_width=True)
                 
                 if submit_login:
                     if not log_user.strip():
@@ -195,12 +194,11 @@ if st.session_state.usuario_actual is None or st.session_state.usuario_actual no
                         else:
                             st.error("Usuario o contraseña incorrectos.")
                     
-        with tab2:
+        else:
             with st.form("register_form"):
                 reg_user = st.text_input("Nuevo Usuario")
                 reg_pass = st.text_input("Nueva Contraseña", type="password")
-                # Llave fija asignada para evitar el error de submit fantasma
-                submit_register = st.form_submit_button("Crear Cuenta", use_container_width=True, key="submit_register_btn")
+                submit_register = st.form_submit_button("Crear Cuenta", use_container_width=True)
                 
                 if submit_register:
                     if not reg_user.strip():
@@ -210,7 +208,7 @@ if st.session_state.usuario_actual is None or st.session_state.usuario_actual no
                     elif len(reg_user) > 0 and len(reg_pass) > 0:
                         db_global[reg_user] = {"password": reg_pass, "data": inicializar_data_usuario(), "settings": {"PC": inicializar_settings(), "Móvil": inicializar_settings()}}
                         registrar_en_excel(reg_user, reg_pass, "Account Real", datetime.now(), 25000.0, 0.0, {}, db_global[reg_user]["settings"]["PC"], db_global[reg_user]["settings"]["Móvil"])
-                        st.success("Cuenta creada. Ya puedes iniciar sesión en la pestaña 'Entrar'.")
+                        st.success("Cuenta creada. Ya puedes iniciar sesión seleccionando 'Entrar'.")
                     else:
                         st.warning("Completa todos los campos.")
     st.stop()
@@ -244,10 +242,8 @@ DROPZONE_BORDER_C, DROPZONE_BORDER_O = "1px dashed #E2E8F0", "1px dashed #4A5568
 BTN_UP_TEXTO, BTN_UP_SIZE, BTN_UP_W, BTN_UP_H = "Upload", "20px", "120px", "45px"
 BTN_UP_BG_C, BTN_UP_BG_O, BTN_UP_TXT_C, BTN_UP_TXT_O = "#E2E8F0", "#4A5568", "#000000", "#FFFFFF"
 
-# ====== NUEVAS VARIABLES PARA EL CUADRO DE LINK DE IMAGEN ======
 LBL_LINK, LBL_LINK_SIZE, LBL_LINK_X, LBL_LINK_Y = "", 15, 0, 10
 LINK_IMG_W, LINK_IMG_H, LINK_IMG_X, LINK_IMG_Y, LINK_IMG_TXT_SIZE = "100%", "45px", 0, -30, 15
-# ===============================================================
 
 BTN_CAL_EMOJI, BTN_CAL_W, BTN_CAL_H, BTN_CAL_ICON_SIZE, BTN_CAL_BG_C, BTN_CAL_BG_O = "🗓️", 80, 68, 33, "#F3F4F6", "#2D3748"
 FLECHAS_SIZE, FLECHAS_X, FLECHAS_Y = 40, 0, 0
@@ -305,13 +301,9 @@ def reset_settings(category):
 # ==========================================
 # 5. BARRA LATERAL (AJUSTES Y ADMIN)
 # ==========================================
-# Título subido 15px con margen negativo
 st.sidebar.markdown(f"<div style='margin-top:-15px;'>👤 My Account: {usuario}</div>", unsafe_allow_html=True)
 
-# Radio buttons con emojis
 dispositivo_visual = st.sidebar.radio("Current Design:", ["🖥️ PC", "📱 Móvil"], index=0 if "PC" in st.session_state.dispositivo_actual else 1)
-
-# Lógica para guardar sin emojis y no romper el script - Actualizado el query parameters
 st.session_state.dispositivo_actual = "PC" if "🖥️ PC" in dispositivo_visual else "Móvil"
 try: st.query_params["device"] = st.session_state.dispositivo_actual
 except: pass
@@ -424,7 +416,6 @@ if db_usuario[ctx_actual]["trades"]:
         use_container_width=True
     )
 
-# Separación y botón de Log Out bajado 30px
 st.sidebar.markdown("<br><br><br><div style='margin-top:30px;'></div>", unsafe_allow_html=True)
 if st.sidebar.button("🚪 Log Out", use_container_width=True): 
     st.session_state.usuario_actual = None
@@ -472,7 +463,6 @@ st.markdown(f"""
     .lbl-data {{ font-size: {LBL_DATA_SIZE}px !important; color: {c_data} !important; font-weight: 700 !important; transform: translate({LBL_DATA_X}px, {LBL_DATA_Y}px) !important; margin-bottom: 5px !important; }}
     .lbl-input {{ font-size: {LBL_INPUT_SIZE}px !important; color: {c_lbl_in} !important; font-weight: 700 !important; transform: translate({LBL_INPUT_X}px, {LBL_INPUT_Y}px) !important; margin-bottom: 5px !important; }}
     
-    /* ESTILOS DEL LINK DE IMAGEN */
     .lbl-link {{ font-size: {LBL_LINK_SIZE}px !important; color: {c_dash} !important; font-weight: 700 !important; transform: translate({LBL_LINK_X}px, {LBL_LINK_Y}px) !important; margin-bottom: 5px !important; display: block !important; }}
     div[data-testid="stTextInput"]:has(input[aria-label="Link"]) {{ width: {LINK_IMG_W} !important; min-width: {LINK_IMG_W} !important; transform: translate({LINK_IMG_X}px, {LINK_IMG_Y}px) !important; }}
     input[aria-label="Link"] {{ height: {LINK_IMG_H} !important; font-size: {LINK_IMG_TXT_SIZE}px !important; }}
@@ -507,11 +497,9 @@ st.markdown(f"""
     div[data-testid="stPopover"] {{ width: {BTN_CAL_W}px !important; min-width: {BTN_CAL_W}px !important; height: {BTN_CAL_H}px !important; display: block !important; position: relative !important; }}
     div[data-testid="stPopover"] > button, div[data-testid="stPopover"] > div > button {{ width: {BTN_CAL_W}px !important; height: {BTN_CAL_H}px !important; padding: 0 !important; font-size: {BTN_CAL_ICON_SIZE}px !important; border-radius: 8px !important; border: 1px solid {border_color} !important; background-color: {btn_bg} !important; color: {btn_txt} !important; display: flex !important; justify-content: center !important; align-items: center !important; position: absolute !important; top: 0 !important; left: 0 !important; z-index: 10 !important; }}
     
-    /* FONDO DE LOS POPOVERS / TRADE DETAILS IGUAL AL COLOR DEL BORDE */
     div[data-testid="stPopoverBody"] {{ background-color: {border_color} !important; border: 1px solid {border_color} !important; border-radius: 8px !important; padding: 15px !important; }}
     div[data-testid="stPopoverBody"]:has(h3) {{ width: 710px !important; max-width: 95vw !important; max-height: 85vh !important; margin-top: 100px !important; overflow-y: auto !important; box-shadow: 0 4px 20px rgba(0,0,0,0.3) !important; }}
 
-    /* ESTILOS PARA AGRANDAR MUCHO LAS LETRAS EN TRADE DETAILS */
     div[data-testid="stPopoverBody"] label {{ font-size: 20px !important; font-weight: 800 !important; }}
     div[data-testid="stPopoverBody"] p, div[data-testid="stPopoverBody"] span, div[data-testid="stPopoverBody"] div {{ font-size: 18px !important; }}
     div[data-testid="stPopoverBody"] .stTextArea textarea, div[data-testid="stPopoverBody"] input {{ font-size: 18px !important; }}
@@ -538,7 +526,6 @@ st.markdown(f"""
 
     .modal-toggle:checked ~ .fs-modal {{ display: flex !important; }}
     
-    /* MODAL PANTALLA COMPLETA 100% NÍTIDA (CALIDAD MÁXIMA) Y REDUCIDA */
     .fs-modal {{ display: none; position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; background: rgba(0,0,0,0.98) !important; z-index: 9999999 !important; flex-direction: column !important; align-items: center !important; justify-content: center !important; padding: 0 !important; margin: 0 !important; }}
     .fs-modal img {{ width: 80vw !important; height: 80vh !important; max-width: 80vw !important; max-height: 80vh !important; margin: auto !important; box-shadow: 0px 10px 30px rgba(0,0,0,0.5) !important; border-radius: 10px !important; object-fit: contain !important; image-rendering: high-quality !important; image-rendering: crisp-edges !important; }}
     .close-btn {{ position: absolute !important; top: 15px !important; right: 25px !important; font-size: 20px !important; background-color: #FF4C4C !important; color: white !important; padding: 8px 15px !important; border-radius: 8px !important; cursor: pointer !important; z-index: 10000000 !important; font-weight: bold !important; }}
@@ -597,7 +584,7 @@ with col_bal:
 st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
 
 # ==========================================
-# 9. ENTRADA DE TRADES (TODO EN UN SOLO FORMULARIO - AUTO LIMPIEZA)
+# 9. ENTRADA DE TRADES
 # ==========================================
 with st.form(key=f"form_main_entry_{st.session_state.form_reset_key}", border=False):
     c1, c2, c_img, c_not, c_espacio = st.columns([1.5, 0.5, 2.5, 0.6, 3.4]) 
@@ -605,7 +592,6 @@ with st.form(key=f"form_main_entry_{st.session_state.form_reset_key}", border=Fa
     with c1:
         st.markdown(f'<div class="lbl-input">{LBL_INPUT}</div>', unsafe_allow_html=True)
         nuevo_bal = st.number_input("Balance", value=bal_actual, format="%.2f", label_visibility="collapsed")
-        # Llave fija asignada para evitar el error de submit fantasma
         btn_save = st.form_submit_button("SAVE", key=f"btn_save_main_{st.session_state.form_reset_key}")
         
     with c2:
@@ -650,7 +636,6 @@ with st.form(key=f"form_main_entry_{st.session_state.form_reset_key}", border=Fa
             for img in imgs_subidas:
                 imgs_finales.append(convertir_img_base64(img))
         
-        # Guardar el link tal cual si se proporcionó uno
         if link_imagen.strip().startswith("http"):
             imgs_finales.append(link_imagen.strip())
         
@@ -998,8 +983,8 @@ with col_mitad_1:
                     
                     with c_exp:
                         with st.expander(f"🗓️ {data['fecha_str']} (Trade #{i+1}) | P&L: :{color_md}[{simbolo}${pnl_val:,.2f}]"):
+                            st.markdown("**💰 Financials:**")
                             c_ed1, c_ed2, c_ed3 = st.columns(3)
-                            
                             with c_ed1:
                                 nueva_fecha = st.date_input("Day", value=fecha_dt, key=f"f_{clave}_{i}")
                             with c_ed2:
@@ -1007,6 +992,36 @@ with col_mitad_1:
                             with c_ed3:
                                 nuevo_pnl = st.number_input("P&L", value=pnl_val, format="%.2f", key=f"p_{clave}_{i}")
                             
+                            st.markdown("---")
+                            st.markdown("**📝 Edit Trade Details:**")
+                            c_ed4, c_ed5 = st.columns(2)
+                            
+                            with c_ed4:
+                                def_bias = data.get('bias', 'NEUTRO')
+                                if def_bias not in ['LONG', 'SHORT', 'NONE', 'NEUTRO']: def_bias = 'NEUTRO'
+                                e_bias = st.selectbox("Bias", ['LONG', 'SHORT', 'NONE', 'NEUTRO'], index=['LONG', 'SHORT', 'NONE', 'NEUTRO'].index(def_bias), key=f"e_bias_{clave}_{i}")
+                                
+                                all_confs = ['BIAS WELL', 'LIQ SWEEP', 'IFVG', 'FVG', 'EQH / EQL', 'BSL / SSL', 'POI', 'SMT', 'Order Block', 'PDH / PDL', 'Continuation', 'Data High / Data Low', 'CISD']
+                                curr_confs = [c for c in data.get('Confluences', []) if c in all_confs]
+                                e_conf = st.multiselect("Confluences", all_confs, default=curr_confs, key=f"e_conf_{clave}_{i}")
+                                
+                                def_risk = data.get('risk', '0.5%')
+                                if def_risk not in ['1%', '0.9%', '0.8%', '0.7%', '0.6%', '0.5%', '0.4%']: def_risk = '0.5%'
+                                e_risk = st.selectbox("% Risk", ['1%', '0.9%', '0.8%', '0.7%', '0.6%', '0.5%', '0.4%'], index=['1%', '0.9%', '0.8%', '0.7%', '0.6%', '0.5%', '0.4%'].index(def_risk), key=f"e_risk_{clave}_{i}")
+                                
+                                def_rr = data.get('RR', '1:2')
+                                if def_rr not in ['1:1', '1:1.5', '1:2', '1:3', '1:4']: def_rr = '1:2'
+                                e_rr = st.selectbox("RR", ['1:1', '1:1.5', '1:2', '1:3', '1:4'], index=['1:1', '1:1.5', '1:2', '1:3', '1:4'].index(def_rr), key=f"e_rr_{clave}_{i}")
+                                
+                                def_tt = data.get('trade_type', 'A')
+                                if def_tt not in ['A+', 'A', 'B', 'C']: def_tt = 'A'
+                                e_tt = st.selectbox("Trade Type", ['A+', 'A', 'B', 'C'], index=['A+', 'A', 'B', 'C'].index(def_tt), key=f"e_tt_{clave}_{i}")
+
+                            with c_ed5:
+                                e_razon = st.text_area("Reason For Trade", value=data.get('razon_trade', ''), key=f"e_raz_{clave}_{i}", height=68)
+                                e_corr = st.text_area("Corrections", value=data.get('Corrections', ''), key=f"e_cor_{clave}_{i}", height=68)
+                                e_emo = st.text_area("Emotions", value=data.get('Emotions', ''), key=f"e_emo_{clave}_{i}", height=68)
+
                             st.markdown("---")
                             st.markdown("**📸 Saved Images:**")
                             
@@ -1036,6 +1051,16 @@ with col_mitad_1:
                                 data["balance_final"] = nuevo_bal
                                 data["fecha_str"] = nueva_fecha.strftime("%d/%m/%Y")
                                 
+                                # Guardar los nuevos Trade Details
+                                data["bias"] = e_bias
+                                data["Confluences"] = e_conf
+                                data["risk"] = e_risk
+                                data["RR"] = e_rr
+                                data["trade_type"] = e_tt
+                                data["razon_trade"] = e_razon
+                                data["Corrections"] = e_corr
+                                data["Emotions"] = e_emo
+                                
                                 if nueva_clave != clave:
                                     trade_movido = db_usuario[ctx]["trades"][clave].pop(i)
                                     if not db_usuario[ctx]["trades"][clave]:
@@ -1048,7 +1073,7 @@ with col_mitad_1:
                                 registrar_en_excel(usuario, db_global[usuario]["password"], ctx, fecha_obj_edit, nuevo_bal, nuevo_pnl, data, db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
                                 st.rerun()
 
-                    # BOTÓN SAFACÓN (BASURA) DIRECTO SIN ABRIR EL EXPANDER
+                    # BOTÓN SAFACÓN
                     with c_trash:
                         if st.button("🗑️", key=f"trash_{clave}_{i}", use_container_width=True):
                             db_usuario[ctx]["trades"][clave].pop(i)
