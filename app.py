@@ -150,7 +150,7 @@ if st.session_state.usuario_actual is None or st.session_state.usuario_actual no
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
         st.markdown("<h3 style='text-align:center; color:gray;'>Iniciar Sesión</h3>", unsafe_allow_html=True)
-        modo_movil_login = st.checkbox("📱 Iniciar en Modo Móvil", value=False)
+        modo_movil_login = st.checkbox("📱 Start on Mobile", value=False)
         tab1, tab2 = st.tabs(["Entrar", "Registrarse"])
         
         with tab1:
