@@ -432,28 +432,28 @@ if st.session_state.confirm_clear:
         st.session_state.confirm_clear = False
         st.rerun()
 
-st.sidebar.markdown("---")
-st.sidebar.markdown("### 🛡️ Admin")
-admin_pass = st.sidebar.text_input("Admin Password", type="password")
-@st.dialog("⚠️ Confirmar Acción")
-def ventana_borrar_usuario(u):
-    st.write(f"¿Seguro que quieres borrar permanentemente al usuario **{u}**?")
-    if st.button("SÍ, BORRAR USUARIO", type="primary", use_container_width=True):
-        del db_global[u]
-        if st.session_state.usuario_actual == u: 
-            st.session_state.usuario_actual = None
-            try: st.query_params.clear()
-            except: pass
-        st.rerun()
+with st.sidebar.expander("🛡️ Admin Settings"):
+    admin_pass = st.text_input("Admin Password", type="password")
+    
+    @st.dialog("⚠️ Confirmar Acción")
+    def ventana_borrar_usuario(u):
+        st.write(f"¿Seguro que quieres borrar permanentemente al usuario **{u}**?")
+        if st.button("SÍ, BORRAR USUARIO", type="primary", use_container_width=True):
+            del db_global[u]
+            if st.session_state.usuario_actual == u: 
+                st.session_state.usuario_actual = None
+                try: st.query_params.clear()
+                except: pass
+            st.rerun()
 
-if admin_pass == "725166":
-    st.sidebar.success("Acceso concedido.")
-    for u, data in list(db_global.items()):
-        col_u, col_p, col_btn = st.sidebar.columns([2, 2, 1])
-        col_u.write(f"**{u}**")
-        col_p.write(f"{data['password']}")
-        if col_btn.button("❌", key=f"del_{u}"):
-            ventana_borrar_usuario(u)
+    if admin_pass == "725166":
+        st.success("Acceso concedido.")
+        for u, data in list(db_global.items()):
+            col_u, col_p, col_btn = st.columns([2, 2, 1])
+            col_u.write(f"**{u}**")
+            col_p.write(f"{data['password']}")
+            if col_btn.button("❌", key=f"del_{u}"):
+                ventana_borrar_usuario(u)
 
 st.sidebar.markdown("---")
 with st.sidebar.expander("🖥️ Dashboard Settings"):
