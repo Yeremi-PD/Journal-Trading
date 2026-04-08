@@ -441,13 +441,16 @@ if admin_pass == "725166":
         col_u, col_p, col_btn = st.sidebar.columns([2, 2, 1])
         col_u.write(f"**{u}**")
         col_p.write(f"{data['password']}")
-        if col_btn.button("❌", key=f"del_{u}"):
-            del db_global[u]
-            if st.session_state.usuario_actual == u: 
-                st.session_state.usuario_actual = None
-                try: st.query_params.clear()
-                except: pass
-            st.rerun()
+        with col_btn:
+            with st.popover("❌", use_container_width=True):
+                st.warning(f"¿Seguro que quieres borrar a **{u}**?")
+                if st.button("SÍ, BORRAR", key=f"conf_del_{u}", type="primary"):
+                    del db_global[u]
+                    if st.session_state.usuario_actual == u: 
+                        st.session_state.usuario_actual = None
+                        try: st.query_params.clear()
+                        except: pass
+                    st.rerun()
 
 st.sidebar.markdown("---")
 with st.sidebar.expander("🖥️ Dashboard Settings"):
@@ -1187,12 +1190,14 @@ with col_mitad_1:
                                 st.rerun()
 
                     with c_trash:
-                        if st.button("🗑️", key=f"trash_{clave}_{i}", use_container_width=True):
-                            db_usuario[ctx]["trades"][clave].pop(i)
-                            if not db_usuario[ctx]["trades"][clave]:
-                                del db_usuario[ctx]["trades"][clave]
-                            reescribir_excel_usuario(usuario)
-                            st.rerun()
+                        with st.popover("🗑️", use_container_width=True):
+                            st.warning("⚠️ ¿Estás seguro de que quieres borrar este trade? Esta acción no se puede deshacer.")
+                            if st.button("SÍ, BORRAR", key=f"conf_trash_{clave}_{i}", type="primary"):
+                                db_usuario[ctx]["trades"][clave].pop(i)
+                                if not db_usuario[ctx]["trades"][clave]:
+                                    del db_usuario[ctx]["trades"][clave]
+                                reescribir_excel_usuario(usuario)
+                                st.rerun()
             
             if trades_en_mes == 0:
                 st.info("No hay trades en este mes específico.")
