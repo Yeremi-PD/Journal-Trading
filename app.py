@@ -287,7 +287,7 @@ if st.sidebar.button("💾 Save Design Settings to Cloud", use_container_width=T
     ctx_act = st.session_state.data_source_sel
     bal_act = db_usuario[ctx_act]["balance"]
     registrar_en_excel(usuario, db_global[usuario]["password"], ctx_act, datetime.now(), bal_act, 0.0, {}, db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
-    st.sidebar.success("✅ Ajustes guardados en la nube!")
+    st.sidebar.success("✅ Settings Saved!")
 
 st.sidebar.markdown("---")
 st.sidebar.markdown("### ⚙️ Basic Settings")
@@ -364,7 +364,7 @@ with st.sidebar.expander("📅 Calendar Settings"):
     user_settings["cal_txt_pad"] = st.slider("Day Content Top Padding", -50, 50, user_settings.get("cal_txt_pad", 0))
 
 st.sidebar.markdown("---")
-st.sidebar.markdown("### 📥 Descargas")
+st.sidebar.markdown("### 📥 Downloads")
 
 if db_usuario[ctx_actual]["trades"]:
     @st.cache_data
@@ -384,7 +384,7 @@ if db_usuario[ctx_actual]["trades"]:
         
     zip_bytes = generar_zip(db_usuario[ctx_actual]["trades"])
     st.sidebar.download_button(
-        label="📦 Descargar Todas las Fotos (ZIP)",
+        label="📦 Download All Photos",
         data=zip_bytes,
         file_name=f"Fotos_Journal_{ctx_actual}.zip",
         mime="application/zip",
