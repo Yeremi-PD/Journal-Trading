@@ -1098,7 +1098,7 @@ with col_mitad_2:
                     row = {
                         "Date": fecha.strftime("%d/%m/%Y"),
                         "Trade": f"#{i+1}",
-                        "&nbspP&L": f"{pnl_simbol}${pnl:,.2f}", # <-- P&L movido aquí arriba
+                        "P&L": f"{pnl_simbol}${pnl:,.2f}", # <-- P&L movido aquí arriba
                         "Trade Type": trade.get('trade_type', ''),
                         "Bias": trade.get('bias', ''),
                         "RR": trade.get('RR', ''),
@@ -1113,7 +1113,7 @@ with col_mitad_2:
             df_results = pd.DataFrame(table_data)
             
             def style_rows(row):
-                pnl_str = row['P&L']
+                pnl_str = row['&nbsp; \n &nbsp; \n P&L']
                 row_styles = [''] * len(row) 
                 if pnl_str.startswith('+$'): pnl_style = 'color: #00C897; font-weight: bold;'
                 elif pnl_str.startswith('$0.00') or pnl_str == '$0.00': pnl_style = 'color: gray;'
