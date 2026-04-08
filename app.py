@@ -281,7 +281,7 @@ def reset_settings(category):
 # ==========================================
 st.sidebar.markdown(f"### 👤 Mi Cuenta: {usuario}")
 
-st.session_state.dispositivo_actual = st.sidebar.radio("⚙️ Perfil de Diseño Actual:", ["PC", "Móvil"], index=0 if st.session_state.dispositivo_actual == "PC" else 1)
+st.session_state.dispositivo_actual = st.sidebar.radio("Current Design:", ["🖥️PC", "📱 Móvil"], index=0 if st.session_state.dispositivo_actual == "PC" else 1)
 
 if st.sidebar.button("💾 Save Design Settings to Cloud", use_container_width=True):
     ctx_act = st.session_state.data_source_sel
