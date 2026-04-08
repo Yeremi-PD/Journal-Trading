@@ -485,7 +485,7 @@ if db_usuario[ctx_actual]["trades"]:
 # ESPACIO PARA EMPUJAR LOS BOTONES HACIA ABAJO
 # Cambia "250px" por un número mayor (ej. 350px, 500px) si quieres bajarlos aún más.
 # ==========================================
-st.sidebar.markdown("<div style='margin-top: 20px;'></div>", unsafe_allow_html=True)
+st.sidebar.markdown("<div style='margin-top: 90px;'></div>", unsafe_allow_html=True)
 
 # BOTÓN DE SINCRONIZACIÓN FORZADA
 if st.sidebar.button("🔄 Force Sync with Google Sheets", use_container_width=True):
