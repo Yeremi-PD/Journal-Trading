@@ -968,7 +968,7 @@ with col_det:
                 </div>
                 <div style="text-align: right;">
                     <div class="metric-header" style="justify-content: flex-end;"><span class="title-net-pnl">Total Trades</span></div>
-                    <div class="win-value" style="color: gray;">{total_trades}</div>
+                    <div class="win-value" style="color: white;">{total_trades}</div>
                 </div>
             </div>
         </div>
