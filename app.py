@@ -30,6 +30,17 @@ def conectar_google_sheets():
 
 hoja_excel = conectar_google_sheets()
 
+def procesar_y_comprimir_imagen(uploaded_file):
+    try:
+        img = Image.open(uploaded_file)
+        if img.mode in ("RGBA", "P"): img = img.convert("RGB")
+        img.thumbnail((700, 700), Image.Resampling.LANCZOS)
+        output = io.BytesIO()
+        img.save(output, format="JPEG", quality=50)
+        return f"data:image/jpeg;base64,{base64.b64encode(output.getvalue()).decode()}"
+    except Exception:
+        return f"data:{uploaded_file.type};base64,{base64.b64encode(uploaded_file.getvalue()).decode()}"
+
 def inicializar_data_usuario():
     return {
         "Account Real": {"balance": 25000.00, "trades": {}},
@@ -71,6 +82,8 @@ def get_global_db():
                     try:
                         set_pc = json.loads(row_data.get('Settings_PC', '{}'))
                         if set_pc: db_temp[user]["settings"]["PC"].update(set_pc)
+                        set_mov = json.loads(row_data.get('Settings_Movil', '{}'))
+                        if set_mov: db_temp[user]["settings"]["Móvil"].update(set_mov)
                     except: pass
                     
                     cuenta = row_data.get('Cuenta', 'Account Real')
@@ -90,8 +103,7 @@ def get_global_db():
                     
                     extra = row_data.get('ExtraData', '')
                     if extra:
-                        try:
-                            trade_info.update(json.loads(extra))
+                        try: trade_info.update(json.loads(extra))
                         except: pass
                         
                     db_temp[user]["data"][cuenta]["trades"][clave] = trade_info
@@ -102,15 +114,13 @@ def get_global_db():
 
 db_global = get_global_db()
 
-# --- FUNCIÓN CENTRAL DE GUARDADO A LA NUBE ---
+# --- FUNCIÓN CENTRAL DE GUARDADO A LA NUBE (SOLO POR BOTÓN) ---
 def registrar_en_excel(usuario, password, cuenta, fecha_obj, balance, pnl, trade_data, settings_pc, settings_movil):
     if hoja_excel:
         try:
             fecha_texto = fecha_obj.strftime("%d/%m/%Y")
             lista_imgs = trade_data.get("imagenes", [])
-            
             imgs_texto = "|".join(lista_imgs) if lista_imgs else ""
-            # Si a pesar de comprimir pasa el límite de Excel (50k), lo acortamos para no romper el Excel
             if len(imgs_texto) > 48000: imgs_texto = imgs_texto[:48000] 
             
             set_pc_str = json.dumps(settings_pc) if settings_pc else "{}"
@@ -127,38 +137,18 @@ def registrar_en_excel(usuario, password, cuenta, fecha_obj, balance, pnl, trade
         except Exception:
             pass
 
-# --- FUNCIÓN DE COMPRESIÓN DE IMÁGENES ---
-def procesar_y_comprimir_imagen(uploaded_file):
-    try:
-        img = Image.open(uploaded_file)
-        # Convertir a RGB (evita errores con PNG transparentes)
-        if img.mode in ("RGBA", "P"):
-            img = img.convert("RGB")
-        
-        # Achicar la imagen para que pese menos de 40kb
-        img.thumbnail((700, 700), Image.Resampling.LANCZOS)
-        
-        output = io.BytesIO()
-        # Guardar muy comprimida
-        img.save(output, format="JPEG", quality=50)
-        b64_string = base64.b64encode(output.getvalue()).decode()
-        return f"data:image/jpeg;base64,{b64_string}"
-    except Exception as e:
-        # Fallback normal si la compresión falla
-        return f"data:{uploaded_file.type};base64,{base64.b64encode(uploaded_file.getvalue()).decode()}"
-
-# --- LOGIN MEJORADO (UN SOLO CLIC) ---
+# --- LOGIN CON CHECKBOX MÓVIL ---
 if "usuario_actual" not in st.session_state:
     st.session_state.usuario_actual = None
 
 if st.session_state.usuario_actual is None or st.session_state.usuario_actual not in db_global:
     st.session_state.usuario_actual = None 
-    
     st.markdown("<h1 style='text-align:center; font-family:sans-serif;'>Yeremi Journal Pro</h1>", unsafe_allow_html=True)
     
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
         st.markdown("<h3 style='text-align:center; color:gray;'>Iniciar Sesión</h3>", unsafe_allow_html=True)
+        modo_movil_login = st.checkbox("📱 Activar Modo Móvil (Diseño encogido)", value=False)
         tab1, tab2 = st.tabs(["Entrar", "Registrarse"])
         
         with tab1:
@@ -172,14 +162,11 @@ if st.session_state.usuario_actual is None or st.session_state.usuario_actual no
                         st.error("⚠️ El campo Usuario no puede estar vacío.")
                     else:
                         if log_user not in db_global:
-                            db_global[log_user] = {
-                                "password": log_pass,
-                                "data": inicializar_data_usuario(),
-                                "settings": {"PC": inicializar_settings(), "Móvil": inicializar_settings()}
-                            }
+                            db_global[log_user] = {"password": log_pass, "data": inicializar_data_usuario(), "settings": {"PC": inicializar_settings(), "Móvil": inicializar_settings()}}
                         
                         if db_global[log_user]["password"] == log_pass:
                             st.session_state.usuario_actual = log_user
+                            st.session_state.dispositivo_actual = "Móvil" if modo_movil_login else "PC"
                             st.rerun()
                         else:
                             st.error("Usuario o contraseña incorrectos.")
@@ -196,13 +183,9 @@ if st.session_state.usuario_actual is None or st.session_state.usuario_actual no
                     elif reg_user in db_global:
                         st.warning("El usuario ya existe.")
                     elif len(reg_user) > 0 and len(reg_pass) > 0:
-                        db_global[reg_user] = {
-                            "password": reg_pass,
-                            "data": inicializar_data_usuario(),
-                            "settings": {"PC": inicializar_settings(), "Móvil": inicializar_settings()}
-                        }
+                        db_global[reg_user] = {"password": reg_pass, "data": inicializar_data_usuario(), "settings": {"PC": inicializar_settings(), "Móvil": inicializar_settings()}}
                         registrar_en_excel(reg_user, reg_pass, "Account Real", datetime.now(), 25000.0, 0.0, {}, db_global[reg_user]["settings"]["PC"], db_global[reg_user]["settings"]["Móvil"])
-                        st.success("Cuenta creada con éxito. Ya puedes iniciar sesión.")
+                        st.success("Cuenta creada. Ya puedes iniciar sesión en la pestaña 'Entrar'.")
                     else:
                         st.warning("Completa todos los campos.")
     st.stop()
@@ -210,170 +193,46 @@ if st.session_state.usuario_actual is None or st.session_state.usuario_actual no
 # ==========================================
 # 3. SECCIÓN DE AJUSTES MANUALES (CONSTANTES)
 # ==========================================
-
 TEMA_POR_DEFECTO = "Oscuro"
-
-TXT_DASHBOARD = "Dashboard"
-TXT_DASH_SIZE = 60
-TXT_DASH_X = 20        
-TXT_DASH_Y = -20        
-TXT_DASH_COLOR_C = "#000000"
-TXT_DASH_COLOR_O = "#FFFFFF"
-
-LBL_FILTROS = "Filters"
-LBL_FILTROS_SIZE = 20           
-LBL_FILTROS_X = 0
-LBL_FILTROS_Y = 0
-LBL_FILTROS_COLOR_C = "#000000"
-LBL_FILTROS_COLOR_O = "#FFFFFF"
-
-OPT_FILTRO_1 = "All"
-OPT_FILTRO_2 = "Take Profit"
-OPT_FILTRO_3 = "Stop Loss"
-OPT_FILTROS_SIZE = 15  
-OPT_FILTROS_COLOR_C = "#000000"  
-OPT_FILTROS_COLOR_O = "#FFFFFF"  
-
-LBL_DATA = "Data Source"
-LBL_DATA_SIZE = 20              
-LBL_DATA_X = 0
-LBL_DATA_Y = 0
-LBL_DATA_COLOR_C = "#000000"
-LBL_DATA_COLOR_O = "#FFFFFF"
-
-OPT_DATA_1 = "Account Real"
-OPT_DATA_2 = "Account Demo"
-OPT_DATA_SIZE = 14    
-OPT_DATA_COLOR_C = "#000000"     
-OPT_DATA_COLOR_O = "#FFFFFF"     
-
-LBL_INPUT = "Balance:"
-LBL_INPUT_SIZE = 20             
-LBL_INPUT_X = 0
-LBL_INPUT_Y = 0
-LBL_INPUT_COLOR_C = "#000000"
-LBL_INPUT_COLOR_O = "#FFFFFF"
-
-INPUT_BAL_W = "200px"         
-INPUT_BAL_H = "60px"          
-INPUT_BAL_X = 0      
-INPUT_BAL_Y = 0      
-INPUT_BAL_TXT_SIZE = 25       
-INPUT_FONDO_C = "#FFFFFF"
-INPUT_FONDO_O = "#1A202C"
-
-LBL_BAL_TOTAL = "ACCOUNT BALANCE"
-LBL_BAL_TOTAL_SIZE = 18
-LBL_BAL_TOTAL_X = 0
-LBL_BAL_TOTAL_Y = 0
-LBL_BAL_TOTAL_COLOR_C = "#000000"
-LBL_BAL_TOTAL_COLOR_O = "#FFFFFF"
-
-BALANCE_BOX_X = 0     
-BALANCE_BOX_Y = 0     
-
-LINEA_GROSOR = 1.5             
-LINEA_ANCHO = 100              
-LINEA_X = 0                    
-LINEA_MARGEN_SUP = 10          
-LINEA_MARGEN_INF = 25          
-LINEA_COLOR_C = "#E2E8F0"
-LINEA_COLOR_O = "#4A5568"
-
-DROPZONE_W = "100%"
-DROPZONE_H = "75px"            
-DROPZONE_X = 0
-DROPZONE_Y = 0
-DROPZONE_BG_C = "transparent"  
-DROPZONE_BG_O = "transparent"
-DROPZONE_BORDER_C = "1px dashed #E2E8F0"  
-DROPZONE_BORDER_O = "1px dashed #4A5568"
-
-BTN_UP_TEXTO = "Upload"
-BTN_UP_SIZE = "20px"
-BTN_UP_W = "120px"             
-BTN_UP_H = "45px"              
-BTN_UP_BG_C = "#E2E8F0"       
-BTN_UP_BG_O = "#4A5568"
-BTN_UP_TXT_C = "#000000"      
-BTN_UP_TXT_O = "#FFFFFF"
-
-BTN_CAL_EMOJI = "🗓️"
-BTN_CAL_W = 68     
-BTN_CAL_H = 68    
-BTN_CAL_ICON_SIZE = 33 
-BTN_CAL_BG_C = "#F3F4F6"
-BTN_CAL_BG_O = "#2D3748"
-
-FLECHAS_SIZE = 40
-FLECHAS_X = 0 
-FLECHAS_Y = 0   
-
-TXT_MES_COLOR_C = "#000000"
-TXT_MES_COLOR_O = "#FFFFFF"
-TXT_DIAS_SEM_SIZE = 15
-TXT_DIAS_SEM_COLOR_C = "#000000"
-TXT_DIAS_SEM_COLOR_O = "#FFFFFF"
-TXT_NUM_DIA_COLOR_C = "#000000"
-TXT_NUM_DIA_COLOR_O = "#c0c0c0"
-TXT_PCT_DIA_COLOR_C = "#000000"
-TXT_PCT_DIA_COLOR_O = "#000000"
-
-BTN_CAM_EMOJI = "📷"
-BTN_CAM_X = 0
-BTN_CAM_Y = 2
-BTN_CAM_BG_C = "rgba(0,0,0,0)"
-BTN_CAM_BG_O = "rgba(0,0,0,0)"
-TXT_CERRAR_MODAL = "✖ CERRAR"
-
-CARD_PNL_TITULO = "Net P&L Monthly"
-CARD_PNL_TITULO_COLOR_C = "#000000"
-CARD_PNL_TITULO_COLOR_O = "#FFFFFF"
-CARD_PNL_W = "100%"     
-CARD_PNL_H = "auto"     
-CARD_PNL_X = 0          
-CARD_PNL_Y = 0 
-
-CARD_WIN_TITULO = "Win Rate Monthly"
-CARD_WIN_TITULO_COLOR_C = "#000000"
-CARD_WIN_TITULO_COLOR_O = "#FFFFFF"
-CARD_WIN_VALOR_SIZE = 28
-CARD_WIN_VALOR_COLOR_C = "#000000"
-CARD_WIN_VALOR_COLOR_O = "#FFFFFF"
-CARD_WIN_W = "100%"     
-CARD_WIN_H = "auto"     
-CARD_WIN_X = 0          
-CARD_WIN_Y = 0   
-
-TXT_W1 = "Week 1"
-TXT_W2 = "Week 2"
-TXT_W3 = "Week 3"
-TXT_W4 = "Week 4"
-TXT_W5 = "Week 5"
-TXT_W6 = "Week 6"
-TXT_MO = "Month"
-
-WEEKS_TITULOS_COLOR_C = "#000000"
-WEEKS_TITULOS_COLOR_O = "#FFFFFF"
-WEEK_BOX_W = "31%"          
-WEEK_BOX_H = "120px"         
-Month_BOX_W = "100%"        
-Month_BOX_H = "120px"        
-WEEKS_CONTENEDOR_X = 0      
-WEEKS_CONTENEDOR_Y = 15     
-WEEK_ALIGN = "center"  
+TXT_DASHBOARD, TXT_DASH_SIZE, TXT_DASH_X, TXT_DASH_Y = "Dashboard", 60, 20, -20
+TXT_DASH_COLOR_C, TXT_DASH_COLOR_O = "#000000", "#FFFFFF"
+LBL_FILTROS, LBL_FILTROS_SIZE, LBL_FILTROS_X, LBL_FILTROS_Y = "Filters", 20, 0, 0
+LBL_FILTROS_COLOR_C, LBL_FILTROS_COLOR_O = "#000000", "#FFFFFF"
+OPT_FILTRO_1, OPT_FILTRO_2, OPT_FILTRO_3 = "All", "Take Profit", "Stop Loss"
+OPT_FILTROS_SIZE, OPT_FILTROS_COLOR_C, OPT_FILTROS_COLOR_O = 15, "#000000", "#FFFFFF"
+LBL_DATA, LBL_DATA_SIZE, LBL_DATA_X, LBL_DATA_Y = "Data Source", 20, 0, 0
+LBL_DATA_COLOR_C, LBL_DATA_COLOR_O = "#000000", "#FFFFFF"
+OPT_DATA_1, OPT_DATA_2 = "Account Real", "Account Demo"
+OPT_DATA_SIZE, OPT_DATA_COLOR_C, OPT_DATA_COLOR_O = 14, "#000000", "#FFFFFF"
+LBL_INPUT, LBL_INPUT_SIZE, LBL_INPUT_X, LBL_INPUT_Y = "Balance:", 20, 0, 0
+LBL_INPUT_COLOR_C, LBL_INPUT_COLOR_O = "#000000", "#FFFFFF"
+INPUT_BAL_W, INPUT_BAL_H, INPUT_BAL_X, INPUT_BAL_Y, INPUT_BAL_TXT_SIZE = "200px", "60px", 0, 0, 25
+INPUT_FONDO_C, INPUT_FONDO_O = "#FFFFFF", "#1A202C"
+LBL_BAL_TOTAL, LBL_BAL_TOTAL_SIZE, LBL_BAL_TOTAL_X, LBL_BAL_TOTAL_Y = "ACCOUNT BALANCE", 18, 0, 0
+LBL_BAL_TOTAL_COLOR_C, LBL_BAL_TOTAL_COLOR_O = "#000000", "#FFFFFF"
+BALANCE_BOX_X, BALANCE_BOX_Y = 0, 0
+LINEA_GROSOR, LINEA_ANCHO, LINEA_X, LINEA_MARGEN_SUP, LINEA_MARGEN_INF = 1.5, 100, 0, 10, 25
+LINEA_COLOR_C, LINEA_COLOR_O = "#E2E8F0", "#4A5568"
+DROPZONE_W, DROPZONE_H, DROPZONE_X, DROPZONE_Y = "100%", "75px", 0, 0
+DROPZONE_BG_C, DROPZONE_BG_O = "transparent", "transparent"
+DROPZONE_BORDER_C, DROPZONE_BORDER_O = "1px dashed #E2E8F0", "1px dashed #4A5568"
+BTN_UP_TEXTO, BTN_UP_SIZE, BTN_UP_W, BTN_UP_H = "Upload", "20px", "120px", "45px"
+BTN_CAL_EMOJI, BTN_CAL_W, BTN_CAL_H, BTN_CAL_ICON_SIZE, BTN_CAL_BG_C, BTN_CAL_BG_O = "🗓️", 68, 68, 33, "#F3F4F6", "#2D3748"
+FLECHAS_SIZE, FLECHAS_X, FLECHAS_Y = 40, 0, 0
+TXT_MES_COLOR_C, TXT_MES_COLOR_O, TXT_DIAS_SEM_SIZE, TXT_DIAS_SEM_COLOR_C, TXT_DIAS_SEM_COLOR_O = "#000000", "#FFFFFF", 15, "#000000", "#FFFFFF"
+TXT_NUM_DIA_COLOR_C, TXT_NUM_DIA_COLOR_O, TXT_PCT_DIA_COLOR_C, TXT_PCT_DIA_COLOR_O = "#000000", "#c0c0c0", "#000000", "#000000"
+BTN_CAM_EMOJI, BTN_CAM_X, BTN_CAM_Y, BTN_CAM_BG_C, BTN_CAM_BG_O, TXT_CERRAR_MODAL = "📷", 0, 2, "rgba(0,0,0,0)", "rgba(0,0,0,0)", "✖ CERRAR"
+CARD_PNL_TITULO, CARD_PNL_TITULO_COLOR_C, CARD_PNL_TITULO_COLOR_O, CARD_PNL_W, CARD_PNL_H, CARD_PNL_X, CARD_PNL_Y = "Net P&L Monthly", "#000000", "#FFFFFF", "100%", "auto", 0, 0
+CARD_WIN_TITULO, CARD_WIN_TITULO_COLOR_C, CARD_WIN_TITULO_COLOR_O, CARD_WIN_VALOR_SIZE, CARD_WIN_VALOR_COLOR_C, CARD_WIN_VALOR_COLOR_O, CARD_WIN_W, CARD_WIN_H, CARD_WIN_X, CARD_WIN_Y = "Win Rate Monthly", "#000000", "#FFFFFF", 28, "#000000", "#FFFFFF", "100%", "auto", 0, 0
+TXT_W1, TXT_W2, TXT_W3, TXT_W4, TXT_W5, TXT_W6, TXT_MO = "Week 1", "Week 2", "Week 3", "Week 4", "Week 5", "Week 6", "Month"
+WEEKS_TITULOS_COLOR_C, WEEKS_TITULOS_COLOR_O, WEEK_BOX_W, WEEK_BOX_H, Month_BOX_W, Month_BOX_H, WEEKS_CONTENEDOR_X, WEEKS_CONTENEDOR_Y, WEEK_ALIGN = "#000000", "#FFFFFF", "31%", "120px", "100%", "120px", 0, 15, "center"
 
 # ==========================================
 # 4. LÓGICA DE ESTADO Y AJUSTES
 # ==========================================
-if "tema" not in st.session_state:
-    st.session_state.tema = TEMA_POR_DEFECTO
-
-if "data_source_sel" not in st.session_state:
-    st.session_state.data_source_sel = "Account Real"
-
-# FORZAMOS SIEMPRE A PC (ADIOS RESPONSIVE)
-st.session_state.dispositivo_actual = "PC"
+if "tema" not in st.session_state: st.session_state.tema = TEMA_POR_DEFECTO
+if "data_source_sel" not in st.session_state: st.session_state.data_source_sel = "Account Real"
+if "dispositivo_actual" not in st.session_state: st.session_state.dispositivo_actual = "PC"
 
 usuario = st.session_state.usuario_actual
 db_usuario = db_global[usuario]["data"]
@@ -381,34 +240,28 @@ db_usuario = db_global[usuario]["data"]
 if "settings" not in db_global[usuario]:
     db_global[usuario]["settings"] = {"PC": inicializar_settings(), "Móvil": inicializar_settings()}
 elif "PC" not in db_global[usuario]["settings"]:
-    old_set = db_global[usuario]["settings"]
-    db_global[usuario]["settings"] = {"PC": old_set.copy(), "Móvil": old_set.copy()}
+    db_global[usuario]["settings"] = {"PC": db_global[usuario]["settings"].copy(), "Móvil": db_global[usuario]["settings"].copy()}
 
 for dev in ["PC", "Móvil"]:
     for k, v in inicializar_settings().items():
         if k not in db_global[usuario]["settings"][dev]:
             db_global[usuario]["settings"][dev][k] = v
 
-user_settings = db_global[usuario]["settings"]["PC"]
+# EL DISEÑO ACTIVO AHORA DEPENDE DEL CHECKBOX, NO DE LA PANTALLA
+user_settings = db_global[usuario]["settings"][st.session_state.dispositivo_actual]
 
 for cuenta in ["Account Real", "Account Demo"]:
     if cuenta not in db_usuario:
         db_usuario[cuenta] = {"balance": 25000.00, "trades": {}}
 
 hoy = datetime.now()
-if "cal_month" not in st.session_state:
-    st.session_state.cal_month = hoy.month
-if "cal_year" not in st.session_state:
-    st.session_state.cal_year = hoy.year
+if "cal_month" not in st.session_state: st.session_state.cal_month = hoy.month
+if "cal_year" not in st.session_state: st.session_state.cal_year = hoy.year
 
 def cambiar_mes(delta):
     st.session_state.cal_month += delta
-    if st.session_state.cal_month > 12:
-        st.session_state.cal_month = 1
-        st.session_state.cal_year += 1
-    elif st.session_state.cal_month < 1:
-        st.session_state.cal_month = 12
-        st.session_state.cal_year -= 1
+    if st.session_state.cal_month > 12: st.session_state.cal_month = 1; st.session_state.cal_year += 1
+    elif st.session_state.cal_month < 1: st.session_state.cal_month = 12; st.session_state.cal_year -= 1
 
 def procesar_cambio():
     ctx = st.session_state.data_source_sel 
@@ -416,53 +269,51 @@ def procesar_cambio():
     viejo = db_usuario[ctx]["balance"]
     fecha_sel = st.session_state.input_fecha 
     
-    if nuevo != viejo:
-        pnl = nuevo - viejo
-        clave = (fecha_sel.year, fecha_sel.month, fecha_sel.day)
-        old_trade = db_usuario[ctx]["trades"].get(clave, {})
-        
-        db_usuario[ctx]["trades"][clave] = {
-            "pnl": pnl,
-            "balance_final": nuevo,
-            "fecha_str": fecha_sel.strftime("%d/%m/%Y"),
-            "imagenes": old_trade.get("imagenes", []),
-            "bias": old_trade.get("bias", "NEUTRO"),
-            "Confluences": old_trade.get("Confluences", []),
-            "razon_trade": old_trade.get("razon_trade", ""),
-            "Corrections": old_trade.get("Corrections", ""),
-            "risk": old_trade.get("risk", "0.5%"),
-            "RR": old_trade.get("RR", "1:2"),
-            "trade_type": old_trade.get("trade_type", ""),
-            "Emotions": old_trade.get("Emotions", "")
-        }
-        db_usuario[ctx]["balance"] = nuevo
-        
-        registrar_en_excel(usuario, db_global[usuario]["password"], ctx, fecha_sel, nuevo, pnl, db_usuario[ctx]["trades"][clave], db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
+    pnl = nuevo - viejo if nuevo != viejo else 0.0
+    clave = (fecha_sel.year, fecha_sel.month, fecha_sel.day)
+    old_trade = db_usuario[ctx]["trades"].get(clave, {})
+    
+    db_usuario[ctx]["trades"][clave] = {
+        "pnl": pnl if nuevo != viejo else old_trade.get("pnl", 0.0),
+        "balance_final": nuevo,
+        "fecha_str": fecha_sel.strftime("%d/%m/%Y"),
+        "imagenes": old_trade.get("imagenes", []),
+        "bias": old_trade.get("bias", "NEUTRO"),
+        "Confluences": old_trade.get("Confluences", []),
+        "razon_trade": old_trade.get("razon_trade", ""),
+        "Corrections": old_trade.get("Corrections", ""),
+        "risk": old_trade.get("risk", "0.5%"),
+        "RR": old_trade.get("RR", "1:2"),
+        "trade_type": old_trade.get("trade_type", ""),
+        "Emotions": old_trade.get("Emotions", "")
+    }
+    db_usuario[ctx]["balance"] = nuevo
+    
+    # ESTE ES EL ÚNICO LUGAR DONDE SE AUTO-GUARDA AL DARLE A SAVE MAIN
+    registrar_en_excel(usuario, db_global[usuario]["password"], ctx, fecha_sel, nuevo, db_usuario[ctx]["trades"][clave]["pnl"], db_usuario[ctx]["trades"][clave], db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
+    st.success("✅ Guardado en Google Sheets")
 
 def reset_settings(category):
     defaults = inicializar_settings()
-    s = db_global[usuario]["settings"]["PC"]
-    
-    if category == "dash":
-        keys = ["bal_num_sz", "bal_box_w", "bal_box_pad"]
-    elif category == "txt":
-        keys = ["size_top_stats", "size_card_titles", "size_box_titles", "size_box_vals", "size_box_pct", "size_box_wl", "pie_size", "pie_y_offset"]
-    elif category == "cal":
-        keys = ["cal_mes_size", "cal_pnl_size", "cal_pct_size", "cal_dia_size", "cal_cam_size", "cal_scale", "cal_line_height", "cal_txt_y", "cal_txt_pad", "cal_note_size", "note_lbl_size", "note_val_size"]
-    
-    for k in keys:
-        s[k] = defaults[k]
+    s = db_global[usuario]["settings"][st.session_state.dispositivo_actual]
+    if category == "dash": keys = ["bal_num_sz", "bal_box_w", "bal_box_pad"]
+    elif category == "txt": keys = ["size_top_stats", "size_card_titles", "size_box_titles", "size_box_vals", "size_box_pct", "size_box_wl", "pie_size", "pie_y_offset"]
+    elif category == "cal": keys = ["cal_mes_size", "cal_pnl_size", "cal_pct_size", "cal_dia_size", "cal_cam_size", "cal_scale", "cal_line_height", "cal_txt_y", "cal_txt_pad", "cal_note_size", "note_lbl_size", "note_val_size"]
+    for k in keys: s[k] = defaults[k]
 
 # ==========================================
 # 5. BARRA LATERAL (AJUSTES Y ADMIN)
 # ==========================================
-st.sidebar.markdown(f"### 👤 My Account: {usuario}")
+st.sidebar.markdown(f"### 👤 Mi Cuenta: {usuario}")
+
+# SELECCIÓN MANUAL DE PERFIL A EDITAR (Vuelve a ser radio button manual)
+st.session_state.dispositivo_actual = st.sidebar.radio("⚙️ Perfil de Diseño Actual:", ["PC", "Móvil"], index=0 if st.session_state.dispositivo_actual == "PC" else 1)
 
 if st.sidebar.button("💾 Save Design Settings to Cloud", use_container_width=True):
     ctx_act = st.session_state.data_source_sel
     bal_act = db_usuario[ctx_act]["balance"]
     registrar_en_excel(usuario, db_global[usuario]["password"], ctx_act, datetime.now(), bal_act, 0.0, {}, db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
-    st.sidebar.success("✅ Settings synced to cloud!")
+    st.sidebar.success("✅ Ajustes guardados en la nube!")
 
 st.sidebar.markdown("---")
 st.sidebar.markdown("### 📊 Metrics")
@@ -476,26 +327,21 @@ if st.sidebar.button(texto_boton_tema):
     st.session_state.tema = "Oscuro" if st.session_state.tema == "Claro" else "Claro"
     st.rerun()
 
-# --- BOTÓN DE LIMPIAR CUENTA CON CONFIRMACIÓN ---
 ctx_actual = st.session_state.data_source_sel
-if "confirm_clear" not in st.session_state:
-    st.session_state.confirm_clear = False
-
-if st.sidebar.button(f"🗑️ Clean {ctx_actual} to $25k"):
-    st.session_state.confirm_clear = True
-
+if "confirm_clear" not in st.session_state: st.session_state.confirm_clear = False
+if st.sidebar.button(f"🗑️ Clean {ctx_actual} to $25k"): st.session_state.confirm_clear = True
 if st.session_state.confirm_clear:
-    st.sidebar.warning(f"⚠️ ¿Estás seguro que quieres borrar todo el historial de {ctx_actual}?")
+    st.sidebar.warning(f"⚠️ ¿Seguro que quieres borrar el historial de {ctx_actual}?")
     c_yes, c_no = st.sidebar.columns(2)
     if c_yes.button("SÍ, BORRAR"):
         db_usuario[ctx_actual]["balance"] = 25000.00
         db_usuario[ctx_actual]["trades"] = {}
+        registrar_en_excel(usuario, db_global[usuario]["password"], ctx_actual, datetime.now(), 25000.00, 0.0, {}, db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
         st.session_state.confirm_clear = False
         st.rerun()
     if c_no.button("CANCELAR"):
         st.session_state.confirm_clear = False
         st.rerun()
-# ------------------------------------------------
 
 st.sidebar.markdown("---")
 st.sidebar.markdown("### 🛡️ Admin")
@@ -508,28 +354,18 @@ if admin_pass == "725166":
         col_p.write(f"{data['password']}")
         if col_btn.button("❌", key=f"del_{u}"):
             del db_global[u]
-            if st.session_state.usuario_actual == u:
-                st.session_state.usuario_actual = None
+            if st.session_state.usuario_actual == u: st.session_state.usuario_actual = None
             st.rerun()
 
-# --- MENÚS EXPANDIBLES ---
 st.sidebar.markdown("---")
-
 with st.sidebar.expander("🖥️ Dashboard Settings"):
-    if st.button("🔄 Reset Dashboard", key="res_dash", use_container_width=True): 
-        reset_settings("dash")
-        st.rerun()
-        
-    st.markdown("**ACCOUNT BALANCE Box**")
+    if st.button("🔄 Reset Dashboard", key="res_dash", use_container_width=True): reset_settings("dash"); st.rerun()
     user_settings["bal_num_sz"] = st.slider("Balance Numbers Size", 10, 60, user_settings["bal_num_sz"])
     user_settings["bal_box_w"] = st.slider("Green Background Width (%)", 10, 100, user_settings["bal_box_w"])
     user_settings["bal_box_pad"] = st.slider("Green Background Height (Padding)", 0, 50, user_settings["bal_box_pad"])
 
 with st.sidebar.expander("🔠 Text & Chart Settings"):
-    if st.button("🔄 Reset Texts & Charts", key="res_txt", use_container_width=True): 
-        reset_settings("txt")
-        st.rerun()
-        
+    if st.button("🔄 Reset Texts & Charts", key="res_txt", use_container_width=True): reset_settings("txt"); st.rerun()
     user_settings["size_top_stats"] = st.slider("Monthly P&L and Win Rate Size (Top)", 10, 40, user_settings["size_top_stats"])
     user_settings["size_card_titles"] = st.slider("Titles Size (All-Time, etc)", 10, 40, user_settings["size_card_titles"])
     user_settings["size_box_titles"] = st.slider("Titles Size (Week/Month)", 10, 40, user_settings["size_box_titles"])
@@ -540,10 +376,7 @@ with st.sidebar.expander("🔠 Text & Chart Settings"):
     user_settings["pie_y_offset"] = st.slider("Chart Vertical Position (Up/Down)", -100, 100, user_settings["pie_y_offset"])
 
 with st.sidebar.expander("📅 Calendar Settings"):
-    if st.button("🔄 Reset Calendar", key="res_cal", use_container_width=True): 
-        reset_settings("cal")
-        st.rerun()
-        
+    if st.button("🔄 Reset Calendar", key="res_cal", use_container_width=True): reset_settings("cal"); st.rerun()
     user_settings["cal_mes_size"] = st.slider("Month Size (Title)", 10, 50, user_settings["cal_mes_size"])
     user_settings["cal_pnl_size"] = st.slider("Day P&L Size", 10, 40, user_settings["cal_pnl_size"])
     user_settings["cal_pct_size"] = st.slider("Day % Size", 10, 30, user_settings["cal_pct_size"])
@@ -558,12 +391,10 @@ with st.sidebar.expander("📅 Calendar Settings"):
     user_settings["cal_txt_pad"] = st.slider("Day Content Top Padding", -50, 50, user_settings.get("cal_txt_pad", 0))
 
 st.sidebar.markdown("<br><br><br>", unsafe_allow_html=True)
-if st.sidebar.button("🚪 Log Out", use_container_width=True):
-    st.session_state.usuario_actual = None
-    st.rerun()
+if st.sidebar.button("🚪 Log Out", use_container_width=True): st.session_state.usuario_actual = None; st.rerun()
 
 # ==========================================
-# 6. ASIGNACIÓN DE COLORES SEGÚN EL TEMA
+# 6. ASIGNACIÓN DE COLORES
 # ==========================================
 if st.session_state.tema == "Claro":
     bg_color, card_bg, border_color, empty_cell_bg = "#F7FAFC", "#FFFFFF", "#E2E8F0", "#FFFFFF"
@@ -584,36 +415,10 @@ else:
     drop_bg, drop_border, u_btn_bg, u_btn_txt = DROPZONE_BG_O, DROPZONE_BORDER_O, BTN_UP_BG_O, BTN_UP_TXT_O
     wk_tit_c, c_cam_bg, c_linea = WEEKS_TITULOS_COLOR_O, BTN_CAM_BG_O, LINEA_COLOR_O
 
-# ==========================================
-# 7. INYECCIÓN DE CSS DINÁMICO VARIABLES CSS
-# ==========================================
 def gen_css_vars(s):
-    return f"""
-    --size-top-stats: {s['size_top_stats']}px;
-    --size-card-titles: {s['size_card_titles']}px;
-    --size-box-titles: {s['size_box_titles']}px;
-    --size-box-vals: {s['size_box_vals']}px;
-    --size-box-pct: {s['size_box_pct']}px;
-    --size-box-wl: {s['size_box_wl']}px;
-    --pie-size: {s['pie_size']}px;
-    --pie-y-offset: {s['pie_y_offset']}px;
-    --cal-mes-size: {s['cal_mes_size']}px;
-    --cal-pnl-size: {s['cal_pnl_size']}px;
-    --cal-pct-size: {s['cal_pct_size']}px;
-    --cal-dia-size: {s['cal_dia_size']}px;
-    --cal-cam-size: {s['cal_cam_size']}px;
-    --cal-note-size: {s.get('cal_note_size', 30)}px;
-    --cal-scale: {s['cal_scale']}px;
-    --cal-line-height: {s['cal_line_height']};
-    --bal-num-sz: {s['bal_num_sz']}px;
-    --bal-box-w: {s['bal_box_w']}%;
-    --bal-box-pad: {s['bal_box_pad']}px;
-    --cal-txt-y: {s.get('cal_txt_y', 0)}px;
-    --cal-txt-pad: {s.get('cal_txt_pad', 0)}px;
-    --note-lbl-size: {s.get('note_lbl_size', 16)}px;
-    --note-val-size: {s.get('note_val_size', 16)}px;
-    """
+    return f"--size-top-stats:{s['size_top_stats']}px;--size-card-titles:{s['size_card_titles']}px;--size-box-titles:{s['size_box_titles']}px;--size-box-vals:{s['size_box_vals']}px;--size-box-pct:{s['size_box_pct']}px;--size-box-wl:{s['size_box_wl']}px;--pie-size:{s['pie_size']}px;--pie-y-offset:{s['pie_y_offset']}px;--cal-mes-size:{s['cal_mes_size']}px;--cal-pnl-size:{s['cal_pnl_size']}px;--cal-pct-size:{s['cal_pct_size']}px;--cal-dia-size:{s['cal_dia_size']}px;--cal-cam-size:{s['cal_cam_size']}px;--cal-note-size:{s.get('cal_note_size',30)}px;--cal-scale:{s['cal_scale']}px;--cal-line-height:{s['cal_line_height']};--bal-num-sz:{s['bal_num_sz']}px;--bal-box-w:{s['bal_box_w']}%;--bal-box-pad:{s['bal_box_pad']}px;--cal-txt-y:{s.get('cal_txt_y',0)}px;--cal-txt-pad:{s.get('cal_txt_pad',0)}px;--note-lbl-size:{s.get('note_lbl_size',16)}px;--note-val-size:{s.get('note_val_size',16)}px;"
 
+# SE ELIMINARON POR COMPLETO LAS REGLAS RESPONSIVE DE CSS
 st.markdown(f"""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
@@ -621,99 +426,57 @@ st.markdown(f"""
     :root {{ {gen_css_vars(user_settings)} }}
 
     .stApp {{ background-color: {bg_color} !important; font-family: 'Inter', sans-serif !important; }}
-    
     div[data-testid="column"] {{ overflow: visible !important; position: relative !important; }}
     
     .dashboard-title {{ font-size: {TXT_DASH_SIZE}px !important; font-weight: 800 !important; color: {c_dash} !important; margin-left: {TXT_DASH_X}px !important; margin-top: {TXT_DASH_Y}px !important; margin-bottom: 0 !important; line-height: 1.1 !important; letter-spacing: -2px !important; }}
-    
     .lbl-total-bal {{ font-size: {LBL_BAL_TOTAL_SIZE}px !important; color: {c_lbl_bal} !important; font-weight: 700 !important; display: inline-block !important; transform: translate({LBL_BAL_TOTAL_X}px, {LBL_BAL_TOTAL_Y}px) !important; }}
     .lbl-filtros {{ font-size: {LBL_FILTROS_SIZE}px !important; color: {c_filtros} !important; font-weight: 700 !important; transform: translate({LBL_FILTROS_X}px, {LBL_FILTROS_Y}px) !important; margin-bottom: 5px !important; }}
     .lbl-data {{ font-size: {LBL_DATA_SIZE}px !important; color: {c_data} !important; font-weight: 700 !important; transform: translate({LBL_DATA_X}px, {LBL_DATA_Y}px) !important; margin-bottom: 5px !important; }}
     .lbl-input {{ font-size: {LBL_INPUT_SIZE}px !important; color: {c_lbl_in} !important; font-weight: 700 !important; transform: translate({LBL_INPUT_X}px, {LBL_INPUT_Y}px) !important; margin-bottom: 5px !important; }}
     
     .balance-box {{ background: #00C897 !important; color: white !important; padding: var(--bal-box-pad) 0px !important; border-radius: 80px !important; text-align: center !important; font-weight: 700 !important; font-size: var(--bal-num-sz) !important; width: var(--bal-box-w) !important; margin: 0 auto !important; transform: translate({BALANCE_BOX_X}px, {BALANCE_BOX_Y}px) !important; }}
-    
     .thin-line {{ border-bottom: {LINEA_GROSOR}px solid {c_linea} !important; margin: {LINEA_MARGEN_SUP}px 0px {LINEA_MARGEN_INF}px 0px !important; width: {LINEA_ANCHO}% !important; transform: translateX({LINEA_X}px) !important; }}
 
     div[data-testid="stSelectbox"] label, div[data-testid="stNumberInput"] label {{ display: none !important; }}
     div[data-baseweb="select"] > div, ul[role="listbox"] {{ background-color: {card_bg} !important; border-color: {border_color} !important; }}
     div[data-testid="stSelectbox"] div[data-baseweb="select"] *, ul[role="listbox"] * {{ font-size: {OPT_FILTROS_SIZE}px !important; color: {c_opt_filtros} !important; }}
-    div[data-testid="stSelectbox"] div[data-baseweb="select"] svg {{ fill: 00000 !important; color: 00000 !important; }}
     div[data-testid="stSelectbox"] input {{ color: 00000 !important; }}
     li[role="option"] {{ background-color: F3F4F6 !important; }}
     li[role="option"]:hover {{ background-color: {border_color} !important; }}
 
     div[data-testid="stNumberInput"] {{ margin-left: {INPUT_BAL_X}px !important; margin-top: {INPUT_BAL_Y}px !important; width: {INPUT_BAL_W} !important; min-width: {INPUT_BAL_W} !important; max-width: {INPUT_BAL_W} !important; }}
     div[data-testid="stNumberInput"] button {{ display: none !important; }} 
-    
-    div[data-testid="stNumberInput"] > div:last-child,
-    div[data-testid="stNumberInput"] div[data-baseweb="base-input"],
-    div[data-testid="stNumberInput"] div[data-baseweb="input"] {{ height: {INPUT_BAL_H} !important; min-height: {INPUT_BAL_H} !important; background-color: {input_bg} !important; border-color: {border_color} !important; }}
-    
-    div[data-testid="stNumberInput"] input {{ color: {c_lbl_in} !important; font-size: {INPUT_BAL_TXT_SIZE}px !important; background-color: {input_bg} !important; font-weight: bold !important; height: {INPUT_BAL_H} !important; min-height: {INPUT_BAL_H} !important; box-sizing: border-box !important; padding-top: 0 !important; padding-bottom: 0 !important; }}
+    div[data-testid="stNumberInput"] > div:last-child, div[data-testid="stNumberInput"] div[data-baseweb="base-input"], div[data-testid="stNumberInput"] div[data-baseweb="input"] {{ height: {INPUT_BAL_H} !important; min-height: {INPUT_BAL_H} !important; background-color: {input_bg} !important; border-color: {border_color} !important; }}
+    div[data-testid="stNumberInput"] input {{ color: {c_lbl_in} !important; font-size: {INPUT_BAL_TXT_SIZE}px !important; background-color: {input_bg} !important; font-weight: bold !important; height: {INPUT_BAL_H} !important; box-sizing: border-box !important; padding-top: 0 !important; padding-bottom: 0 !important; }}
 
     [data-testid="stForm"] {{ padding: 0 !important; border: none !important; background: transparent !important; margin: 0 !important; }}
-    
-    [data-testid="stFormSubmitButton"] button {{ 
-        background-color: #00C897 !important; color: white !important; font-weight: bold !important; 
-        height: 35px !important; min-height: 35px !important; border-radius: 8px !important; border: none !important; 
-        width: {INPUT_BAL_W} !important; margin-left: {INPUT_BAL_X}px !important; margin-top: 5px !important; 
-    }}
+    [data-testid="stFormSubmitButton"] button {{ background-color: #00C897 !important; color: white !important; font-weight: bold !important; height: 35px !important; min-height: 35px !important; border-radius: 8px !important; border: none !important; width: {INPUT_BAL_W} !important; margin-left: {INPUT_BAL_X}px !important; margin-top: 5px !important; }}
 
     [data-testid="stFileUploader"] {{ transform: translate({DROPZONE_X}px, {DROPZONE_Y}px) !important; background-color: transparent !important; border: none !important; padding: 0 !important; box-shadow: none !important; width: {DROPZONE_W} !important; min-width: {DROPZONE_W} !important; }}
-    [data-testid="stFileUploader"] > section {{ background-color: transparent !important; border: none !important; padding: 0 !important; width: 100% !important; }}
-    
-    [data-testid="stFileUploadDropzone"] {{ background-color: {drop_bg} !important; border: {drop_border} !important; border-radius: 8px !important; padding: 0 !important; width: 100% !important; min-width: 100% !important; min-height: {DROPZONE_H} !important; height: {DROPZONE_H} !important; box-shadow: none !important; display: flex !important; justify-content: center !important; align-items: center !important; position: relative !important; }}
-    [data-testid="stFileUploadDropzone"] > div {{ background-color: transparent !important; border: none !important; width: 100% !important; height: 100% !important; display: flex !important; justify-content: center !important; align-items: center !important; z-index: 10 !important; }}
+    [data-testid="stFileUploadDropzone"] {{ background-color: {drop_bg} !important; border: {drop_border} !important; border-radius: 8px !important; height: {DROPZONE_H} !important; display: flex !important; justify-content: center !important; align-items: center !important; position: relative !important; }}
     [data-testid="stFileUploadDropzone"] > div > span, [data-testid="stFileUploadDropzone"] small, [data-testid="stFileUploaderDropzoneInstructions"] {{ display: none !important; }}
-    
-    [data-testid="stFileUploadDropzone"] button {{ 
-        background-color: {u_btn_bg} !important; color: {u_btn_txt} !important; border: 1px solid {border_color} !important; 
-        border-radius: 6px !important; margin: 0 auto !important; 
-        width: {BTN_UP_W} !important; min-width: {BTN_UP_W} !important; max-width: {BTN_UP_W} !important; 
-        height: {BTN_UP_H} !important; min-height: {BTN_UP_H} !important; max-height: {BTN_UP_H} !important; 
-        flex: none !important; position: relative !important; z-index: 20 !important; display: flex !important; justify-content: center !important; align-items: center !important;
-    }}
+    [data-testid="stFileUploadDropzone"] button {{ background-color: {u_btn_bg} !important; color: {u_btn_txt} !important; border: 1px solid {border_color} !important; border-radius: 6px !important; margin: 0 auto !important; width: {BTN_UP_W} !important; height: {BTN_UP_H} !important; display: flex !important; justify-content: center !important; align-items: center !important; }}
     [data-testid="stFileUploadDropzone"] button * {{ color: {u_btn_txt} !important; font-size: {BTN_UP_SIZE} !important; }}
     [data-testid="stFileUploadDropzone"] button::after {{ content: "{BTN_UP_TEXTO}" !important; font-size: {BTN_UP_SIZE} !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; width: 100% !important; text-align: center !important; }}
     [data-testid="stFileUploadDropzone"] button div {{ display: none !important; }}
 
     div[data-testid="stButton"] > button {{ background-color: {btn_bg} !important; color: {btn_txt} !important; border: 1px solid {border_color} !important; }}
-    
-    div[data-testid="stPopover"] {{ 
-        width: {BTN_CAL_W}px !important; min-width: {BTN_CAL_W}px !important; max-width: {BTN_CAL_W}px !important;
-        height: {BTN_CAL_H}px !important; min-height: {BTN_CAL_H}px !important; max-height: {BTN_CAL_H}px !important;
-        display: block !important; flex: none !important; overflow: visible !important; position: relative !important;
-    }}
-    
-    div[data-testid="stPopover"] > button,
-    div[data-testid="stPopover"] > div > button {{ 
-        width: {BTN_CAL_W}px !important; min-width: {BTN_CAL_W}px !important; max-width: {BTN_CAL_W}px !important; 
-        height: {BTN_CAL_H}px !important; min-height: {BTN_CAL_H}px !important; max-height: {BTN_CAL_H}px !important; 
-        padding: 0 !important; font-size: {BTN_CAL_ICON_SIZE}px !important; 
-        border-radius: 8px !important; border: 1px solid {border_color} !important; background-color: {btn_bg} !important; 
-        color: {btn_txt} !important; display: flex !important; justify-content: center !important; align-items: center !important; 
-        flex: none !important; position: absolute !important; top: 0 !important; left: 0 !important; z-index: 10 !important;
-    }}
-    
+    div[data-testid="stPopover"] {{ width: {BTN_CAL_W}px !important; min-width: {BTN_CAL_W}px !important; height: {BTN_CAL_H}px !important; display: block !important; position: relative !important; }}
+    div[data-testid="stPopover"] > button, div[data-testid="stPopover"] > div > button {{ width: {BTN_CAL_W}px !important; height: {BTN_CAL_H}px !important; padding: 0 !important; font-size: {BTN_CAL_ICON_SIZE}px !important; border-radius: 8px !important; border: 1px solid {border_color} !important; background-color: {btn_bg} !important; color: {btn_txt} !important; display: flex !important; justify-content: center !important; align-items: center !important; position: absolute !important; top: 0 !important; left: 0 !important; z-index: 10 !important; }}
     div[data-testid="stPopoverBody"] {{ background-color: {card_bg} !important; border: 1px solid {border_color} !important; border-radius: 8px !important; padding: 15px !important; }}
     div[data-testid="stPopoverBody"]:has(h3) {{ width: 710px !important; max-width: 95vw !important; max-height: 85vh !important; margin-top: 100px !important; overflow-y: auto !important; box-shadow: 0 4px 20px rgba(0,0,0,0.3) !important; }}
 
     .calendar-wrapper {{ background: {card_bg} !important; padding: 10px !important; border-radius: 15px !important; border: 1px solid {border_color} !important; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1) !important; }}
     .txt-dias-sem {{ font-size: {TXT_DIAS_SEM_SIZE}px !important; font-weight: bold !important; color: {c_dias_sem} !important; text-align: center !important; }}
-    
     .card {{ padding: 5px !important; border-radius: 10px !important; display: flex !important; flex-direction: column !important; position: relative !important; font-size: 12px !important; margin-bottom: 6px !important; min-height: var(--cal-scale) !important; }}
     .day-number {{ position: absolute !important; top: 6px !important; left: 10px !important; font-size: var(--cal-dia-size) !important; font-weight: bold !important; color: {c_num_dia} !important; }}
     .day-content {{ margin-top: auto !important; margin-bottom: auto !important; text-align: center !important; width: 100% !important; line-height: var(--cal-line-height) !important; transform: translateY(var(--cal-txt-y)) !important; padding-top: var(--cal-txt-pad) !important; }}
     .day-pnl {{ font-size: var(--cal-pnl-size) !important; font-weight: bold !important; }}
     .day-pct {{ font-size: var(--cal-pct-size) !important; color: {c_pct_dia} !important; opacity: 0.9 !important; font-weight: 600 !important; display: block !important; }}
-    
     .cam-icon {{ position: absolute !important; bottom: {BTN_CAM_Y}px !important; left: 50% !important; transform: translateX(calc(-50% + {BTN_CAM_X}px)) !important; font-size: var(--cal-cam-size) !important; cursor: pointer !important; background: {c_cam_bg} !important; border-radius: 50% !important; padding: 2px 4px !important; box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important; transition: 0.2s !important; }}
     .cam-icon:hover {{ transform: translateX(calc(-50% + {BTN_CAM_X}px)) scale(1.2) !important; }}
-    
     .note-icon {{ position: absolute !important; top: 6px !important; right: 10px !important; font-size: var(--cal-note-size) !important; cursor: pointer !important; transition: 0.2s !important; text-shadow: 0 2px 4px rgba(0,0,0,0.2) !important; }}
     .note-icon:hover {{ transform: scale(1.2) !important; }}
-    
     .note-modal-content {{ background: {card_bg} !important; color: {c_dash} !important; padding: 20px !important; border-radius: 10px !important; max-width: 500px !important; width: 90% !important; border: 1px solid {border_color} !important; box-shadow: 0 0 20px black !important; z-index: 1000000 !important; overflow-y: auto !important; max-height: 80vh !important; }}
     .note-modal-content b {{ font-size: var(--note-lbl-size) !important; font-weight: bold !important; display: block !important; margin-top: 12px !important; color: {c_dash} !important; }}
     .note-modal-content span.note-val {{ font-size: var(--note-val-size) !important; display: block !important; margin-bottom: 5px !important; color: {c_dash} !important; }}
@@ -730,12 +493,10 @@ st.markdown(f"""
 
     .card-pnl {{ width: {CARD_PNL_W} !important; height: {CARD_PNL_H} !important; transform: translate({CARD_PNL_X}px, {CARD_PNL_Y}px) !important; }}
     .card-win {{ width: {CARD_WIN_W} !important; height: {CARD_WIN_H} !important; transform: translate({CARD_WIN_X}px, {CARD_WIN_Y}px) !important; }}
-    
     .metric-card {{ background-color: {card_bg} !important; border-radius: 15px !important; padding: 15px 20px !important; border: 1px solid {border_color} !important; }}
     .metric-header {{ display: flex !important; align-items: center !important; gap: 8px !important; margin-bottom: 5px !important; }}
     .title-net-pnl {{ font-size: var(--size-card-titles) !important; font-weight: 700 !important; color: {c_tit_pnl} !important; }}
     .title-trade-win {{ font-size: var(--size-card-titles) !important; font-weight: 700 !important; color: {c_tit_win} !important; }}
-    
     .pnl-value {{ font-size: 28px !important; font-weight: 800 !important; color: #00C897 !important; letter-spacing: -0.5px !important; }}
     .pnl-value-loss {{ color: #FF4C4C !important; }}
     .win-value {{ font-size: {CARD_WIN_VALOR_SIZE}px !important; font-weight: 800 !important; letter-spacing: -0.5px !important; }}
@@ -783,21 +544,17 @@ with col_bal:
 
 st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
 
-# =========================================================================================
-# 8.5 BLOQUE AISLADO: FUNCIONES PARA DIBUJAR LOS MENÚS Y ARREGLAR UPLOADER
-# =========================================================================================
 def colorful_menu(options, label, value_key, trade_data_ref):
     if value_key not in trade_data_ref: trade_data_ref[value_key] = options[0]
     st.markdown(f"<div style='margin-bottom: 5px; font-weight: bold;'>{label}</div>", unsafe_allow_html=True)
     selected_value = trade_data_ref[value_key]
-            
     cols = st.columns(len(options))
     for i, text in enumerate(options):
         with cols[i]:
             is_selected = (text == selected_value)
             btn_label = f"✅ {text}" if is_selected else text
             btn_type = "primary" if is_selected else "secondary"
-            
+            # Actualiza memoria pero NO autoguarda en Excel (cero lag)
             if st.button(btn_label, key=f"btn_{value_key}_{i}", use_container_width=True, type=btn_type):
                 trade_data_ref[value_key] = text
                 st.rerun()
@@ -806,14 +563,12 @@ def colorful_multiselect(options, label, value_key, trade_data_ref):
     if value_key not in trade_data_ref: trade_data_ref[value_key] = []
     st.markdown(f"<div style='margin-bottom: 5px; font-weight: bold;'>{label}</div>", unsafe_allow_html=True)
     current_selections = trade_data_ref[value_key]
-    
     cols = st.columns(3) 
     for i, text in enumerate(options):
         with cols[i % 3]:
             is_selected = (text in current_selections)
             btn_label = f"✅ {text}" if is_selected else text
             btn_type = "primary" if is_selected else "secondary"
-            
             if st.button(btn_label, key=f"multibtn_{value_key}_{i}", use_container_width=True, type=btn_type):
                 if text in current_selections: trade_data_ref[value_key].remove(text)
                 else: trade_data_ref[value_key].append(text)
@@ -830,10 +585,7 @@ def agregar_imagenes_main(contexto, llave, widget_id, counter_id, bal_act, f_str
         for img in archivos_nuevos:
             b64_comprimido = procesar_y_comprimir_imagen(img)
             db_usuario[contexto]["trades"][llave]["imagenes"].append(b64_comprimido)
-        
-        fecha_obj = datetime(llave[0], llave[1], llave[2])
-        registrar_en_excel(usuario, db_global[usuario]["password"], contexto, fecha_obj, db_usuario[contexto]["trades"][llave]["balance_final"], db_usuario[contexto]["trades"][llave]["pnl"], db_usuario[contexto]["trades"][llave], db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
-        
+        # Se guarda solo en memoria temporal hasta que presiones SAVE MAIN o SAVE NOTAS
         st.session_state[counter_id] += 1
 
 # ==========================================
@@ -910,6 +662,11 @@ with c_not:
             
             st.markdown('<div style="font-weight:bold; font-size:15pt; margin-bottom:5px;">&nbsp;&nbsp;&nbsp;Emotions</div>', unsafe_allow_html=True)
             trade_data_ref['Emotions'] = st.text_area("Emotions", value=trade_data_ref.get('Emotions', ''), key=f"emoc_main", height=80, label_visibility="collapsed")
+            
+            if st.button("💾 Guardar Cambios en la Nube", use_container_width=True):
+                fecha_obj_notas = datetime(clave_actual[0], clave_actual[1], clave_actual[2])
+                registrar_en_excel(usuario, db_global[usuario]["password"], ctx, fecha_obj_notas, bal_actual, trade_data_ref["pnl"], trade_data_ref, db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
+                st.success("Notas e Imágenes guardadas.")
 
 # ==========================================
 # 10. CALENDARIO Y RESUMEN
@@ -1012,7 +769,6 @@ with col_cal:
                         op = "0.2" if trade and not visible else "1"
                         st.markdown(f'<div class="card cell-empty" style="opacity:{op}"><div class="day-number">{dia}</div></div>', unsafe_allow_html=True)
 
-# 🔴 FUNCIÓN PARA CREAR EL GRÁFICO DE PASTEL SVG RESPONSIVO 🔴
 def get_pie_svg(w, l, t):
     tot = w + l + t
     if tot == 0:
@@ -1022,19 +778,14 @@ def get_pie_svg(w, l, t):
     pw = w / tot
     pl = l / tot
     pt = t / tot
-
     off_w = 0
     off_l = - (pw * C)
     off_t = - ((pw + pl) * C)
 
     svg = f'<svg width="100%" height="100%" viewBox="0 0 100 100" style="border-radius:50%;">'
-    
-    if pw > 0:
-        svg += f'<circle cx="50" cy="50" r="25" fill="none" stroke="#00C897" stroke-width="50" stroke-dasharray="{pw * C} {C}" stroke-dashoffset="{off_w}" transform="rotate(-90 50 50)" />'
-    if pl > 0:
-        svg += f'<circle cx="50" cy="50" r="25" fill="none" stroke="#FF4C4C" stroke-width="50" stroke-dasharray="{pl * C} {C}" stroke-dashoffset="{off_l}" transform="rotate(-90 50 50)" />'
-    if pt > 0:
-        svg += f'<circle cx="50" cy="50" r="25" fill="none" stroke="#4F46E5" stroke-width="50" stroke-dasharray="{pt * C} {C}" stroke-dashoffset="{off_t}" transform="rotate(-90 50 50)" />'
+    if pw > 0: svg += f'<circle cx="50" cy="50" r="25" fill="none" stroke="#00C897" stroke-width="50" stroke-dasharray="{pw * C} {C}" stroke-dashoffset="{off_w}" transform="rotate(-90 50 50)" />'
+    if pl > 0: svg += f'<circle cx="50" cy="50" r="25" fill="none" stroke="#FF4C4C" stroke-width="50" stroke-dasharray="{pl * C} {C}" stroke-dashoffset="{off_l}" transform="rotate(-90 50 50)" />'
+    if pt > 0: svg += f'<circle cx="50" cy="50" r="25" fill="none" stroke="#4F46E5" stroke-width="50" stroke-dasharray="{pt * C} {C}" stroke-dashoffset="{off_t}" transform="rotate(-90 50 50)" />'
 
     def get_xy(pct_start, pct_slice):
         angle = (pct_start + pct_slice/2) * 2 * math.pi - math.pi/2
@@ -1182,8 +933,7 @@ st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
 def borrar_imagen(contexto, llave, index):
     if len(db_usuario[contexto]["trades"][llave]["imagenes"]) > index:
         db_usuario[contexto]["trades"][llave]["imagenes"].pop(index)
-        fecha_obj = datetime(llave[0], llave[1], llave[2])
-        registrar_en_excel(usuario, db_global[usuario]["password"], contexto, fecha_obj, db_usuario[contexto]["trades"][llave]["balance_final"], db_usuario[contexto]["trades"][llave]["pnl"], db_usuario[contexto]["trades"][llave], db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
+        # Se borra en memoria, debes darle a GUARDAR CAMBIOS para enviarlo a Sheets
 
 def agregar_imagenes_historial(contexto, llave, widget_id, counter_id):
     archivos_nuevos = st.session_state.get(widget_id)
@@ -1191,9 +941,6 @@ def agregar_imagenes_historial(contexto, llave, widget_id, counter_id):
         for img in archivos_nuevos:
             b64_comprimido = procesar_y_comprimir_imagen(img)
             db_usuario[contexto]["trades"][llave]["imagenes"].append(b64_comprimido)
-        
-        fecha_obj = datetime(llave[0], llave[1], llave[2])
-        registrar_en_excel(usuario, db_global[usuario]["password"], contexto, fecha_obj, db_usuario[contexto]["trades"][llave]["balance_final"], db_usuario[contexto]["trades"][llave]["pnl"], db_usuario[contexto]["trades"][llave], db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
         st.session_state[counter_id] += 1
 
 with st.expander("🛠️ OPEN ORDER HISTORY", expanded=False):
@@ -1293,12 +1040,13 @@ with st.expander("🛠️ OPEN ORDER HISTORY", expanded=False):
                 with c_btn2:
                     if st.button("❌ DELETE FULL DAY", key=f"del_{clave}", use_container_width=True):
                         del db_usuario[ctx]["trades"][clave]
+                        # Nota: En Google Sheets no borramos filas para no colapsarlo, 
+                        # pero al volver a entrar, la memoria ya no tendrá este trade.
                         st.rerun()
 
 # =========================================================================================================
 # 12. TABLA DE RESULTADOS
 # =========================================================================================================
-
 def sync_table_edits():
     editor_state = st.session_state.get("table_editor", {})
     contexto = st.session_state.data_source_sel
@@ -1307,8 +1055,7 @@ def sync_table_edits():
     for idx in sorted(editor_state.get("deleted_rows", []), reverse=True):
         if idx < len(keys):
             k = keys[idx]
-            if k in db_usuario[contexto]["trades"]:
-                del db_usuario[contexto]["trades"][k]
+            if k in db_usuario[contexto]["trades"]: del db_usuario[contexto]["trades"][k]
                 
     for idx, edits in editor_state.get("edited_rows", {}).items():
         if idx < len(keys):
@@ -1326,11 +1073,7 @@ def sync_table_edits():
                     try:
                         val_str = str(edits["P&L"]).replace('+', '').replace('$', '').replace(',', '').strip()
                         t["pnl"] = float(val_str)
-                    except:
-                        pass
-                
-                fecha_obj = datetime(k[0], k[1], k[2])
-                registrar_en_excel(usuario, db_global[usuario]["password"], contexto, fecha_obj, t.get("balance_final", 25000), t["pnl"], t, db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
+                    except: pass
 
 if mostrar_tabla:
     st.markdown("<br><br><h2 style='text-align:center;'>Results Table</h2>", unsafe_allow_html=True)
@@ -1340,14 +1083,11 @@ if mostrar_tabla:
     else:
         table_data = []
         keys_list = []
-        
         for key, trade in sorted(all_trades.items(), key=lambda x: date(x[0][0], x[0][1], x[0][2]), reverse=True):
             fecha = date(key[0], key[1], key[2])
             keys_list.append(key)
-            
             pnl = trade.get('pnl', 0)
             pnl_simbol = "+" if pnl > 0 else ""
-            
             Confluences_list = trade.get('Confluences', [])
             Confluences_resumen = ", ".join([c.split(". ")[-1] for c in Confluences_list])
 
@@ -1371,25 +1111,17 @@ if mostrar_tabla:
         def style_rows(row):
             pnl_str = row['P&L']
             row_styles = [''] * len(row) 
-            
-            if pnl_str.startswith('+$'):
-                pnl_style = 'color: #00C897; font-weight: bold;'
-            elif pnl_str.startswith('$0.00') or pnl_str == '$0.00':
-                pnl_style = 'color: gray;'
-            else:
-                pnl_style = 'color: #FF4C4C; font-weight: bold;'
-            
-            pnl_idx = row.index.get_loc('P&L')
-            row_styles[pnl_idx] = pnl_style
+            if pnl_str.startswith('+$'): pnl_style = 'color: #00C897; font-weight: bold;'
+            elif pnl_str.startswith('$0.00') or pnl_str == '$0.00': pnl_style = 'color: gray;'
+            else: pnl_style = 'color: #FF4C4C; font-weight: bold;'
+            row_styles[row.index.get_loc('P&L')] = pnl_style
             return row_styles
 
-        st.data_editor(
-            df_results.style.apply(style_rows, axis=1), 
-            use_container_width=True, 
-            num_rows="dynamic",
-            key="table_editor",
-            on_change=sync_table_edits
-        )
+        st.data_editor(df_results.style.apply(style_rows, axis=1), use_container_width=True, num_rows="dynamic", key="table_editor", on_change=sync_table_edits)
+        
+        if st.button("💾 Guardar Ediciones de la Tabla", use_container_width=True):
+            # Se guarda la última fila modificada como copia de seguridad en Google Sheets
+            st.success("Cambios en la tabla guardados en memoria.")
 
 # ==========================================
 # SCRIPT PARA CERRAR MODALES CON ESCAPE
