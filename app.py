@@ -1113,7 +1113,7 @@ with col_mitad_2:
             df_results = pd.DataFrame(table_data)
             
             def style_rows(row):
-                pnl_str = row['&nbsp; \n &nbsp; \n P&L']
+                pnl_str = row['P&L']
                 row_styles = [''] * len(row) 
                 if pnl_str.startswith('+$'): pnl_style = 'color: #00C897; font-weight: bold;'
                 elif pnl_str.startswith('$0.00') or pnl_str == '$0.00': pnl_style = 'color: gray;'
