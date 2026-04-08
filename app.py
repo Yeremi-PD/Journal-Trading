@@ -593,8 +593,24 @@ with st.form(key=f"form_main_entry_{st.session_state.form_reset_key}", border=Fa
             nuevo_razon = st.text_area("&nbsp; \n &nbsp; \n Reason For Trade", value='', height=50)
             nuevo_corr = st.text_area("&nbsp; \n &nbsp; \n Corrections", value='', height=50)
             
-            risk_opts = ['1%', '0.9%', '0.8%', '0.7%', '0.6%', '0.5%', '0.4%']
-            nuevo_risk = st.radio("&nbsp; \n &nbsp; \n % Risk", risk_opts, index=5, horizontal=True)
+# CSS para reducir el espacio entre las opciones del radio horizontal
+st.markdown("""
+    <style>
+    /* Buscamos el contenedor de los items del radio horizontal */
+    div[data-testid="stWidgetLabel"] + div[data-testid="stHorizontalBlock"] div[data-testid="stMarkdownContainer"] {
+        padding-right: 0px;
+    }
+    
+    /* Ajusta el espacio entre cada botón de radio */
+    div[data-testid="stHorizontalBlock"] div[role="radiogroup"] > div {
+        margin-right: -15px; /* Valor negativo para juntarlos más */
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+# Tu código original
+risk_opts = ['1%', '0.9%', '0.8%', '0.7%', '0.6%', '0.5%', '0.4%']
+nuevo_risk = st.radio("&nbsp; \n &nbsp; \n % Risk", risk_opts, index=5, horizontal=True)
             
             rr_opts = ['1:1', '1:1.5', '1:2', '1:3', '1:4']
             nuevo_rr = st.radio("&nbsp; \n &nbsp; \n RR", rr_opts, index=2, horizontal=True)
