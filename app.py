@@ -474,12 +474,13 @@ if db_usuario[ctx_actual]["trades"]:
         mime="application/zip",
         use_container_width=True
     )
+    )
 
 
 
 
 
-    
+
 # BOTÓN DE SINCRONIZACIÓN FORZADA (CORTA EL CACHÉ Y OBLIGA A LEER EXCEL AL INSTANTE)
 if st.sidebar.button("🔄 Force Sync with Google Sheets", use_container_width=True):
     get_global_db.clear()
