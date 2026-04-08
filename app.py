@@ -1121,7 +1121,24 @@ with col_mitad_2:
                 row_styles[row.index.get_loc('P&L')] = pnl_style
                 return row_styles
 
-            st.dataframe(df_results.style.apply(style_rows, axis=1), use_container_width=True, key=f"tabla_resultados_v2_{ctx}")
+# AQUÍ CONFIGURAS LA TABLA PARA SIEMPRE
+            st.dataframe(
+                df_results.style.apply(style_rows, axis=1),
+                use_container_width=True,
+                hide_index=True, # Esto oculta la columna inútil de números de la izquierda
+                key=f"tabla_resultados_v3_{ctx}", # Cambiamos a v3 para resetear la memoria
+                column_config={
+                    # 1. Si quieres OCULTAR una columna para siempre, ponle None
+                    "Corrections": None, 
+                    "Emotions": None,
+                    
+                    # 2. Si quieres forzar un TAMAÑO (small, medium, large) para el AutoSize
+                    "Reason For Trade": st.column_config.Column(width="large"),
+                    "Confluences": st.column_config.Column(width="medium"),
+                    "Date": st.column_config.Column(width="small"),
+                    "P&L": st.column_config.Column(width="small")
+                }
+            )
 
 # ==========================================
 # SCRIPT PARA CERRAR MODALES CON ESCAPE
