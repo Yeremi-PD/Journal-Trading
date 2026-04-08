@@ -145,10 +145,14 @@ def registrar_en_excel(usuario, password, cuenta, fecha_obj, balance, pnl, trade
         except Exception:
             pass
 
-# --- RECUERDA LA SESIÓN AL RECARGAR (F5) ---
+# --- RECUERDA LA SESIÓN Y DISPOSITIVO AL RECARGAR (F5) ---
+if "dispositivo_actual" not in st.session_state: st.session_state.dispositivo_actual = "PC"
+
 try:
     if "user" in st.query_params and st.query_params["user"] in db_global:
         st.session_state.usuario_actual = st.query_params["user"]
+    if "device" in st.query_params:
+        st.session_state.dispositivo_actual = st.query_params["device"]
 except:
     pass
 
@@ -170,7 +174,8 @@ if st.session_state.usuario_actual is None or st.session_state.usuario_actual no
             with st.form("login_form"):
                 log_user = st.text_input("Usuario")
                 log_pass = st.text_input("Contraseña", type="password")
-                submit_login = st.form_submit_button("Acceder", use_container_width=True)
+                # Llave fija asignada para evitar el error de submit fantasma
+                submit_login = st.form_submit_button("Acceder", use_container_width=True, key="submit_login_btn")
                 
                 if submit_login:
                     if not log_user.strip():
@@ -182,7 +187,9 @@ if st.session_state.usuario_actual is None or st.session_state.usuario_actual no
                         if db_global[log_user]["password"] == log_pass:
                             st.session_state.usuario_actual = log_user
                             st.session_state.dispositivo_actual = "Móvil" if modo_movil_login else "PC"
-                            try: st.query_params["user"] = log_user
+                            try: 
+                                st.query_params["user"] = log_user
+                                st.query_params["device"] = st.session_state.dispositivo_actual
                             except: pass
                             st.rerun()
                         else:
@@ -192,7 +199,8 @@ if st.session_state.usuario_actual is None or st.session_state.usuario_actual no
             with st.form("register_form"):
                 reg_user = st.text_input("Nuevo Usuario")
                 reg_pass = st.text_input("Nueva Contraseña", type="password")
-                submit_register = st.form_submit_button("Crear Cuenta", use_container_width=True)
+                # Llave fija asignada para evitar el error de submit fantasma
+                submit_register = st.form_submit_button("Crear Cuenta", use_container_width=True, key="submit_register_btn")
                 
                 if submit_register:
                     if not reg_user.strip():
@@ -256,7 +264,6 @@ WEEKS_TITULOS_COLOR_C, WEEKS_TITULOS_COLOR_O, WEEK_BOX_W, WEEK_BOX_H, Month_BOX_
 # ==========================================
 if "tema" not in st.session_state: st.session_state.tema = TEMA_POR_DEFECTO
 if "data_source_sel" not in st.session_state: st.session_state.data_source_sel = "Account Real"
-if "dispositivo_actual" not in st.session_state: st.session_state.dispositivo_actual = "PC"
 if "form_reset_key" not in st.session_state: st.session_state.form_reset_key = 0
 
 usuario = st.session_state.usuario_actual
@@ -304,8 +311,10 @@ st.sidebar.markdown(f"<div style='margin-top:-15px;'>👤 My Account: {usuario}<
 # Radio buttons con emojis
 dispositivo_visual = st.sidebar.radio("Current Design:", ["🖥️ PC", "📱 Móvil"], index=0 if "PC" in st.session_state.dispositivo_actual else 1)
 
-# Lógica para guardar sin emojis y no romper el script
+# Lógica para guardar sin emojis y no romper el script - Actualizado el query parameters
 st.session_state.dispositivo_actual = "PC" if "🖥️ PC" in dispositivo_visual else "Móvil"
+try: st.query_params["device"] = st.session_state.dispositivo_actual
+except: pass
 
 if st.sidebar.button("💾 Save Design Settings to Cloud", use_container_width=True):
     ctx_act = st.session_state.data_source_sel
@@ -596,7 +605,8 @@ with st.form(key=f"form_main_entry_{st.session_state.form_reset_key}", border=Fa
     with c1:
         st.markdown(f'<div class="lbl-input">{LBL_INPUT}</div>', unsafe_allow_html=True)
         nuevo_bal = st.number_input("Balance", value=bal_actual, format="%.2f", label_visibility="collapsed")
-        btn_save = st.form_submit_button("SAVE")
+        # Llave fija asignada para evitar el error de submit fantasma
+        btn_save = st.form_submit_button("SAVE", key=f"btn_save_main_{st.session_state.form_reset_key}")
         
     with c2:
         st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True) 
@@ -1002,6 +1012,9 @@ with col_mitad_1:
                             
                             upd_key = f"upd_{clave}_{i}"
                             st.file_uploader("🢛 Subir Nuevas Fotos 🢛", accept_multiple_files=True, key=upd_key, on_change=agregar_imagenes_historial, args=(ctx, clave, i, upd_key))
+                            
+                            link_key = f"link_upd_{clave}_{i}"
+                            nuevo_link_edit = st.text_input("🔗 O pega el Link de la imagen:", key=link_key, placeholder="http...")
 
                             imagenes_restantes = db_usuario[ctx]["trades"][clave][i].get("imagenes", [])
                             
@@ -1015,6 +1028,9 @@ with col_mitad_1:
                                 st.caption("No hay imágenes guardadas.")
                             
                             if st.button("💾 SAVE EDITS", key=f"save_{clave}_{i}", use_container_width=True):
+                                if nuevo_link_edit.strip().startswith("http"):
+                                    data["imagenes"].append(nuevo_link_edit.strip())
+                                    
                                 nueva_clave = (nueva_fecha.year, nueva_fecha.month, nueva_fecha.day)
                                 data["pnl"] = nuevo_pnl
                                 data["balance_final"] = nuevo_bal
