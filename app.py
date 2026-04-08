@@ -1203,14 +1203,8 @@ with col_mitad_1:
                                 st.rerun()
 
                     with c_trash:
-                        with st.popover("🗑️", use_container_width=True):
-                            st.warning("⚠️ ¿Estás seguro de que quieres borrar este trade? Esta acción no se puede deshacer.")
-                            if st.button("SÍ, BORRAR", key=f"conf_trash_{clave}_{i}", type="primary"):
-                                db_usuario[ctx]["trades"][clave].pop(i)
-                                if not db_usuario[ctx]["trades"][clave]:
-                                    del db_usuario[ctx]["trades"][clave]
-                                reescribir_excel_usuario(usuario)
-                                st.rerun()
+                        if st.button("🗑️", key=f"trash_{clave}_{i}", use_container_width=True):
+                            ventana_borrar_trade(ctx, clave, i, usuario)
             
             if trades_en_mes == 0:
                 st.info("No hay trades en este mes específico.")
