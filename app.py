@@ -522,7 +522,7 @@ if db_usuario[ctx_actual]["trades"]:
 # ESPACIO PARA EMPUJAR LOS BOTONES HACIA ABAJO
 # Cambia "250px" por un número mayor (ej. 350px, 500px) si quieres bajarlos aún más.
 # ==========================================
-st.sidebar.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
+st.sidebar.markdown("<div style='margin-top: 0px;'></div>", unsafe_allow_html=True)
 
 # BOTÓN DE SINCRONIZACIÓN FORZADA
 st.sidebar.markdown("---")
@@ -534,6 +534,7 @@ if st.sidebar.button("🗘 Force Sync with Google Sheets", use_container_width=T
 st.sidebar.markdown("<br>", unsafe_allow_html=True) # Pequeño espacio entre los botones
 
 # BOTÓN DE CERRAR SESIÓN
+st.sidebar.markdown("---")
 if st.sidebar.button("🚪 Log Out", use_container_width=True): 
     st.session_state.usuario_actual = None
     try: st.query_params.clear()
