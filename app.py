@@ -979,17 +979,14 @@ with col_det:
     pie_html = get_pie_svg(wins, losses, ties)
 
     st.markdown(f"""
-        <div class="metric-card card-win">
-            <div>
-                <div class="metric-header"><span class="title-trade-win">{titulo_win}</span></div>
-                <div class="win-value" style="color: {c_win_card};">{win_pct:.2f}%</div>
-            </div>
-            <div style="display:flex; flex-direction:row; align-items:center; justify-content:center; gap:20px; margin-top:0px; padding:0px;">
+        <div style="display:flex; flex-direction:row; align-items:center; justify-content:center; gap:20px; margin-top:0px; padding:0px;">
                 <div style="width: var(--pie-size); height: var(--pie-size); transform: translateY(var(--pie-y-offset)); flex-shrink: 0; display:flex; margin: -15px 0;">
                     {pie_html}
                 </div>
-                <div style="font-size: var(--size-box-wl); color: gray; font-weight: 800; text-align:center; white-space:nowrap; transform: translateY(var(--pie-y-offset));">
-                    {wins}W / {losses}L
+                <div style="font-size: calc(var(--size-box-wl) * 1.5); font-weight: 800; text-align:center; white-space:nowrap; transform: translateY(var(--pie-y-offset));">
+                    <span style="color: {'#00C897' if wins > 0 else 'white'};">{wins}W</span> 
+                    <span style="color: white;">/</span> 
+                    <span style="color: {'#FF4C4C' if losses > 0 else 'white'};">{losses}L</span>
                 </div>
             </div>
         </div>
