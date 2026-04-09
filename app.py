@@ -1186,7 +1186,7 @@ with col_det:
     simbolo_pnl = "+" if net_pnl > 0 else ""
     c_win_card = "#00C897" if win_pct >= 50 else "#FF4C4C"
     
-    # --- CÁLCULO DE RR PROMEDIO ---
+    # --- CÁLCULO DE AVERAGE RR ---
     rr_valores = []
     # Buscamos en los trades del mes o de todo el tiempo según el toggle
     trades_para_rr = todos_los_trades_planos if ver_todo else [tr for k, v in db_usuario[ctx]["trades"].items() if k[0]==anio_sel and k[1]==mes_sel for tr in v]
@@ -1224,7 +1224,7 @@ with col_det:
     with c_met3:
         st.markdown(f"""
             <div class="metric-card card-rr">
-                <div class="metric-header"><span class="title-trade-win">RR Promedio</span></div>
+                <div class="metric-header"><span class="title-trade-win">AVERAGE RR</span></div>
                 <div class="rr-value" style="color: #FFFFFF;">1 / {rr_promedio:.2f}</div>
             </div>
         """, unsafe_allow_html=True)
