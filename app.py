@@ -1144,11 +1144,11 @@ def get_bar_svg(w, l, t):
         svg += f'<text x="50" y="{80 - hl}" fill="#FF4C4C" font-size="14" font-family="sans-serif" font-weight="bold" text-anchor="middle">{l}</text>'
         svg += f'<text x="50" y="98" fill="#FF4C4C" font-size="12" font-family="sans-serif" font-weight="bold" text-anchor="middle">L</text>'
         
-    # Barra TIES/BREAKEVEN (Índigo)
+    # Barra BREAKEVEN (Gris)
     if t > 0:
-        svg += f'<rect x="66" y="{85 - ht}" width="22" height="{ht}" fill="#4F46E5" rx="3" />'
-        svg += f'<text x="77" y="{80 - ht}" fill="#4F46E5" font-size="14" font-family="sans-serif" font-weight="bold" text-anchor="middle">{t}</text>'
-        svg += f'<text x="77" y="98" fill="#4F46E5" font-size="12" font-family="sans-serif" font-weight="bold" text-anchor="middle">T</text>'
+        svg += f'<rect x="66" y="{85 - ht}" width="22" height="{ht}" fill="gray" rx="3" />'
+        svg += f'<text x="77" y="{80 - ht}" fill="gray" font-size="14" font-family="sans-serif" font-weight="bold" text-anchor="middle">{t}</text>'
+        svg += f'<text x="77" y="98" fill="gray" font-size="12" font-family="sans-serif" font-weight="bold" text-anchor="middle">BE</text>'
 
     svg += '</svg>'
     return svg
@@ -1172,10 +1172,15 @@ with col_det:
     total_trades = len(trades_lista)
     
     net_pnl = sum(trades_lista) if total_trades > 0 else 0.0
-    wins = len([t for t in trades_lista if t > 0])
-    losses = len([t for t in trades_lista if t < 0])
-    ties = len([t for t in trades_lista if t == 0])
-    win_pct = (wins / total_trades * 100) if total_trades > 0 else 0.0
+    
+    # LÓGICA DE LOS $30: 
+    # Win es >= $30 | Loss es <= -$30 | BE es en el medio (-$29.99 a $29.99)
+    wins = len([t for t in trades_lista if t >= 30])
+    losses = len([t for t in trades_lista if t <= -30])
+    ties = len([t for t in trades_lista if -30 < t < 30])
+    
+    total_validos = wins + losses + ties
+    win_pct = (wins / total_validos * 100) if total_validos > 0 else 0.0
     
     color_pnl = "pnl-value" if net_pnl >= 0 else "pnl-value pnl-value-loss"
     simbolo_pnl = "+" if net_pnl > 0 else ""
@@ -1231,6 +1236,7 @@ with col_det:
     wl_parts_pie = []
     if wins >= 1: wl_parts_pie.append(f'<span style="color:#00C897;">{wins}W</span>')
     if losses >= 1: wl_parts_pie.append(f'<span style="color:#FF4C4C;">{losses}L</span>')
+    if ties >= 1: wl_parts_pie.append(f'<span style="color:gray;">{ties}BE</span>')
     wl_text_pie = ' <span style="color:gray;">/</span> '.join(wl_parts_pie)
 
     st.markdown(f"""
