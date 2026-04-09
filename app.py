@@ -601,7 +601,7 @@ st.markdown(f"""
     div[data-testid="stSelectbox"] label, div[data-testid="stNumberInput"] label {{ display: none !important; }}
     div[data-baseweb="select"] > div, ul[role="listbox"] {{ background-color: {card_bg} !important; border-color: {border_color} !important; }}
     div[data-testid="stSelectbox"] div[data-baseweb="select"] *, ul[role="listbox"] * {{ font-size: {OPT_FILTROS_SIZE}px !important; color: {c_opt_filtros} !important; }}
-    div[data-testid="stSelectbox"] input {{ color: 00000 !important; }}
+    div[data-testid="stSelectbox"] input {{ color: 00000 !important; pointer-events: none !important; caret-color: transparent !important; }}
     li[role="option"] {{ background-color: F3F4F6 !important; }}
     li[role="option"]:hover {{ background-color: {border_color} !important; }}
 
