@@ -369,6 +369,47 @@ st.sidebar.markdown(
     unsafe_allow_html=True
 )
 
+with st.sidebar.expander("💼 Gestionar Cuentas"):
+    st.markdown("**Crear Nueva Cuenta**")
+    nueva_cuenta_nombre = st.text_input("Nombre de la cuenta (Ej. My Funded 50k)")
+    nueva_cuenta_bal = st.selectbox("Balance Inicial", [25000.0, 50000.0, 100000.0], format_func=lambda x: f"${x:,.0f}")
+    
+    if st.button("➕ Crear Cuenta", use_container_width=True):
+        if nueva_cuenta_nombre and nueva_cuenta_nombre not in db_usuario:
+            db_usuario[nueva_cuenta_nombre] = {"balance": nueva_cuenta_bal, "trades": {}}
+            reescribir_excel_usuario(usuario)
+            st.success(f"Cuenta '{nueva_cuenta_nombre}' creada!")
+            st.rerun()
+        elif nueva_cuenta_nombre in db_usuario:
+            st.warning("Ese nombre ya existe.")
+
+    st.markdown("---")
+    st.markdown("**Eliminar Cuenta**")
+    cuenta_a_borrar = st.selectbox("Seleccionar cuenta a eliminar", list(db_usuario.keys()))
+    
+    if "confirm_delete_acc" not in st.session_state: 
+        st.session_state.confirm_delete_acc = False
+    
+    if st.button("🗑️ Eliminar Cuenta", use_container_width=True):
+        if len(db_usuario) <= 1:
+            st.error("No puedes eliminar tu única cuenta.")
+        else:
+            st.session_state.confirm_delete_acc = True
+            
+    if st.session_state.confirm_delete_acc:
+        st.warning(f"⚠️ ¿Seguro que quieres borrar '{cuenta_a_borrar}' junto con todos sus trades?")
+        c_yes, c_no = st.columns(2)
+        if c_yes.button("SÍ, BORRAR"):
+            del db_usuario[cuenta_a_borrar]
+            if st.session_state.data_source_sel == cuenta_a_borrar:
+                st.session_state.data_source_sel = list(db_usuario.keys())[0]
+            reescribir_excel_usuario(usuario)
+            st.session_state.confirm_delete_acc = False
+            st.rerun()
+        if c_no.button("CANCELAR"):
+            st.session_state.confirm_delete_acc = False
+            st.rerun()
+
 # --- AJUSTA LOS TAMAÑOS AQUÍ A TU ANTOJO ---
 tamanio_titulo = "18px"    # Tamaño del texto "Current Design:"
 tamanio_opciones = "16px"  # Tamaño del texto "🖥️ PC" y "📱 Móvil"
@@ -795,7 +836,7 @@ with col_fil:
 
 with col_data: 
     st.markdown(f'<div class="lbl-data">{LBL_DATA}</div>', unsafe_allow_html=True)
-    st.selectbox("Data Source", [OPT_DATA_1, OPT_DATA_2], key="data_source_sel", label_visibility="collapsed")
+    st.selectbox("Data Source", list(db_usuario.keys()), key="data_source_sel", label_visibility="collapsed")
 
 ctx = st.session_state.data_source_sel
 bal_actual = db_usuario[ctx]["balance"]
@@ -1499,19 +1540,16 @@ bloquearTeclado();
 const observer = new MutationObserver(bloquearTeclado);
 observer.observe(doc.body, { childList: true, subtree: true });
 
-// 3. BOTÓN DE CAPTURA DE PANTALLA FLOTANTE
+// 3. BOTÓN DE CAPTURA DE PANTALLA FLOTANTE (Optimizado para iOS y Scroll)
 if (!doc.getElementById('btn-screenshot-global')) {
-    // A) Cargar librería mágica html2canvas en la página principal
     const script = doc.createElement('script');
     script.src = "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js";
     doc.head.appendChild(script);
 
-    // B) Crear el botón
     const btn = doc.createElement('button');
     btn.id = 'btn-screenshot-global';
     btn.innerHTML = '📸 Capturar';
     
-    // C) Estilos: Pegado arriba a la derecha, con borde redondeado abajo a la izquierda
     Object.assign(btn.style, {
         position: 'fixed',
         top: '0px',
@@ -1526,13 +1564,15 @@ if (!doc.getElementById('btn-screenshot-global')) {
         fontSize: '14px',
         cursor: 'pointer',
         boxShadow: '-2px 2px 10px rgba(0,0,0,0.3)',
-        transition: 'all 0.3s ease'
+        transition: 'all 0.3s ease',
+        /* Trucos críticos para iOS y forzar que no se mueva con el scroll */
+        webkitTransform: 'translateZ(0)',
+        transform: 'translateZ(0)'
     });
 
     btn.onmouseover = () => btn.style.backgroundColor = '#00a87d';
     btn.onmouseout = () => btn.style.backgroundColor = '#00C897';
 
-    // D) Acción al hacer clic
     btn.onclick = () => {
         if (typeof window.parent.html2canvas === 'undefined') {
             btn.innerHTML = '⏳ Cargando...';
@@ -1540,20 +1580,21 @@ if (!doc.getElementById('btn-screenshot-global')) {
             return;
         }
         
-        // Escondemos el botón para que no arruine la foto
         btn.style.display = 'none';
+        // En iOS Safari, a veces hay que scrollear arriba antes de capturar para evitar cortes
+        window.parent.scrollTo(0, 0); 
         
-        // Apuntamos a la App principal para la captura
         const target = doc.querySelector('.stApp') || doc.body;
         
         window.parent.html2canvas(target, {
             useCORS: true,
             allowTaint: true,
-            scale: 2 // Escala x2 para alta resolución
+            scale: 2,
+            windowWidth: target.scrollWidth,
+            windowHeight: target.scrollHeight
         }).then(canvas => {
-            btn.style.display = 'block'; // Lo volvemos a mostrar
+            btn.style.display = 'block';
             
-            // Creamos un link fantasma para descargar la imagen
             const link = doc.createElement('a');
             const fecha = new Date().toISOString().slice(0,10);
             link.download = 'Journal_Screenshot_' + fecha + '.png';
@@ -1561,12 +1602,9 @@ if (!doc.getElementById('btn-screenshot-global')) {
             link.click();
         }).catch(err => {
             btn.style.display = 'block';
-            console.error("Error al capturar la pantalla: ", err);
+            console.error("Error al capturar: ", err);
         });
     };
 
-    // E) Lo inyectamos en la pantalla
     doc.body.appendChild(btn);
 }
-</script>
-""", height=0, width=0)
