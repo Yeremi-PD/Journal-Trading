@@ -673,8 +673,9 @@ st.markdown(f"""
     
     div[data-testid="stPopover"] > button, div[data-testid="stPopover"] > div:first-child > button, div[data-testid="stPopover"] button[kind="secondary"]:first-of-type {{ width: {BTN_CAL_W}px !important; height: {BTN_CAL_H}px !important; min-height: {BTN_CAL_H}px !important; padding: 0 !important; border-radius: 8px !important; border: 1px solid {border_color} !important; background-color: {btn_bg} !important; color: {btn_txt} !important; display: flex !important; justify-content: center !important; align-items: center !important; position: absolute !important; top: 0 !important; left: 0 !important; z-index: 10 !important; transition: none !important; }}
     
-    /* Forzamos a que el texto/emoji 📝 interno crezca al mismo tamaño del icono del calendario */
-    div[data-testid="stPopover"] > button p, div[data-testid="stPopover"] > div:first-child > button p, div[data-testid="stPopover"] button[kind="secondary"]:first-of-type p {{ font-size: {BTN_CAL_ICON_SIZE}px !important; margin: 0 !important; padding: 0 !important; line-height: 1 !important; }}
+    /* Forzamos a que el texto/emoji 📝 interno crezca al mismo tamaño del icono del calendario y SE CENTRE PERFECTAMENTE */
+    div[data-testid="stPopover"] > button p, div[data-testid="stPopover"] > div:first-child > button p, div[data-testid="stPopover"] button[kind="secondary"]:first-of-type p {{ font-size: {BTN_CAL_ICON_SIZE}px !important; margin: 0 !important; padding: 0 !important; line-height: 1 !important; display: flex !important; justify-content: center !important; align-items: center !important; height: 100% !important; width: 100% !important; }}
+    div[data-testid="stPopover"] > button span, div[data-testid="stPopover"] > button div {{ display: flex !important; justify-content: center !important; align-items: center !important; width: 100% !important; height: 100% !important; margin: 0 !important; padding: 0 !important; }}
     
     /* Matamos el fondo oscuro/sombra negra al hacer click */
     div[data-testid="stPopover"] > button:hover, div[data-testid="stPopover"] > div:first-child > button:hover, div[data-testid="stPopover"] button[kind="secondary"]:first-of-type:hover, 
@@ -769,7 +770,7 @@ st.markdown(f"""
     div[data-testid="stDateInput"] input, div[data-testid="stDateInput"] input:focus, div[data-testid="stDateInput"] input:active {{ height: {BTN_CAL_H}px !important; padding: 0 !important; color: transparent !important; -webkit-text-fill-color: transparent !important; cursor: pointer !important; caret-color: transparent !important; background-color: transparent !important; box-shadow: none !important; outline: none !important; }}
     
     div[data-testid="stDateInput"] svg {{ display: none !important; }}
-    div[data-testid="stDateInput"]::after {{ content: '{BTN_CAL_EMOJI}' !important; font-size: {BTN_CAL_ICON_SIZE}px !important; position: absolute !important; pointer-events: none !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; z-index: 5 !important; }}
+    div[data-testid="stDateInput"]::after {{ content: '{BTN_CAL_EMOJI}' !important; font-size: {BTN_CAL_ICON_SIZE}px !important; position: absolute !important; pointer-events: none !important; top: 0 !important; left: 0 !important; width: 100% !important; height: 100% !important; display: flex !important; align-items: center !important; justify-content: center !important; z-index: 5 !important; line-height: 1 !important; }}
 
     .calendar-wrapper {{ background: {card_bg} !important; padding: 10px !important; border-radius: 15px !important; border: 1px solid {border_color} !important; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1) !important; }}
     .txt-dias-sem {{ font-size: {TXT_DIAS_SEM_SIZE}px !important; font-weight: bold !important; color: {c_dias_sem} !important; text-align: center !important; }}
