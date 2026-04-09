@@ -1365,39 +1365,39 @@ with col_mitad_1:
                                 nuevo_pnl = st.number_input("P&L", value=pnl_val, format="%.2f", key=f"p_{clave}_{i}")
                             
                             st.markdown("---")
-                            st.markdown("**📝 Edit Trade Details:**")
-                            c_ed4, c_ed5 = st.columns(2)
-                            
-                            with c_ed4:
-                                def_bias = data.get('bias', 'NEUTRO')
-                                if def_bias not in ['LONG', 'SHORT', 'NONE', 'NEUTRO']: def_bias = 'NEUTRO'
-                                e_bias = st.selectbox("Bias", ['LONG', 'SHORT', 'NONE', 'NEUTRO'], index=['LONG', 'SHORT', 'NONE', 'NEUTRO'].index(def_bias), key=f"e_bias_{clave}_{i}")
+                            with st.expander("📝 Edit Trade Details:", expanded=False):
+                                c_ed4, c_ed5 = st.columns(2)
                                 
-                                st.markdown("<div style='font-weight: 900; font-size: 14px; margin-top: 15px; margin-bottom: 10px;'>Confluences</div>", unsafe_allow_html=True)
-                                all_confs = ['BIAS WELL', 'LIQ SWEEP', 'IFVG', 'FVG', 'EQH / EQL', 'BSL / SSL', 'POI', 'SMT', 'Order Block', 'PDH / PDL', 'Continuation', 'Data High / Data Low', 'CISD']
-                                curr_confs = data.get('Confluences', [])
-                                e_conf = []
-                                cols_e_conf = st.columns(3)
-                                for idx_c, c_name in enumerate(all_confs):
-                                    if cols_e_conf[idx_c % 3].checkbox(c_name, value=(c_name in curr_confs), key=f"e_conf_{clave}_{i}_{idx_c}"):
-                                        e_conf.append(c_name)
-                                
-                                def_risk = data.get('risk', '0.5%')
-                                if def_risk not in ['1%', '0.9%', '0.8%', '0.7%', '0.6%', '0.5%', '0.4%']: def_risk = '0.5%'
-                                e_risk = st.selectbox("Risk", ['1%', '0.9%', '0.8%', '0.7%', '0.6%', '0.5%', '0.4%'], index=['1%', '0.9%', '0.8%', '0.7%', '0.6%', '0.5%', '0.4%'].index(def_risk), key=f"e_risk_{clave}_{i}")
-                                
-                                def_rr = data.get('RR', '1:2')
-                                if def_rr not in ['1:1', '1:1.5', '1:2', '1:3', '1:4']: def_rr = '1:2'
-                                e_rr = st.selectbox("RR", ['1:1', '1:1.5', '1:2', '1:3', '1:4'], index=['1:1', '1:1.5', '1:2', '1:3', '1:4'].index(def_rr), key=f"e_rr_{clave}_{i}")
-                                
-                                def_tt = data.get('trade_type', 'A')
-                                if def_tt not in ['A+', 'A', 'B', 'C']: def_tt = 'A'
-                                e_tt = st.selectbox("Trade Type", ['A+', 'A', 'B', 'C'], index=['A+', 'A', 'B', 'C'].index(def_tt), key=f"e_tt_{clave}_{i}")
+                                with c_ed4:
+                                    def_bias = data.get('bias', 'NEUTRO')
+                                    if def_bias not in ['LONG', 'SHORT', 'NONE', 'NEUTRO']: def_bias = 'NEUTRO'
+                                    e_bias = st.selectbox("Bias", ['LONG', 'SHORT', 'NONE', 'NEUTRO'], index=['LONG', 'SHORT', 'NONE', 'NEUTRO'].index(def_bias), key=f"e_bias_{clave}_{i}")
+                                    
+                                    st.markdown("<div style='font-weight: 900; font-size: 14px; margin-top: 15px; margin-bottom: 10px;'>Confluences</div>", unsafe_allow_html=True)
+                                    all_confs = ['BIAS WELL', 'LIQ SWEEP', 'IFVG', 'FVG', 'EQH / EQL', 'BSL / SSL', 'POI', 'SMT', 'Order Block', 'PDH / PDL', 'Continuation', 'Data High / Data Low', 'CISD']
+                                    curr_confs = data.get('Confluences', [])
+                                    e_conf = []
+                                    cols_e_conf = st.columns(3)
+                                    for idx_c, c_name in enumerate(all_confs):
+                                        if cols_e_conf[idx_c % 3].checkbox(c_name, value=(c_name in curr_confs), key=f"e_conf_{clave}_{i}_{idx_c}"):
+                                            e_conf.append(c_name)
+                                    
+                                    def_risk = data.get('risk', '0.5%')
+                                    if def_risk not in ['1%', '0.9%', '0.8%', '0.7%', '0.6%', '0.5%', '0.4%']: def_risk = '0.5%'
+                                    e_risk = st.selectbox("Risk", ['1%', '0.9%', '0.8%', '0.7%', '0.6%', '0.5%', '0.4%'], index=['1%', '0.9%', '0.8%', '0.7%', '0.6%', '0.5%', '0.4%'].index(def_risk), key=f"e_risk_{clave}_{i}")
+                                    
+                                    def_rr = data.get('RR', '1:2')
+                                    if def_rr not in ['1:1', '1:1.5', '1:2', '1:3', '1:4']: def_rr = '1:2'
+                                    e_rr = st.selectbox("RR", ['1:1', '1:1.5', '1:2', '1:3', '1:4'], index=['1:1', '1:1.5', '1:2', '1:3', '1:4'].index(def_rr), key=f"e_rr_{clave}_{i}")
+                                    
+                                    def_tt = data.get('trade_type', 'A')
+                                    if def_tt not in ['A+', 'A', 'B', 'C']: def_tt = 'A'
+                                    e_tt = st.selectbox("Trade Type", ['A+', 'A', 'B', 'C'], index=['A+', 'A', 'B', 'C'].index(def_tt), key=f"e_tt_{clave}_{i}")
 
-                            with c_ed5:
-                                e_razon = st.text_area("Reason For Trade", value=data.get('razon_trade', ''), key=f"e_raz_{clave}_{i}", height=68)
-                                e_corr = st.text_area("Corrections", value=data.get('Corrections', ''), key=f"e_cor_{clave}_{i}", height=68)
-                                e_emo = st.text_area("Emotions", value=data.get('Emotions', ''), key=f"e_emo_{clave}_{i}", height=68)
+                                with c_ed5:
+                                    e_razon = st.text_area("Reason For Trade", value=data.get('razon_trade', ''), key=f"e_raz_{clave}_{i}", height=68)
+                                    e_corr = st.text_area("Corrections", value=data.get('Corrections', ''), key=f"e_cor_{clave}_{i}", height=68)
+                                    e_emo = st.text_area("Emotions", value=data.get('Emotions', ''), key=f"e_emo_{clave}_{i}", height=68)
 
                             st.markdown("---")
                             st.markdown("**📸 Saved Images:**")
