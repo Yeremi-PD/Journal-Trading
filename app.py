@@ -601,7 +601,7 @@ st.markdown(f"""
     div[data-testid="stSelectbox"] label, div[data-testid="stNumberInput"] label {{ display: none !important; }}
     div[data-baseweb="select"] > div, ul[role="listbox"] {{ background-color: {card_bg} !important; border-color: {border_color} !important; }}
     div[data-testid="stSelectbox"] div[data-baseweb="select"] *, ul[role="listbox"] * {{ font-size: {OPT_FILTROS_SIZE}px !important; color: {c_opt_filtros} !important; }}
-    div[data-testid="stSelectbox"] input {{ display: none !important; }}
+    div[data-testid="stSelectbox"] input {{ color: transparent !important; }}
     li[role="option"] {{ background-color: F3F4F6 !important; }}
     li[role="option"]:hover {{ background-color: {border_color} !important; }}
 
@@ -1331,16 +1331,36 @@ with col_mitad_2:
                 )
 
 # ==========================================
-# SCRIPT PARA CERRAR MODALES CON ESCAPE
+# SCRIPT PARA CERRAR MODALES Y BLOQUEAR TECLADO EN EL MÓVIL
 # ==========================================
 components.html("""
 <script>
 const doc = window.parent.document;
+
+// 1. Cerrar modales con Escape
 doc.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
         const modals = doc.querySelectorAll('.modal-toggle');
         modals.forEach(m => m.checked = false);
     }
 });
+
+// 2. Bloquear teclado móvil en los Filtros y Data Source
+function bloquearTeclado() {
+    const inputs = doc.querySelectorAll('div[data-testid="stSelectbox"] input');
+    inputs.forEach(input => {
+        // "inputmode none" le dice a iOS y Android que NO abran el teclado virtual
+        input.setAttribute('inputmode', 'none'); 
+        input.setAttribute('readonly', 'true'); // Refuerzo extra
+    });
+}
+
+// Ejecutar al cargar la app
+bloquearTeclado();
+
+// Streamlit recarga partes de la app constantemente, así que le decimos que 
+// vuelva a bloquear el teclado si detecta que los menús se volvieron a dibujar.
+const observer = new MutationObserver(bloquearTeclado);
+observer.observe(doc.body, { childList: true, subtree: true });
 </script>
 """, height=0, width=0)
