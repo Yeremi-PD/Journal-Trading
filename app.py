@@ -1540,7 +1540,7 @@ bloquearTeclado();
 const observer = new MutationObserver(bloquearTeclado);
 observer.observe(doc.body, { childList: true, subtree: true });
 
-// 3. BOTÓN DE CAPTURA DE PANTALLA FLOTANTE (Optimizado Móvil + Botón Gigante + Página Completa)
+// 3. BOTÓN DE CAPTURA DE PANTALLA FLOTANTE (Página Total Real + Descarga Nativa)
 if (!doc.getElementById('btn-screenshot-global')) {
     const script = doc.createElement('script');
     script.src = "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js";
@@ -1550,7 +1550,7 @@ if (!doc.getElementById('btn-screenshot-global')) {
     btn.id = 'btn-screenshot-global';
     btn.innerHTML = '📸 Capturar';
     
-    // Botón MUCHO más grande
+    // Botón Gigante
     Object.assign(btn.style, {
         position: 'fixed',
         top: '0px',
@@ -1559,16 +1559,16 @@ if (!doc.getElementById('btn-screenshot-global')) {
         backgroundColor: '#00C897',
         color: '#ffffff',
         border: 'none',
-        padding: '18px 32px', // Más relleno
+        padding: '18px 32px',
         borderBottomLeftRadius: '20px',
         fontWeight: '900',
-        fontSize: '26px', // Texto más grande
+        fontSize: '26px',
         cursor: 'pointer',
         boxShadow: '-2px 2px 10px rgba(0,0,0,0.3)',
         transition: 'all 0.3s ease',
         webkitTransform: 'translateZ(0)',
         transform: 'translateZ(0)',
-        touchAction: 'manipulation' // Ayuda a que el "tap" en móviles sea inmediato
+        touchAction: 'manipulation'
     });
 
     btn.onmouseover = () => btn.style.backgroundColor = '#00a87d';
@@ -1583,78 +1583,77 @@ if (!doc.getElementById('btn-screenshot-global')) {
             return;
         }
         
-        btn.style.display = 'none';
+        btn.innerHTML = '📸 Procesando...';
+        btn.style.pointerEvents = 'none';
         
-        // Detectamos si es móvil/iOS
-        const isMobile = window.parent.innerWidth < 768 || /iPad|iPhone|iPod/.test(window.parent.navigator.userAgent);
-        
-        // Apuntamos al contenedor real que guarda el contenido (block-container)
-        const target = doc.querySelector('.block-container') || doc.querySelector('[data-testid="stMainBlockContainer"]') || doc.querySelector('.stApp');
+        // Buscamos todas las capas de Streamlit que ocultan el scroll
         const stApp = doc.querySelector('.stApp');
+        const stAppView = doc.querySelector('[data-testid="stAppViewContainer"]');
+        const stMain = doc.querySelector('.main') || doc.querySelector('[data-testid="stMain"]');
+        const stBlock = doc.querySelector('.block-container') || doc.querySelector('[data-testid="stMainBlockContainer"]');
+        
+        // Guardamos los estilos originales para no romper tu diseño después
+        const cssApp = stApp ? stApp.style.cssText : '';
+        const cssAppView = stAppView ? stAppView.style.cssText : '';
+        const cssMain = stMain ? stMain.style.cssText : '';
         
         const computedBgColor = stApp ? window.parent.getComputedStyle(stApp).backgroundColor : '#1A202C';
-        const originalStyle = target.style.cssText;
+
+        // MAGIA: Quitamos todos los límites de altura y scroll de Streamlit temporalmente
+        const estirarCSS = 'height: auto !important; min-height: 100% !important; overflow: visible !important; position: relative !important;';
+        if (stApp) stApp.style.cssText += estirarCSS;
+        if (stAppView) stAppView.style.cssText += estirarCSS;
+        if (stMain) stMain.style.cssText += estirarCSS;
         
-        // Forzamos la expansión de altura total
-        target.style.cssText += 'max-width: 100% !important; padding-bottom: 50px !important; overflow: visible !important; height: auto !important;';
+        // Le damos un respiro de medio segundo al navegador para que redibuje toda la página hacia abajo
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        // Calculamos la nueva altura gigante total
+        const alturaTotal = Math.max(
+            doc.body.scrollHeight, 
+            stApp ? stApp.scrollHeight : 0, 
+            stBlock ? stBlock.scrollHeight : 0
+        );
+
         window.parent.scrollTo(0, 0);
         
         try {
-            // Si es móvil, bajamos la escala a 1 para no crashear la memoria del iPhone
-            const canvasScale = isMobile ? 1 : 2; 
+            const isMobile = window.parent.innerWidth < 768;
+            const canvasScale = isMobile ? 1.5 : 2; // Buena resolución sin romper la RAM del móvil
             
-            const canvas = await window.parent.html2canvas(target, {
+            const canvas = await window.parent.html2canvas(stApp, {
                 useCORS: true,
                 allowTaint: true,
                 scale: canvasScale, 
                 scrollY: 0,
+                scrollX: 0,
                 backgroundColor: computedBgColor,
-                windowHeight: target.scrollHeight,
-                height: target.scrollHeight
+                windowHeight: alturaTotal,
+                height: alturaTotal
             });
             
             const imgData = canvas.toDataURL('image/png');
             
-            if (isMobile) {
-                // EN MÓVIL: Mostramos la imagen en pantalla para que la guarden presionándola
-                const overlay = doc.createElement('div');
-                overlay.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.95);z-index:99999999;display:flex;flex-direction:column;align-items:center;justify-content:center;';
-                
-                const closeBtn = doc.createElement('button');
-                closeBtn.innerHTML = '✖ CERRAR';
-                closeBtn.style.cssText = 'position:absolute;top:20px;right:20px;padding:10px 15px;background:#FF4C4C;color:white;border:none;border-radius:8px;font-size:16px;font-weight:bold;cursor:pointer;';
-                closeBtn.onclick = () => overlay.remove();
-                
-                const msg = doc.createElement('div');
-                msg.innerHTML = 'Mantén presionada la imagen para guardarla ⬇️';
-                msg.style.cssText = 'color:#00C897;margin-bottom:15px;font-size:18px;font-weight:bold;text-align:center;';
-                
-                const img = doc.createElement('img');
-                img.src = imgData;
-                img.style.cssText = 'max-width:90vw;max-height:75vh;border-radius:10px;object-fit:contain;border:2px solid #00C897;';
-                
-                overlay.appendChild(closeBtn);
-                overlay.appendChild(msg);
-                overlay.appendChild(img);
-                doc.body.appendChild(overlay);
-                
-            } else {
-                // EN PC: Descarga automática normal
-                const link = doc.createElement('a');
-                const fecha = new Date().toISOString().slice(0,10);
-                link.download = 'Journal_Screenshot_' + fecha + '.png';
-                link.href = imgData;
-                link.click();
-            }
+            // Forzamos la descarga nativa del navegador (celular o PC)
+            const link = doc.createElement('a');
+            const fecha = new Date().toISOString().slice(0,10);
+            link.download = 'Journal_Screenshot_' + fecha + '.png';
+            link.href = imgData;
+            doc.body.appendChild(link);
+            link.click();
+            doc.body.removeChild(link);
             
         } catch (err) {
             alert("Hubo un error al capturar: " + err.message);
             console.error("Error html2canvas: ", err);
         } finally {
-            // Regresamos el contenedor a la normalidad
-            target.style.cssText = originalStyle;
+            // Restauramos todas las capas a como estaban antes
+            if (stApp) stApp.style.cssText = cssApp;
+            if (stAppView) stAppView.style.cssText = cssAppView;
+            if (stMain) stMain.style.cssText = cssMain;
+            
             btn.innerHTML = '📸 Capturar';
-            btn.style.display = 'block';
+            btn.style.pointerEvents = 'auto';
         }
     };
 
