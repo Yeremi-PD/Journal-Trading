@@ -1574,7 +1574,7 @@ with col_mitad_2:
 <td style="{td_style} font-weight: 800; color: {pnl_color};">{pnl_str}</td>
 <td style="{td_style} font-weight: 600;">{row['Trade Type']}</td>
 <td style="{td_style}">{bias_badge}</td>
-<td style="{td_style} font-weight: 600; color: #4F46E5;">{row['RR']}</td>
+<td style="{td_style} font-weight: 600;">{row['RR']}</td>
 <td style="{td_style}"><div style="max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{row['Confluences']}">{row['Confluences']}</div></td>
 <td style="{td_style}">{row['Risk']}</td>
 <td style="{td_style}"><div style="max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{row['Reason For Trade']}">{row['Reason For Trade']}</div></td>
