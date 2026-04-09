@@ -631,6 +631,11 @@ st.markdown(f"""
     div[data-testid="stPopoverBody"] label {{ font-size: 20px !important; font-weight: 800 !important; }}
     div[data-testid="stPopoverBody"] p, div[data-testid="stPopoverBody"] span, div[data-testid="stPopoverBody"] div {{ font-size: 18px !important; }}
     div[data-testid="stPopoverBody"] .stTextArea textarea, div[data-testid="stPopoverBody"] input {{ font-size: 18px !important; }}
+    div[data-testid="stDateInput"] {{ width: {BTN_CAL_W}px !important; min-width: {BTN_CAL_W}px !important; position: relative !important; }}
+    div[data-testid="stDateInput"] > div {{ height: {BTN_CAL_H}px !important; min-height: {BTN_CAL_H}px !important; background-color: {btn_bg} !important; border: 1px solid {border_color} !important; border-radius: 8px !important; cursor: pointer !important; box-shadow: none !important; }}
+    div[data-testid="stDateInput"] input {{ color: transparent !important; -webkit-text-fill-color: transparent !important; cursor: pointer !important; caret-color: transparent !important; background: transparent !important; }}
+    div[data-testid="stDateInput"] svg {{ display: none !important; }}
+    div[data-testid="stDateInput"]::after {{ content: '{BTN_CAL_EMOJI}' !important; font-size: {BTN_CAL_ICON_SIZE}px !important; position: absolute !important; pointer-events: none !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; z-index: 5 !important; }}
 
     .calendar-wrapper {{ background: {card_bg} !important; padding: 10px !important; border-radius: 15px !important; border: 1px solid {border_color} !important; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1) !important; }}
     .txt-dias-sem {{ font-size: {TXT_DIAS_SEM_SIZE}px !important; font-weight: bold !important; color: {c_dias_sem} !important; text-align: center !important; }}
@@ -724,8 +729,7 @@ with st.form(key=f"form_main_entry_{st.session_state.form_reset_key}", border=Fa
         
     with c2:
         st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True) 
-        with st.popover(BTN_CAL_EMOJI):
-            fecha_sel = st.date_input("Fecha oculta", value=hoy, label_visibility="collapsed")
+        fecha_sel = st.date_input("Fecha", value=hoy, label_visibility="collapsed", key="btn_fecha_directa")
             
     with c_img:
         st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True) 
