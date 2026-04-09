@@ -380,6 +380,28 @@ st.sidebar.markdown(
     f"</div>", 
     unsafe_allow_html=True
 )
+# Tu código original (sin cambios en la lógica)
+st.sidebar.markdown("---")
+dispositivo_visual = st.sidebar.radio(
+    "Current Design:", 
+    ["🖥️ PC", "📱 Móvil"], 
+    index=0 if "PC" in st.session_state.dispositivo_actual else 1
+)
+
+st.session_state.dispositivo_actual = "PC" if "🖥️ PC" in dispositivo_visual else "Móvil"
+
+try: 
+    st.query_params["device"] = st.session_state.dispositivo_actual
+except: 
+    pass
+
+if st.sidebar.button("💾 Save Design Settings", use_container_width=True):
+    ctx_act = st.session_state.data_source_sel
+    bal_act = db_usuario[ctx_act]["balance"]
+    registrar_en_excel(usuario, db_global[usuario]["password"], ctx_act, datetime.now(), bal_act, 0.0, {}, db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
+    st.sidebar.success("✅ Settings Saved!")
+
+st.sidebar.markdown("---")
 
 with st.sidebar.expander("💼 Gestionar Cuentas"):
     # --- 1. CREAR NUEVA CUENTA ---
@@ -473,28 +495,6 @@ st.sidebar.markdown(f"""
     </style>
 """, unsafe_allow_html=True)
 
-# Tu código original (sin cambios en la lógica)
-st.sidebar.markdown("---")
-dispositivo_visual = st.sidebar.radio(
-    "Current Design:", 
-    ["🖥️ PC", "📱 Móvil"], 
-    index=0 if "PC" in st.session_state.dispositivo_actual else 1
-)
-
-st.session_state.dispositivo_actual = "PC" if "🖥️ PC" in dispositivo_visual else "Móvil"
-
-try: 
-    st.query_params["device"] = st.session_state.dispositivo_actual
-except: 
-    pass
-
-if st.sidebar.button("💾 Save Design Settings", use_container_width=True):
-    ctx_act = st.session_state.data_source_sel
-    bal_act = db_usuario[ctx_act]["balance"]
-    registrar_en_excel(usuario, db_global[usuario]["password"], ctx_act, datetime.now(), bal_act, 0.0, {}, db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
-    st.sidebar.success("✅ Settings Saved!")
-
-st.sidebar.markdown("---")
 st.sidebar.markdown("### ⚙️ Basic Settings")
 
 texto_boton_tema = "🌙 Switch to Dark Theme" if st.session_state.tema == "Claro" else "☀️ Switch to Light Theme"
