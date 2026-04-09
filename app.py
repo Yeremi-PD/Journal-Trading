@@ -387,7 +387,7 @@ with st.sidebar.expander("💼 Gestionar Cuentas"):
     nueva_cuenta_nombre = st.text_input("Nombre de la cuenta (Ej. My Funded 50k)")
     nueva_cuenta_bal = st.selectbox("Balance Inicial", [25000.0, 50000.0, 100000.0], format_func=lambda x: f"${x:,.0f}")
     
-    if st.button("➕ Crear Cuenta", use_container_width=True):
+    if st.button("➕ Crear Cuenta", use_container_width=True, key="btn_crear_cuenta_sidebar"):
         if nueva_cuenta_nombre and nueva_cuenta_nombre not in db_usuario:
             db_usuario[nueva_cuenta_nombre] = {"balance": nueva_cuenta_bal, "trades": {}}
             reescribir_excel_usuario(usuario)
