@@ -1035,7 +1035,9 @@ with col_det:
             titulo_str = titulos_semanas[idx] if idx < len(titulos_semanas) else f"Week {num_sem}"
             c_sem, s_sem = get_col_simb(stats["pnl"])
             pct_sem = calc_pct(stats["pnl"])
-            semanas_html += f'<div class="wk-box"><div class="wk-title" style="font-size:var(--size-box-titles) !important;">{titulo_str}</div><div class="wk-val {c_sem}" style="font-size:var(--size-box-vals) !important;">{s_sem}${stats["pnl"]:,.2f}<br><span style="font-size:var(--size-box-pct);">{s_sem}{pct_sem:.2f}%</span><br><span style="font-size: var(--size-box-wl); color: gray; font-weight: 500;">{stats["w"]}W / {stats["l"]}L</span></div></div>'
+            cw = "#00C897" if stats["w"] >= 1 else "white"
+            cl = "#FF4C4C" if stats["l"] >= 1 else "white"
+            semanas_html += f'<div class="wk-box"><div class="wk-title" style="font-size:var(--size-box-titles) !important;">{titulo_str}</div><div class="wk-val {c_sem}" style="font-size:var(--size-box-vals) !important;">{s_sem}${stats["pnl"]:,.2f}<br><span style="font-size:var(--size-box-pct);">{s_sem}{pct_sem:.2f}%</span><br><span style="font-size: var(--size-box-wl); font-weight: 500;"><span style="color:{cw};">{stats["w"]}W</span> <span style="color:gray;">/</span> <span style="color:{cl};">{stats["l"]}L</span></span></div></div>'
 
         st.markdown(f'<div class="weeks-container">{semanas_html}<div class="mo-box"><div class="mo-title" style="font-size:var(--size-box-titles) !important;">{TXT_MO}</div><div class="mo-val {cM}" style="font-size:var(--size-box-vals) !important;">{sM}${m_total:,.2f}<br><span style="font-size:var(--size-box-pct);">{sM}{pct_m:.2f}%</span><br><span style="font-size: var(--size-box-wl); color: gray; font-weight: 500;">{m_w}W / {m_l}L</span></div></div></div>', unsafe_allow_html=True)
 
