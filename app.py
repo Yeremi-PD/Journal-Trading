@@ -797,9 +797,13 @@ st.markdown(f"""
     .metric-header {{ display: flex !important; align-items: center !important; gap: 8px !important; margin-bottom: 5px !important; }}
     .title-net-pnl {{ font-size: var(--size-card-titles) !important; font-weight: 700 !important; color: {c_tit_pnl} !important; }}
     .title-trade-win {{ font-size: var(--size-card-titles) !important; font-weight: 700 !important; color: {c_tit_win} !important; }}
-    .pnl-value {{ font-size: 28px !important; font-weight: 800 !important; color: #00C897 !important; letter-spacing: -0.5px !important; }}
+.pnl-value {{ font-size: 28px !important; font-weight: 800 !important; color: #00C897 !important; letter-spacing: -0.5px !important; }}
     .pnl-value-loss {{ color: #FF4C4C !important; }}
-    /* Estilo específico para que el número de RR sea más pequeño */
+    
+    /* Win Rate gigante, exactamente del mismo tamaño que P&L */
+    .win-value {{ font-size: 28px !important; font-weight: 800 !important; letter-spacing: -0.5px !important; }}
+    
+    /* Total Trades y RR (Unificados en tamaño mediano) */
     .rr-value {{ font-size: 25px !important; font-weight: 800 !important; letter-spacing: -0.5px !important; }}
 
     .calendar-wrapper div[data-testid="column"]:first-child button {{ transform: translate({FLECHAS_X}px, {FLECHAS_Y}px) !important; font-size: {FLECHAS_SIZE}px !important; }}
