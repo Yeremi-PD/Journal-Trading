@@ -670,7 +670,7 @@ st.markdown(f"""
 if pagina_actual == "📊 Dashboard" or pagina_actual == "📅 Calendar":
     col_t, col_fil, col_data, col_bal = st.columns([3, 1.5, 1.5, 2])
 
-with col_t: 
+    with col_t: 
         st.markdown(f'<p class="dashboard-title">{TXT_DASHBOARD}</p>', unsafe_allow_html=True)
 
     with col_fil: 
