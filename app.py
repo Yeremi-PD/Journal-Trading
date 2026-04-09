@@ -646,19 +646,18 @@ st.markdown(f"""
     /* Mantenemos el tamaño de tu cuadro de Trade Details y reforzamos el color claro */
     div[data-testid="stPopoverBody"]:has(h3) {{ width: 710px !important; max-width: 95vw !important; max-height: 85vh !important; margin-top: 100px !important; overflow-y: auto !important; box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important; background-color: {card_bg} !important; border: 2px solid {card_bg} !important; }}
     
-    /* 1. Volvemos la caja exterior CUADRADA con el truco infalible */
-    div[data-testid="stPopoverBody"] div[data-testid="stRadio"] div[role="radio"] > div:first-child,
-    div[data-testid="stPopoverBody"] div[data-testid="stRadio"] [data-baseweb="radio"] div:empty {{ 
+    /* 1. Volvemos TODOS los radios CUADRADOS sin importar dónde estén */
+    div[data-testid="stPopoverBody"] div[role="radiogroup"] div[role="radio"] > div:first-child {{ 
         border-radius: 4px !important; 
     }}
     
-    /* 2. Ocultamos el punto en los que NO están seleccionados */
-    div[data-testid="stPopoverBody"] div[data-testid="stRadio"] div[role="radio"][aria-checked="false"] > div:first-child > div {{ 
+    /* 2. Ocultamos el punto en los NO seleccionados */
+    div[data-testid="stPopoverBody"] div[role="radiogroup"] div[role="radio"][aria-checked="false"] > div:first-child > div {{ 
         display: none !important; 
     }}
     
-    /* 3. Mutamos a un Check (✔) verde SOLO en el seleccionado */
-    div[data-testid="stPopoverBody"] div[data-testid="stRadio"] div[role="radio"][aria-checked="true"] > div:first-child > div {{ 
+    /* 3. Mutamos el punto a Check (✔) verde SOLO en el seleccionado */
+    div[data-testid="stPopoverBody"] div[role="radiogroup"] div[role="radio"][aria-checked="true"] > div:first-child > div {{ 
         border-radius: 0 !important; 
         background-color: transparent !important; 
         width: 6px !important; 
@@ -669,7 +668,7 @@ st.markdown(f"""
         display: block !important;
     }}
 
-    /* 4. Negrita EXCLUSIVAMENTE para los TÍTULOS principales (dejando las opciones normales) */
+    /* 4. Negrita EXCLUSIVAMENTE para los TÍTULOS principales */
     div[data-testid="stPopoverBody"] div[data-testid="stWidgetLabel"] p {{
         font-weight: 900 !important;
     }}
