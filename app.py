@@ -1042,13 +1042,20 @@ with col_det:
             titulo_str = titulos_semanas[idx] if idx < len(titulos_semanas) else f"Week {num_sem}"
             c_sem, s_sem = get_col_simb(stats["pnl"])
             pct_sem = calc_pct(stats["pnl"])
-            cw = "#00C897" if stats["w"] >= 1 else "white"
-            cl = "#FF4C4C" if stats["l"] >= 1 else "white"
-            semanas_html += f'<div class="wk-box"><div class="wk-title" style="font-size:var(--size-box-titles) !important;">{titulo_str}</div><div class="wk-val {c_sem}" style="font-size:var(--size-box-vals) !important;">{s_sem}${stats["pnl"]:,.2f}<br><span style="font-size:var(--size-box-pct);">{s_sem}{pct_sem:.2f}%</span><br><span style="font-size: var(--size-box-wl); font-weight: 500;"><span style="color:{cw};">{stats["w"]}W</span> <span style="color:gray;">/</span> <span style="color:{cl};">{stats["l"]}L</span></span></div></div>'
+            
+            wl_parts_sem = []
+            if stats["w"] >= 1: wl_parts_sem.append(f'<span style="color:#00C897;">{stats["w"]}W</span>')
+            if stats["l"] >= 1: wl_parts_sem.append(f'<span style="color:#FF4C4C;">{stats["l"]}L</span>')
+            wl_text_sem = ' <span style="color:gray;">/</span> '.join(wl_parts_sem)
 
-        cmw = "#00C897" if m_w >= 1 else "white"
-        cml = "#FF4C4C" if m_l >= 1 else "white"
-        st.markdown(f'<div class="weeks-container">{semanas_html}<div class="mo-box"><div class="mo-title" style="font-size:var(--size-box-titles) !important;">{TXT_MO}</div><div class="mo-val {cM}" style="font-size:var(--size-box-vals) !important;">{sM}${m_total:,.2f}<br><span style="font-size:var(--size-box-pct);">{sM}{pct_m:.2f}%</span><br><span style="font-size: var(--size-box-wl); font-weight: 500;"><span style="color:{cmw};">{m_w}W</span> <span style="color:gray;">/</span> <span style="color:{cml};">{m_l}L</span></span></div></div></div>', unsafe_allow_html=True)
+            semanas_html += f'<div class="wk-box"><div class="wk-title" style="font-size:var(--size-box-titles) !important;">{titulo_str}</div><div class="wk-val {c_sem}" style="font-size:var(--size-box-vals) !important;">{s_sem}${stats["pnl"]:,.2f}<br><span style="font-size:var(--size-box-pct);">{s_sem}{pct_sem:.2f}%</span><br><span style="font-size: var(--size-box-wl); font-weight: 500;">{wl_text_sem}</span></div></div>'
+
+        wl_parts_mo = []
+        if m_w >= 1: wl_parts_mo.append(f'<span style="color:#00C897;">{m_w}W</span>')
+        if m_l >= 1: wl_parts_mo.append(f'<span style="color:#FF4C4C;">{m_l}L</span>')
+        wl_text_mo = ' <span style="color:gray;">/</span> '.join(wl_parts_mo)
+
+        st.markdown(f'<div class="weeks-container">{semanas_html}<div class="mo-box"><div class="mo-title" style="font-size:var(--size-box-titles) !important;">{TXT_MO}</div><div class="mo-val {cM}" style="font-size:var(--size-box-vals) !important;">{sM}${m_total:,.2f}<br><span style="font-size:var(--size-box-pct);">{sM}{pct_m:.2f}%</span><br><span style="font-size: var(--size-box-wl); font-weight: 500;">{wl_text_mo}</span></div></div></div>', unsafe_allow_html=True)
 
     else:
         meses_stats = {}
@@ -1070,9 +1077,13 @@ with col_det:
             nombre_m = f"{calendar.month_abbr[m]} {y}"
             c_m, s_m = get_col_simb(val_m)
             pct_m_box = calc_pct(val_m)
-            cwm = "#00C897" if w_m >= 1 else "white"
-            clm = "#FF4C4C" if l_m >= 1 else "white"
-            meses_html += f'<div class="wk-box"><div class="wk-title" style="font-size:var(--size-box-titles) !important;">{nombre_m}</div><div class="wk-val {c_m}" style="font-size:var(--size-box-vals) !important;">{s_m}${val_m:,.2f}<br><span style="font-size:var(--size-box-pct);">{s_m}{pct_m_box:.2f}%</span><br><span style="font-size: var(--size-box-wl); font-weight: 500;"><span style="color:{cwm};">{w_m}W</span> <span style="color:gray;">/</span> <span style="color:{clm};">{l_m}L</span></span></div></div>'
+            
+            wl_parts_all = []
+            if w_m >= 1: wl_parts_all.append(f'<span style="color:#00C897;">{w_m}W</span>')
+            if l_m >= 1: wl_parts_all.append(f'<span style="color:#FF4C4C;">{l_m}L</span>')
+            wl_text_all = ' <span style="color:gray;">/</span> '.join(wl_parts_all)
+
+            meses_html += f'<div class="wk-box"><div class="wk-title" style="font-size:var(--size-box-titles) !important;">{nombre_m}</div><div class="wk-val {c_m}" style="font-size:var(--size-box-vals) !important;">{s_m}${val_m:,.2f}<br><span style="font-size:var(--size-box-pct);">{s_m}{pct_m_box:.2f}%</span><br><span style="font-size: var(--size-box-wl); font-weight: 500;">{wl_text_all}</span></div></div>'
         
         if meses_html:
             st.markdown(f'<div class="weeks-container">{meses_html}</div>', unsafe_allow_html=True)
