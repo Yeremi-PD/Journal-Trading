@@ -831,7 +831,7 @@ with st.form(key=f"form_main_entry_{st.session_state.form_reset_key}", clear_on_
             nuevo_emo = st.text_area("Emotions", value='', height=50)
             
             # RISK (Comprimido a la izquierda)
-            st.markdown("<div style='font-weight: 900; font-size: 14px; margin-top: 10px; margin-bottom: 0px;'>Risk</div>", unsafe_allow_html=True)
+            st.markdown("<div style='font-weight: 900; font-size: 14px; margin-top: 5px; margin-bottom: 10px;'>Risk</div>", unsafe_allow_html=True)
             risk_opts = ['1%', '0.9%', '0.8%', '0.7%', '0.6%', '0.5%', '0.4%']
             nuevo_risk_list = []
             cols_risk = st.columns([1, 1, 1, 1, 1, 1, 1, 2])
