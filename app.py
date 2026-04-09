@@ -521,7 +521,7 @@ with st.sidebar.expander("🛡️ Admin Settings"):
                 except: pass
             st.rerun()
 
-    if admin_pass == "725166":
+    if admin_pass == "Yfutures.":
         st.success("Acceso concedido.")
         for u, data in list(db_global.items()):
             col_u, col_p, col_btn = st.columns([2, 2, 1])
