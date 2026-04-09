@@ -803,8 +803,8 @@ with st.form(key=f"form_main_entry_{st.session_state.form_reset_key}", clear_on_
     with c_not:
         st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True) 
         with st.popover("📝", use_container_width=True):
-            # Título gigante (3.0em)
-            st.markdown("<h3 style='text-align:center; margin-top:0; font-size: 3.0em;'>Trade Details</h3>", unsafe_allow_html=True)
+            # Título gigante forzado con píxeles e !important
+            st.markdown("<div style='text-align:center; margin-top:0; margin-bottom:15px; font-size: 45px !important; font-weight: 900 !important;'>Trade Details</div>", unsafe_allow_html=True)
             
             # BIAS (Comprimido a la izquierda)
             st.markdown("<div style='font-weight: 900; font-size: 14px; margin-top: 5px; margin-bottom: 0px;'>Bias</div>", unsafe_allow_html=True)
