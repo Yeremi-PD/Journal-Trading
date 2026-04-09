@@ -680,6 +680,16 @@ st.markdown(f"""
 
     div[data-testid="stPopoverBody"] label {{ font-size: 20px !important; font-weight: 800 !important; }}
     div[data-testid="stPopoverBody"] p, div[data-testid="stPopoverBody"] span, div[data-testid="stPopoverBody"] div {{ font-size: 18px !important; }}
+    
+    /* 🔴 ORDEN ABSOLUTA PARA QUE EL TÍTULO SEA GIGANTE */
+    div[data-testid="stPopoverBody"] h3 {{
+        font-size: 45px !important;
+        font-weight: 900 !important;
+        text-align: center !important;
+        margin-top: 0px !important;
+        margin-bottom: 20px !important;
+        line-height: 1.1 !important;
+    }}
     div[data-testid="stPopoverBody"] .stTextArea textarea, div[data-testid="stPopoverBody"] input {{ font-size: 18px !important; }}
     div[data-testid="stDateInput"] {{ width: {BTN_CAL_W}px !important; min-width: {BTN_CAL_W}px !important; height: {BTN_CAL_H}px !important; position: relative !important; padding: 0 !important; margin: 0 !important; }}
     
