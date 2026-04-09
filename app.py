@@ -1540,7 +1540,7 @@ bloquearTeclado();
 const observer = new MutationObserver(bloquearTeclado);
 observer.observe(doc.body, { childList: true, subtree: true });
 
-// 3. BOTÓN DE CAPTURA DE PANTALLA FLOTANTE (Full Page real + Corrección de Fondo)
+// 3. BOTÓN DE CAPTURA DE PANTALLA FLOTANTE (Optimizado Móvil + Botón Gigante + Página Completa)
 if (!doc.getElementById('btn-screenshot-global')) {
     const script = doc.createElement('script');
     script.src = "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js";
@@ -1550,6 +1550,7 @@ if (!doc.getElementById('btn-screenshot-global')) {
     btn.id = 'btn-screenshot-global';
     btn.innerHTML = '📸 Capturar';
     
+    // Botón MUCHO más grande
     Object.assign(btn.style, {
         position: 'fixed',
         top: '0px',
@@ -1558,74 +1559,101 @@ if (!doc.getElementById('btn-screenshot-global')) {
         backgroundColor: '#00C897',
         color: '#ffffff',
         border: 'none',
-        padding: '12px 23px',
-        borderBottomLeftRadius: '18px',
+        padding: '18px 32px', // Más relleno
+        borderBottomLeftRadius: '20px',
         fontWeight: '900',
-        fontSize: '21px',
+        fontSize: '26px', // Texto más grande
         cursor: 'pointer',
         boxShadow: '-2px 2px 10px rgba(0,0,0,0.3)',
         transition: 'all 0.3s ease',
         webkitTransform: 'translateZ(0)',
-        transform: 'translateZ(0)'
+        transform: 'translateZ(0)',
+        touchAction: 'manipulation' // Ayuda a que el "tap" en móviles sea inmediato
     });
 
     btn.onmouseover = () => btn.style.backgroundColor = '#00a87d';
     btn.onmouseout = () => btn.style.backgroundColor = '#00C897';
 
-    btn.onclick = async () => {
+    btn.onclick = async (e) => {
+        e.preventDefault();
+        
         if (typeof window.parent.html2canvas === 'undefined') {
-            btn.innerHTML = '⏳ Cargando...';
-            setTimeout(() => btn.innerHTML = '📸 Capturar', 2000);
+            btn.innerHTML = '⏳...';
+            setTimeout(() => { btn.innerHTML = '📸 Capturar'; }, 2000);
             return;
         }
         
         btn.style.display = 'none';
         
-        // Encontramos las capas internas de Streamlit que hacen el scroll falso
+        // Detectamos si es móvil/iOS
+        const isMobile = window.parent.innerWidth < 768 || /iPad|iPhone|iPod/.test(window.parent.navigator.userAgent);
+        
+        // Apuntamos al contenedor real que guarda el contenido (block-container)
+        const target = doc.querySelector('.block-container') || doc.querySelector('[data-testid="stMainBlockContainer"]') || doc.querySelector('.stApp');
         const stApp = doc.querySelector('.stApp');
-        const stAppView = doc.querySelector('[data-testid="stAppViewContainer"]');
-        const stMain = doc.querySelector('.main') || doc.querySelector('[data-testid="stMain"]');
         
-        // Guardamos los estilos originales para no romper la app después de la foto
-        const cssApp = stApp ? stApp.style.cssText : '';
-        const cssAppView = stAppView ? stAppView.style.cssText : '';
-        const cssMain = stMain ? stMain.style.cssText : '';
+        const computedBgColor = stApp ? window.parent.getComputedStyle(stApp).backgroundColor : '#1A202C';
+        const originalStyle = target.style.cssText;
         
-        // Extraemos el color de fondo exacto que estás usando (Claro u Oscuro)
-        const computedBgColor = window.parent.getComputedStyle(stApp).backgroundColor;
-
-        // MAGIA: Obligamos a la app a estirarse por completo hacia abajo
-        if(stApp) stApp.style.cssText += 'height: auto !important; overflow: visible !important;';
-        if(stAppView) stAppView.style.cssText += 'height: auto !important; overflow: visible !important;';
-        if(stMain) stMain.style.cssText += 'height: auto !important; overflow: visible !important;';
-        
-        // Subimos el scroll arriba de todo
+        // Forzamos la expansión de altura total
+        target.style.cssText += 'max-width: 100% !important; padding-bottom: 50px !important; overflow: visible !important; height: auto !important;';
         window.parent.scrollTo(0, 0);
         
         try {
-            const canvas = await window.parent.html2canvas(stApp, {
+            // Si es móvil, bajamos la escala a 1 para no crashear la memoria del iPhone
+            const canvasScale = isMobile ? 1 : 2; 
+            
+            const canvas = await window.parent.html2canvas(target, {
                 useCORS: true,
                 allowTaint: true,
-                scale: 2, 
+                scale: canvasScale, 
                 scrollY: 0,
-                backgroundColor: computedBgColor, // Esto arregla el fondo blanco
-                windowHeight: stApp.scrollHeight,
-                height: stApp.scrollHeight
+                backgroundColor: computedBgColor,
+                windowHeight: target.scrollHeight,
+                height: target.scrollHeight
             });
             
-            const link = doc.createElement('a');
-            const fecha = new Date().toISOString().slice(0,10);
-            link.download = 'Journal_Screenshot_' + fecha + '.png';
-            link.href = canvas.toDataURL('image/png');
-            link.click();
-        } catch (err) {
-            console.error("Error al capturar la pantalla: ", err);
-        } finally {
-            // Devolvemos la app a su estado normal con scroll
-            if(stApp) stApp.style.cssText = cssApp;
-            if(stAppView) stAppView.style.cssText = cssAppView;
-            if(stMain) stMain.style.cssText = cssMain;
+            const imgData = canvas.toDataURL('image/png');
             
+            if (isMobile) {
+                // EN MÓVIL: Mostramos la imagen en pantalla para que la guarden presionándola
+                const overlay = doc.createElement('div');
+                overlay.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.95);z-index:99999999;display:flex;flex-direction:column;align-items:center;justify-content:center;';
+                
+                const closeBtn = doc.createElement('button');
+                closeBtn.innerHTML = '✖ CERRAR';
+                closeBtn.style.cssText = 'position:absolute;top:20px;right:20px;padding:10px 15px;background:#FF4C4C;color:white;border:none;border-radius:8px;font-size:16px;font-weight:bold;cursor:pointer;';
+                closeBtn.onclick = () => overlay.remove();
+                
+                const msg = doc.createElement('div');
+                msg.innerHTML = 'Mantén presionada la imagen para guardarla ⬇️';
+                msg.style.cssText = 'color:#00C897;margin-bottom:15px;font-size:18px;font-weight:bold;text-align:center;';
+                
+                const img = doc.createElement('img');
+                img.src = imgData;
+                img.style.cssText = 'max-width:90vw;max-height:75vh;border-radius:10px;object-fit:contain;border:2px solid #00C897;';
+                
+                overlay.appendChild(closeBtn);
+                overlay.appendChild(msg);
+                overlay.appendChild(img);
+                doc.body.appendChild(overlay);
+                
+            } else {
+                // EN PC: Descarga automática normal
+                const link = doc.createElement('a');
+                const fecha = new Date().toISOString().slice(0,10);
+                link.download = 'Journal_Screenshot_' + fecha + '.png';
+                link.href = imgData;
+                link.click();
+            }
+            
+        } catch (err) {
+            alert("Hubo un error al capturar: " + err.message);
+            console.error("Error html2canvas: ", err);
+        } finally {
+            // Regresamos el contenedor a la normalidad
+            target.style.cssText = originalStyle;
+            btn.innerHTML = '📸 Capturar';
             btn.style.display = 'block';
         }
     };
