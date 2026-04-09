@@ -317,11 +317,21 @@ WEEKS_TITULOS_COLOR_C, WEEKS_TITULOS_COLOR_O, WEEK_BOX_W, WEEK_BOX_H, Month_BOX_
 # 4. LÓGICA DE ESTADO Y AJUSTES
 # ==========================================
 if "tema" not in st.session_state: st.session_state.tema = TEMA_POR_DEFECTO
-if "data_source_sel" not in st.session_state: st.session_state.data_source_sel = "Account Real"
 if "form_reset_key" not in st.session_state: st.session_state.form_reset_key = 0
 
 usuario = st.session_state.usuario_actual
 db_usuario = db_global[usuario]["data"]
+
+# 1. Por defecto es Account Real
+if "data_source_sel" not in st.session_state: 
+    st.session_state.data_source_sel = "Account Real"
+
+# 2. Si la URL tiene una cuenta guardada, la leemos y la forzamos
+try:
+    if "account" in st.query_params and st.query_params["account"] in db_usuario:
+        st.session_state.data_source_sel = st.query_params["account"]
+except:
+    pass
 
 if "settings" not in db_global[usuario]:
     db_global[usuario]["settings"] = {"PC": inicializar_settings(), "Móvil": inicializar_settings()}
@@ -862,6 +872,11 @@ with col_fil:
 with col_data: 
     st.markdown(f'<div class="lbl-data">{LBL_DATA}</div>', unsafe_allow_html=True)
     st.selectbox("Data Source", list(db_usuario.keys()), key="data_source_sel", label_visibility="collapsed")
+    # Guardamos la cuenta actual en la URL silenciosamente
+    try:
+        st.query_params["account"] = st.session_state.data_source_sel
+    except:
+        pass
 
 ctx = st.session_state.data_source_sel
 bal_actual = db_usuario[ctx]["balance"]
