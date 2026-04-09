@@ -631,21 +631,21 @@ st.markdown(f"""
     div[data-testid="stPopoverBody"] label {{ font-size: 20px !important; font-weight: 800 !important; }}
     div[data-testid="stPopoverBody"] p, div[data-testid="stPopoverBody"] span, div[data-testid="stPopoverBody"] div {{ font-size: 18px !important; }}
     div[data-testid="stPopoverBody"] .stTextArea textarea, div[data-testid="stPopoverBody"] input {{ font-size: 18px !important; }}
-    div[data-testid="stDateInput"] {{ width: {BTN_CAL_W}px !important; min-width: {BTN_CAL_W}px !important; position: relative !important; }}
+    div[data-testid="stDateInput"] {{ width: {BTN_CAL_W}px !important; min-width: {BTN_CAL_W}px !important; height: {BTN_CAL_H}px !important; position: relative !important; padding: 0 !important; margin: 0 !important; }}
     
-    /* El contenedor principal con tu color de fondo favorito */
-    div[data-testid="stDateInput"] > div:first-child {{ height: {BTN_CAL_H}px !important; min-height: {BTN_CAL_H}px !important; background-color: {btn_bg} !important; border: 1px solid {border_color} !important; border-radius: 8px !important; cursor: pointer !important; box-shadow: none !important; outline: none !important; transition: none !important; }}
+    /* El contenedor principal con tu color de fondo favorito y el TAMAÑO ESTRICTO */
+    div[data-testid="stDateInput"] > div:first-child {{ width: {BTN_CAL_W}px !important; height: {BTN_CAL_H}px !important; min-height: {BTN_CAL_H}px !important; background-color: {btn_bg} !important; border: 1px solid {border_color} !important; border-radius: 8px !important; cursor: pointer !important; box-shadow: none !important; outline: none !important; transition: none !important; padding: 0 !important; }}
     
-    /* Mantenemos el color exacto (btn_bg) al hacer click para matar la sombra negra sin perder el fondo */
+    /* Forzamos el alto en las capas internas para que no se encoja y matamos la sombra negra */
     div[data-testid="stDateInput"] div[data-baseweb="input"], 
     div[data-testid="stDateInput"] div[data-baseweb="base-input"],
     div[data-testid="stDateInput"] div[data-baseweb="input"]:focus-within, 
     div[data-testid="stDateInput"] div[data-baseweb="base-input"]:focus-within,
     div[data-testid="stDateInput"] div[data-baseweb="input"]:hover, 
-    div[data-testid="stDateInput"] div[data-baseweb="base-input"]:hover {{ background-color: {btn_bg} !important; box-shadow: none !important; border: none !important; outline: none !important; }}
+    div[data-testid="stDateInput"] div[data-baseweb="base-input"]:hover {{ height: {BTN_CAL_H}px !important; background-color: {btn_bg} !important; box-shadow: none !important; border: none !important; outline: none !important; padding: 0 !important; }}
     
-    /* Texto siempre invisible para que parezca botón */
-    div[data-testid="stDateInput"] input, div[data-testid="stDateInput"] input:focus, div[data-testid="stDateInput"] input:active {{ color: transparent !important; -webkit-text-fill-color: transparent !important; cursor: pointer !important; caret-color: transparent !important; background-color: transparent !important; box-shadow: none !important; outline: none !important; }}
+    /* Texto siempre invisible (y de la altura correcta) */
+    div[data-testid="stDateInput"] input, div[data-testid="stDateInput"] input:focus, div[data-testid="stDateInput"] input:active {{ height: {BTN_CAL_H}px !important; padding: 0 !important; color: transparent !important; -webkit-text-fill-color: transparent !important; cursor: pointer !important; caret-color: transparent !important; background-color: transparent !important; box-shadow: none !important; outline: none !important; }}
     
     div[data-testid="stDateInput"] svg {{ display: none !important; }}
     div[data-testid="stDateInput"]::after {{ content: '{BTN_CAL_EMOJI}' !important; font-size: {BTN_CAL_ICON_SIZE}px !important; position: absolute !important; pointer-events: none !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; z-index: 5 !important; }}
