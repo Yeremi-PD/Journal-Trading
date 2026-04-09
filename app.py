@@ -397,11 +397,10 @@ with st.sidebar.expander("💼 Gestionar Cuentas"):
         elif nueva_cuenta_nombre in db_usuario:
             st.warning("Ese nombre ya existe.")
 
-    st.markdown("---")
 
     # --- 2. RESETEAR CUENTA ACTUAL ---
     ctx_actual = st.session_state.data_source_sel
-    with st.expander(f"🔄 Reset {ctx_actual}"):
+    with st.expander(f"Reset {ctx_actual}"):
         opciones_reset = {"$25,000": 25000.0, "$50,000": 50000.0, "$100,000": 100000.0}
         seleccion_reset = st.radio("Select Initial Balance:", list(opciones_reset.keys()), key="radio_reset_sidebar")
         nuevo_balance_reset = opciones_reset[seleccion_reset]
@@ -426,7 +425,6 @@ with st.sidebar.expander("💼 Gestionar Cuentas"):
                 st.session_state.confirm_reset = False
                 st.rerun()
 
-    st.markdown("---")
 
     # --- 3. ELIMINAR CUENTA ---
     with st.expander("🗑️ Eliminar Cuenta"):
