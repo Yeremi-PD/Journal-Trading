@@ -322,16 +322,15 @@ if "form_reset_key" not in st.session_state: st.session_state.form_reset_key = 0
 usuario = st.session_state.usuario_actual
 db_usuario = db_global[usuario]["data"]
 
-# 1. Por defecto es Account Real
-if "data_source_sel" not in st.session_state: 
-    st.session_state.data_source_sel = "Account Real"
-
-# 2. Si la URL tiene una cuenta guardada, la leemos y la forzamos
-try:
-    if "account" in st.query_params and st.query_params["account"] in db_usuario:
-        st.session_state.data_source_sel = st.query_params["account"]
-except:
-    pass
+# Solo lee la URL si es la primera vez que entras (o si recargas con F5)
+if "data_source_sel" not in st.session_state:
+    cuenta_inicial = "Account Real"
+    try:
+        if "account" in st.query_params and st.query_params["account"] in db_usuario:
+            cuenta_inicial = st.query_params["account"]
+    except:
+        pass
+    st.session_state.data_source_sel = cuenta_inicial
 
 if "settings" not in db_global[usuario]:
     db_global[usuario]["settings"] = {"PC": inicializar_settings(), "Móvil": inicializar_settings()}
