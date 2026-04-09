@@ -1063,7 +1063,9 @@ with col_det:
             nombre_m = f"{calendar.month_abbr[m]} {y}"
             c_m, s_m = get_col_simb(val_m)
             pct_m_box = calc_pct(val_m)
-            meses_html += f'<div class="wk-box"><div class="wk-title" style="font-size:var(--size-box-titles) !important;">{nombre_m}</div><div class="wk-val {c_m}" style="font-size:var(--size-box-vals) !important;">{s_m}${val_m:,.2f}<br><span style="font-size:var(--size-box-pct);">{s_m}{pct_m_box:.2f}%</span><br><span style="font-size: var(--size-box-wl); color: gray; font-weight: 500;">{w_m}W / {l_m}L</span></div></div>'
+            cwm = "#00C897" if w_m >= 1 else "white"
+            clm = "#FF4C4C" if l_m >= 1 else "white"
+            meses_html += f'<div class="wk-box"><div class="wk-title" style="font-size:var(--size-box-titles) !important;">{nombre_m}</div><div class="wk-val {c_m}" style="font-size:var(--size-box-vals) !important;">{s_m}${val_m:,.2f}<br><span style="font-size:var(--size-box-pct);">{s_m}{pct_m_box:.2f}%</span><br><span style="font-size: var(--size-box-wl); font-weight: 500;"><span style="color:{cwm};">{w_m}W</span> <span style="color:gray;">/</span> <span style="color:{clm};">{l_m}L</span></span></div></div>'
         
         if meses_html:
             st.markdown(f'<div class="weeks-container">{meses_html}</div>', unsafe_allow_html=True)
