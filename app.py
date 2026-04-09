@@ -624,13 +624,18 @@ st.markdown(f"""
     div[data-testid="stButton"] > button {{ background-color: {btn_bg} !important; color: {btn_txt} !important; border: 1px solid {border_color} !important; }}
     div[data-testid="stPopover"] {{ width: {BTN_CAL_W}px !important; min-width: {BTN_CAL_W}px !important; height: {BTN_CAL_H}px !important; display: block !important; position: relative !important; padding: 0 !important; margin: 0 !important; }}
     
-    /* Forzamos el tamaño exacto para que sea el gemelo del calendario */
-    div[data-testid="stPopover"] > button, div[data-testid="stPopover"] > div > button {{ width: {BTN_CAL_W}px !important; height: {BTN_CAL_H}px !important; min-height: {BTN_CAL_H}px !important; padding: 0 !important; font-size: {BTN_CAL_ICON_SIZE}px !important; border-radius: 8px !important; border: 1px solid {border_color} !important; background-color: {btn_bg} !important; color: {btn_txt} !important; display: flex !important; justify-content: center !important; align-items: center !important; position: absolute !important; top: 0 !important; left: 0 !important; z-index: 10 !important; transition: none !important; }}
+    /* Capas internas: forzamos el tamaño exacto sin importar cómo lo envuelva Streamlit */
+    div[data-testid="stPopover"] > div:first-child {{ width: {BTN_CAL_W}px !important; height: {BTN_CAL_H}px !important; }}
     
-    /* Matamos el fondo oscuro/sombra negra al hacer click o pasar el dedo en el botón de notas */
-    div[data-testid="stPopover"] > button:hover, div[data-testid="stPopover"] > div > button:hover, 
-    div[data-testid="stPopover"] > button:focus, div[data-testid="stPopover"] > div > button:focus, 
-    div[data-testid="stPopover"] > button:active, div[data-testid="stPopover"] > div > button:active {{ background-color: {btn_bg} !important; color: {btn_txt} !important; border: 1px solid {border_color} !important; outline: none !important; box-shadow: none !important; }}
+    div[data-testid="stPopover"] > button, div[data-testid="stPopover"] > div:first-child > button, div[data-testid="stPopover"] button[kind="secondary"]:first-of-type {{ width: {BTN_CAL_W}px !important; height: {BTN_CAL_H}px !important; min-height: {BTN_CAL_H}px !important; padding: 0 !important; border-radius: 8px !important; border: 1px solid {border_color} !important; background-color: {btn_bg} !important; color: {btn_txt} !important; display: flex !important; justify-content: center !important; align-items: center !important; position: absolute !important; top: 0 !important; left: 0 !important; z-index: 10 !important; transition: none !important; }}
+    
+    /* Forzamos a que el texto/emoji 📝 interno crezca al mismo tamaño del icono del calendario */
+    div[data-testid="stPopover"] > button p, div[data-testid="stPopover"] > div:first-child > button p, div[data-testid="stPopover"] button[kind="secondary"]:first-of-type p {{ font-size: {BTN_CAL_ICON_SIZE}px !important; margin: 0 !important; padding: 0 !important; line-height: 1 !important; }}
+    
+    /* Matamos el fondo oscuro/sombra negra al hacer click */
+    div[data-testid="stPopover"] > button:hover, div[data-testid="stPopover"] > div:first-child > button:hover, div[data-testid="stPopover"] button[kind="secondary"]:first-of-type:hover, 
+    div[data-testid="stPopover"] > button:focus, div[data-testid="stPopover"] > div:first-child > button:focus, div[data-testid="stPopover"] button[kind="secondary"]:first-of-type:focus, 
+    div[data-testid="stPopover"] > button:active, div[data-testid="stPopover"] > div:first-child > button:active, div[data-testid="stPopover"] button[kind="secondary"]:first-of-type:active {{ background-color: {btn_bg} !important; color: {btn_txt} !important; border: 1px solid {border_color} !important; outline: none !important; box-shadow: none !important; }}
     
     div[data-testid="stPopoverBody"] {{ background-color: {border_color} !important; border: 1px solid {border_color} !important; border-radius: 8px !important; padding: 15px !important; }}
     div[data-testid="stPopoverBody"]:has(h3) {{ width: 710px !important; max-width: 95vw !important; max-height: 85vh !important; margin-top: 100px !important; overflow-y: auto !important; box-shadow: 0 4px 20px rgba(0,0,0,0.3) !important; }}
@@ -759,7 +764,7 @@ with st.form(key=f"form_main_entry_{st.session_state.form_reset_key}", border=Fa
         
     with c_not:
         st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True) 
-        with st.popover("📝"):
+        with st.popover("📝", use_container_width=True):
             st.markdown("<h3 style='text-align:center; margin-top:0;'>Trade Details</h3>", unsafe_allow_html=True)
             
             nuevo_bias = st.radio("&nbsp; \n &nbsp; \n Bias", ['LONG', 'SHORT', 'NONE'], index=2, horizontal=True)
