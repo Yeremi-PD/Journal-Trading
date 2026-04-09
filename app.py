@@ -369,227 +369,42 @@ def reset_settings(category):
     for k in keys: s[k] = defaults[k]
 
 # ==========================================
-# 5. BARRA LATERAL (AJUSTES Y ADMIN)
+# 5. BARRA LATERAL (MENÚ PRINCIPAL)
 # ==========================================
 tamanio_texto_cuenta = "22px"
+st.sidebar.markdown(f"<div style='margin-top:-15px; font-size: {tamanio_texto_cuenta}; font-weight: bold;'>👤 My Account: <span style='color: #00C897;'>{usuario}</span></div>", unsafe_allow_html=True)
 
-st.sidebar.markdown(
-    f"<div style='margin-top:-15px; font-size: {tamanio_texto_cuenta}; font-weight: bold;'>"
-    f"👤 My Account: <span style='color: #00C897;'>{usuario}</span>"
-    f"</div>", 
-    unsafe_allow_html=True
-)
+st.sidebar.markdown("<br>", unsafe_allow_html=True)
 
-# --- NUEVO MENÚ DE NAVEGACIÓN ---
+# --- NUEVO MENÚ ESTILO DASHBOARD ---
 opciones_menu = ["📊 Dashboard", "📅 Calendar", "📓 Journal", "⚙️ Settings"]
 pagina_actual = st.sidebar.radio("Menu", opciones_menu, label_visibility="collapsed", key="menu_principal")
 
-st.sidebar.markdown("---")
-dispositivo_visual = st.sidebar.radio(
-    "Current Design:", 
-    ["🖥️ PC", "📱 Móvil"], 
-    index=0 if "PC" in st.session_state.dispositivo_actual else 1
-)
-
-st.session_state.dispositivo_actual = "PC" if "🖥️ PC" in dispositivo_visual else "Móvil"
-
-try: 
-    st.query_params["device"] = st.session_state.dispositivo_actual
-except: 
-    pass
-
-if st.sidebar.button("💾 Save Design Settings", use_container_width=True):
-    ctx_act = st.session_state.data_source_sel
-    bal_act = db_usuario[ctx_act]["balance"]
-    registrar_en_excel(usuario, db_global[usuario]["password"], ctx_act, datetime.now(), bal_act, 0.0, {}, db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
-    st.sidebar.success("✅ Settings Saved!")
-
-st.sidebar.markdown("---")
-st.sidebar.markdown("### 💼 Manage Accounts")
-
-with st.sidebar.expander("Manage Accounts"):
-    # --- 1. CREAR NUEVA CUENTA ---
-    st.markdown("**➕ Create New Account**")
-    nueva_cuenta_nombre = st.text_input("Account name", key="input_nombre_nueva_cta")
-    nueva_cuenta_bal = st.selectbox("Initial Balance", [25000.0, 50000.0, 100000.0], format_func=lambda x: f"${x:,.0f}", key="select_bal_nueva_cta")
-    
-    # Añadimos key="btn_crear_cta_sidebar"
-    if st.button("➕ Create Account", use_container_width=True, key="btn_crear_cta_sidebar"):
-        if nueva_cuenta_nombre and nueva_cuenta_nombre not in db_usuario:
-            db_usuario[nueva_cuenta_nombre] = {"balance": nueva_cuenta_bal, "trades": {}}
-            reescribir_excel_usuario(usuario)
-            st.success(f"Cuenta '{nueva_cuenta_nombre}' creada!")
-            st.rerun()
-        elif nueva_cuenta_nombre in db_usuario:
-            st.warning("Ese nombre ya existe.")
-
-
-    # --- 2. RESETEAR CUENTA ACTUAL ---
-    ctx_actual = st.session_state.data_source_sel
-    with st.expander(f"Reset {ctx_actual}"):
-        opciones_reset = {"$25,000": 25000.0, "$50,000": 50000.0, "$100,000": 100000.0}
-        seleccion_reset = st.radio("Select Initial Balance:", list(opciones_reset.keys()), key="radio_reset_sidebar")
-        nuevo_balance_reset = opciones_reset[seleccion_reset]
-        
-        if "confirm_reset" not in st.session_state: st.session_state.confirm_reset = False
-        
-        # Añadimos key="btn_solicitar_reset"
-        if st.button("🔄 Confirmar Reset", use_container_width=True, key="btn_solicitar_reset"):
-            st.session_state.confirm_reset = True
-            
-        if st.session_state.confirm_reset:
-            st.warning(f"⚠️ ¿Resetear {ctx_actual}?")
-            cr_yes, cr_no = st.columns(2)
-            # Añadimos keys únicas a los botones de confirmación
-            if cr_yes.button("SÍ, RESET", key="btn_si_reset_final"):
-                db_usuario[ctx_actual]["balance"] = nuevo_balance_reset
-                db_usuario[ctx_actual]["trades"] = {}
-                reescribir_excel_usuario(usuario)
-                st.session_state.confirm_reset = False
-                st.rerun()
-            if cr_no.button("NO", key="btn_no_reset_final"):
-                st.session_state.confirm_reset = False
-                st.rerun()
-
-
-    # --- 3. ELIMINAR CUENTA ---
-    with st.expander("🗑️ Delete Account"):
-        cuenta_a_borrar = st.selectbox("Select account to delete", list(db_usuario.keys()), key="select_eliminar_cta")
-        
-        if "confirm_delete_acc" not in st.session_state: 
-            st.session_state.confirm_delete_acc = False
-        
-        # Añadimos key="btn_solicitar_borrado"
-        if st.button("🗑️ Eliminar Selección", use_container_width=True, key="btn_solicitar_borrado"):
-            if len(db_usuario) <= 1:
-                st.error("No puedes eliminar tu única cuenta.")
-            else:
-                st.session_state.confirm_delete_acc = True
-                
-        if st.session_state.confirm_delete_acc:
-            st.warning(f"⚠️ ¿Borrar '{cuenta_a_borrar}'?")
-            cd_yes, cd_no = st.columns(2)
-            # Añadimos keys únicas a los botones de confirmación de borrado
-            if cd_yes.button("SÍ, BORRAR", key="btn_si_borrar_final"):
-                del db_usuario[cuenta_a_borrar]
-                if st.session_state.data_source_sel == cuenta_a_borrar:
-                    st.session_state.data_source_sel = list(db_usuario.keys())[0]
-                reescribir_excel_usuario(usuario)
-                st.session_state.confirm_delete_acc = False
-                st.rerun()
-            if cd_no.button("CANCELAR", key="btn_no_borrar_final"):
-                st.session_state.confirm_delete_acc = False
-                st.rerun()
-st.sidebar.markdown("---")
-
-# --- AJUSTA LOS TAMAÑOS AQUÍ A TU ANTOJO ---
-tamanio_titulo = "18px"    # Tamaño del texto "Current Design:"
-tamanio_opciones = "16px"  # Tamaño del texto "🖥️ PC" y "📱 Móvil"
-
-# Inyectamos el CSS personalizado para la barra lateral
-st.sidebar.markdown(f"""
+# CSS para ocultar los círculos del radio button y que parezcan botones
+st.sidebar.markdown("""
     <style>
-    /* Cambia el tamaño del título del radio */
-    section[data-testid="stSidebar"] div[data-testid="stRadio"] > label p {{
-        font-size: {tamanio_titulo} !important;
-        font-weight: bold !important;
-    }}
-    /* Cambia el tamaño de las opciones del radio */
-    section[data-testid="stSidebar"] div[data-testid="stRadio"] div[role="radiogroup"] label p {{
-        font-size: {tamanio_opciones} !important;
-    }}
+    [data-testid="stSidebar"] div[role="radiogroup"] div[role="radio"] > div:first-child { display: none !important; }
+    [data-testid="stSidebar"] div[role="radiogroup"] div[role="radio"] { padding: 12px 15px !important; border-radius: 8px !important; margin-bottom: 2px !important; transition: 0.2s !important; }
+    [data-testid="stSidebar"] div[role="radiogroup"] div[role="radio"]:hover { background-color: rgba(150, 150, 150, 0.1) !important; }
+    [data-testid="stSidebar"] div[role="radiogroup"] div[role="radio"][aria-checked="true"] { background-color: rgba(0, 200, 151, 0.1) !important; border-left: 4px solid #00C897 !important; }
+    [data-testid="stSidebar"] div[role="radiogroup"] div[role="radio"][aria-checked="true"] p { color: #00C897 !important; font-weight: 800 !important; }
+    [data-testid="stSidebar"] div[role="radiogroup"] div[role="radio"] p { font-size: 16px !important; font-weight: 600 !important; }
     </style>
 """, unsafe_allow_html=True)
 
-st.sidebar.markdown("### 🌓 Theme")
-
-texto_boton_tema = "🌙 Switch to Dark Theme" if st.session_state.tema == "Claro" else "☀️ Switch to Light Theme"
-if st.sidebar.button(texto_boton_tema):
-    st.session_state.tema = "Oscuro" if st.session_state.tema == "Claro" else "Claro"
-    st.rerun()
-        
-st.sidebar.markdown("---")
-st.sidebar.markdown("### 🛡️ Admin")
-with st.sidebar.expander("🛡️ Admin Settings"):
-    admin_pass = st.text_input("Admin Password", type="password")
-    
-    @st.dialog("⚠️ Confirmar Acción")
-    def ventana_borrar_usuario(u):
-        st.write(f"¿Seguro que quieres borrar permanentemente al usuario **{u}**?")
-        if st.button("SÍ, BORRAR USUARIO", type="primary", use_container_width=True):
-            del db_global[u]
-            if st.session_state.usuario_actual == u: 
-                st.session_state.usuario_actual = None
-                try: st.query_params.clear()
-                except: pass
-            st.rerun()
-
-    if admin_pass == "Yfutures.":
-        st.success("Acceso concedido.")
-        for u, data in list(db_global.items()):
-            col_u, col_p, col_btn = st.columns([2, 2, 1])
-            col_u.write(f"**{u}**")
-            col_p.write(f"{data['password']}")
-            if col_btn.button("❌", key=f"del_{u}"):
-                ventana_borrar_usuario(u)
-
-st.sidebar.markdown("---")
-with st.sidebar.expander("🖥️ Dashboard Settings"):
-    if st.button("🔄 Reset Dashboard", key="res_dash", use_container_width=True): reset_settings("dash"); st.rerun()
-    user_settings["bal_num_sz"] = st.slider("Balance Numbers Size", 10, 60, user_settings["bal_num_sz"])
-    user_settings["bal_box_w"] = st.slider("Green Background Width (%)", 10, 100, user_settings["bal_box_w"])
-    user_settings["bal_box_pad"] = st.slider("Green Background Height (Padding)", 0, 50, user_settings["bal_box_pad"])
-
-with st.sidebar.expander("🔠 Text & Chart Settings"):
-    if st.button("🔄 Reset Texts & Charts", key="res_txt", use_container_width=True): reset_settings("txt"); st.rerun()
-    user_settings["size_top_stats"] = st.slider("Monthly P&L and Win Rate Size (Top)", 10, 40, user_settings["size_top_stats"])
-    user_settings["size_card_titles"] = st.slider("Titles Size (All-Time, etc)", 10, 40, user_settings["size_card_titles"])
-    user_settings["size_box_titles"] = st.slider("Titles Size (Week/Month)", 10, 40, user_settings["size_box_titles"])
-    user_settings["size_box_vals"] = st.slider("P&L Boxes Size", 10, 50, user_settings["size_box_vals"])
-    user_settings["size_box_pct"] = st.slider("% Boxes Size", 10, 40, user_settings["size_box_pct"])
-    user_settings["size_box_wl"] = st.slider("W/L Boxes Size", 10, 40, user_settings["size_box_wl"])
-    user_settings["pie_size"] = st.slider("Pie Chart Size", 50, 300, user_settings["pie_size"])
-    user_settings["pie_y_offset"] = st.slider("Chart Vertical Position (Up/Down)", -100, 100, user_settings["pie_y_offset"])
-
-with st.sidebar.expander("📅 Calendar Settings"):
-    if st.button("🔄 Reset Calendar", key="res_cal", use_container_width=True): reset_settings("cal"); st.rerun()
-    user_settings["cal_mes_size"] = st.slider("Month Size (Title)", 10, 50, user_settings["cal_mes_size"])
-    user_settings["cal_pnl_size"] = st.slider("Day P&L Size", 10, 40, user_settings["cal_pnl_size"])
-    user_settings["cal_pct_size"] = st.slider("Day % Size", 10, 30, user_settings["cal_pct_size"])
-    user_settings["cal_dia_size"] = st.slider("Day Number Size", 10, 30, user_settings["cal_dia_size"])
-    user_settings["cal_cam_size"] = st.slider("Camera Icon Size", 10, 50, user_settings["cal_cam_size"])
-    user_settings["cal_note_size"] = st.slider("Note Icon Size", 10, 50, user_settings.get("cal_note_size", 30))
-    user_settings["note_lbl_size"] = st.slider("Note Labels Size (Bias, RR...)", 10, 40, user_settings.get("note_lbl_size", 16))
-    user_settings["note_val_size"] = st.slider("Note Values Size", 10, 40, user_settings.get("note_val_size", 16))
-    user_settings["cal_scale"] = st.slider("General Scale (Calendar Height)", 50, 200, user_settings["cal_scale"])
-    user_settings["cal_line_height"] = st.slider("Height Between Texts (Spacing)", 0.5, 3.0, user_settings["cal_line_height"], 0.1)
-    user_settings["cal_txt_y"] = st.slider("Day Text Vertical Position", -50, 50, user_settings.get("cal_txt_y", 0))
-    user_settings["cal_txt_pad"] = st.slider("Day Content Top Padding", -50, 50, user_settings.get("cal_txt_pad", 0))
-
-# ==========================================
-# ESPACIO PARA EMPUJAR LOS BOTONES HACIA ABAJO
-# Cambia "250px" por un número mayor (ej. 350px, 500px) si quieres bajarlos aún más.
-# ==========================================
-st.sidebar.markdown("<div style='margin-top: 0px;'></div>", unsafe_allow_html=True)
-
-# BOTÓN DE SINCRONIZACIÓN FORZADA
-st.sidebar.markdown("---")
-st.sidebar.markdown("### ↻ Sync with Google Sheets")
-if st.sidebar.button("↻ Force Sync with Google Sheets", use_container_width=True):
-    get_global_db.clear()
-    st.rerun()
-
-st.sidebar.markdown("<br>", unsafe_allow_html=True) # Pequeño espacio entre los botones
-
-# BOTÓN DE CERRAR SESIÓN
-st.sidebar.markdown("---")
+# Botón de Logout al fondo
+st.sidebar.markdown("<div style='margin-top: 50vh;'></div>", unsafe_allow_html=True)
 if st.sidebar.button("🚪 Log Out", use_container_width=True): 
     st.session_state.usuario_actual = None
     try: st.query_params.clear()
     except: pass
     st.rerun()
 
-
+# --- VARIABLES GLOBALES NECESARIAS PARA TODAS LAS PÁGINAS ---
+ctx = st.session_state.data_source_sel
+bal_actual = db_usuario[ctx]["balance"]
+anio_sel = st.session_state.cal_year
+mes_sel = st.session_state.cal_month
 # ==========================================
 # 6. ASIGNACIÓN DE COLORES Y CSS
 # ==========================================
@@ -850,9 +665,10 @@ st.markdown(f"""
     """, unsafe_allow_html=True)
 
 # ==========================================
-# 8. HEADER (BARRA SUPERIOR)
+# 8. HEADER Y ENTRADA
 # ==========================================
-col_t, col_fil, col_data, col_bal = st.columns([3, 1.5, 1.5, 2])
+if pagina_actual == "📊 Dashboard" or pagina_actual == "📅 Calendar":
+    col_t, col_fil, col_data, col_bal = st.columns([3, 1.5, 1.5, 2])
 
 with col_t: 
     st.markdown(f'<p class="dashboard-title">{TXT_DASHBOARD}</p>', unsafe_allow_html=True)
@@ -1347,7 +1163,8 @@ with col_det:
 # ==========================================
 # 11 Y 12. TABLAS Y EDICIÓN A LA MITAD (COLUMNAS)
 # ==========================================
-st.markdown("<br>", unsafe_allow_html=True)
+elif pagina_actual == "📓 Journal":
+    st.markdown("<br>", unsafe_allow_html=True)
 st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
 
 col_mitad_1, col_mitad_2 = st.columns(2)
@@ -1609,9 +1426,133 @@ with col_mitad_2:
 </div>"""
                 st.markdown(tabla_html, unsafe_allow_html=True)
 
-# ==========================================
-# SCRIPT PARA CERRAR MODALES Y BLOQUEAR TECLADO
-# ==========================================
+elif pagina_actual == "⚙️ Settings":
+    st.markdown("<h2 style='color: #00C897; font-weight: 800; margin-top: -20px;'>⚙️ Settings & Configurations</h2>", unsafe_allow_html=True)
+    st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
+    
+    st.markdown("### 💼 Manage Accounts")
+    col_acc1, col_acc2, col_acc3 = st.columns(3)
+    
+    with col_acc1:
+        with st.container(border=True):
+            st.markdown("**➕ Create New Account**")
+            nueva_cuenta_nombre = st.text_input("Account name", key="input_nombre_nueva_cta")
+            nueva_cuenta_bal = st.selectbox("Initial Balance", [25000.0, 50000.0, 100000.0], format_func=lambda x: f"${x:,.0f}", key="select_bal_nueva_cta")
+            if st.button("➕ Create Account", use_container_width=True, key="btn_crear_cta"):
+                if nueva_cuenta_nombre and nueva_cuenta_nombre not in db_usuario:
+                    db_usuario[nueva_cuenta_nombre] = {"balance": nueva_cuenta_bal, "trades": {}}
+                    reescribir_excel_usuario(usuario)
+                    st.success(f"Cuenta '{nueva_cuenta_nombre}' creada!")
+                    st.rerun()
+                elif nueva_cuenta_nombre in db_usuario:
+                    st.warning("Ese nombre ya existe.")
+    
+    with col_acc2:
+        with st.container(border=True):
+            ctx_actual = st.session_state.data_source_sel
+            st.markdown(f"**🔄 Reset {ctx_actual}**")
+            opciones_reset = {"$25,000": 25000.0, "$50,000": 50000.0, "$100,000": 100000.0}
+            seleccion_reset = st.radio("Select Initial Balance:", list(opciones_reset.keys()), key="radio_reset")
+            nuevo_balance_reset = opciones_reset[seleccion_reset]
+            
+            if "confirm_reset" not in st.session_state: st.session_state.confirm_reset = False
+            if st.button("🔄 Confirmar Reset", use_container_width=True, key="btn_solicitar_reset"): st.session_state.confirm_reset = True
+            
+            if st.session_state.confirm_reset:
+                cr_yes, cr_no = st.columns(2)
+                if cr_yes.button("SÍ, RESET", key="btn_si_reset"):
+                    db_usuario[ctx_actual]["balance"] = nuevo_balance_reset
+                    db_usuario[ctx_actual]["trades"] = {}
+                    reescribir_excel_usuario(usuario)
+                    st.session_state.confirm_reset = False
+                    st.rerun()
+                if cr_no.button("NO", key="btn_no_reset"):
+                    st.session_state.confirm_reset = False; st.rerun()
+                    
+    with col_acc3:
+        with st.container(border=True):
+            st.markdown("**🗑️ Delete Account**")
+            cuenta_a_borrar = st.selectbox("Select account to delete", list(db_usuario.keys()), key="select_eliminar_cta")
+            if "confirm_delete_acc" not in st.session_state: st.session_state.confirm_delete_acc = False
+            if st.button("🗑️ Eliminar Selección", use_container_width=True, key="btn_solicitar_borrado"):
+                if len(db_usuario) <= 1: st.error("No puedes eliminar tu única cuenta.")
+                else: st.session_state.confirm_delete_acc = True
+                
+            if st.session_state.confirm_delete_acc:
+                cd_yes, cd_no = st.columns(2)
+                if cd_yes.button("SÍ, BORRAR", key="btn_si_borrar"):
+                    del db_usuario[cuenta_a_borrar]
+                    if st.session_state.data_source_sel == cuenta_a_borrar: st.session_state.data_source_sel = list(db_usuario.keys())[0]
+                    reescribir_excel_usuario(usuario)
+                    st.session_state.confirm_delete_acc = False
+                    st.rerun()
+                if cd_no.button("NO", key="btn_no_borrar"):
+                    st.session_state.confirm_delete_acc = False; st.rerun()
+
+    st.markdown("---")
+    col_set1, col_set2 = st.columns(2)
+    
+    with col_set1:
+        st.markdown("### 🌓 Theme & Device")
+        with st.container(border=True):
+            texto_boton_tema = "🌙 Switch to Dark Theme" if st.session_state.tema == "Claro" else "☀️ Switch to Light Theme"
+            if st.button(texto_boton_tema, use_container_width=True):
+                st.session_state.tema = "Oscuro" if st.session_state.tema == "Claro" else "Claro"
+                st.rerun()
+            
+            st.markdown("<br>", unsafe_allow_html=True)
+            dispositivo_visual = st.radio("Current Design:", ["🖥️ PC", "📱 Móvil"], index=0 if "PC" in st.session_state.dispositivo_actual else 1, horizontal=True)
+            st.session_state.dispositivo_actual = "PC" if "🖥️ PC" in dispositivo_visual else "Móvil"
+            try: st.query_params["device"] = st.session_state.dispositivo_actual
+            except: pass
+            
+            if st.button("💾 Save Design Settings", use_container_width=True):
+                ctx_act = st.session_state.data_source_sel
+                bal_act = db_usuario[ctx_act]["balance"]
+                registrar_en_excel(usuario, db_global[usuario]["password"], ctx_act, datetime.now(), bal_act, 0.0, {}, db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
+                st.success("✅ Settings Saved!")
+                
+        st.markdown("### 🛡️ Admin & Sync")
+        with st.container(border=True):
+            if st.button("↻ Force Sync with Google Sheets", use_container_width=True): get_global_db.clear(); st.rerun()
+            st.markdown("<br>", unsafe_allow_html=True)
+            with st.expander("🛡️ Admin Panel"):
+                admin_pass = st.text_input("Admin Password", type="password")
+                if admin_pass == "Yfutures.":
+                    st.success("Acceso concedido.")
+                    for u, data in list(db_global.items()):
+                        col_u, col_p, col_btn = st.columns([2, 2, 1])
+                        col_u.write(f"**{u}**"); col_p.write(f"{data['password']}")
+                        if col_btn.button("❌", key=f"del_{u}"):
+                            del db_global[u]; st.rerun()
+    
+    with col_set2:
+        st.markdown("### 🖥️ Display Settings")
+        with st.container(border=True):
+            with st.expander("🖥️ Dashboard Settings"):
+                if st.button("🔄 Reset Dashboard", key="res_dash", use_container_width=True): reset_settings("dash"); st.rerun()
+                user_settings["bal_num_sz"] = st.slider("Balance Numbers Size", 10, 60, user_settings["bal_num_sz"])
+                user_settings["bal_box_w"] = st.slider("Green Background Width (%)", 10, 100, user_settings["bal_box_w"])
+                user_settings["bal_box_pad"] = st.slider("Green Background Height (Padding)", 0, 50, user_settings["bal_box_pad"])
+
+            with st.expander("🔠 Text & Chart Settings"):
+                if st.button("🔄 Reset Texts & Charts", key="res_txt", use_container_width=True): reset_settings("txt"); st.rerun()
+                user_settings["size_top_stats"] = st.slider("Monthly P&L Size", 10, 40, user_settings["size_top_stats"])
+                user_settings["size_card_titles"] = st.slider("Titles Size (All-Time)", 10, 40, user_settings["size_card_titles"])
+                user_settings["size_box_titles"] = st.slider("Titles Size (Week)", 10, 40, user_settings["size_box_titles"])
+                user_settings["size_box_vals"] = st.slider("P&L Boxes Size", 10, 50, user_settings["size_box_vals"])
+                user_settings["size_box_pct"] = st.slider("% Boxes Size", 10, 40, user_settings["size_box_pct"])
+                user_settings["size_box_wl"] = st.slider("W/L Boxes Size", 10, 40, user_settings["size_box_wl"])
+                user_settings["pie_size"] = st.slider("Chart Size", 50, 300, user_settings["pie_size"])
+                user_settings["pie_y_offset"] = st.slider("Chart Vertical Position", -100, 100, user_settings["pie_y_offset"])
+
+            with st.expander("📅 Calendar Settings"):
+                if st.button("🔄 Reset Calendar", key="res_cal", use_container_width=True): reset_settings("cal"); st.rerun()
+                user_settings["cal_mes_size"] = st.slider("Month Size", 10, 50, user_settings["cal_mes_size"])
+                user_settings["cal_pnl_size"] = st.slider("Day P&L Size", 10, 40, user_settings["cal_pnl_size"])
+                user_settings["cal_pct_size"] = st.slider("Day % Size", 10, 30, user_settings["cal_pct_size"])
+                user_settings["cal_dia_size"] = st.slider("Day Number Size", 10, 30, user_settings["cal_dia_size"])
+                user_settings["cal_scale"] = st.slider("Calendar Height", 50, 200, user_settings["cal_scale"])
 components.html("""
 <style>
 /* FIX: Centrar el texto del Balance Verticalmente */
