@@ -1485,7 +1485,7 @@ doc.addEventListener('keydown', function(e) {
     }
 });
 
-// 2. Bloquear teclado móvil
+// 2. Bloquear teclado móvil en Filtros, Data Source y Calendario
 function bloquearTeclado() {
     const inputs = doc.querySelectorAll('div[data-testid="stSelectbox"] input, div[data-testid="stDateInput"] input');
     inputs.forEach(input => {
@@ -1499,9 +1499,9 @@ bloquearTeclado();
 const observer = new MutationObserver(bloquearTeclado);
 observer.observe(doc.body, { childList: true, subtree: true });
 
-// 3. BOTÓN DE CAPTURA DE PANTALLA FLOTANTE (VERSIÓN FULL PAGE + iOS)
+// 3. BOTÓN DE CAPTURA DE PANTALLA FLOTANTE
 if (!doc.getElementById('btn-screenshot-global')) {
-    // A) Cargar librería mágica html2canvas
+    // A) Cargar librería mágica html2canvas en la página principal
     const script = doc.createElement('script');
     script.src = "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js";
     doc.head.appendChild(script);
@@ -1511,10 +1511,10 @@ if (!doc.getElementById('btn-screenshot-global')) {
     btn.id = 'btn-screenshot-global';
     btn.innerHTML = '📸 Capturar';
     
-    // C) Estilos: Bajado 50px y pegado a la derecha
+    // C) Estilos: Pegado arriba a la derecha, con borde redondeado abajo a la izquierda
     Object.assign(btn.style, {
         position: 'fixed',
-        top: '50px', /* Bajado 50px como pediste */
+        top: '0px',
         right: '0px',
         zIndex: '9999999',
         backgroundColor: '#00C897',
@@ -1522,7 +1522,6 @@ if (!doc.getElementById('btn-screenshot-global')) {
         border: 'none',
         padding: '8px 15px',
         borderBottomLeftRadius: '12px',
-        borderTopLeftRadius: '12px',
         fontWeight: '900',
         fontSize: '14px',
         cursor: 'pointer',
@@ -1541,84 +1540,32 @@ if (!doc.getElementById('btn-screenshot-global')) {
             return;
         }
         
-        btn.style.display = 'none'; // Ocultar botón para la foto
+        // Escondemos el botón para que no arruine la foto
+        btn.style.display = 'none';
         
-        // TRUCO PARA PANTALLA COMPLETA: Liberar los límites de Streamlit
-        const stApp = doc.querySelector('.stApp');
-        const stViewContainer = doc.querySelector('[data-testid="stAppViewContainer"]');
-        const main = doc.querySelector('.main') || doc.body;
+        // Apuntamos a la App principal para la captura
+        const target = doc.querySelector('.stApp') || doc.body;
         
-        // Guardar estilos originales
-        const origAppHeight = stApp ? stApp.style.height : '';
-        const origAppOverflow = stApp ? stApp.style.overflow : '';
-        const origViewOverflow = stViewContainer ? stViewContainer.style.overflow : '';
-        
-        // Forzar a la página a "desenrollarse" completa
-        if(stApp) { stApp.style.height = 'auto'; stApp.style.overflow = 'visible'; }
-        if(stViewContainer) { stViewContainer.style.overflow = 'visible'; }
-        
-        // Detectar si es iOS (iPhone/iPad)
-        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-        
-        window.parent.html2canvas(main, {
+        window.parent.html2canvas(target, {
             useCORS: true,
             allowTaint: true,
-            scale: isIOS ? 1 : 2, // iOS no soporta fotos tan masivas, bajamos a scale 1
-            windowHeight: main.scrollHeight // Forzamos que lea el alto total
+            scale: 2 // Escala x2 para alta resolución
         }).then(canvas => {
-            // Restaurar la página a la normalidad
-            if(stApp) { stApp.style.height = origAppHeight; stApp.style.overflow = origAppOverflow; }
-            if(stViewContainer) { stViewContainer.style.overflow = origViewOverflow; }
-            btn.style.display = 'block'; // Mostrar botón de nuevo
+            btn.style.display = 'block'; // Lo volvemos a mostrar
             
-            const imgData = canvas.toDataURL('image/png');
-            
-            if (isIOS) {
-                // SOLUCIÓN NATIVA PARA iOS: Mostrar la imagen para mantener presionado y guardar
-                const overlay = doc.createElement('div');
-                Object.assign(overlay.style, {
-                    position: 'fixed', top: '0', left: '0', width: '100%', height: '100%',
-                    backgroundColor: 'rgba(0,0,0,0.95)', zIndex: '99999999',
-                    display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'
-                });
-                
-                const msg = doc.createElement('div');
-                msg.innerHTML = "Mantén presionada la imagen para guardarla ⬇️<br><button id='close-ss' style='margin-top:15px; padding:8px 20px; background:#FF4C4C; color:white; border:none; border-radius:8px; font-weight:bold; font-size:16px;'>✖ Cerrar</button>";
-                msg.style.color = "white";
-                msg.style.textAlign = "center";
-                msg.style.marginBottom = "15px";
-                msg.style.fontWeight = "bold";
-                msg.style.fontSize = "16px";
-                
-                const img = doc.createElement('img');
-                img.src = imgData;
-                img.style.maxWidth = '90%';
-                img.style.maxHeight = '75%';
-                img.style.border = '2px solid #00C897';
-                img.style.borderRadius = '8px';
-                
-                overlay.appendChild(msg);
-                overlay.appendChild(img);
-                doc.body.appendChild(overlay);
-                
-                doc.getElementById('close-ss').onclick = () => overlay.remove();
-            } else {
-                // Descarga automática normal para PC / Android
-                const link = doc.createElement('a');
-                const fecha = new Date().toISOString().slice(0,10);
-                link.download = 'Journal_Full_Screenshot_' + fecha + '.png';
-                link.href = imgData;
-                link.click();
-            }
+            // Creamos un link fantasma para descargar la imagen
+            const link = doc.createElement('a');
+            const fecha = new Date().toISOString().slice(0,10);
+            link.download = 'Journal_Screenshot_' + fecha + '.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
         }).catch(err => {
-            // Restaurar en caso de error
-            if(stApp) { stApp.style.height = origAppHeight; stApp.style.overflow = origAppOverflow; }
-            if(stViewContainer) { stViewContainer.style.overflow = origViewOverflow; }
             btn.style.display = 'block';
             console.error("Error al capturar la pantalla: ", err);
         });
     };
 
+    // E) Lo inyectamos en la pantalla
     doc.body.appendChild(btn);
 }
 </script>
