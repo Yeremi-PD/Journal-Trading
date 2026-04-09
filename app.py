@@ -1540,7 +1540,7 @@ bloquearTeclado();
 const observer = new MutationObserver(bloquearTeclado);
 observer.observe(doc.body, { childList: true, subtree: true });
 
-// 3. BOTÓN DE CAPTURA DE PANTALLA FLOTANTE (Optimizado Móvil + Botón Gigante + Página Completa + Fix de Texto/Despliegue)
+// 3. BOTÓN DE CAPTURA DE PANTALLA FLOTANTE (Full Page real, Fix Texto, Fix Alignment, Optimizado Móvil)
 if (!doc.getElementById('btn-screenshot-global')) {
     const script = doc.createElement('script');
     script.src = "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js";
@@ -1550,7 +1550,7 @@ if (!doc.getElementById('btn-screenshot-global')) {
     btn.id = 'btn-screenshot-global';
     btn.innerHTML = '📸 Capturar';
     
-    // Botón MUCHO más grande
+    // Botón Gigante y optimizado para móviles
     Object.assign(btn.style, {
         position: 'fixed',
         top: '0px',
@@ -1559,16 +1559,16 @@ if (!doc.getElementById('btn-screenshot-global')) {
         backgroundColor: '#00C897',
         color: '#ffffff',
         border: 'none',
-        padding: '18px 32px', // Más relleno
+        padding: '18px 32px',
         borderBottomLeftRadius: '20px',
         fontWeight: '900',
-        fontSize: '26px', // Texto más grande
+        fontSize: '26px',
         cursor: 'pointer',
         boxShadow: '-2px 2px 10px rgba(0,0,0,0.3)',
         transition: 'all 0.3s ease',
         webkitTransform: 'translateZ(0)',
         transform: 'translateZ(0)',
-        touchAction: 'manipulation' // Ayuda a que el "tap" en móviles sea inmediato
+        touchAction: 'manipulation'
     });
 
     btn.onmouseover = () => btn.style.backgroundColor = '#00a87d';
@@ -1583,23 +1583,51 @@ if (!doc.getElementById('btn-screenshot-global')) {
             return;
         }
         
-        btn.style.display = 'none';
+        btn.innerHTML = '📸 Procesando...';
+        btn.style.pointerEvents = 'none';
+        btn.style.opacity = '0'; // Ocultamos el botón para que no salga en la foto
         
         // Detectamos si es móvil/iOS
         const isMobile = window.parent.innerWidth < 768 || /iPad|iPhone|iPod/.test(window.parent.navigator.userAgent);
         
-        // Apuntamos al contenedor real que guarda el contenido (block-container)
-        const target = doc.querySelector('.stApp');
+        // Apuntamos al contenedor real del contenido (block-container)
+        const target = doc.querySelector('.block-container') || doc.querySelector('[data-testid="stMainBlockContainer"]');
         
-        const computedBgColor = target ? window.parent.getComputedStyle(target).backgroundColor : '#1A202C';
-        const originalStyle = target.style.cssText;
+        // Identificamos las capas de Streamlit que hacen el scroll falso
+        const stApp = doc.querySelector('.stApp');
+        const stAppView = doc.querySelector('[data-testid="stAppViewContainer"]');
+        const stMain = doc.querySelector('.main') || doc.querySelector('[data-testid="stMain"]');
         
-        // Forzamos la expansión de altura total
-        target.style.cssText += 'max-width: 100% !important; padding-bottom: 50px !important; overflow: visible !important; height: auto !important;';
+        const computedBgColor = stApp ? window.parent.getComputedStyle(stApp).backgroundColor : '#1A202C';
+        
+        const cssAppView = stAppView ? stAppView.style.cssText : '';
+        const cssMain = stMain ? stMain.style.cssText : '';
+        const cssTarget = target ? target.style.cssText : '';
+
+        // FIX TEXTO: Justo antes de la foto, forzamos que TODOS los botones tengan texto blanco y visible
+        const stButtons = doc.querySelectorAll('div[data-testid="stButton"] button, button[kind="secondary"], .stdDateInput button');
+        stButtons.forEach(btnEl => {
+            btnEl.style.setProperty('color', '#ffffff', 'important');
+            btnEl.style.setProperty('opacity', '1', 'important');
+        });
+
+        // MAGIA FULL PAGE: Rompemos las cajas de Streamlit para liberar todo el contenido hacia abajo
+        if (stAppView) stAppView.style.setProperty('overflow', 'visible', 'important');
+        if (stMain) {
+            stMain.style.setProperty('overflow', 'visible', 'important');
+            stMain.style.setProperty('height', 'auto', 'important');
+        }
+        if (target) {
+            target.style.setProperty('overflow', 'visible', 'important');
+            target.style.setProperty('height', 'auto', 'important');
+            target.style.setProperty('max-width', '100%', 'important'); // Asegura que las tablas no se corten a lo ancho
+        }
+        
+        // Subimos el scroll arriba de todo
         window.parent.scrollTo(0, 0);
         
-        // Añadimos un pequeño retraso para asegurar que todo esté estabilizado
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        // Damos un retraso mayor (1.5 segundos) para asegurar que el diseño se asiente hasta el fondo
+        await new Promise(resolve => setTimeout(resolve, 1500));
         
         try {
             // Si es móvil, bajamos la escala a 1 para no crashear la memoria del iPhone
@@ -1611,14 +1639,15 @@ if (!doc.getElementById('btn-screenshot-global')) {
                 scale: canvasScale, 
                 scrollY: 0,
                 backgroundColor: computedBgColor,
+                windowWidth: target.scrollWidth,
                 windowHeight: target.scrollHeight,
-                height: target.scrollHeight
+                height: target.scrollHeight // Obliga a leer toda la altura calculada
             });
             
             const imgData = canvas.toDataURL('image/png');
             
             if (isMobile) {
-                // EN MÓVIL: Mostramos la imagen en pantalla para que la guarden presionándola
+                // EN MÓVIL: Mostramos la imagen en pantalla para que la guarden presionándola (estándar iOS/Android)
                 const overlay = doc.createElement('div');
                 overlay.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.95);z-index:99999999;display:flex;flex-direction:column;align-items:center;justify-content:center;';
                 
@@ -1644,7 +1673,7 @@ if (!doc.getElementById('btn-screenshot-global')) {
                 // EN PC: Descarga automática normal
                 const link = doc.createElement('a');
                 const fecha = new Date().toISOString().slice(0,10);
-                link.download = 'Journal_Screenshot_' + fecha + '.png';
+                link.download = 'Journal_' + fecha + '.png';
                 link.href = imgData;
                 link.click();
             }
@@ -1653,10 +1682,20 @@ if (!doc.getElementById('btn-screenshot-global')) {
             alert("Hubo un error al capturar: " + err.message);
             console.error("Error html2canvas: ", err);
         } finally {
-            // Regresamos el contenedor a la normalidad
-            target.style.cssText = originalStyle;
+            // Restauramos los estilos originales para que la app funcione normal con scroll
+            if (stAppView) stAppView.style.cssText = cssAppView;
+            if (stMain) stMain.style.cssText = cssMain;
+            if (target) target.style.cssText = cssTarget;
+            
+            // Regresamos el texto de los botones al color dinámico
+            stButtons.forEach(btnEl => {
+                btnEl.style.removeProperty('color');
+                btnEl.style.removeProperty('opacity');
+            });
+            
             btn.innerHTML = '📸 Capturar';
-            btn.style.display = 'block';
+            btn.style.pointerEvents = 'auto';
+            btn.style.opacity = '1';
         }
     };
 
