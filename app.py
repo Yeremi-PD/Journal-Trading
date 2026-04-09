@@ -830,11 +830,11 @@ with st.form(key=f"form_main_entry_{st.session_state.form_reset_key}", clear_on_
             nuevo_corr = st.text_area("Corrections", value='', height=50)
             nuevo_emo = st.text_area("Emotions", value='', height=50)
             
-            # RISK (Comprimido a la izquierda)
-            st.markdown("<div style='font-weight: 900; font-size: 114px; margin-top: 5px; margin-bottom: 0px;'>Risk</div>", unsafe_allow_html=True)
+            # RISK (Con un poco más de separación entre las opciones)
+            st.markdown("<div style='font-weight: 900; font-size: 14px; margin-top: 5px; margin-bottom: 0px;'>Risk</div>", unsafe_allow_html=True)
             risk_opts = ['1%', '0.9%', '0.8%', '0.7%', '0.6%', '0.5%', '0.4%']
             nuevo_risk_list = []
-            cols_risk = st.columns([1, 1, 1, 1, 1, 1, 1, 2])
+            cols_risk = st.columns([1.2, 1.2, 1.2, 1.2, 1.2, 1.2, 1.2, 0.5])
             for idx, op in enumerate(risk_opts):
                 if cols_risk[idx].checkbox(op, key=f"new_risk_{idx}"): nuevo_risk_list.append(op)
             nuevo_risk = ", ".join(nuevo_risk_list) if nuevo_risk_list else ""
