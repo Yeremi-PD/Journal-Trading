@@ -430,7 +430,7 @@ with st.sidebar.expander(f"🔄 Reset {ctx_actual}"):
         st.session_state.confirm_reset = True
         
     if st.session_state.confirm_reset:
-        st.warning(f"⚠️ ¿Borrar historial y establecer balance en {seleccion_reset}?")
+        st.warning(f"⚠️ Restablecer balance a {seleccion_reset}?")
         c_yes, c_no = st.columns(2)
         if c_yes.button("SÍ, RESETEAR"):
             db_usuario[ctx_actual]["balance"] = nuevo_balance_reset
