@@ -1349,21 +1349,25 @@ doc.addEventListener('keydown', function(e) {
     }
 });
 
-// 2. Bloquear teclado móvil en los Filtros y Data Source
+// 2. Bloquear teclado móvil en Filtros, Data Source y Calendario
 function bloquearTeclado() {
-    const inputs = doc.querySelectorAll('div[data-testid="stSelectbox"] input');
+    // Añadimos el calendario (stDateInput) a la lista para bloquear su teclado
+    const inputs = doc.querySelectorAll('div[data-testid="stSelectbox"] input, div[data-testid="stDateInput"] input');
     inputs.forEach(input => {
-        // "inputmode none" le dice a iOS y Android que NO abran el teclado virtual
+        // Bloqueamos el teclado
         input.setAttribute('inputmode', 'none'); 
-        input.setAttribute('readonly', 'true'); // Refuerzo extra
+        input.setAttribute('readonly', 'true'); 
+        
+        // Hacemos que el toque en el celular sea totalmente transparente (quita el destello gris/azul)
+        input.style.webkitTapHighlightColor = 'transparent';
+        input.style.outline = 'none';
     });
 }
 
 // Ejecutar al cargar la app
 bloquearTeclado();
 
-// Streamlit recarga partes de la app constantemente, así que le decimos que 
-// vuelva a bloquear el teclado si detecta que los menús se volvieron a dibujar.
+// Observador para mantener el bloqueo aunque Streamlit recargue la pantalla
 const observer = new MutationObserver(bloquearTeclado);
 observer.observe(doc.body, { childList: true, subtree: true });
 </script>
