@@ -1540,16 +1540,19 @@ bloquearTeclado();
 const observer = new MutationObserver(bloquearTeclado);
 observer.observe(doc.body, { childList: true, subtree: true });
 
-// 3. BOTÓN DE CAPTURA DE PANTALLA FLOTANTE (Optimizado para iOS y Scroll)
+// 3. BOTÓN DE CAPTURA DE PANTALLA FLOTANTE
 if (!doc.getElementById('btn-screenshot-global')) {
+    // A) Cargar librería mágica html2canvas en la página principal
     const script = doc.createElement('script');
     script.src = "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js";
     doc.head.appendChild(script);
 
+    // B) Crear el botón
     const btn = doc.createElement('button');
     btn.id = 'btn-screenshot-global';
     btn.innerHTML = '📸 Capturar';
     
+    // C) Estilos: Pegado arriba a la derecha, con borde redondeado abajo a la izquierda
     Object.assign(btn.style, {
         position: 'fixed',
         top: '0px',
@@ -1564,15 +1567,13 @@ if (!doc.getElementById('btn-screenshot-global')) {
         fontSize: '14px',
         cursor: 'pointer',
         boxShadow: '-2px 2px 10px rgba(0,0,0,0.3)',
-        transition: 'all 0.3s ease',
-        /* Trucos críticos para iOS y forzar que no se mueva con el scroll */
-        webkitTransform: 'translateZ(0)',
-        transform: 'translateZ(0)'
+        transition: 'all 0.3s ease'
     });
 
     btn.onmouseover = () => btn.style.backgroundColor = '#00a87d';
     btn.onmouseout = () => btn.style.backgroundColor = '#00C897';
 
+    // D) Acción al hacer clic
     btn.onclick = () => {
         if (typeof window.parent.html2canvas === 'undefined') {
             btn.innerHTML = '⏳ Cargando...';
@@ -1580,21 +1581,20 @@ if (!doc.getElementById('btn-screenshot-global')) {
             return;
         }
         
+        // Escondemos el botón para que no arruine la foto
         btn.style.display = 'none';
-        // En iOS Safari, a veces hay que scrollear arriba antes de capturar para evitar cortes
-        window.parent.scrollTo(0, 0); 
         
+        // Apuntamos a la App principal para la captura
         const target = doc.querySelector('.stApp') || doc.body;
         
         window.parent.html2canvas(target, {
             useCORS: true,
             allowTaint: true,
-            scale: 2,
-            windowWidth: target.scrollWidth,
-            windowHeight: target.scrollHeight
+            scale: 2 // Escala x2 para alta resolución
         }).then(canvas => {
-            btn.style.display = 'block';
+            btn.style.display = 'block'; // Lo volvemos a mostrar
             
+            // Creamos un link fantasma para descargar la imagen
             const link = doc.createElement('a');
             const fecha = new Date().toISOString().slice(0,10);
             link.download = 'Journal_Screenshot_' + fecha + '.png';
@@ -1602,9 +1602,12 @@ if (!doc.getElementById('btn-screenshot-global')) {
             link.click();
         }).catch(err => {
             btn.style.display = 'block';
-            console.error("Error al capturar: ", err);
+            console.error("Error al capturar la pantalla: ", err);
         });
     };
 
+    // E) Lo inyectamos en la pantalla
     doc.body.appendChild(btn);
 }
+</script>
+""", height=0, width=0)
