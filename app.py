@@ -977,6 +977,9 @@ with col_det:
     st.markdown("<br>", unsafe_allow_html=True)
 
     pie_html = get_pie_svg(wins, losses, ties)
+    
+    c_w_pie = "#00C897" if wins >= 1 else "white"
+    c_l_pie = "#FF4C4C" if losses >= 1 else "white"
 
     st.markdown(f"""
         <div class="metric-card card-win">
@@ -988,8 +991,8 @@ with col_det:
                 <div style="width: var(--pie-size); height: var(--pie-size); transform: translateY(var(--pie-y-offset)); flex-shrink: 0; display:flex; margin: -15px 0;">
                     {pie_html}
                 </div>
-                <div style="font-size: var(--size-box-wl); color: gray; font-weight: 800; text-align:center; white-space:nowrap; transform: translateY(var(--pie-y-offset));">
-                    {wins}W / {losses}L
+                <div style="font-size: calc(var(--size-box-wl) * 1.5); font-weight: 800; text-align:center; white-space:nowrap; transform: translateY(var(--pie-y-offset));">
+                    <span style="color: {c_w_pie};">{wins}W</span> <span style="color: gray;">/</span> <span style="color: {c_l_pie};">{losses}L</span>
                 </div>
             </div>
         </div>
