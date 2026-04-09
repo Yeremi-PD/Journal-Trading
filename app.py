@@ -563,33 +563,6 @@ with st.sidebar.expander("📅 Calendar Settings"):
     user_settings["cal_txt_y"] = st.slider("Day Text Vertical Position", -50, 50, user_settings.get("cal_txt_y", 0))
     user_settings["cal_txt_pad"] = st.slider("Day Content Top Padding", -50, 50, user_settings.get("cal_txt_pad", 0))
 
-st.sidebar.markdown("---")
-st.sidebar.markdown("### 📥 Downloads")
-
-if db_usuario[ctx_actual]["trades"]:
-    @st.cache_data
-    def generar_zip(trades_dict):
-        zip_buffer = io.BytesIO()
-        with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zf:
-            for c_key, t_list in trades_dict.items():
-                for idx_t, t_data in enumerate(t_list):
-                    f_nombre = t_data.get("fecha_str", "00-00-0000").replace("/", "-")
-                    for idx_i, img_str in enumerate(t_data.get("imagenes", [])):
-                        if img_str.startswith("data:image"):
-                            try:
-                                img_data = base64.b64decode(img_str.split(",")[1])
-                                zf.writestr(f"Trade_{f_nombre}_T{idx_t+1}_{idx_i+1}.jpg", img_data)
-                            except: pass
-        return zip_buffer.getvalue()
-        
-    zip_bytes = generar_zip(db_usuario[ctx_actual]["trades"])
-    st.sidebar.download_button(
-        label="📦 Download All Photos",
-        data=zip_bytes,
-        file_name=f"Fotos_Journal_{ctx_actual}.zip",
-        mime="application/zip",
-        use_container_width=True
-    )
 # ==========================================
 # ESPACIO PARA EMPUJAR LOS BOTONES HACIA ABAJO
 # Cambia "250px" por un número mayor (ej. 350px, 500px) si quieres bajarlos aún más.
