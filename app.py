@@ -295,10 +295,10 @@ BALANCE_BOX_X, BALANCE_BOX_Y = 0, 0
 LINEA_GROSOR, LINEA_ANCHO, LINEA_X, LINEA_MARGEN_SUP, LINEA_MARGEN_INF = 1.5, 100, 0, 10, 25
 LINEA_COLOR_C, LINEA_COLOR_O = "#E2E8F0", "#4A5568"
 DROPZONE_W, DROPZONE_H, DROPZONE_X, DROPZONE_Y = "100%", "75px", 0, 0
-DROPZONE_BG_C, DROPZONE_BG_O = "#F3F4F6", "#2D3748"
-DROPZONE_BORDER_C, DROPZONE_BORDER_O = "1px solid #E2E8F0", "1px solid #4A5568"
-BTN_UP_TEXTO, BTN_UP_SIZE, BTN_UP_W, BTN_UP_H = "Upload", "20px", "100%", "100%"
-BTN_UP_BG_C, BTN_UP_BG_O, BTN_UP_TXT_C, BTN_UP_TXT_O = "transparent", "transparent", "#000000", "#FFFFFF"
+DROPZONE_BG_C, DROPZONE_BG_O = "transparent", "transparent"
+DROPZONE_BORDER_C, DROPZONE_BORDER_O = "1px dashed #E2E8F0", "1px dashed #4A5568"
+BTN_UP_TEXTO, BTN_UP_SIZE, BTN_UP_W, BTN_UP_H = "Upload", "20px", "120px", "45px"
+BTN_UP_BG_C, BTN_UP_BG_O, BTN_UP_TXT_C, BTN_UP_TXT_O = "#E2E8F0", "#4A5568", "#000000", "#FFFFFF"
 
 LBL_LINK, LBL_LINK_SIZE, LBL_LINK_X, LBL_LINK_Y = "", 15, 0, 10
 LINK_IMG_W, LINK_IMG_H, LINK_IMG_X, LINK_IMG_Y, LINK_IMG_TXT_SIZE = "100%", "45px", 0, -30, 15
@@ -634,8 +634,7 @@ st.markdown(f"""
     
     .lbl-link {{ font-size: {LBL_LINK_SIZE}px !important; color: {c_dash} !important; font-weight: 700 !important; transform: translate({LBL_LINK_X}px, {LBL_LINK_Y}px) !important; margin-bottom: 5px !important; display: block !important; }}
     div[data-testid="stTextInput"]:has(input[aria-label="Link"]) {{ width: {LINK_IMG_W} !important; min-width: {LINK_IMG_W} !important; transform: translate({LINK_IMG_X}px, {LINK_IMG_Y}px) !important; }}
-    div[data-testid="stTextInput"]:has(input[aria-label="Link"]) div[data-baseweb="base-input"], div[data-testid="stTextInput"]:has(input[aria-label="Link"]) div[data-baseweb="input"] {{ background-color: {btn_bg} !important; border-color: {border_color} !important; border-radius: 8px !important; }}
-    input[aria-label="Link"] {{ height: {LINK_IMG_H} !important; font-size: {LINK_IMG_TXT_SIZE}px !important; background-color: transparent !important; color: {c_dash} !important; }}
+    input[aria-label="Link"] {{ height: {LINK_IMG_H} !important; font-size: {LINK_IMG_TXT_SIZE}px !important; }}
 
     .balance-box {{ background: #00C897 !important; color: white !important; padding: var(--bal-box-pad) 0px !important; border-radius: 80px !important; text-align: center !important; font-weight: 700 !important; font-size: var(--bal-num-sz) !important; width: var(--bal-box-w) !important; margin: 0 auto !important; transform: translate({BALANCE_BOX_X}px, {BALANCE_BOX_Y}px) !important; }}
     .thin-line {{ border-bottom: {LINEA_GROSOR}px solid {c_linea} !important; margin: {LINEA_MARGEN_SUP}px 0px {LINEA_MARGEN_INF}px 0px !important; width: {LINEA_ANCHO}% !important; transform: translateX({LINEA_X}px) !important; }}
@@ -655,10 +654,13 @@ st.markdown(f"""
     [data-testid="stForm"] {{ padding: 0 !important; border: none !important; background: transparent !important; margin: 0 !important; }}
     [data-testid="stFormSubmitButton"] button {{ background-color: #00C897 !important; color: white !important; font-weight: bold !important; height: 35px !important; min-height: 35px !important; border-radius: 8px !important; border: none !important; width: {INPUT_BAL_W} !important; margin-left: {INPUT_BAL_X}px !important; margin-top: 5px !important; }}
 
-[data-testid="stFileUploader"] {{ background-color: transparent !important; border: none !important; padding: 0 !important; width: 100% !important; margin-top: 0px !important; }}
-    [data-testid="stFileUploadDropzone"] {{ background-color: {btn_bg} !important; border: 1px solid {border_color} !important; border-radius: 8px !important; height: {LINK_IMG_H} !important; min-height: {LINK_IMG_H} !important; position: relative !important; padding: 0 !important; overflow: hidden !important; }}
-    [data-testid="stFileUploadDropzone"] * {{ color: transparent !important; fill: transparent !important; background-color: transparent !important; box-shadow: none !important; border: none !important; }}
-    [data-testid="stFileUploadDropzone"]::before {{ content: "📸 Upload Photos" !important; position: absolute !important; top: 50% !important; left: 50% !important; transform: translate(-50%, -50%) !important; color: {c_dash} !important; font-size: 15px !important; font-weight: bold !important; pointer-events: none !important; z-index: 99 !important; }}
+    [data-testid="stFileUploader"] {{ transform: translate({DROPZONE_X}px, {DROPZONE_Y}px) !important; background-color: transparent !important; border: none !important; padding: 0 !important; box-shadow: none !important; width: {DROPZONE_W} !important; min-width: {DROPZONE_W} !important; }}
+    [data-testid="stFileUploadDropzone"] {{ background-color: {drop_bg} !important; border: {drop_border} !important; border-radius: 8px !important; height: {DROPZONE_H} !important; display: flex !important; justify-content: center !important; align-items: center !important; position: relative !important; }}
+    [data-testid="stFileUploadDropzone"] > div > span, [data-testid="stFileUploadDropzone"] small, [data-testid="stFileUploaderDropzoneInstructions"] {{ display: none !important; }}
+    [data-testid="stFileUploadDropzone"] button {{ background-color: {u_btn_bg} !important; color: {u_btn_txt} !important; border: 1px solid {border_color} !important; border-radius: 6px !important; margin: 0 auto !important; width: {BTN_UP_W} !important; height: {BTN_UP_H} !important; display: flex !important; justify-content: center !important; align-items: center !important; }}
+    [data-testid="stFileUploadDropzone"] button * {{ color: {u_btn_txt} !important; font-size: {BTN_UP_SIZE} !important; }}
+    [data-testid="stFileUploadDropzone"] button::after {{ content: "{BTN_UP_TEXTO}" !important; font-size: {BTN_UP_SIZE} !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; width: 100% !important; text-align: center !important; }}
+    [data-testid="stFileUploadDropzone"] button div {{ display: none !important; }}
 
     div[data-testid="stButton"] > button {{ background-color: {btn_bg} !important; color: {btn_txt} !important; border: 1px solid {border_color} !important; }}
     div[data-testid="stPopover"] {{ width: {BTN_CAL_W}px !important; min-width: {BTN_CAL_W}px !important; height: {BTN_CAL_H}px !important; display: block !important; position: relative !important; padding: 0 !important; margin: 0 !important; }}
@@ -814,14 +816,11 @@ st.markdown(f"""
     .mo-title {{ font-weight: 800 !important; color: {wk_tit_c} !important; letter-spacing: 1px !important; }}
     .mo-val {{ font-weight: 800 !important; line-height: 1.2 !important; }}
     
-.txt-green {{ color: #00C897 !important; }}
-      .txt-red {{ color: #FF4C4C !important; }}
-      .txt-gray {{ color: gray !important; }}
-       
-      /* Color de fondo para las cajas de texto de edición (igual a las flechas) */
-      div[data-testid="stTextInput"]:has(input[aria-label="🔗 Paste The Image Link:"]) div[data-baseweb="base-input"],
-      div[data-testid="stTextArea"] div[data-baseweb="base-input"] {{ background-color: {btn_bg} !important; border-color: {border_color} !important; }}
-      </style>
+    .txt-green {{ color: #00C897 !important; }}
+    .txt-red {{ color: #FF4C4C !important; }}
+    .txt-gray {{ color: gray !important; }}
+    </style>
+    """, unsafe_allow_html=True)
 
 # ==========================================
 # 8. HEADER (BARRA SUPERIOR)
