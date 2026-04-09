@@ -592,7 +592,29 @@ if st.sidebar.button("🚪 Log Out", use_container_width=True):
     st.rerun()
 
 
-6. ASIGNACIÓN DE COLORES Y CSS
+# ==========================================
+# 6. ASIGNACIÓN DE COLORES Y CSS
+# ==========================================
+if st.session_state.tema == "Claro":
+    bg_color, card_bg, border_color, empty_cell_bg = "#F7FAFC", "#FFFFFF", "#E2E8F0", "#FFFFFF"
+    c_dash, c_filtros, c_opt_filtros = TXT_DASH_COLOR_C, LBL_FILTROS_COLOR_C, OPT_FILTROS_COLOR_C   
+    c_data, c_opt_data, c_lbl_bal, c_lbl_in = LBL_DATA_COLOR_C, OPT_DATA_COLOR_C, LBL_BAL_TOTAL_COLOR_C, LBL_INPUT_COLOR_C
+    c_mes, c_dias_sem, c_num_dia, c_pct_dia = TXT_MES_COLOR_C, TXT_DIAS_SEM_COLOR_C, TXT_NUM_DIA_COLOR_C, TXT_PCT_DIA_COLOR_C
+    c_tit_pnl, c_tit_win, c_val_win = CARD_PNL_TITULO_COLOR_C, CARD_WIN_TITULO_COLOR_C, CARD_WIN_VALOR_COLOR_C
+    btn_bg, btn_txt, input_bg = BTN_CAL_BG_C, "#000000", INPUT_FONDO_C
+    drop_bg, drop_border, u_btn_bg, u_btn_txt = DROPZONE_BG_C, DROPZONE_BORDER_C, BTN_UP_BG_C, BTN_UP_TXT_C
+    wk_tit_c, c_cam_bg, c_linea = WEEKS_TITULOS_COLOR_C, BTN_CAM_BG_C, LINEA_COLOR_C
+    edit_bg = "#EDF2F7"
+else:
+    bg_color, card_bg, border_color, empty_cell_bg = "#1A202C", "#2D3748", "#4A5568", "#1A202C"
+    c_dash, c_filtros, c_opt_filtros = TXT_DASH_COLOR_O, LBL_FILTROS_COLOR_O, OPT_FILTROS_COLOR_O   
+    c_data, c_opt_data, c_lbl_bal, c_lbl_in = LBL_DATA_COLOR_O, OPT_DATA_COLOR_O, LBL_BAL_TOTAL_COLOR_O, LBL_INPUT_COLOR_O
+    c_mes, c_dias_sem, c_num_dia, c_pct_dia = TXT_MES_COLOR_O, TXT_DIAS_SEM_COLOR_O, TXT_NUM_DIA_COLOR_O, TXT_PCT_DIA_COLOR_O
+    c_tit_pnl, c_tit_win, c_val_win = CARD_PNL_TITULO_COLOR_O, CARD_WIN_TITULO_COLOR_O, CARD_WIN_VALOR_COLOR_O
+    btn_bg, btn_txt, input_bg = BTN_CAL_BG_O, "#FFFFFF", INPUT_FONDO_O
+    drop_bg, drop_border, u_btn_bg, u_btn_txt = DROPZONE_BG_O, DROPZONE_BORDER_O, BTN_UP_BG_O, BTN_UP_TXT_O
+    wk_tit_c, c_cam_bg, c_linea = WEEKS_TITULOS_COLOR_O, BTN_CAM_BG_O, LINEA_COLOR_O
+    edit_bg = "#374151"
 
 def gen_css_vars(s):
     return f"--size-top-stats:{s['size_top_stats']}px;--size-card-titles:{s['size_card_titles']}px;--size-box-titles:{s['size_box_titles']}px;--size-box-vals:{s['size_box_vals']}px;--size-box-pct:{s['size_box_pct']}px;--size-box-wl:{s['size_box_wl']}px;--pie-size:{s['pie_size']}px;--pie-y-offset:{s['pie_y_offset']}px;--cal-mes-size:{s['cal_mes_size']}px;--cal-pnl-size:{s['cal_pnl_size']}px;--cal-pct-size:{s['cal_pct_size']}px;--cal-dia-size:{s['cal_dia_size']}px;--cal-cam-size:{s['cal_cam_size']}px;--cal-note-size:{s.get('cal_note_size',30)}px;--cal-scale:{s['cal_scale']}px;--cal-line-height:{s['cal_line_height']};--bal-num-sz:{s['bal_num_sz']}px;--bal-box-w:{s['bal_box_w']}%;--bal-box-pad:{s['bal_box_pad']}px;--cal-txt-y:{s.get('cal_txt_y',0)}px;--cal-txt-pad:{s.get('cal_txt_pad',0)}px;--note-lbl-size:{s.get('note_lbl_size',16)}px;--note-val-size:{s.get('note_val_size',16)}px;"
@@ -797,9 +819,26 @@ st.markdown(f"""
     .mo-title {{ font-weight: 800 !important; color: {wk_tit_c} !important; letter-spacing: 1px !important; }}
     .mo-val {{ font-weight: 800 !important; line-height: 1.2 !important; }}
     
-    .txt-green {{ color: #00C897 !important; }}
+      .txt-green {{ color: #00C897 !important; }}
     .txt-red {{ color: #FF4C4C !important; }}
     .txt-gray {{ color: gray !important; }}
+
+    div[data-testid="stExpanderDetails"] div[data-testid="stTextArea"] > div,
+    div[data-testid="stExpanderDetails"] div[data-testid="stTextInput"] > div {{
+        background-color: {edit_bg} !important;
+        border: 1px solid {border_color} !important;
+        border-radius: 8px !important;
+    }}
+    div[data-testid="stExpanderDetails"] div[data-testid="stTextArea"] div[data-baseweb="base-input"],
+    div[data-testid="stExpanderDetails"] div[data-testid="stTextInput"] div[data-baseweb="base-input"] {{
+        background-color: transparent !important;
+        border: none !important;
+    }}
+    div[data-testid="stExpanderDetails"] div[data-testid="stTextArea"] textarea,
+    div[data-testid="stExpanderDetails"] div[data-testid="stTextInput"] input {{
+        background-color: transparent !important;
+        color: {c_dash} !important;
+    }}
     </style>
     """, unsafe_allow_html=True)
 
