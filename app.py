@@ -814,9 +814,57 @@ st.markdown(f"""
     .mo-title {{ font-weight: 800 !important; color: {wk_tit_c} !important; letter-spacing: 1px !important; }}
     .mo-val {{ font-weight: 800 !important; line-height: 1.2 !important; }}
     
-    .txt-green {{ color: #00C897 !important; }}
+.txt-green {{ color: #00C897 !important; }}
     .txt-red {{ color: #FF4C4C !important; }}
     .txt-gray {{ color: gray !important; }}
+    
+    /* ======================================================== */
+    /* BOMBA NUCLEAR PARA MATAR EL 200MB Y ARREGLAR EL UPLOAD */
+    /* ======================================================== */
+    div[data-testid="stFileUploader"] {{
+        width: {DROPZONE_W} !important;
+        min-width: {DROPZONE_W} !important;
+        padding: 0 !important;
+        background: transparent !important;
+    }}
+    div[data-testid="stFileUploadDropzone"] {{
+        background-color: {btn_bg} !important;
+        border: 1px solid {border_color} !important;
+        border-radius: 8px !important;
+        height: {LINK_IMG_H} !important;
+        min-height: {LINK_IMG_H} !important;
+        position: relative !important;
+        overflow: hidden !important;
+    }}
+    div[data-testid="stFileUploadDropzone"] * {{
+        color: transparent !important;
+        fill: transparent !important;
+        background-color: transparent !important;
+        box-shadow: none !important;
+        border: none !important;
+    }}
+    div[data-testid="stFileUploadDropzone"] button {{
+        position: absolute !important;
+        top: 0 !important; 
+        left: 0 !important;
+        width: 100% !important; 
+        height: 100% !important;
+        opacity: 0 !important;
+        z-index: 99 !important;
+        cursor: pointer !important;
+    }}
+    div[data-testid="stFileUploadDropzone"]::after {{
+        content: "📸 Upload Photos" !important;
+        position: absolute !important;
+        top: 50% !important; 
+        left: 50% !important;
+        transform: translate(-50%, -50%) !important;
+        color: {c_dash} !important;
+        font-size: 16px !important;
+        font-weight: 700 !important;
+        pointer-events: none !important;
+        z-index: 1 !important;
+    }}
     </style>
     """, unsafe_allow_html=True)
 
