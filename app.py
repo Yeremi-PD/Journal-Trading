@@ -1540,7 +1540,7 @@ bloquearTeclado();
 const observer = new MutationObserver(bloquearTeclado);
 observer.observe(doc.body, { childList: true, subtree: true });
 
-// 3. BOTÓN DE CAPTURA DE PANTALLA FLOTANTE (Página Completa y optimizado para iOS)
+// 3. BOTÓN DE CAPTURA DE PANTALLA FLOTANTE (Página Completa y 50% más grande)
 if (!doc.getElementById('btn-screenshot-global')) {
     const script = doc.createElement('script');
     script.src = "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js";
@@ -1550,6 +1550,7 @@ if (!doc.getElementById('btn-screenshot-global')) {
     btn.id = 'btn-screenshot-global';
     btn.innerHTML = '📸 Capturar';
     
+    // Aumentado un 50% el tamaño (padding de 8x15 a 12x23, fuente de 14 a 21)
     Object.assign(btn.style, {
         position: 'fixed',
         top: '0px',
@@ -1558,10 +1559,10 @@ if (!doc.getElementById('btn-screenshot-global')) {
         backgroundColor: '#00C897',
         color: '#ffffff',
         border: 'none',
-        padding: '8px 15px',
-        borderBottomLeftRadius: '12px',
+        padding: '12px 23px',
+        borderBottomLeftRadius: '18px',
         fontWeight: '900',
-        fontSize: '14px',
+        fontSize: '21px',
         cursor: 'pointer',
         boxShadow: '-2px 2px 10px rgba(0,0,0,0.3)',
         transition: 'all 0.3s ease',
@@ -1581,25 +1582,33 @@ if (!doc.getElementById('btn-screenshot-global')) {
         
         btn.style.display = 'none';
         
-        // Apuntamos a la App principal de Streamlit
-        const target = doc.querySelector('.stApp') || doc.body;
+        // Seleccionamos el contenedor principal de Streamlit que hace el scroll
+        const stContainer = doc.querySelector('[data-testid="stAppViewContainer"]') || doc.querySelector('.stApp') || doc.body;
+        const mainInner = doc.querySelector('.main') || stContainer;
         
-        // Truco para capturar TODO: Guardamos los estilos originales
-        const originalOverflow = target.style.overflow;
-        const originalHeight = target.style.height;
+        // Guardamos estilos originales
+        const origOverflowApp = stContainer.style.overflow;
+        const origHeightApp = stContainer.style.height;
+        const origOverflowMain = mainInner.style.overflow;
         
-        // Forzamos a que el contenedor revele todo su tamaño oculto por el scroll
-        target.style.overflow = 'visible';
-        target.style.height = 'auto';
+        // Forzamos a la app a mostrar todo su contenido a lo largo
+        stContainer.style.overflow = 'visible';
+        stContainer.style.height = 'auto';
+        mainInner.style.overflow = 'visible';
+        
+        // En iOS Safari, a veces hay que scrollear arriba antes de capturar para evitar espacios en blanco
+        window.parent.scrollTo(0, 0);
         
         try {
-            const canvas = await window.parent.html2canvas(target, {
+            const canvas = await window.parent.html2canvas(stContainer, {
                 useCORS: true,
                 allowTaint: true,
                 scale: 2, // Calidad alta
                 scrollY: 0,
-                windowHeight: target.scrollHeight,
-                height: target.scrollHeight // Obliga a leer toda la altura
+                windowWidth: stContainer.scrollWidth,
+                windowHeight: stContainer.scrollHeight,
+                width: stContainer.scrollWidth,
+                height: stContainer.scrollHeight
             });
             
             const link = doc.createElement('a');
@@ -1610,9 +1619,12 @@ if (!doc.getElementById('btn-screenshot-global')) {
         } catch (err) {
             console.error("Error al capturar la pantalla: ", err);
         } finally {
-            // Restauramos los estilos originales para que la app siga funcionando bien
-            target.style.overflow = originalOverflow;
-            target.style.height = originalHeight;
+            // Restauramos los estilos originales
+            stContainer.style.overflow = origOverflowApp;
+            stContainer.style.height = origHeightApp;
+            mainInner.style.overflow = origOverflowMain;
+            
+            btn.innerHTML = '📸 Capturar';
             btn.style.display = 'block';
         }
     };
