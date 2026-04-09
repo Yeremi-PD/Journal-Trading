@@ -248,6 +248,9 @@ if st.session_state.usuario_actual is None or st.session_state.usuario_actual no
                         try: 
                             st.query_params["user"] = log_user
                             st.query_params["device"] = st.session_state.dispositivo_actual
+                            # Recuperar la última cuenta usada al iniciar sesión
+                            if "last_account" in db_global[log_user]:
+                                st.query_params["account"] = db_global[log_user]["last_account"]
                         except: pass
                         st.rerun()
                     else:
