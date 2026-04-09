@@ -1540,7 +1540,7 @@ bloquearTeclado();
 const observer = new MutationObserver(bloquearTeclado);
 observer.observe(doc.body, { childList: true, subtree: true });
 
-// 3. BOTÓN DE CAPTURA DE PANTALLA FLOTANTE (Página Total Real + Descarga Nativa)
+// 3. BOTÓN DE CAPTURA DE PANTALLA FLOTANTE (Diseño intacto + Página Total)
 if (!doc.getElementById('btn-screenshot-global')) {
     const script = doc.createElement('script');
     script.src = "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js";
@@ -1550,7 +1550,7 @@ if (!doc.getElementById('btn-screenshot-global')) {
     btn.id = 'btn-screenshot-global';
     btn.innerHTML = '📸 Capturar';
     
-    // Botón Gigante
+    // Botón Gigante y optimizado para "Tap" en celulares
     Object.assign(btn.style, {
         position: 'fixed',
         top: '0px',
@@ -1585,41 +1585,40 @@ if (!doc.getElementById('btn-screenshot-global')) {
         
         btn.innerHTML = '📸 Procesando...';
         btn.style.pointerEvents = 'none';
+        btn.style.opacity = '0'; // Ocultamos el botón para que no salga en la foto
         
-        // Buscamos todas las capas de Streamlit que ocultan el scroll
+        // Identificamos los contenedores principales de Streamlit
         const stApp = doc.querySelector('.stApp');
         const stAppView = doc.querySelector('[data-testid="stAppViewContainer"]');
         const stMain = doc.querySelector('.main') || doc.querySelector('[data-testid="stMain"]');
-        const stBlock = doc.querySelector('.block-container') || doc.querySelector('[data-testid="stMainBlockContainer"]');
         
-        // Guardamos los estilos originales para no romper tu diseño después
-        const cssApp = stApp ? stApp.style.cssText : '';
+        // Guardamos los estilos originales
         const cssAppView = stAppView ? stAppView.style.cssText : '';
         const cssMain = stMain ? stMain.style.cssText : '';
         
         const computedBgColor = stApp ? window.parent.getComputedStyle(stApp).backgroundColor : '#1A202C';
 
-        // MAGIA: Quitamos todos los límites de altura y scroll de Streamlit temporalmente
-        const estirarCSS = 'height: auto !important; min-height: 100% !important; overflow: visible !important; position: relative !important;';
-        if (stApp) stApp.style.cssText += estirarCSS;
-        if (stAppView) stAppView.style.cssText += estirarCSS;
-        if (stMain) stMain.style.cssText += estirarCSS;
+        // MAGIA SUAVE: Solo quitamos el límite de altura y scroll, SIN tocar posiciones (para no empalmar nada)
+        if (stAppView) {
+            stAppView.style.setProperty('overflow', 'visible', 'important');
+            stAppView.style.setProperty('height', 'auto', 'important');
+        }
+        if (stMain) {
+            stMain.style.setProperty('overflow', 'visible', 'important');
+            stMain.style.setProperty('height', 'auto', 'important');
+        }
         
-        // Le damos un respiro de medio segundo al navegador para que redibuje toda la página hacia abajo
-        await new Promise(resolve => setTimeout(resolve, 500));
+        // Le damos 800 milisegundos al navegador para reacomodar todo el diseño correctamente
+        await new Promise(resolve => setTimeout(resolve, 800));
         
-        // Calculamos la nueva altura gigante total
-        const alturaTotal = Math.max(
-            doc.body.scrollHeight, 
-            stApp ? stApp.scrollHeight : 0, 
-            stBlock ? stBlock.scrollHeight : 0
-        );
+        // Calculamos la altura real de toda la página
+        const alturaTotal = stMain ? stMain.scrollHeight : (stApp ? stApp.scrollHeight : doc.body.scrollHeight);
 
         window.parent.scrollTo(0, 0);
         
         try {
             const isMobile = window.parent.innerWidth < 768;
-            const canvasScale = isMobile ? 1.5 : 2; // Buena resolución sin romper la RAM del móvil
+            const canvasScale = isMobile ? 1.5 : 2; // Buena resolución para no romper el celular
             
             const canvas = await window.parent.html2canvas(stApp, {
                 useCORS: true,
@@ -1634,10 +1633,10 @@ if (!doc.getElementById('btn-screenshot-global')) {
             
             const imgData = canvas.toDataURL('image/png');
             
-            // Forzamos la descarga nativa del navegador (celular o PC)
+            // Forzamos la descarga nativa (Aplica para PC y Celular)
             const link = doc.createElement('a');
             const fecha = new Date().toISOString().slice(0,10);
-            link.download = 'Journal_Screenshot_' + fecha + '.png';
+            link.download = 'Journal_' + fecha + '.png';
             link.href = imgData;
             doc.body.appendChild(link);
             link.click();
@@ -1647,13 +1646,14 @@ if (!doc.getElementById('btn-screenshot-global')) {
             alert("Hubo un error al capturar: " + err.message);
             console.error("Error html2canvas: ", err);
         } finally {
-            // Restauramos todas las capas a como estaban antes
-            if (stApp) stApp.style.cssText = cssApp;
+            // Restauramos los estilos exactamente como estaban para no romper la app
             if (stAppView) stAppView.style.cssText = cssAppView;
             if (stMain) stMain.style.cssText = cssMain;
             
+            // Regresamos el botón
             btn.innerHTML = '📸 Capturar';
             btn.style.pointerEvents = 'auto';
+            btn.style.opacity = '1';
         }
     };
 
