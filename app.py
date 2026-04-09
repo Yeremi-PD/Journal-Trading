@@ -408,7 +408,6 @@ with st.sidebar.expander("Manage Accounts"):
     # --- 1. CREAR NUEVA CUENTA ---
     st.markdown("**➕ Create New Account**")
     nueva_cuenta_nombre = st.text_input("Account name", key="input_nombre_nueva_cta")
-    nueva_cuenta_nombre ("Account name")
     nueva_cuenta_bal = st.selectbox("Initial Balance", [25000.0, 50000.0, 100000.0], format_func=lambda x: f"${x:,.0f}", key="select_bal_nueva_cta")
     
     # Añadimos key="btn_crear_cta_sidebar"
