@@ -745,7 +745,7 @@ st.markdown(f"""
     .wk-val {{ font-weight: 800 !important; line-height: 1.2 !important; text-align: center !important; }}
     
     .mo-box {{ width: {Month_BOX_W} !important; height: {Month_BOX_H} !important; background: {card_bg} !important; border: 1px solid {border_color} !important; border-radius: 15px !important; display: flex !important; flex-direction: column !important; align-items: {WEEK_ALIGN} !important; justify-content: center !important; padding: 10px !important; margin-top: 5px !important; text-align: center !important; }}
-    .mo-title {{ font-weight: 800 !important; color: {wk_tit_c} !important; text-transform: uppercase !important; letter-spacing: 1px !important; }}
+    .mo-title {{ font-weight: 800 !important; color: {wk_tit_c} !important; letter-spacing: 1px !important; }}
     .mo-val {{ font-weight: 800 !important; line-height: 1.2 !important; }}
     
     .txt-green {{ color: #00C897 !important; }}
