@@ -1471,7 +1471,7 @@ with col_mitad_2:
                 )
 
 # ==========================================
-# SCRIPT PARA CERRAR MODALES Y BLOQUEAR TECLADO EN EL MÓVIL
+# SCRIPT PARA CERRAR MODALES, BLOQUEAR TECLADO Y BOTÓN DE CAPTURA
 # ==========================================
 components.html("""
 <script>
@@ -1487,24 +1487,86 @@ doc.addEventListener('keydown', function(e) {
 
 // 2. Bloquear teclado móvil en Filtros, Data Source y Calendario
 function bloquearTeclado() {
-    // Añadimos el calendario (stDateInput) a la lista para bloquear su teclado
     const inputs = doc.querySelectorAll('div[data-testid="stSelectbox"] input, div[data-testid="stDateInput"] input');
     inputs.forEach(input => {
-        // Bloqueamos el teclado
         input.setAttribute('inputmode', 'none'); 
         input.setAttribute('readonly', 'true'); 
-        
-        // Hacemos que el toque en el celular sea totalmente transparente (quita el destello gris/azul)
         input.style.webkitTapHighlightColor = 'transparent';
         input.style.outline = 'none';
     });
 }
-
-// Ejecutar al cargar la app
 bloquearTeclado();
-
-// Observador para mantener el bloqueo aunque Streamlit recargue la pantalla
 const observer = new MutationObserver(bloquearTeclado);
 observer.observe(doc.body, { childList: true, subtree: true });
+
+// 3. BOTÓN DE CAPTURA DE PANTALLA FLOTANTE
+if (!doc.getElementById('btn-screenshot-global')) {
+    // A) Cargar librería mágica html2canvas en la página principal
+    const script = doc.createElement('script');
+    script.src = "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js";
+    doc.head.appendChild(script);
+
+    // B) Crear el botón
+    const btn = doc.createElement('button');
+    btn.id = 'btn-screenshot-global';
+    btn.innerHTML = '📸 Capturar';
+    
+    // C) Estilos: Pegado arriba a la derecha, con borde redondeado abajo a la izquierda
+    Object.assign(btn.style, {
+        position: 'fixed',
+        top: '0px',
+        right: '0px',
+        zIndex: '9999999',
+        backgroundColor: '#00C897',
+        color: '#ffffff',
+        border: 'none',
+        padding: '8px 15px',
+        borderBottomLeftRadius: '12px',
+        fontWeight: '900',
+        fontSize: '14px',
+        cursor: 'pointer',
+        boxShadow: '-2px 2px 10px rgba(0,0,0,0.3)',
+        transition: 'all 0.3s ease'
+    });
+
+    btn.onmouseover = () => btn.style.backgroundColor = '#00a87d';
+    btn.onmouseout = () => btn.style.backgroundColor = '#00C897';
+
+    // D) Acción al hacer clic
+    btn.onclick = () => {
+        if (typeof window.parent.html2canvas === 'undefined') {
+            btn.innerHTML = '⏳ Cargando...';
+            setTimeout(() => btn.innerHTML = '📸 Capturar', 2000);
+            return;
+        }
+        
+        // Escondemos el botón para que no arruine la foto
+        btn.style.display = 'none';
+        
+        // Apuntamos a la App principal para la captura
+        const target = doc.querySelector('.stApp') || doc.body;
+        
+        window.parent.html2canvas(target, {
+            useCORS: true,
+            allowTaint: true,
+            scale: 2 // Escala x2 para alta resolución
+        }).then(canvas => {
+            btn.style.display = 'block'; // Lo volvemos a mostrar
+            
+            // Creamos un link fantasma para descargar la imagen
+            const link = doc.createElement('a');
+            const fecha = new Date().toISOString().slice(0,10);
+            link.download = 'Journal_Screenshot_' + fecha + '.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }).catch(err => {
+            btn.style.display = 'block';
+            console.error("Error al capturar la pantalla: ", err);
+        });
+    };
+
+    // E) Lo inyectamos en la pantalla
+    doc.body.appendChild(btn);
+}
 </script>
 """, height=0, width=0)
