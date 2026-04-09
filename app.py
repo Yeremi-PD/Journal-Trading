@@ -1512,7 +1512,6 @@ with col_mitad_2:
                 )
 
 # ==========================================
-# ==========================================
 # SCRIPT PARA CERRAR MODALES, BLOQUEAR TECLADO Y BOTÓN DE CAPTURA
 # ==========================================
 components.html("""
@@ -1552,7 +1551,7 @@ bloquearTeclado();
 const observer = new MutationObserver(bloquearTeclado);
 observer.observe(doc.body, { childList: true, subtree: true });
 
-// 3. BOTÓN DE CAPTURA (Solución de Textos Invisibles y Página Completa)
+// 3. BOTÓN DE CAPTURA (Solución Definitiva con OnClone)
 if (!doc.getElementById('btn-screenshot-global')) {
     const script = doc.createElement('script');
     script.src = "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js";
@@ -1600,63 +1599,70 @@ if (!doc.getElementById('btn-screenshot-global')) {
         
         const isMobile = window.parent.innerWidth < 768 || /iPad|iPhone|iPod/.test(window.parent.navigator.userAgent);
         
-        const target = doc.querySelector('.block-container') || doc.querySelector('[data-testid="stMainBlockContainer"]');
+        // Apuntamos directo a la caja principal de Streamlit que hace el scroll
         const stMain = doc.querySelector('.main') || doc.querySelector('[data-testid="stMain"]');
-        const stAppView = doc.querySelector('[data-testid="stAppViewContainer"]');
+        const stApp = doc.querySelector('.stApp');
+        const computedBgColor = stApp ? window.parent.getComputedStyle(stApp).backgroundColor : '#1A202C';
         
-        const computedBgColor = doc.querySelector('.stApp') ? window.parent.getComputedStyle(doc.querySelector('.stApp')).backgroundColor : '#1A202C';
+        // Calculamos la altura real forzando temporalmente el overflow invisible
+        const origOverflow = stMain.style.overflow;
+        const origHeight = stMain.style.height;
+        stMain.style.overflow = 'visible';
+        stMain.style.height = 'auto';
+        const fullHeight = stMain.scrollHeight;
         
-        const origMainOverflow = stMain ? stMain.style.overflow : '';
-        const origAppViewOverflow = stAppView ? stAppView.style.overflow : '';
+        // Regresamos la página inmediatamente a la normalidad para que tu pantalla no se rompa
+        stMain.style.overflow = origOverflow;
+        stMain.style.height = origHeight;
 
-        // --- INICIO DEL FIX DE TEXTOS INVISIBLES ---
-        
-        // 1. Forzar color blanco en el botón SAVE
-        const tempStyles = doc.createElement('style');
-        tempStyles.innerHTML = `
-            [data-testid="stFormSubmitButton"] button p { color: #ffffff !important; opacity: 1 !important; visibility: visible !important; }
-        `;
-        doc.head.appendChild(tempStyles);
-
-        // 2. Inyectar palabra "Upload" físicamente porque ignora el CSS ::after
-        const uploadBtns = doc.querySelectorAll('[data-testid="stFileUploadDropzone"] button');
-        uploadBtns.forEach(b => {
-            const span = doc.createElement('span');
-            span.className = 'temp-text-fix';
-            span.innerHTML = 'Upload';
-            span.style.cssText = 'position:absolute; left:50%; top:50%; transform:translate(-50%, -50%); font-size:20px; color:black; font-weight:bold; z-index:99; pointer-events:none;';
-            b.appendChild(span);
-        });
-
-        // 3. Inyectar el emoji del calendario físicamente
-        const dateInputs = doc.querySelectorAll('div[data-testid="stDateInput"] > div:first-child');
-        dateInputs.forEach(d => {
-            const span = doc.createElement('span');
-            span.className = 'temp-emoji-fix';
-            span.innerHTML = '🗓️';
-            span.style.cssText = 'position:absolute; left:50%; top:50%; transform:translate(-50%, -50%); font-size:33px; z-index:99; pointer-events:none; color:black;';
-            d.appendChild(span);
-        });
-        
-        // --- FIN DEL FIX ---
-
-        if (stMain) stMain.style.setProperty('overflow', 'visible', 'important');
-        if (stAppView) stAppView.style.setProperty('overflow', 'visible', 'important');
-        
         window.parent.scrollTo(0, 0);
-        await new Promise(resolve => setTimeout(resolve, 1500));
         
         try {
             const canvasScale = isMobile ? 1 : 2; 
             
-            const canvas = await window.parent.html2canvas(target, {
+            // MAGIA ONCLONE: Modifica la copia de la foto ANTES de tomarla, sin tocar tu diseño real
+            const canvas = await window.parent.html2canvas(stMain, {
                 useCORS: true,
                 allowTaint: true,
                 scale: canvasScale, 
                 scrollY: 0,
                 backgroundColor: computedBgColor,
-                windowWidth: target.scrollWidth,
-                windowHeight: target.scrollHeight
+                windowHeight: fullHeight,
+                height: fullHeight,
+                onclone: function(clonedDoc) {
+                    
+                    // 1. Forzar que todos los contenedores muestren su contenido hacia abajo
+                    const cloneMain = clonedDoc.querySelector('.main') || clonedDoc.querySelector('[data-testid="stMain"]');
+                    const cloneAppView = clonedDoc.querySelector('[data-testid="stAppViewContainer"]');
+                    if (cloneMain) { cloneMain.style.setProperty('overflow', 'visible', 'important'); cloneMain.style.setProperty('height', 'auto', 'important'); }
+                    if (cloneAppView) { cloneAppView.style.setProperty('overflow', 'visible', 'important'); cloneAppView.style.setProperty('height', 'auto', 'important'); }
+                    
+                    // 2. Inyectar textos reales a los botones para que la cámara deje de ignorarlos
+                    clonedDoc.querySelectorAll('[data-testid="stFormSubmitButton"] button p').forEach(p => {
+                        p.style.setProperty('color', '#ffffff', 'important');
+                        p.style.setProperty('visibility', 'visible', 'important');
+                    });
+
+                    clonedDoc.querySelectorAll('[data-testid="stFileUploadDropzone"] button').forEach(b => {
+                        b.innerHTML = '<span style="color:white !important; font-size:20px !important; font-weight:bold !important; z-index:999;">Upload</span>';
+                        b.style.display = 'flex';
+                        b.style.alignItems = 'center';
+                        b.style.justifyContent = 'center';
+                    });
+
+                    clonedDoc.querySelectorAll('div[data-testid="stDateInput"] > div:first-child').forEach(d => {
+                        d.innerHTML = '<span style="font-size:33px !important; color:black !important; z-index:999;">🗓️</span>';
+                        d.style.display = 'flex';
+                        d.style.alignItems = 'center';
+                        d.style.justifyContent = 'center';
+                    });
+                    
+                    // 3. Forzar que el historial se vea sin cortarse
+                    clonedDoc.querySelectorAll('div[data-testid="stExpanderDetails"]').forEach(exp => {
+                        exp.style.setProperty('overflow', 'visible', 'important');
+                        exp.style.setProperty('height', 'auto', 'important');
+                    });
+                }
             });
             
             const imgData = canvas.toDataURL('image/png');
@@ -1695,13 +1701,6 @@ if (!doc.getElementById('btn-screenshot-global')) {
             alert("Hubo un error al capturar: " + err.message);
             console.error("Error html2canvas: ", err);
         } finally {
-            if (stMain) stMain.style.overflow = origMainOverflow;
-            if (stAppView) stAppView.style.overflow = origAppViewOverflow;
-            
-            // Borramos los textos y estilos temporales
-            if (tempStyles) tempStyles.remove();
-            doc.querySelectorAll('.temp-text-fix, .temp-emoji-fix').forEach(el => el.remove());
-            
             btn.innerHTML = '📸 Capturar';
             btn.style.pointerEvents = 'auto';
             btn.style.opacity = '1';
