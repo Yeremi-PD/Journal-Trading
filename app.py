@@ -782,32 +782,6 @@ st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
 # ==========================================
 # 9. ENTRADA DE TRADES
 # ==========================================
-with st.form(key=f"form_main_entry_{st.session_state.form_reset_key}", border=False):
-    c1, c2, c_img, c_not, c_espacio = st.columns([1.5, 0.5, 2.5, 0.6, 3.4]) 
-    
-    with c1:
-        st.markdown(f'<div class="lbl-input">{LBL_INPUT}</div>', unsafe_allow_html=True)
-        nuevo_bal = st.number_input("Balance", value=bal_actual, format="%.2f", label_visibility="collapsed")
-        btn_save = st.form_submit_button("SAVE", key=f"btn_save_main_{st.session_state.form_reset_key}")
-        
-    with c2:
-        st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True) 
-        fecha_sel = st.date_input("Fecha", value=hoy, label_visibility="collapsed", key="btn_fecha_directa")
-            
-    with c_img:
-        st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True) 
-        imgs_subidas = st.file_uploader("", accept_multiple_files=True, label_visibility="collapsed")
-        st.markdown(f'<div class="lbl-link">{LBL_LINK}</div>', unsafe_allow_html=True)
-        link_imagen = st.text_input("Link", value="", label_visibility="collapsed", placeholder="Paste the Image Link")
-        
-    with c_not:
-        st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True) 
-        with st.popover("📝", use_container_width=True):
-            st.markdown("<h3 style='text-align:center; margin-top:0; font-size: 2.2em;'>Trade Details</h3>", unsafe_allow_html=True)
-            
-            nuevo_bias = st.radio("&nbsp; \n &nbsp; \n Bias", ['LONG', 'SHORT', 'NONE'], index=2, horizontal=True)
-            
-# BIAS
 with st.form(key=f"form_main_entry_{st.session_state.form_reset_key}", clear_on_submit=True, border=False):
     c1, c2, c_img, c_not, c_espacio = st.columns([1.5, 0.5, 2.5, 0.6, 3.4]) 
     
@@ -854,7 +828,7 @@ with st.form(key=f"form_main_entry_{st.session_state.form_reset_key}", clear_on_
             st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
             nuevo_razon = st.text_area("Reason For Trade", value='', height=50)
             nuevo_corr = st.text_area("Corrections", value='', height=50)
-            nuevo_emo = st.text_area("Emotions", value='', height=50) # ¡Agregado para evitar error en línea 316!
+            nuevo_emo = st.text_area("Emotions", value='', height=50)
             
             # RISK (Espaciado reducido)
             st.markdown("<div style='font-weight: 900; font-size: 14px; margin-top: 5px; margin-bottom: 0px;'>Risk</div>", unsafe_allow_html=True)
