@@ -1086,17 +1086,16 @@ with col_cal:
                         notas_html_contenido = ""
                         has_notes = False
                         
-                        for idx_t, t in enumerate(trades_visibles):
+for idx_t, t in enumerate(trades_visibles):
                             if bool(t.get("razon_trade", "").strip() or t.get("Corrections", "").strip() or t.get("Emotions", "").strip() or t.get("Confluences", [])):
                                 has_notes = True
                                 confluences_str = ", ".join(t.get("Confluences", []))
                                 
-# 1. Definimos el color y el signo basados en si el PnL es positivo o negativo
-color_pnl = "#00C897" if t["pnl"] >= 0 else "#FF5252"
-signo = "+" if t["pnl"] >= 0 else "-"
-
-# 2. Agregamos el HTML usando las nuevas variables y abs() para el dinero
-notas_html_contenido += f'<div style="margin-bottom: 15px;"><h4 style="color:{color_pnl}; margin:0;">▶ Trade {idx_t+1} {signo}${abs(t["pnl"]):,.2f}</h4><b>Bias:</b> <span class="note-val">{t.get("bias", "NEUTRO")}</span><br><b>Confluences:</b> <span class="note-val">{confluences_str}</span><br><b>Reason For Trade:</b> <span class="note-val">{t.get("razon_trade", "")}</span><br><b>Corrections:</b> <span class="note-val">{t.get("Corrections", "")}</span><br><b>Risk:</b> <span class="note-val">{t.get("risk", "")}</span><br><b>RR:</b> <span class="note-val">{t.get("RR", "")}</span><br><b>Trade Type:</b> <span class="note-val">{t.get("trade_type", "")}</span><br><b>Emotions:</b> <span class="note-val">{t.get("Emotions", "")}</span></div>'                                
+                                # Definimos el color según el PnL del trade individual
+                                pnl_color_nota = "#00C897" if t["pnl"] >= 0 else "#FF4C4C"
+                                
+                                notas_html_contenido += f'<div style="margin-bottom: 15px;"><h4 style="color:{pnl_color_nota}; margin:0;">▶ Trade #{idx_t+1} (PnL: ${t["pnl"]:,.2f})</h4><b>Bias:</b> <span class="note-val">{t.get("bias", "NEUTRO")}</span><br><b>Confluences:</b> <span class="note-val">{confluences_str}</span><br><b>Reason For Trade:</b> <span class="note-val">{t.get("razon_trade", "")}</span><br><b>Corrections:</b> <span class="note-val">{t.get("Corrections", "")}</span><br><b>Risk:</b> <span class="note-val">{t.get("risk", "")}</span><br><b>RR:</b> <span class="note-val">{t.get("RR", "")}</span><br><b>Trade Type:</b> <span class="note-val">{t.get("trade_type", "")}</span><br><b>Emotions:</b> <span class="note-val">{t.get("Emotions", "")}</span></div>'
+                                
                         if has_notes:
                             id_note_modal = f"mod_note_{anio_sel}_{mes_sel}_{dia}"
                             note_html = f'<div><input type="checkbox" id="{id_note_modal}" class="modal-toggle" style="display:none;"><label for="{id_note_modal}"><div class="note-icon">💭</div></label><div class="fs-modal"><label for="{id_note_modal}" class="close-btn">{TXT_CERRAR_MODAL}</label><div class="note-modal-content"><h3 style="text-align:center; margin-top:0; font-size: var(--note-lbl-size);">💭 Trades - {dia}/{mes_sel}/{anio_sel}</h3><hr>{notas_html_contenido}</div></div></div>'
