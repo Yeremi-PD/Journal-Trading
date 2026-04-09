@@ -792,8 +792,7 @@ st.markdown(f"""
     .fs-modal img {{ width: 80vw !important; height: 80vh !important; max-width: 80vw !important; max-height: 80vh !important; margin: auto !important; box-shadow: 0px 10px 30px rgba(0,0,0,0.5) !important; border-radius: 10px !important; object-fit: contain !important; image-rendering: high-quality !important; image-rendering: crisp-edges !important; }}
     .close-btn {{ position: absolute !important; top: 15px !important; right: 25px !important; font-size: 20px !important; background-color: #FF4C4C !important; color: white !important; padding: 8px 15px !important; border-radius: 8px !important; cursor: pointer !important; z-index: 10000000 !important; font-weight: bold !important; }}
 
-    .card-pnl {{ width: {CARD_PNL_W} !important; height: {CARD_PNL_H} !important; transform: translate({CARD_PNL_X}px, {CARD_PNL_Y}px) !important; }}
-    .card-win {{ width: {CARD_WIN_W} !important; height: {CARD_WIN_H} !important; transform: translate({CARD_WIN_X}px, {CARD_WIN_Y}px) !important; }}
+    .card-pnl, .card-win, .card-rr {{ width: 100% !important; height: auto !important; min-height: 100px !important; }}
     .metric-card {{ background-color: {card_bg} !important; border-radius: 15px !important; padding: 15px 20px !important; border: 1px solid {border_color} !important; }}
     .metric-header {{ display: flex !important; align-items: center !important; gap: 8px !important; margin-bottom: 5px !important; }}
     .title-net-pnl {{ font-size: var(--size-card-titles) !important; font-weight: 700 !important; color: {c_tit_pnl} !important; }}
@@ -1175,20 +1174,48 @@ with col_det:
     simbolo_pnl = "+" if net_pnl > 0 else ""
     c_win_card = "#00C897" if win_pct >= 50 else "#FF4C4C"
     
-    st.markdown(f"""
-        <div class="metric-card card-pnl">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <div>
-                    <div class="metric-header"><span class="title-net-pnl">{titulo_pnl}</span></div>
-                    <div class="{color_pnl}">{simbolo_pnl}${net_pnl:,.2f}</div>
-                </div>
-                <div style="text-align: right;">
-                    <div class="metric-header" style="justify-content: flex-end;"><span class="title-net-pnl">Total Trades</span></div>
-                    <div class="win-value" style="color: white;">{total_trades}</div>
-                </div>
+    # --- CÁLCULO DE RR PROMEDIO ---
+    rr_valores = []
+    # Buscamos en los trades del mes o de todo el tiempo según el toggle
+    trades_para_rr = todos_los_trades_planos if ver_todo else [tr for k, v in db_usuario[ctx]["trades"].items() if k[0]==anio_sel and k[1]==mes_sel for tr in v]
+    
+    for t in trades_para_rr:
+        rr_str = str(t.get('RR', '1:0'))
+        if ":" in rr_str:
+            try:
+                # Extraemos el número después de los ":" (ej: de 1:2.5 saca 2.5)
+                val = float(rr_str.split(":")[1])
+                if val > 0: rr_valores.append(val)
+            except: pass
+    
+    rr_promedio = sum(rr_valores) / len(rr_valores) if rr_valores else 0.0
+
+    # --- DISEÑO DE LAS 3 TARJETAS INDEPENDIENTES ---
+    c_met1, c_met2, c_met3 = st.columns(3)
+
+    with c_met1:
+        st.markdown(f"""
+            <div class="metric-card card-pnl">
+                <div class="metric-header"><span class="title-net-pnl">{titulo_pnl}</span></div>
+                <div class="{color_pnl}">{simbolo_pnl}${net_pnl:,.2f}</div>
             </div>
-        </div>
-    """, unsafe_allow_html=True)
+        """, unsafe_allow_html=True)
+
+    with c_met2:
+        st.markdown(f"""
+            <div class="metric-card card-win">
+                <div class="metric-header"><span class="title-trade-win">Total Trades</span></div>
+                <div class="win-value" style="color: white;">{total_trades}</div>
+            </div>
+        """, unsafe_allow_html=True)
+
+    with c_met3:
+        st.markdown(f"""
+            <div class="metric-card card-rr">
+                <div class="metric-header"><span class="title-trade-win">RR Promedio</span></div>
+                <div class="win-value" style="color: #4F46E5;">1 : {rr_promedio:.2f}</div>
+            </div>
+        """, unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
 
