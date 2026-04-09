@@ -646,8 +646,18 @@ st.markdown(f"""
     /* Mantenemos el tamaño de tu cuadro de Trade Details y reforzamos el color claro */
     div[data-testid="stPopoverBody"]:has(h3) {{ width: 710px !important; max-width: 95vw !important; max-height: 85vh !important; margin-top: 100px !important; overflow-y: auto !important; box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important; background-color: {card_bg} !important; border: 2px solid {card_bg} !important; }}
     
-    /* 🔴 Convertir los CÍRCULOS en CUADRADOS (Truco Infalible: atacar las formas vacías) */
-    div[data-testid="stPopoverBody"] div[data-testid="stRadio"] [data-baseweb="radio"] div:empty {{ border-radius: 3px !important; }}
+    /* 🔴 MAGIA CSS: Volver la caja un cuadrado y mutar el punto rojo en un Check (✔) verde */
+    div[data-testid="stPopoverBody"] div[data-testid="stRadio"] [data-baseweb="radio"] > div:first-child {{ border-radius: 4px !important; }}
+    
+    div[data-testid="stPopoverBody"] div[data-testid="stRadio"] [data-baseweb="radio"] > div:first-child > div {{ 
+        border-radius: 0 !important; /* Matamos el círculo */
+        background-color: transparent !important; /* Matamos el color rojo feo */
+        width: 6px !important; /* Ancho de la palomita */
+        height: 12px !important; /* Alto de la palomita */
+        border-bottom: 3px solid #00C897 !important; /* Palito inferior verde */
+        border-right: 3px solid #00C897 !important; /* Palito lateral verde */
+        transform: rotate(45deg) translate(-1px, -2px) !important; /* Lo rotamos para que sea un ✔ */
+    }}
     
     /* 🔴 Aclarar textareas apuntando directo a su contenedor principal */
     div[data-testid="stPopoverBody"] div[data-testid="stTextArea"] > div {{ background-color: {border_color} !important; border-radius: 8px !important; }}
