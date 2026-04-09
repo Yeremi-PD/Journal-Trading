@@ -1512,11 +1512,12 @@ with col_mitad_2:
                 )
 
 # ==========================================
+# ==========================================
 # SCRIPT PARA CERRAR MODALES, BLOQUEAR TECLADO Y BOTÓN DE CAPTURA
 # ==========================================
 components.html("""
 <style>
-/* 🔴 FIX: Centrar el texto del Balance Verticalmente */
+/* FIX: Centrar el texto del Balance Verticalmente */
 div[data-testid="stNumberInput"] input {
     padding-top: 15px !important;
     padding-bottom: 15px !important;
@@ -1551,7 +1552,7 @@ bloquearTeclado();
 const observer = new MutationObserver(bloquearTeclado);
 observer.observe(doc.body, { childList: true, subtree: true });
 
-// 3. BOTÓN DE CAPTURA DE PANTALLA (Layout Intacto, Página Completa Real)
+// 3. BOTÓN DE CAPTURA (Solución de Textos Invisibles y Página Completa)
 if (!doc.getElementById('btn-screenshot-global')) {
     const script = doc.createElement('script');
     script.src = "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js";
@@ -1595,28 +1596,54 @@ if (!doc.getElementById('btn-screenshot-global')) {
         
         btn.innerHTML = '📸 Procesando...';
         btn.style.pointerEvents = 'none';
-        btn.style.opacity = '0'; // Esconde el botón en la foto
+        btn.style.opacity = '0'; 
         
         const isMobile = window.parent.innerWidth < 768 || /iPad|iPhone|iPod/.test(window.parent.navigator.userAgent);
         
-        // El contenedor real de tu contenido (sin tocar la altura de la página general)
         const target = doc.querySelector('.block-container') || doc.querySelector('[data-testid="stMainBlockContainer"]');
         const stMain = doc.querySelector('.main') || doc.querySelector('[data-testid="stMain"]');
         const stAppView = doc.querySelector('[data-testid="stAppViewContainer"]');
         
         const computedBgColor = doc.querySelector('.stApp') ? window.parent.getComputedStyle(doc.querySelector('.stApp')).backgroundColor : '#1A202C';
         
-        // Guardamos el scroll original
         const origMainOverflow = stMain ? stMain.style.overflow : '';
         const origAppViewOverflow = stAppView ? stAppView.style.overflow : '';
 
-        // MAGIA SANA: Solo habilitamos que el contenido desborde, SIN romper las alturas (esto evita que se amontone y los textos desaparezcan)
+        // --- INICIO DEL FIX DE TEXTOS INVISIBLES ---
+        
+        // 1. Forzar color blanco en el botón SAVE
+        const tempStyles = doc.createElement('style');
+        tempStyles.innerHTML = `
+            [data-testid="stFormSubmitButton"] button p { color: #ffffff !important; opacity: 1 !important; visibility: visible !important; }
+        `;
+        doc.head.appendChild(tempStyles);
+
+        // 2. Inyectar palabra "Upload" físicamente porque ignora el CSS ::after
+        const uploadBtns = doc.querySelectorAll('[data-testid="stFileUploadDropzone"] button');
+        uploadBtns.forEach(b => {
+            const span = doc.createElement('span');
+            span.className = 'temp-text-fix';
+            span.innerHTML = 'Upload';
+            span.style.cssText = 'position:absolute; left:50%; top:50%; transform:translate(-50%, -50%); font-size:20px; color:black; font-weight:bold; z-index:99; pointer-events:none;';
+            b.appendChild(span);
+        });
+
+        // 3. Inyectar el emoji del calendario físicamente
+        const dateInputs = doc.querySelectorAll('div[data-testid="stDateInput"] > div:first-child');
+        dateInputs.forEach(d => {
+            const span = doc.createElement('span');
+            span.className = 'temp-emoji-fix';
+            span.innerHTML = '🗓️';
+            span.style.cssText = 'position:absolute; left:50%; top:50%; transform:translate(-50%, -50%); font-size:33px; z-index:99; pointer-events:none; color:black;';
+            d.appendChild(span);
+        });
+        
+        // --- FIN DEL FIX ---
+
         if (stMain) stMain.style.setProperty('overflow', 'visible', 'important');
         if (stAppView) stAppView.style.setProperty('overflow', 'visible', 'important');
         
         window.parent.scrollTo(0, 0);
-        
-        // Tiempo para que el navegador renderice sin prisas
         await new Promise(resolve => setTimeout(resolve, 1500));
         
         try {
@@ -1668,9 +1695,12 @@ if (!doc.getElementById('btn-screenshot-global')) {
             alert("Hubo un error al capturar: " + err.message);
             console.error("Error html2canvas: ", err);
         } finally {
-            // Restauramos todo a la normalidad
             if (stMain) stMain.style.overflow = origMainOverflow;
             if (stAppView) stAppView.style.overflow = origAppViewOverflow;
+            
+            // Borramos los textos y estilos temporales
+            if (tempStyles) tempStyles.remove();
+            doc.querySelectorAll('.temp-text-fix, .temp-emoji-fix').forEach(el => el.remove());
             
             btn.innerHTML = '📸 Capturar';
             btn.style.pointerEvents = 'auto';
