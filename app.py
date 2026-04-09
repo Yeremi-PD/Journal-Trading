@@ -895,7 +895,7 @@ with st.form(key=f"form_main_entry_{st.session_state.form_reset_key}", clear_on_
         
         st.session_state.form_reset_key += 1
         
-        st.success("✅ ¡Trade guardado y panel limpiado para el siguiente!")
+        st.success("✅ Trade Saved!")
         st.rerun()
 
 # ==========================================
