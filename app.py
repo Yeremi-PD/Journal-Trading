@@ -1512,7 +1512,7 @@ with col_mitad_2:
                 )
 
 # ==========================================
-# SCRIPT PARA CERRAR MODALES, BLOQUEAR TECLADO Y BOTÓN DE CAPTURA
+# SCRIPT PARA CERRAR MODALES Y BLOQUEAR TECLADO
 # ==========================================
 components.html("""
 <style>
@@ -1537,7 +1537,7 @@ doc.addEventListener('keydown', function(e) {
     }
 });
 
-// 2. Bloquear teclado móvil
+// 2. Bloquear teclado móvil en Filtros, Data Source y Calendario
 function bloquearTeclado() {
     const inputs = doc.querySelectorAll('div[data-testid="stSelectbox"] input, div[data-testid="stDateInput"] input');
     inputs.forEach(input => {
@@ -1550,3 +1550,5 @@ function bloquearTeclado() {
 bloquearTeclado();
 const observer = new MutationObserver(bloquearTeclado);
 observer.observe(doc.body, { childList: true, subtree: true });
+</script>
+""", height=0, width=0)
