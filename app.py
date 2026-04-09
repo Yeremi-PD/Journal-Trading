@@ -402,13 +402,13 @@ if st.sidebar.button("💾 Save Design Settings", use_container_width=True):
     st.sidebar.success("✅ Settings Saved!")
 
 st.sidebar.markdown("---")
-st.sidebar.markdown("### 💼 Gestionar Cuentas")
+st.sidebar.markdown("### 💼 Manage Accounts")
 
-with st.sidebar.expander("💼 Gestionar Cuentas"):
+with st.sidebar.expander("Manage Accounts"):
     # --- 1. CREAR NUEVA CUENTA ---
-    st.markdown("**➕ Crear Nueva Cuenta**")
-    nueva_cuenta_nombre = st.text_input("Nombre de la cuenta (Ej. My Funded 50k)", key="input_nombre_nueva_cta")
-    nueva_cuenta_bal = st.selectbox("Balance Inicial", [25000.0, 50000.0, 100000.0], format_func=lambda x: f"${x:,.0f}", key="select_bal_nueva_cta")
+    st.markdown("**➕ Create New Account**")
+    nueva_cuenta_nombre = st.text_input("Account name", key="input_nombre_nueva_cta")
+    nueva_cuenta_bal = st.selectbox("Initial Balance", [25000.0, 50000.0, 100000.0], format_func=lambda x: f"${x:,.0f}", key="select_bal_nueva_cta")
     
     # Añadimos key="btn_crear_cta_sidebar"
     if st.button("➕ Crear Cuenta", use_container_width=True, key="btn_crear_cta_sidebar"):
