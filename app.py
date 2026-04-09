@@ -911,7 +911,7 @@ with st.form(key=f"form_main_entry_{st.session_state.form_reset_key}", clear_on_
             
             # 2. CONFLUENCES
             st.markdown("<div style='font-weight: 900; font-size: 14px; margin-top: 15px; margin-bottom: 0px;'>Confluences</div>", unsafe_allow_html=True)
-            all_confs_list = ['BIAS WELL', 'LIQ SWEEP', 'IFVG', 'FVG', 'EQH / EQL', 'BSL / SSL', 'POI', 'SMT', 'Order Block', 'PDH / PDL', 'Continuation', 'Data High / Data Low', 'CISD']
+            all_confs_list = ['BIAS WELL', 'LIQ SWEEP', 'IFVG', 'FVG', 'EQH / EQL', 'BSL / SSL', 'POI', 'SMT', 'Order Block', 'Continuation', 'Data High / Data Low', 'CISD']
             nuevo_conf = []
             cols_conf = st.columns(3)
             for idx, c_name in enumerate(all_confs_list):
@@ -1385,7 +1385,7 @@ with col_mitad_1:
                                     e_bias = st.selectbox("Bias", ['LONG', 'SHORT', 'NONE', 'NEUTRO'], index=['LONG', 'SHORT', 'NONE', 'NEUTRO'].index(def_bias), key=f"e_bias_{clave}_{i}")
                                     
                                     st.markdown("<div style='font-weight: 900; font-size: 14px; margin-top: 15px; margin-bottom: 10px;'>Confluences</div>", unsafe_allow_html=True)
-                                    all_confs = ['BIAS WELL', 'LIQ SWEEP', 'IFVG', 'FVG', 'EQH / EQL', 'BSL / SSL', 'POI', 'SMT', 'Order Block', 'PDH / PDL', 'Continuation', 'Data High / Data Low', 'CISD']
+                                    all_confs = ['BIAS WELL', 'LIQ SWEEP', 'IFVG', 'FVG', 'EQH / EQL', 'BSL / SSL', 'POI', 'SMT', 'Order Block', 'Continuation', 'Data High / Data Low', 'CISD']
                                     curr_confs = data.get('Confluences', [])
                                     e_conf = []
                                     cols_e_conf = st.columns(3)
