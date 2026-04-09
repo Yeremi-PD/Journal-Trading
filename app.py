@@ -646,9 +646,8 @@ st.markdown(f"""
     /* Mantenemos el tamaño de tu cuadro de Trade Details y reforzamos el color claro */
     div[data-testid="stPopoverBody"]:has(h3) {{ width: 710px !important; max-width: 95vw !important; max-height: 85vh !important; margin-top: 100px !important; overflow-y: auto !important; box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important; background-color: {card_bg} !important; border: 2px solid {card_bg} !important; }}
     
-    /* 🔴 Convertir agresivamente los CÍRCULOS en CUADRADOS apuntando directo a stRadio */
-    div[data-testid="stPopoverBody"] div[data-testid="stRadio"] div[data-baseweb="radio"] > div:first-of-type {{ border-radius: 4px !important; }}
-    div[data-testid="stPopoverBody"] div[data-testid="stRadio"] div[data-baseweb="radio"] > div:first-of-type > div {{ border-radius: 2px !important; }}
+    /* 🔴 Convertir los CÍRCULOS en CUADRADOS (Truco Infalible: atacar las formas vacías) */
+    div[data-testid="stPopoverBody"] div[data-testid="stRadio"] [data-baseweb="radio"] div:empty {{ border-radius: 3px !important; }}
     
     /* 🔴 Aclarar textareas apuntando directo a su contenedor principal */
     div[data-testid="stPopoverBody"] div[data-testid="stTextArea"] > div {{ background-color: {border_color} !important; border-radius: 8px !important; }}
