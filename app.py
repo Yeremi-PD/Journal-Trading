@@ -379,11 +379,7 @@ st.sidebar.markdown(
     f"</div>", 
     unsafe_allow_html=True
 )
-
-# --- NUEVO MENÚ DE NAVEGACIÓN ---
-opciones_menu = ["📊 Dashboard", "📅 Calendar", "📓 Journal", "⚙️ Settings"]
-pagina_actual = st.sidebar.radio("Menu", opciones_menu, label_visibility="collapsed", key="menu_principal")
-
+# Tu código original (sin cambios en la lógica)
 st.sidebar.markdown("---")
 dispositivo_visual = st.sidebar.radio(
     "Current Design:", 
