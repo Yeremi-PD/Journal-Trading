@@ -920,7 +920,7 @@ with st.form(key=f"form_main_entry_{st.session_state.form_reset_key}", clear_on_
                     
             # 3. REASON FOR TRADE (Movido hacia arriba, altura reducida a 45)
             st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
-            nuevo_razon = st.text_area("Reason For Trade", value='', height=95)
+            nuevo_razon = st.text_area("Reason For Trade", value='', height=45)
             
             # 4. RISK (Con más separación entre opciones)
             st.markdown("<div style='font-weight: 900; font-size: 14px; margin-top: 5px; margin-bottom: 0px;'>Risk</div>", unsafe_allow_html=True)
