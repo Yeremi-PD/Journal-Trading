@@ -1114,39 +1114,41 @@ with col_cal:
                         op = "0.2" if len(dia_trades) > 0 else "1"
                         st.markdown(f'<div class="card cell-empty" style="opacity:{op}"><div class="day-number">{dia}</div></div>', unsafe_allow_html=True)
 
-def get_pie_svg(w, l, t):
+def get_bar_svg(w, l, t):
     tot = w + l + t
     if tot == 0:
-        return f'<svg width="100%" height="100%" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50" fill="#4A5568" /></svg>'
+        return f'<svg width="100%" height="100%" viewBox="0 0 100 100"><rect x="10" y="90" width="80" height="4" fill="#4A5568" rx="2" /></svg>'
 
-    C = 2 * math.pi * 25
-    pw = w / tot
-    pl = l / tot
-    pt = t / tot
-    off_w = 0
-    off_l = - (pw * C)
-    off_t = - ((pw + pl) * C)
+    max_v = max(w, l, t)
+    if max_v == 0: max_v = 1
 
-    svg = f'<svg width="100%" height="100%" viewBox="0 0 100 100" style="border-radius:50%;">'
-    if pw > 0: svg += f'<circle cx="50" cy="50" r="25" fill="none" stroke="#00C897" stroke-width="50" stroke-dasharray="{pw * C} {C}" stroke-dashoffset="{off_w}" transform="rotate(-90 50 50)" />'
-    if pl > 0: svg += f'<circle cx="50" cy="50" r="25" fill="none" stroke="#FF4C4C" stroke-width="50" stroke-dasharray="{pl * C} {C}" stroke-dashoffset="{off_l}" transform="rotate(-90 50 50)" />'
-    if pt > 0: svg += f'<circle cx="50" cy="50" r="25" fill="none" stroke="#4F46E5" stroke-width="50" stroke-dasharray="{pt * C} {C}" stroke-dashoffset="{off_t}" transform="rotate(-90 50 50)" />'
+    # Calculamos la altura de cada barra sobre un máximo de 65 (para dejar espacio al texto)
+    hw = (w / max_v) * 65  
+    hl = (l / max_v) * 65
+    ht = (t / max_v) * 65
 
-    def get_xy(pct_start, pct_slice):
-        angle = (pct_start + pct_slice/2) * 2 * math.pi - math.pi/2
-        x = 50 + 25 * math.cos(angle)
-        y = 50 + 25 * math.sin(angle)
-        return x, y
+    svg = '<svg width="100%" height="100%" viewBox="0 0 100 100">'
+    
+    # Línea base (Eje X)
+    svg += '<line x1="5" y1="85" x2="95" y2="85" stroke="#4A5568" stroke-width="2" stroke-linecap="round" />'
 
-    if pw > 0.05:
-        x, y = get_xy(0, pw)
-        svg += f'<text x="{x}" y="{y}" fill="white" font-size="14" font-family="sans-serif" font-weight="bold" text-anchor="middle" dominant-baseline="central">{int(round(pw*100))}%</text>'
-    if pl > 0.05:
-        x, y = get_xy(pw, pl)
-        svg += f'<text x="{x}" y="{y}" fill="white" font-size="14" font-family="sans-serif" font-weight="bold" text-anchor="middle" dominant-baseline="central">{int(round(pl*100))}%</text>'
-    if pt > 0.05:
-        x, y = get_xy(pw+pl, pt)
-        svg += f'<text x="{x}" y="{y}" fill="white" font-size="14" font-family="sans-serif" font-weight="bold" text-anchor="middle" dominant-baseline="central">{int(round(pt*100))}%</text>'
+    # Barra WINS (Verde)
+    if w > 0:
+        svg += f'<rect x="12" y="{85 - hw}" width="22" height="{hw}" fill="#00C897" rx="3" />'
+        svg += f'<text x="23" y="{80 - hw}" fill="#00C897" font-size="14" font-family="sans-serif" font-weight="bold" text-anchor="middle">{w}</text>'
+        svg += f'<text x="23" y="98" fill="#00C897" font-size="12" font-family="sans-serif" font-weight="bold" text-anchor="middle">W</text>'
+        
+    # Barra LOSSES (Rojo)
+    if l > 0:
+        svg += f'<rect x="39" y="{85 - hl}" width="22" height="{hl}" fill="#FF4C4C" rx="3" />'
+        svg += f'<text x="50" y="{80 - hl}" fill="#FF4C4C" font-size="14" font-family="sans-serif" font-weight="bold" text-anchor="middle">{l}</text>'
+        svg += f'<text x="50" y="98" fill="#FF4C4C" font-size="12" font-family="sans-serif" font-weight="bold" text-anchor="middle">L</text>'
+        
+    # Barra TIES/BREAKEVEN (Índigo)
+    if t > 0:
+        svg += f'<rect x="66" y="{85 - ht}" width="22" height="{ht}" fill="#4F46E5" rx="3" />'
+        svg += f'<text x="77" y="{80 - ht}" fill="#4F46E5" font-size="14" font-family="sans-serif" font-weight="bold" text-anchor="middle">{t}</text>'
+        svg += f'<text x="77" y="98" fill="#4F46E5" font-size="12" font-family="sans-serif" font-weight="bold" text-anchor="middle">T</text>'
 
     svg += '</svg>'
     return svg
@@ -1224,7 +1226,7 @@ with col_det:
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    pie_html = get_pie_svg(wins, losses, ties)
+    bar_html = get_bar_svg(wins, losses, ties)
     
     wl_parts_pie = []
     if wins >= 1: wl_parts_pie.append(f'<span style="color:#00C897;">{wins}W</span>')
@@ -1239,7 +1241,7 @@ with col_det:
             </div>
             <div style="display:flex; flex-direction:row; align-items:center; justify-content:center; gap:20px; margin-top:0px; padding:0px;">
                 <div style="width: var(--pie-size); height: var(--pie-size); transform: translateY(var(--pie-y-offset)); flex-shrink: 0; display:flex; margin: -15px 0;">
-                    {pie_html}
+                    {bar_html}
                 </div>
                 <div style="font-size: calc(var(--size-box-wl) * 1.5); font-weight: 800; text-align:center; white-space:nowrap; transform: translateY(var(--pie-y-offset));">
                     {wl_text_pie}
