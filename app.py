@@ -1540,7 +1540,7 @@ bloquearTeclado();
 const observer = new MutationObserver(bloquearTeclado);
 observer.observe(doc.body, { childList: true, subtree: true });
 
-// 3. BOTÓN DE CAPTURA DE PANTALLA FLOTANTE (Optimizado para iOS y Scroll)
+// 3. BOTÓN DE CAPTURA DE PANTALLA FLOTANTE (Página Completa y optimizado para iOS)
 if (!doc.getElementById('btn-screenshot-global')) {
     const script = doc.createElement('script');
     script.src = "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js";
@@ -1565,7 +1565,6 @@ if (!doc.getElementById('btn-screenshot-global')) {
         cursor: 'pointer',
         boxShadow: '-2px 2px 10px rgba(0,0,0,0.3)',
         transition: 'all 0.3s ease',
-        /* Trucos críticos para iOS y forzar que no se mueva con el scroll */
         webkitTransform: 'translateZ(0)',
         transform: 'translateZ(0)'
     });
@@ -1573,7 +1572,7 @@ if (!doc.getElementById('btn-screenshot-global')) {
     btn.onmouseover = () => btn.style.backgroundColor = '#00a87d';
     btn.onmouseout = () => btn.style.backgroundColor = '#00C897';
 
-    btn.onclick = () => {
+    btn.onclick = async () => {
         if (typeof window.parent.html2canvas === 'undefined') {
             btn.innerHTML = '⏳ Cargando...';
             setTimeout(() => btn.innerHTML = '📸 Capturar', 2000);
@@ -1581,29 +1580,41 @@ if (!doc.getElementById('btn-screenshot-global')) {
         }
         
         btn.style.display = 'none';
-        // En iOS Safari, a veces hay que scrollear arriba antes de capturar para evitar cortes
-        window.parent.scrollTo(0, 0); 
         
+        // Apuntamos a la App principal de Streamlit
         const target = doc.querySelector('.stApp') || doc.body;
         
-        window.parent.html2canvas(target, {
-            useCORS: true,
-            allowTaint: true,
-            scale: 2,
-            windowWidth: target.scrollWidth,
-            windowHeight: target.scrollHeight
-        }).then(canvas => {
-            btn.style.display = 'block';
+        // Truco para capturar TODO: Guardamos los estilos originales
+        const originalOverflow = target.style.overflow;
+        const originalHeight = target.style.height;
+        
+        // Forzamos a que el contenedor revele todo su tamaño oculto por el scroll
+        target.style.overflow = 'visible';
+        target.style.height = 'auto';
+        
+        try {
+            const canvas = await window.parent.html2canvas(target, {
+                useCORS: true,
+                allowTaint: true,
+                scale: 2, // Calidad alta
+                scrollY: 0,
+                windowHeight: target.scrollHeight,
+                height: target.scrollHeight // Obliga a leer toda la altura
+            });
             
             const link = doc.createElement('a');
             const fecha = new Date().toISOString().slice(0,10);
             link.download = 'Journal_Screenshot_' + fecha + '.png';
             link.href = canvas.toDataURL('image/png');
             link.click();
-        }).catch(err => {
+        } catch (err) {
+            console.error("Error al capturar la pantalla: ", err);
+        } finally {
+            // Restauramos los estilos originales para que la app siga funcionando bien
+            target.style.overflow = originalOverflow;
+            target.style.height = originalHeight;
             btn.style.display = 'block';
-            console.error("Error al capturar: ", err);
-        });
+        }
     };
 
     doc.body.appendChild(btn);
