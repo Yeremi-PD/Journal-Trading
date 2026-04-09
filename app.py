@@ -851,7 +851,8 @@ st.markdown(f"""
 col_t, col_fil, col_data, col_bal = st.columns([3, 1.5, 1.5, 2])
 
 with col_t: 
-    st.markdown(f'<p class="dashboard-title">{TXT_DASHBOARD}</p>', unsafe_allow_html=True)
+    # Usamos la variable 'usuario' directamente en el f-string
+    st.markdown(f'<p class="dashboard-title">Hi, {usuario}</p>', unsafe_allow_html=True)
 
 with col_fil: 
     st.markdown(f'<div class="lbl-filtros">{LBL_FILTROS}</div>', unsafe_allow_html=True)
