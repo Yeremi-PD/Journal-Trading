@@ -1619,3 +1619,5 @@ if (!doc.getElementById('btn-screenshot-global')) {
 
     doc.body.appendChild(btn);
 }
+</script>
+""", height=0, width=0)
