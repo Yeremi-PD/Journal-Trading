@@ -871,9 +871,10 @@ with col_fil:
 with col_data: 
     st.markdown(f'<div class="lbl-data">{LBL_DATA}</div>', unsafe_allow_html=True)
     st.selectbox("Data Source", list(db_usuario.keys()), key="data_source_sel", label_visibility="collapsed")
-    # Guardamos la cuenta actual en la URL silenciosamente
+    # Guardamos la cuenta actual en la URL y en la memoria global del usuario
     try:
         st.query_params["account"] = st.session_state.data_source_sel
+        db_global[usuario]["last_account"] = st.session_state.data_source_sel
     except:
         pass
 
