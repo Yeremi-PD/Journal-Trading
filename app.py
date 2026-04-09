@@ -1382,8 +1382,8 @@ with col_mitad_1:
             for clave, lista_trades in trades_ordenados:
                 anio_t, mes_t, dia_t = clave
                 
-                # --- FILTRAR PARA QUE SOLO MUESTRE EL MES GLOBAL SELECCIONADO ---
-                if anio_t != st.session_state.cal_year or mes_t != st.session_state.cal_month:
+                # --- FILTRAR PARA MOSTRAR MES ACTUAL O TODO EL TIEMPO ---
+                if not ver_todo and (anio_t != st.session_state.cal_year or mes_t != st.session_state.cal_month):
                     continue
                 
                 trades_en_mes += len(lista_trades)
@@ -1514,8 +1514,8 @@ with col_mitad_2:
 
             table_data = []
             for key, list_t in sorted(all_trades.items(), key=lambda x: date(x[0][0], x[0][1], x[0][2]), reverse=True):
-                # --- FILTRAMOS PARA MOSTRAR SOLO EL MES ACTUAL ---
-                if key[0] != st.session_state.cal_year or key[1] != st.session_state.cal_month:
+                # --- FILTRAMOS PARA MOSTRAR SOLO EL MES ACTUAL O TODO EL TIEMPO ---
+                if not ver_todo and (key[0] != st.session_state.cal_year or key[1] != st.session_state.cal_month):
                     continue
 
                 for i, trade in enumerate(list_t):
