@@ -842,7 +842,7 @@ st.markdown(f"""
 
     /* 🟢 Centrar el emoji SOLAMENTE en el calendario "Day" de la sección de edición */
     div[data-testid="stExpanderDetails"] div[data-testid="stDateInput"]::after {{
-        margin-top: 18px !important;
+        margin-top: 25px !important;
     }}
     </style>
     """, unsafe_allow_html=True)
