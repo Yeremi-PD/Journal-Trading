@@ -420,17 +420,20 @@ if st.sidebar.button(texto_boton_tema):
 st.sidebar.markdown("---")
 ctx_actual = st.session_state.data_source_sel
 with st.sidebar.expander(f"🔄 Reset {ctx_actual}"):
-    nuevo_balance_reset = st.number_input("New Balance", value=db_usuario[ctx_actual]["balance"], step=100.0)
+    opciones_reset = {"$25,000": 25000.0, "$50,000": 50000.0, "$100,000": 100000.0}
+    seleccion_reset = st.radio("Select Initial Balance:", list(opciones_reset.keys()))
+    nuevo_balance_reset = opciones_reset[seleccion_reset]
+    
     if "confirm_reset" not in st.session_state: st.session_state.confirm_reset = False
     
     if st.button("🔄 Reset Account", use_container_width=True):
         st.session_state.confirm_reset = True
         
     if st.session_state.confirm_reset:
-        st.warning(f"⚠️ ¿Borrar historial y establecer balance en ${nuevo_balance_reset:,.2f}?")
+        st.warning(f"⚠️ ¿Borrar historial y establecer balance en {seleccion_reset}?")
         c_yes, c_no = st.columns(2)
         if c_yes.button("SÍ, RESETEAR"):
-            db_usuario[ctx_actual]["balance"] = float(nuevo_balance_reset)
+            db_usuario[ctx_actual]["balance"] = nuevo_balance_reset
             db_usuario[ctx_actual]["trades"] = {}
             reescribir_excel_usuario(usuario)
             st.session_state.confirm_reset = False
