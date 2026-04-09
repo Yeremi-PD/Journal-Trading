@@ -880,9 +880,7 @@ st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
 # ==========================================
 # 9. ENTRADA DE TRADES
 # ==========================================
-# ANTES: btn_save = st.form_submit_button("SAVE", key=f"btn_save_main_{st.session_state.form_reset_key}")
-# AHORA:
-btn_save = st.form_submit_button("SAVE", key="btn_save_main")
+with st.form(key="form_main_entry", clear_on_submit=True, border=False):
     c1, c2, c_img, c_not, c_espacio = st.columns([1.5, 0.5, 2.5, 0.6, 3.4]) 
     
     with c1:
