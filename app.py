@@ -633,10 +633,18 @@ st.markdown(f"""
     div[data-testid="stPopoverBody"] .stTextArea textarea, div[data-testid="stPopoverBody"] input {{ font-size: 18px !important; }}
     div[data-testid="stDateInput"] {{ width: {BTN_CAL_W}px !important; min-width: {BTN_CAL_W}px !important; position: relative !important; }}
     
-    /* Mantenemos el diseño original e impedimos que cambie de color al pasar el mouse o hacer click */
-    div[data-testid="stDateInput"] > div, div[data-testid="stDateInput"] > div:focus-within, div[data-testid="stDateInput"] > div:hover {{ height: {BTN_CAL_H}px !important; min-height: {BTN_CAL_H}px !important; background-color: {btn_bg} !important; border: 1px solid {border_color} !important; border-radius: 8px !important; cursor: pointer !important; box-shadow: none !important; outline: none !important; }}
+    /* El diseño exterior de tu botón */
+    div[data-testid="stDateInput"] > div:first-child {{ height: {BTN_CAL_H}px !important; min-height: {BTN_CAL_H}px !important; background-color: {btn_bg} !important; border: 1px solid {border_color} !important; border-radius: 8px !important; cursor: pointer !important; box-shadow: none !important; outline: none !important; transition: none !important; }}
     
-    /* Forzamos al texto interno a ser siempre transparente y sin sombras al seleccionarse */
+    /* 🔴 LA MAGIA AQUÍ: Matamos la sombra negra de las capas internas de Streamlit al hacer click */
+    div[data-testid="stDateInput"] div[data-baseweb="input"], 
+    div[data-testid="stDateInput"] div[data-baseweb="base-input"],
+    div[data-testid="stDateInput"] div[data-baseweb="input"]:focus-within, 
+    div[data-testid="stDateInput"] div[data-baseweb="base-input"]:focus-within,
+    div[data-testid="stDateInput"] div[data-baseweb="input"]:hover, 
+    div[data-testid="stDateInput"] div[data-baseweb="base-input"]:hover {{ background-color: transparent !important; box-shadow: none !important; border: none !important; outline: none !important; }}
+    
+    /* Forzamos al texto interno a ser siempre transparente */
     div[data-testid="stDateInput"] input, div[data-testid="stDateInput"] input:focus, div[data-testid="stDateInput"] input:active {{ color: transparent !important; -webkit-text-fill-color: transparent !important; cursor: pointer !important; caret-color: transparent !important; background-color: transparent !important; box-shadow: none !important; outline: none !important; }}
     
     div[data-testid="stDateInput"] svg {{ display: none !important; }}
