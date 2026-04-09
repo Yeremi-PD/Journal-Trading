@@ -382,9 +382,75 @@ st.sidebar.markdown(
 )
 
 with st.sidebar.expander("💼 Gestionar Cuentas"):
-    st.markdown("**Crear Nueva Cuenta**")
+    # --- 1. CREAR NUEVA CUENTA ---
+    st.markdown("**➕ Crear Nueva Cuenta**")
     nueva_cuenta_nombre = st.text_input("Nombre de la cuenta (Ej. My Funded 50k)")
     nueva_cuenta_bal = st.selectbox("Balance Inicial", [25000.0, 50000.0, 100000.0], format_func=lambda x: f"${x:,.0f}")
+    
+    if st.button("➕ Crear Cuenta", use_container_width=True):
+        if nueva_cuenta_nombre and nueva_cuenta_nombre not in db_usuario:
+            db_usuario[nueva_cuenta_nombre] = {"balance": nueva_cuenta_bal, "trades": {}}
+            reescribir_excel_usuario(usuario)
+            st.success(f"Cuenta '{nueva_cuenta_nombre}' creada!")
+            st.rerun()
+        elif nueva_cuenta_nombre in db_usuario:
+            st.warning("Ese nombre ya existe.")
+
+    st.markdown("---")
+
+    # --- 2. RESETEAR CUENTA ACTUAL (Moverlo aquí adentro) ---
+    ctx_actual = st.session_state.data_source_sel
+    with st.expander(f"🔄 Reset {ctx_actual}"):
+        opciones_reset = {"$25,000": 25000.0, "$50,000": 50000.0, "$100,000": 100000.0}
+        seleccion_reset = st.radio("Select Initial Balance:", list(opciones_reset.keys()), key="reset_radio_sidebar")
+        nuevo_balance_reset = opciones_reset[seleccion_reset]
+        
+        if "confirm_reset" not in st.session_state: st.session_state.confirm_reset = False
+        
+        if st.button("🔄 Confirmar Reset", use_container_width=True):
+            st.session_state.confirm_reset = True
+            
+        if st.session_state.confirm_reset:
+            st.warning(f"⚠️ ¿Resetear {ctx_actual}?")
+            cr_yes, cr_no = st.columns(2)
+            if cr_yes.button("SÍ, RESET"):
+                db_usuario[ctx_actual]["balance"] = nuevo_balance_reset
+                db_usuario[ctx_actual]["trades"] = {}
+                reescribir_excel_usuario(usuario)
+                st.session_state.confirm_reset = False
+                st.rerun()
+            if cr_no.button("NO", key="cancel_reset_btn"):
+                st.session_state.confirm_reset = False
+                st.rerun()
+
+    st.markdown("---")
+
+    # --- 3. ELIMINAR CUENTA (Como desplegable interno) ---
+    with st.expander("🗑️ Eliminar Cuenta"):
+        cuenta_a_borrar = st.selectbox("Seleccionar cuenta a eliminar", list(db_usuario.keys()))
+        
+        if "confirm_delete_acc" not in st.session_state: 
+            st.session_state.confirm_delete_acc = False
+        
+        if st.button("🗑️ Eliminar Selección", use_container_width=True):
+            if len(db_usuario) <= 1:
+                st.error("No puedes eliminar tu única cuenta.")
+            else:
+                st.session_state.confirm_delete_acc = True
+                
+        if st.session_state.confirm_delete_acc:
+            st.warning(f"⚠️ ¿Borrar '{cuenta_a_borrar}'?")
+            cd_yes, cd_no = st.columns(2)
+            if cd_yes.button("SÍ, BORRAR"):
+                del db_usuario[cuenta_a_borrar]
+                if st.session_state.data_source_sel == cuenta_a_borrar:
+                    st.session_state.data_source_sel = list(db_usuario.keys())[0]
+                reescribir_excel_usuario(usuario)
+                st.session_state.confirm_delete_acc = False
+                st.rerun()
+            if cd_no.button("CANCELAR", key="cancel_delete_btn"):
+                st.session_state.confirm_delete_acc = False
+                st.rerun()
     
     if st.button("➕ Crear Cuenta", use_container_width=True):
         if nueva_cuenta_nombre and nueva_cuenta_nombre not in db_usuario:
@@ -469,31 +535,6 @@ texto_boton_tema = "🌙 Switch to Dark Theme" if st.session_state.tema == "Clar
 if st.sidebar.button(texto_boton_tema):
     st.session_state.tema = "Oscuro" if st.session_state.tema == "Claro" else "Claro"
     st.rerun()
-
-st.sidebar.markdown("---")
-ctx_actual = st.session_state.data_source_sel
-with st.sidebar.expander(f"🔄 Reset {ctx_actual}"):
-    opciones_reset = {"$25,000": 25000.0, "$50,000": 50000.0, "$100,000": 100000.0}
-    seleccion_reset = st.radio("Select Initial Balance:", list(opciones_reset.keys()))
-    nuevo_balance_reset = opciones_reset[seleccion_reset]
-    
-    if "confirm_reset" not in st.session_state: st.session_state.confirm_reset = False
-    
-    if st.button("🔄 Reset Account", use_container_width=True):
-        st.session_state.confirm_reset = True
-        
-    if st.session_state.confirm_reset:
-        st.warning(f"⚠️ Restablecer balance a {seleccion_reset}?")
-        c_yes, c_no = st.columns(2)
-        if c_yes.button("SÍ, RESETEAR"):
-            db_usuario[ctx_actual]["balance"] = nuevo_balance_reset
-            db_usuario[ctx_actual]["trades"] = {}
-            reescribir_excel_usuario(usuario)
-            st.session_state.confirm_reset = False
-            st.rerun()
-        if c_no.button("CANCELAR"):
-            st.session_state.confirm_reset = False
-            st.rerun()
         
 st.sidebar.markdown("---")
 st.sidebar.markdown("### 🛡️ Admin")
