@@ -384,10 +384,11 @@ st.sidebar.markdown(
 with st.sidebar.expander("💼 Gestionar Cuentas"):
     # --- 1. CREAR NUEVA CUENTA ---
     st.markdown("**➕ Crear Nueva Cuenta**")
-    nueva_cuenta_nombre = st.text_input("Nombre de la cuenta (Ej. My Funded 50k)")
-    nueva_cuenta_bal = st.selectbox("Balance Inicial", [25000.0, 50000.0, 100000.0], format_func=lambda x: f"${x:,.0f}")
+    nueva_cuenta_nombre = st.text_input("Nombre de la cuenta (Ej. My Funded 50k)", key="input_nombre_nueva_cta")
+    nueva_cuenta_bal = st.selectbox("Balance Inicial", [25000.0, 50000.0, 100000.0], format_func=lambda x: f"${x:,.0f}", key="select_bal_nueva_cta")
     
-    if st.button("➕ Crear Cuenta", use_container_width=True, key="btn_crear_cuenta_sidebar"):
+    # Añadimos key="btn_crear_cta_sidebar"
+    if st.button("➕ Crear Cuenta", use_container_width=True, key="btn_crear_cta_sidebar"):
         if nueva_cuenta_nombre and nueva_cuenta_nombre not in db_usuario:
             db_usuario[nueva_cuenta_nombre] = {"balance": nueva_cuenta_bal, "trades": {}}
             reescribir_excel_usuario(usuario)
@@ -398,41 +399,44 @@ with st.sidebar.expander("💼 Gestionar Cuentas"):
 
     st.markdown("---")
 
-    # --- 2. RESETEAR CUENTA ACTUAL (Moverlo aquí adentro) ---
+    # --- 2. RESETEAR CUENTA ACTUAL ---
     ctx_actual = st.session_state.data_source_sel
     with st.expander(f"🔄 Reset {ctx_actual}"):
         opciones_reset = {"$25,000": 25000.0, "$50,000": 50000.0, "$100,000": 100000.0}
-        seleccion_reset = st.radio("Select Initial Balance:", list(opciones_reset.keys()), key="reset_radio_sidebar")
+        seleccion_reset = st.radio("Select Initial Balance:", list(opciones_reset.keys()), key="radio_reset_sidebar")
         nuevo_balance_reset = opciones_reset[seleccion_reset]
         
         if "confirm_reset" not in st.session_state: st.session_state.confirm_reset = False
         
-        if st.button("🔄 Confirmar Reset", use_container_width=True):
+        # Añadimos key="btn_solicitar_reset"
+        if st.button("🔄 Confirmar Reset", use_container_width=True, key="btn_solicitar_reset"):
             st.session_state.confirm_reset = True
             
         if st.session_state.confirm_reset:
             st.warning(f"⚠️ ¿Resetear {ctx_actual}?")
             cr_yes, cr_no = st.columns(2)
-            if cr_yes.button("SÍ, RESET"):
+            # Añadimos keys únicas a los botones de confirmación
+            if cr_yes.button("SÍ, RESET", key="btn_si_reset_final"):
                 db_usuario[ctx_actual]["balance"] = nuevo_balance_reset
                 db_usuario[ctx_actual]["trades"] = {}
                 reescribir_excel_usuario(usuario)
                 st.session_state.confirm_reset = False
                 st.rerun()
-            if cr_no.button("NO", key="cancel_reset_btn"):
+            if cr_no.button("NO", key="btn_no_reset_final"):
                 st.session_state.confirm_reset = False
                 st.rerun()
 
     st.markdown("---")
 
-    # --- 3. ELIMINAR CUENTA (Como desplegable interno) ---
+    # --- 3. ELIMINAR CUENTA ---
     with st.expander("🗑️ Eliminar Cuenta"):
-        cuenta_a_borrar = st.selectbox("Seleccionar cuenta a eliminar", list(db_usuario.keys()))
+        cuenta_a_borrar = st.selectbox("Seleccionar cuenta a eliminar", list(db_usuario.keys()), key="select_eliminar_cta")
         
         if "confirm_delete_acc" not in st.session_state: 
             st.session_state.confirm_delete_acc = False
         
-        if st.button("🗑️ Eliminar Selección", use_container_width=True):
+        # Añadimos key="btn_solicitar_borrado"
+        if st.button("🗑️ Eliminar Selección", use_container_width=True, key="btn_solicitar_borrado"):
             if len(db_usuario) <= 1:
                 st.error("No puedes eliminar tu única cuenta.")
             else:
@@ -441,53 +445,17 @@ with st.sidebar.expander("💼 Gestionar Cuentas"):
         if st.session_state.confirm_delete_acc:
             st.warning(f"⚠️ ¿Borrar '{cuenta_a_borrar}'?")
             cd_yes, cd_no = st.columns(2)
-            if cd_yes.button("SÍ, BORRAR"):
+            # Añadimos keys únicas a los botones de confirmación de borrado
+            if cd_yes.button("SÍ, BORRAR", key="btn_si_borrar_final"):
                 del db_usuario[cuenta_a_borrar]
                 if st.session_state.data_source_sel == cuenta_a_borrar:
                     st.session_state.data_source_sel = list(db_usuario.keys())[0]
                 reescribir_excel_usuario(usuario)
                 st.session_state.confirm_delete_acc = False
                 st.rerun()
-            if cd_no.button("CANCELAR", key="cancel_delete_btn"):
+            if cd_no.button("CANCELAR", key="btn_no_borrar_final"):
                 st.session_state.confirm_delete_acc = False
                 st.rerun()
-    
-    if st.button("➕ Crear Cuenta", use_container_width=True):
-        if nueva_cuenta_nombre and nueva_cuenta_nombre not in db_usuario:
-            db_usuario[nueva_cuenta_nombre] = {"balance": nueva_cuenta_bal, "trades": {}}
-            reescribir_excel_usuario(usuario)
-            st.success(f"Cuenta '{nueva_cuenta_nombre}' creada!")
-            st.rerun()
-        elif nueva_cuenta_nombre in db_usuario:
-            st.warning("Ese nombre ya existe.")
-
-    st.markdown("---")
-    st.markdown("**Eliminar Cuenta**")
-    cuenta_a_borrar = st.selectbox("Seleccionar cuenta a eliminar", list(db_usuario.keys()))
-    
-    if "confirm_delete_acc" not in st.session_state: 
-        st.session_state.confirm_delete_acc = False
-    
-    if st.button("🗑️ Eliminar Cuenta", use_container_width=True):
-        if len(db_usuario) <= 1:
-            st.error("No puedes eliminar tu única cuenta.")
-        else:
-            st.session_state.confirm_delete_acc = True
-            
-    if st.session_state.confirm_delete_acc:
-        st.warning(f"⚠️ ¿Seguro que quieres borrar '{cuenta_a_borrar}' junto con todos sus trades?")
-        c_yes, c_no = st.columns(2)
-        if c_yes.button("SÍ, BORRAR"):
-            del db_usuario[cuenta_a_borrar]
-            if st.session_state.data_source_sel == cuenta_a_borrar:
-                st.session_state.data_source_sel = list(db_usuario.keys())[0]
-            reescribir_excel_usuario(usuario)
-            st.session_state.confirm_delete_acc = False
-            st.rerun()
-        if c_no.button("CANCELAR"):
-            st.session_state.confirm_delete_acc = False
-            st.rerun()
-
 # --- AJUSTA LOS TAMAÑOS AQUÍ A TU ANTOJO ---
 tamanio_titulo = "18px"    # Tamaño del texto "Current Design:"
 tamanio_opciones = "16px"  # Tamaño del texto "🖥️ PC" y "📱 Móvil"
