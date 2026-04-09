@@ -1348,7 +1348,7 @@ def ventana_borrar_trade(ctx, clave, i, usuario_actual):
         st.rerun()
 
 with col_mitad_1:
-    with st.expander("🕒 OPEN ORDER HISTORY", expanded=False):
+    with st.expander("🕒 ORDER HISTORY", expanded=False):
         trades_actuales = db_usuario[ctx]["trades"]
         
         if not trades_actuales:
