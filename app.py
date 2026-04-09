@@ -992,13 +992,16 @@ with st.form(key="form_main_entry", clear_on_submit=True, border=False):
             db_usuario[ctx]["trades"][clave_final] = []
             
         db_usuario[ctx]["trades"][clave_final].append(trade_nuevo)
+        import time # Importamos time para la pausa
+
         db_usuario[ctx]["balance"] = nuevo_bal
         
         registrar_en_excel(usuario, db_global[usuario]["password"], ctx, fecha_sel, nuevo_bal, pnl, trade_nuevo, db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
         
-        st.session_state.form_reset_key += 1
+        # Eliminamos el form_reset_key += 1
         
         st.success("✅ Trade Saved!")
+        time.sleep(1) # Pausa de 1 segundo para que el usuario pueda leer el mensaje verde
         st.rerun()
 
 # ==========================================
