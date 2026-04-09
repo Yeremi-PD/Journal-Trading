@@ -1214,7 +1214,7 @@ with col_det:
         st.markdown(f"""
             <div class="metric-card card-rr">
                 <div class="metric-header"><span class="title-trade-win">RR Promedio</span></div>
-                <div class="rr-value" style="color: #4F46E5;">1 / {rr_promedio:.2f}</div>
+                <div class="rr-value" style="color: #FFFFFF;">1 / {rr_promedio:.2f}</div>
             </div>
         """, unsafe_allow_html=True)
 
