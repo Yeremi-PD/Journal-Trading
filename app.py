@@ -369,42 +369,227 @@ def reset_settings(category):
     for k in keys: s[k] = defaults[k]
 
 # ==========================================
-# 5. BARRA LATERAL (MENÚ PRINCIPAL)
+# 5. BARRA LATERAL (AJUSTES Y ADMIN)
 # ==========================================
 tamanio_texto_cuenta = "22px"
-st.sidebar.markdown(f"<div style='margin-top:-15px; font-size: {tamanio_texto_cuenta}; font-weight: bold;'>👤 My Account: <span style='color: #00C897;'>{usuario}</span></div>", unsafe_allow_html=True)
 
-st.sidebar.markdown("<br>", unsafe_allow_html=True)
+st.sidebar.markdown(
+    f"<div style='margin-top:-15px; font-size: {tamanio_texto_cuenta}; font-weight: bold;'>"
+    f"👤 My Account: <span style='color: #00C897;'>{usuario}</span>"
+    f"</div>", 
+    unsafe_allow_html=True
+)
 
-# --- NUEVO MENÚ ESTILO DASHBOARD ---
+# --- NUEVO MENÚ DE NAVEGACIÓN ---
 opciones_menu = ["📊 Dashboard", "📅 Calendar", "📓 Journal", "⚙️ Settings"]
 pagina_actual = st.sidebar.radio("Menu", opciones_menu, label_visibility="collapsed", key="menu_principal")
 
-# CSS para ocultar los círculos del radio button y que parezcan botones
-st.sidebar.markdown("""
+st.sidebar.markdown("---")
+dispositivo_visual = st.sidebar.radio(
+    "Current Design:", 
+    ["🖥️ PC", "📱 Móvil"], 
+    index=0 if "PC" in st.session_state.dispositivo_actual else 1
+)
+
+st.session_state.dispositivo_actual = "PC" if "🖥️ PC" in dispositivo_visual else "Móvil"
+
+try: 
+    st.query_params["device"] = st.session_state.dispositivo_actual
+except: 
+    pass
+
+if st.sidebar.button("💾 Save Design Settings", use_container_width=True):
+    ctx_act = st.session_state.data_source_sel
+    bal_act = db_usuario[ctx_act]["balance"]
+    registrar_en_excel(usuario, db_global[usuario]["password"], ctx_act, datetime.now(), bal_act, 0.0, {}, db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
+    st.sidebar.success("✅ Settings Saved!")
+
+st.sidebar.markdown("---")
+st.sidebar.markdown("### 💼 Manage Accounts")
+
+with st.sidebar.expander("Manage Accounts"):
+    # --- 1. CREAR NUEVA CUENTA ---
+    st.markdown("**➕ Create New Account**")
+    nueva_cuenta_nombre = st.text_input("Account name", key="input_nombre_nueva_cta")
+    nueva_cuenta_bal = st.selectbox("Initial Balance", [25000.0, 50000.0, 100000.0], format_func=lambda x: f"${x:,.0f}", key="select_bal_nueva_cta")
+    
+    # Añadimos key="btn_crear_cta_sidebar"
+    if st.button("➕ Create Account", use_container_width=True, key="btn_crear_cta_sidebar"):
+        if nueva_cuenta_nombre and nueva_cuenta_nombre not in db_usuario:
+            db_usuario[nueva_cuenta_nombre] = {"balance": nueva_cuenta_bal, "trades": {}}
+            reescribir_excel_usuario(usuario)
+            st.success(f"Cuenta '{nueva_cuenta_nombre}' creada!")
+            st.rerun()
+        elif nueva_cuenta_nombre in db_usuario:
+            st.warning("Ese nombre ya existe.")
+
+
+    # --- 2. RESETEAR CUENTA ACTUAL ---
+    ctx_actual = st.session_state.data_source_sel
+    with st.expander(f"Reset {ctx_actual}"):
+        opciones_reset = {"$25,000": 25000.0, "$50,000": 50000.0, "$100,000": 100000.0}
+        seleccion_reset = st.radio("Select Initial Balance:", list(opciones_reset.keys()), key="radio_reset_sidebar")
+        nuevo_balance_reset = opciones_reset[seleccion_reset]
+        
+        if "confirm_reset" not in st.session_state: st.session_state.confirm_reset = False
+        
+        # Añadimos key="btn_solicitar_reset"
+        if st.button("🔄 Confirmar Reset", use_container_width=True, key="btn_solicitar_reset"):
+            st.session_state.confirm_reset = True
+            
+        if st.session_state.confirm_reset:
+            st.warning(f"⚠️ ¿Resetear {ctx_actual}?")
+            cr_yes, cr_no = st.columns(2)
+            # Añadimos keys únicas a los botones de confirmación
+            if cr_yes.button("SÍ, RESET", key="btn_si_reset_final"):
+                db_usuario[ctx_actual]["balance"] = nuevo_balance_reset
+                db_usuario[ctx_actual]["trades"] = {}
+                reescribir_excel_usuario(usuario)
+                st.session_state.confirm_reset = False
+                st.rerun()
+            if cr_no.button("NO", key="btn_no_reset_final"):
+                st.session_state.confirm_reset = False
+                st.rerun()
+
+
+    # --- 3. ELIMINAR CUENTA ---
+    with st.expander("🗑️ Delete Account"):
+        cuenta_a_borrar = st.selectbox("Select account to delete", list(db_usuario.keys()), key="select_eliminar_cta")
+        
+        if "confirm_delete_acc" not in st.session_state: 
+            st.session_state.confirm_delete_acc = False
+        
+        # Añadimos key="btn_solicitar_borrado"
+        if st.button("🗑️ Eliminar Selección", use_container_width=True, key="btn_solicitar_borrado"):
+            if len(db_usuario) <= 1:
+                st.error("No puedes eliminar tu única cuenta.")
+            else:
+                st.session_state.confirm_delete_acc = True
+                
+        if st.session_state.confirm_delete_acc:
+            st.warning(f"⚠️ ¿Borrar '{cuenta_a_borrar}'?")
+            cd_yes, cd_no = st.columns(2)
+            # Añadimos keys únicas a los botones de confirmación de borrado
+            if cd_yes.button("SÍ, BORRAR", key="btn_si_borrar_final"):
+                del db_usuario[cuenta_a_borrar]
+                if st.session_state.data_source_sel == cuenta_a_borrar:
+                    st.session_state.data_source_sel = list(db_usuario.keys())[0]
+                reescribir_excel_usuario(usuario)
+                st.session_state.confirm_delete_acc = False
+                st.rerun()
+            if cd_no.button("CANCELAR", key="btn_no_borrar_final"):
+                st.session_state.confirm_delete_acc = False
+                st.rerun()
+st.sidebar.markdown("---")
+
+# --- AJUSTA LOS TAMAÑOS AQUÍ A TU ANTOJO ---
+tamanio_titulo = "18px"    # Tamaño del texto "Current Design:"
+tamanio_opciones = "16px"  # Tamaño del texto "🖥️ PC" y "📱 Móvil"
+
+# Inyectamos el CSS personalizado para la barra lateral
+st.sidebar.markdown(f"""
     <style>
-    [data-testid="stSidebar"] div[role="radiogroup"] div[role="radio"] > div:first-child { display: none !important; }
-    [data-testid="stSidebar"] div[role="radiogroup"] div[role="radio"] { padding: 12px 15px !important; border-radius: 8px !important; margin-bottom: 2px !important; transition: 0.2s !important; }
-    [data-testid="stSidebar"] div[role="radiogroup"] div[role="radio"]:hover { background-color: rgba(150, 150, 150, 0.1) !important; }
-    [data-testid="stSidebar"] div[role="radiogroup"] div[role="radio"][aria-checked="true"] { background-color: rgba(0, 200, 151, 0.1) !important; border-left: 4px solid #00C897 !important; }
-    [data-testid="stSidebar"] div[role="radiogroup"] div[role="radio"][aria-checked="true"] p { color: #00C897 !important; font-weight: 800 !important; }
-    [data-testid="stSidebar"] div[role="radiogroup"] div[role="radio"] p { font-size: 16px !important; font-weight: 600 !important; }
+    /* Cambia el tamaño del título del radio */
+    section[data-testid="stSidebar"] div[data-testid="stRadio"] > label p {{
+        font-size: {tamanio_titulo} !important;
+        font-weight: bold !important;
+    }}
+    /* Cambia el tamaño de las opciones del radio */
+    section[data-testid="stSidebar"] div[data-testid="stRadio"] div[role="radiogroup"] label p {{
+        font-size: {tamanio_opciones} !important;
+    }}
     </style>
 """, unsafe_allow_html=True)
 
-# Botón de Logout al fondo
-st.sidebar.markdown("<div style='margin-top: 50vh;'></div>", unsafe_allow_html=True)
+st.sidebar.markdown("### 🌓 Theme")
+
+texto_boton_tema = "🌙 Switch to Dark Theme" if st.session_state.tema == "Claro" else "☀️ Switch to Light Theme"
+if st.sidebar.button(texto_boton_tema):
+    st.session_state.tema = "Oscuro" if st.session_state.tema == "Claro" else "Claro"
+    st.rerun()
+        
+st.sidebar.markdown("---")
+st.sidebar.markdown("### 🛡️ Admin")
+with st.sidebar.expander("🛡️ Admin Settings"):
+    admin_pass = st.text_input("Admin Password", type="password")
+    
+    @st.dialog("⚠️ Confirmar Acción")
+    def ventana_borrar_usuario(u):
+        st.write(f"¿Seguro que quieres borrar permanentemente al usuario **{u}**?")
+        if st.button("SÍ, BORRAR USUARIO", type="primary", use_container_width=True):
+            del db_global[u]
+            if st.session_state.usuario_actual == u: 
+                st.session_state.usuario_actual = None
+                try: st.query_params.clear()
+                except: pass
+            st.rerun()
+
+    if admin_pass == "Yfutures.":
+        st.success("Acceso concedido.")
+        for u, data in list(db_global.items()):
+            col_u, col_p, col_btn = st.columns([2, 2, 1])
+            col_u.write(f"**{u}**")
+            col_p.write(f"{data['password']}")
+            if col_btn.button("❌", key=f"del_{u}"):
+                ventana_borrar_usuario(u)
+
+st.sidebar.markdown("---")
+with st.sidebar.expander("🖥️ Dashboard Settings"):
+    if st.button("🔄 Reset Dashboard", key="res_dash", use_container_width=True): reset_settings("dash"); st.rerun()
+    user_settings["bal_num_sz"] = st.slider("Balance Numbers Size", 10, 60, user_settings["bal_num_sz"])
+    user_settings["bal_box_w"] = st.slider("Green Background Width (%)", 10, 100, user_settings["bal_box_w"])
+    user_settings["bal_box_pad"] = st.slider("Green Background Height (Padding)", 0, 50, user_settings["bal_box_pad"])
+
+with st.sidebar.expander("🔠 Text & Chart Settings"):
+    if st.button("🔄 Reset Texts & Charts", key="res_txt", use_container_width=True): reset_settings("txt"); st.rerun()
+    user_settings["size_top_stats"] = st.slider("Monthly P&L and Win Rate Size (Top)", 10, 40, user_settings["size_top_stats"])
+    user_settings["size_card_titles"] = st.slider("Titles Size (All-Time, etc)", 10, 40, user_settings["size_card_titles"])
+    user_settings["size_box_titles"] = st.slider("Titles Size (Week/Month)", 10, 40, user_settings["size_box_titles"])
+    user_settings["size_box_vals"] = st.slider("P&L Boxes Size", 10, 50, user_settings["size_box_vals"])
+    user_settings["size_box_pct"] = st.slider("% Boxes Size", 10, 40, user_settings["size_box_pct"])
+    user_settings["size_box_wl"] = st.slider("W/L Boxes Size", 10, 40, user_settings["size_box_wl"])
+    user_settings["pie_size"] = st.slider("Pie Chart Size", 50, 300, user_settings["pie_size"])
+    user_settings["pie_y_offset"] = st.slider("Chart Vertical Position (Up/Down)", -100, 100, user_settings["pie_y_offset"])
+
+with st.sidebar.expander("📅 Calendar Settings"):
+    if st.button("🔄 Reset Calendar", key="res_cal", use_container_width=True): reset_settings("cal"); st.rerun()
+    user_settings["cal_mes_size"] = st.slider("Month Size (Title)", 10, 50, user_settings["cal_mes_size"])
+    user_settings["cal_pnl_size"] = st.slider("Day P&L Size", 10, 40, user_settings["cal_pnl_size"])
+    user_settings["cal_pct_size"] = st.slider("Day % Size", 10, 30, user_settings["cal_pct_size"])
+    user_settings["cal_dia_size"] = st.slider("Day Number Size", 10, 30, user_settings["cal_dia_size"])
+    user_settings["cal_cam_size"] = st.slider("Camera Icon Size", 10, 50, user_settings["cal_cam_size"])
+    user_settings["cal_note_size"] = st.slider("Note Icon Size", 10, 50, user_settings.get("cal_note_size", 30))
+    user_settings["note_lbl_size"] = st.slider("Note Labels Size (Bias, RR...)", 10, 40, user_settings.get("note_lbl_size", 16))
+    user_settings["note_val_size"] = st.slider("Note Values Size", 10, 40, user_settings.get("note_val_size", 16))
+    user_settings["cal_scale"] = st.slider("General Scale (Calendar Height)", 50, 200, user_settings["cal_scale"])
+    user_settings["cal_line_height"] = st.slider("Height Between Texts (Spacing)", 0.5, 3.0, user_settings["cal_line_height"], 0.1)
+    user_settings["cal_txt_y"] = st.slider("Day Text Vertical Position", -50, 50, user_settings.get("cal_txt_y", 0))
+    user_settings["cal_txt_pad"] = st.slider("Day Content Top Padding", -50, 50, user_settings.get("cal_txt_pad", 0))
+
+# ==========================================
+# ESPACIO PARA EMPUJAR LOS BOTONES HACIA ABAJO
+# Cambia "250px" por un número mayor (ej. 350px, 500px) si quieres bajarlos aún más.
+# ==========================================
+st.sidebar.markdown("<div style='margin-top: 0px;'></div>", unsafe_allow_html=True)
+
+# BOTÓN DE SINCRONIZACIÓN FORZADA
+st.sidebar.markdown("---")
+st.sidebar.markdown("### ↻ Sync with Google Sheets")
+if st.sidebar.button("↻ Force Sync with Google Sheets", use_container_width=True):
+    get_global_db.clear()
+    st.rerun()
+
+st.sidebar.markdown("<br>", unsafe_allow_html=True) # Pequeño espacio entre los botones
+
+# BOTÓN DE CERRAR SESIÓN
+st.sidebar.markdown("---")
 if st.sidebar.button("🚪 Log Out", use_container_width=True): 
     st.session_state.usuario_actual = None
     try: st.query_params.clear()
     except: pass
     st.rerun()
 
-# --- VARIABLES GLOBALES NECESARIAS PARA TODAS LAS PÁGINAS ---
-ctx = st.session_state.data_source_sel
-bal_actual = db_usuario[ctx]["balance"]
-anio_sel = st.session_state.cal_year
-mes_sel = st.session_state.cal_month
+
 # ==========================================
 # 6. ASIGNACIÓN DE COLORES Y CSS
 # ==========================================
@@ -665,428 +850,504 @@ st.markdown(f"""
     """, unsafe_allow_html=True)
 
 # ==========================================
-# 8. HEADER Y ENTRADA
+# 8. HEADER (BARRA SUPERIOR)
 # ==========================================
-if pagina_actual == "📊 Dashboard" or pagina_actual == "📅 Calendar":
-    col_t, col_fil, col_data, col_bal = st.columns([3, 1.5, 1.5, 2])
+col_t, col_fil, col_data, col_bal = st.columns([3, 1.5, 1.5, 2])
 
-    with col_t: 
-        st.markdown(f'<p class="dashboard-title">{TXT_DASHBOARD}</p>', unsafe_allow_html=True)
+with col_t: 
+    st.markdown(f'<p class="dashboard-title">{TXT_DASHBOARD}</p>', unsafe_allow_html=True)
 
-    with col_fil: 
-        st.markdown(f'<div class="lbl-filtros">{LBL_FILTROS}</div>', unsafe_allow_html=True)
-        filtro = st.selectbox("Filtros", [OPT_FILTRO_1, OPT_FILTRO_2, OPT_FILTRO_3], label_visibility="collapsed")
+with col_fil: 
+    st.markdown(f'<div class="lbl-filtros">{LBL_FILTROS}</div>', unsafe_allow_html=True)
+    filtro = st.selectbox("Filtros", [OPT_FILTRO_1, OPT_FILTRO_2, OPT_FILTRO_3], label_visibility="collapsed")
 
-    with col_data: 
-        st.markdown(f'<div class="lbl-data">{LBL_DATA}</div>', unsafe_allow_html=True)
-        st.selectbox("Data Source", list(db_usuario.keys()), key="data_source_sel", label_visibility="collapsed")
-        try:
-            st.query_params["account"] = st.session_state.data_source_sel
-            db_global[usuario]["last_account"] = st.session_state.data_source_sel
-        except: pass
+with col_data: 
+    st.markdown(f'<div class="lbl-data">{LBL_DATA}</div>', unsafe_allow_html=True)
+    st.selectbox("Data Source", list(db_usuario.keys()), key="data_source_sel", label_visibility="collapsed")
+    # Guardamos la cuenta actual en la URL y en la memoria global del usuario
+    try:
+        st.query_params["account"] = st.session_state.data_source_sel
+        db_global[usuario]["last_account"] = st.session_state.data_source_sel
+    except:
+        pass
 
-    ctx = st.session_state.data_source_sel
-    bal_actual = db_usuario[ctx]["balance"]
+ctx = st.session_state.data_source_sel
+bal_actual = db_usuario[ctx]["balance"]
 
-    with col_bal:
-        st.markdown(f'<div style="text-align:center; margin-bottom:5px;"><span class="lbl-total-bal">{LBL_BAL_TOTAL}</span></div>', unsafe_allow_html=True)
-        st.markdown(f'<div class="balance-box">${bal_actual:,.2f}</div>', unsafe_allow_html=True)
+with col_bal:
+    st.markdown(f'<div style="text-align:center; margin-bottom:5px;"><span class="lbl-total-bal">{LBL_BAL_TOTAL}</span></div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="balance-box">${bal_actual:,.2f}</div>', unsafe_allow_html=True)
 
-    st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
+st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
 
-    # ==========================================
-    # 9. ENTRADA DE TRADES
-    # ==========================================
-    with st.form(key=f"form_main_entry_{st.session_state.form_reset_key}", clear_on_submit=True, border=False):
-        c1, c2, c_img, c_not, c_espacio = st.columns([1.5, 0.5, 2.5, 0.6, 3.4]) 
+# ==========================================
+# 9. ENTRADA DE TRADES
+# ==========================================
+with st.form(key=f"form_main_entry_{st.session_state.form_reset_key}", clear_on_submit=True, border=False):
+    c1, c2, c_img, c_not, c_espacio = st.columns([1.5, 0.5, 2.5, 0.6, 3.4]) 
+    
+    with c1:
+        st.markdown(f'<div class="lbl-input">{LBL_INPUT}</div>', unsafe_allow_html=True)
+        nuevo_bal = st.number_input("Balance", value=bal_actual, format="%.2f", label_visibility="collapsed")
+        btn_save = st.form_submit_button("SAVE", key=f"btn_save_main_{st.session_state.form_reset_key}")
         
-        with c1:
-            st.markdown(f'<div class="lbl-input">{LBL_INPUT}</div>', unsafe_allow_html=True)
-            nuevo_bal = st.number_input("Balance", value=bal_actual, format="%.2f", label_visibility="collapsed")
-            btn_save = st.form_submit_button("SAVE", key=f"btn_save_main_{st.session_state.form_reset_key}")
+    with c2:
+        st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True) 
+        fecha_sel = st.date_input("Fecha", value=hoy, label_visibility="collapsed", key="btn_fecha_directa")
             
-        with c2:
-            st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True) 
-            fecha_sel = st.date_input("Fecha", value=hoy, label_visibility="collapsed", key="btn_fecha_directa")
-                
-        with c_img:
-            st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True) 
-            imgs_subidas = st.file_uploader("", accept_multiple_files=True, label_visibility="collapsed")
-            st.markdown(f'<div class="lbl-link">{LBL_LINK}</div>', unsafe_allow_html=True)
-            link_imagen = st.text_input("Link", value="", label_visibility="collapsed", placeholder="Paste the Image Link")
+    with c_img:
+        st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True) 
+        imgs_subidas = st.file_uploader("", accept_multiple_files=True, label_visibility="collapsed")
+        st.markdown(f'<div class="lbl-link">{LBL_LINK}</div>', unsafe_allow_html=True)
+        link_imagen = st.text_input("Link", value="", label_visibility="collapsed", placeholder="Paste the Image Link")
+        
+    with c_not:
+        st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True) 
+        with st.popover("📝", use_container_width=True):
+            # Título gigante (blindado)
+            st.markdown("<div class='titulo-trade-details'>Trade Details</div>", unsafe_allow_html=True)
             
-        with c_not:
-            st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True) 
-            with st.popover("📝", use_container_width=True):
-                st.markdown("<div class='titulo-trade-details'>Trade Details</div>", unsafe_allow_html=True)
-                
-                st.markdown("<div style='font-weight: 900; font-size: 14px; margin-top: 5px; margin-bottom: 0px;'>Bias</div>", unsafe_allow_html=True)
-                bias_opts = ['LONG', 'SHORT', 'NONE']
-                nuevo_bias_list = []
-                cols_bias = st.columns([1, 1, 1, 3])
-                for idx, op in enumerate(bias_opts):
-                    if cols_bias[idx].checkbox(op, key=f"new_bias_{idx}"): nuevo_bias_list.append(op)
-                nuevo_bias = ", ".join(nuevo_bias_list) if nuevo_bias_list else "NONE"
-                
-                st.markdown("<div style='font-weight: 900; font-size: 14px; margin-top: 15px; margin-bottom: 0px;'>Confluences</div>", unsafe_allow_html=True)
-                all_confs_list = ['BIAS WELL', 'LIQ SWEEP', 'IFVG', 'FVG', 'EQH / EQL', 'BSL / SSL', 'POI', 'SMT', 'Order Block', 'Continuation', 'Data High / Data Low', 'CISD']
-                nuevo_conf = []
-                cols_conf = st.columns(3)
-                for idx, c_name in enumerate(all_confs_list):
-                    if cols_conf[idx % 3].checkbox(c_name, key=f"new_conf_{idx}"):
-                        nuevo_conf.append(c_name)
+            # 1. BIAS
+            st.markdown("<div style='font-weight: 900; font-size: 14px; margin-top: 5px; margin-bottom: 0px;'>Bias</div>", unsafe_allow_html=True)
+            bias_opts = ['LONG', 'SHORT', 'NONE']
+            nuevo_bias_list = []
+            cols_bias = st.columns([1, 1, 1, 3])
+            for idx, op in enumerate(bias_opts):
+                if cols_bias[idx].checkbox(op, key=f"new_bias_{idx}"): nuevo_bias_list.append(op)
+            nuevo_bias = ", ".join(nuevo_bias_list) if nuevo_bias_list else "NONE"
+            
+            # 2. CONFLUENCES
+            st.markdown("<div style='font-weight: 900; font-size: 14px; margin-top: 15px; margin-bottom: 0px;'>Confluences</div>", unsafe_allow_html=True)
+            all_confs_list = ['BIAS WELL', 'LIQ SWEEP', 'IFVG', 'FVG', 'EQH / EQL', 'BSL / SSL', 'POI', 'SMT', 'Order Block', 'Continuation', 'Data High / Data Low', 'CISD']
+            nuevo_conf = []
+            cols_conf = st.columns(3)
+            for idx, c_name in enumerate(all_confs_list):
+                if cols_conf[idx % 3].checkbox(c_name, key=f"new_conf_{idx}"):
+                    nuevo_conf.append(c_name)
+                    
+            # 3. REASON FOR TRADE (Movido hacia arriba, altura reducida a 45)
+            st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
+            nuevo_razon = st.text_area("Reason For Trade", value='', height=45)
+            
+            # 4. RISK (Con más separación entre opciones)
+            st.markdown("<div style='font-weight: 900; font-size: 14px; margin-top: 5px; margin-bottom: 0px;'>Risk</div>", unsafe_allow_html=True)
+            risk_opts = ['1%', '0.9%', '0.8%', '0.7%', '0.6%', '0.5%', '0.4%']
+            nuevo_risk_list = []
+            cols_risk = st.columns([1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 0.2])
+            for idx, op in enumerate(risk_opts):
+                if cols_risk[idx].checkbox(op, key=f"new_risk_{idx}"): nuevo_risk_list.append(op)
+            nuevo_risk = ", ".join(nuevo_risk_list) if nuevo_risk_list else ""
+            
+            # 5. RR (Con más separación)
+            st.markdown("<div style='font-weight: 900; font-size: 14px; margin-top: 5px; margin-bottom: 0px;'>RR</div>", unsafe_allow_html=True)
+            rr_opts = ['1:1', '1:1.5', '1:2', '1:3', '1:4']
+            nuevo_rr_list = []
+            cols_rr = st.columns([1.5, 1.5, 1.5, 1.5, 1.5, 1.5]) 
+            for idx, op in enumerate(rr_opts):
+                if cols_rr[idx].checkbox(op, key=f"new_rr_{idx}"): nuevo_rr_list.append(op)
+            nuevo_rr = ", ".join(nuevo_rr_list) if nuevo_rr_list else ""
+            
+            # 6. TRADE TYPE
+            st.markdown("<div style='font-weight: 900; font-size: 14px; margin-top: 5px; margin-bottom: 0px;'>Trade Type</div>", unsafe_allow_html=True)
+            tt_opts = ['A+', 'A', 'B', 'C']
+            nuevo_tt_list = []
+            cols_tt = st.columns([1, 1, 1, 1, 4])
+            for idx, op in enumerate(tt_opts):
+                if cols_tt[idx].checkbox(op, key=f"new_tt_{idx}"): nuevo_tt_list.append(op)
+            nuevo_tt = ", ".join(nuevo_tt_list) if nuevo_tt_list else ""
+
+            # 7. EMOTIONS (Penúltimo, altura 45)
+            st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
+            nuevo_emo = st.text_area("Emotions", value='', height=45)
+
+            # 8. CORRECTIONS (Último, altura 45)
+            nuevo_corr = st.text_area("Corrections", value='', height=45)
+
+    if btn_save:
+        viejo = db_usuario[ctx]["balance"]
+        pnl = nuevo_bal - viejo if nuevo_bal != viejo else 0.0
+        clave_final = (fecha_sel.year, fecha_sel.month, fecha_sel.day)
+        
+        imgs_finales = []
+        if imgs_subidas:
+            for img in imgs_subidas:
+                imgs_finales.append(convertir_img_base64(img))
+        
+        if link_imagen.strip().startswith("http"):
+            imgs_finales.append(link_imagen.strip())
+        
+        trade_nuevo = {
+            "pnl": pnl,
+            "balance_final": nuevo_bal,
+            "fecha_str": fecha_sel.strftime("%d/%m/%Y"),
+            "imagenes": imgs_finales,
+            "bias": nuevo_bias,
+            "Confluences": nuevo_conf,
+            "razon_trade": nuevo_razon,
+            "Corrections": nuevo_corr,
+            "risk": nuevo_risk,
+            "RR": nuevo_rr,
+            "trade_type": nuevo_tt,
+            "Emotions": nuevo_emo
+        }
+        
+        if clave_final not in db_usuario[ctx]["trades"]:
+            db_usuario[ctx]["trades"][clave_final] = []
+            
+        db_usuario[ctx]["trades"][clave_final].append(trade_nuevo)
+        db_usuario[ctx]["balance"] = nuevo_bal
+        
+        registrar_en_excel(usuario, db_global[usuario]["password"], ctx, fecha_sel, nuevo_bal, pnl, trade_nuevo, db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
+        
+        st.session_state.form_reset_key += 1
+        
+        st.success("✅ Trade Saved!")
+        st.rerun()
+
+# ==========================================
+# 10. CALENDARIO Y RESUMEN
+# ==========================================
+col_cal, col_det = st.columns([2, 1]) 
+
+anio_sel = st.session_state.cal_year
+mes_sel = st.session_state.cal_month
+nombre_mes = calendar.month_name[mes_sel]
+
+trades_mes_top = []
+for k, lista_t in db_usuario[ctx]["trades"].items():
+    if k[0] == anio_sel and k[1] == mes_sel:
+        for t in lista_t:
+            trades_mes_top.append(t["pnl"])
+
+with col_cal:
+    total_trades_top = len(trades_mes_top)
+    net_pnl_top = sum(trades_mes_top) if total_trades_top > 0 else 0.0
+    wins_top = len([t for t in trades_mes_top if t > 0])
+    win_pct_top = (wins_top / total_trades_top * 100) if total_trades_top > 0 else 0.0
+    
+    color_pnl_top = "#00C897" if net_pnl_top >= 0 else "#FF4C4C"
+    bg_pnl_top = "#e6f9f4" if net_pnl_top >= 0 else "#ffeded"
+    simb_pnl_top = "+" if net_pnl_top > 0 else ""
+    
+    color_win_top = "#00C897" if win_pct_top >= 50 else "#FF4C4C"
+    bg_win_top = "#e6f9f4" if win_pct_top >= 50 else "#ffeded"
+
+    c_izq, c_cen, c_der, c_stats = st.columns([0.6, 2, 0.6, 3.8])
+    with c_izq: 
+        st.button("◀", on_click=cambiar_mes, args=(-1,), use_container_width=True)
+    with c_cen: 
+        st.markdown(f'<div style="text-align:center; font-weight:600; font-size:var(--cal-mes-size); color:{c_mes}; margin-top:2px;">{nombre_mes} {anio_sel}</div>', unsafe_allow_html=True)
+    with c_der: 
+        st.button("▶", on_click=cambiar_mes, args=(1,), use_container_width=True)
+    with c_stats:
+        st.markdown(f'''
+            <div style="display:flex; justify-content:flex-end; align-items:center; gap:20px; margin-top:8px;">
+                <div style="font-weight:700; font-size:var(--size-top-stats); color:{c_mes}; display:flex; align-items:center; gap:8px;">Monthly P&L: <span style="background-color:{bg_pnl_top}; color:{color_pnl_top}; padding:4px 12px; border-radius:12px; font-weight:800;">{simb_pnl_top}${net_pnl_top:,.2f}</span></div>
+                <div style="font-weight:700; font-size:var(--size-top-stats); color:{c_mes}; display:flex; align-items:center; gap:8px;">Win Rate: <span style="background-color:{bg_win_top}; color:{color_win_top}; padding:4px 12px; border-radius:12px; font-weight:800;">{win_pct_top:.1f}%</span></div>
+            </div>
+        ''', unsafe_allow_html=True)
+    
+    st.markdown("<br>", unsafe_allow_html=True)
+    
+    dias_semana = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+    calendar.setfirstweekday(calendar.SUNDAY)
+    mes_matriz = calendar.monthcalendar(anio_sel, mes_sel)
+    
+    h_cols = st.columns(7)
+    for i, d in enumerate(dias_semana):
+        h_cols[i].markdown(f"<div class='txt-dias-sem'>{d}</div>", unsafe_allow_html=True)
+    
+    for semana_dias in mes_matriz:
+        d_cols = st.columns(7)
+        for i, dia in enumerate(semana_dias):
+            with d_cols[i]:
+                if dia == 0: st.markdown('<div class="card cell-empty"></div>', unsafe_allow_html=True)
+                else:
+                    dia_trades = db_usuario[ctx]["trades"].get((anio_sel, mes_sel, dia), [])
+                    
+                    trades_visibles = []
+                    for t in dia_trades:
+                        if filtro == OPT_FILTRO_2 and t["pnl"] <= 0: continue
+                        if filtro == OPT_FILTRO_3 and t["pnl"] >= 0: continue
+                        trades_visibles.append(t)
+
+                    if trades_visibles:
+                        pnl_dia = sum(t["pnl"] for t in trades_visibles)
+                        c_cls = "cell-win" if pnl_dia >= 0 else "cell-loss"
+                        c_sim = "+" if pnl_dia > 0 else ""
                         
-                st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
-                nuevo_razon = st.text_area("Reason For Trade", value='', height=45)
-                
-                st.markdown("<div style='font-weight: 900; font-size: 14px; margin-top: 5px; margin-bottom: 0px;'>Risk</div>", unsafe_allow_html=True)
-                risk_opts = ['1%', '0.9%', '0.8%', '0.7%', '0.6%', '0.5%', '0.4%']
-                nuevo_risk_list = []
-                cols_risk = st.columns([1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 0.2])
-                for idx, op in enumerate(risk_opts):
-                    if cols_risk[idx].checkbox(op, key=f"new_risk_{idx}"): nuevo_risk_list.append(op)
-                nuevo_risk = ", ".join(nuevo_risk_list) if nuevo_risk_list else ""
-                
-                st.markdown("<div style='font-weight: 900; font-size: 14px; margin-top: 5px; margin-bottom: 0px;'>RR</div>", unsafe_allow_html=True)
-                rr_opts = ['1:1', '1:1.5', '1:2', '1:3', '1:4']
-                nuevo_rr_list = []
-                cols_rr = st.columns([1.5, 1.5, 1.5, 1.5, 1.5, 1.5]) 
-                for idx, op in enumerate(rr_opts):
-                    if cols_rr[idx].checkbox(op, key=f"new_rr_{idx}"): nuevo_rr_list.append(op)
-                nuevo_rr = ", ".join(nuevo_rr_list) if nuevo_rr_list else ""
-                
-                st.markdown("<div style='font-weight: 900; font-size: 14px; margin-top: 5px; margin-bottom: 0px;'>Trade Type</div>", unsafe_allow_html=True)
-                tt_opts = ['A+', 'A', 'B', 'C']
-                nuevo_tt_list = []
-                cols_tt = st.columns([1, 1, 1, 1, 4])
-                for idx, op in enumerate(tt_opts):
-                    if cols_tt[idx].checkbox(op, key=f"new_tt_{idx}"): nuevo_tt_list.append(op)
-                nuevo_tt = ", ".join(nuevo_tt_list) if nuevo_tt_list else ""
+                        bal_ini = trades_visibles[-1]["balance_final"] - pnl_dia
+                        pct = (pnl_dia / bal_ini * 100) if bal_ini != 0 else 0
+                        pct_str = f"{c_sim}{pct:.2f}%"
 
-                st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
-                nuevo_emo = st.text_area("Emotions", value='', height=45)
-
-                nuevo_corr = st.text_area("Corrections", value='', height=45)
-
-        if btn_save:
-            viejo = db_usuario[ctx]["balance"]
-            pnl = nuevo_bal - viejo if nuevo_bal != viejo else 0.0
-            clave_final = (fecha_sel.year, fecha_sel.month, fecha_sel.day)
-            
-            imgs_finales = []
-            if imgs_subidas:
-                for img in imgs_subidas:
-                    imgs_finales.append(convertir_img_base64(img))
-            
-            if link_imagen.strip().startswith("http"):
-                imgs_finales.append(link_imagen.strip())
-            
-            trade_nuevo = {
-                "pnl": pnl, "balance_final": nuevo_bal, "fecha_str": fecha_sel.strftime("%d/%m/%Y"),
-                "imagenes": imgs_finales, "bias": nuevo_bias, "Confluences": nuevo_conf,
-                "razon_trade": nuevo_razon, "Corrections": nuevo_corr, "risk": nuevo_risk,
-                "RR": nuevo_rr, "trade_type": nuevo_tt, "Emotions": nuevo_emo
-            }
-            
-            if clave_final not in db_usuario[ctx]["trades"]:
-                db_usuario[ctx]["trades"][clave_final] = []
-                
-            db_usuario[ctx]["trades"][clave_final].append(trade_nuevo)
-            db_usuario[ctx]["balance"] = nuevo_bal
-            
-            registrar_en_excel(usuario, db_global[usuario]["password"], ctx, fecha_sel, nuevo_bal, pnl, trade_nuevo, db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
-            st.session_state.form_reset_key += 1
-            st.success("✅ Trade Saved!")
-            st.rerun()
-
-    # ==========================================
-    # 10. CALENDARIO Y RESUMEN
-    # ==========================================
-    col_cal, col_det = st.columns([2, 1]) 
-
-    anio_sel = st.session_state.cal_year
-    mes_sel = st.session_state.cal_month
-    nombre_mes = calendar.month_name[mes_sel]
-
-    trades_mes_top = []
-    for k, lista_t in db_usuario[ctx]["trades"].items():
-        if k[0] == anio_sel and k[1] == mes_sel:
-            for t in lista_t:
-                trades_mes_top.append(t["pnl"])
-
-    with col_cal:
-        total_trades_top = len(trades_mes_top)
-        net_pnl_top = sum(trades_mes_top) if total_trades_top > 0 else 0.0
-        wins_top = len([t for t in trades_mes_top if t > 0])
-        win_pct_top = (wins_top / total_trades_top * 100) if total_trades_top > 0 else 0.0
-        
-        color_pnl_top = "#00C897" if net_pnl_top >= 0 else "#FF4C4C"
-        bg_pnl_top = "#e6f9f4" if net_pnl_top >= 0 else "#ffeded"
-        simb_pnl_top = "+" if net_pnl_top > 0 else ""
-        
-        color_win_top = "#00C897" if win_pct_top >= 50 else "#FF4C4C"
-        bg_win_top = "#e6f9f4" if win_pct_top >= 50 else "#ffeded"
-
-        c_izq, c_cen, c_der, c_stats = st.columns([0.6, 2, 0.6, 3.8])
-        with c_izq: 
-            st.button("◀", on_click=cambiar_mes, args=(-1,), use_container_width=True)
-        with c_cen: 
-            st.markdown(f'<div style="text-align:center; font-weight:600; font-size:var(--cal-mes-size); color:{c_mes}; margin-top:2px;">{nombre_mes} {anio_sel}</div>', unsafe_allow_html=True)
-        with c_der: 
-            st.button("▶", on_click=cambiar_mes, args=(1,), use_container_width=True)
-        with c_stats:
-            st.markdown(f'''
-                <div style="display:flex; justify-content:flex-end; align-items:center; gap:20px; margin-top:8px;">
-                    <div style="font-weight:700; font-size:var(--size-top-stats); color:{c_mes}; display:flex; align-items:center; gap:8px;">Monthly P&L: <span style="background-color:{bg_pnl_top}; color:{color_pnl_top}; padding:4px 12px; border-radius:12px; font-weight:800;">{simb_pnl_top}${net_pnl_top:,.2f}</span></div>
-                    <div style="font-weight:700; font-size:var(--size-top-stats); color:{c_mes}; display:flex; align-items:center; gap:8px;">Win Rate: <span style="background-color:{bg_win_top}; color:{color_win_top}; padding:4px 12px; border-radius:12px; font-weight:800;">{win_pct_top:.1f}%</span></div>
-                </div>
-            ''', unsafe_allow_html=True)
-        
-        st.markdown("<br>", unsafe_allow_html=True)
-        
-        dias_semana = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
-        calendar.setfirstweekday(calendar.SUNDAY)
-        mes_matriz = calendar.monthcalendar(anio_sel, mes_sel)
-        
-        h_cols = st.columns(7)
-        for i, d in enumerate(dias_semana):
-            h_cols[i].markdown(f"<div class='txt-dias-sem'>{d}</div>", unsafe_allow_html=True)
-        
-        for semana_dias in mes_matriz:
-            d_cols = st.columns(7)
-            for i, dia in enumerate(semana_dias):
-                with d_cols[i]:
-                    if dia == 0: st.markdown('<div class="card cell-empty"></div>', unsafe_allow_html=True)
-                    else:
-                        dia_trades = db_usuario[ctx]["trades"].get((anio_sel, mes_sel, dia), [])
-                        
-                        trades_visibles = []
-                        for t in dia_trades:
-                            if filtro == OPT_FILTRO_2 and t["pnl"] <= 0: continue
-                            if filtro == OPT_FILTRO_3 and t["pnl"] >= 0: continue
-                            trades_visibles.append(t)
-
-                        if trades_visibles:
-                            pnl_dia = sum(t["pnl"] for t in trades_visibles)
-                            c_cls = "cell-win" if pnl_dia >= 0 else "cell-loss"
-                            c_sim = "+" if pnl_dia > 0 else ""
+                        todas_imagenes = []
+                        for t in trades_visibles:
+                            todas_imagenes.extend(t.get("imagenes", []))
                             
-                            bal_ini = trades_visibles[-1]["balance_final"] - pnl_dia
-                            pct = (pnl_dia / bal_ini * 100) if bal_ini != 0 else 0
-                            pct_str = f"{c_sim}{pct:.2f}%"
-
-                            todas_imagenes = []
-                            for t in trades_visibles:
-                                todas_imagenes.extend(t.get("imagenes", []))
-                                
-                            if todas_imagenes:
-                                id_modal = f"mod_{anio_sel}_{mes_sel}_{dia}"
-                                img_tags = "".join([f'<img src="{img}">' for img in todas_imagenes])
-                                cam_html = f'<div><input type="checkbox" id="{id_modal}" class="modal-toggle" style="display:none;"><label for="{id_modal}"><div class="cam-icon">{BTN_CAM_EMOJI}</div></label><div class="fs-modal"><label for="{id_modal}" class="close-btn">{TXT_CERRAR_MODAL}</label>{img_tags}</div></div>'
-                            else:
-                                cam_html = ""
-                                
-                            notas_html_contenido = ""
-                            has_notes = False
-                            
-                            for idx_t, t in enumerate(trades_visibles):
-                                if bool(t.get("razon_trade", "").strip() or t.get("Corrections", "").strip() or t.get("Emotions", "").strip() or t.get("Confluences", [])):
-                                    has_notes = True
-                                    confluences_str = ", ".join(t.get("Confluences", []))
-                                    pnl_val_nota = t["pnl"]
-                                    pnl_color_nota = "#00C897" if pnl_val_nota >= 0 else "#FF4C4C"
-                                    simbolo_nota = "+" if pnl_val_nota > 0 else ("-" if pnl_val_nota < 0 else "")
-                                    pnl_formateado_nota = f"{simbolo_nota}${abs(pnl_val_nota):,.2f}"
-                                    notas_html_contenido += f'<div style="margin-bottom: 15px;"><h4 style="color:{pnl_color_nota}; margin:0;">Trade {idx_t+1} = {pnl_formateado_nota}</h4><b>Bias:</b> <span class="note-val">{t.get("bias", "NEUTRO")}</span><br><b>Confluences:</b> <span class="note-val">{confluences_str}</span><br><b>Reason For Trade:</b> <span class="note-val">{t.get("razon_trade", "")}</span><br><b>Corrections:</b> <span class="note-val">{t.get("Corrections", "")}</span><br><b>Risk:</b> <span class="note-val">{t.get("risk", "")}</span><br><b>RR:</b> <span class="note-val">{t.get("RR", "")}</span><br><b>Trade Type:</b> <span class="note-val">{t.get("trade_type", "")}</span><br><b>Emotions:</b> <span class="note-val">{t.get("Emotions", "")}</span></div>'
-                                    
-                            if has_notes:
-                                id_note_modal = f"mod_note_{anio_sel}_{mes_sel}_{dia}"
-                                note_html = f'<div><input type="checkbox" id="{id_note_modal}" class="modal-toggle" style="display:none;"><label for="{id_note_modal}"><div class="note-icon">💭</div></label><div class="fs-modal"><label for="{id_note_modal}" class="close-btn">{TXT_CERRAR_MODAL}</label><div class="note-modal-content"><h3 style="text-align:center; margin-top:0; font-size: var(--note-lbl-size);">💭 Trades - {dia}/{mes_sel}/{anio_sel}</h3><hr>{notas_html_contenido}</div></div></div>'
-                            else:
-                                note_html = ""
-                            
-                            st.markdown(f'<div class="card {c_cls}"><div class="day-number">{dia}</div><div class="day-content"><span class="day-pnl">{c_sim}${pnl_dia:,.2f}</span><br><span class="day-pct">{pct_str}</span></div>{cam_html}{note_html}</div>', unsafe_allow_html=True)
+                        if todas_imagenes:
+                            id_modal = f"mod_{anio_sel}_{mes_sel}_{dia}"
+                            img_tags = "".join([f'<img src="{img}">' for img in todas_imagenes])
+                            cam_html = f'<div><input type="checkbox" id="{id_modal}" class="modal-toggle" style="display:none;"><label for="{id_modal}"><div class="cam-icon">{BTN_CAM_EMOJI}</div></label><div class="fs-modal"><label for="{id_modal}" class="close-btn">{TXT_CERRAR_MODAL}</label>{img_tags}</div></div>'
                         else:
-                            op = "0.2" if len(dia_trades) > 0 else "1"
-                            st.markdown(f'<div class="card cell-empty" style="opacity:{op}"><div class="day-number">{dia}</div></div>', unsafe_allow_html=True)
+                            cam_html = ""
+                            
+                        notas_html_contenido = ""
+                        has_notes = False
+                        
+                        for idx_t, t in enumerate(trades_visibles):
+                            if bool(t.get("razon_trade", "").strip() or t.get("Corrections", "").strip() or t.get("Emotions", "").strip() or t.get("Confluences", [])):
+                                has_notes = True
+                                confluences_str = ", ".join(t.get("Confluences", []))
+                                
+                                pnl_val_nota = t["pnl"]
+                                pnl_color_nota = "#00C897" if pnl_val_nota >= 0 else "#FF4C4C"
+                                simbolo_nota = "+" if pnl_val_nota > 0 else ("-" if pnl_val_nota < 0 else "")
+                                pnl_formateado_nota = f"{simbolo_nota}${abs(pnl_val_nota):,.2f}"
+                                
+                                notas_html_contenido += f'<div style="margin-bottom: 15px;"><h4 style="color:{pnl_color_nota}; margin:0;">Trade {idx_t+1} = {pnl_formateado_nota}</h4><b>Bias:</b> <span class="note-val">{t.get("bias", "NEUTRO")}</span><br><b>Confluences:</b> <span class="note-val">{confluences_str}</span><br><b>Reason For Trade:</b> <span class="note-val">{t.get("razon_trade", "")}</span><br><b>Corrections:</b> <span class="note-val">{t.get("Corrections", "")}</span><br><b>Risk:</b> <span class="note-val">{t.get("risk", "")}</span><br><b>RR:</b> <span class="note-val">{t.get("RR", "")}</span><br><b>Trade Type:</b> <span class="note-val">{t.get("trade_type", "")}</span><br><b>Emotions:</b> <span class="note-val">{t.get("Emotions", "")}</span></div>'
+                                
+                        if has_notes:
+                            id_note_modal = f"mod_note_{anio_sel}_{mes_sel}_{dia}"
+                            note_html = f'<div><input type="checkbox" id="{id_note_modal}" class="modal-toggle" style="display:none;"><label for="{id_note_modal}"><div class="note-icon">💭</div></label><div class="fs-modal"><label for="{id_note_modal}" class="close-btn">{TXT_CERRAR_MODAL}</label><div class="note-modal-content"><h3 style="text-align:center; margin-top:0; font-size: var(--note-lbl-size);">💭 Trades - {dia}/{mes_sel}/{anio_sel}</h3><hr>{notas_html_contenido}</div></div></div>'
+                        else:
+                            note_html = ""
+                        
+                        st.markdown(f'<div class="card {c_cls}"><div class="day-number">{dia}</div><div class="day-content"><span class="day-pnl">{c_sim}${pnl_dia:,.2f}</span><br><span class="day-pct">{pct_str}</span></div>{cam_html}{note_html}</div>', unsafe_allow_html=True)
+                    else:
+                        op = "0.2" if len(dia_trades) > 0 else "1"
+                        st.markdown(f'<div class="card cell-empty" style="opacity:{op}"><div class="day-number">{dia}</div></div>', unsafe_allow_html=True)
 
-    with col_det:
-        ver_todo = st.toggle("View All-Time", value=False)
-        
-        todos_los_trades_planos = []
-        for k, lista in db_usuario[ctx]["trades"].items():
-            todos_los_trades_planos.extend(lista)
-            
-        if ver_todo:
-            trades_lista = [t["pnl"] for t in todos_los_trades_planos]
-            titulo_pnl = "Net P&L All-Time"
-            titulo_win = "Win Rate All-Time"
-        else:
-            trades_lista = trades_mes_top
-            titulo_pnl = CARD_PNL_TITULO
-            titulo_win = CARD_WIN_TITULO
-            
-        total_trades = len(trades_lista)
-        net_pnl = sum(trades_lista) if total_trades > 0 else 0.0
-        
-        wins = len([t for t in trades_lista if t >= 30])
-        losses = len([t for t in trades_lista if t <= -30])
-        ties = len([t for t in trades_lista if -30 < t < 30])
-        
-        total_validos = wins + losses + ties
-        win_pct = (wins / total_validos * 100) if total_validos > 0 else 0.0
-        
-        color_pnl = "pnl-value" if net_pnl >= 0 else "pnl-value pnl-value-loss"
-        simbolo_pnl = "+" if net_pnl > 0 else ""
-        c_win_card = "#00C897" if win_pct >= 50 else "#FF4C4C"
-        
-        rr_valores = []
-        trades_para_rr = todos_los_trades_planos if ver_todo else [tr for k, v in db_usuario[ctx]["trades"].items() if k[0]==anio_sel and k[1]==mes_sel for tr in v]
-        for t in trades_para_rr:
-            rr_str = str(t.get('RR', '1:0'))
-            if ":" in rr_str:
-                try:
-                    val = float(rr_str.split(":")[1])
-                    if val > 0: rr_valores.append(val)
-                except: pass
-        rr_promedio = sum(rr_valores) / len(rr_valores) if rr_valores else 0.0
+def get_bar_svg(w, l, t):
+    tot = w + l + t
+    if tot == 0:
+        return f'<svg width="100%" height="100%" viewBox="0 0 100 100"><rect x="10" y="90" width="80" height="4" fill="#4A5568" rx="2" /></svg>'
 
-        c_met1, c_met2, c_met3 = st.columns(3)
-        with c_met1:
-            st.markdown(f"""
-                <div class="metric-card card-pnl">
-                    <div class="metric-header"><span class="title-net-pnl">{titulo_pnl}</span></div>
-                    <div class="{color_pnl}">{simbolo_pnl}${net_pnl:,.2f}</div>
-                </div>
-            """, unsafe_allow_html=True)
-        with c_met2:
-            st.markdown(f"""
-                <div class="metric-card card-win">
-                    <div class="metric-header"><span class="title-trade-win">Total Trades</span></div>
-                    <div class="rr-value" style="color: white;">{total_trades}</div>
-                </div>
-            """, unsafe_allow_html=True)
-        with c_met3:
-            st.markdown(f"""
-                <div class="metric-card card-rr">
-                    <div class="metric-header"><span class="title-trade-win">RR Promedio</span></div>
-                    <div class="rr-value" style="color: #FFFFFF;">1 / {rr_promedio:.2f}</div>
-                </div>
-            """, unsafe_allow_html=True)
+    max_v = max(w, l, t)
+    if max_v == 0: max_v = 1
 
-        st.markdown("<br>", unsafe_allow_html=True)
-        bar_html = get_bar_svg(wins, losses, ties)
+    # Calculamos la altura de cada barra sobre un máximo de 65 (para dejar espacio al texto)
+    hw = (w / max_v) * 65  
+    hl = (l / max_v) * 65
+    ht = (t / max_v) * 65
+
+    svg = '<svg width="100%" height="100%" viewBox="0 0 100 100">'
+    
+    # Línea base (Eje X)
+    svg += '<line x1="5" y1="85" x2="95" y2="85" stroke="#4A5568" stroke-width="2" stroke-linecap="round" />'
+
+    # Barra WINS (Verde)
+    if w > 0:
+        svg += f'<rect x="12" y="{85 - hw}" width="22" height="{hw}" fill="#00C897" rx="3" />'
+        svg += f'<text x="23" y="{80 - hw}" fill="#00C897" font-size="14" font-family="sans-serif" font-weight="bold" text-anchor="middle">{w}</text>'
+        svg += f'<text x="23" y="98" fill="#00C897" font-size="12" font-family="sans-serif" font-weight="bold" text-anchor="middle">W</text>'
         
-        wl_parts_pie = []
-        if wins >= 1: wl_parts_pie.append(f'<span style="color:#00C897;">{wins}W</span>')
-        if losses >= 1: wl_parts_pie.append(f'<span style="color:#FF4C4C;">{losses}L</span>')
-        if ties >= 1: wl_parts_pie.append(f'<span style="color:gray;">{ties}BE</span>')
-        wl_text_pie = ' <span style="color:gray;">/</span> '.join(wl_parts_pie)
+    # Barra LOSSES (Rojo)
+    if l > 0:
+        svg += f'<rect x="39" y="{85 - hl}" width="22" height="{hl}" fill="#FF4C4C" rx="3" />'
+        svg += f'<text x="50" y="{80 - hl}" fill="#FF4C4C" font-size="14" font-family="sans-serif" font-weight="bold" text-anchor="middle">{l}</text>'
+        svg += f'<text x="50" y="98" fill="#FF4C4C" font-size="12" font-family="sans-serif" font-weight="bold" text-anchor="middle">L</text>'
+        
+    # Barra BREAKEVEN (Gris)
+    if t > 0:
+        svg += f'<rect x="66" y="{85 - ht}" width="22" height="{ht}" fill="gray" rx="3" />'
+        svg += f'<text x="77" y="{80 - ht}" fill="gray" font-size="14" font-family="sans-serif" font-weight="bold" text-anchor="middle">{t}</text>'
+        svg += f'<text x="77" y="98" fill="gray" font-size="12" font-family="sans-serif" font-weight="bold" text-anchor="middle">BE</text>'
 
+    svg += '</svg>'
+    return svg
+
+with col_det:
+    ver_todo = st.toggle("View All-Time", value=False)
+    
+    todos_los_trades_planos = []
+    for k, lista in db_usuario[ctx]["trades"].items():
+        todos_los_trades_planos.extend(lista)
+        
+    if ver_todo:
+        trades_lista = [t["pnl"] for t in todos_los_trades_planos]
+        titulo_pnl = "Net P&L All-Time"
+        titulo_win = "Win Rate All-Time"
+    else:
+        trades_lista = trades_mes_top
+        titulo_pnl = CARD_PNL_TITULO
+        titulo_win = CARD_WIN_TITULO
+        
+    total_trades = len(trades_lista)
+    
+    net_pnl = sum(trades_lista) if total_trades > 0 else 0.0
+    
+    # LÓGICA DE LOS $30: 
+    # Win es >= $30 | Loss es <= -$30 | BE es en el medio (-$29.99 a $29.99)
+    wins = len([t for t in trades_lista if t >= 30])
+    losses = len([t for t in trades_lista if t <= -30])
+    ties = len([t for t in trades_lista if -30 < t < 30])
+    
+    total_validos = wins + losses + ties
+    win_pct = (wins / total_validos * 100) if total_validos > 0 else 0.0
+    
+    color_pnl = "pnl-value" if net_pnl >= 0 else "pnl-value pnl-value-loss"
+    simbolo_pnl = "+" if net_pnl > 0 else ""
+    c_win_card = "#00C897" if win_pct >= 50 else "#FF4C4C"
+    
+    # --- CÁLCULO DE RR PROMEDIO ---
+    rr_valores = []
+    # Buscamos en los trades del mes o de todo el tiempo según el toggle
+    trades_para_rr = todos_los_trades_planos if ver_todo else [tr for k, v in db_usuario[ctx]["trades"].items() if k[0]==anio_sel and k[1]==mes_sel for tr in v]
+    
+    for t in trades_para_rr:
+        rr_str = str(t.get('RR', '1:0'))
+        if ":" in rr_str:
+            try:
+                # Extraemos el número después de los ":" (ej: de 1:2.5 saca 2.5)
+                val = float(rr_str.split(":")[1])
+                if val > 0: rr_valores.append(val)
+            except: pass
+    
+    rr_promedio = sum(rr_valores) / len(rr_valores) if rr_valores else 0.0
+
+    # --- DISEÑO DE LAS 3 TARJETAS INDEPENDIENTES ---
+    c_met1, c_met2, c_met3 = st.columns(3)
+
+    with c_met1:
         st.markdown(f"""
-            <div class="metric-card card-win">
-                <div>
-                    <div class="metric-header"><span class="title-trade-win">{titulo_win}</span></div>
-                    <div class="win-value" style="color: {c_win_card};">{win_pct:.2f}%</div>
-                </div>
-                <div style="display:flex; flex-direction:row; align-items:center; justify-content:center; gap:20px; margin-top:0px; padding:0px;">
-                    <div style="width: var(--pie-size); height: var(--pie-size); transform: translateY(var(--pie-y-offset)); flex-shrink: 0; display:flex; margin: -15px 0;">
-                        {bar_html}
-                    </div>
-                    <div style="font-size: calc(var(--size-box-wl) * 1.5); font-weight: 800; text-align:center; white-space:nowrap; transform: translateY(var(--pie-y-offset));">
-                        {wl_text_pie}
-                    </div>
-                </div>
+            <div class="metric-card card-pnl">
+                <div class="metric-header"><span class="title-net-pnl">{titulo_pnl}</span></div>
+                <div class="{color_pnl}">{simbolo_pnl}${net_pnl:,.2f}</div>
             </div>
         """, unsafe_allow_html=True)
+
+    with c_met2:
+        st.markdown(f"""
+            <div class="metric-card card-win">
+                <div class="metric-header"><span class="title-trade-win">Total Trades</span></div>
+                <div class="rr-value" style="color: white;">{total_trades}</div>
+            </div>
+        """, unsafe_allow_html=True)
+
+    with c_met3:
+        st.markdown(f"""
+            <div class="metric-card card-rr">
+                <div class="metric-header"><span class="title-trade-win">RR Promedio</span></div>
+                <div class="rr-value" style="color: #FFFFFF;">1 / {rr_promedio:.2f}</div>
+            </div>
+        """, unsafe_allow_html=True)
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    bar_html = get_bar_svg(wins, losses, ties)
+    
+    wl_parts_pie = []
+    if wins >= 1: wl_parts_pie.append(f'<span style="color:#00C897;">{wins}W</span>')
+    if losses >= 1: wl_parts_pie.append(f'<span style="color:#FF4C4C;">{losses}L</span>')
+    if ties >= 1: wl_parts_pie.append(f'<span style="color:gray;">{ties}BE</span>')
+    wl_text_pie = ' <span style="color:gray;">/</span> '.join(wl_parts_pie)
+
+    st.markdown(f"""
+        <div class="metric-card card-win">
+            <div>
+                <div class="metric-header"><span class="title-trade-win">{titulo_win}</span></div>
+                <div class="win-value" style="color: {c_win_card};">{win_pct:.2f}%</div>
+            </div>
+            <div style="display:flex; flex-direction:row; align-items:center; justify-content:center; gap:20px; margin-top:0px; padding:0px;">
+                <div style="width: var(--pie-size); height: var(--pie-size); transform: translateY(var(--pie-y-offset)); flex-shrink: 0; display:flex; margin: -15px 0;">
+                    {bar_html}
+                </div>
+                <div style="font-size: calc(var(--size-box-wl) * 1.5); font-weight: 800; text-align:center; white-space:nowrap; transform: translateY(var(--pie-y-offset));">
+                    {wl_text_pie}
+                </div>
+            </div>
+        </div>
+    """, unsafe_allow_html=True)
+    
+    def get_col_simb(valor):
+        if valor > 0: return "txt-green", "+"
+        elif valor < 0: return "txt-red", ""
+        else: return "txt-gray", ""
+
+    def calc_pct(valor):
+        base = bal_actual - valor
+        return (valor / base * 100) if base != 0 else 0.0
+    
+    if not ver_todo:
+        semanas_stats = {i: {"pnl": 0.0, "w": 0, "l": 0} for i in range(1, len(mes_matriz) + 1)}
         
-        def get_col_simb(valor):
-            if valor > 0: return "txt-green", "+"
-            elif valor < 0: return "txt-red", ""
-            else: return "txt-gray", ""
+        for key, lista_t in db_usuario[ctx]["trades"].items():
+            if key[0] == anio_sel and key[1] == mes_sel:
+                dia = key[2]
+                for idx, semana in enumerate(mes_matriz):
+                    if dia in semana:
+                        for val in lista_t:
+                            semanas_stats[idx + 1]["pnl"] += val["pnl"]
+                            if val["pnl"] > 0: semanas_stats[idx + 1]["w"] += 1
+                            elif val["pnl"] < 0: semanas_stats[idx + 1]["l"] += 1
+                        break
 
-        def calc_pct(valor):
-            base = bal_actual - valor
-            return (valor / base * 100) if base != 0 else 0.0
+        m_total = sum(s["pnl"] for s in semanas_stats.values())
+        m_w = sum(s["w"] for s in semanas_stats.values())
+        m_l = sum(s["l"] for s in semanas_stats.values())
         
-        if not ver_todo:
-            semanas_stats = {i: {"pnl": 0.0, "w": 0, "l": 0} for i in range(1, len(mes_matriz) + 1)}
-            for key, lista_t in db_usuario[ctx]["trades"].items():
-                if key[0] == anio_sel and key[1] == mes_sel:
-                    dia = key[2]
-                    for idx, semana in enumerate(mes_matriz):
-                        if dia in semana:
-                            for val in lista_t:
-                                semanas_stats[idx + 1]["pnl"] += val["pnl"]
-                                if val["pnl"] > 0: semanas_stats[idx + 1]["w"] += 1
-                                elif val["pnl"] < 0: semanas_stats[idx + 1]["l"] += 1
-                            break
+        cM, sM = get_col_simb(m_total)
+        pct_m = calc_pct(m_total)
 
-            m_total = sum(s["pnl"] for s in semanas_stats.values())
-            m_w = sum(s["w"] for s in semanas_stats.values())
-            m_l = sum(s["l"] for s in semanas_stats.values())
+        titulos_semanas = [TXT_W1, TXT_W2, TXT_W3, TXT_W4, TXT_W5, TXT_W6]
+        
+        semanas_html = ""
+        for idx, (num_sem, stats) in enumerate(semanas_stats.items()):
+            titulo_str = titulos_semanas[idx] if idx < len(titulos_semanas) else f"Week {num_sem}"
+            c_sem, s_sem = get_col_simb(stats["pnl"])
+            pct_sem = calc_pct(stats["pnl"])
             
-            cM, sM = get_col_simb(m_total)
-            pct_m = calc_pct(m_total)
-            titulos_semanas = [TXT_W1, TXT_W2, TXT_W3, TXT_W4, TXT_W5, TXT_W6]
+            wl_parts_sem = []
+            if stats["w"] >= 1: wl_parts_sem.append(f'<span style="color:#00C897;">{stats["w"]}W</span>')
+            if stats["l"] >= 1: wl_parts_sem.append(f'<span style="color:#FF4C4C;">{stats["l"]}L</span>')
+            wl_text_sem = ' <span style="color:gray;">/</span> '.join(wl_parts_sem)
+
+            semanas_html += f'<div class="wk-box"><div class="wk-title" style="font-size:var(--size-box-titles) !important;">{titulo_str}</div><div class="wk-val {c_sem}" style="font-size:var(--size-box-vals) !important;">{s_sem}${stats["pnl"]:,.2f}<br><span style="font-size:var(--size-box-pct);">{s_sem}{pct_sem:.2f}%</span><br><span style="font-size: var(--size-box-wl); font-weight: 500;">{wl_text_sem}</span></div></div>'
+
+        wl_parts_mo = []
+        if m_w >= 1: wl_parts_mo.append(f'<span style="color:#00C897;">{m_w}W</span>')
+        if m_l >= 1: wl_parts_mo.append(f'<span style="color:#FF4C4C;">{m_l}L</span>')
+        wl_text_mo = ' <span style="color:gray;">/</span> '.join(wl_parts_mo)
+
+        st.markdown(f'<div class="weeks-container">{semanas_html}<div class="mo-box"><div class="mo-title" style="font-size:var(--size-box-titles) !important;">{TXT_MO}</div><div class="mo-val {cM}" style="font-size:var(--size-box-vals) !important;">{sM}${m_total:,.2f}<br><span style="font-size:var(--size-box-pct);">{sM}{pct_m:.2f}%</span><br><span style="font-size: var(--size-box-wl); font-weight: 500;">{wl_text_mo}</span></div></div></div>', unsafe_allow_html=True)
+
+    else:
+        meses_stats = {}
+        for key, lista_t in db_usuario[ctx]["trades"].items():
+            y, m = key[0], key[1]
+            if (y, m) not in meses_stats:
+                meses_stats[(y, m)] = {"pnl": 0.0, "w": 0, "l": 0}
+            for val in lista_t:
+                meses_stats[(y, m)]["pnl"] += val["pnl"]
+                if val["pnl"] > 0: meses_stats[(y, m)]["w"] += 1
+                elif val["pnl"] < 0: meses_stats[(y, m)]["l"] += 1
+        
+        meses_html = ""
+        for (y, m) in sorted(meses_stats.keys()):
+            val_m = meses_stats[(y, m)]["pnl"]
+            w_m = meses_stats[(y, m)]["w"]
+            l_m = meses_stats[(y, m)]["l"]
             
-            semanas_html = ""
-            for idx, (num_sem, stats) in enumerate(semanas_stats.items()):
-                titulo_str = titulos_semanas[idx] if idx < len(titulos_semanas) else f"Week {num_sem}"
-                c_sem, s_sem = get_col_simb(stats["pnl"])
-                pct_sem = calc_pct(stats["pnl"])
-                
-                wl_parts_sem = []
-                if stats["w"] >= 1: wl_parts_sem.append(f'<span style="color:#00C897;">{stats["w"]}W</span>')
-                if stats["l"] >= 1: wl_parts_sem.append(f'<span style="color:#FF4C4C;">{stats["l"]}L</span>')
-                wl_text_sem = ' <span style="color:gray;">/</span> '.join(wl_parts_sem)
+            nombre_m = f"{calendar.month_abbr[m]} {y}"
+            c_m, s_m = get_col_simb(val_m)
+            pct_m_box = calc_pct(val_m)
+            
+            wl_parts_all = []
+            if w_m >= 1: wl_parts_all.append(f'<span style="color:#00C897;">{w_m}W</span>')
+            if l_m >= 1: wl_parts_all.append(f'<span style="color:#FF4C4C;">{l_m}L</span>')
+            wl_text_all = ' <span style="color:gray;">/</span> '.join(wl_parts_all)
 
-                semanas_html += f'<div class="wk-box"><div class="wk-title" style="font-size:var(--size-box-titles) !important;">{titulo_str}</div><div class="wk-val {c_sem}" style="font-size:var(--size-box-vals) !important;">{s_sem}${stats["pnl"]:,.2f}<br><span style="font-size:var(--size-box-pct);">{s_sem}{pct_sem:.2f}%</span><br><span style="font-size: var(--size-box-wl); font-weight: 500;">{wl_text_sem}</span></div></div>'
-
-            wl_parts_mo = []
-            if m_w >= 1: wl_parts_mo.append(f'<span style="color:#00C897;">{m_w}W</span>')
-            if m_l >= 1: wl_parts_mo.append(f'<span style="color:#FF4C4C;">{m_l}L</span>')
-            wl_text_mo = ' <span style="color:gray;">/</span> '.join(wl_parts_mo)
-
-            st.markdown(f'<div class="weeks-container">{semanas_html}<div class="mo-box"><div class="mo-title" style="font-size:var(--size-box-titles) !important;">{TXT_MO}</div><div class="mo-val {cM}" style="font-size:var(--size-box-vals) !important;">{sM}${m_total:,.2f}<br><span style="font-size:var(--size-box-pct);">{sM}{pct_m:.2f}%</span><br><span style="font-size: var(--size-box-wl); font-weight: 500;">{wl_text_mo}</span></div></div></div>', unsafe_allow_html=True)
-
+            meses_html += f'<div class="wk-box"><div class="wk-title" style="font-size:var(--size-box-titles) !important;">{nombre_m}</div><div class="wk-val {c_m}" style="font-size:var(--size-box-vals) !important;">{s_m}${val_m:,.2f}<br><span style="font-size:var(--size-box-pct);">{s_m}{pct_m_box:.2f}%</span><br><span style="font-size: var(--size-box-wl); font-weight: 500;">{wl_text_all}</span></div></div>'
+        
+        if meses_html:
+            st.markdown(f'<div class="weeks-container">{meses_html}</div>', unsafe_allow_html=True)
         else:
-            meses_stats = {}
-            for key, lista_t in db_usuario[ctx]["trades"].items():
-                y, m = key[0], key[1]
-                if (y, m) not in meses_stats:
-                    meses_stats[(y, m)] = {"pnl": 0.0, "w": 0, "l": 0}
-                for val in lista_t:
-                    meses_stats[(y, m)]["pnl"] += val["pnl"]
-                    if val["pnl"] > 0: meses_stats[(y, m)]["w"] += 1
-                    elif val["pnl"] < 0: meses_stats[(y, m)]["l"] += 1
-            
-            meses_html = ""
-            for (y, m) in sorted(meses_stats.keys()):
-                val_m = meses_stats[(y, m)]["pnl"]
-                w_m = meses_stats[(y, m)]["w"]
-                l_m = meses_stats[(y, m)]["l"]
-                
-                nombre_m = f"{calendar.month_abbr[m]} {y}"
-                c_m, s_m = get_col_simb(val_m)
-                pct_m_box = calc_pct(val_m)
-                
-                wl_parts_all = []
-                if w_m >= 1: wl_parts_all.append(f'<span style="color:#00C897;">{w_m}W</span>')
-                if l_m >= 1: wl_parts_all.append(f'<span style="color:#FF4C4C;">{l_m}L</span>')
-                wl_text_all = ' <span style="color:gray;">/</span> '.join(wl_parts_all)
+            st.info("No hay meses con trades registrados aún.")
 
-                meses_html += f'<div class="wk-box"><div class="wk-title" style="font-size:var(--size-box-titles) !important;">{nombre_m}</div><div class="wk-val {c_m}" style="font-size:var(--size-box-vals) !important;">{s_m}${val_m:,.2f}<br><span style="font-size:var(--size-box-pct);">{s_m}{pct_m_box:.2f}%</span><br><span style="font-size: var(--size-box-wl); font-weight: 500;">{wl_text_all}</span></div></div>'
-            
-            if meses_html:
-                st.markdown(f'<div class="weeks-container">{meses_html}</div>', unsafe_allow_html=True)
-            else:
-                st.info("No hay meses con trades registrados aún.")
 # ==========================================
 # 11 Y 12. TABLAS Y EDICIÓN A LA MITAD (COLUMNAS)
 # ==========================================
-elif pagina_actual == "📓 Journal":
-    st.markdown("<br>", unsafe_allow_html=True)
+st.markdown("<br>", unsafe_allow_html=True)
 st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
 
 col_mitad_1, col_mitad_2 = st.columns(2)
@@ -1324,7 +1585,7 @@ with col_mitad_2:
 <td style="{td_style}"><div style="max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{row['Corrections']}">{row['Corrections']}</div></td>
 </tr>"""
 
-tabla_html = f"""<div style="width: 100%; max-height: 500px; overflow-y: auto; overflow-x: auto; background-color: {card_bg}; border: 1px solid {border_color}; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                tabla_html = f"""<div style="width: 100%; max-height: 500px; overflow-y: auto; overflow-x: auto; background-color: {card_bg}; border: 1px solid {border_color}; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
 <table style="width: 100%; border-collapse: collapse; text-align: left; white-space: nowrap;">
 <thead style="position: sticky; top: 0; background-color: {card_bg}; z-index: 1;">
 <tr>
@@ -1346,135 +1607,11 @@ tabla_html = f"""<div style="width: 100%; max-height: 500px; overflow-y: auto; o
 </tbody>
 </table>
 </div>"""
-                    st.markdown(tabla_html, unsafe_allow_html=True)
+                st.markdown(tabla_html, unsafe_allow_html=True)
 
-elif pagina_actual == "⚙️ Settings":
-    st.markdown("<h2 style='color: #00C897; font-weight: 800; margin-top: -20px;'>⚙️ Settings & Configurations</h2>", unsafe_allow_html=True)
-    st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
-    
-    st.markdown("### 💼 Manage Accounts")
-    col_acc1, col_acc2, col_acc3 = st.columns(3)
-    
-    with col_acc1:
-        with st.container(border=True):
-            st.markdown("**➕ Create New Account**")
-            nueva_cuenta_nombre = st.text_input("Account name", key="input_nombre_nueva_cta")
-            nueva_cuenta_bal = st.selectbox("Initial Balance", [25000.0, 50000.0, 100000.0], format_func=lambda x: f"${x:,.0f}", key="select_bal_nueva_cta")
-            if st.button("➕ Create Account", use_container_width=True, key="btn_crear_cta"):
-                if nueva_cuenta_nombre and nueva_cuenta_nombre not in db_usuario:
-                    db_usuario[nueva_cuenta_nombre] = {"balance": nueva_cuenta_bal, "trades": {}}
-                    reescribir_excel_usuario(usuario)
-                    st.success(f"Cuenta '{nueva_cuenta_nombre}' creada!")
-                    st.rerun()
-                elif nueva_cuenta_nombre in db_usuario:
-                    st.warning("Ese nombre ya existe.")
-    
-    with col_acc2:
-        with st.container(border=True):
-            ctx_actual = st.session_state.data_source_sel
-            st.markdown(f"**🔄 Reset {ctx_actual}**")
-            opciones_reset = {"$25,000": 25000.0, "$50,000": 50000.0, "$100,000": 100000.0}
-            seleccion_reset = st.radio("Select Initial Balance:", list(opciones_reset.keys()), key="radio_reset")
-            nuevo_balance_reset = opciones_reset[seleccion_reset]
-            
-            if "confirm_reset" not in st.session_state: st.session_state.confirm_reset = False
-            if st.button("🔄 Confirmar Reset", use_container_width=True, key="btn_solicitar_reset"): st.session_state.confirm_reset = True
-            
-            if st.session_state.confirm_reset:
-                cr_yes, cr_no = st.columns(2)
-                if cr_yes.button("SÍ, RESET", key="btn_si_reset"):
-                    db_usuario[ctx_actual]["balance"] = nuevo_balance_reset
-                    db_usuario[ctx_actual]["trades"] = {}
-                    reescribir_excel_usuario(usuario)
-                    st.session_state.confirm_reset = False
-                    st.rerun()
-                if cr_no.button("NO", key="btn_no_reset"):
-                    st.session_state.confirm_reset = False; st.rerun()
-                    
-    with col_acc3:
-        with st.container(border=True):
-            st.markdown("**🗑️ Delete Account**")
-            cuenta_a_borrar = st.selectbox("Select account to delete", list(db_usuario.keys()), key="select_eliminar_cta")
-            if "confirm_delete_acc" not in st.session_state: st.session_state.confirm_delete_acc = False
-            if st.button("🗑️ Eliminar Selección", use_container_width=True, key="btn_solicitar_borrado"):
-                if len(db_usuario) <= 1: st.error("No puedes eliminar tu única cuenta.")
-                else: st.session_state.confirm_delete_acc = True
-                
-            if st.session_state.confirm_delete_acc:
-                cd_yes, cd_no = st.columns(2)
-                if cd_yes.button("SÍ, BORRAR", key="btn_si_borrar"):
-                    del db_usuario[cuenta_a_borrar]
-                    if st.session_state.data_source_sel == cuenta_a_borrar: st.session_state.data_source_sel = list(db_usuario.keys())[0]
-                    reescribir_excel_usuario(usuario)
-                    st.session_state.confirm_delete_acc = False
-                    st.rerun()
-                if cd_no.button("NO", key="btn_no_borrar"):
-                    st.session_state.confirm_delete_acc = False; st.rerun()
-
-    st.markdown("---")
-    col_set1, col_set2 = st.columns(2)
-    
-    with col_set1:
-        st.markdown("### 🌓 Theme & Device")
-        with st.container(border=True):
-            texto_boton_tema = "🌙 Switch to Dark Theme" if st.session_state.tema == "Claro" else "☀️ Switch to Light Theme"
-            if st.button(texto_boton_tema, use_container_width=True):
-                st.session_state.tema = "Oscuro" if st.session_state.tema == "Claro" else "Claro"
-                st.rerun()
-            
-            st.markdown("<br>", unsafe_allow_html=True)
-            dispositivo_visual = st.radio("Current Design:", ["🖥️ PC", "📱 Móvil"], index=0 if "PC" in st.session_state.dispositivo_actual else 1, horizontal=True)
-            st.session_state.dispositivo_actual = "PC" if "🖥️ PC" in dispositivo_visual else "Móvil"
-            try: st.query_params["device"] = st.session_state.dispositivo_actual
-            except: pass
-            
-            if st.button("💾 Save Design Settings", use_container_width=True):
-                ctx_act = st.session_state.data_source_sel
-                bal_act = db_usuario[ctx_act]["balance"]
-                registrar_en_excel(usuario, db_global[usuario]["password"], ctx_act, datetime.now(), bal_act, 0.0, {}, db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
-                st.success("✅ Settings Saved!")
-                
-        st.markdown("### 🛡️ Admin & Sync")
-        with st.container(border=True):
-            if st.button("↻ Force Sync with Google Sheets", use_container_width=True): get_global_db.clear(); st.rerun()
-            st.markdown("<br>", unsafe_allow_html=True)
-            with st.expander("🛡️ Admin Panel"):
-                admin_pass = st.text_input("Admin Password", type="password")
-                if admin_pass == "Yfutures.":
-                    st.success("Acceso concedido.")
-                    for u, data in list(db_global.items()):
-                        col_u, col_p, col_btn = st.columns([2, 2, 1])
-                        col_u.write(f"**{u}**"); col_p.write(f"{data['password']}")
-                        if col_btn.button("❌", key=f"del_{u}"):
-                            del db_global[u]; st.rerun()
-    
-    with col_set2:
-        st.markdown("### 🖥️ Display Settings")
-        with st.container(border=True):
-            with st.expander("🖥️ Dashboard Settings"):
-                if st.button("🔄 Reset Dashboard", key="res_dash", use_container_width=True): reset_settings("dash"); st.rerun()
-                user_settings["bal_num_sz"] = st.slider("Balance Numbers Size", 10, 60, user_settings["bal_num_sz"])
-                user_settings["bal_box_w"] = st.slider("Green Background Width (%)", 10, 100, user_settings["bal_box_w"])
-                user_settings["bal_box_pad"] = st.slider("Green Background Height (Padding)", 0, 50, user_settings["bal_box_pad"])
-
-            with st.expander("🔠 Text & Chart Settings"):
-                if st.button("🔄 Reset Texts & Charts", key="res_txt", use_container_width=True): reset_settings("txt"); st.rerun()
-                user_settings["size_top_stats"] = st.slider("Monthly P&L Size", 10, 40, user_settings["size_top_stats"])
-                user_settings["size_card_titles"] = st.slider("Titles Size (All-Time)", 10, 40, user_settings["size_card_titles"])
-                user_settings["size_box_titles"] = st.slider("Titles Size (Week)", 10, 40, user_settings["size_box_titles"])
-                user_settings["size_box_vals"] = st.slider("P&L Boxes Size", 10, 50, user_settings["size_box_vals"])
-                user_settings["size_box_pct"] = st.slider("% Boxes Size", 10, 40, user_settings["size_box_pct"])
-                user_settings["size_box_wl"] = st.slider("W/L Boxes Size", 10, 40, user_settings["size_box_wl"])
-                user_settings["pie_size"] = st.slider("Chart Size", 50, 300, user_settings["pie_size"])
-                user_settings["pie_y_offset"] = st.slider("Chart Vertical Position", -100, 100, user_settings["pie_y_offset"])
-
-            with st.expander("📅 Calendar Settings"):
-                if st.button("🔄 Reset Calendar", key="res_cal", use_container_width=True): reset_settings("cal"); st.rerun()
-                user_settings["cal_mes_size"] = st.slider("Month Size", 10, 50, user_settings["cal_mes_size"])
-                user_settings["cal_pnl_size"] = st.slider("Day P&L Size", 10, 40, user_settings["cal_pnl_size"])
-                user_settings["cal_pct_size"] = st.slider("Day % Size", 10, 30, user_settings["cal_pct_size"])
-                user_settings["cal_dia_size"] = st.slider("Day Number Size", 10, 30, user_settings["cal_dia_size"])
-                user_settings["cal_scale"] = st.slider("Calendar Height", 50, 200, user_settings["cal_scale"])
+# ==========================================
+# SCRIPT PARA CERRAR MODALES Y BLOQUEAR TECLADO
+# ==========================================
 components.html("""
 <style>
 /* FIX: Centrar el texto del Balance Verticalmente */
