@@ -1560,46 +1560,42 @@ with col_mitad_2:
                     elif bias == "SHORT": bias_badge = f'<span style="background: rgba(255,76,76,0.15); color: #FF4C4C; padding: 4px 8px; border-radius: 6px; font-weight: bold; font-size: 12px;">{bias}</span>'
                     else: bias_badge = f'<span style="background: rgba(128,128,128,0.15); color: gray; padding: 4px 8px; border-radius: 6px; font-weight: bold; font-size: 12px;">{bias}</span>'
                     
-                    filas_html += f'''
-                    <tr>
-                        <td style="{td_style}">{row['Date']}</td>
-                        <td style="{td_style}"><b>{row['Trade']}</b></td>
-                        <td style="{td_style} font-weight: 800; color: {pnl_color};">{pnl_str}</td>
-                        <td style="{td_style} font-weight: 600;">{row['Trade Type']}</td>
-                        <td style="{td_style}">{bias_badge}</td>
-                        <td style="{td_style} font-weight: 600; color: #4F46E5;">{row['RR']}</td>
-                        <td style="{td_style}"><div style="max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{row['Confluences']}">{row['Confluences']}</div></td>
-                        <td style="{td_style}">{row['Risk']}</td>
-                        <td style="{td_style}"><div style="max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{row['Reason For Trade']}">{row['Reason For Trade']}</div></td>
-                        <td style="{td_style}"><div style="max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{row['Emotions']}">{row['Emotions']}</div></td>
-                        <td style="{td_style}"><div style="max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{row['Corrections']}">{row['Corrections']}</div></td>
-                    </tr>
-                    '''
+                    filas_html += f"""<tr>
+<td style="{td_style}">{row['Date']}</td>
+<td style="{td_style}"><b>{row['Trade']}</b></td>
+<td style="{td_style} font-weight: 800; color: {pnl_color};">{pnl_str}</td>
+<td style="{td_style} font-weight: 600;">{row['Trade Type']}</td>
+<td style="{td_style}">{bias_badge}</td>
+<td style="{td_style} font-weight: 600; color: #4F46E5;">{row['RR']}</td>
+<td style="{td_style}"><div style="max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{row['Confluences']}">{row['Confluences']}</div></td>
+<td style="{td_style}">{row['Risk']}</td>
+<td style="{td_style}"><div style="max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{row['Reason For Trade']}">{row['Reason For Trade']}</div></td>
+<td style="{td_style}"><div style="max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{row['Emotions']}">{row['Emotions']}</div></td>
+<td style="{td_style}"><div style="max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{row['Corrections']}">{row['Corrections']}</div></td>
+</tr>"""
 
-                tabla_html = f'''
-                <div style="width: 100%; max-height: 500px; overflow-y: auto; overflow-x: auto; background-color: {card_bg}; border: 1px solid {border_color}; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-                    <table style="width: 100%; border-collapse: collapse; text-align: left; white-space: nowrap;">
-                        <thead style="position: sticky; top: 0; background-color: {card_bg}; z-index: 1;">
-                            <tr>
-                                <th style="{th_style}">Date</th>
-                                <th style="{th_style}">Trade</th>
-                                <th style="{th_style}">P&L</th>
-                                <th style="{th_style}">Type</th>
-                                <th style="{th_style}">Bias</th>
-                                <th style="{th_style}">RR</th>
-                                <th style="{th_style}">Confluences</th>
-                                <th style="{th_style}">Risk</th>
-                                <th style="{th_style}">Reason</th>
-                                <th style="{th_style}">Emotions</th>
-                                <th style="{th_style}">Corrections</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {filas_html}
-                        </tbody>
-                    </table>
-                </div>
-                '''
+                tabla_html = f"""<div style="width: 100%; max-height: 500px; overflow-y: auto; overflow-x: auto; background-color: {card_bg}; border: 1px solid {border_color}; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+<table style="width: 100%; border-collapse: collapse; text-align: left; white-space: nowrap;">
+<thead style="position: sticky; top: 0; background-color: {card_bg}; z-index: 1;">
+<tr>
+<th style="{th_style}">Date</th>
+<th style="{th_style}">Trade</th>
+<th style="{th_style}">P&L</th>
+<th style="{th_style}">Type</th>
+<th style="{th_style}">Bias</th>
+<th style="{th_style}">RR</th>
+<th style="{th_style}">Confluences</th>
+<th style="{th_style}">Risk</th>
+<th style="{th_style}">Reason</th>
+<th style="{th_style}">Emotions</th>
+<th style="{th_style}">Corrections</th>
+</tr>
+</thead>
+<tbody>
+{filas_html}
+</tbody>
+</table>
+</div>"""
                 st.markdown(tabla_html, unsafe_allow_html=True)
 
 # ==========================================
