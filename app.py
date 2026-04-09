@@ -417,12 +417,12 @@ if st.sidebar.button(texto_boton_tema):
     st.session_state.tema = "Oscuro" if st.session_state.tema == "Claro" else "Claro"
     st.rerun()
 
+st.sidebar.markdown("---")
 ctx_actual = st.session_state.data_source_sel
 with st.sidebar.expander(f"🔄 Reset {ctx_actual}"):
     nuevo_balance_reset = st.number_input("New Balance", value=db_usuario[ctx_actual]["balance"], step=100.0)
     if "confirm_reset" not in st.session_state: st.session_state.confirm_reset = False
     
-    st.sidebar.markdown("---")
     if st.button("🔄 Reset Account", use_container_width=True):
         st.session_state.confirm_reset = True
         
