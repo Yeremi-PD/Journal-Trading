@@ -646,17 +646,27 @@ st.markdown(f"""
     /* Mantenemos el tamaño de tu cuadro de Trade Details y reforzamos el color claro */
     div[data-testid="stPopoverBody"]:has(h3) {{ width: 710px !important; max-width: 95vw !important; max-height: 85vh !important; margin-top: 100px !important; overflow-y: auto !important; box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important; background-color: {card_bg} !important; border: 2px solid {card_bg} !important; }}
     
-    /* 🔴 MAGIA CSS: Volver la caja un cuadrado y mutar el punto rojo en un Check (✔) verde */
-    div[data-testid="stPopoverBody"] div[data-testid="stRadio"] [data-baseweb="radio"] > div:first-child {{ border-radius: 4px !important; }}
+    /* 🔴 MAGIA CSS: Volver la caja un cuadrado */
+    div[data-testid="stPopoverBody"] div[data-testid="stRadio"] div[role="radio"] > div:first-child {{ border-radius: 4px !important; }}
     
-    div[data-testid="stPopoverBody"] div[data-testid="stRadio"] [data-baseweb="radio"] > div:first-child > div {{ 
-        border-radius: 0 !important; /* Matamos el círculo */
-        background-color: transparent !important; /* Matamos el color rojo feo */
-        width: 6px !important; /* Ancho de la palomita */
-        height: 12px !important; /* Alto de la palomita */
-        border-bottom: 3px solid #00C897 !important; /* Palito inferior verde */
-        border-right: 3px solid #00C897 !important; /* Palito lateral verde */
-        transform: rotate(45deg) translate(-1px, -2px) !important; /* Lo rotamos para que sea un ✔ */
+    /* Ocultamos el Check en los que NO están seleccionados */
+    div[data-testid="stPopoverBody"] div[data-testid="stRadio"] div[role="radio"][aria-checked="false"] > div:first-child > div {{ display: none !important; }}
+    
+    /* Mutamos el punto a Check (✔) SOLO en el seleccionado */
+    div[data-testid="stPopoverBody"] div[data-testid="stRadio"] div[role="radio"][aria-checked="true"] > div:first-child > div {{ 
+        border-radius: 0 !important; 
+        background-color: transparent !important; 
+        width: 6px !important; 
+        height: 12px !important; 
+        border-bottom: 3px solid #00C897 !important; 
+        border-right: 3px solid #00C897 !important; 
+        transform: rotate(45deg) translate(-1px, -2px) !important; 
+        display: block !important;
+    }}
+
+    /* 🔴 Títulos en negrita (Bias, Confluences, Risk, etc.) */
+    div[data-testid="stPopoverBody"] label p, div[data-testid="stPopoverBody"] label div {{
+        font-weight: 900 !important;
     }}
     
     /* 🔴 Aclarar textareas apuntando directo a su contenedor principal */
