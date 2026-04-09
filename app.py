@@ -1540,7 +1540,7 @@ bloquearTeclado();
 const observer = new MutationObserver(bloquearTeclado);
 observer.observe(doc.body, { childList: true, subtree: true });
 
-// 3. BOTÓN DE CAPTURA DE PANTALLA FLOTANTE (Página Completa y 50% más grande)
+// 3. BOTÓN DE CAPTURA DE PANTALLA FLOTANTE (Full Page real + Corrección de Fondo)
 if (!doc.getElementById('btn-screenshot-global')) {
     const script = doc.createElement('script');
     script.src = "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js";
@@ -1550,7 +1550,6 @@ if (!doc.getElementById('btn-screenshot-global')) {
     btn.id = 'btn-screenshot-global';
     btn.innerHTML = '📸 Capturar';
     
-    // Aumentado un 50% el tamaño (padding de 8x15 a 12x23, fuente de 14 a 21)
     Object.assign(btn.style, {
         position: 'fixed',
         top: '0px',
@@ -1582,33 +1581,36 @@ if (!doc.getElementById('btn-screenshot-global')) {
         
         btn.style.display = 'none';
         
-        // Seleccionamos el contenedor principal de Streamlit que hace el scroll
-        const stContainer = doc.querySelector('[data-testid="stAppViewContainer"]') || doc.querySelector('.stApp') || doc.body;
-        const mainInner = doc.querySelector('.main') || stContainer;
+        // Encontramos las capas internas de Streamlit que hacen el scroll falso
+        const stApp = doc.querySelector('.stApp');
+        const stAppView = doc.querySelector('[data-testid="stAppViewContainer"]');
+        const stMain = doc.querySelector('.main') || doc.querySelector('[data-testid="stMain"]');
         
-        // Guardamos estilos originales
-        const origOverflowApp = stContainer.style.overflow;
-        const origHeightApp = stContainer.style.height;
-        const origOverflowMain = mainInner.style.overflow;
+        // Guardamos los estilos originales para no romper la app después de la foto
+        const cssApp = stApp ? stApp.style.cssText : '';
+        const cssAppView = stAppView ? stAppView.style.cssText : '';
+        const cssMain = stMain ? stMain.style.cssText : '';
         
-        // Forzamos a la app a mostrar todo su contenido a lo largo
-        stContainer.style.overflow = 'visible';
-        stContainer.style.height = 'auto';
-        mainInner.style.overflow = 'visible';
+        // Extraemos el color de fondo exacto que estás usando (Claro u Oscuro)
+        const computedBgColor = window.parent.getComputedStyle(stApp).backgroundColor;
+
+        // MAGIA: Obligamos a la app a estirarse por completo hacia abajo
+        if(stApp) stApp.style.cssText += 'height: auto !important; overflow: visible !important;';
+        if(stAppView) stAppView.style.cssText += 'height: auto !important; overflow: visible !important;';
+        if(stMain) stMain.style.cssText += 'height: auto !important; overflow: visible !important;';
         
-        // En iOS Safari, a veces hay que scrollear arriba antes de capturar para evitar espacios en blanco
+        // Subimos el scroll arriba de todo
         window.parent.scrollTo(0, 0);
         
         try {
-            const canvas = await window.parent.html2canvas(stContainer, {
+            const canvas = await window.parent.html2canvas(stApp, {
                 useCORS: true,
                 allowTaint: true,
-                scale: 2, // Calidad alta
+                scale: 2, 
                 scrollY: 0,
-                windowWidth: stContainer.scrollWidth,
-                windowHeight: stContainer.scrollHeight,
-                width: stContainer.scrollWidth,
-                height: stContainer.scrollHeight
+                backgroundColor: computedBgColor, // Esto arregla el fondo blanco
+                windowHeight: stApp.scrollHeight,
+                height: stApp.scrollHeight
             });
             
             const link = doc.createElement('a');
@@ -1619,12 +1621,11 @@ if (!doc.getElementById('btn-screenshot-global')) {
         } catch (err) {
             console.error("Error al capturar la pantalla: ", err);
         } finally {
-            // Restauramos los estilos originales
-            stContainer.style.overflow = origOverflowApp;
-            stContainer.style.height = origHeightApp;
-            mainInner.style.overflow = origOverflowMain;
+            // Devolvemos la app a su estado normal con scroll
+            if(stApp) stApp.style.cssText = cssApp;
+            if(stAppView) stAppView.style.cssText = cssAppView;
+            if(stMain) stMain.style.cssText = cssMain;
             
-            btn.innerHTML = '📸 Capturar';
             btn.style.display = 'block';
         }
     };
