@@ -807,26 +807,53 @@ with st.form(key=f"form_main_entry_{st.session_state.form_reset_key}", border=Fa
             
             nuevo_bias = st.radio("&nbsp; \n &nbsp; \n Bias", ['LONG', 'SHORT', 'NONE'], index=2, horizontal=True)
             
-            st.markdown("<div style='font-weight: 900; font-size: 14px; margin-top: 15px; margin-bottom: 10px;'>Confluences</div>", unsafe_allow_html=True)
+# BIAS
+            st.markdown("<div style='font-weight: 900; font-size: 14px; margin-bottom: 5px;'>Bias</div>", unsafe_allow_html=True)
+            bias_opts = ['LONG', 'SHORT', 'NONE']
+            nuevo_bias_list = []
+            cols_bias = st.columns(3)
+            for idx, op in enumerate(bias_opts):
+                if cols_bias[idx % 3].checkbox(op, key=f"new_bias_{idx}"): nuevo_bias_list.append(op)
+            nuevo_bias = ", ".join(nuevo_bias_list) if nuevo_bias_list else "NONE"
+            
+            # CONFLUENCES
+            st.markdown("<div style='font-weight: 900; font-size: 14px; margin-top: 15px; margin-bottom: 5px;'>Confluences</div>", unsafe_allow_html=True)
             all_confs_list = ['BIAS WELL', 'LIQ SWEEP', 'IFVG', 'FVG', 'EQH / EQL', 'BSL / SSL', 'POI', 'SMT', 'Order Block', 'PDH / PDL', 'Continuation', 'Data High / Data Low', 'CISD']
             nuevo_conf = []
             cols_conf = st.columns(3)
             for idx, c_name in enumerate(all_confs_list):
                 if cols_conf[idx % 3].checkbox(c_name, key=f"new_conf_{idx}"):
                     nuevo_conf.append(c_name)
+                    
             nuevo_razon = st.text_area("&nbsp; \n &nbsp; \n Reason For Trade", value='', height=50)
             nuevo_corr = st.text_area("&nbsp; \n &nbsp; \n Corrections", value='', height=50)
             
+            # RISK
+            st.markdown("<div style='font-weight: 900; font-size: 14px; margin-top: 15px; margin-bottom: 5px;'>Risk</div>", unsafe_allow_html=True)
             risk_opts = ['1%', '0.9%', '0.8%', '0.7%', '0.6%', '0.5%', '0.4%']
-            nuevo_risk = st.radio("&nbsp; \n &nbsp; \n Risk", risk_opts, index=5, horizontal=True)
+            nuevo_risk_list = []
+            cols_risk = st.columns(4)
+            for idx, op in enumerate(risk_opts):
+                if cols_risk[idx % 4].checkbox(op, key=f"new_risk_{idx}"): nuevo_risk_list.append(op)
+            nuevo_risk = ", ".join(nuevo_risk_list) if nuevo_risk_list else ""
             
+            # RR
+            st.markdown("<div style='font-weight: 900; font-size: 14px; margin-top: 15px; margin-bottom: 5px;'>RR</div>", unsafe_allow_html=True)
             rr_opts = ['1:1', '1:1.5', '1:2', '1:3', '1:4']
-            nuevo_rr = st.radio("&nbsp; \n &nbsp; \n RR", rr_opts, index=2, horizontal=True)
+            nuevo_rr_list = []
+            cols_rr = st.columns(5)
+            for idx, op in enumerate(rr_opts):
+                if cols_rr[idx % 5].checkbox(op, key=f"new_rr_{idx}"): nuevo_rr_list.append(op)
+            nuevo_rr = ", ".join(nuevo_rr_list) if nuevo_rr_list else ""
             
+            # TRADE TYPE
+            st.markdown("<div style='font-weight: 900; font-size: 14px; margin-top: 15px; margin-bottom: 5px;'>Trade Type</div>", unsafe_allow_html=True)
             tt_opts = ['A+', 'A', 'B', 'C']
-            nuevo_tt = st.radio("&nbsp; \n &nbsp; \n Trade Type", tt_opts, index=0, horizontal=True)
-            
-            nuevo_emo = st.text_area("&nbsp; \n &nbsp; \n Emotions", value='', height=80)
+            nuevo_tt_list = []
+            cols_tt = st.columns(4)
+            for idx, op in enumerate(tt_opts):
+                if cols_tt[idx % 4].checkbox(op, key=f"new_tt_{idx}"): nuevo_tt_list.append(op)
+            nuevo_tt = ", ".join(nuevo_tt_list) if nuevo_tt_list else ""
 
     if btn_save:
         viejo = db_usuario[ctx]["balance"]
