@@ -418,20 +418,25 @@ if st.sidebar.button(texto_boton_tema):
     st.rerun()
 
 ctx_actual = st.session_state.data_source_sel
-if "confirm_clear" not in st.session_state: st.session_state.confirm_clear = False
-if st.sidebar.button(f"🗑️ Clean {ctx_actual} to $25k"): st.session_state.confirm_clear = True
-if st.session_state.confirm_clear:
-    st.sidebar.warning(f"⚠️ ¿Seguro que quieres borrar el historial de {ctx_actual}?")
-    c_yes, c_no = st.sidebar.columns(2)
-    if c_yes.button("SÍ, BORRAR"):
-        db_usuario[ctx_actual]["balance"] = 25000.00
-        db_usuario[ctx_actual]["trades"] = {}
-        reescribir_excel_usuario(usuario)
-        st.session_state.confirm_clear = False
-        st.rerun()
-    if c_no.button("CANCELAR"):
-        st.session_state.confirm_clear = False
-        st.rerun()
+with st.sidebar.expander(f"🔄 Reset {ctx_actual}"):
+    nuevo_balance_reset = st.number_input("New Balance", value=db_usuario[ctx_actual]["balance"], step=100.0)
+    if "confirm_reset" not in st.session_state: st.session_state.confirm_reset = False
+    
+    if st.button("🔄 Reset Account", use_container_width=True):
+        st.session_state.confirm_reset = True
+        
+    if st.session_state.confirm_reset:
+        st.warning(f"⚠️ ¿Borrar historial y establecer balance en ${nuevo_balance_reset:,.2f}?")
+        c_yes, c_no = st.columns(2)
+        if c_yes.button("SÍ, RESETEAR"):
+            db_usuario[ctx_actual]["balance"] = float(nuevo_balance_reset)
+            db_usuario[ctx_actual]["trades"] = {}
+            reescribir_excel_usuario(usuario)
+            st.session_state.confirm_reset = False
+            st.rerun()
+        if c_no.button("CANCELAR"):
+            st.session_state.confirm_reset = False
+            st.rerun()
         
 st.sidebar.markdown("---")
 st.sidebar.markdown("### 🛡️ Admin")
@@ -1102,7 +1107,7 @@ def ventana_borrar_trade(ctx, clave, i, usuario_actual):
         st.rerun()
 
 with col_mitad_1:
-    with st.expander("🛠️ OPEN ORDER HISTORY", expanded=False):
+    with st.expander("🕒 OPEN ORDER HISTORY", expanded=False):
         trades_actuales = db_usuario[ctx]["trades"]
         
         if not trades_actuales:
