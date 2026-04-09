@@ -806,16 +806,16 @@ with st.form(key=f"form_main_entry_{st.session_state.form_reset_key}", clear_on_
             # Título gigante (3.0em)
             st.markdown("<h3 style='text-align:center; margin-top:0; font-size: 3.0em;'>Trade Details</h3>", unsafe_allow_html=True)
             
-            # BIAS (Espaciado mínimo y casillas en columnas)
+            # BIAS (Comprimido a la izquierda)
             st.markdown("<div style='font-weight: 900; font-size: 14px; margin-top: 5px; margin-bottom: 0px;'>Bias</div>", unsafe_allow_html=True)
             bias_opts = ['LONG', 'SHORT', 'NONE']
             nuevo_bias_list = []
-            cols_bias = st.columns(3)
+            cols_bias = st.columns([1, 1, 1, 3])
             for idx, op in enumerate(bias_opts):
-                if cols_bias[idx % 3].checkbox(op, key=f"new_bias_{idx}"): nuevo_bias_list.append(op)
+                if cols_bias[idx].checkbox(op, key=f"new_bias_{idx}"): nuevo_bias_list.append(op)
             nuevo_bias = ", ".join(nuevo_bias_list) if nuevo_bias_list else "NONE"
             
-            # CONFLUENCES (Mantiene su espaciado original de 15px hacia arriba)
+            # CONFLUENCES (Se queda intacto, ocupando todo el ancho)
             st.markdown("<div style='font-weight: 900; font-size: 14px; margin-top: 15px; margin-bottom: 0px;'>Confluences</div>", unsafe_allow_html=True)
             all_confs_list = ['BIAS WELL', 'LIQ SWEEP', 'IFVG', 'FVG', 'EQH / EQL', 'BSL / SSL', 'POI', 'SMT', 'Order Block', 'PDH / PDL', 'Continuation', 'Data High / Data Low', 'CISD']
             nuevo_conf = []
@@ -824,37 +824,37 @@ with st.form(key=f"form_main_entry_{st.session_state.form_reset_key}", clear_on_
                 if cols_conf[idx % 3].checkbox(c_name, key=f"new_conf_{idx}"):
                     nuevo_conf.append(c_name)
                     
-            # TEXTOS (Espaciados corregidos)
+            # TEXTOS
             st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
             nuevo_razon = st.text_area("Reason For Trade", value='', height=50)
             nuevo_corr = st.text_area("Corrections", value='', height=50)
             nuevo_emo = st.text_area("Emotions", value='', height=50)
             
-            # RISK (Espaciado reducido)
+            # RISK (Comprimido a la izquierda)
             st.markdown("<div style='font-weight: 900; font-size: 14px; margin-top: 5px; margin-bottom: 0px;'>Risk</div>", unsafe_allow_html=True)
             risk_opts = ['1%', '0.9%', '0.8%', '0.7%', '0.6%', '0.5%', '0.4%']
             nuevo_risk_list = []
-            cols_risk = st.columns(4)
+            cols_risk = st.columns([1, 1, 1, 1, 1, 1, 1, 2])
             for idx, op in enumerate(risk_opts):
-                if cols_risk[idx % 4].checkbox(op, key=f"new_risk_{idx}"): nuevo_risk_list.append(op)
+                if cols_risk[idx].checkbox(op, key=f"new_risk_{idx}"): nuevo_risk_list.append(op)
             nuevo_risk = ", ".join(nuevo_risk_list) if nuevo_risk_list else ""
             
-            # RR (Espaciado reducido)
+            # RR (Comprimido a la izquierda)
             st.markdown("<div style='font-weight: 900; font-size: 14px; margin-top: 5px; margin-bottom: 0px;'>RR</div>", unsafe_allow_html=True)
             rr_opts = ['1:1', '1:1.5', '1:2', '1:3', '1:4']
             nuevo_rr_list = []
-            cols_rr = st.columns(5)
+            cols_rr = st.columns([1, 1, 1, 1, 1, 3])
             for idx, op in enumerate(rr_opts):
-                if cols_rr[idx % 5].checkbox(op, key=f"new_rr_{idx}"): nuevo_rr_list.append(op)
+                if cols_rr[idx].checkbox(op, key=f"new_rr_{idx}"): nuevo_rr_list.append(op)
             nuevo_rr = ", ".join(nuevo_rr_list) if nuevo_rr_list else ""
             
-            # TRADE TYPE (Espaciado reducido)
+            # TRADE TYPE (Comprimido a la izquierda)
             st.markdown("<div style='font-weight: 900; font-size: 14px; margin-top: 5px; margin-bottom: 0px;'>Trade Type</div>", unsafe_allow_html=True)
             tt_opts = ['A+', 'A', 'B', 'C']
             nuevo_tt_list = []
-            cols_tt = st.columns(4)
+            cols_tt = st.columns([1, 1, 1, 1, 4])
             for idx, op in enumerate(tt_opts):
-                if cols_tt[idx % 4].checkbox(op, key=f"new_tt_{idx}"): nuevo_tt_list.append(op)
+                if cols_tt[idx].checkbox(op, key=f"new_tt_{idx}"): nuevo_tt_list.append(op)
             nuevo_tt = ", ".join(nuevo_tt_list) if nuevo_tt_list else ""
 
     if btn_save:
