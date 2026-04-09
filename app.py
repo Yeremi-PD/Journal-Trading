@@ -646,15 +646,14 @@ st.markdown(f"""
     /* Mantenemos el tamaño de tu cuadro de Trade Details y reforzamos el color claro */
     div[data-testid="stPopoverBody"]:has(h3) {{ width: 710px !important; max-width: 95vw !important; max-height: 85vh !important; margin-top: 100px !important; overflow-y: auto !important; box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important; background-color: {card_bg} !important; border: 2px solid {card_bg} !important; }}
     
-    /* 🔴 Convertir los círculos de selección en cuadrados (estilo Checkbox) */
-    div[data-testid="stPopoverBody"] div[role="radio"] > div:first-child {{ border-radius: 4px !important; }}
-    div[data-testid="stPopoverBody"] div[role="radio"] > div:first-child > div {{ border-radius: 2px !important; }}
+    /* 🔴 Convertir agresivamente los CÍRCULOS en CUADRADOS apuntando directo a stRadio */
+    div[data-testid="stPopoverBody"] div[data-testid="stRadio"] div[data-baseweb="radio"] > div:first-of-type {{ border-radius: 4px !important; }}
+    div[data-testid="stPopoverBody"] div[data-testid="stRadio"] div[data-baseweb="radio"] > div:first-of-type > div {{ border-radius: 2px !important; }}
     
-    /* 🔴 Aclarar el fondo de los cuadros de texto (Textareas) para que destaquen */
-    div[data-testid="stPopoverBody"] div[data-baseweb="textarea"], 
-    div[data-testid="stPopoverBody"] div[data-baseweb="base-input"],
-    div[data-testid="stPopoverBody"] textarea {{ background-color: {border_color} !important; border: 1px solid transparent !important; border-radius: 8px !important; box-shadow: none !important; }}
-    div[data-testid="stPopoverBody"] textarea:focus {{ background-color: {border_color} !important; }}
+    /* 🔴 Aclarar textareas apuntando directo a su contenedor principal */
+    div[data-testid="stPopoverBody"] div[data-testid="stTextArea"] > div {{ background-color: {border_color} !important; border-radius: 8px !important; }}
+    div[data-testid="stPopoverBody"] div[data-testid="stTextArea"] div[data-baseweb="base-input"] {{ background-color: transparent !important; border: none !important; }}
+    div[data-testid="stPopoverBody"] div[data-testid="stTextArea"] textarea {{ background-color: transparent !important; color: {c_dash} !important; }}
 
     div[data-testid="stPopoverBody"] label {{ font-size: 20px !important; font-weight: 800 !important; }}
     div[data-testid="stPopoverBody"] p, div[data-testid="stPopoverBody"] span, div[data-testid="stPopoverBody"] div {{ font-size: 18px !important; }}
