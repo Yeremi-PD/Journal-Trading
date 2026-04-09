@@ -476,7 +476,7 @@ with st.sidebar.expander("💼 Gestionar Cuentas"):
             if cd_no.button("CANCELAR", key="btn_no_borrar_final"):
                 st.session_state.confirm_delete_acc = False
                 st.rerun()
- st.sidebar.markdown("---")               
+st.sidebar.markdown("---")
 
 # --- AJUSTA LOS TAMAÑOS AQUÍ A TU ANTOJO ---
 tamanio_titulo = "18px"    # Tamaño del texto "Current Design:"
