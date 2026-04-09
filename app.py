@@ -371,16 +371,6 @@ def reset_settings(category):
 # ==========================================
 # 5. BARRA LATERAL (AJUSTES Y ADMIN)
 # ==========================================
-# TAMAÑO DEL TEXTO DEL USUARIO: Cambia "22px" por el número que quieras (ej. 18px, 25px, 30px).
-tamanio_texto_cuenta = "22px"
-
-st.sidebar.markdown(
-    f"<div style='margin-top:-15px; font-size: {tamanio_texto_cuenta}; font-weight: bold;'>"
-    f"👤 My Account: <span style='color: #00C897;'>{usuario}</span>"
-    f"</div>", 
-    unsafe_allow_html=True
-)
-
 with st.sidebar.expander("💼 Gestionar Cuentas"):
     st.markdown("**Crear Nueva Cuenta**")
     nueva_cuenta_nombre = st.text_input("Nombre de la cuenta (Ej. My Funded 50k)")
@@ -421,6 +411,54 @@ with st.sidebar.expander("💼 Gestionar Cuentas"):
         if c_no.button("CANCELAR"):
             st.session_state.confirm_delete_acc = False
             st.rerun()
+
+with st.sidebar.expander("💼 Gestionar Cuentas", expanded=False):
+    # 1. Mostrar Usuario Actual
+    st.markdown(f"<div style='font-size: 18px; font-weight: bold; margin-bottom:15px;'>👤 User: <span style='color: #00C897;'>{usuario}</span></div>", unsafe_allow_html=True)
+    st.markdown("---")
+    
+    # 2. Crear Cuenta
+    st.markdown("**➕ Crear Nueva Cuenta**")
+    nueva_cuenta_nombre = st.text_input("Nombre de la cuenta (Ej. My Funded 50k)")
+    nueva_cuenta_bal = st.selectbox("Balance Inicial", [25000.0, 50000.0, 100000.0], format_func=lambda x: f"${x:,.0f}")
+    
+    if st.button("➕ Crear Cuenta", use_container_width=True):
+        if nueva_cuenta_nombre and nueva_cuenta_nombre not in db_usuario:
+            db_usuario[nueva_cuenta_nombre] = {"balance": nueva_cuenta_bal, "trades": {}}
+            reescribir_excel_usuario(usuario)
+            st.success(f"Cuenta creada!")
+            st.rerun()
+        elif nueva_cuenta_nombre in db_usuario:
+            st.warning("Ese nombre ya existe.")
+
+    st.markdown("---")
+    
+    # 3. Eliminar Cuenta (Ahora dentro de otro expander)
+    with st.expander("🗑️ Eliminar Cuenta"):
+        cuenta_a_borrar = st.selectbox("Seleccionar cuenta", list(db_usuario.keys()))
+        
+        if "confirm_delete_acc" not in st.session_state: 
+            st.session_state.confirm_delete_acc = False
+        
+        if st.button("🗑️ Confirmar Selección", use_container_width=True):
+            if len(db_usuario) <= 1:
+                st.error("No puedes eliminar tu única cuenta.")
+            else:
+                st.session_state.confirm_delete_acc = True
+                
+        if st.session_state.confirm_delete_acc:
+            st.warning(f"⚠️ ¿Borrar '{cuenta_a_borrar}'?")
+            c_yes, c_no = st.columns(2)
+            if c_yes.button("SÍ"):
+                del db_usuario[cuenta_a_borrar]
+                if st.session_state.data_source_sel == cuenta_a_borrar:
+                    st.session_state.data_source_sel = list(db_usuario.keys())[0]
+                reescribir_excel_usuario(usuario)
+                st.session_state.confirm_delete_acc = False
+                st.rerun()
+            if c_no.button("NO"):
+                st.session_state.confirm_delete_acc = False
+                st.rerun()
 
 # --- AJUSTA LOS TAMAÑOS AQUÍ A TU ANTOJO ---
 tamanio_titulo = "18px"    # Tamaño del texto "Current Design:"
