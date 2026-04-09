@@ -411,7 +411,7 @@ with st.sidebar.expander("Manage Accounts"):
     nueva_cuenta_bal = st.selectbox("Initial Balance", [25000.0, 50000.0, 100000.0], format_func=lambda x: f"${x:,.0f}", key="select_bal_nueva_cta")
     
     # Añadimos key="btn_crear_cta_sidebar"
-    if st.button("➕ Crear Cuenta", use_container_width=True, key="btn_crear_cta_sidebar"):
+    if st.button("➕ Create Account", use_container_width=True, key="btn_crear_cta_sidebar"):
         if nueva_cuenta_nombre and nueva_cuenta_nombre not in db_usuario:
             db_usuario[nueva_cuenta_nombre] = {"balance": nueva_cuenta_bal, "trades": {}}
             reescribir_excel_usuario(usuario)
@@ -450,8 +450,8 @@ with st.sidebar.expander("Manage Accounts"):
 
 
     # --- 3. ELIMINAR CUENTA ---
-    with st.expander("🗑️ Eliminar Cuenta"):
-        cuenta_a_borrar = st.selectbox("Seleccionar cuenta a eliminar", list(db_usuario.keys()), key="select_eliminar_cta")
+    with st.expander("🗑️ Delete Account"):
+        cuenta_a_borrar = st.selectbox("Select account to delete", list(db_usuario.keys()), key="select_eliminar_cta")
         
         if "confirm_delete_acc" not in st.session_state: 
             st.session_state.confirm_delete_acc = False
