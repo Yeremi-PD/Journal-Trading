@@ -472,14 +472,14 @@ if st.sidebar.button(texto_boton_tema):
 
 st.sidebar.markdown("---")
 ctx_actual = st.session_state.data_source_sel
-with st.sidebar.expander(f"⟲ Reset {ctx_actual}"):
+with st.sidebar.expander(f"⭯ Reset {ctx_actual}"):
     opciones_reset = {"$25,000": 25000.0, "$50,000": 50000.0, "$100,000": 100000.0}
     seleccion_reset = st.radio("Select Initial Balance:", list(opciones_reset.keys()))
     nuevo_balance_reset = opciones_reset[seleccion_reset]
     
     if "confirm_reset" not in st.session_state: st.session_state.confirm_reset = False
     
-    if st.button("⟲ Reset Account", use_container_width=True):
+    if st.button("⭯ Reset Account", use_container_width=True):
         st.session_state.confirm_reset = True
         
     if st.session_state.confirm_reset:
@@ -522,13 +522,13 @@ with st.sidebar.expander("🛡️ Admin Settings"):
 
 st.sidebar.markdown("---")
 with st.sidebar.expander("🖥️ Dashboard Settings"):
-    if st.button("⟲ Reset Dashboard", key="res_dash", use_container_width=True): reset_settings("dash"); st.rerun()
+    if st.button("⭯ Reset Dashboard", key="res_dash", use_container_width=True): reset_settings("dash"); st.rerun()
     user_settings["bal_num_sz"] = st.slider("Balance Numbers Size", 10, 60, user_settings["bal_num_sz"])
     user_settings["bal_box_w"] = st.slider("Green Background Width (%)", 10, 100, user_settings["bal_box_w"])
     user_settings["bal_box_pad"] = st.slider("Green Background Height (Padding)", 0, 50, user_settings["bal_box_pad"])
 
 with st.sidebar.expander("🔠 Text & Chart Settings"):
-    if st.button("⟲ Reset Texts & Charts", key="res_txt", use_container_width=True): reset_settings("txt"); st.rerun()
+    if st.button("⭯ Reset Texts & Charts", key="res_txt", use_container_width=True): reset_settings("txt"); st.rerun()
     user_settings["size_top_stats"] = st.slider("Monthly P&L and Win Rate Size (Top)", 10, 40, user_settings["size_top_stats"])
     user_settings["size_card_titles"] = st.slider("Titles Size (All-Time, etc)", 10, 40, user_settings["size_card_titles"])
     user_settings["size_box_titles"] = st.slider("Titles Size (Week/Month)", 10, 40, user_settings["size_box_titles"])
@@ -539,7 +539,7 @@ with st.sidebar.expander("🔠 Text & Chart Settings"):
     user_settings["pie_y_offset"] = st.slider("Chart Vertical Position (Up/Down)", -100, 100, user_settings["pie_y_offset"])
 
 with st.sidebar.expander("📅 Calendar Settings"):
-    if st.button("⟲ Reset Calendar", key="res_cal", use_container_width=True): reset_settings("cal"); st.rerun()
+    if st.button("⭯ Reset Calendar", key="res_cal", use_container_width=True): reset_settings("cal"); st.rerun()
     user_settings["cal_mes_size"] = st.slider("Month Size (Title)", 10, 50, user_settings["cal_mes_size"])
     user_settings["cal_pnl_size"] = st.slider("Day P&L Size", 10, 40, user_settings["cal_pnl_size"])
     user_settings["cal_pct_size"] = st.slider("Day % Size", 10, 30, user_settings["cal_pct_size"])
