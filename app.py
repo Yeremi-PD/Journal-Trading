@@ -371,7 +371,6 @@ def reset_settings(category):
 # ==========================================
 # 5. BARRA LATERAL (AJUSTES Y ADMIN)
 # ==========================================
-# TAMAÑO DEL TEXTO DEL USUARIO: Cambia "22px" por el número que quieras (ej. 18px, 25px, 30px).
 tamanio_texto_cuenta = "22px"
 
 st.sidebar.markdown(
@@ -380,7 +379,11 @@ st.sidebar.markdown(
     f"</div>", 
     unsafe_allow_html=True
 )
-# Tu código original (sin cambios en la lógica)
+
+# --- NUEVO MENÚ DE NAVEGACIÓN ---
+opciones_menu = ["📊 Dashboard", "📅 Calendar", "📓 Journal", "⚙️ Settings"]
+pagina_actual = st.sidebar.radio("Menu", opciones_menu, label_visibility="collapsed", key="menu_principal")
+
 st.sidebar.markdown("---")
 dispositivo_visual = st.sidebar.radio(
     "Current Design:", 
