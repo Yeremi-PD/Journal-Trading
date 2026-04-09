@@ -1515,6 +1515,17 @@ with col_mitad_2:
 # SCRIPT PARA CERRAR MODALES, BLOQUEAR TECLADO Y BOTÓN DE CAPTURA
 # ==========================================
 components.html("""
+<style>
+/* 🔴 FIX: Centrar el texto del Balance Verticalmente */
+div[data-testid="stNumberInput"] input {
+    padding-top: 15px !important;
+    padding-bottom: 15px !important;
+    display: flex !important;
+    align-items: center !important;
+    line-height: normal !important;
+}
+</style>
+
 <script>
 const doc = window.parent.document;
 
@@ -1526,7 +1537,7 @@ doc.addEventListener('keydown', function(e) {
     }
 });
 
-// 2. Bloquear teclado móvil en Filtros, Data Source y Calendario
+// 2. Bloquear teclado móvil
 function bloquearTeclado() {
     const inputs = doc.querySelectorAll('div[data-testid="stSelectbox"] input, div[data-testid="stDateInput"] input');
     inputs.forEach(input => {
@@ -1540,7 +1551,7 @@ bloquearTeclado();
 const observer = new MutationObserver(bloquearTeclado);
 observer.observe(doc.body, { childList: true, subtree: true });
 
-// 3. BOTÓN DE CAPTURA DE PANTALLA FLOTANTE (Full Page real, Fix Texto, Fix Alignment, Optimizado Móvil)
+// 3. BOTÓN DE CAPTURA DE PANTALLA (Layout Intacto, Página Completa Real)
 if (!doc.getElementById('btn-screenshot-global')) {
     const script = doc.createElement('script');
     script.src = "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js";
@@ -1550,7 +1561,6 @@ if (!doc.getElementById('btn-screenshot-global')) {
     btn.id = 'btn-screenshot-global';
     btn.innerHTML = '📸 Capturar';
     
-    // Botón Gigante y optimizado para móviles
     Object.assign(btn.style, {
         position: 'fixed',
         top: '0px',
@@ -1585,52 +1595,31 @@ if (!doc.getElementById('btn-screenshot-global')) {
         
         btn.innerHTML = '📸 Procesando...';
         btn.style.pointerEvents = 'none';
-        btn.style.opacity = '0'; // Ocultamos el botón para que no salga en la foto
+        btn.style.opacity = '0'; // Esconde el botón en la foto
         
-        // Detectamos si es móvil/iOS
         const isMobile = window.parent.innerWidth < 768 || /iPad|iPhone|iPod/.test(window.parent.navigator.userAgent);
         
-        // Apuntamos al contenedor real del contenido (block-container)
+        // El contenedor real de tu contenido (sin tocar la altura de la página general)
         const target = doc.querySelector('.block-container') || doc.querySelector('[data-testid="stMainBlockContainer"]');
-        
-        // Identificamos las capas de Streamlit que hacen el scroll falso
-        const stApp = doc.querySelector('.stApp');
-        const stAppView = doc.querySelector('[data-testid="stAppViewContainer"]');
         const stMain = doc.querySelector('.main') || doc.querySelector('[data-testid="stMain"]');
+        const stAppView = doc.querySelector('[data-testid="stAppViewContainer"]');
         
-        const computedBgColor = stApp ? window.parent.getComputedStyle(stApp).backgroundColor : '#1A202C';
+        const computedBgColor = doc.querySelector('.stApp') ? window.parent.getComputedStyle(doc.querySelector('.stApp')).backgroundColor : '#1A202C';
         
-        const cssAppView = stAppView ? stAppView.style.cssText : '';
-        const cssMain = stMain ? stMain.style.cssText : '';
-        const cssTarget = target ? target.style.cssText : '';
+        // Guardamos el scroll original
+        const origMainOverflow = stMain ? stMain.style.overflow : '';
+        const origAppViewOverflow = stAppView ? stAppView.style.overflow : '';
 
-        // FIX TEXTO: Justo antes de la foto, forzamos que TODOS los botones tengan texto blanco y visible
-        const stButtons = doc.querySelectorAll('div[data-testid="stButton"] button, button[kind="secondary"], .stdDateInput button');
-        stButtons.forEach(btnEl => {
-            btnEl.style.setProperty('color', '#ffffff', 'important');
-            btnEl.style.setProperty('opacity', '1', 'important');
-        });
-
-        // MAGIA FULL PAGE: Rompemos las cajas de Streamlit para liberar todo el contenido hacia abajo
+        // MAGIA SANA: Solo habilitamos que el contenido desborde, SIN romper las alturas (esto evita que se amontone y los textos desaparezcan)
+        if (stMain) stMain.style.setProperty('overflow', 'visible', 'important');
         if (stAppView) stAppView.style.setProperty('overflow', 'visible', 'important');
-        if (stMain) {
-            stMain.style.setProperty('overflow', 'visible', 'important');
-            stMain.style.setProperty('height', 'auto', 'important');
-        }
-        if (target) {
-            target.style.setProperty('overflow', 'visible', 'important');
-            target.style.setProperty('height', 'auto', 'important');
-            target.style.setProperty('max-width', '100%', 'important'); // Asegura que las tablas no se corten a lo ancho
-        }
         
-        // Subimos el scroll arriba de todo
         window.parent.scrollTo(0, 0);
         
-        // Damos un retraso mayor (1.5 segundos) para asegurar que el diseño se asiente hasta el fondo
+        // Tiempo para que el navegador renderice sin prisas
         await new Promise(resolve => setTimeout(resolve, 1500));
         
         try {
-            // Si es móvil, bajamos la escala a 1 para no crashear la memoria del iPhone
             const canvasScale = isMobile ? 1 : 2; 
             
             const canvas = await window.parent.html2canvas(target, {
@@ -1640,14 +1629,12 @@ if (!doc.getElementById('btn-screenshot-global')) {
                 scrollY: 0,
                 backgroundColor: computedBgColor,
                 windowWidth: target.scrollWidth,
-                windowHeight: target.scrollHeight,
-                height: target.scrollHeight // Obliga a leer toda la altura calculada
+                windowHeight: target.scrollHeight
             });
             
             const imgData = canvas.toDataURL('image/png');
             
             if (isMobile) {
-                // EN MÓVIL: Mostramos la imagen en pantalla para que la guarden presionándola (estándar iOS/Android)
                 const overlay = doc.createElement('div');
                 overlay.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.95);z-index:99999999;display:flex;flex-direction:column;align-items:center;justify-content:center;';
                 
@@ -1670,7 +1657,6 @@ if (!doc.getElementById('btn-screenshot-global')) {
                 doc.body.appendChild(overlay);
                 
             } else {
-                // EN PC: Descarga automática normal
                 const link = doc.createElement('a');
                 const fecha = new Date().toISOString().slice(0,10);
                 link.download = 'Journal_' + fecha + '.png';
@@ -1682,16 +1668,9 @@ if (!doc.getElementById('btn-screenshot-global')) {
             alert("Hubo un error al capturar: " + err.message);
             console.error("Error html2canvas: ", err);
         } finally {
-            // Restauramos los estilos originales para que la app funcione normal con scroll
-            if (stAppView) stAppView.style.cssText = cssAppView;
-            if (stMain) stMain.style.cssText = cssMain;
-            if (target) target.style.cssText = cssTarget;
-            
-            // Regresamos el texto de los botones al color dinámico
-            stButtons.forEach(btnEl => {
-                btnEl.style.removeProperty('color');
-                btnEl.style.removeProperty('opacity');
-            });
+            // Restauramos todo a la normalidad
+            if (stMain) stMain.style.overflow = origMainOverflow;
+            if (stAppView) stAppView.style.overflow = origAppViewOverflow;
             
             btn.innerHTML = '📸 Capturar';
             btn.style.pointerEvents = 'auto';
