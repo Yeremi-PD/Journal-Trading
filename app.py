@@ -1551,159 +1551,93 @@ bloquearTeclado();
 const observer = new MutationObserver(bloquearTeclado);
 observer.observe(doc.body, { childList: true, subtree: true });
 
-// 3. BOTÓN DE CAPTURA (Solución Definitiva con OnClone)
-if (!doc.getElementById('btn-screenshot-global')) {
-    const script = doc.createElement('script');
-    script.src = "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js";
-    doc.head.appendChild(script);
+# ==========================================
+# SCRIPT PARA CERRAR MODALES, BLOQUEAR TECLADO Y BOTÓN DE ZOOM
+# ==========================================
+components.html("""
+<style>
+/* FIX: Centrar el texto del Balance Verticalmente */
+div[data-testid="stNumberInput"] input {
+    padding-top: 15px !important;
+    padding-bottom: 15px !important;
+    display: flex !important;
+    align-items: center !important;
+    line-height: normal !important;
+}
+</style>
 
+<script>
+const doc = window.parent.document;
+
+// 1. Cerrar modales con Escape
+doc.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        const modals = doc.querySelectorAll('.modal-toggle');
+        modals.forEach(m => m.checked = false);
+    }
+});
+
+// 2. Bloquear teclado móvil
+function bloquearTeclado() {
+    const inputs = doc.querySelectorAll('div[data-testid="stSelectbox"] input, div[data-testid="stDateInput"] input');
+    inputs.forEach(input => {
+        input.setAttribute('inputmode', 'none'); 
+        input.setAttribute('readonly', 'true'); 
+        input.style.webkitTapHighlightColor = 'transparent';
+        input.style.outline = 'none';
+    });
+}
+bloquearTeclado();
+const observer = new MutationObserver(bloquearTeclado);
+observer.observe(doc.body, { childList: true, subtree: true });
+
+// 3. BOTÓN PARA ALEJAR LA PÁGINA (ZOOM)
+if (!doc.getElementById('btn-zoom-global')) {
     const btn = doc.createElement('button');
-    btn.id = 'btn-screenshot-global';
-    btn.innerHTML = '📸 Capturar';
+    btn.id = 'btn-zoom-global';
+    btn.innerHTML = '🔍 Alejar (75%)';
+    let isZoomed = false;
     
     Object.assign(btn.style, {
         position: 'fixed',
         top: '0px',
         right: '0px',
         zIndex: '9999999',
-        backgroundColor: '#00C897',
+        backgroundColor: '#4F46E5', // Color azul oscuro para diferenciarlo
         color: '#ffffff',
         border: 'none',
-        padding: '18px 32px',
+        padding: '12px 20px',
         borderBottomLeftRadius: '20px',
         fontWeight: '900',
-        fontSize: '26px',
+        fontSize: '18px',
         cursor: 'pointer',
         boxShadow: '-2px 2px 10px rgba(0,0,0,0.3)',
         transition: 'all 0.3s ease',
-        webkitTransform: 'translateZ(0)',
-        transform: 'translateZ(0)',
         touchAction: 'manipulation'
     });
 
-    btn.onmouseover = () => btn.style.backgroundColor = '#00a87d';
-    btn.onmouseout = () => btn.style.backgroundColor = '#00C897';
+    btn.onmouseover = () => {
+        if(!isZoomed) btn.style.backgroundColor = '#3730A3';
+    };
+    btn.onmouseout = () => {
+        btn.style.backgroundColor = isZoomed ? '#FF4C4C' : '#4F46E5';
+    };
 
-    btn.onclick = async (e) => {
+    btn.onclick = (e) => {
         e.preventDefault();
         
-        if (typeof window.parent.html2canvas === 'undefined') {
-            btn.innerHTML = '⏳...';
-            setTimeout(() => { btn.innerHTML = '📸 Capturar'; }, 2000);
-            return;
-        }
-        
-        btn.innerHTML = '📸 Procesando...';
-        btn.style.pointerEvents = 'none';
-        btn.style.opacity = '0'; 
-        
-        const isMobile = window.parent.innerWidth < 768 || /iPad|iPhone|iPod/.test(window.parent.navigator.userAgent);
-        
-        // Apuntamos directo a la caja principal de Streamlit que hace el scroll
-        const stMain = doc.querySelector('.main') || doc.querySelector('[data-testid="stMain"]');
-        const stApp = doc.querySelector('.stApp');
-        const computedBgColor = stApp ? window.parent.getComputedStyle(stApp).backgroundColor : '#1A202C';
-        
-        // Calculamos la altura real forzando temporalmente el overflow invisible
-        const origOverflow = stMain.style.overflow;
-        const origHeight = stMain.style.height;
-        stMain.style.overflow = 'visible';
-        stMain.style.height = 'auto';
-        const fullHeight = stMain.scrollHeight;
-        
-        // Regresamos la página inmediatamente a la normalidad para que tu pantalla no se rompa
-        stMain.style.overflow = origOverflow;
-        stMain.style.height = origHeight;
-
-        window.parent.scrollTo(0, 0);
-        
-        try {
-            const canvasScale = isMobile ? 1 : 2; 
-            
-            // MAGIA ONCLONE: Modifica la copia de la foto ANTES de tomarla, sin tocar tu diseño real
-            const canvas = await window.parent.html2canvas(stMain, {
-                useCORS: true,
-                allowTaint: true,
-                scale: canvasScale, 
-                scrollY: 0,
-                backgroundColor: computedBgColor,
-                windowHeight: fullHeight,
-                height: fullHeight,
-                onclone: function(clonedDoc) {
-                    
-                    // 1. Forzar que todos los contenedores muestren su contenido hacia abajo
-                    const cloneMain = clonedDoc.querySelector('.main') || clonedDoc.querySelector('[data-testid="stMain"]');
-                    const cloneAppView = clonedDoc.querySelector('[data-testid="stAppViewContainer"]');
-                    if (cloneMain) { cloneMain.style.setProperty('overflow', 'visible', 'important'); cloneMain.style.setProperty('height', 'auto', 'important'); }
-                    if (cloneAppView) { cloneAppView.style.setProperty('overflow', 'visible', 'important'); cloneAppView.style.setProperty('height', 'auto', 'important'); }
-                    
-                    // 2. Inyectar textos reales a los botones para que la cámara deje de ignorarlos
-                    clonedDoc.querySelectorAll('[data-testid="stFormSubmitButton"] button p').forEach(p => {
-                        p.style.setProperty('color', '#ffffff', 'important');
-                        p.style.setProperty('visibility', 'visible', 'important');
-                    });
-
-                    clonedDoc.querySelectorAll('[data-testid="stFileUploadDropzone"] button').forEach(b => {
-                        b.innerHTML = '<span style="color:white !important; font-size:20px !important; font-weight:bold !important; z-index:999;">Upload</span>';
-                        b.style.display = 'flex';
-                        b.style.alignItems = 'center';
-                        b.style.justifyContent = 'center';
-                    });
-
-                    clonedDoc.querySelectorAll('div[data-testid="stDateInput"] > div:first-child').forEach(d => {
-                        d.innerHTML = '<span style="font-size:33px !important; color:black !important; z-index:999;">🗓️</span>';
-                        d.style.display = 'flex';
-                        d.style.alignItems = 'center';
-                        d.style.justifyContent = 'center';
-                    });
-                    
-                    // 3. Forzar que el historial se vea sin cortarse
-                    clonedDoc.querySelectorAll('div[data-testid="stExpanderDetails"]').forEach(exp => {
-                        exp.style.setProperty('overflow', 'visible', 'important');
-                        exp.style.setProperty('height', 'auto', 'important');
-                    });
-                }
-            });
-            
-            const imgData = canvas.toDataURL('image/png');
-            
-            if (isMobile) {
-                const overlay = doc.createElement('div');
-                overlay.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.95);z-index:99999999;display:flex;flex-direction:column;align-items:center;justify-content:center;';
-                
-                const closeBtn = doc.createElement('button');
-                closeBtn.innerHTML = '✖ CERRAR';
-                closeBtn.style.cssText = 'position:absolute;top:20px;right:20px;padding:10px 15px;background:#FF4C4C;color:white;border:none;border-radius:8px;font-size:16px;font-weight:bold;cursor:pointer;';
-                closeBtn.onclick = () => overlay.remove();
-                
-                const msg = doc.createElement('div');
-                msg.innerHTML = 'Mantén presionada la imagen para guardarla ⬇️';
-                msg.style.cssText = 'color:#00C897;margin-bottom:15px;font-size:18px;font-weight:bold;text-align:center;';
-                
-                const img = doc.createElement('img');
-                img.src = imgData;
-                img.style.cssText = 'max-width:90vw;max-height:75vh;border-radius:10px;object-fit:contain;border:2px solid #00C897;';
-                
-                overlay.appendChild(closeBtn);
-                overlay.appendChild(msg);
-                overlay.appendChild(img);
-                doc.body.appendChild(overlay);
-                
-            } else {
-                const link = doc.createElement('a');
-                const fecha = new Date().toISOString().slice(0,10);
-                link.download = 'Journal_' + fecha + '.png';
-                link.href = imgData;
-                link.click();
-            }
-            
-        } catch (err) {
-            alert("Hubo un error al capturar: " + err.message);
-            console.error("Error html2canvas: ", err);
-        } finally {
-            btn.innerHTML = '📸 Capturar';
-            btn.style.pointerEvents = 'auto';
-            btn.style.opacity = '1';
+        // Usamos la propiedad CSS 'zoom' nativa del navegador
+        // Encoge toda la interfaz sin desordenar las cajas
+        if (!isZoomed) {
+            doc.body.style.zoom = "75%";
+            btn.innerHTML = '🔍 Restaurar (100%)';
+            btn.style.backgroundColor = '#FF4C4C'; // Se pone rojo para saber que está activado
+            isZoomed = true;
+        } else {
+            doc.body.style.zoom = "100%";
+            btn.innerHTML = '🔍 Alejar (75%)';
+            btn.style.backgroundColor = '#4F46E5';
+            isZoomed = false;
         }
     };
 
