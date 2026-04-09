@@ -402,6 +402,7 @@ if st.sidebar.button("💾 Save Design Settings", use_container_width=True):
     st.sidebar.success("✅ Settings Saved!")
 
 st.sidebar.markdown("---")
+st.sidebar.markdown("### 💼 Gestionar Cuentas")
 
 with st.sidebar.expander("💼 Gestionar Cuentas"):
     # --- 1. CREAR NUEVA CUENTA ---
