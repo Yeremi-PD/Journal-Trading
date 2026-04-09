@@ -799,7 +799,8 @@ st.markdown(f"""
     .title-trade-win {{ font-size: var(--size-card-titles) !important; font-weight: 700 !important; color: {c_tit_win} !important; }}
     .pnl-value {{ font-size: 28px !important; font-weight: 800 !important; color: #00C897 !important; letter-spacing: -0.5px !important; }}
     .pnl-value-loss {{ color: #FF4C4C !important; }}
-    .win-value {{ font-size: {CARD_WIN_VALOR_SIZE}px !important; font-weight: 800 !important; letter-spacing: -0.5px !important; }}
+    /* Estilo específico para que el número de RR sea más pequeño */
+    .rr-value {{ font-size: 20px !important; font-weight: 800 !important; letter-spacing: -0.5px !important; }}
 
     .calendar-wrapper div[data-testid="column"]:first-child button {{ transform: translate({FLECHAS_X}px, {FLECHAS_Y}px) !important; font-size: {FLECHAS_SIZE}px !important; }}
     .calendar-wrapper div[data-testid="column"]:nth-child(3) button {{ transform: translate(calc({FLECHAS_X}px * -1), {FLECHAS_Y}px) !important; font-size: {FLECHAS_SIZE}px !important; }}
@@ -1213,7 +1214,7 @@ with col_det:
         st.markdown(f"""
             <div class="metric-card card-rr">
                 <div class="metric-header"><span class="title-trade-win">RR Promedio</span></div>
-                <div class="win-value" style="color: #FFFFFF;">1 : {rr_promedio:.2f}</div>
+                <div class="rr-value" style="color: #4F46E5;">1 / {rr_promedio:.2f}</div>
             </div>
         """, unsafe_allow_html=True)
 
