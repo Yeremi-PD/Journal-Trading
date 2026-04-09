@@ -637,8 +637,14 @@ st.markdown(f"""
     div[data-testid="stPopover"] > button:focus, div[data-testid="stPopover"] > div:first-child > button:focus, div[data-testid="stPopover"] button[kind="secondary"]:first-of-type:focus, 
     div[data-testid="stPopover"] > button:active, div[data-testid="stPopover"] > div:first-child > button:active, div[data-testid="stPopover"] button[kind="secondary"]:first-of-type:active {{ background-color: {btn_bg} !important; color: {btn_txt} !important; border: 1px solid {border_color} !important; outline: none !important; box-shadow: none !important; }}
     
-    div[data-testid="stPopoverBody"] {{ background-color: {card_bg} !important; border: 1px solid {card_bg} !important; border-radius: 8px !important; padding: 15px !important; }}
-    div[data-testid="stPopoverBody"]:has(h3) {{ width: 710px !important; max-width: 95vw !important; max-height: 85vh !important; margin-top: 100px !important; overflow-y: auto !important; box-shadow: 0 4px 20px rgba(0,0,0,0.3) !important; }}
+/* Forzamos el fondo y borde claro en el cuerpo del popover */
+    div[data-testid="stPopoverBody"] {{ background-color: {card_bg} !important; border: 2px solid {card_bg} !important; border-radius: 8px !important; padding: 15px !important; }}
+    
+    /* Matamos el color oscuro de la capa base invisible de Streamlit */
+    div[data-baseweb="popover"], div[data-baseweb="popover"] > div {{ background-color: {card_bg} !important; border: none !important; outline: none !important; box-shadow: none !important; }}
+    
+    /* Mantenemos el tamaño de tu cuadro de Trade Details y reforzamos el color claro */
+    div[data-testid="stPopoverBody"]:has(h3) {{ width: 710px !important; max-width: 95vw !important; max-height: 85vh !important; margin-top: 100px !important; overflow-y: auto !important; box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important; background-color: {card_bg} !important; border: 2px solid {card_bg} !important; }}
 
     div[data-testid="stPopoverBody"] label {{ font-size: 20px !important; font-weight: 800 !important; }}
     div[data-testid="stPopoverBody"] p, div[data-testid="stPopoverBody"] span, div[data-testid="stPopoverBody"] div {{ font-size: 18px !important; }}
