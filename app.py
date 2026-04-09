@@ -839,6 +839,11 @@ st.markdown(f"""
         background-color: transparent !important;
         color: {c_dash} !important;
     }}
+
+    /* 🟢 Centrar el emoji SOLAMENTE en el calendario "Day" de la sección de edición */
+    div[data-testid="stExpanderDetails"] div[data-testid="stDateInput"]::after {{
+        margin-top: 18px !important;
+    }}
     </style>
     """, unsafe_allow_html=True)
 
