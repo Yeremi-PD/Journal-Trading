@@ -1324,7 +1324,7 @@ with col_mitad_2:
 <td style="{td_style}"><div style="max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{row['Corrections']}">{row['Corrections']}</div></td>
 </tr>"""
 
-                tabla_html = f"""<div style="width: 100%; max-height: 500px; overflow-y: auto; overflow-x: auto; background-color: {card_bg}; border: 1px solid {border_color}; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+tabla_html = f"""<div style="width: 100%; max-height: 500px; overflow-y: auto; overflow-x: auto; background-color: {card_bg}; border: 1px solid {border_color}; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
 <table style="width: 100%; border-collapse: collapse; text-align: left; white-space: nowrap;">
 <thead style="position: sticky; top: 0; background-color: {card_bg}; z-index: 1;">
 <tr>
@@ -1346,7 +1346,7 @@ with col_mitad_2:
 </tbody>
 </table>
 </div>"""
-                st.markdown(tabla_html, unsafe_allow_html=True)
+                    st.markdown(tabla_html, unsafe_allow_html=True)
 
 elif pagina_actual == "⚙️ Settings":
     st.markdown("<h2 style='color: #00C897; font-weight: 800; margin-top: -20px;'>⚙️ Settings & Configurations</h2>", unsafe_allow_html=True)
