@@ -51,7 +51,7 @@ def inicializar_settings():
         "note_lbl_size": 16, "note_val_size": 16
     }
 
-@st.cache_resource(ttl=600)
+@st.cache_resource(ttl=600, show_spinner=False)
 def get_global_db():
     db_temp = {}
     if db_spreadsheet:
