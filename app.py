@@ -804,10 +804,17 @@ with st.form(key=f"form_main_entry_{st.session_state.form_reset_key}", border=Fa
     with c_not:
         st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True) 
         with st.popover("📝", use_container_width=True):
-            st.markdown("<h3 style='text-align:center; margin-top:0;'>Trade Details</h3>", unsafe_allow_html=True)
+            st.markdown("<h3 style='text-align:center; margin-top:0; font-size: 2.2em;'>Trade Details</h3>", unsafe_allow_html=True)
             
             nuevo_bias = st.radio("&nbsp; \n &nbsp; \n Bias", ['LONG', 'SHORT', 'NONE'], index=2, horizontal=True)
-            nuevo_conf = st.multiselect("&nbsp; \n &nbsp; \n Confluences", ['BIAS WELL', 'LIQ SWEEP', 'IFVG', 'FVG', 'EQH / EQL', 'BSL / SSL', 'POI', 'SMT', 'Order Block', 'PDH / PDL', 'Continuation', 'Data High / Data Low', 'CISD'], default=[])
+            
+            st.markdown("<div style='font-weight: 900; font-size: 14px; margin-top: 15px; margin-bottom: 10px;'>Confluences</div>", unsafe_allow_html=True)
+            all_confs_list = ['BIAS WELL', 'LIQ SWEEP', 'IFVG', 'FVG', 'EQH / EQL', 'BSL / SSL', 'POI', 'SMT', 'Order Block', 'PDH / PDL', 'Continuation', 'Data High / Data Low', 'CISD']
+            nuevo_conf = []
+            cols_conf = st.columns(3)
+            for idx, c_name in enumerate(all_confs_list):
+                if cols_conf[idx % 3].checkbox(c_name, key=f"new_conf_{idx}"):
+                    nuevo_conf.append(c_name)
             nuevo_razon = st.text_area("&nbsp; \n &nbsp; \n Reason For Trade", value='', height=50)
             nuevo_corr = st.text_area("&nbsp; \n &nbsp; \n Corrections", value='', height=50)
             
@@ -1245,9 +1252,14 @@ with col_mitad_1:
                                 if def_bias not in ['LONG', 'SHORT', 'NONE', 'NEUTRO']: def_bias = 'NEUTRO'
                                 e_bias = st.selectbox("Bias", ['LONG', 'SHORT', 'NONE', 'NEUTRO'], index=['LONG', 'SHORT', 'NONE', 'NEUTRO'].index(def_bias), key=f"e_bias_{clave}_{i}")
                                 
+                                st.markdown("<div style='font-weight: 900; font-size: 14px; margin-top: 15px; margin-bottom: 10px;'>Confluences</div>", unsafe_allow_html=True)
                                 all_confs = ['BIAS WELL', 'LIQ SWEEP', 'IFVG', 'FVG', 'EQH / EQL', 'BSL / SSL', 'POI', 'SMT', 'Order Block', 'PDH / PDL', 'Continuation', 'Data High / Data Low', 'CISD']
-                                curr_confs = [c for c in data.get('Confluences', []) if c in all_confs]
-                                e_conf = st.multiselect("Confluences", all_confs, default=curr_confs, key=f"e_conf_{clave}_{i}")
+                                curr_confs = data.get('Confluences', [])
+                                e_conf = []
+                                cols_e_conf = st.columns(3)
+                                for idx_c, c_name in enumerate(all_confs):
+                                    if cols_e_conf[idx_c % 3].checkbox(c_name, value=(c_name in curr_confs), key=f"e_conf_{clave}_{i}_{idx_c}"):
+                                        e_conf.append(c_name)
                                 
                                 def_risk = data.get('risk', '0.5%')
                                 if def_risk not in ['1%', '0.9%', '0.8%', '0.7%', '0.6%', '0.5%', '0.4%']: def_risk = '0.5%'
