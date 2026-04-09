@@ -773,7 +773,7 @@ with st.form(key=f"form_main_entry_{st.session_state.form_reset_key}", border=Fa
             nuevo_corr = st.text_area("&nbsp; \n &nbsp; \n Corrections", value='', height=50)
             
             risk_opts = ['1%', '0.9%', '0.8%', '0.7%', '0.6%', '0.5%', '0.4%']
-            nuevo_risk = st.radio("&nbsp; \n &nbsp; \n % Risk", risk_opts, index=5, horizontal=True)
+            nuevo_risk = st.radio("&nbsp; \n &nbsp; \n Risk", risk_opts, index=5, horizontal=True)
             
             rr_opts = ['1:1', '1:1.5', '1:2', '1:3', '1:4']
             nuevo_rr = st.radio("&nbsp; \n &nbsp; \n RR", rr_opts, index=2, horizontal=True)
@@ -919,7 +919,7 @@ with col_cal:
                                 has_notes = True
                                 confluences_str = ", ".join(t.get("Confluences", []))
                                 
-                                notas_html_contenido += f'<div style="margin-bottom: 15px;"><h4 style="color:#00C897; margin:0;">▶ Trade #{idx_t+1} (PnL: ${t["pnl"]:,.2f})</h4><b>Bias:</b> <span class="note-val">{t.get("bias", "NEUTRO")}</span><br><b>Confluences:</b> <span class="note-val">{confluences_str}</span><br><b>Reason For Trade:</b> <span class="note-val">{t.get("razon_trade", "")}</span><br><b>Corrections:</b> <span class="note-val">{t.get("Corrections", "")}</span><br><b>% Risk:</b> <span class="note-val">{t.get("risk", "")}</span><br><b>RR:</b> <span class="note-val">{t.get("RR", "")}</span><br><b>Trade Type:</b> <span class="note-val">{t.get("trade_type", "")}</span><br><b>Emotions:</b> <span class="note-val">{t.get("Emotions", "")}</span></div>'
+                                notas_html_contenido += f'<div style="margin-bottom: 15px;"><h4 style="color:#00C897; margin:0;">▶ Trade #{idx_t+1} (PnL: ${t["pnl"]:,.2f})</h4><b>Bias:</b> <span class="note-val">{t.get("bias", "NEUTRO")}</span><br><b>Confluences:</b> <span class="note-val">{confluences_str}</span><br><b>Reason For Trade:</b> <span class="note-val">{t.get("razon_trade", "")}</span><br><b>Corrections:</b> <span class="note-val">{t.get("Corrections", "")}</span><br><b>Risk:</b> <span class="note-val">{t.get("risk", "")}</span><br><b>RR:</b> <span class="note-val">{t.get("RR", "")}</span><br><b>Trade Type:</b> <span class="note-val">{t.get("trade_type", "")}</span><br><b>Emotions:</b> <span class="note-val">{t.get("Emotions", "")}</span></div>'
                                 
                         if has_notes:
                             id_note_modal = f"mod_note_{anio_sel}_{mes_sel}_{dia}"
@@ -1212,7 +1212,7 @@ with col_mitad_1:
                                 
                                 def_risk = data.get('risk', '0.5%')
                                 if def_risk not in ['1%', '0.9%', '0.8%', '0.7%', '0.6%', '0.5%', '0.4%']: def_risk = '0.5%'
-                                e_risk = st.selectbox("% Risk", ['1%', '0.9%', '0.8%', '0.7%', '0.6%', '0.5%', '0.4%'], index=['1%', '0.9%', '0.8%', '0.7%', '0.6%', '0.5%', '0.4%'].index(def_risk), key=f"e_risk_{clave}_{i}")
+                                e_risk = st.selectbox("Risk", ['1%', '0.9%', '0.8%', '0.7%', '0.6%', '0.5%', '0.4%'], index=['1%', '0.9%', '0.8%', '0.7%', '0.6%', '0.5%', '0.4%'].index(def_risk), key=f"e_risk_{clave}_{i}")
                                 
                                 def_rr = data.get('RR', '1:2')
                                 if def_rr not in ['1:1', '1:1.5', '1:2', '1:3', '1:4']: def_rr = '1:2'
@@ -1318,7 +1318,7 @@ with col_mitad_2:
                         "Bias": trade.get('bias', ''),
                         "RR": trade.get('RR', ''),
                         "Confluences": Confluences_resumen,
-                        "% Risk": trade.get('risk', ''),
+                        "Risk": trade.get('risk', ''),
                         "Reason For Trade": trade.get('razon_trade', ''),
                         "Corrections": trade.get('Corrections', ''),
                         "Emotions": trade.get('Emotions', '')
