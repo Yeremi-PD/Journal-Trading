@@ -1086,7 +1086,7 @@ with col_cal:
                         notas_html_contenido = ""
                         has_notes = False
                         
-for idx_t, t in enumerate(trades_visibles):
+                        for idx_t, t in enumerate(trades_visibles):
                             if bool(t.get("razon_trade", "").strip() or t.get("Corrections", "").strip() or t.get("Emotions", "").strip() or t.get("Confluences", [])):
                                 has_notes = True
                                 confluences_str = ", ".join(t.get("Confluences", []))
