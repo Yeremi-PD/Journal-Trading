@@ -588,8 +588,8 @@ st.sidebar.markdown("<div style='margin-top: 0px;'></div>", unsafe_allow_html=Tr
 
 # BOTÓN DE SINCRONIZACIÓN FORZADA
 st.sidebar.markdown("---")
-st.sidebar.markdown("### 🗘 Sync with Google Sheets")
-if st.sidebar.button("🗘 Force Sync with Google Sheets", use_container_width=True):
+st.sidebar.markdown("### ↻ Sync with Google Sheets")
+if st.sidebar.button("↻ Force Sync with Google Sheets", use_container_width=True):
     get_global_db.clear()
     st.rerun()
 
