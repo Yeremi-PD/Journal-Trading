@@ -631,9 +631,14 @@ st.markdown(f"""
     div[data-testid="stPopoverBody"] label {{ font-size: 20px !important; font-weight: 800 !important; }}
     div[data-testid="stPopoverBody"] p, div[data-testid="stPopoverBody"] span, div[data-testid="stPopoverBody"] div {{ font-size: 18px !important; }}
     div[data-testid="stPopoverBody"] .stTextArea textarea, div[data-testid="stPopoverBody"] input {{ font-size: 18px !important; }}
-    div[data-testid="stDateInput"] {{ width: {BTN_CAL_W}px !important; min-width: {BTN_CAL_W}px !important; position: relative !important; background: transparent !important; }}
-    div[data-testid="stDateInput"] > div {{ height: {BTN_CAL_H}px !important; min-height: {BTN_CAL_H}px !important; background-color: transparent !important; border: none !important; cursor: pointer !important; box-shadow: none !important; }}
-    div[data-testid="stDateInput"] input {{ color: transparent !important; -webkit-text-fill-color: transparent !important; cursor: pointer !important; caret-color: transparent !important; background: transparent !important; }}
+    div[data-testid="stDateInput"] {{ width: {BTN_CAL_W}px !important; min-width: {BTN_CAL_W}px !important; position: relative !important; }}
+    
+    /* Mantenemos el diseño original e impedimos que cambie de color al pasar el mouse o hacer click */
+    div[data-testid="stDateInput"] > div, div[data-testid="stDateInput"] > div:focus-within, div[data-testid="stDateInput"] > div:hover {{ height: {BTN_CAL_H}px !important; min-height: {BTN_CAL_H}px !important; background-color: {btn_bg} !important; border: 1px solid {border_color} !important; border-radius: 8px !important; cursor: pointer !important; box-shadow: none !important; outline: none !important; }}
+    
+    /* Forzamos al texto interno a ser siempre transparente y sin sombras al seleccionarse */
+    div[data-testid="stDateInput"] input, div[data-testid="stDateInput"] input:focus, div[data-testid="stDateInput"] input:active {{ color: transparent !important; -webkit-text-fill-color: transparent !important; cursor: pointer !important; caret-color: transparent !important; background-color: transparent !important; box-shadow: none !important; outline: none !important; }}
+    
     div[data-testid="stDateInput"] svg {{ display: none !important; }}
     div[data-testid="stDateInput"]::after {{ content: '{BTN_CAL_EMOJI}' !important; font-size: {BTN_CAL_ICON_SIZE}px !important; position: absolute !important; pointer-events: none !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; z-index: 5 !important; }}
 
