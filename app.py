@@ -498,7 +498,7 @@ st.sidebar.markdown(f"""
     </style>
 """, unsafe_allow_html=True)
 
-st.sidebar.markdown("### 🌓 Theme")
+st.sidebar.markdown("### ⚙️ Basic Settings")
 
 texto_boton_tema = "🌙 Switch to Dark Theme" if st.session_state.tema == "Claro" else "☀️ Switch to Light Theme"
 if st.sidebar.button(texto_boton_tema):
