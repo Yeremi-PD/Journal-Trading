@@ -870,18 +870,18 @@ st.markdown(f"""
     
     .fs-modal {{ display: none; position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; background: rgba(0,0,0,0.98) !important; z-index: 9999999 !important; flex-direction: column !important; align-items: center !important; justify-content: center !important; padding: 0 !important; margin: 0 !important; }}
     .fs-modal img {{ width: 80vw !important; height: 80vh !important; max-width: 80vw !important; max-height: 80vh !important; margin: auto !important; box-shadow: 0px 10px 30px rgba(0,0,0,0.5) !important; border-radius: 10px !important; object-fit: contain !important; image-rendering: high-quality !important; image-rendering: crisp-edges !important; }}
-    /* NUEVO: position: fixed para que los botones te sigan si haces scroll en la imagen gigante */
+    /* Botón de cerrar por defecto (para que no se rompa el de las Notas) */
     .close-btn {{ position: fixed !important; top: 35px !important; right: 25px !important; font-size: 20px !important; background-color: #FF4C4C !important; color: white !important; padding: 8px 15px !important; border-radius: 8px !important; cursor: pointer !important; z-index: 10000000 !important; font-weight: bold !important; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }}
+
+    /* NUEVO: Contenedor que agrupa los 3 botones y los separa exactamente 10px */
+    .modal-controls {{ position: fixed !important; top: 35px !important; right: 25px !important; display: flex !important; gap: 10px !important; z-index: 10000000 !important; align-items: center !important; }}
     
-    /* NUEVO: Controles de Zoom gradual y transición suave para la imagen */
-    .zoom-in-btn, .zoom-out-btn {{ position: fixed !important; top: 35px !important; font-size: 20px !important; color: white !important; padding: 8px 18px !important; border-radius: 8px !important; cursor: pointer !important; z-index: 10000000 !important; font-weight: bold !important; box-shadow: 0 4px 6px rgba(0,0,0,0.3); user-select: none !important; }}
-    .zoom-in-btn {{ right: 150px !important; background-color: #00C897 !important; }}
-    .zoom-out-btn {{ right: 215px !important; background-color: #4A5568 !important; }}
+    /* Anulamos la posición manual para que el contenedor Flexbox los ordene solitos */
+    .modal-controls .close-btn, .zoom-in-btn, .zoom-out-btn {{ position: relative !important; top: auto !important; right: auto !important; margin: 0 !important; }}
     
-    /* Separar 5px extra los botones + y - SOLO en pantallas móviles (celulares) */
-    @media (max-width: 768px) {{
-        .zoom-out-btn {{ right: 220px !important; }}
-    }}
+    .zoom-in-btn, .zoom-out-btn {{ font-size: 20px !important; color: white !important; padding: 8px 18px !important; border-radius: 8px !important; cursor: pointer !important; font-weight: bold !important; box-shadow: 0 4px 6px rgba(0,0,0,0.3); user-select: none !important; }}
+    .zoom-in-btn {{ background-color: #00C897 !important; }}
+    .zoom-out-btn {{ background-color: #4A5568 !important; }}
     
     .fs-modal img {{ transition: width 0.3s ease, max-width 0.3s ease !important; }}
 
@@ -1184,8 +1184,8 @@ with col_cal:
                         if todas_imagenes:
                             id_modal = f"mod_{anio_sel}_{mes_sel}_{dia}"
                             img_tags = "".join([f'<img src="{img}">' for img in todas_imagenes])
-                            # NUEVO: Botones graduales ➕ y ➖
-                            cam_html = f'<div><input type="checkbox" id="{id_modal}" class="modal-toggle" style="display:none;"><label for="{id_modal}"><div class="cam-icon">{BTN_CAM_EMOJI}</div></label><div class="fs-modal"><div class="zoom-out-btn">➖</div><div class="zoom-in-btn">➕</div><label for="{id_modal}" class="close-btn">{TXT_CERRAR_MODAL}</label>{img_tags}</div></div>'
+                            # NUEVO: Botones agrupados en una caja para separarlos matemáticamente
+                            cam_html = f'<div><input type="checkbox" id="{id_modal}" class="modal-toggle" style="display:none;"><label for="{id_modal}"><div class="cam-icon">{BTN_CAM_EMOJI}</div></label><div class="fs-modal"><div class="modal-controls"><div class="zoom-out-btn">➖</div><div class="zoom-in-btn">➕</div><label for="{id_modal}" class="close-btn">{TXT_CERRAR_MODAL}</label></div>{img_tags}</div></div>'
                         else:
                             cam_html = ""
                             
