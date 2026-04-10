@@ -1036,9 +1036,10 @@ with st.form(key="form_main_entry", clear_on_submit=True, border=False):
     c1, c2, c_img, c_not, c_espacio = st.columns([1.5, 0.5, 2.5, 0.6, 3.4]) 
     
     with c1:
-        st.markdown(f'<div class="lbl-input">{LBL_INPUT}</div>', unsafe_allow_html=True)
-        nuevo_bal = st.number_input("Balance", value=bal_actual, format="%.2f", label_visibility="collapsed")
-        btn_save = st.form_submit_button("SAVE", key="btn_save_main")
+            st.markdown(f'<div class="lbl-input">{LBL_INPUT}</div>', unsafe_allow_html=True)
+            # FIX: El cuadro ahora mostrará el balance reseteado (bal_mostrar)
+            nuevo_bal_input = st.number_input("Balance", value=float(bal_mostrar), format="%.2f", label_visibility="collapsed")
+            btn_save = st.form_submit_button("SAVE", key="btn_save_main")
         
     with c2:
         st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True) 
@@ -1113,8 +1114,14 @@ with st.form(key="form_main_entry", clear_on_submit=True, border=False):
             nuevo_corr = st.text_area("Corrections", value='', height=45)
 
     if btn_save:
-        viejo = db_usuario[ctx]["balance"]
-        pnl = nuevo_bal - viejo if nuevo_bal != viejo else 0.0
+        viejo_real = db_usuario[ctx]["balance"]
+        
+        # FIX: Calculamos el PnL comparando lo que escribiste con el balance reseteado que estabas viendo
+        pnl = nuevo_bal_input - bal_mostrar if nuevo_bal_input != bal_mostrar else 0.0
+        
+        # El balance interno "histórico" suma ese PnL para no romper las gráficas viejas
+        nuevo_bal_absoluto = viejo_real + pnl
+        
         clave_final = (fecha_sel.year, fecha_sel.month, fecha_sel.day)
         
         imgs_finales = []
@@ -1127,7 +1134,7 @@ with st.form(key="form_main_entry", clear_on_submit=True, border=False):
         
         trade_nuevo = {
             "pnl": pnl,
-            "balance_final": nuevo_bal,
+            "balance_final": nuevo_bal_absoluto,
             "fecha_str": fecha_sel.strftime("%d/%m/%Y"),
             "imagenes": imgs_finales,
             "bias": nuevo_bias,
@@ -1146,11 +1153,9 @@ with st.form(key="form_main_entry", clear_on_submit=True, border=False):
         db_usuario[ctx]["trades"][clave_final].append(trade_nuevo)
         import time # Importamos time para la pausa
 
-        db_usuario[ctx]["balance"] = nuevo_bal
+        db_usuario[ctx]["balance"] = nuevo_bal_absoluto
         
-        registrar_en_excel(usuario, db_global[usuario]["password"], ctx, fecha_sel, nuevo_bal, pnl, trade_nuevo, db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
-        
-        # Eliminamos el form_reset_key += 1
+        registrar_en_excel(usuario, db_global[usuario]["password"], ctx, fecha_sel, nuevo_bal_absoluto, pnl, trade_nuevo, db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
         
         st.success("✅ Trade Saved!")
         time.sleep(1) # Pausa de 1 segundo para que el usuario pueda leer el mensaje verde
