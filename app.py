@@ -899,8 +899,18 @@ st.markdown(f"""
     .zoom-in-btn, .zoom-out-btn {{ font-size: 20px !important; color: white !important; padding: 8px 18px !important; border-radius: 8px !important; cursor: pointer !important; font-weight: bold !important; box-shadow: 0 4px 6px rgba(0,0,0,0.3); user-select: none !important; }}
     .zoom-in-btn {{ background-color: #00C897 !important; }}
     .zoom-out-btn {{ background-color: #4A5568 !important; }}
-    
-    .fs-modal img {{ transition: width 0.3s ease, max-width 0.3s ease !important; }}
+
+    /* Botones de navegación lateral */
+    .nav-btn {{ position: fixed !important; top: 50% !important; transform: translateY(-50%) !important; background: rgba(0,0,0,0.5) !important; color: white !important; font-size: 40px !important; padding: 20px 15px !important; cursor: pointer !important; z-index: 10000000 !important; border-radius: 10px !important; user-select: none !important; }}
+    .prev-btn {{ left: 10px !important; }}
+    .next-btn {{ right: 10px !important; }}
+    .nav-btn:hover {{ background: rgba(0,200,151,0.8) !important; }}
+
+    /* Contador de fotos */
+    .img-counter {{ position: fixed !important; top: 40px !important; left: 50% !important; transform: translateX(-50%) !important; background: rgba(0,0,0,0.7) !important; color: white !important; padding: 5px 15px !important; border-radius: 20px !important; font-weight: bold !important; z-index: 10000000 !important; font-size: 18px !important; }}
+
+    .fs-modal img {{ transition: width 0.2s ease, max-width 0.2s ease !important; margin: auto !important; }}
+    .img-container {{ width: 100% !important; height: 100% !important; display: flex !important; align-items: center !important; justify-content: center !important; }}
 
     .card-pnl, .card-win, .card-rr {{ width: 100% !important; height: auto !important; min-height: 100px !important; }}
     .metric-card {{ background-color: {card_bg} !important; border-radius: 15px !important; padding: 15px 20px !important; border: 1px solid {border_color} !important; }}
@@ -1200,9 +1210,36 @@ with col_cal:
                             
                         if todas_imagenes:
                             id_modal = f"mod_{anio_sel}_{mes_sel}_{dia}"
-                            img_tags = "".join([f'<img src="{img}">' for img in todas_imagenes])
-                            # NUEVO: Botones agrupados en una caja para separarlos matemáticamente
-                            cam_html = f'<div><input type="checkbox" id="{id_modal}" class="modal-toggle" style="display:none;"><label for="{id_modal}"><div class="cam-icon">{BTN_CAM_EMOJI}</div></label><div class="fs-modal"><div class="modal-controls"><div class="zoom-out-btn">➖</div><div class="zoom-in-btn">➕</div><label for="{id_modal}" class="close-btn">{TXT_CERRAR_MODAL}</label></div>{img_tags}</div></div>'
+                            # Marcamos la primera imagen como activa y las demás ocultas
+                            img_tags = ""
+                            for idx, img in enumerate(todas_imagenes):
+                                display_style = "block" if idx == 0 else "none"
+                                img_tags += f'<img src="{img}" class="modal-img" data-idx="{idx}" style="display: {display_style} !important;">'
+                            
+                            # Botones de navegación (solo se muestran si hay más de 1 foto)
+                            nav_html = ""
+                            if len(todas_imagenes) > 1:
+                                nav_html = f'''
+                                    <div class="img-counter">1 / {len(todas_imagenes)}</div>
+                                    <div class="nav-btn prev-btn">❮</div>
+                                    <div class="nav-btn next-btn">❯</div>
+                                '''
+                            
+                            cam_html = f'''
+                                <div>
+                                    <input type="checkbox" id="{id_modal}" class="modal-toggle" style="display:none;">
+                                    <label for="{id_modal}"><div class="cam-icon">{BTN_CAM_EMOJI}</div></label>
+                                    <div class="fs-modal">
+                                        <div class="modal-controls">
+                                            <div class="zoom-out-btn">➖</div>
+                                            <div class="zoom-in-btn">➕</div>
+                                            <label for="{id_modal}" class="close-btn">{TXT_CERRAR_MODAL}</label>
+                                        </div>
+                                        {nav_html}
+                                        <div class="img-container">{img_tags}</div>
+                                    </div>
+                                </div>
+                            '''
                         else:
                             cam_html = ""
                             
@@ -1811,74 +1848,92 @@ observer.observe(doc.body, { childList: true, subtree: true });
 doc.addEventListener('click', function(e) {
     let target = e.target;
 
-    // --- LÓGICA DE ZOOM GRADUAL (Escalones fijos: 25, 50, 75, 100...) ---
+// --- LÓGICA DE NAVEGACIÓN DE FOTOS ---
+    if (target && (target.classList.contains('prev-btn') || target.classList.contains('next-btn'))) {
+        const modal = target.closest('.fs-modal');
+        const imgs = modal.querySelectorAll('.modal-img');
+        const counter = modal.querySelector('.img-counter');
+        let currentIdx = 0;
+
+        // Buscamos cuál es la imagen que se ve ahorita
+        imgs.forEach((img, i) => { if (img.style.display === 'block') currentIdx = i; });
+
+        // Ocultamos la actual
+        imgs[currentIdx].style.setProperty('display', 'none', 'important');
+        // Reset zoom de la que cerramos
+        imgs[currentIdx].setAttribute('data-zoom-idx', 0);
+        imgs[currentIdx].style.removeProperty('width');
+
+        // Calculamos la nueva
+        if (target.classList.contains('next-btn')) {
+            currentIdx = (currentIdx + 1) % imgs.length;
+        } else {
+            currentIdx = (currentIdx - 1 + imgs.length) % imgs.length;
+        }
+
+        // Mostramos la nueva y actualizamos contador
+        imgs[currentIdx].style.setProperty('display', 'block', 'important');
+        if (counter) counter.innerText = `${currentIdx + 1} / ${imgs.length}`;
+        return;
+    }
+
+    // --- LÓGICA DE ZOOM GRADUAL ---
     if (target && (target.classList.contains('zoom-in-btn') || target.classList.contains('zoom-out-btn'))) {
         const modal = target.closest('.fs-modal');
-        const imgs = modal.querySelectorAll('img');
+        const imgs = modal.querySelectorAll('.modal-img');
         const isZoomIn = target.classList.contains('zoom-in-btn');
 
         imgs.forEach(img => {
-            // Escalones exactos de zoom (80vw es el original, luego sube 25 en 25)
-            const zoomLevels = [80, 105, 130, 155, 180, 205]; 
-            // Buscamos en qué escalón estamos (0 por defecto)
-            let currentIndex = parseInt(img.getAttribute('data-zoom-idx')) || 0;
-            
-            if (isZoomIn) {
-                currentIndex++; // Subimos un escalón (+)
-                if (currentIndex >= zoomLevels.length) currentIndex = zoomLevels.length - 1; // Tope máximo
-            } else {
-                currentIndex--; // Bajamos un escalón (-)
-                if (currentIndex < 0) currentIndex = 0; // Tope mínimo (original)
-            }
+            // SOLO aplicamos zoom a la imagen que es visible actualmente
+            if (img.style.display === 'block') {
+                const zoomLevels = [80, 105, 130, 155, 180, 205]; 
+                let currentIndex = parseInt(img.getAttribute('data-zoom-idx')) || 0;
+                
+                if (isZoomIn) {
+                    currentIndex++;
+                    if (currentIndex >= zoomLevels.length) currentIndex = zoomLevels.length - 1;
+                } else {
+                    currentIndex--;
+                    if (currentIndex < 0) currentIndex = 0;
+                }
 
-            img.setAttribute('data-zoom-idx', currentIndex);
-            let currentWidth = zoomLevels[currentIndex];
-            
-            if (currentIndex > 0) {
-                // Si estamos en un escalón con zoom, forzamos las propiedades
-                modal.style.setProperty('display', 'block', 'important');
-                modal.style.setProperty('overflow', 'auto', 'important');
-                modal.style.setProperty('text-align', 'center', 'important');
-                img.style.setProperty('width', currentWidth + 'vw', 'important');
-                img.style.setProperty('max-width', currentWidth + 'vw', 'important');
-                img.style.setProperty('height', 'auto', 'important');
-                img.style.setProperty('max-height', 'none', 'important');
-                img.style.setProperty('margin-top', '80px', 'important');
-            } else {
-                // Si volvemos al escalón 0, borramos las modificaciones
-                modal.style.removeProperty('display');
-                modal.style.removeProperty('overflow');
-                modal.style.removeProperty('text-align');
-                img.style.removeProperty('width');
-                img.style.removeProperty('max-width');
-                img.style.removeProperty('height');
-                img.style.removeProperty('max-height');
-                img.style.removeProperty('margin-top');
+                img.setAttribute('data-zoom-idx', currentIndex);
+                let currentWidth = zoomLevels[currentIndex];
+                
+                if (currentIndex > 0) {
+                    modal.style.setProperty('display', 'block', 'important');
+                    modal.style.setProperty('overflow', 'auto', 'important');
+                    img.style.setProperty('width', currentWidth + 'vw', 'important');
+                    img.style.setProperty('max-width', currentWidth + 'vw', 'important');
+                    img.style.setProperty('height', 'auto', 'important');
+                    img.style.setProperty('max-height', 'none', 'important');
+                    img.style.setProperty('margin-top', '100px', 'important');
+                } else {
+                    img.style.removeProperty('width');
+                    img.style.removeProperty('max-width');
+                    img.style.removeProperty('margin-top');
+                }
             }
         });
-        return; // Detiene la ejecución aquí
+        return;
     }
 
-    // --- REINICIAR ZOOM AL CERRAR ---
+    // --- REINICIAR TODO AL CERRAR ---
     if (target && target.classList.contains('close-btn')) {
         const modal = target.closest('.fs-modal');
         if(modal) {
-            const imgs = modal.querySelectorAll('img');
-            imgs.forEach(img => {
-                // Volvemos el índice a 0 al cerrar
+            const imgs = modal.querySelectorAll('.modal-img');
+            const counter = modal.querySelector('.img-counter');
+            imgs.forEach((img, i) => {
                 img.setAttribute('data-zoom-idx', 0);
-                modal.style.removeProperty('display');
-                modal.style.removeProperty('overflow');
-                modal.style.removeProperty('text-align');
+                img.style.setProperty('display', i === 0 ? 'block' : 'none', 'important');
                 img.style.removeProperty('width');
                 img.style.removeProperty('max-width');
-                img.style.removeProperty('height');
-                img.style.removeProperty('max-height');
-                img.style.removeProperty('margin-top');
             });
+            if (counter && imgs.length > 0) counter.innerText = `1 / ${imgs.length}`;
+            modal.style.removeProperty('overflow');
         }
     }
-
     // --- Lógica del botón de menú ">>" ---
     while(target && target !== doc) {
         if (target.id === 'btn-abrir-menu') {
