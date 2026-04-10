@@ -986,6 +986,50 @@ for idx, tr in enumerate(_tc):
 for idx, tr in enumerate(_tc):
     tr["is_pre_funded"] = (idx <= idx_pase)
 
+# --- NUEVO: CELEBRACIÓN CON CONFETI ---
+# Este candado asegura que solo salga una vez por sesión para esta cuenta específica.
+celebracion_key = f"celebracion_mostrada_{ctx}"
+if paso_cuenta and celebracion_key not in st.session_state:
+    st.snow() # Lluvia de copos/confeti integrada
+    st.balloons() # Globos integrados
+
+    # Superposición CSS de pantalla completa para el mensaje gigante
+    st.markdown(f"""
+    <style>
+    .overlay-celebracion {{
+        position: fixed;
+        top: 0; left: 0;
+        width: 100vw; height: 100vh;
+        background-color: rgba(26, 32, 44, 0.9); /* Fondo oscuro translúcido */
+        z-index: 9999998;
+        display: flex; flex-direction: column;
+        justify-content: center; align-items: center;
+        text-align: center; color: white;
+        padding: 50px;
+    }}
+    .celebracion-grande {{
+        font-size: 70px;
+        font-weight: 1200;
+        color: #FFFFFF;
+        letter-spacing: -2px; line-height: 1.1; margin-bottom: 20px;
+    }}
+    .celebracion-username {{ color: #00C897; }}
+    .celebracion-chica {{
+        font-size: 28px;
+        color: #718096;
+        letter-spacing: 0px; margin-bottom: 40px;
+    }}
+    </style>
+    <div class="overlay-celebracion">
+        <div class="celebracion-grande">CONGRATULATIONS, <span class="celebracion-username">{usuario}</span>!</div>
+        <div class="celebracion-chica">YOUR ACCOUNT IS NOW ACTIVATED AND IS A PERFORMANCE ACCOUNT.</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.session_state[celebracion_key] = True # Bloquear el candado
+    import time; time.sleep(6) # Dejar el mensaje 6 segundos
+    st.rerun() # Refrescar la página para quitar la superposición y mostrar el dashboard normal
+
 # FIX: Avisar desde aquí arriba que la cuenta ya es PA para que no haya que refrescar la página
 if paso_cuenta and "toggle_funded_state" not in st.session_state:
     st.session_state.toggle_funded_state = True
@@ -1001,21 +1045,21 @@ if modo_funded_activo:
 col_t, col_fil, col_data, col_bal = st.columns([3, 1.5, 1.5, 2])
 
 with col_t: 
-    # NUEVO: Icono ">>" minimalista y empujado hasta el tope de la pantalla
+    # Icono ">>" minimalista
     st.markdown('<div id="btn-abrir-menu" style="position: absolute; top: -135px; left: 0px; font-size: 90px; font-weight: 1200; color: #718096; cursor: pointer; z-index: 999999; letter-spacing: -4px;">»</div>', unsafe_allow_html=True)
     
-    # NUEVO: Etiqueta dinámica de Eval Account / PA Account
+    # Etiqueta dinámica de Eval Account / PA Account
     if paso_cuenta:
         badge_html = '<span style="font-size: 20px; background-color: #00C897; color: white; padding: 4px 12px; border-radius: 8px; margin-left: 15px; font-weight: 800; letter-spacing: 0px;">PA Account</span>'
     else:
         badge_html = '<span style="font-size: 20px; background-color: #4A5568; color: white; padding: 4px 12px; border-radius: 8px; margin-left: 15px; font-weight: 800; letter-spacing: 0px;">Eval Account</span>'
 
-    # Usamos la variable 'usuario' y agregamos la etiqueta al lado con flexbox para que queden alineados
+    # Título con nombre y etiqueta alineados
     st.markdown(f'<div class="dashboard-title" style="display: flex; align-items: center;">Hi, {usuario} {badge_html}</div>', unsafe_allow_html=True)
 
 with col_fil: 
     st.markdown(f'<div class="lbl-filtros">{LBL_FILTROS}</div>', unsafe_allow_html=True)
-    filtro = st.selectbox("Filtros", [OPT_FILTRO_1, OPT_FILTRO_2, OPT_FILTRO_3], label_visibility="collapsed")
+    st.selectbox("Filtros", [OPT_FILTRO_1, OPT_FILTRO_2, OPT_FILTRO_3], label_visibility="collapsed")
 
 with col_data: 
     st.markdown(f'<div class="lbl-data">{LBL_DATA}</div>', unsafe_allow_html=True)
@@ -1031,8 +1075,7 @@ with col_bal:
     st.markdown(f'<div style="text-align:center; margin-bottom:5px;"><span class="lbl-total-bal">{LBL_BAL_TOTAL}</span></div>', unsafe_allow_html=True)
     st.markdown(f'<div class="balance-box">${bal_mostrar:,.2f}</div>', unsafe_allow_html=True)
 
-st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)------------------------------------------
-
+st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
 # ==========================================
 # 9. ENTRADA DE TRADES
 # ==========================================
