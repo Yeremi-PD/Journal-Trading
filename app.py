@@ -1638,10 +1638,28 @@ with col_mitad_1:
                             imagenes_restantes = db_usuario[ctx]["trades"][clave][i].get("imagenes", [])
                             
                             if imagenes_restantes:
+                                # 1. CREAMOS EL MODAL DE GALERIA PARA EL HISTORIAL
+                                id_modal_hist = f"mod_hist_{clave[0]}_{clave[1]}_{clave[2]}_{i}"
+                                
+                                img_tags_hist = ""
+                                for idx_img_gal, img_url in enumerate(imagenes_restantes):
+                                    disp = "block" if idx_img_gal == 0 else "none"
+                                    img_tags_hist += f'<img src="{img_url}" class="gallery-img" data-idx="{idx_img_gal}" style="display: {disp};">'
+                                    
+                                nav_html_hist = ""
+                                if len(imagenes_restantes) > 1:
+                                    nav_html_hist = f'<div class="gallery-nav"><div class="prev-img-btn">◀</div><div class="img-counter">1 / {len(imagenes_restantes)}</div><div class="next-img-btn">▶</div></div>'
+
+                                modal_html_hist = f'<div><input type="checkbox" id="{id_modal_hist}" class="modal-toggle" style="display:none;"><div class="fs-modal" data-current="0" data-total="{len(imagenes_restantes)}"><div class="modal-controls">{nav_html_hist}<div class="zoom-out-btn">➖</div><div class="zoom-in-btn">➕</div><label for="{id_modal_hist}" class="close-btn">{TXT_CERRAR_MODAL}</label></div>{img_tags_hist}</div></div>'
+                                
+                                st.markdown(modal_html_hist, unsafe_allow_html=True)
+
+                                # 2. MOSTRAMOS LAS MINIATURAS CLICKEABLES
                                 cols_img = st.columns(len(imagenes_restantes))
                                 for idx_img, img_b64 in enumerate(imagenes_restantes):
                                     with cols_img[idx_img]:
-                                        st.markdown(f'<img src="{img_b64}" style="width:100%; border-radius:10px; border:1px solid gray;">', unsafe_allow_html=True)
+                                        # Convertimos la imagen en un boton invisible (label) que abre el modal
+                                        st.markdown(f'<label for="{id_modal_hist}" style="cursor:pointer; display:block;"><img src="{img_b64}" style="width:100%; border-radius:10px; border:1px solid gray; box-shadow: 0 4px 6px rgba(0,0,0,0.1);"></label>', unsafe_allow_html=True)
                                         st.button("🗑️ Delete Image", key=f"delimg_{clave}_{i}_{idx_img}", on_click=borrar_imagen_historial, args=(ctx, clave, i, idx_img), use_container_width=True)
                             else:
                                 st.caption("There are no saved images.")
