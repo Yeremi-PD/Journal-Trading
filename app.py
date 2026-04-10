@@ -1410,7 +1410,7 @@ with col_det:
         margen_cajas = "0px" # Al bajar el boton, quitamos el margen negativo
     
     c_tg, c_dd, c_lose = st.columns(3)
-    e_caja = f"margin-top: {margen_cajas}; margin-bottom: 10px; padding: 10px !important; min-height: 85px !important; display: flex; flex-direction: column; justify-content: center;"
+    e_caja = f"margin-top: {margen_cajas}; margin-bottom: 110px; padding: 10px !important; min-height: 85px !important; display: flex; flex-direction: column; justify-content: center;"
     
     with c_tg: st.markdown(f'<div class="metric-card card-pnl" style="{e_caja}"><div class="metric-header"><span class="title-net-pnl" style="font-size: 12px;">Target</span></div><div class="{color_tg}" style="font-size: 15px;">{texto_tg}</div></div>', unsafe_allow_html=True)
     with c_dd: st.markdown(f'<div class="metric-card card-pnl" style="{e_caja}"><div class="metric-header"><span class="title-net-pnl" style="font-size: 12px;">Drawdown</span></div><div class="{color_dd}" style="font-size: 15px;">{texto_dd}</div></div>', unsafe_allow_html=True)
