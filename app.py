@@ -1210,13 +1210,15 @@ with col_cal:
                             
                         if todas_imagenes:
                             id_modal = f"mod_{anio_sel}_{mes_sel}_{dia}"
+                            # IMPORTANTE: Forzamos que solo la primera imagen sea visible al abrir
                             img_tags = ""
                             for idx, img in enumerate(todas_imagenes):
-                                v = "block" if idx == 0 else "none"
-                                img_tags += f'<img src="{img}" class="modal-img" data-zoom-idx="0" style="display: {v} !important;">'
+                                visibilidad = "block" if idx == 0 else "none"
+                                img_tags += f'<img src="{img}" class="modal-img" data-zoom-idx="0" data-img-idx="{idx}" style="display: {visibilidad} !important;">'
                             
                             nav_html = ""
                             if len(todas_imagenes) > 1:
+                                # Agregamos los botones de navegación y el contador
                                 nav_html = f'<div class="img-counter">1 / {len(todas_imagenes)}</div><div class="nav-btn prev-btn">❮</div><div class="nav-btn next-btn">❯</div>'
                             
                             cam_html = f'''
@@ -1227,10 +1229,12 @@ with col_cal:
                                         <div class="modal-controls">
                                             <div class="zoom-out-btn">➖</div>
                                             <div class="zoom-in-btn">➕</div>
-                                            <div class="close-btn" data-close-target="{id_modal}">{TXT_CERRAR_MODAL}</div>
+                                            <label for="{id_modal}" class="close-btn">{TXT_CERRAR_MODAL}</label>
                                         </div>
                                         {nav_html}
-                                        <div class="img-container">{img_tags}</div>
+                                        <div class="img-container" style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; overflow:hidden;">
+                                            {img_tags}
+                                        </div>
                                     </div>
                                 </div>
                             '''
@@ -1817,7 +1821,7 @@ div[data-testid="stNumberInput"] input {
 .prev-btn { left: 10px !important; }
 .next-btn { right: 10px !important; }
 .img-counter { 
-    position: fixed !important; top: 110px !important; left: 50% !important; 
+    position: fixed !important; top: 100px !important; left: 50% !important; 
     transform: translateX(-50%) !important; background: rgba(0,0,0,0.8) !important; 
     color: white !important; padding: 5px 20px !important; border-radius: 20px !important; 
     font-weight: bold !important; z-index: 10000001 !important; font-size: 16px !important;
