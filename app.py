@@ -225,11 +225,22 @@ components.html("""
     const sDevice = window.parent.localStorage.getItem("yeremi_device");
     const sAccount = window.parent.localStorage.getItem("yeremi_account");
 
-    // Si el iPhone tiene tu usuario guardado pero la página cargó vacía
+    let redirect = false;
+
+    // 1. Si abriste la app limpia sin usuario
     if (sUser && !urlParams.has("user")) {
         urlParams.set("user", sUser);
         urlParams.set("device", sDevice || "Móvil");
         if (sAccount) urlParams.set("account", sAccount);
+        redirect = true;
+    }
+    // 2. LA CLAVE: Si el iPhone forzó una cuenta vieja en la URL, la sobrescribimos con la última que usaste
+    else if (sUser && sAccount && urlParams.get("account") !== sAccount) {
+        urlParams.set("account", sAccount);
+        redirect = true;
+    }
+
+    if (redirect) {
         window.parent.location.search = urlParams.toString();
     }
 </script>
