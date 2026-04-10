@@ -873,22 +873,12 @@ st.markdown(f"""
     /* NUEVO: position: fixed para que los botones te sigan si haces scroll en la imagen gigante */
     .close-btn {{ position: fixed !important; top: 15px !important; right: 25px !important; font-size: 20px !important; background-color: #FF4C4C !important; color: white !important; padding: 8px 15px !important; border-radius: 8px !important; cursor: pointer !important; z-index: 10000000 !important; font-weight: bold !important; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }}
     
-    .zoom-btn {{ position: fixed !important; top: 15px !important; right: 155px !important; font-size: 20px !important; background-color: #00C897 !important; color: white !important; padding: 8px 15px !important; border-radius: 8px !important; cursor: pointer !important; z-index: 10000000 !important; font-weight: bold !important; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }}
-
-    /* Clases para cuando el zoom esté activado */
-    .fs-modal.is-zoomed {{
-        display: block !important; 
-        overflow: auto !important; 
-        text-align: center !important;
-    }}
-    .fs-modal img.zoomed-img {{
-        width: 300vw !important; /* 3 veces el tamaño de la pantalla */
-        max-width: 300vw !important; 
-        height: auto !important; 
-        max-height: none !important;
-        margin-top: 80px !important; /* Espacio para que el botón no tape la foto */
-        object-fit: contain !important;
-    }}
+    /* NUEVO: Controles de Zoom gradual y transición suave para la imagen */
+    .zoom-in-btn, .zoom-out-btn {{ position: fixed !important; top: 15px !important; font-size: 20px !important; color: white !important; padding: 8px 18px !important; border-radius: 8px !important; cursor: pointer !important; z-index: 10000000 !important; font-weight: bold !important; box-shadow: 0 4px 6px rgba(0,0,0,0.3); user-select: none !important; }}
+    .zoom-in-btn {{ right: 150px !important; background-color: #00C897 !important; }}
+    .zoom-out-btn {{ right: 215px !important; background-color: #4A5568 !important; }}
+    
+    .fs-modal img {{ transition: width 0.3s ease, max-width 0.3s ease !important; }}
 
     .card-pnl, .card-win, .card-rr {{ width: 100% !important; height: auto !important; min-height: 100px !important; }}
     .metric-card {{ background-color: {card_bg} !important; border-radius: 15px !important; padding: 15px 20px !important; border: 1px solid {border_color} !important; }}
@@ -1189,8 +1179,8 @@ with col_cal:
                         if todas_imagenes:
                             id_modal = f"mod_{anio_sel}_{mes_sel}_{dia}"
                             img_tags = "".join([f'<img src="{img}">' for img in todas_imagenes])
-                            # NUEVO: Botón de zoom añadido al lado del botón de cerrar
-                            cam_html = f'<div><input type="checkbox" id="{id_modal}" class="modal-toggle" style="display:none;"><label for="{id_modal}"><div class="cam-icon">{BTN_CAM_EMOJI}</div></label><div class="fs-modal"><div class="zoom-btn">🔍 ZOOM</div><label for="{id_modal}" class="close-btn">{TXT_CERRAR_MODAL}</label>{img_tags}</div></div>'
+                            # NUEVO: Botones graduales ➕ y ➖
+                            cam_html = f'<div><input type="checkbox" id="{id_modal}" class="modal-toggle" style="display:none;"><label for="{id_modal}"><div class="cam-icon">{BTN_CAM_EMOJI}</div></label><div class="fs-modal"><div class="zoom-out-btn">➖</div><div class="zoom-in-btn">➕</div><label for="{id_modal}" class="close-btn">{TXT_CERRAR_MODAL}</label>{img_tags}</div></div>'
                         else:
                             cam_html = ""
                             
