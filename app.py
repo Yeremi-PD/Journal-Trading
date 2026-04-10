@@ -1405,16 +1405,16 @@ with col_det:
     # 4. Mostrar el Switch (SOLO aparece si ya pasaste la cuenta)
     margen_cajas = "-145px"
     if paso_cuenta:
-        st.markdown("<div style='margin-top: -145px; margin-bottom: 5px;'></div>", unsafe_allow_html=True)
+        st.markdown("<div style='margin-top: -175px; margin-bottom: 5px;'></div>", unsafe_allow_html=True)
         st.toggle("Funded Account", key="toggle_funded_state")
-        margen_cajas = "0px" # Al bajar el boton, quitamos el margen negativo
+        margen_cajas = "-15px" # Ajustado para que mantenga la altura original al aparecer el switch
     
     c_tg, c_dd, c_lose = st.columns(3)
     e_caja = f"margin-top: {margen_cajas}; margin-bottom: 10px; padding: 10px !important; min-height: 85px !important; display: flex; flex-direction: column; justify-content: center;"
     
-    with c_tg: st.markdown(f'<div class="metric-card card-pnl" style="{e_caja}"><div class="metric-header"><span class="title-net-pnl" style="font-size: 12px;">Target</span></div><div class="{color_tg}" style="font-size: 15px;">{texto_tg}</div></div>', unsafe_allow_html=True)
-    with c_dd: st.markdown(f'<div class="metric-card card-pnl" style="{e_caja}"><div class="metric-header"><span class="title-net-pnl" style="font-size: 12px;">Drawdown</span></div><div class="{color_dd}" style="font-size: 15px;">{texto_dd}</div></div>', unsafe_allow_html=True)
-    with c_lose: st.markdown(f'<div class="metric-card card-pnl" style="{e_caja}"><div class="metric-header"><span class="title-net-pnl" style="font-size: 12px;">Lose Account</span></div><div class="{color_dd}" style="font-size: 15px;">{texto_lose}</div></div>', unsafe_allow_html=True)
+    with c_tg: st.markdown(f'<div class="metric-card card-pnl" style="{e_caja}"><div class="metric-header"><span class="title-net-pnl" style="font-size: 12px;">Target</span></div><div class="{color_tg}" style="font-size: 12px;">{texto_tg}</div></div>', unsafe_allow_html=True)
+    with c_dd: st.markdown(f'<div class="metric-card card-pnl" style="{e_caja}"><div class="metric-header"><span class="title-net-pnl" style="font-size: 12px;">Drawdown</span></div><div class="{color_dd}" style="font-size: 12px;">{texto_dd}</div></div>', unsafe_allow_html=True)
+    with c_lose: st.markdown(f'<div class="metric-card card-pnl" style="{e_caja}"><div class="metric-header"><span class="title-net-pnl" style="font-size: 12px;">Lose Account</span></div><div class="{color_dd}" style="font-size: 12px;">{texto_lose}</div></div>', unsafe_allow_html=True)
 
     ver_todo = st.toggle("View All Time ", value=False)
     
@@ -1478,7 +1478,7 @@ with col_det:
         st.markdown(f"""
             <div class="metric-card card-pnl">
                 <div class="metric-header"><span class="title-net-pnl">{titulo_pnl}</span></div>
-                <div class="{color_pnl}" style="font-size: 20px !important;">{simbolo_pnl}${net_pnl:,.2f}</div>
+                <div class="{color_pnl}" style="font-size: 16px !important;">{simbolo_pnl}${net_pnl:,.2f}</div>
             </div>
         """, unsafe_allow_html=True)
 
