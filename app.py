@@ -888,10 +888,10 @@ st.markdown(f"""
     .fs-modal {{ display: none; position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; background: rgba(0,0,0,0.98) !important; z-index: 9999999 !important; flex-direction: column !important; align-items: center !important; justify-content: center !important; padding: 0 !important; margin: 0 !important; }}
     .fs-modal img {{ width: 80vw !important; height: 80vh !important; max-width: 80vw !important; max-height: 80vh !important; margin: auto !important; box-shadow: 0px 10px 30px rgba(0,0,0,0.5) !important; border-radius: 10px !important; object-fit: contain !important; image-rendering: high-quality !important; image-rendering: crisp-edges !important; }}
     /* Botón de cerrar por defecto (para que no se rompa el de las Notas) */
-    .close-btn {{ position: fixed !important; top: 45px !important; right: 25px !important; font-size: 20px !important; background-color: #FF4C4C !important; color: white !important; padding: 8px 15px !important; border-radius: 8px !important; cursor: pointer !important; z-index: 10000000 !important; font-weight: bold !important; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }}
+    .close-btn {{ position: fixed !important; top: 35px !important; right: 25px !important; font-size: 20px !important; background-color: #FF4C4C !important; color: white !important; padding: 8px 15px !important; border-radius: 8px !important; cursor: pointer !important; z-index: 10000000 !important; font-weight: bold !important; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }}
 
     /* NUEVO: Contenedor que agrupa los 3 botones y los separa exactamente 10px */
-    .modal-controls {{ position: fixed !important; top: 45px !important; right: 25px !important; display: flex !important; gap: 10px !important; z-index: 10000000 !important; align-items: center !important; }}
+    .modal-controls {{ position: fixed !important; top: 35px !important; right: 25px !important; display: flex !important; gap: 10px !important; z-index: 10000000 !important; align-items: center !important; }}
     
     /* Anulamos la posición manual para que el contenedor Flexbox los ordene solitos */
     .modal-controls .close-btn, .zoom-in-btn, .zoom-out-btn {{ position: relative !important; top: auto !important; right: auto !important; margin: 0 !important; }}
@@ -1803,83 +1803,81 @@ with col_mitad_2:
                 st.markdown(tabla_html, unsafe_allow_html=True)
 
 # ==========================================
-# SCRIPT DE CONTROL TOTAL (GALERÍA, ZOOM Y MENÚ)
+# SCRIPT DE CONTROL TOTAL (ZOOM GRADUAL, NAVEGACIÓN Y MENÚ)
 # ==========================================
 components.html("""
 <style>
+/* Centrar texto balance */
 div[data-testid="stNumberInput"] input {
-    padding-top: 15px !important; padding-bottom: 15px !important;
-    display: flex !important; align-items: center !important; line-height: normal !important;
-}
-/* Estilo para las flechas laterales */
-.nav-btn { 
-    position: fixed !important; top: 50% !important; transform: translateY(-50%) !important; 
-    background: rgba(0,0,0,0.5) !important; color: white !important; font-size: 50px !important; 
-    padding: 20px 10px !important; cursor: pointer !important; z-index: 10000001 !important; 
-    border-radius: 10px !important; user-select: none !important; border: 1px solid rgba(255,255,255,0.2) !important;
-}
-.prev-btn { left: 10px !important; }
-.next-btn { right: 10px !important; }
-.img-counter { 
-    position: fixed !important; top: 100px !important; left: 50% !important; 
-    transform: translateX(-50%) !important; background: rgba(0,0,0,0.8) !important; 
-    color: white !important; padding: 5px 20px !important; border-radius: 20px !important; 
-    font-weight: bold !important; z-index: 10000001 !important; font-size: 16px !important;
+    padding-top: 15px !important;
+    padding-bottom: 15px !important;
+    display: flex !important;
+    align-items: center !important;
+    line-height: normal !important;
 }
 </style>
 
 <script>
 const doc = window.parent.document;
 
+// 1. Cerrar con Escape
+doc.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        doc.querySelectorAll('.modal-toggle').forEach(m => m.checked = false);
+    }
+});
+
+// 2. Bloquear teclado en inputs
 function bloquearTeclado() {
     doc.querySelectorAll('div[data-testid="stSelectbox"] input, div[data-testid="stDateInput"] input').forEach(input => {
-        input.setAttribute('inputmode', 'none'); input.setAttribute('readonly', 'true'); 
+        input.setAttribute('inputmode', 'none'); 
+        input.setAttribute('readonly', 'true'); 
     });
 }
 bloquearTeclado();
 new MutationObserver(bloquearTeclado).observe(doc.body, { childList: true, subtree: true });
 
+// 3. Lógica Maestra de Clics
 doc.addEventListener('click', function(e) {
     let target = e.target;
 
-    // --- NAVEGACIÓN DE GALERÍA (FLECHAS) ---
+    // --- NAVEGACIÓN ENTRE FOTOS (Siguiente/Anterior) ---
     if (target.classList.contains('prev-btn') || target.classList.contains('next-btn')) {
         const modal = target.closest('.fs-modal');
-        const imgs = Array.from(modal.querySelectorAll('.modal-img'));
+        const imgs = modal.querySelectorAll('.modal-img');
         const counter = modal.querySelector('.img-counter');
-        
-        // Encontrar la foto que se está viendo ahora
-        let currentIdx = imgs.findIndex(img => img.style.display === 'block');
+        let currentIdx = 0;
 
-        // 1. Ocultar la actual y quitarle cualquier zoom que tenga
+        // Encontrar foto actual
+        imgs.forEach((img, i) => { if (img.style.display === 'block') currentIdx = i; });
+
+        // Limpiar foto actual (quitar zoom y ocultar)
         imgs[currentIdx].style.setProperty('display', 'none', 'important');
         imgs[currentIdx].setAttribute('data-zoom-idx', 0);
         imgs[currentIdx].style.removeProperty('width');
         imgs[currentIdx].style.removeProperty('max-width');
-        imgs[currentIdx].style.removeProperty('margin-top');
 
-        // 2. Calcular el índice de la siguiente foto
+        // Calcular nueva foto
         if (target.classList.contains('next-btn')) {
             currentIdx = (currentIdx + 1) % imgs.length;
         } else {
             currentIdx = (currentIdx - 1 + imgs.length) % imgs.length;
         }
 
-        // 3. Mostrar la nueva foto y actualizar el texto del contador
+        // Mostrar nueva foto
         imgs[currentIdx].style.setProperty('display', 'block', 'important');
         if (counter) counter.innerText = (currentIdx + 1) + " / " + imgs.length;
-        
-        // Resetear el scroll del modal por si había zoom
         modal.style.removeProperty('overflow');
         return;
     }
 
-    // --- ZOOM GRADUAL ---
+    // --- ZOOM GRADUAL (100, 125, 150, 175, 200) ---
     if (target.classList.contains('zoom-in-btn') || target.classList.contains('zoom-out-btn')) {
         const modal = target.closest('.fs-modal');
         const img = modal.querySelector('.modal-img[style*="display: block"]');
         if (!img) return;
 
+        // Niveles: Normal(80), +25(105), +50(130), +75(155), +100(180)
         const levels = [80, 105, 130, 155, 180, 205];
         let idx = parseInt(img.getAttribute('data-zoom-idx')) || 0;
 
@@ -1890,17 +1888,18 @@ doc.addEventListener('click', function(e) {
         }
 
         img.setAttribute('data-zoom-idx', idx);
-        let val = levels[idx];
+        let currentWidth = levels[idx];
 
         if (idx > 0) {
             modal.style.setProperty('display', 'block', 'important');
             modal.style.setProperty('overflow', 'auto', 'important');
-            img.style.setProperty('width', val + 'vw', 'important');
-            img.style.setProperty('max-width', val + 'vw', 'important');
+            img.style.setProperty('width', currentWidth + 'vw', 'important');
+            img.style.setProperty('max-width', currentWidth + 'vw', 'important');
             img.style.setProperty('height', 'auto', 'important');
             img.style.setProperty('max-height', 'none', 'important');
             img.style.setProperty('margin-top', '100px', 'important');
         } else {
+            // Resetear si volvemos al nivel 0
             modal.style.removeProperty('overflow');
             img.style.removeProperty('width');
             img.style.removeProperty('max-width');
@@ -1913,9 +1912,10 @@ doc.addEventListener('click', function(e) {
     if (target.id === 'btn-abrir-menu') {
         let btn = doc.querySelector('[data-testid="collapsedControl"]') || doc.querySelector('[data-testid="stSidebarCollapseButton"] button');
         if (btn) btn.click();
+        return;
     }
 
-    // --- CERRAR Y REINICIAR GALERÍA ---
+    // --- REINICIAR TODO AL CERRAR ---
     if (target.classList.contains('close-btn')) {
         const modal = target.closest('.fs-modal');
         if (modal) {
@@ -1925,6 +1925,7 @@ doc.addEventListener('click', function(e) {
                 img.setAttribute('data-zoom-idx', 0);
                 img.style.setProperty('display', i === 0 ? 'block' : 'none', 'important');
                 img.style.removeProperty('width');
+                img.style.removeProperty('max-width');
                 img.style.removeProperty('margin-top');
             });
             const counter = modal.querySelector('.img-counter');
