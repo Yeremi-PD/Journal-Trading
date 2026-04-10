@@ -400,7 +400,7 @@ db_usuario = db_global[usuario]["data"]
 
 # Solo lee la URL si es la primera vez que entras (o si recargas con F5)
 if "data_source_sel" not in st.session_state:
-    cuenta_inicial = "Account Real"
+    cuenta_inicial = "APEX-555371-01......(1)"
     try:
         if "account" in st.query_params and st.query_params["account"] in db_usuario:
             cuenta_inicial = st.query_params["account"]
