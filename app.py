@@ -217,20 +217,19 @@ if (!urlParams.has('device')) {
 </script>
 """, height=0, width=0)
 
-# --- AUTO-DETECTAR MÓVIL ANTES DE CARGAR ---
+# --- MEMORIA PERMANENTE PARA IPHONE ---
 components.html("""
 <script>
-const urlParams = new URLSearchParams(window.parent.location.search);
-if (!urlParams.has('device')) {
-    // Detecta el móvil incluso si Safari está mintiendo en "Modo Escritorio" leyendo si la pantalla es táctil
-    const esTactil = window.parent.navigator.maxTouchPoints > 0;
-    const esPantallaPequena = window.parent.innerWidth <= 768;
-    
-    if (esPantallaPequena || esTactil) {
-        urlParams.set('device', 'Móvil');
-        window.parent.location.search = urlParams.toString(); 
+    const urlParams = new URLSearchParams(window.parent.location.search);
+    const sUser = window.parent.localStorage.getItem("yeremi_user");
+    const sDevice = window.parent.localStorage.getItem("yeremi_device");
+
+    // Si el iPhone tiene tu usuario guardado pero la página cargó vacía
+    if (sUser && !urlParams.has("user")) {
+        urlParams.set("user", sUser);
+        urlParams.set("device", sDevice || "Móvil");
+        window.parent.location.search = urlParams.toString();
     }
-}
 </script>
 """, height=0, width=0)
 
@@ -268,63 +267,60 @@ try:
 except:
     pass
 
-# --- LOGIN ---
+# --- LOGIN CON MEMORIA ---
 if "usuario_actual" not in st.session_state:
     st.session_state.usuario_actual = None
 
-if st.session_state.usuario_actual is None or st.session_state.usuario_actual not in db_global:
-    st.session_state.usuario_actual = None 
-    st.markdown("<h1 style='text-align:center; font-family:sans-serif;'>Yeremi Journal Pro</h1>", unsafe_allow_html=True)
-    
+# Paso 1: Intentar auto-logueo desde la URL (lo que sacamos de la memoria del iPhone)
+query_u = st.query_params.get("user")
+query_d = st.query_params.get("device", "PC")
+
+if query_u in db_global and st.session_state.usuario_actual is None:
+    st.session_state.usuario_actual = query_u
+    st.session_state.dispositivo_actual = query_d
+    st.rerun()
+
+# Paso 2: Si no hay memoria, mostrar la pantalla de Login
+if st.session_state.usuario_actual is None:
+    st.markdown("<h1 style='text-align:center;'>Yeremi Journal Pro</h1>", unsafe_allow_html=True)
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
         st.markdown("<h3 style='text-align:center; color:gray;'>Iniciar Sesión</h3>", unsafe_allow_html=True)
         
-        # Botón manual y explícito para Entrar en Modo Móvil (Viene activado para ahorrarte tiempo)
-        modo_movil_login = st.checkbox("📱 Entrar en Modo Móvil", value=True)
+        # El botón manual que pediste
+        modo_movil_check = st.checkbox("📱 Activar Modo Móvil", value=True)
         
         modo_acceso = st.radio("Opciones:", ["Entrar", "Registrarse"], horizontal=True)
         
         if modo_acceso == "Entrar":
             log_user = st.text_input("Usuario")
             log_pass = st.text_input("Contraseña", type="password")
-            submit_login = st.button("Acceder", use_container_width=True)
-            
-            if submit_login:
-                if not log_user.strip():
-                    st.error("⚠️ El campo Usuario no puede estar vacío.")
-                else:
-                    if log_user not in db_global:
-                        db_global[log_user] = {"password": log_pass, "data": inicializar_data_usuario(), "settings": {"PC": inicializar_settings(), "Móvil": inicializar_settings()}}
+            if st.button("Acceder", use_container_width=True):
+                if log_user in db_global and db_global[log_user]["password"] == log_pass:
+                    st.session_state.usuario_actual = log_user
+                    st.session_state.dispositivo_actual = "Móvil" if modo_movil_check else "PC"
                     
-                    if db_global[log_user]["password"] == log_pass:
-                        st.session_state.usuario_actual = log_user
-                        st.session_state.dispositivo_actual = "Móvil" if modo_movil_login else "PC"
-                        try: 
-                            st.query_params["user"] = log_user
-                            st.query_params["device"] = st.session_state.dispositivo_actual
-                            if "last_account" in db_global[log_user]:
-                                st.query_params["account"] = db_global[log_user]["last_account"]
-                        except: pass
-                        st.rerun()
-                    else:
-                        st.error("Usuario o contraseña incorrectos.")
+                    # GUARDAR EN LA MEMORIA DEL IPHONE PARA LA PRÓXIMA VEZ
+                    components.html(f"""
+                    <script>
+                        window.parent.localStorage.setItem("yeremi_user", "{log_user}");
+                        window.parent.localStorage.setItem("yeremi_device", "{st.session_state.dispositivo_actual}");
+                    </script>
+                    """, height=0, width=0)
+                    
+                    st.query_params["user"] = log_user
+                    st.query_params["device"] = st.session_state.dispositivo_actual
+                    st.rerun()
+                else:
+                    st.error("Credenciales incorrectas")
         else:
+            # (Aquí mantén tu código de Registrarse igual)
             reg_user = st.text_input("Nuevo Usuario")
             reg_pass = st.text_input("Nueva Contraseña", type="password")
-            submit_register = st.button("Crear Cuenta", use_container_width=True)
-            
-            if submit_register:
-                if not reg_user.strip():
-                    st.error("⚠️ Debes escribir un nombre de Usuario válido.")
-                elif reg_user in db_global:
-                    st.warning("El usuario ya existe.")
-                elif len(reg_user) > 0 and len(reg_pass) > 0:
+            if st.button("Crear Cuenta", use_container_width=True):
+                if reg_user and reg_user not in db_global:
                     db_global[reg_user] = {"password": reg_pass, "data": inicializar_data_usuario(), "settings": {"PC": inicializar_settings(), "Móvil": inicializar_settings()}}
-                    registrar_en_excel(reg_user, reg_pass, "Account Real", datetime.now(), 25000.0, 0.0, {}, db_global[reg_user]["settings"]["PC"], db_global[reg_user]["settings"]["Móvil"])
-                    st.success("Cuenta creada. Ya puedes iniciar sesión seleccionando 'Entrar'.")
-                else:
-                    st.warning("Completa todos los campos.")
+                    st.success("Cuenta creada!")
     st.stop()
 else:
     # Si la sesión es correcta y entraste a la app, actualizamos la memoria permanente
@@ -641,19 +637,15 @@ st.sidebar.markdown("<br>", unsafe_allow_html=True) # Pequeño espacio entre los
 # BOTÓN DE CERRAR SESIÓN
 st.sidebar.markdown("---")
 if st.sidebar.button("🚪 Log Out", use_container_width=True): 
-    # Borra la memoria del celular y fuerza la página a olvidar quién eras
+    # Borrar la memoria del iPhone y limpiar la URL
     components.html("""
     <script>
-    window.parent.localStorage.removeItem("yeremi_user");
-    window.parent.localStorage.removeItem("yeremi_device");
-    const urlParams = new URLSearchParams(window.parent.location.search);
-    urlParams.delete('user');
-    urlParams.delete('device');
-    window.parent.location.search = urlParams.toString();
+        window.parent.localStorage.removeItem("yeremi_user");
+        window.parent.localStorage.removeItem("yeremi_device");
+        window.parent.location.search = ""; 
     </script>
     """, height=0, width=0)
-    st.session_state.logout_trigger = True
-    import time; time.sleep(0.5)
+    st.session_state.usuario_actual = None
     st.rerun()
 
 
