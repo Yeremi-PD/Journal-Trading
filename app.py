@@ -1408,9 +1408,18 @@ with col_det:
         color_tg = "pnl-value pnl-value-loss"
     else:
         texto_lose = f"${distancia_dd:,.2f}"; texto_dd = f"${nivel_perdida:,.2f}"
-        # FIX: Agregamos "or paso_cuenta" para obligarlo a mostrar el Tope nuevo tras el reinicio de balance
-        if falta_tg <= 0 or paso_cuenta:
-            texto_tg = f"${tope_dd:,.2f}"; color_tg = "pnl-value"
+        
+        if paso_cuenta:
+            # Nuevo Target: Lo que falta para llegar al nivel donde se detiene el Drawdown
+            falta_para_tope = tope_dd - bal_mostrar
+            if falta_para_tope <= 0:
+                texto_tg = "$0.00" # Ya superaste la zona de trailing drawdown
+            else:
+                texto_tg = f"${falta_para_tope:,.2f}"
+            color_tg = "pnl-value"
+        elif falta_tg <= 0:
+            texto_tg = "PASSED 🎉" # Por si el switch está apagado pero la cuenta ya llegó a la meta
+            color_tg = "pnl-value"
         else:
             texto_tg = f"${falta_tg:,.2f}"
             color_tg = "pnl-value pnl-value-loss" if falta_tg > meta_t else "pnl-value"
