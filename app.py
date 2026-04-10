@@ -1403,14 +1403,14 @@ with col_det:
             color_tg = "pnl-value pnl-value-loss" if falta_tg > meta_t else "pnl-value"
     
     # 4. Mostrar el Switch (SOLO aparece si ya pasaste la cuenta)
-    margen_cajas = "-225px"
+    margen_cajas = "-25px"
     if paso_cuenta:
-        st.markdown("<div style='margin-top: -225px; margin-bottom: 5px;'></div>", unsafe_allow_html=True)
+        st.markdown("<div style='margin-top: -25px; margin-bottom: 5px;'></div>", unsafe_allow_html=True)
         st.toggle("Funded Account", key="toggle_funded_state")
         margen_cajas = "0px" # Al bajar el boton, quitamos el margen negativo
     
     c_tg, c_dd, c_lose = st.columns(3)
-    e_caja = f"margin-top: {margen_cajas}; margin-bottom: 110px; padding: 10px !important; min-height: 85px !important; display: flex; flex-direction: column; justify-content: center;"
+    e_caja = f"margin-top: {margen_cajas}; margin-bottom: 10px; padding: 10px !important; min-height: 85px !important; display: flex; flex-direction: column; justify-content: center;"
     
     with c_tg: st.markdown(f'<div class="metric-card card-pnl" style="{e_caja}"><div class="metric-header"><span class="title-net-pnl" style="font-size: 12px;">Target</span></div><div class="{color_tg}" style="font-size: 15px;">{texto_tg}</div></div>', unsafe_allow_html=True)
     with c_dd: st.markdown(f'<div class="metric-card card-pnl" style="{e_caja}"><div class="metric-header"><span class="title-net-pnl" style="font-size: 12px;">Drawdown</span></div><div class="{color_dd}" style="font-size: 15px;">{texto_dd}</div></div>', unsafe_allow_html=True)
