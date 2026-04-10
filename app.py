@@ -870,7 +870,25 @@ st.markdown(f"""
     
     .fs-modal {{ display: none; position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; background: rgba(0,0,0,0.98) !important; z-index: 9999999 !important; flex-direction: column !important; align-items: center !important; justify-content: center !important; padding: 0 !important; margin: 0 !important; }}
     .fs-modal img {{ width: 80vw !important; height: 80vh !important; max-width: 80vw !important; max-height: 80vh !important; margin: auto !important; box-shadow: 0px 10px 30px rgba(0,0,0,0.5) !important; border-radius: 10px !important; object-fit: contain !important; image-rendering: high-quality !important; image-rendering: crisp-edges !important; }}
-    .close-btn {{ position: absolute !important; top: 15px !important; right: 25px !important; font-size: 20px !important; background-color: #FF4C4C !important; color: white !important; padding: 8px 15px !important; border-radius: 8px !important; cursor: pointer !important; z-index: 10000000 !important; font-weight: bold !important; }}
+    /* NUEVO: position: fixed para que los botones te sigan si haces scroll en la imagen gigante */
+    .close-btn {{ position: fixed !important; top: 15px !important; right: 25px !important; font-size: 20px !important; background-color: #FF4C4C !important; color: white !important; padding: 8px 15px !important; border-radius: 8px !important; cursor: pointer !important; z-index: 10000000 !important; font-weight: bold !important; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }}
+    
+    .zoom-btn {{ position: fixed !important; top: 15px !important; right: 155px !important; font-size: 20px !important; background-color: #00C897 !important; color: white !important; padding: 8px 15px !important; border-radius: 8px !important; cursor: pointer !important; z-index: 10000000 !important; font-weight: bold !important; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }}
+
+    /* Clases para cuando el zoom esté activado */
+    .fs-modal.is-zoomed {{
+        display: block !important; 
+        overflow: auto !important; 
+        text-align: center !important;
+    }}
+    .fs-modal img.zoomed-img {{
+        width: 300vw !important; /* 3 veces el tamaño de la pantalla */
+        max-width: 300vw !important; 
+        height: auto !important; 
+        max-height: none !important;
+        margin-top: 80px !important; /* Espacio para que el botón no tape la foto */
+        object-fit: contain !important;
+    }}
 
     .card-pnl, .card-win, .card-rr {{ width: 100% !important; height: auto !important; min-height: 100px !important; }}
     .metric-card {{ background-color: {card_bg} !important; border-radius: 15px !important; padding: 15px 20px !important; border: 1px solid {border_color} !important; }}
@@ -1171,7 +1189,8 @@ with col_cal:
                         if todas_imagenes:
                             id_modal = f"mod_{anio_sel}_{mes_sel}_{dia}"
                             img_tags = "".join([f'<img src="{img}">' for img in todas_imagenes])
-                            cam_html = f'<div><input type="checkbox" id="{id_modal}" class="modal-toggle" style="display:none;"><label for="{id_modal}"><div class="cam-icon">{BTN_CAM_EMOJI}</div></label><div class="fs-modal"><label for="{id_modal}" class="close-btn">{TXT_CERRAR_MODAL}</label>{img_tags}</div></div>'
+                            # NUEVO: Botón de zoom añadido al lado del botón de cerrar
+                            cam_html = f'<div><input type="checkbox" id="{id_modal}" class="modal-toggle" style="display:none;"><label for="{id_modal}"><div class="cam-icon">{BTN_CAM_EMOJI}</div></label><div class="fs-modal"><div class="zoom-btn">🔍 ZOOM</div><label for="{id_modal}" class="close-btn">{TXT_CERRAR_MODAL}</label>{img_tags}</div></div>'
                         else:
                             cam_html = ""
                             
@@ -1776,9 +1795,30 @@ bloquearTeclado();
 const observer = new MutationObserver(bloquearTeclado);
 observer.observe(doc.body, { childList: true, subtree: true });
 
-// 3. Conectar el nuevo botón "☰ ABRIR MENÚ" con la barra lateral nativa
+// 3. Conectar el nuevo botón ">>" y el botón de "🔍 ZOOM"
 doc.addEventListener('click', function(e) {
     let target = e.target;
+
+    // --- NUEVO: Lógica para el botón de ZOOM ---
+    if (target && target.classList.contains('zoom-btn')) {
+        const modal = target.closest('.fs-modal');
+        const imgs = modal.querySelectorAll('img');
+        
+        if (modal.classList.contains('is-zoomed')) {
+            // Quitar Zoom
+            modal.classList.remove('is-zoomed');
+            imgs.forEach(img => img.classList.remove('zoomed-img'));
+            target.innerText = '🔍 ZOOM';
+        } else {
+            // Aplicar Zoom
+            modal.classList.add('is-zoomed');
+            imgs.forEach(img => img.classList.add('zoomed-img'));
+            target.innerText = '➖ RESTAURAR';
+        }
+        return; // Detiene la ejecución aquí para que no interfiera con lo demás
+    }
+
+    // --- Lógica del botón de menú ">>" ---
     while(target && target !== doc) {
         if (target.id === 'btn-abrir-menu') {
             // Evitamos que Streamlit bloquee la acción
