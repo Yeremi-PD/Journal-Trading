@@ -963,33 +963,10 @@ st.markdown(f"""
 # ==========================================
 # 8. HEADER (BARRA SUPERIOR)
 # ==========================================
-col_t, col_fil, col_data, col_bal = st.columns([3, 1.5, 1.5, 2])
-
-with col_t: 
-    # NUEVO: Icono ">>" minimalista y empujado hasta el tope de la pantalla
-    st.markdown('<div id="btn-abrir-menu" style="position: absolute; top: -135px; left: 0px; font-size: 90px; font-weight: 1200; color: #718096; cursor: pointer; z-index: 999999; letter-spacing: -4px;">»</div>', unsafe_allow_html=True)
-    
-    # Usamos la variable 'usuario' directamente en el f-string
-    st.markdown(f'<p class="dashboard-title">Hi, {usuario}</p>', unsafe_allow_html=True)
-
-with col_fil: 
-    st.markdown(f'<div class="lbl-filtros">{LBL_FILTROS}</div>', unsafe_allow_html=True)
-    filtro = st.selectbox("Filtros", [OPT_FILTRO_1, OPT_FILTRO_2, OPT_FILTRO_3], label_visibility="collapsed")
-
-with col_data: 
-    st.markdown(f'<div class="lbl-data">{LBL_DATA}</div>', unsafe_allow_html=True)
-    st.selectbox("Data Source", list(db_usuario.keys()), key="data_source_sel", label_visibility="collapsed")
-    # Guardamos la cuenta actual en la URL y en la memoria global del usuario
-    try:
-        st.query_params["account"] = st.session_state.data_source_sel
-        db_global[usuario]["last_account"] = st.session_state.data_source_sel
-    except:
-        pass
-
 ctx = st.session_state.data_source_sel
 bal_actual = db_usuario[ctx]["balance"]
 
-# --- LOGICA DE FASE FUNDED GLOBAL ---
+# --- LÓGICA DE FASE FUNDED GLOBAL (Movida arriba para la etiqueta del título) ---
 _tc = []
 for c, lt in sorted(db_usuario[ctx]["trades"].items(), key=lambda x: datetime(x[0][0], x[0][1], x[0][2])):
     _tc.extend(lt)
@@ -1015,6 +992,36 @@ bal_mostrar = bal_actual
 if modo_funded_activo:
     ganancia_f = sum(tr["pnl"] for tr in _tc[idx_pase+1:])
     bal_mostrar = bal_inicial_abs + ganancia_f
+
+# --- CREACIÓN DE LAS COLUMNAS ---
+col_t, col_fil, col_data, col_bal = st.columns([3, 1.5, 1.5, 2])
+
+with col_t: 
+    # NUEVO: Icono ">>" minimalista y empujado hasta el tope de la pantalla
+    st.markdown('<div id="btn-abrir-menu" style="position: absolute; top: -135px; left: 0px; font-size: 90px; font-weight: 1200; color: #718096; cursor: pointer; z-index: 999999; letter-spacing: -4px;">»</div>', unsafe_allow_html=True)
+    
+    # NUEVO: Etiqueta dinámica de Eval Account / PA Account
+    if paso_cuenta:
+        badge_html = '<span style="font-size: 20px; background-color: #00C897; color: white; padding: 4px 12px; border-radius: 8px; margin-left: 15px; font-weight: 800; letter-spacing: 0px;">PA Account</span>'
+    else:
+        badge_html = '<span style="font-size: 20px; background-color: #4A5568; color: white; padding: 4px 12px; border-radius: 8px; margin-left: 15px; font-weight: 800; letter-spacing: 0px;">Eval Account</span>'
+
+    # Usamos la variable 'usuario' y agregamos la etiqueta al lado con flexbox para que queden alineados
+    st.markdown(f'<div class="dashboard-title" style="display: flex; align-items: center;">Hi, {usuario} {badge_html}</div>', unsafe_allow_html=True)
+
+with col_fil: 
+    st.markdown(f'<div class="lbl-filtros">{LBL_FILTROS}</div>', unsafe_allow_html=True)
+    filtro = st.selectbox("Filtros", [OPT_FILTRO_1, OPT_FILTRO_2, OPT_FILTRO_3], label_visibility="collapsed")
+
+with col_data: 
+    st.markdown(f'<div class="lbl-data">{LBL_DATA}</div>', unsafe_allow_html=True)
+    st.selectbox("Data Source", list(db_usuario.keys()), key="data_source_sel", label_visibility="collapsed")
+    # Guardamos la cuenta actual en la URL y en la memoria global del usuario
+    try:
+        st.query_params["account"] = st.session_state.data_source_sel
+        db_global[usuario]["last_account"] = st.session_state.data_source_sel
+    except:
+        pass
 
 with col_bal:
     st.markdown(f'<div style="text-align:center; margin-bottom:5px;"><span class="lbl-total-bal">{LBL_BAL_TOTAL}</span></div>', unsafe_allow_html=True)
