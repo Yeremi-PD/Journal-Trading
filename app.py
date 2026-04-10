@@ -326,10 +326,13 @@ if st.session_state.usuario_actual is None:
     st.stop()
 else:
     # Si la sesión es correcta y entraste a la app, actualizamos la memoria permanente
+    # También guardamos la cuenta actual (si existe en el session_state)
+    cuenta_actual_js = st.session_state.get("data_source_sel", "Account Real")
     components.html(f"""
     <script>
     window.parent.localStorage.setItem("yeremi_user", "{st.session_state.usuario_actual}");
     window.parent.localStorage.setItem("yeremi_device", "{st.session_state.dispositivo_actual}");
+    window.parent.localStorage.setItem("yeremi_account", "{cuenta_actual_js}");
     </script>
     """, height=0, width=0)
 
@@ -644,6 +647,7 @@ if st.sidebar.button("🚪 Log Out", use_container_width=True):
     <script>
         window.parent.localStorage.removeItem("yeremi_user");
         window.parent.localStorage.removeItem("yeremi_device");
+        window.parent.localStorage.removeItem("yeremi_account");
         window.parent.location.search = ""; 
     </script>
     """, height=0, width=0)
