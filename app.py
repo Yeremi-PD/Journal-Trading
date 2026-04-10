@@ -1210,17 +1210,21 @@ with col_cal:
                             
                         if todas_imagenes:
                             id_modal = f"mod_{anio_sel}_{mes_sel}_{dia}"
+                            # Marcamos la primera imagen como activa y las demás ocultas
                             img_tags = ""
                             for idx, img in enumerate(todas_imagenes):
-                                # La primera imagen se muestra, las otras se ocultan
-                                d_style = "block" if idx == 0 else "none"
-                                img_tags += f'<img src="{img}" class="modal-img" data-zoom-idx="0" style="display: {d_style} !important;">'
+                                display_style = "block" if idx == 0 else "none"
+                                img_tags += f'<img src="{img}" class="modal-img" data-idx="{idx}" style="display: {display_style} !important;">'
                             
+                            # Botones de navegación (solo se muestran si hay más de 1 foto)
                             nav_html = ""
                             if len(todas_imagenes) > 1:
-                                nav_html = f'<div class="img-counter">1 / {len(todas_imagenes)}</div><div class="nav-btn prev-btn">❮</div><div class="nav-btn next-btn">❯</div>'
+                                nav_html = f'''
+                                    <div class="img-counter">1 / {len(todas_imagenes)}</div>
+                                    <div class="nav-btn prev-btn">❮</div>
+                                    <div class="nav-btn next-btn">❯</div>
+                                '''
                             
-                            # Estructura del modal con controles y contenedor de imágenes
                             cam_html = f'''
                                 <div>
                                     <input type="checkbox" id="{id_modal}" class="modal-toggle" style="display:none;">
@@ -1232,9 +1236,7 @@ with col_cal:
                                             <label for="{id_modal}" class="close-btn">{TXT_CERRAR_MODAL}</label>
                                         </div>
                                         {nav_html}
-                                        <div class="img-container" style="width:100%; height:100%; display:flex; align-items:center; justify-content:center;">
-                                            {img_tags}
-                                        </div>
+                                        <div class="img-container">{img_tags}</div>
                                     </div>
                                 </div>
                             '''
@@ -1932,7 +1934,6 @@ doc.addEventListener('click', function(e) {
             modal.style.removeProperty('overflow');
         }
     }
-
     // --- Lógica del botón de menú ">>" ---
     while(target && target !== doc) {
         if (target.id === 'btn-abrir-menu') {
