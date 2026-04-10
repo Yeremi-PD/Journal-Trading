@@ -1384,7 +1384,7 @@ with col_det:
     # 4. Renderizar tarjetas (Subiendo -145px y dividiendo en 3 columnas)
     c_tg, c_dd, c_lose = st.columns(3)
     # Definimos estilos comunes para limpiar el codigo
-    estilo_caja = "margin-top: -145px; margin-bottom: 10px; padding: 10px !important; min-height: 85px !important; display: flex; flex-direction: column; justify-content: center;"
+    estilo_caja = "margin-top: -185px; margin-bottom: 10px; padding: 10px !important; min-height: 85px !important; display: flex; flex-direction: column; justify-content: center;"
     estilo_titulo = "font-size: 13px;"
     estilo_valor = "font-size: 17px;"
 
