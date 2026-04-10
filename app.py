@@ -1352,28 +1352,30 @@ with col_det:
         meta_target = 6000
         limite_dd = 3000
         
-    # 3. Calculos de progreso
+    # 3. Calculos: Trailing Drawdown Limit
+    nivel_perdida_maxima = max_bal - limite_dd
     progreso_target = bal_actual - bal_inicial
-    drawdown_actual = bal_actual - max_bal  # Sera negativo o cero
     
     color_tg = "pnl-value" if progreso_target >= 0 else "pnl-value pnl-value-loss"
     simb_tg = "+" if progreso_target > 0 else ""
-    color_dd = "pnl-value pnl-value-loss" if drawdown_actual < 0 else "pnl-value"
     
-    # 4. Renderizar las tarjetas alineadas y pegadas arriba
+    # Se pone rojo solo si rompes la regla (tu balance actual cae por debajo del nivel de perdida)
+    color_dd = "pnl-value" if bal_actual > nivel_perdida_maxima else "pnl-value pnl-value-loss"
+    
+    # 4. Renderizar tarjetas (Alineadas a 10px de la linea divisoria usando margin-top: -22px)
     c_tg, c_dd = st.columns(2)
     with c_tg:
         st.markdown(f"""
-            <div class="metric-card card-pnl" style="margin-top: -15px; margin-bottom: 10px; padding: 12px 15px !important; min-height: 85px !important;">
+            <div class="metric-card card-pnl" style="margin-top: -22px; margin-bottom: 10px; padding: 12px 15px !important; min-height: 85px !important;">
                 <div class="metric-header"><span class="title-net-pnl" style="font-size: 15px;">Target ${meta_target:,.0f}</span></div>
-                <div class="{color_tg}" style="font-size: 22px;">{simb_tg}${progreso_target:,.2f}</div>
+                <div class="{color_tg}" style="font-size: 20px;">{simb_tg}${progreso_target:,.2f}</div>
             </div>
         """, unsafe_allow_html=True)
     with c_dd:
         st.markdown(f"""
-            <div class="metric-card card-pnl" style="margin-top: -15px; margin-bottom: 10px; padding: 12px 15px !important; min-height: 85px !important;">
-                <div class="metric-header"><span class="title-net-pnl" style="font-size: 15px;">Max DD -${limite_dd:,.0f}</span></div>
-                <div class="{color_dd}" style="font-size: 22px;">${drawdown_actual:,.2f}</div>
+            <div class="metric-card card-pnl" style="margin-top: -22px; margin-bottom: 10px; padding: 12px 15px !important; min-height: 85px !important;">
+                <div class="metric-header"><span class="title-net-pnl" style="font-size: 15px;">Max DD Level</span></div>
+                <div class="{color_dd}" style="font-size: 20px;">${nivel_perdida_maxima:,.2f}</div>
             </div>
         """, unsafe_allow_html=True)
 
