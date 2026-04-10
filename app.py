@@ -1406,7 +1406,7 @@ with col_det:
     margen_cajas = "-145px"
     if paso_cuenta:
         st.markdown("<div style='margin-top: -145px; margin-bottom: 5px;'></div>", unsafe_allow_html=True)
-        st.toggle("🚀 Funded Phase (Reset Account)", key="toggle_funded_state")
+        st.toggle("Funded Account", key="toggle_funded_state")
         margen_cajas = "0px" # Al bajar el boton, quitamos el margen negativo
     
     c_tg, c_dd, c_lose = st.columns(3)
