@@ -641,9 +641,19 @@ st.sidebar.markdown("<br>", unsafe_allow_html=True) # Pequeño espacio entre los
 # BOTÓN DE CERRAR SESIÓN
 st.sidebar.markdown("---")
 if st.sidebar.button("🚪 Log Out", use_container_width=True): 
-    st.session_state.usuario_actual = None
-    try: st.query_params.clear()
-    except: pass
+    # Borra la memoria del celular y fuerza la página a olvidar quién eras
+    components.html("""
+    <script>
+    window.parent.localStorage.removeItem("yeremi_user");
+    window.parent.localStorage.removeItem("yeremi_device");
+    const urlParams = new URLSearchParams(window.parent.location.search);
+    urlParams.delete('user');
+    urlParams.delete('device');
+    window.parent.location.search = urlParams.toString();
+    </script>
+    """, height=0, width=0)
+    st.session_state.logout_trigger = True
+    import time; time.sleep(0.5)
     st.rerun()
 
 
