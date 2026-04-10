@@ -878,6 +878,11 @@ st.markdown(f"""
     .zoom-in-btn {{ right: 150px !important; background-color: #00C897 !important; }}
     .zoom-out-btn {{ right: 215px !important; background-color: #4A5568 !important; }}
     
+    /* Separar 5px extra los botones + y - SOLO en pantallas móviles (celulares) */
+    @media (max-width: 768px) {{
+        .zoom-out-btn {{ right: 220px !important; }}
+    }}
+    
     .fs-modal img {{ transition: width 0.3s ease, max-width 0.3s ease !important; }}
 
     .card-pnl, .card-win, .card-rr {{ width: 100% !important; height: auto !important; min-height: 100px !important; }}
