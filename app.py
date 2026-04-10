@@ -1405,14 +1405,21 @@ with col_det:
     # 4. Mostrar el Switch (SOLO aparece si ya pasaste la cuenta)
     margen_cajas = "-145px"
     if paso_cuenta:
-        # Empujamos el switch MUCHO más arriba (-290px)
-        st.markdown("<div style='margin-top: -290px; margin-bottom: 0px;'></div>", unsafe_allow_html=True)
+        # AQUÍ ESTÁ LA MAGIA REAL: Atacamos el contenedor del toggle directamente con CSS
+        st.markdown("""
+        <style>
+        div[data-testid="stToggle"] {
+            margin-top: -75px !important; /* Aumenta este valor (ej. -90px) si quieres que suba aún más */
+            position: relative;
+            z-index: 10;
+        }
+        </style>
+        """, unsafe_allow_html=True)
         st.toggle("Funded Account", key="toggle_funded_state")
-        # Mantenemos las cajas en la posición más alta siempre
         margen_cajas = "-145px" 
     
     c_tg, c_dd, c_lose = st.columns(3)
-    # Aumentamos la altura original (85px) en 30px, quedando en 115px
+    # Altura incrementada a 115px (+30pt)
     e_caja = f"margin-top: {margen_cajas}; margin-bottom: 10px; padding: 10px !important; min-height: 115px !important; display: flex; flex-direction: column; justify-content: center;"
     
     with c_tg: st.markdown(f'<div class="metric-card card-pnl" style="{e_caja}"><div class="metric-header"><span class="title-net-pnl" style="font-size: 12px !important;">Target</span></div><div class="{color_tg}" style="font-size: 16px !important;">{texto_tg}</div></div>', unsafe_allow_html=True)
