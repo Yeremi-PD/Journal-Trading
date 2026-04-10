@@ -1403,7 +1403,8 @@ with col_det:
         color_tg = "pnl-value pnl-value-loss"
     else:
         texto_lose = f"${distancia_dd:,.2f}"; texto_dd = f"${nivel_perdida:,.2f}"
-        if falta_tg <= 0:
+        # FIX: Agregamos "or paso_cuenta" para obligarlo a mostrar el Tope nuevo tras el reinicio de balance
+        if falta_tg <= 0 or paso_cuenta:
             texto_tg = f"${tope_dd:,.2f}"; color_tg = "pnl-value"
         else:
             texto_tg = f"${falta_tg:,.2f}"
