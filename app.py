@@ -1227,12 +1227,10 @@ with col_cal:
                                         <div class="modal-controls">
                                             <div class="zoom-out-btn">➖</div>
                                             <div class="zoom-in-btn">➕</div>
-                                            <label for="{id_modal}" class="close-btn">{TXT_CERRAR_MODAL}</label>
+                                            <div class="close-btn" data-close-target="{id_modal}">{TXT_CERRAR_MODAL}</div>
                                         </div>
                                         {nav_html}
-                                        <div class="img-container" style="width:100%; height:100%; display:flex; align-items:center; justify-content:center;">
-                                            {img_tags}
-                                        </div>
+                                        <div class="img-container">{img_tags}</div>
                                     </div>
                                 </div>
                             '''
@@ -1801,73 +1799,91 @@ with col_mitad_2:
                 st.markdown(tabla_html, unsafe_allow_html=True)
 
 # ==========================================
-# SCRIPT DE CONTROL TOTAL (ZOOM GRADUAL Y CIERRE)
+# SCRIPT DE CONTROL TOTAL (GALERÍA, ZOOM Y MENÚ)
 # ==========================================
 components.html("""
 <style>
-div[data-testid="stNumberInput"] input { padding-top: 15px !important; padding-bottom: 15px !important; display: flex !important; align-items: center !important; }
-.nav-btn { position: fixed !important; top: 50% !important; transform: translateY(-50%) !important; background: rgba(0,0,0,0.5) !important; color: white !important; font-size: 50px !important; padding: 20px 10px !important; cursor: pointer !important; z-index: 10000001 !important; border-radius: 10px !important; user-select: none !important; }
+div[data-testid="stNumberInput"] input {
+    padding-top: 15px !important; padding-bottom: 15px !important;
+    display: flex !important; align-items: center !important; line-height: normal !important;
+}
+/* Estilo para las flechas laterales */
+.nav-btn { 
+    position: fixed !important; top: 50% !important; transform: translateY(-50%) !important; 
+    background: rgba(0,0,0,0.5) !important; color: white !important; font-size: 50px !important; 
+    padding: 20px 10px !important; cursor: pointer !important; z-index: 10000001 !important; 
+    border-radius: 10px !important; user-select: none !important; border: 1px solid rgba(255,255,255,0.2) !important;
+}
 .prev-btn { left: 10px !important; }
 .next-btn { right: 10px !important; }
-.img-counter { position: fixed !important; top: 110px !important; left: 50% !important; transform: translateX(-50%) !important; background: rgba(0,0,0,0.8) !important; color: white !important; padding: 5px 20px !important; border-radius: 20px !important; font-weight: bold !important; z-index: 10000001 !important; font-size: 16px !important; }
+.img-counter { 
+    position: fixed !important; top: 110px !important; left: 50% !important; 
+    transform: translateX(-50%) !important; background: rgba(0,0,0,0.8) !important; 
+    color: white !important; padding: 5px 20px !important; border-radius: 20px !important; 
+    font-weight: bold !important; z-index: 10000001 !important; font-size: 16px !important;
+}
 </style>
 
 <script>
 const doc = window.parent.document;
 
+function bloquearTeclado() {
+    doc.querySelectorAll('div[data-testid="stSelectbox"] input, div[data-testid="stDateInput"] input').forEach(input => {
+        input.setAttribute('inputmode', 'none'); input.setAttribute('readonly', 'true'); 
+    });
+}
+bloquearTeclado();
+new MutationObserver(bloquearTeclado).observe(doc.body, { childList: true, subtree: true });
+
 doc.addEventListener('click', function(e) {
     let target = e.target;
 
-    // --- 1. BOTÓN CERRAR (FIX MÓVIL) ---
-    if (target.classList.contains('close-btn')) {
-        const modalId = target.getAttribute('data-close-target');
-        const checkbox = doc.getElementById(modalId);
-        if (checkbox) checkbox.checked = false;
-        
-        const modal = target.closest('.fs-modal');
-        modal.style.removeProperty('overflow');
-        modal.querySelectorAll('.modal-img').forEach((img, i) => {
-            img.setAttribute('data-zoom-idx', 0);
-            img.style.setProperty('display', i === 0 ? 'block' : 'none', 'important');
-            img.style.removeProperty('width');
-            img.style.removeProperty('max-width');
-            img.style.removeProperty('margin-top');
-        });
-        return;
-    }
-
-    // --- 2. NAVEGACIÓN ---
+    // --- NAVEGACIÓN DE GALERÍA (FLECHAS) ---
     if (target.classList.contains('prev-btn') || target.classList.contains('next-btn')) {
         const modal = target.closest('.fs-modal');
         const imgs = Array.from(modal.querySelectorAll('.modal-img'));
+        const counter = modal.querySelector('.img-counter');
+        
+        // Encontrar la foto que se está viendo ahora
         let currentIdx = imgs.findIndex(img => img.style.display === 'block');
 
+        // 1. Ocultar la actual y quitarle cualquier zoom que tenga
         imgs[currentIdx].style.setProperty('display', 'none', 'important');
         imgs[currentIdx].setAttribute('data-zoom-idx', 0);
         imgs[currentIdx].style.removeProperty('width');
+        imgs[currentIdx].style.removeProperty('max-width');
+        imgs[currentIdx].style.removeProperty('margin-top');
 
-        if (target.classList.contains('next-btn')) currentIdx = (currentIdx + 1) % imgs.length;
-        else currentIdx = (currentIdx - 1 + imgs.length) % imgs.length;
+        // 2. Calcular el índice de la siguiente foto
+        if (target.classList.contains('next-btn')) {
+            currentIdx = (currentIdx + 1) % imgs.length;
+        } else {
+            currentIdx = (currentIdx - 1 + imgs.length) % imgs.length;
+        }
 
+        // 3. Mostrar la nueva foto y actualizar el texto del contador
         imgs[currentIdx].style.setProperty('display', 'block', 'important');
-        const counter = modal.querySelector('.img-counter');
         if (counter) counter.innerText = (currentIdx + 1) + " / " + imgs.length;
+        
+        // Resetear el scroll del modal por si había zoom
         modal.style.removeProperty('overflow');
         return;
     }
 
-    // --- 3. ZOOM GRADUAL (+25 cada toque) ---
+    // --- ZOOM GRADUAL ---
     if (target.classList.contains('zoom-in-btn') || target.classList.contains('zoom-out-btn')) {
         const modal = target.closest('.fs-modal');
         const img = modal.querySelector('.modal-img[style*="display: block"]');
         if (!img) return;
 
-        // Escalones: 80(Base), 105(+25), 130(+50), 155(+75), 180(+100)
-        const levels = [80, 105, 130, 155, 180];
+        const levels = [80, 105, 130, 155, 180, 205];
         let idx = parseInt(img.getAttribute('data-zoom-idx')) || 0;
 
-        if (target.classList.contains('zoom-in-btn')) idx = Math.min(idx + 1, levels.length - 1);
-        else idx = Math.max(idx - 1, 0);
+        if (target.classList.contains('zoom-in-btn')) {
+            idx = Math.min(idx + 1, levels.length - 1);
+        } else {
+            idx = Math.max(idx - 1, 0);
+        }
 
         img.setAttribute('data-zoom-idx', idx);
         let val = levels[idx];
@@ -1879,7 +1895,7 @@ doc.addEventListener('click', function(e) {
             img.style.setProperty('max-width', val + 'vw', 'important');
             img.style.setProperty('height', 'auto', 'important');
             img.style.setProperty('max-height', 'none', 'important');
-            img.style.setProperty('margin-top', '120px', 'important');
+            img.style.setProperty('margin-top', '100px', 'important');
         } else {
             modal.style.removeProperty('overflow');
             img.style.removeProperty('width');
@@ -1889,10 +1905,27 @@ doc.addEventListener('click', function(e) {
         return;
     }
 
-    // --- 4. MENÚ ">>" ---
+    // --- BOTÓN MENÚ ">>" ---
     if (target.id === 'btn-abrir-menu') {
         let btn = doc.querySelector('[data-testid="collapsedControl"]') || doc.querySelector('[data-testid="stSidebarCollapseButton"] button');
         if (btn) btn.click();
+    }
+
+    // --- CERRAR Y REINICIAR GALERÍA ---
+    if (target.classList.contains('close-btn')) {
+        const modal = target.closest('.fs-modal');
+        if (modal) {
+            modal.style.removeProperty('overflow');
+            const imgs = modal.querySelectorAll('.modal-img');
+            imgs.forEach((img, i) => {
+                img.setAttribute('data-zoom-idx', 0);
+                img.style.setProperty('display', i === 0 ? 'block' : 'none', 'important');
+                img.style.removeProperty('width');
+                img.style.removeProperty('margin-top');
+            });
+            const counter = modal.querySelector('.img-counter');
+            if (counter) counter.innerText = "1 / " + imgs.length;
+        }
     }
 }, true);
 </script>
