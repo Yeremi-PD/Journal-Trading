@@ -1362,31 +1362,44 @@ with col_det:
     
     distancia_al_dd = bal_actual - nivel_perdida_maxima
     
-    # Lógica de Color para el Drawdown (Rojo si estas en la zona de peligro o ya perdiste)
+    # Logica de Color para el Drawdown y Lose Account (Rojo si estas en peligro)
     color_dd = "pnl-value pnl-value-loss" if distancia_al_dd < alerta_dd else "pnl-value"
     
-    # Lógica de Texto para el Target
+    # Logica de Texto para el Target
     if falta_target <= 0:
         texto_target = "PASSED 🎉"
         color_tg = "pnl-value"
     else:
         texto_target = f"${falta_target:,.2f}"
         color_tg = "pnl-value"
+
+    # Logica de Texto para Lose Account
+    if distancia_al_dd <= 0:
+        texto_lose = "LOST 💀"
+    else:
+        texto_lose = f"${distancia_al_dd:,.2f}"
     
-    # 4. Renderizar tarjetas (Subiendo -65px para matar el margen oculto de Streamlit)
-    c_tg, c_dd = st.columns(2)
+    # 4. Renderizar tarjetas (Subiendo -95px y dividiendo en 3 columnas)
+    c_tg, c_dd, c_lose = st.columns(3)
     with c_tg:
         st.markdown(f"""
-            <div class="metric-card card-pnl" style="margin-top: -65px; margin-bottom: 10px; padding: 12px 15px !important; min-height: 85px !important;">
-                <div class="metric-header"><span class="title-net-pnl" style="font-size: 15px;">Left for Target</span></div>
-                <div class="{color_tg}" style="font-size: 20px;">{texto_target}</div>
+            <div class="metric-card card-pnl" style="margin-top: -95px; margin-bottom: 10px; padding: 10px !important; min-height: 85px !important; display: flex; flex-direction: column; justify-content: center;">
+                <div class="metric-header"><span class="title-net-pnl" style="font-size: 13px;">Left for Target</span></div>
+                <div class="{color_tg}" style="font-size: 17px;">{texto_target}</div>
             </div>
         """, unsafe_allow_html=True)
     with c_dd:
         st.markdown(f"""
-            <div class="metric-card card-pnl" style="margin-top: -65px; margin-bottom: 10px; padding: 12px 15px !important; min-height: 85px !important;">
-                <div class="metric-header"><span class="title-net-pnl" style="font-size: 15px;">Max DD Level</span></div>
-                <div class="{color_dd}" style="font-size: 20px;">${nivel_perdida_maxima:,.2f}</div>
+            <div class="metric-card card-pnl" style="margin-top: -95px; margin-bottom: 10px; padding: 10px !important; min-height: 85px !important; display: flex; flex-direction: column; justify-content: center;">
+                <div class="metric-header"><span class="title-net-pnl" style="font-size: 13px;">Max DD Level</span></div>
+                <div class="{color_dd}" style="font-size: 17px;">${nivel_perdida_maxima:,.2f}</div>
+            </div>
+        """, unsafe_allow_html=True)
+    with c_lose:
+        st.markdown(f"""
+            <div class="metric-card card-pnl" style="margin-top: -95px; margin-bottom: 10px; padding: 10px !important; min-height: 85px !important; display: flex; flex-direction: column; justify-content: center;">
+                <div class="metric-header"><span class="title-net-pnl" style="font-size: 13px;">Lose Account</span></div>
+                <div class="{color_dd}" style="font-size: 17px;">{texto_lose}</div>
             </div>
         """, unsafe_allow_html=True)
 
