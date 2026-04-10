@@ -1200,36 +1200,9 @@ with col_cal:
                             
                         if todas_imagenes:
                             id_modal = f"mod_{anio_sel}_{mes_sel}_{dia}"
-                            # Marcamos la primera imagen como activa y las demás ocultas
-                            img_tags = ""
-                            for idx, img in enumerate(todas_imagenes):
-                                display_style = "block" if idx == 0 else "none"
-                                img_tags += f'<img src="{img}" class="modal-img" data-idx="{idx}" style="display: {display_style} !important;">'
-                            
-                            # Botones de navegación (solo se muestran si hay más de 1 foto)
-                            nav_html = ""
-                            if len(todas_imagenes) > 1:
-                                nav_html = f'''
-                                    <div class="img-counter">1 / {len(todas_imagenes)}</div>
-                                    <div class="nav-btn prev-btn">❮</div>
-                                    <div class="nav-btn next-btn">❯</div>
-                                '''
-                            
-                            cam_html = f'''
-                                <div>
-                                    <input type="checkbox" id="{id_modal}" class="modal-toggle" style="display:none;">
-                                    <label for="{id_modal}"><div class="cam-icon">{BTN_CAM_EMOJI}</div></label>
-                                    <div class="fs-modal">
-                                        <div class="modal-controls">
-                                            <div class="zoom-out-btn">➖</div>
-                                            <div class="zoom-in-btn">➕</div>
-                                            <label for="{id_modal}" class="close-btn">{TXT_CERRAR_MODAL}</label>
-                                        </div>
-                                        {nav_html}
-                                        <div class="img-container">{img_tags}</div>
-                                    </div>
-                                </div>
-                            '''
+                            img_tags = "".join([f'<img src="{img}">' for img in todas_imagenes])
+                            # NUEVO: Botones agrupados en una caja para separarlos matemáticamente
+                            cam_html = f'<div><input type="checkbox" id="{id_modal}" class="modal-toggle" style="display:none;"><label for="{id_modal}"><div class="cam-icon">{BTN_CAM_EMOJI}</div></label><div class="fs-modal"><div class="modal-controls"><div class="zoom-out-btn">➖</div><div class="zoom-in-btn">➕</div><label for="{id_modal}" class="close-btn">{TXT_CERRAR_MODAL}</label></div>{img_tags}</div></div>'
                         else:
                             cam_html = ""
                             
