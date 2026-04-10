@@ -1373,33 +1373,40 @@ with col_det:
         texto_target = f"${falta_target:,.2f}"
         color_tg = "pnl-value"
 
-    # Logica de Texto para Lose Account
+    # Logica de Texto para Lose Account y Max DD Level
     if distancia_al_dd <= 0:
         texto_lose = "LOST 💀"
+        texto_dd_display = "LOST 💀" # Agregamos la calavera aqui tambien
     else:
         texto_lose = f"${distancia_al_dd:,.2f}"
+        texto_dd_display = f"${nivel_perdida_maxima:,.2f}"
     
-    # 4. Renderizar tarjetas (Subiendo -95px y dividiendo en 3 columnas)
+    # 4. Renderizar tarjetas (Subiendo -145px y dividiendo en 3 columnas)
     c_tg, c_dd, c_lose = st.columns(3)
+    # Definimos estilos comunes para limpiar el codigo
+    estilo_caja = "margin-top: -145px; margin-bottom: 10px; padding: 10px !important; min-height: 85px !important; display: flex; flex-direction: column; justify-content: center;"
+    estilo_titulo = "font-size: 13px;"
+    estilo_valor = "font-size: 17px;"
+
     with c_tg:
         st.markdown(f"""
-            <div class="metric-card card-pnl" style="margin-top: -95px; margin-bottom: 10px; padding: 10px !important; min-height: 85px !important; display: flex; flex-direction: column; justify-content: center;">
-                <div class="metric-header"><span class="title-net-pnl" style="font-size: 13px;">Left for Target</span></div>
-                <div class="{color_tg}" style="font-size: 17px;">{texto_target}</div>
+            <div class="metric-card card-pnl" style="{estilo_caja}">
+                <div class="metric-header"><span class="title-net-pnl" style="{estilo_titulo}">Left for Target</span></div>
+                <div class="{color_tg}" style="{estilo_valor}">{texto_target}</div>
             </div>
         """, unsafe_allow_html=True)
     with c_dd:
         st.markdown(f"""
-            <div class="metric-card card-pnl" style="margin-top: -95px; margin-bottom: 10px; padding: 10px !important; min-height: 85px !important; display: flex; flex-direction: column; justify-content: center;">
-                <div class="metric-header"><span class="title-net-pnl" style="font-size: 13px;">Max DD Level</span></div>
-                <div class="{color_dd}" style="font-size: 17px;">${nivel_perdida_maxima:,.2f}</div>
+            <div class="metric-card card-pnl" style="{estilo_caja}">
+                <div class="metric-header"><span class="title-net-pnl" style="{estilo_titulo}">Max DD Level</span></div>
+                <div class="{color_dd}" style="{estilo_valor}">{texto_dd_display}</div>
             </div>
         """, unsafe_allow_html=True)
     with c_lose:
         st.markdown(f"""
-            <div class="metric-card card-pnl" style="margin-top: -95px; margin-bottom: 10px; padding: 10px !important; min-height: 85px !important; display: flex; flex-direction: column; justify-content: center;">
-                <div class="metric-header"><span class="title-net-pnl" style="font-size: 13px;">Lose Account</span></div>
-                <div class="{color_dd}" style="font-size: 17px;">{texto_lose}</div>
+            <div class="metric-card card-pnl" style="{estilo_caja}">
+                <div class="metric-header"><span class="title-net-pnl" style="{estilo_titulo}">Lose Account</span></div>
+                <div class="{color_dd}" style="{estilo_valor}">{texto_lose}</div>
             </div>
         """, unsafe_allow_html=True)
 
