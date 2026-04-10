@@ -395,29 +395,26 @@ if "form_reset_key" not in st.session_state: st.session_state.form_reset_key = 0
 usuario = st.session_state.usuario_actual
 db_usuario = db_global[usuario]["data"]
 
-# --- BLOQUEO DE SEGURIDAD AL PRINCIPIO: SI NO HAY CUENTAS, FORZAR CREACIÓN ---
+# --- BLOQUEO DE SEGURIDAD AL PRINCIPIO ---
 if not db_usuario:
+    # 1. Aplicamos el estilo para centrar todo y ocultar la barra lateral
     st.markdown("""
         <style>
-        .main-create-container {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background-color: #1A202C; z-index: 9999999;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            text-align: center;
-        }
-        .create-title { font-size: 50px; font-weight: 800; color: white; margin-bottom: 10px; }
-        .create-subtitle { font-size: 20px; color: #718096; margin-bottom: 30px; }
-        /* Ocultar barra lateral mientras creas cuenta */
         [data-testid="stSidebar"] { display: none; }
+        .stApp { background-color: #1A202C !important; }
+        h1 { color: white !important; font-size: 50px !important; font-weight: 800 !important; text-align: center !important; }
+        p { color: #718096 !important; font-size: 20px !important; text-align: center !important; }
         </style>
     """, unsafe_allow_html=True)
     
-    st.markdown('<div class="main-create-container"><div>', unsafe_allow_html=True)
-    st.markdown('<div class="create-title">CREATE YOUR FIRST ACCOUNT</div>', unsafe_allow_html=True)
-    st.markdown('<div class="create-subtitle">Please select an initial balance to start journaling.</div>', unsafe_allow_html=True)
+    # 2. Dibujamos el contenido usando Streamlit puro (sin divs HTML que rompan la app)
+    st.markdown("# CREATE YOUR FIRST ACCOUNT")
+    st.markdown("Please select an initial balance to start journaling.")
     
-    col_c1, col_c2, col_c3 = st.columns([1, 2, 1])
-    with col_c2:
+    st.markdown("<br><br>", unsafe_allow_html=True)
+    
+    _, col_centro, _ = st.columns([1, 2, 1])
+    with col_centro:
         with st.form("form_primera_cuenta"):
             nombre_cta = st.text_input("Account Name", value="Account Real")
             bal_inicial_opcion = st.selectbox("Initial Balance", [25000.0, 50000.0, 100000.0], format_func=lambda x: f"${x:,.0f}")
@@ -427,11 +424,10 @@ if not db_usuario:
                     db_usuario[nombre_cta] = {"balance": bal_inicial_opcion, "trades": {}}
                     st.session_state.data_source_sel = nombre_cta
                     reescribir_excel_usuario(usuario)
-                    st.success("Account Created!")
-                    import time; time.sleep(1)
                     st.rerun()
-    st.markdown('</div></div>', unsafe_allow_html=True)
     st.stop()
+
+# --- SI LLEGAMOS AQUÍ, EL USUARIO YA TIENE CUENTA ---
 
 # Solo lee la URL si es la primera vez que entras (o si recargas con F5)
 if "data_source_sel" not in st.session_state:
