@@ -1393,7 +1393,7 @@ with col_det:
     # Definimos estilos comunes para limpiar el codigo
     estilo_caja = "margin-top: -145px; margin-bottom: 10px; padding: 10px !important; min-height: 85px !important; display: flex; flex-direction: column; justify-content: center;"
     estilo_titulo = "font-size: 13px;"
-    estilo_valor = "font-size: 13px;"
+    estilo_valor = "font-size: 1px;"
 
     with c_tg:
         st.markdown(f"""
