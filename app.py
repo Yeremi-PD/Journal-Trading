@@ -1934,6 +1934,7 @@ doc.addEventListener('click', function(e) {
             modal.style.removeProperty('overflow');
         }
     }
+    
     // --- Lógica del botón de menú ">>" ---
     while(target && target !== doc) {
         if (target.id === 'btn-abrir-menu') {
