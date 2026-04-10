@@ -1016,7 +1016,8 @@ with col_t:
 
 with col_fil: 
     st.markdown(f'<div class="lbl-filtros">{LBL_FILTROS}</div>', unsafe_allow_html=True)
-    filtro = st.selectbox("Filtros", [OPT_FILTRO_1, OPT_FILTRO_2, OPT_FILTRO_3], label_visibility="collapsed", key="filtro_header_unico")
+    # Agregamos key="filtro_header" para que Streamlit no se confunda
+    filtro = st.selectbox("Filtros", [OPT_FILTRO_1, OPT_FILTRO_2, OPT_FILTRO_3], label_visibility="collapsed", key="filtro_header")
 
 with col_data: 
     st.markdown(f'<div class="lbl-data">{LBL_DATA}</div>', unsafe_allow_html=True)
@@ -1490,10 +1491,9 @@ with col_det:
     with c_dd: st.markdown(f'<div class="metric-card card-pnl" style="{e_caja}"><div class="metric-header"><span class="title-net-pnl" style="font-size: 12px;">Max DD Level</span></div><div class="{color_dd}" style="font-size: 15px;">{texto_dd}</div></div>', unsafe_allow_html=True)
     with c_lose: st.markdown(f'<div class="metric-card card-pnl" style="{e_caja}"><div class="metric-header"><span class="title-net-pnl" style="font-size: 12px;">Lose Account</span></div><div class="{color_dd}" style="font-size: 15px;">{texto_lose}</div></div>', unsafe_allow_html=True)
 
-ver_todo = st.toggle("View All-Time", value=False)
+    ver_todo = st.toggle("View All-Time", value=False)
     
-    # Arreglo de indentacion para filtrar trades pre-funded
-    if modo_funded_activo:
+    if st.session_state.get("toggle_funded_state", False) and paso_cuenta:
         todos_los_trades_planos = trades_cronologicos
     else:
         todos_los_trades_planos = []
