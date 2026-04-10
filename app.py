@@ -975,6 +975,47 @@ st.markdown(f"""
 # ==========================================
 # 8. HEADER (BARRA SUPERIOR)
 # ==========================================
+
+# --- BLOQUEO DE SEGURIDAD: SI NO HAY CUENTAS, FORZAR CREACIÓN ---
+if not db_usuario:
+    st.markdown("""
+        <style>
+        .main-create-container {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            height: 80vh; text-align: center;
+        }
+        .create-title { font-size: 50px; font-weight: 800; color: white; margin-bottom: 10px; }
+        .create-subtitle { font-size: 20px; color: #718096; margin-bottom: 30px; }
+        </style>
+    """, unsafe_allow_html=True)
+    
+    st.markdown('<div class="main-create-container">', unsafe_allow_html=True)
+    st.markdown('<div class="create-title">CREATE YOUR FIRST ACCOUNT</div>', unsafe_allow_html=True)
+    st.markdown('<div class="create-subtitle">Please select an initial balance to start journaling.</div>', unsafe_allow_html=True)
+    
+    col_c1, col_c2, col_c3 = st.columns([1, 2, 1])
+    with col_c2:
+        with st.form("form_primera_cuenta"):
+            nombre_cta = st.text_input("Account Name", value="Account Real")
+            bal_inicial_opcion = st.selectbox("Initial Balance", [25000.0, 50000.0, 100000.0], format_func=lambda x: f"${x:,.0f}")
+            
+            if st.form_submit_button("🚀 CREATE ACCOUNT AND START", use_container_width=True):
+                if nombre_cta:
+                    # Creamos la cuenta en la base de datos
+                    db_usuario[nombre_cta] = {"balance": bal_inicial_opcion, "trades": {}}
+                    st.session_state.data_source_sel = nombre_cta
+                    # Guardamos en Excel de una vez
+                    reescribir_excel_usuario(usuario)
+                    st.success("Account Created!")
+                    import time; time.sleep(1)
+                    st.rerun()
+    st.markdown('</div>', unsafe_allow_html=True)
+    st.stop() # DETIENE TODO AQUÍ para que no intente cargar el Dashboard sin cuenta
+
+# --- SI LLEGAMOS AQUÍ, ES PORQUE YA HAY CUENTAS ---
+if "data_source_sel" not in st.session_state or st.session_state.data_source_sel not in db_usuario:
+    st.session_state.data_source_sel = list(db_usuario.keys())[0]
+
 ctx = st.session_state.data_source_sel
 bal_actual = db_usuario[ctx]["balance"]
 
