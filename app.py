@@ -1593,7 +1593,7 @@ with col_det:
     with c_met3:
         st.markdown(f"""
             <div class="metric-card card-rr">
-                <div class="metric-header"><span class="title-trade-win">AVERAGE RR</span></div>
+                <div class="metric-header"><span class="title-trade-win">Average RR</span></div>
                 <div class="rr-value" style="color: #FFFFFF; font-size: 20px !important;">1 / {rr_promedio:.2f}</div>
             </div>
         """, unsafe_allow_html=True)
