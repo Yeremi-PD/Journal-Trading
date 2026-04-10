@@ -932,8 +932,8 @@ st.markdown(f"""
 col_t, col_fil, col_data, col_bal = st.columns([3, 1.5, 1.5, 2])
 
 with col_t: 
-    # NUEVO: Botón personalizado, inconfundible y fácil de tocar
-    st.markdown('<div id="btn-abrir-menu" style="background-color: #00C897; color: white; display: inline-block; padding: 6px 16px; border-radius: 8px; font-weight: 800; font-size: 16px; cursor: pointer; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">☰ ABRIR MENÚ</div>', unsafe_allow_html=True)
+    # NUEVO: Icono ">>" minimalista y empujado hasta el tope de la pantalla
+    st.markdown('<div id="btn-abrir-menu" style="position: absolute; top: -65px; left: 0px; font-size: 45px; font-weight: 900; color: #718096; cursor: pointer; z-index: 999999; letter-spacing: -4px;">»</div>', unsafe_allow_html=True)
     
     # Usamos la variable 'usuario' directamente en el f-string
     st.markdown(f'<p class="dashboard-title">Hi, {usuario}</p>', unsafe_allow_html=True)
