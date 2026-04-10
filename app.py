@@ -1622,7 +1622,7 @@ with col_det:
                     <div class="win-value" style="color: {c_win_card};">{win_pct:.2f}%</div>
                 </div>
                 <div style="background: rgba(255,255,255,0.05); border: 1px solid {border_color}; border-radius: 10px; padding: 8px 12px; text-align: center; min-width: 80px;">
-                    <div style="font-size: 10px; font-weight: 700; color: gray; text-transform: uppercase; letter-spacing: 1px;">Days Done</div>
+                    <div style="font-size: 10px; font-weight: 700; color: #ffffff; text-transform: uppercase; letter-spacing: 1px;">Days Done</div>
                     <div style="font-size: 22px; font-weight: 900; color: #00C897;">{dias_ganadores_count}</div>
                 </div>
             </div>
