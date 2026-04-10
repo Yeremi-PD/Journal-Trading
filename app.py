@@ -1326,7 +1326,7 @@ def get_bar_svg(w, l, t):
 
 with col_det:
     # --- NUEVOS CUADROS DE TARGET Y DRAWDOWN ---
-    # 1. Encontrar balance inicial y balance maximo historico cronologicamente
+    # 1. Encontrar balance inicial absoluto
     trades_cronologicos = []
     for clave_dt, lista_t_dt in sorted(db_usuario[ctx]["trades"].items(), key=lambda x: datetime(x[0][0], x[0][1], x[0][2])):
         trades_cronologicos.extend(lista_t_dt)
@@ -1336,41 +1336,60 @@ with col_det:
     else:
         bal_inicial = bal_actual
         
-    max_bal = bal_inicial
-    for t in trades_cronologicos:
+    # Limites base
+    if bal_inicial <= 35000:
+        meta_target = 1500; limite_dd = 1000; alerta_dd = 500; tope_dd = 26100
+    elif bal_inicial <= 75000:
+        meta_target = 3000; limite_dd = 2000; alerta_dd = 1000; tope_dd = 52100
+    else:
+        meta_target = 6000; limite_dd = 3000; alerta_dd = 1500; tope_dd = 103100
+        
+    # 2. Detectar si ya paso la cuenta
+    paso_la_cuenta = False
+    idx_pase = -1
+    for i, t in enumerate(trades_cronologicos):
+        if (t["balance_final"] - bal_inicial) >= meta_target:
+            paso_la_cuenta = True
+            idx_pase = i
+            break
+
+    # 3. Toggle de Nueva Etapa (Funded)
+    modo_funded = False
+    margen_cajas = "-145px"
+    
+    if paso_la_cuenta:
+        # Acomodamos el toggle arriba, empujando todo el bloque
+        st.markdown("<div style='margin-top: -145px; margin-bottom: 5px;'></div>", unsafe_allow_html=True)
+        modo_funded = st.toggle("🚀 Funded Phase (Reset Stats)", value=False)
+        margen_cajas = "0px" # Quitamos el margen negativo de las tarjetas porque el toggle ya subio
+        
+    # 4. Recalcular si esta en Funded
+    bal_ref = bal_inicial
+    trades_evaluar = trades_cronologicos
+    
+    if modo_funded:
+        # Resetea el punto de inicio al balance exacto con el que paso la cuenta
+        bal_ref = trades_cronologicos[idx_pase]["balance_final"]
+        trades_evaluar = trades_cronologicos[idx_pase+1:]
+        tope_dd = bal_ref # En fase funded el Drawdown suele bloquearse en el balance inicial
+        
+    max_bal = bal_ref
+    for t in trades_evaluar:
         if t["balance_final"] > max_bal:
             max_bal = t["balance_final"]
             
-    # 2. Determinar limites, alertas y TOPE FIJO segun el tamaño de la cuenta
-    if bal_inicial <= 35000:
-        meta_target = 1500
-        limite_dd = 1000
-        alerta_dd = 500
-        tope_dd = 26100  # Tope fijo maximo
-    elif bal_inicial <= 75000:
-        meta_target = 3000
-        limite_dd = 2000
-        alerta_dd = 1000
-        tope_dd = 52100  # Tope fijo maximo
-    else:
-        meta_target = 6000
-        limite_dd = 3000
-        alerta_dd = 1500
-        tope_dd = 103100 # Tope fijo maximo
-        
-    # 3. Calculos: Trailing Drawdown con Tope (Se queda fijo si alcanza el tope)
+    # 5. Calculos de Limites y Trailing Drawdown
     nivel_perdida_maxima = max_bal - limite_dd
     if nivel_perdida_maxima > tope_dd:
         nivel_perdida_maxima = tope_dd
         
-    progreso_target = bal_actual - bal_inicial
+    progreso_target = bal_actual - bal_ref
     falta_target = meta_target - progreso_target
     distancia_al_dd = bal_actual - nivel_perdida_maxima
     
-    # Logica de Color para el Drawdown y Lose Account (Rojo si estas en peligro)
     color_dd = "pnl-value pnl-value-loss" if distancia_al_dd < alerta_dd else "pnl-value"
     
-    # 4. LOGICA MAESTRA DE ESTADO DE LA CUENTA
+    # 6. LOGICA MAESTRA DE COLORES Y ESTADOS
     if distancia_al_dd <= 0:
         texto_lose = "LOST 💀"
         texto_dd_display = "LOST 💀"
@@ -1390,39 +1409,28 @@ with col_det:
             else:
                 color_tg = "pnl-value"
     
-    # 5. Renderizar tarjetas (Subiendo -145px y Letra mas pequena a 15px)
+    # 7. Renderizar tarjetas en 3 columnas
     c_tg, c_dd, c_lose = st.columns(3)
-    estilo_caja = "margin-top: -145px; margin-bottom: 10px; padding: 10px !important; min-height: 85px !important; display: flex; flex-direction: column; justify-content: center;"
+    estilo_caja = f"margin-top: {margen_cajas}; margin-bottom: 10px; padding: 10px !important; min-height: 85px !important; display: flex; flex-direction: column; justify-content: center;"
     estilo_titulo = "font-size: 12px;"
-    estilo_valor = "font-size: 15px;" # Letra reducida
+    estilo_valor = "font-size: 15px;"
 
     with c_tg:
-        st.markdown(f"""
-            <div class="metric-card card-pnl" style="{estilo_caja}">
-                <div class="metric-header"><span class="title-net-pnl" style="{estilo_titulo}">Left for Target</span></div>
-                <div class="{color_tg}" style="{estilo_valor}">{texto_target}</div>
-            </div>
-        """, unsafe_allow_html=True)
+        st.markdown(f'<div class="metric-card card-pnl" style="{estilo_caja}"><div class="metric-header"><span class="title-net-pnl" style="{estilo_titulo}">Left for Target</span></div><div class="{color_tg}" style="{estilo_valor}">{texto_target}</div></div>', unsafe_allow_html=True)
     with c_dd:
-        st.markdown(f"""
-            <div class="metric-card card-pnl" style="{estilo_caja}">
-                <div class="metric-header"><span class="title-net-pnl" style="{estilo_titulo}">Max DD Level</span></div>
-                <div class="{color_dd}" style="{estilo_valor}">{texto_dd_display}</div>
-            </div>
-        """, unsafe_allow_html=True)
+        st.markdown(f'<div class="metric-card card-pnl" style="{estilo_caja}"><div class="metric-header"><span class="title-net-pnl" style="{estilo_titulo}">Max DD Level</span></div><div class="{color_dd}" style="{estilo_valor}">{texto_dd_display}</div></div>', unsafe_allow_html=True)
     with c_lose:
-        st.markdown(f"""
-            <div class="metric-card card-pnl" style="{estilo_caja}">
-                <div class="metric-header"><span class="title-net-pnl" style="{estilo_titulo}">Lose Account</span></div>
-                <div class="{color_dd}" style="{estilo_valor}">{texto_lose}</div>
-            </div>
-        """, unsafe_allow_html=True)
+        st.markdown(f'<div class="metric-card card-pnl" style="{estilo_caja}"><div class="metric-header"><span class="title-net-pnl" style="{estilo_titulo}">Lose Account</span></div><div class="{color_dd}" style="{estilo_valor}">{texto_lose}</div></div>', unsafe_allow_html=True)
 
     ver_todo = st.toggle("View All-Time", value=False)
     
-    todos_los_trades_planos = []
-    for k, lista in db_usuario[ctx]["trades"].items():
-        todos_los_trades_planos.extend(lista)
+    # 8. INTEGRACION CON ALL-TIME (Filtra estadisticas viejas si Funded esta activo)
+    if modo_funded:
+        todos_los_trades_planos = trades_evaluar
+    else:
+        todos_los_trades_planos = []
+        for k, lista in db_usuario[ctx]["trades"].items():
+            todos_los_trades_planos.extend(lista)
         
     if ver_todo:
         trades_lista = [t["pnl"] for t in todos_los_trades_planos]
