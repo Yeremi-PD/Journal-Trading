@@ -41,6 +41,7 @@ def inicializar_data_usuario():
 
 def inicializar_settings():
     return {
+        "orientacion_horizontal": False,
         "bal_num_sz": 30, "bal_box_w": 50, "bal_box_pad": 10,
         "size_top_stats": 18, "size_card_titles": 20, "size_box_titles": 20,
         "size_box_vals": 25, "size_box_pct": 20, "size_box_wl": 14,
@@ -497,11 +498,22 @@ st.sidebar.markdown(f"""
     </style>
 """, unsafe_allow_html=True)
 
-st.sidebar.markdown("### 🌓 Theme")
+st.sidebar.markdown("### 🌓 Theme & View")
 
 texto_boton_tema = "🌙 Switch to Dark Theme" if st.session_state.tema == "Claro" else "☀️ Switch to Light Theme"
 if st.sidebar.button(texto_boton_tema):
     st.session_state.tema = "Oscuro" if st.session_state.tema == "Claro" else "Claro"
+    st.rerun()
+
+# NUEVO: Botón para rotar la pantalla
+is_rotated = user_settings.get("orientacion_horizontal", False)
+texto_rotacion = "🔄 Volver a Vertical" if is_rotated else "📱 Girar a Horizontal"
+if st.sidebar.button(texto_rotacion):
+    user_settings["orientacion_horizontal"] = not is_rotated
+    ctx_act = st.session_state.data_source_sel
+    bal_act = db_usuario[ctx_act]["balance"]
+    # Se guarda de inmediato en tu Google Sheets para que se mantenga al recargar
+    registrar_en_excel(usuario, db_global[usuario]["password"], ctx_act, datetime.now(), bal_act, 0.0, {}, db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
     st.rerun()
         
 st.sidebar.markdown("---")
@@ -613,11 +625,45 @@ else:
 def gen_css_vars(s):
     return f"--size-top-stats:{s['size_top_stats']}px;--size-card-titles:{s['size_card_titles']}px;--size-box-titles:{s['size_box_titles']}px;--size-box-vals:{s['size_box_vals']}px;--size-box-pct:{s['size_box_pct']}px;--size-box-wl:{s['size_box_wl']}px;--pie-size:{s['pie_size']}px;--pie-y-offset:{s['pie_y_offset']}px;--cal-mes-size:{s['cal_mes_size']}px;--cal-pnl-size:{s['cal_pnl_size']}px;--cal-pct-size:{s['cal_pct_size']}px;--cal-dia-size:{s['cal_dia_size']}px;--cal-cam-size:{s['cal_cam_size']}px;--cal-note-size:{s.get('cal_note_size',30)}px;--cal-scale:{s['cal_scale']}px;--cal-line-height:{s['cal_line_height']};--bal-num-sz:{s['bal_num_sz']}px;--bal-box-w:{s['bal_box_w']}%;--bal-box-pad:{s['bal_box_pad']}px;--cal-txt-y:{s.get('cal_txt_y',0)}px;--cal-txt-pad:{s.get('cal_txt_pad',0)}px;--note-lbl-size:{s.get('note_lbl_size',16)}px;--note-val-size:{s.get('note_val_size',16)}px;"
 
+# NUEVO: Generar lógica CSS de rotación solo si el usuario activó la orientación horizontal
+rotacion_css = ""
+if user_settings.get("orientacion_horizontal", False):
+    rotacion_css = """
+    [data-testid="stAppViewContainer"] {
+        position: absolute !important;
+        top: 50% !important;
+        left: 50% !important;
+        transform: translate(-50%, -50%) rotate(90deg) !important;
+        width: 100vh !important;
+        height: 100vw !important;
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+    }
+    header[data-testid="stHeader"] { display: none !important; }
+    """
+
 st.markdown(f"""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
     
     :root {{ {gen_css_vars(user_settings)} }}
+
+    {rotacion_css}
+
+    /* NUEVO: Agrandar el botón de la barra lateral y moverlo hacia abajo */
+    [data-testid="collapsedControl"] {{
+        top: 80px !important; /* Mueve el botón hacia abajo (ajusta si lo quieres más bajo) */
+        left: 15px !important;
+        transform: scale(1.6) !important; /* Lo hace mucho más grande */
+        z-index: 999999 !important;
+        background-color: {card_bg} !important;
+        border-radius: 50% !important;
+        box-shadow: 0px 4px 10px rgba(0,0,0,0.3) !important;
+        transition: all 0.2s ease !important;
+    }}
+    [data-testid="collapsedControl"] svg {{
+        color: {c_dash} !important;
+    }}
 
     .stApp {{ background-color: {bg_color} !important; font-family: 'Inter', sans-serif !important; }}
     div[data-testid="column"] {{ overflow: visible !important; position: relative !important; }}
