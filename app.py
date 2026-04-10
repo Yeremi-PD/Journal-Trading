@@ -1152,6 +1152,12 @@ with st.form(key="form_main_entry", clear_on_submit=True, border=False):
 # ==========================================
 # 10. CALENDARIO Y RESUMEN
 # ==========================================
+# --- AUTO-ACTIVAR CHECKBOX SI PASÓ LA CUENTA ---
+if paso_cuenta and "toggle_funded_state" not in st.session_state:
+    st.session_state.toggle_funded_state = True
+    
+modo_funded_activo = st.session_state.get("toggle_funded_state", False) and paso_cuenta
+
 col_cal, col_det = st.columns([2, 1]) 
 
 anio_sel = st.session_state.cal_year
@@ -1162,6 +1168,7 @@ trades_mes_top = []
 for k, lista_t in db_usuario[ctx]["trades"].items():
     if k[0] == anio_sel and k[1] == mes_sel:
         for t in lista_t:
+            if modo_funded_activo and t.get("is_pre_funded", False): continue
             trades_mes_top.append(t["pnl"])
 
 with col_cal:
@@ -1446,8 +1453,12 @@ with col_det:
     
     # --- CÁLCULO DE AVERAGE RR ---
     rr_valores = []
-    # Buscamos en los trades del mes o de todo el tiempo según el toggle
-    trades_para_rr = todos_los_trades_planos if ver_todo else [tr for k, v in db_usuario[ctx]["trades"].items() if k[0]==anio_sel and k[1]==mes_sel for tr in v]
+    # Buscamos en los trades del mes o de todo el tiempo según el toggle (ocultando los viejos si Funded está activo)
+    trades_para_rr = todos_los_trades_planos if ver_todo else [
+        tr for k, v in db_usuario[ctx]["trades"].items() 
+        if k[0] == anio_sel and k[1] == mes_sel 
+        for tr in v if not (modo_funded_activo and tr.get("is_pre_funded", False))
+    ]
     
     for t in trades_para_rr:
         rr_str = str(t.get('RR', '1:0'))
