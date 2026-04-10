@@ -1410,15 +1410,16 @@ with col_det:
         texto_lose = f"${distancia_dd:,.2f}"; texto_dd = f"${nivel_perdida:,.2f}"
         
         if paso_cuenta:
-            # Nuevo Target: Lo que falta para llegar al nivel donde se detiene el Drawdown
-            falta_para_tope = tope_dd - bal_mostrar
-            if falta_para_tope <= 0:
-                texto_tg = "$0.00" # Ya superaste la zona de trailing drawdown
+            # FIX: Medimos cuánto le falta al DRAWDOWN para congelarse, no al balance.
+            # Así, si pierdes un trade, este número se queda fijo y no retrocede.
+            falta_para_bloquear_dd = tope_dd - nivel_perdida
+            if falta_para_bloquear_dd <= 0:
+                texto_tg = "$0.00" # El Drawdown ya se congeló en la zona segura
             else:
-                texto_tg = f"${falta_para_tope:,.2f}"
+                texto_tg = f"${falta_para_bloquear_dd:,.2f}"
             color_tg = "pnl-value"
         elif falta_tg <= 0:
-            texto_tg = "PASSED 🎉" # Por si el switch está apagado pero la cuenta ya llegó a la meta
+            texto_tg = "PASSED 🎉"
             color_tg = "pnl-value"
         else:
             texto_tg = f"${falta_tg:,.2f}"
