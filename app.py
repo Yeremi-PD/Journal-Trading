@@ -1423,20 +1423,19 @@ def get_bar_svg(w, l, t):
     return svg
 
 with col_det:
-    # 1. Filtramos los trades cronologicos dependiendo si el Switch esta activo
+    # 1. Filtramos los trades cronológicos
     trades_cronologicos = []
     for c, lt in sorted(db_usuario[ctx]["trades"].items(), key=lambda x: datetime(x[0][0], x[0][1], x[0][2])):
         for t in lt:
             if st.session_state.get("toggle_funded_state", False) and t.get("is_pre_funded", False): continue
             trades_cronologicos.append(t)
     
-    # 2. Setup de topes y balance (El balance inicial vuelve a ser 25k si esta activo)
+    # 2. Setup de topes y balance
     bal_inicial = bal_inicial_abs
     
     max_bal = bal_inicial
     _current_sim_bal = bal_inicial
     for t in trades_cronologicos:
-        # FIX: Calculamos tu balance máximo usando solo el PnL de esta etapa (Eval o PA)
         _current_sim_bal += t["pnl"]
         if _current_sim_bal > max_bal: max_bal = _current_sim_bal
             
@@ -1447,7 +1446,7 @@ with col_det:
     else:
         meta_t = 6000; lim_dd = 3000; alerta_dd = 1500; tope_dd = 103100
         
-    # 3. Calculos matematicos (Usando el bal_mostrar del Header)
+    # 3. Cálculos matemáticos
     nivel_perdida = max_bal - lim_dd
     if nivel_perdida > tope_dd: nivel_perdida = tope_dd
         
@@ -1455,59 +1454,60 @@ with col_det:
     falta_tg = meta_t - progreso
     distancia_dd = bal_mostrar - nivel_perdida
     
-    color_dd = "pnl-value pnl-value-loss" if distancia_dd < alerta_dd else "pnl-value"
+    # Colores base para Drawdown y Lose Account
+    c_hex_dd = "#FF4C4C" if distancia_dd < alerta_dd else "#00C897"
     
+    # Variable para el nombre y color dinámico del Target
+    titulo_target_dinamico = "Target"
+    c_hex_tg = "#FFFFFF" # Blanco por defecto
+
     if distancia_dd <= 0:
         texto_lose = "LOST 💀"; texto_dd = "LOST 💀"; texto_tg = "LOST 💀"
-        color_tg = "pnl-value pnl-value-loss"
+        c_hex_tg = "#FF4C4C"
     else:
         texto_lose = f"${distancia_dd:,.2f}"; texto_dd = f"${nivel_perdida:,.2f}"
         
         if paso_cuenta:
-            # NUEVO TARGET PA: Lo que falta desde TU BALANCE ACTUAL para llegar a la zona segura (tope_dd).
             falta_para_tope = tope_dd - bal_mostrar
             if falta_para_tope <= 0:
-                texto_tg = "$0.00"
+                titulo_target_dinamico = "Available payout"
+                payout_disponible = abs(falta_para_tope)
+                texto_tg = f"${payout_disponible:,.2f}"
+                c_hex_tg = "#00C897" # Verde cuando es ganancia extra
             else:
+                titulo_target_dinamico = "Target"
                 texto_tg = f"${falta_para_tope:,.2f}"
-            color_tg = "pnl-value"
+                c_hex_tg = "#FFFFFF"
         elif falta_tg <= 0:
             texto_tg = "PASSED 🎉"
-            color_tg = "pnl-value"
+            c_hex_tg = "#00C897"
         else:
             texto_tg = f"${falta_tg:,.2f}"
-            color_tg = "pnl-value pnl-value-loss" if falta_tg > meta_t else "pnl-value"
-    
-    # 4. Mostrar el Switch (SOLO aparece si ya pasaste la cuenta)
-    
-    # --- NUEVO FIX: Ancla CSS que sube absolutamente TODA la columna derecha junta ---
+            c_hex_tg = "#FF4C4C" if falta_tg > meta_t else "#FFFFFF"
+
+    # --- DISEÑO Y POSICIONAMIENTO ---
     st.markdown("""
     <style>
     div[data-testid="stElementContainer"]:has(.ancla-subir-todo) {
-        margin-top: -215px !important;
+        margin-top: -225px !important;
         margin-bottom: 0px !important;
     }
     </style>
     <div class="ancla-subir-todo"></div>
     """, unsafe_allow_html=True)
 
-    # Reservamos el espacio invisible para que las cajas NUNCA salten de posición
     if paso_cuenta:
         st.toggle("Funded Account", key="toggle_funded_state")
     else:
         st.markdown("<div style='height: 42px;'></div>", unsafe_allow_html=True)
     
-    c_tg, c_dd, c_lose = st.columns(3)
-    e_caja = f"margin-top: 0px; margin-bottom: 10px; padding: 10px !important; min-height: 85px !important; display: flex; flex-direction: column; justify-content: center;"
+    c_tg_col, c_dd_col, c_lose_col = st.columns(3)
+    e_caja = "margin-top: 0px; margin-bottom: 10px; padding: 10px !important; min-height: 85px !important; display: flex; flex-direction: column; justify-content: center;"
     
-    # Extirpamos la clase CSS rebelde y generamos los colores manualmente
-    c_hex_tg = "#FF4C4C" if "loss" in color_tg else "#00C897"
-    c_hex_dd = "#FF4C4C" if "loss" in color_dd else "#00C897"
-
-    with c_tg: st.markdown(f'<div class="metric-card card-pnl" style="{e_caja}"><div class="metric-header"><span class="title-net-pnl" style="font-size: 12px;">Target</span></div><div style="color: {c_hex_tg}; font-size: 20px; font-weight: 800;">{texto_tg}</div></div>', unsafe_allow_html=True)
-    with c_dd: st.markdown(f'<div class="metric-card card-pnl" style="{e_caja}"><div class="metric-header"><span class="title-net-pnl" style="font-size: 12px;">Drawdown</span></div><div style="color: {c_hex_dd}; font-size: 20px; font-weight: 800;">{texto_dd}</div></div>', unsafe_allow_html=True)
-    with c_lose: st.markdown(f'<div class="metric-card card-pnl" style="{e_caja}"><div class="metric-header"><span class="title-net-pnl" style="font-size: 12px;">Lose Account</span></div><div style="color: {c_hex_dd}; font-size: 20px; font-weight: 800;">{texto_lose}</div></div>', unsafe_allow_html=True)
-
+    with c_tg_col: st.markdown(f'<div class="metric-card card-pnl" style="{e_caja}"><div class="metric-header"><span class="title-net-pnl" style="font-size: 12px;">{titulo_target_dinamico}</span></div><div style="color: {c_hex_tg}; font-size: 14px; font-weight: 800;">{texto_tg}</div></div>', unsafe_allow_html=True)
+    with c_dd_col: st.markdown(f'<div class="metric-card card-pnl" style="{e_caja}"><div class="metric-header"><span class="title-net-pnl" style="font-size: 12px;">Drawdown</span></div><div style="color: {c_hex_dd}; font-size: 14px; font-weight: 800;">{texto_dd}</div></div>', unsafe_allow_html=True)
+    with c_lose_col: st.markdown(f'<div class="metric-card card-pnl" style="{e_caja}"><div class="metric-header"><span class="title-net-pnl" style="font-size: 12px;">Lose Account</span></div><div style="color: {c_hex_dd}; font-size: 14px; font-weight: 800;">{texto_lose}</div></div>', unsafe_allow_html=True)
+    
     ver_todo = st.toggle("View All Time ", value=False)
     
     if st.session_state.get("toggle_funded_state", False) and paso_cuenta:
