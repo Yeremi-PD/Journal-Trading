@@ -888,10 +888,10 @@ st.markdown(f"""
     .fs-modal {{ display: none; position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; background: rgba(0,0,0,0.98) !important; z-index: 9999999 !important; flex-direction: column !important; align-items: center !important; justify-content: center !important; padding: 0 !important; margin: 0 !important; }}
     .fs-modal img {{ width: 80vw !important; height: 80vh !important; max-width: 80vw !important; max-height: 80vh !important; margin: auto !important; box-shadow: 0px 10px 30px rgba(0,0,0,0.5) !important; border-radius: 10px !important; object-fit: contain !important; image-rendering: high-quality !important; image-rendering: crisp-edges !important; }}
     /* Botón de cerrar por defecto (para que no se rompa el de las Notas) */
-    .close-btn {{ position: fixed !important; top: 35px !important; right: 25px !important; font-size: 20px !important; background-color: #FF4C4C !important; color: white !important; padding: 8px 15px !important; border-radius: 8px !important; cursor: pointer !important; z-index: 10000000 !important; font-weight: bold !important; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }}
+    .close-btn {{ position: fixed !important; top: 45px !important; right: 25px !important; font-size: 20px !important; background-color: #FF4C4C !important; color: white !important; padding: 8px 15px !important; border-radius: 8px !important; cursor: pointer !important; z-index: 10000000 !important; font-weight: bold !important; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }}
 
     /* NUEVO: Contenedor que agrupa los 3 botones y los separa exactamente 10px */
-    .modal-controls {{ position: fixed !important; top: 35px !important; right: 25px !important; display: flex !important; gap: 10px !important; z-index: 10000000 !important; align-items: center !important; }}
+    .modal-controls {{ position: fixed !important; top: 45px !important; right: 25px !important; display: flex !important; gap: 10px !important; z-index: 10000000 !important; align-items: center !important; }}
     
     /* Anulamos la posición manual para que el contenedor Flexbox los ordene solitos */
     .modal-controls .close-btn, .zoom-in-btn, .zoom-out-btn {{ position: relative !important; top: auto !important; right: auto !important; margin: 0 !important; }}
@@ -1821,7 +1821,7 @@ div[data-testid="stNumberInput"] input {
 .prev-btn { left: 10px !important; }
 .next-btn { right: 10px !important; }
 .img-counter { 
-    position: fixed !important; top: 100px !important; left: 50% !important; 
+    position: fixed !important; top: 110px !important; left: 50% !important; 
     transform: translateX(-50%) !important; background: rgba(0,0,0,0.8) !important; 
     color: white !important; padding: 5px 20px !important; border-radius: 20px !important; 
     font-weight: bold !important; z-index: 10000001 !important; font-size: 16px !important;
