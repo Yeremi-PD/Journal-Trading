@@ -1406,13 +1406,13 @@ with col_det:
     margen_cajas = "-145px"
     if paso_cuenta:
         # Empujamos el switch aún más arriba para que no estorbe a los cuadros
-        st.markdown("<div style='margin-top: -195px; margin-bottom: 0px;'></div>", unsafe_allow_html=True)
+        st.markdown("<div style='margin-top: -235px; margin-bottom: 0px;'></div>", unsafe_allow_html=True)
         st.toggle("Funded Account", key="toggle_funded_state")
         # Mantenemos las cajas en la posición más alta siempre
         margen_cajas = "-145px" 
     
     c_tg, c_dd, c_lose = st.columns(3)
-    e_caja = f"margin-top: {margen_cajas}; margin-bottom: 10px; padding: 10px !important; min-height: 85px !important; display: flex; flex-direction: column; justify-content: center;"
+    e_caja = f"margin-top: {margen_cajas}; margin-bottom: 10px; padding: 10px !important; min-height: 105px !important; display: flex; flex-direction: column; justify-content: center;"
     
     with c_tg: st.markdown(f'<div class="metric-card card-pnl" style="{e_caja}"><div class="metric-header"><span class="title-net-pnl" style="font-size: 12px !important;">Target</span></div><div class="{color_tg}" style="font-size: 16px !important;">{texto_tg}</div></div>', unsafe_allow_html=True)
     with c_dd: st.markdown(f'<div class="metric-card card-pnl" style="{e_caja}"><div class="metric-header"><span class="title-net-pnl" style="font-size: 12px !important;">Drawdown</span></div><div class="{color_dd}" style="font-size: 16px !important;">{texto_dd}</div></div>', unsafe_allow_html=True)
