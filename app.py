@@ -1495,7 +1495,7 @@ with col_det:
         st.markdown(f"""
             <div class="metric-card card-pnl">
                 <div class="metric-header"><span class="title-net-pnl">{titulo_pnl}</span></div>
-                <div style="color: {c_hex_pnl}; font-size: 18px; font-weight: 800;">{simbolo_pnl}${net_pnl:,.2f}</div>
+                <div style="color: {c_hex_pnl}; font-size: 20px; font-weight: 800;">{simbolo_pnl}${net_pnl:,.2f}</div>
             </div>
         """, unsafe_allow_html=True)
 
