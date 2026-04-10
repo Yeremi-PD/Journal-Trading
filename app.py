@@ -983,12 +983,16 @@ for idx, tr in enumerate(_tc):
         break
 
 # Marcar los trades viejos de forma invisible en la memoria
-for idx, tr in enumerate(_tc):
-    tr["is_pre_funded"] = (idx <= idx_pase)
+    for idx, tr in enumerate(_tc):
+        tr["is_pre_funded"] = (idx <= idx_pase)
 
-modo_funded_activo = st.session_state.get("toggle_funded_state", False) and paso_cuenta
+    # FIX: Avisar desde aquí arriba que la cuenta ya es PA para que no haya que refrescar la página
+    if paso_cuenta and "toggle_funded_state" not in st.session_state:
+        st.session_state.toggle_funded_state = True
 
-bal_mostrar = bal_actual
+    modo_funded_activo = st.session_state.get("toggle_funded_state", False) and paso_cuenta
+
+    bal_mostrar = bal_actual
 if modo_funded_activo:
     ganancia_f = sum(tr["pnl"] for tr in _tc[idx_pase+1:])
     bal_mostrar = bal_inicial_abs + ganancia_f
@@ -1383,8 +1387,12 @@ with col_det:
     bal_inicial = bal_inicial_abs
     
     max_bal = bal_inicial
+    _current_sim_bal = bal_inicial
     for t in trades_cronologicos:
-        if t["balance_final"] > max_bal: max_bal = t["balance_final"]
+        # FIX: Calculamos tu balance máximo usando solo el PnL de esta etapa (Eval o PA). 
+        # Así no mezcla tu dinero de PA con el dinero viejo de la fase de prueba.
+        _current_sim_bal += t["pnl"]
+        if _current_sim_bal > max_bal: max_bal = _current_sim_bal
             
     if bal_inicial <= 35000:
         meta_t = 1500; lim_dd = 1000; alerta_dd = 500; tope_dd = 26100
