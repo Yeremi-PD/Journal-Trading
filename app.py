@@ -983,16 +983,16 @@ for idx, tr in enumerate(_tc):
         break
 
 # Marcar los trades viejos de forma invisible en la memoria
-    for idx, tr in enumerate(_tc):
-        tr["is_pre_funded"] = (idx <= idx_pase)
+for idx, tr in enumerate(_tc):
+    tr["is_pre_funded"] = (idx <= idx_pase)
 
-    # FIX: Avisar desde aquí arriba que la cuenta ya es PA para que no haya que refrescar la página
-    if paso_cuenta and "toggle_funded_state" not in st.session_state:
-        st.session_state.toggle_funded_state = True
+# FIX: Avisar desde aquí arriba que la cuenta ya es PA para que no haya que refrescar la página
+if paso_cuenta and "toggle_funded_state" not in st.session_state:
+    st.session_state.toggle_funded_state = True
 
-    modo_funded_activo = st.session_state.get("toggle_funded_state", False) and paso_cuenta
+modo_funded_activo = st.session_state.get("toggle_funded_state", False) and paso_cuenta
 
-    bal_mostrar = bal_actual
+bal_mostrar = bal_actual
 if modo_funded_activo:
     ganancia_f = sum(tr["pnl"] for tr in _tc[idx_pase+1:])
     bal_mostrar = bal_inicial_abs + ganancia_f
@@ -1389,8 +1389,7 @@ with col_det:
     max_bal = bal_inicial
     _current_sim_bal = bal_inicial
     for t in trades_cronologicos:
-        # FIX: Calculamos tu balance máximo usando solo el PnL de esta etapa (Eval o PA). 
-        # Así no mezcla tu dinero de PA con el dinero viejo de la fase de prueba.
+        # FIX: Calculamos tu balance máximo usando solo el PnL de esta etapa (Eval o PA)
         _current_sim_bal += t["pnl"]
         if _current_sim_bal > max_bal: max_bal = _current_sim_bal
             
@@ -1419,15 +1418,12 @@ with col_det:
         
         if paso_cuenta:
             # NUEVO TARGET PA: Lo que falta desde TU BALANCE ACTUAL para llegar a la zona segura (tope_dd).
-            # Si pierdes dinero, este número aumentará porque estarás más lejos.
             falta_para_tope = tope_dd - bal_mostrar
-            
             if falta_para_tope <= 0:
-                texto_tg = "$0.00" # Ya llegaste, tu cuenta está 100% asegurada
+                texto_tg = "$0.00"
             else:
                 texto_tg = f"${falta_para_tope:,.2f}"
             color_tg = "pnl-value"
-            
         elif falta_tg <= 0:
             texto_tg = "PASSED 🎉"
             color_tg = "pnl-value"
