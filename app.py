@@ -1492,6 +1492,7 @@ with col_det:
 
 ver_todo = st.toggle("View All-Time", value=False)
     
+    # Arreglo de indentacion para filtrar trades pre-funded
     if modo_funded_activo:
         todos_los_trades_planos = trades_cronologicos
     else:
