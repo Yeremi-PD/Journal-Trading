@@ -653,24 +653,28 @@ st.sidebar.markdown("<br>", unsafe_allow_html=True) # Pequeño espacio entre los
 # BOTÓN DE CERRAR SESIÓN
 st.sidebar.markdown("---")
 if st.sidebar.button("🚪 Log Out", use_container_width=True): 
-    # 1. Limpiamos el estado en el servidor inmediatamente
-    st.session_state.usuario_actual = None
-    st.session_state.clear() 
+    # 1. Limpiamos los parámetros de la URL para que el sistema no intente auto-loguear
+    st.query_params.clear()
     
-    # 2. Forzamos al navegador a limpiar TODO y recargar la página limpia
+    # 2. Borramos el usuario del estado de la sesión actual
+    st.session_state.usuario_actual = None
+    
+    # 3. Ejecutamos el script de limpieza total en el navegador
+    # Eliminamos el st.stop() para evitar la pantalla negra y usamos un pequeño delay
     components.html("""
     <script>
-        // Limpiar memoria local
+        // Borramos el localStorage para que el celular NO recuerde al usuario anterior
         window.parent.localStorage.clear(); 
         
-        // Limpiar la URL (quitar ?user=... etc)
-        const url = window.parent.location.href.split('?')[0];
-        window.parent.location.href = url;
+        // Redirigimos a la URL raíz de la app totalmente limpia
+        // Esto garantiza que aparezca la pantalla de LOGIN para el siguiente usuario
+        setTimeout(function(){
+            window.parent.location.href = window.parent.location.origin + window.parent.location.pathname;
+        }, 200);
     </script>
     """, height=0, width=0)
     
-    # 3. Paramos la ejecución para que no intente cargar nada más
-    st.stop()
+    st.info("Cerrando sesión de forma segura... Por favor espera.")
 
 
 # ==========================================
