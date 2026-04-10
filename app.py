@@ -1403,9 +1403,9 @@ with col_det:
             color_tg = "pnl-value pnl-value-loss" if falta_tg > meta_t else "pnl-value"
     
     # 4. Mostrar el Switch (SOLO aparece si ya pasaste la cuenta)
-    margen_cajas = "-145px"
+    margen_cajas = "-225px"
     if paso_cuenta:
-        st.markdown("<div style='margin-top: -145px; margin-bottom: 5px;'></div>", unsafe_allow_html=True)
+        st.markdown("<div style='margin-top: -225px; margin-bottom: 5px;'></div>", unsafe_allow_html=True)
         st.toggle("Funded Account", key="toggle_funded_state")
         margen_cajas = "0px" # Al bajar el boton, quitamos el margen negativo
     
