@@ -1444,7 +1444,7 @@ with col_det:
         st.markdown("<div style='height: 42px;'></div>", unsafe_allow_html=True)
     
     c_tg, c_dd, c_lose = st.columns(3)
-    e_caja = f"margin-top: 0px; margin-bottom: 0px; padding: 10px !important; min-height: 85px !important; display: flex; flex-direction: column; justify-content: center;"
+    e_caja = f"margin-top: 0px; margin-bottom: 10px; padding: 10px !important; min-height: 85px !important; display: flex; flex-direction: column; justify-content: center;"
     
     # Extirpamos la clase CSS rebelde y generamos los colores manualmente
     c_hex_tg = "#FF4C4C" if "loss" in color_tg else "#00C897"
