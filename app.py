@@ -223,11 +223,13 @@ components.html("""
     const urlParams = new URLSearchParams(window.parent.location.search);
     const sUser = window.parent.localStorage.getItem("yeremi_user");
     const sDevice = window.parent.localStorage.getItem("yeremi_device");
+    const sAccount = window.parent.localStorage.getItem("yeremi_account");
 
     // Si el iPhone tiene tu usuario guardado pero la página cargó vacía
     if (sUser && !urlParams.has("user")) {
         urlParams.set("user", sUser);
         urlParams.set("device", sDevice || "Móvil");
+        if (sAccount) urlParams.set("account", sAccount);
         window.parent.location.search = urlParams.toString();
     }
 </script>
