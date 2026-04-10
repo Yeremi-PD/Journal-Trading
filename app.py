@@ -969,15 +969,8 @@ with col_t:
     # NUEVO: Icono ">>" minimalista y empujado hasta el tope de la pantalla
     st.markdown('<div id="btn-abrir-menu" style="position: absolute; top: -135px; left: 0px; font-size: 90px; font-weight: 1200; color: #718096; cursor: pointer; z-index: 999999; letter-spacing: -4px;">»</div>', unsafe_allow_html=True)
     
-    # Lógica de etiqueta Eval / PA
-    # Si el switch de Funded está activo, es una PA Account
-    if modo_funded_activo:
-        etiqueta_cuenta = '<span style="color: #00C897; font-size: 25px; vertical-align: middle; margin-left: 15px;">(PA Account)</span>'
-    else:
-        etiqueta_cuenta = '<span style="color: #718096; font-size: 25px; vertical-align: middle; margin-left: 15px;">(Eval Account)</span>'
-
-    # Renderizamos el saludo + la etiqueta
-    st.markdown(f'<p class="dashboard-title">Hi, {usuario} {etiqueta_cuenta}</p>', unsafe_allow_html=True)
+    # Usamos la variable 'usuario' directamente en el f-string
+    st.markdown(f'<p class="dashboard-title">Hi, {usuario}</p>', unsafe_allow_html=True)
 
 with col_fil: 
     st.markdown(f'<div class="lbl-filtros">{LBL_FILTROS}</div>', unsafe_allow_html=True)
