@@ -1003,11 +1003,15 @@ st.markdown(f"""
 # ==========================================
 # 8. HEADER (BARRA SUPERIOR)
 # ==========================================
-if "data_source_sel" not in st.session_state or st.session_state.data_source_sel not in db_usuario:
-    st.session_state.data_source_sel = list(db_usuario.keys())[0]
-
-ctx = st.session_state.data_source_sel
-bal_actual = db_usuario[ctx]["balance"]
+# Garantizamos que si hay cuentas, haya una seleccionada
+if db_usuario:
+    if "data_source_sel" not in st.session_state or st.session_state.data_source_sel not in db_usuario:
+        st.session_state.data_source_sel = list(db_usuario.keys())[0]
+    
+    ctx = st.session_state.data_source_sel
+    bal_actual = db_usuario[ctx]["balance"]
+else:
+    st.stop() # Última línea de defensa
 
 # --- LÓGICA DE FASE FUNDED GLOBAL (Movida arriba para la etiqueta del título) ---
 _tc = []
