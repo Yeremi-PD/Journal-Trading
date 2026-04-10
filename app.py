@@ -1209,14 +1209,11 @@ with col_cal:
                             todas_imagenes.extend(t.get("imagenes", []))
                             
                         if todas_imagenes:
-                            if todas_imagenes:
                             id_modal = f"mod_{anio_sel}_{mes_sel}_{dia}"
                             img_tags = ""
                             for idx, img in enumerate(todas_imagenes):
-                                # La primera foto lleva la clase 'active-img' y se muestra
-                                clase_activa = "active-img" if idx == 0 else ""
-                                estilo_display = "display: block !important;" if idx == 0 else "display: none !important;"
-                                img_tags += f'<img src="{img}" class="modal-img {clase_activa}" data-zoom-idx="0" style="{estilo_display}">'
+                                v = "block" if idx == 0 else "none"
+                                img_tags += f'<img src="{img}" class="modal-img" data-zoom-idx="0" style="display: {v} !important;">'
                             
                             nav_html = ""
                             if len(todas_imagenes) > 1:
@@ -1227,7 +1224,7 @@ with col_cal:
                                     <input type="checkbox" id="{id_modal}" class="modal-toggle" style="display:none;">
                                     <label for="{id_modal}"><div class="cam-icon">{BTN_CAM_EMOJI}</div></label>
                                     <div class="fs-modal">
-                                        <div class="modal-controls" style="top: 45px !important;">
+                                        <div class="modal-controls">
                                             <div class="zoom-out-btn">➖</div>
                                             <div class="zoom-in-btn">➕</div>
                                             <label for="{id_modal}" class="close-btn">{TXT_CERRAR_MODAL}</label>
@@ -1804,12 +1801,12 @@ with col_mitad_2:
                 st.markdown(tabla_html, unsafe_allow_html=True)
 
 # ==========================================
-# SCRIPT DE CONTROL TOTAL PRO (GALERÍA + ZOOM 25/50/75/100)
+# SCRIPT DE CONTROL TOTAL (ZOOM GRADUAL Y CIERRE)
 # ==========================================
 components.html("""
 <style>
 div[data-testid="stNumberInput"] input { padding-top: 15px !important; padding-bottom: 15px !important; display: flex !important; align-items: center !important; }
-.nav-btn { position: fixed !important; top: 55% !important; transform: translateY(-50%) !important; background: rgba(0,0,0,0.6) !important; color: white !important; font-size: 50px !important; padding: 20px 10px !important; cursor: pointer !important; z-index: 10000001 !important; border-radius: 10px !important; user-select: none; border: 1px solid rgba(255,255,255,0.2) !important; }
+.nav-btn { position: fixed !important; top: 50% !important; transform: translateY(-50%) !important; background: rgba(0,0,0,0.5) !important; color: white !important; font-size: 50px !important; padding: 20px 10px !important; cursor: pointer !important; z-index: 10000001 !important; border-radius: 10px !important; user-select: none !important; }
 .prev-btn { left: 10px !important; }
 .next-btn { right: 10px !important; }
 .img-counter { position: fixed !important; top: 110px !important; left: 50% !important; transform: translateX(-50%) !important; background: rgba(0,0,0,0.8) !important; color: white !important; padding: 5px 20px !important; border-radius: 20px !important; font-weight: bold !important; z-index: 10000001 !important; font-size: 16px !important; }
@@ -1818,121 +1815,85 @@ div[data-testid="stNumberInput"] input { padding-top: 15px !important; padding-b
 <script>
 const doc = window.parent.document;
 
-// 1. Evitamos que los eventos se dupliquen cada vez que Streamlit recarga la app
-if (!doc.getElementById('yeremi-js-injected')) {
-    let marker = doc.createElement('div');
-    marker.id = 'yeremi-js-injected';
-    marker.style.display = 'none';
-    doc.body.appendChild(marker);
+doc.addEventListener('click', function(e) {
+    let target = e.target;
 
-    doc.addEventListener('click', function(e) {
-        // 2. Usar .closest() en lugar de classList.contains() asegura que si haces click en el emoji o en el texto interior (especialmente en móviles), detectará el botón correctamente.
-        let btnCerrar = e.target.closest('.close-btn');
-        let btnPrev = e.target.closest('.prev-btn');
-        let btnNext = e.target.closest('.next-btn');
-        let btnZoomIn = e.target.closest('.zoom-in-btn');
-        let btnZoomOut = e.target.closest('.zoom-out-btn');
-        let btnMenu = e.target.closest('#btn-abrir-menu');
+    // --- 1. BOTÓN CERRAR (FIX MÓVIL) ---
+    if (target.classList.contains('close-btn')) {
+        const modalId = target.getAttribute('data-close-target');
+        const checkbox = doc.getElementById(modalId);
+        if (checkbox) checkbox.checked = false;
+        
+        const modal = target.closest('.fs-modal');
+        modal.style.removeProperty('overflow');
+        modal.querySelectorAll('.modal-img').forEach((img, i) => {
+            img.setAttribute('data-zoom-idx', 0);
+            img.style.setProperty('display', i === 0 ? 'block' : 'none', 'important');
+            img.style.removeProperty('width');
+            img.style.removeProperty('max-width');
+            img.style.removeProperty('margin-top');
+        });
+        return;
+    }
 
-        // --- 1. CERRAR (Limpiar todo) ---
-        if (btnCerrar) {
-            const modal = btnCerrar.closest('.fs-modal');
-            if(modal) {
-                const imgs = modal.querySelectorAll('.modal-img');
-                modal.style.removeProperty('overflow');
-                imgs.forEach((img, i) => {
-                    img.setAttribute('data-zoom-idx', 0);
-                    img.classList.remove('active-img');
-                    img.style.setProperty('display', i === 0 ? 'block' : 'none', 'important');
-                    if(i === 0) img.classList.add('active-img');
-                    img.style.removeProperty('width');
-                    img.style.removeProperty('max-width');
-                    img.style.removeProperty('margin-top');
-                });
-                const counter = modal.querySelector('.img-counter');
-                if (counter) counter.innerText = "1 / " + imgs.length;
-            }
-            // Importante: No ponemos return ni preventDefault aquí para que la X nativa del input (checkbox de cerrar) funcione sin interferencias.
-        }
+    // --- 2. NAVEGACIÓN ---
+    if (target.classList.contains('prev-btn') || target.classList.contains('next-btn')) {
+        const modal = target.closest('.fs-modal');
+        const imgs = Array.from(modal.querySelectorAll('.modal-img'));
+        let currentIdx = imgs.findIndex(img => img.style.display === 'block');
 
-        // --- 2. NAVEGACIÓN (FLECHAS) ---
-        if (btnPrev || btnNext) {
-            const modal = (btnPrev || btnNext).closest('.fs-modal');
-            if(!modal) return;
-            const imgs = Array.from(modal.querySelectorAll('.modal-img'));
-            const counter = modal.querySelector('.img-counter');
-            if(imgs.length === 0) return;
-            
-            let currentIdx = imgs.findIndex(img => img.classList.contains('active-img'));
-            if(currentIdx === -1) currentIdx = 0;
+        imgs[currentIdx].style.setProperty('display', 'none', 'important');
+        imgs[currentIdx].setAttribute('data-zoom-idx', 0);
+        imgs[currentIdx].style.removeProperty('width');
 
-            // Ocultar y resetear actual
-            imgs[currentIdx].classList.remove('active-img');
-            imgs[currentIdx].style.setProperty('display', 'none', 'important');
-            imgs[currentIdx].setAttribute('data-zoom-idx', 0);
-            imgs[currentIdx].style.removeProperty('width');
-            imgs[currentIdx].style.removeProperty('max-width');
-            imgs[currentIdx].style.removeProperty('margin-top');
+        if (target.classList.contains('next-btn')) currentIdx = (currentIdx + 1) % imgs.length;
+        else currentIdx = (currentIdx - 1 + imgs.length) % imgs.length;
 
-            // Calcular nueva
-            if (btnNext) currentIdx = (currentIdx + 1) % imgs.length;
-            else currentIdx = (currentIdx - 1 + imgs.length) % imgs.length;
+        imgs[currentIdx].style.setProperty('display', 'block', 'important');
+        const counter = modal.querySelector('.img-counter');
+        if (counter) counter.innerText = (currentIdx + 1) + " / " + imgs.length;
+        modal.style.removeProperty('overflow');
+        return;
+    }
 
-            // Mostrar nueva
-            imgs[currentIdx].classList.add('active-img');
-            imgs[currentIdx].style.setProperty('display', 'block', 'important');
-            if (counter) counter.innerText = (currentIdx + 1) + " / " + imgs.length;
+    // --- 3. ZOOM GRADUAL (+25 cada toque) ---
+    if (target.classList.contains('zoom-in-btn') || target.classList.contains('zoom-out-btn')) {
+        const modal = target.closest('.fs-modal');
+        const img = modal.querySelector('.modal-img[style*="display: block"]');
+        if (!img) return;
+
+        // Escalones: 80(Base), 105(+25), 130(+50), 155(+75), 180(+100)
+        const levels = [80, 105, 130, 155, 180];
+        let idx = parseInt(img.getAttribute('data-zoom-idx')) || 0;
+
+        if (target.classList.contains('zoom-in-btn')) idx = Math.min(idx + 1, levels.length - 1);
+        else idx = Math.max(idx - 1, 0);
+
+        img.setAttribute('data-zoom-idx', idx);
+        let val = levels[idx];
+
+        if (idx > 0) {
+            modal.style.setProperty('display', 'block', 'important');
+            modal.style.setProperty('overflow', 'auto', 'important');
+            img.style.setProperty('width', val + 'vw', 'important');
+            img.style.setProperty('max-width', val + 'vw', 'important');
+            img.style.setProperty('height', 'auto', 'important');
+            img.style.setProperty('max-height', 'none', 'important');
+            img.style.setProperty('margin-top', '120px', 'important');
+        } else {
             modal.style.removeProperty('overflow');
-            
-            e.preventDefault();
-            return;
+            img.style.removeProperty('width');
+            img.style.removeProperty('max-width');
+            img.style.removeProperty('margin-top');
         }
+        return;
+    }
 
-        // --- 3. ZOOM GRADUAL (Paso a paso: 25, 50, 75, 100) ---
-        if (btnZoomIn || btnZoomOut) {
-            const modal = (btnZoomIn || btnZoomOut).closest('.fs-modal');
-            if(!modal) return;
-            const img = modal.querySelector('.modal-img.active-img');
-            if (!img) return;
-
-            // Escalones: 80 (base), 105 (+25), 130 (+50), 155 (+75), 180 (+100)
-            const levels = [80, 105, 130, 155, 180];
-            let idx = parseInt(img.getAttribute('data-zoom-idx')) || 0;
-
-            if (btnZoomIn) {
-                if (idx < levels.length - 1) idx++;
-            } else {
-                if (idx > 0) idx--;
-            }
-
-            img.setAttribute('data-zoom-idx', idx);
-            let anchoFinal = levels[idx];
-
-            if (idx > 0) {
-                modal.style.setProperty('display', 'block', 'important');
-                modal.style.setProperty('overflow', 'auto', 'important');
-                img.style.setProperty('width', anchoFinal + 'vw', 'important');
-                img.style.setProperty('max-width', anchoFinal + 'vw', 'important');
-                img.style.setProperty('height', 'auto', 'important');
-                img.style.setProperty('max-height', 'none', 'important');
-                img.style.setProperty('margin-top', '150px', 'important'); // Más espacio para no tapar
-            } else {
-                modal.style.removeProperty('overflow');
-                img.style.removeProperty('width');
-                img.style.removeProperty('max-width');
-                img.style.removeProperty('margin-top');
-            }
-            
-            e.preventDefault();
-            return;
-        }
-
-        // --- 4. MENÚ ">>" ---
-        if (btnMenu) {
-            let btn = doc.querySelector('[data-testid="collapsedControl"]') || doc.querySelector('[data-testid="stSidebarCollapseButton"] button');
-            if (btn) btn.click();
-        }
-    }, true);
-}
+    // --- 4. MENÚ ">>" ---
+    if (target.id === 'btn-abrir-menu') {
+        let btn = doc.querySelector('[data-testid="collapsedControl"]') || doc.querySelector('[data-testid="stSidebarCollapseButton"] button');
+        if (btn) btn.click();
+    }
+}, true);
 </script>
 """, height=0, width=0)
