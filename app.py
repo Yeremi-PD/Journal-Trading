@@ -653,17 +653,24 @@ st.sidebar.markdown("<br>", unsafe_allow_html=True) # Pequeño espacio entre los
 # BOTÓN DE CERRAR SESIÓN
 st.sidebar.markdown("---")
 if st.sidebar.button("🚪 Log Out", use_container_width=True): 
-    # Borrar la memoria del iPhone y limpiar la URL
+    # 1. Limpiamos el estado en el servidor inmediatamente
+    st.session_state.usuario_actual = None
+    st.session_state.clear() 
+    
+    # 2. Forzamos al navegador a limpiar TODO y recargar la página limpia
     components.html("""
     <script>
-        window.parent.localStorage.removeItem("yeremi_user");
-        window.parent.localStorage.removeItem("yeremi_device");
-        window.parent.localStorage.removeItem("yeremi_account");
-        window.parent.location.search = ""; 
+        // Limpiar memoria local
+        window.parent.localStorage.clear(); 
+        
+        // Limpiar la URL (quitar ?user=... etc)
+        const url = window.parent.location.href.split('?')[0];
+        window.parent.location.href = url;
     </script>
     """, height=0, width=0)
-    st.session_state.usuario_actual = None
-    st.rerun()
+    
+    # 3. Paramos la ejecución para que no intente cargar nada más
+    st.stop()
 
 
 # ==========================================
