@@ -1365,26 +1365,33 @@ with col_det:
     # Logica de Color para el Drawdown y Lose Account (Rojo si estas en peligro)
     color_dd = "pnl-value pnl-value-loss" if distancia_al_dd < alerta_dd else "pnl-value"
     
-    # Logica de Texto para el Target
-    if falta_target <= 0:
-        texto_target = "PASSED 🎉"
-        color_tg = "pnl-value"
-    else:
-        texto_target = f"${falta_target:,.2f}"
-        color_tg = "pnl-value"
-
-    # Logica de Texto para Lose Account y Max DD Level
+    # 4. LOGICA MAESTRA DE ESTADO DE LA CUENTA
     if distancia_al_dd <= 0:
+        # Si la cuenta se perdio por Drawdown, TODO muestra LOST
         texto_lose = "LOST 💀"
-        texto_dd_display = "LOST 💀" # Agregamos la calavera aqui tambien
+        texto_dd_display = "LOST 💀"
+        texto_target = "LOST 💀"
+        color_tg = "pnl-value pnl-value-loss"
     else:
+        # Si la cuenta sigue viva, mostramos los numeros
         texto_lose = f"${distancia_al_dd:,.2f}"
         texto_dd_display = f"${nivel_perdida_maxima:,.2f}"
+        
+        if falta_target <= 0:
+            texto_target = "PASSED 🎉"
+            color_tg = "pnl-value"
+        else:
+            texto_target = f"${falta_target:,.2f}"
+            # Se pone rojo si estas en negativo desde tu balance inicial
+            if falta_target > meta_target:
+                color_tg = "pnl-value pnl-value-loss"
+            else:
+                color_tg = "pnl-value"
     
-    # 4. Renderizar tarjetas (Subiendo -145px y dividiendo en 3 columnas)
+    # 5. Renderizar tarjetas (Subiendo -145px y dividiendo en 3 columnas)
     c_tg, c_dd, c_lose = st.columns(3)
     # Definimos estilos comunes para limpiar el codigo
-    estilo_caja = "margin-top: -185px; margin-bottom: 10px; padding: 10px !important; min-height: 85px !important; display: flex; flex-direction: column; justify-content: center;"
+    estilo_caja = "margin-top: -145px; margin-bottom: 10px; padding: 10px !important; min-height: 85px !important; display: flex; flex-direction: column; justify-content: center;"
     estilo_titulo = "font-size: 13px;"
     estilo_valor = "font-size: 17px;"
 
