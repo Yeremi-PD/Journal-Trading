@@ -234,9 +234,31 @@ if (!urlParams.has('device')) {
 </script>
 """, height=0, width=0)
 
-# --- RECUERDA LA SESIÓN Y DISPOSITIVO AL RECARGAR ---
-if "dispositivo_actual" not in st.session_state: 
-    st.session_state.dispositivo_actual = "PC"
+# --- MANTENER SESIÓN INICIADA (MEMORIA DEL CELULAR) ---
+components.html("""
+<script>
+const urlParams = new URLSearchParams(window.parent.location.search);
+const savedUser = window.parent.localStorage.getItem("yeremi_user");
+const savedDevice = window.parent.localStorage.getItem("yeremi_device");
+
+// Si el celular recuerda tu sesión pero la URL está vacía (abriste la app de cero)
+if (savedUser && !urlParams.has("user")) {
+    urlParams.set("user", savedUser);
+    if (savedDevice) urlParams.set("device", savedDevice);
+    window.parent.location.search = urlParams.toString(); 
+}
+</script>
+""", height=0, width=0)
+
+# Lógica para matar la sesión si decides salir manualmente
+if st.session_state.get("logout_trigger", False):
+    st.session_state.usuario_actual = None
+    st.session_state.logout_trigger = False
+    try: st.query_params.clear()
+    except: pass
+    st.stop()
+
+if "dispositivo_actual" not in st.session_state: st.session_state.dispositivo_actual = "PC"
 
 try:
     if "user" in st.query_params and st.query_params["user"] in db_global:
@@ -258,6 +280,9 @@ if st.session_state.usuario_actual is None or st.session_state.usuario_actual no
     with col2:
         st.markdown("<h3 style='text-align:center; color:gray;'>Iniciar Sesión</h3>", unsafe_allow_html=True)
         
+        # Botón manual y explícito para Entrar en Modo Móvil (Viene activado para ahorrarte tiempo)
+        modo_movil_login = st.checkbox("📱 Entrar en Modo Móvil", value=True)
+        
         modo_acceso = st.radio("Opciones:", ["Entrar", "Registrarse"], horizontal=True)
         
         if modo_acceso == "Entrar":
@@ -274,19 +299,16 @@ if st.session_state.usuario_actual is None or st.session_state.usuario_actual no
                     
                     if db_global[log_user]["password"] == log_pass:
                         st.session_state.usuario_actual = log_user
-                        # Toma el dispositivo detectado por el JavaScript en la URL
-                        st.session_state.dispositivo_actual = st.query_params.get("device", "PC")
+                        st.session_state.dispositivo_actual = "Móvil" if modo_movil_login else "PC"
                         try: 
                             st.query_params["user"] = log_user
                             st.query_params["device"] = st.session_state.dispositivo_actual
-                            # Recuperar la última cuenta usada al iniciar sesión
                             if "last_account" in db_global[log_user]:
                                 st.query_params["account"] = db_global[log_user]["last_account"]
                         except: pass
                         st.rerun()
                     else:
                         st.error("Usuario o contraseña incorrectos.")
-                    
         else:
             reg_user = st.text_input("Nuevo Usuario")
             reg_pass = st.text_input("Nueva Contraseña", type="password")
@@ -304,6 +326,14 @@ if st.session_state.usuario_actual is None or st.session_state.usuario_actual no
                 else:
                     st.warning("Completa todos los campos.")
     st.stop()
+else:
+    # Si la sesión es correcta y entraste a la app, actualizamos la memoria permanente
+    components.html(f"""
+    <script>
+    window.parent.localStorage.setItem("yeremi_user", "{st.session_state.usuario_actual}");
+    window.parent.localStorage.setItem("yeremi_device", "{st.session_state.dispositivo_actual}");
+    </script>
+    """, height=0, width=0)
 
 # ==========================================
 # 3. SECCIÓN DE AJUSTES MANUALES (CONSTANTES)
