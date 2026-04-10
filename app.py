@@ -1341,25 +1341,30 @@ with col_det:
         if t["balance_final"] > max_bal:
             max_bal = t["balance_final"]
             
-    # 2. Determinar limites y alertas segun el tamaño de la cuenta
+    # 2. Determinar limites, alertas y TOPE FIJO segun el tamaño de la cuenta
     if bal_inicial <= 35000:
         meta_target = 1500
         limite_dd = 1000
-        alerta_dd = 500  # Se pone rojo si falta menos de esto para perder
+        alerta_dd = 500
+        tope_dd = 26100  # Tope fijo maximo
     elif bal_inicial <= 75000:
         meta_target = 3000
         limite_dd = 2000
         alerta_dd = 1000
+        tope_dd = 52100  # Tope fijo maximo
     else:
         meta_target = 6000
         limite_dd = 3000
         alerta_dd = 1500
+        tope_dd = 103100 # Tope fijo maximo
         
-    # 3. Calculos: Cuanto falta para Target y Distancia al Drawdown
+    # 3. Calculos: Trailing Drawdown con Tope (Se queda fijo si alcanza el tope)
     nivel_perdida_maxima = max_bal - limite_dd
+    if nivel_perdida_maxima > tope_dd:
+        nivel_perdida_maxima = tope_dd
+        
     progreso_target = bal_actual - bal_inicial
     falta_target = meta_target - progreso_target
-    
     distancia_al_dd = bal_actual - nivel_perdida_maxima
     
     # Logica de Color para el Drawdown y Lose Account (Rojo si estas en peligro)
@@ -1367,13 +1372,11 @@ with col_det:
     
     # 4. LOGICA MAESTRA DE ESTADO DE LA CUENTA
     if distancia_al_dd <= 0:
-        # Si la cuenta se perdio por Drawdown, TODO muestra LOST
         texto_lose = "LOST 💀"
         texto_dd_display = "LOST 💀"
         texto_target = "LOST 💀"
         color_tg = "pnl-value pnl-value-loss"
     else:
-        # Si la cuenta sigue viva, mostramos los numeros
         texto_lose = f"${distancia_al_dd:,.2f}"
         texto_dd_display = f"${nivel_perdida_maxima:,.2f}"
         
@@ -1382,18 +1385,16 @@ with col_det:
             color_tg = "pnl-value"
         else:
             texto_target = f"${falta_target:,.2f}"
-            # Se pone rojo si estas en negativo desde tu balance inicial
             if falta_target > meta_target:
                 color_tg = "pnl-value pnl-value-loss"
             else:
                 color_tg = "pnl-value"
     
-    # 5. Renderizar tarjetas (Subiendo -145px y dividiendo en 3 columnas)
+    # 5. Renderizar tarjetas (Subiendo -145px y Letra mas pequena a 15px)
     c_tg, c_dd, c_lose = st.columns(3)
-    # Definimos estilos comunes para limpiar el codigo
     estilo_caja = "margin-top: -145px; margin-bottom: 10px; padding: 10px !important; min-height: 85px !important; display: flex; flex-direction: column; justify-content: center;"
-    estilo_titulo = "font-size: 13px;"
-    estilo_valor = "font-size: 1px;"
+    estilo_titulo = "font-size: 12px;"
+    estilo_valor = "font-size: 15px;" # Letra reducida
 
     with c_tg:
         st.markdown(f"""
@@ -1472,7 +1473,7 @@ with col_det:
         st.markdown(f"""
             <div class="metric-card card-pnl">
                 <div class="metric-header"><span class="title-net-pnl">{titulo_pnl}</span></div>
-                <div class="{color_pnl}">{simbolo_pnl}${net_pnl:,.2f}</div>
+                <div class="{color_pnl}" style="font-size: 20px !important;">{simbolo_pnl}${net_pnl:,.2f}</div>
             </div>
         """, unsafe_allow_html=True)
 
@@ -1480,7 +1481,7 @@ with col_det:
         st.markdown(f"""
             <div class="metric-card card-win">
                 <div class="metric-header"><span class="title-trade-win">Total Trades</span></div>
-                <div class="rr-value" style="color: white;">{total_trades}</div>
+                <div class="rr-value" style="color: white; font-size: 20px !important;">{total_trades}</div>
             </div>
         """, unsafe_allow_html=True)
 
@@ -1488,7 +1489,7 @@ with col_det:
         st.markdown(f"""
             <div class="metric-card card-rr">
                 <div class="metric-header"><span class="title-trade-win">AVERAGE RR</span></div>
-                <div class="rr-value" style="color: #FFFFFF;">1 / {rr_promedio:.2f}</div>
+                <div class="rr-value" style="color: #FFFFFF; font-size: 20px !important;">1 / {rr_promedio:.2f}</div>
             </div>
         """, unsafe_allow_html=True)
 
