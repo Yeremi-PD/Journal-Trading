@@ -1470,7 +1470,7 @@ with col_det:
         if paso_cuenta:
             falta_para_tope = tope_dd - bal_mostrar
             if falta_para_tope <= 0:
-                titulo_target_dinamico = "Available payout"
+                titulo_target_dinamico = "Available Payout"
                 payout_disponible = abs(falta_para_tope)
                 texto_tg = f"${payout_disponible:,.2f}"
                 c_hex_tg = "#00C897" # Verde cuando es ganancia extra
@@ -1504,9 +1504,9 @@ with col_det:
     c_tg_col, c_dd_col, c_lose_col = st.columns(3)
     e_caja = "margin-top: 0px; margin-bottom: 10px; padding: 10px !important; min-height: 85px !important; display: flex; flex-direction: column; justify-content: center;"
     
-    with c_tg_col: st.markdown(f'<div class="metric-card card-pnl" style="{e_caja}"><div class="metric-header"><span class="title-net-pnl" style="font-size: 12px;">{titulo_target_dinamico}</span></div><div style="color: {c_hex_tg}; font-size: 14px; font-weight: 800;">{texto_tg}</div></div>', unsafe_allow_html=True)
-    with c_dd_col: st.markdown(f'<div class="metric-card card-pnl" style="{e_caja}"><div class="metric-header"><span class="title-net-pnl" style="font-size: 12px;">Drawdown</span></div><div style="color: {c_hex_dd}; font-size: 14px; font-weight: 800;">{texto_dd}</div></div>', unsafe_allow_html=True)
-    with c_lose_col: st.markdown(f'<div class="metric-card card-pnl" style="{e_caja}"><div class="metric-header"><span class="title-net-pnl" style="font-size: 12px;">Lose Account</span></div><div style="color: {c_hex_dd}; font-size: 14px; font-weight: 800;">{texto_lose}</div></div>', unsafe_allow_html=True)
+    with c_tg_col: st.markdown(f'<div class="metric-card card-pnl" style="{e_caja}"><div class="metric-header"><span class="title-net-pnl" style="font-size: 12px;">{titulo_target_dinamico}</span></div><div style="color: {c_hex_tg}; font-size: 20px; font-weight: 800;">{texto_tg}</div></div>', unsafe_allow_html=True)
+    with c_dd_col: st.markdown(f'<div class="metric-card card-pnl" style="{e_caja}"><div class="metric-header"><span class="title-net-pnl" style="font-size: 12px;">Drawdown</span></div><div style="color: {c_hex_dd}; font-size: 20px; font-weight: 800;">{texto_dd}</div></div>', unsafe_allow_html=True)
+    with c_lose_col: st.markdown(f'<div class="metric-card card-pnl" style="{e_caja}"><div class="metric-header"><span class="title-net-pnl" style="font-size: 12px;">Lose Account</span></div><div style="color: {c_hex_dd}; font-size: 20px; font-weight: 800;">{texto_lose}</div></div>', unsafe_allow_html=True)
     
     ver_todo = st.toggle("View All Time ", value=False)
     
