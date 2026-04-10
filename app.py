@@ -901,6 +901,10 @@ st.markdown(f"""
     .zoom-out-btn {{ background-color: #4A5568 !important; }}
     
     .fs-modal img {{ transition: width 0.3s ease, max-width 0.3s ease !important; }}
+    /* NUEVO: Estilos para la galeria de imagenes */
+    .gallery-nav {{ display: flex !important; align-items: center !important; gap: 10px !important; color: white !important; font-weight: bold !important; font-size: 16px !important; margin-right: 15px !important; }}
+    .prev-img-btn, .next-img-btn {{ background: #4A5568 !important; padding: 8px 15px !important; border-radius: 8px !important; cursor: pointer !important; user-select: none !important; }}
+    .prev-img-btn:hover, .next-img-btn:hover {{ background: #00C897 !important; }}
 
     .card-pnl, .card-win, .card-rr {{ width: 100% !important; height: auto !important; min-height: 100px !important; }}
     .metric-card {{ background-color: {card_bg} !important; border-radius: 15px !important; padding: 15px 20px !important; border: 1px solid {border_color} !important; }}
@@ -1200,9 +1204,20 @@ with col_cal:
                             
                         if todas_imagenes:
                             id_modal = f"mod_{anio_sel}_{mes_sel}_{dia}"
-                            img_tags = "".join([f'<img src="{img}">' for img in todas_imagenes])
-                            # NUEVO: Botones agrupados en una caja para separarlos matemáticamente
-                            cam_html = f'<div><input type="checkbox" id="{id_modal}" class="modal-toggle" style="display:none;"><label for="{id_modal}"><div class="cam-icon">{BTN_CAM_EMOJI}</div></label><div class="fs-modal"><div class="modal-controls"><div class="zoom-out-btn">➖</div><div class="zoom-in-btn">➕</div><label for="{id_modal}" class="close-btn">{TXT_CERRAR_MODAL}</label></div>{img_tags}</div></div>'
+                            
+                            # 1. Preparar las imagenes: solo la primera (indice 0) es visible
+                            img_tags = ""
+                            for idx_img_gal, img_url in enumerate(todas_imagenes):
+                                disp = "block" if idx_img_gal == 0 else "none"
+                                img_tags += f'<img src="{img_url}" class="gallery-img" data-idx="{idx_img_gal}" style="display: {disp};">'
+                            
+                            # 2. Agregar controles de navegacion solo si hay mas de 1 imagen
+                            nav_html = ""
+                            if len(todas_imagenes) > 1:
+                                nav_html = f'<div class="gallery-nav"><div class="prev-img-btn">◀</div><div class="img-counter">1 / {len(todas_imagenes)}</div><div class="next-img-btn">▶</div></div>'
+
+                            # 3. Ensamblar el modal con atributos de galeria
+                            cam_html = f'<div><input type="checkbox" id="{id_modal}" class="modal-toggle" style="display:none;"><label for="{id_modal}"><div class="cam-icon">{BTN_CAM_EMOJI}</div></label><div class="fs-modal" data-current="0" data-total="{len(todas_imagenes)}"><div class="modal-controls">{nav_html}<div class="zoom-out-btn">➖</div><div class="zoom-in-btn">➕</div><label for="{id_modal}" class="close-btn">{TXT_CERRAR_MODAL}</label></div>{img_tags}</div></div>'
                         else:
                             cam_html = ""
                             
@@ -1807,12 +1822,140 @@ bloquearTeclado();
 const observer = new MutationObserver(bloquearTeclado);
 observer.observe(doc.body, { childList: true, subtree: true });
 
-// 3. Conectar el nuevo botón ">>" y los botones de ZOOM Gradual (+ y -)
+// 3. Conectar botones del Modal (Galeria, Zoom y Menu)
 doc.addEventListener('click', function(e) {
     let target = e.target;
 
-    // --- LÓGICA DE ZOOM GRADUAL (Escalones fijos: 25, 50, 75, 100...) ---
+    // --- LOGICA DE GALERIA (Siguiente / Anterior) ---
+    if (target && (target.classList.contains('next-img-btn') || target.classList.contains('prev-img-btn'))) {
+        const modal = target.closest('.fs-modal');
+        let currentIdx = parseInt(modal.getAttribute('data-current')) || 0;
+        const total = parseInt(modal.getAttribute('data-total')) || 1;
+        const isNext = target.classList.contains('next-img-btn');
+
+        // Calcular nuevo indice (carrusel infinito)
+        if (isNext) {
+            currentIdx = (currentIdx + 1) % total;
+        } else {
+            currentIdx = (currentIdx - 1 + total) % total;
+        }
+        modal.setAttribute('data-current', currentIdx);
+
+        // Actualizar visibilidad
+        const imgs = modal.querySelectorAll('.gallery-img');
+        imgs.forEach(img => {
+            const idx = parseInt(img.getAttribute('data-idx'));
+            if (idx === currentIdx) {
+                img.style.setProperty('display', 'block', 'important');
+            } else {
+                img.style.setProperty('display', 'none', 'important');
+                // Quitar zoom si estaba aplicado en la foto oculta
+                img.setAttribute('data-zoom-idx', 0);
+                img.style.removeProperty('width');
+                img.style.removeProperty('max-width');
+                img.style.removeProperty('height');
+                img.style.removeProperty('max-height');
+                img.style.removeProperty('margin-top');
+            }
+        });
+
+        // Actualizar el numero de la foto
+        const counter = modal.querySelector('.img-counter');
+        if (counter) counter.innerText = (currentIdx + 1) + ' / ' + total;
+        
+        return;
+    }
+
+    // --- LOGICA DE ZOOM GRADUAL (Solo afecta a la imagen visible) ---
     if (target && (target.classList.contains('zoom-in-btn') || target.classList.contains('zoom-out-btn'))) {
+        const modal = target.closest('.fs-modal');
+        const currentIdx = modal.getAttribute('data-current') || "0";
+        // Apuntar a la imagen que esta viendose en este momento
+        const img = modal.querySelector(`.gallery-img[data-idx="${currentIdx}"]`) || modal.querySelector('img');
+        
+        if (!img) return;
+
+        const isZoomIn = target.classList.contains('zoom-in-btn');
+        const zoomLevels = [80, 105, 130, 155, 180, 205]; 
+        let currentIndex = parseInt(img.getAttribute('data-zoom-idx')) || 0;
+        
+        if (isZoomIn) {
+            currentIndex++; 
+            if (currentIndex >= zoomLevels.length) currentIndex = zoomLevels.length - 1; 
+        } else {
+            currentIndex--; 
+            if (currentIndex < 0) currentIndex = 0; 
+        }
+
+        img.setAttribute('data-zoom-idx', currentIndex);
+        let currentWidth = zoomLevels[currentIndex];
+        
+        if (currentIndex > 0) {
+            modal.style.setProperty('display', 'block', 'important');
+            modal.style.setProperty('overflow', 'auto', 'important');
+            modal.style.setProperty('text-align', 'center', 'important');
+            img.style.setProperty('width', currentWidth + 'vw', 'important');
+            img.style.setProperty('max-width', currentWidth + 'vw', 'important');
+            img.style.setProperty('height', 'auto', 'important');
+            img.style.setProperty('max-height', 'none', 'important');
+            img.style.setProperty('margin-top', '80px', 'important');
+        } else {
+            modal.style.removeProperty('display');
+            modal.style.removeProperty('overflow');
+            modal.style.removeProperty('text-align');
+            img.style.removeProperty('width');
+            img.style.removeProperty('max-width');
+            img.style.removeProperty('height');
+            img.style.removeProperty('max-height');
+            img.style.removeProperty('margin-top');
+        }
+        return; 
+    }
+
+    // --- REINICIAR ZOOM Y GALERIA AL CERRAR ---
+    if (target && target.classList.contains('close-btn')) {
+        const modal = target.closest('.fs-modal');
+        if(modal) {
+            // Regresar a la foto 1 siempre
+            modal.setAttribute('data-current', '0');
+            const counter = modal.querySelector('.img-counter');
+            const total = modal.getAttribute('data-total') || 1;
+            if (counter) counter.innerText = '1 / ' + total;
+
+            const imgs = modal.querySelectorAll('img');
+            imgs.forEach(img => {
+                img.setAttribute('data-zoom-idx', 0);
+                modal.style.removeProperty('display');
+                modal.style.removeProperty('overflow');
+                modal.style.removeProperty('text-align');
+                img.style.removeProperty('width');
+                img.style.removeProperty('max-width');
+                img.style.removeProperty('height');
+                img.style.removeProperty('max-height');
+                img.style.removeProperty('margin-top');
+                
+                // Mostrar solo la primera foto al cerrar
+                const idx = parseInt(img.getAttribute('data-idx')) || 0;
+                img.style.setProperty('display', idx === 0 ? 'block' : 'none', 'important');
+            });
+        }
+    }
+
+    // --- Logica del boton de menu ">>" ---
+    while(target && target !== doc) {
+        if (target.id === 'btn-abrir-menu') {
+            e.preventDefault();
+            e.stopPropagation();
+            let btnAbrir = doc.querySelector('[data-testid="collapsedControl"]');
+            let btnAlternativo = doc.querySelector('[data-testid="stSidebarCollapseButton"] button') || doc.querySelector('[data-testid="stSidebarCollapseButton"]');
+            if (btnAbrir) btnAbrir.click();
+            else if (btnAlternativo) btnAlternativo.click();
+            break;
+        }
+        target = target.parentNode;
+    }
+}, true); // <-- EL 'true' ES VITAL: Fuerza a leer nuestro clic antes de que React lo elimine
+</script>
         const modal = target.closest('.fs-modal');
         const imgs = modal.querySelectorAll('img');
         const isZoomIn = target.classList.contains('zoom-in-btn');
