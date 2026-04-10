@@ -220,13 +220,15 @@ if (!urlParams.has('device')) {
 # --- AUTO-DETECTAR MÓVIL ANTES DE CARGAR ---
 components.html("""
 <script>
-// Si la URL no tiene el parámetro 'device', detectamos la pantalla
 const urlParams = new URLSearchParams(window.parent.location.search);
 if (!urlParams.has('device')) {
-    const isMobile = window.parent.innerWidth <= 768; // 768px es el ancho típico de celulares/tablets
-    if (isMobile) {
+    // Detecta el móvil incluso si Safari está mintiendo en "Modo Escritorio" leyendo si la pantalla es táctil
+    const esTactil = window.parent.navigator.maxTouchPoints > 0;
+    const esPantallaPequena = window.parent.innerWidth <= 768;
+    
+    if (esPantallaPequena || esTactil) {
         urlParams.set('device', 'Móvil');
-        window.parent.location.search = urlParams.toString(); // Recarga y le avisa a Python
+        window.parent.location.search = urlParams.toString(); 
     }
 }
 </script>
@@ -1745,18 +1747,25 @@ observer.observe(doc.body, { childList: true, subtree: true });
 // 3. Conectar el nuevo botón "☰ ABRIR MENÚ" con la barra lateral nativa
 doc.addEventListener('click', function(e) {
     let target = e.target;
-    // Escaneamos el clic para ver si tocó nuestro botón verde
     while(target && target !== doc) {
         if (target.id === 'btn-abrir-menu') {
-            // Buscamos el botón invisible de Streamlit y lo clickeamos con código
-            const btnNativo = doc.querySelector('[data-testid="collapsedControl"]');
-            if (btnNativo) {
-                btnNativo.click();
+            // Evitamos que Streamlit bloquee la acción
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // En modo "Escritorio" Streamlit a veces usa selectores distintos, buscamos todos los posibles
+            let btnAbrir = doc.querySelector('[data-testid="collapsedControl"]');
+            let btnAlternativo = doc.querySelector('[data-testid="stSidebarCollapseButton"] button') || doc.querySelector('[data-testid="stSidebarCollapseButton"]');
+            
+            if (btnAbrir) {
+                btnAbrir.click();
+            } else if (btnAlternativo) {
+                btnAlternativo.click();
             }
             break;
         }
         target = target.parentNode;
     }
-});
+}, true); // <-- EL 'true' ES VITAL: Fuerza a leer nuestro clic antes de que React lo elimine
 </script>
 """, height=0, width=0)
