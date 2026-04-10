@@ -1325,6 +1325,58 @@ def get_bar_svg(w, l, t):
     return svg
 
 with col_det:
+    # --- NUEVOS CUADROS DE TARGET Y DRAWDOWN ---
+    # 1. Encontrar balance inicial y balance maximo historico cronologicamente
+    trades_cronologicos = []
+    for clave_dt, lista_t_dt in sorted(db_usuario[ctx]["trades"].items(), key=lambda x: datetime(x[0][0], x[0][1], x[0][2])):
+        trades_cronologicos.extend(lista_t_dt)
+    
+    if trades_cronologicos:
+        bal_inicial = trades_cronologicos[0]["balance_final"] - trades_cronologicos[0]["pnl"]
+    else:
+        bal_inicial = bal_actual
+        
+    max_bal = bal_inicial
+    for t in trades_cronologicos:
+        if t["balance_final"] > max_bal:
+            max_bal = t["balance_final"]
+            
+    # 2. Determinar limites segun el tamaño de la cuenta
+    if bal_inicial <= 35000:
+        meta_target = 1500
+        limite_dd = 1000
+    elif bal_inicial <= 75000:
+        meta_target = 3000
+        limite_dd = 2000
+    else:
+        meta_target = 6000
+        limite_dd = 3000
+        
+    # 3. Calculos de progreso
+    progreso_target = bal_actual - bal_inicial
+    drawdown_actual = bal_actual - max_bal  # Sera negativo o cero
+    
+    color_tg = "pnl-value" if progreso_target >= 0 else "pnl-value pnl-value-loss"
+    simb_tg = "+" if progreso_target > 0 else ""
+    color_dd = "pnl-value pnl-value-loss" if drawdown_actual < 0 else "pnl-value"
+    
+    # 4. Renderizar las tarjetas alineadas y pegadas arriba
+    c_tg, c_dd = st.columns(2)
+    with c_tg:
+        st.markdown(f"""
+            <div class="metric-card card-pnl" style="margin-top: -15px; margin-bottom: 10px; padding: 12px 15px !important; min-height: 85px !important;">
+                <div class="metric-header"><span class="title-net-pnl" style="font-size: 15px;">Target ${meta_target:,.0f}</span></div>
+                <div class="{color_tg}" style="font-size: 22px;">{simb_tg}${progreso_target:,.2f}</div>
+            </div>
+        """, unsafe_allow_html=True)
+    with c_dd:
+        st.markdown(f"""
+            <div class="metric-card card-pnl" style="margin-top: -15px; margin-bottom: 10px; padding: 12px 15px !important; min-height: 85px !important;">
+                <div class="metric-header"><span class="title-net-pnl" style="font-size: 15px;">Max DD -${limite_dd:,.0f}</span></div>
+                <div class="{color_dd}" style="font-size: 22px;">${drawdown_actual:,.2f}</div>
+            </div>
+        """, unsafe_allow_html=True)
+
     ver_todo = st.toggle("View All-Time", value=False)
     
     todos_los_trades_planos = []
