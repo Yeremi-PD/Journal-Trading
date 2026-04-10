@@ -1430,7 +1430,7 @@ with col_det:
     st.markdown("""
     <style>
     div[data-testid="stElementContainer"]:has(.ancla-subir-todo) {
-        margin-top: -225px !important;
+        margin-top: -215px !important;
         margin-bottom: 0px !important;
     }
     </style>
