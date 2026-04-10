@@ -1076,6 +1076,641 @@ with col_bal:
     st.markdown(f'<div class="balance-box">${bal_mostrar:,.2f}</div>', unsafe_allow_html=True)
 
 st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
+# ==========================================
+# 9. ENTRADA DE TRADES
+# ==========================================
+with st.form(key="form_main_entry", clear_on_submit=True, border=False):
+    c1, c2, c_img, c_not, c_espacio = st.columns([1.5, 0.5, 2.5, 0.6, 3.4]) 
+    
+    with c1:
+            st.markdown(f'<div class="lbl-input">{LBL_INPUT}</div>', unsafe_allow_html=True)
+            # FIX: El cuadro ahora mostrará el balance reseteado (bal_mostrar)
+            nuevo_bal_input = st.number_input("Balance", value=float(bal_mostrar), format="%.2f", label_visibility="collapsed")
+            btn_save = st.form_submit_button("SAVE", key="btn_save_main")
+        
+    with c2:
+        st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True) 
+        fecha_sel = st.date_input("Fecha", value=hoy, label_visibility="collapsed", key="btn_fecha_directa")
+            
+    with c_img:
+        st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True) 
+        imgs_subidas = st.file_uploader("", accept_multiple_files=True, label_visibility="collapsed")
+        st.markdown(f'<div class="lbl-link">{LBL_LINK}</div>', unsafe_allow_html=True)
+        link_imagen = st.text_input("Link", value="", label_visibility="collapsed", placeholder="Paste the Image Link")
+        
+    with c_not:
+        st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True) 
+        with st.popover("📝", use_container_width=True):
+            # Título gigante (blindado)
+            st.markdown("<div class='titulo-trade-details'>Trade Details</div>", unsafe_allow_html=True)
+            
+            # 1. BIAS
+            st.markdown("<div style='font-weight: 900; font-size: 14px; margin-top: 5px; margin-bottom: 0px;'>Bias</div>", unsafe_allow_html=True)
+            bias_opts = ['LONG', 'SHORT', 'NONE']
+            nuevo_bias_list = []
+            cols_bias = st.columns([1, 1, 1, 3])
+            for idx, op in enumerate(bias_opts):
+                if cols_bias[idx].checkbox(op, key=f"new_bias_{idx}"): nuevo_bias_list.append(op)
+            nuevo_bias = ", ".join(nuevo_bias_list) if nuevo_bias_list else "NONE"
+            
+            # 2. CONFLUENCES
+            st.markdown("<div style='font-weight: 900; font-size: 14px; margin-top: 15px; margin-bottom: 0px;'>Confluences</div>", unsafe_allow_html=True)
+            all_confs_list = ['BIAS WELL', 'LIQ SWEEP', 'IFVG', 'FVG', 'EQH / EQL', 'BSL / SSL', 'POI', 'SMT', 'Order Block', 'Continuation', 'Data High / Data Low', 'CISD']
+            nuevo_conf = []
+            cols_conf = st.columns(3)
+            for idx, c_name in enumerate(all_confs_list):
+                if cols_conf[idx % 3].checkbox(c_name, key=f"new_conf_{idx}"):
+                    nuevo_conf.append(c_name)
+                    
+            # 3. REASON FOR TRADE (Movido hacia arriba, altura reducida a 45)
+            st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
+            nuevo_razon = st.text_area("Reason For Trade", value='', height=45)
+            
+            # 4. RISK (Con más separación entre opciones)
+            st.markdown("<div style='font-weight: 900; font-size: 14px; margin-top: 5px; margin-bottom: 0px;'>Risk</div>", unsafe_allow_html=True)
+            risk_opts = ['1%', '0.9%', '0.8%', '0.7%', '0.6%', '0.5%', '0.4%']
+            nuevo_risk_list = []
+            cols_risk = st.columns([1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 0.2])
+            for idx, op in enumerate(risk_opts):
+                if cols_risk[idx].checkbox(op, key=f"new_risk_{idx}"): nuevo_risk_list.append(op)
+            nuevo_risk = ", ".join(nuevo_risk_list) if nuevo_risk_list else ""
+            
+            # 5. RR (Con más separación)
+            st.markdown("<div style='font-weight: 900; font-size: 14px; margin-top: 5px; margin-bottom: 0px;'>RR</div>", unsafe_allow_html=True)
+            rr_opts = ['1:1', '1:1.5', '1:2', '1:3', '1:4']
+            nuevo_rr_list = []
+            cols_rr = st.columns([1.5, 1.5, 1.5, 1.5, 1.5, 1.5]) 
+            for idx, op in enumerate(rr_opts):
+                if cols_rr[idx].checkbox(op, key=f"new_rr_{idx}"): nuevo_rr_list.append(op)
+            nuevo_rr = ", ".join(nuevo_rr_list) if nuevo_rr_list else ""
+            
+            # 6. TRADE TYPE
+            st.markdown("<div style='font-weight: 900; font-size: 14px; margin-top: 5px; margin-bottom: 0px;'>Trade Type</div>", unsafe_allow_html=True)
+            tt_opts = ['A+', 'A', 'B', 'C']
+            nuevo_tt_list = []
+            cols_tt = st.columns([1, 1, 1, 1, 4])
+            for idx, op in enumerate(tt_opts):
+                if cols_tt[idx].checkbox(op, key=f"new_tt_{idx}"): nuevo_tt_list.append(op)
+            nuevo_tt = ", ".join(nuevo_tt_list) if nuevo_tt_list else ""
+
+            # 7. EMOTIONS (Penúltimo, altura 45)
+            st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
+            nuevo_emo = st.text_area("Emotions", value='', height=45)
+
+            # 8. CORRECTIONS (Último, altura 45)
+            nuevo_corr = st.text_area("Corrections", value='', height=45)
+
+    if btn_save:
+        viejo_real = db_usuario[ctx]["balance"]
+        
+        # FIX: Calculamos el PnL comparando lo que escribiste con el balance reseteado que estabas viendo
+        pnl = nuevo_bal_input - bal_mostrar if nuevo_bal_input != bal_mostrar else 0.0
+        
+        # El balance interno "histórico" suma ese PnL para no romper las gráficas viejas
+        nuevo_bal_absoluto = viejo_real + pnl
+        
+        clave_final = (fecha_sel.year, fecha_sel.month, fecha_sel.day)
+        
+        imgs_finales = []
+        if imgs_subidas:
+            for img in imgs_subidas:
+                imgs_finales.append(convertir_img_base64(img))
+        
+        if link_imagen.strip().startswith("http"):
+            imgs_finales.append(link_imagen.strip())
+        
+        trade_nuevo = {
+            "pnl": pnl,
+            "balance_final": nuevo_bal_absoluto,
+            "fecha_str": fecha_sel.strftime("%d/%m/%Y"),
+            "imagenes": imgs_finales,
+            "bias": nuevo_bias,
+            "Confluences": nuevo_conf,
+            "razon_trade": nuevo_razon,
+            "Corrections": nuevo_corr,
+            "risk": nuevo_risk,
+            "RR": nuevo_rr,
+            "trade_type": nuevo_tt,
+            "Emotions": nuevo_emo
+        }
+        
+        if clave_final not in db_usuario[ctx]["trades"]:
+            db_usuario[ctx]["trades"][clave_final] = []
+            
+        db_usuario[ctx]["trades"][clave_final].append(trade_nuevo)
+        import time # Importamos time para la pausa
+
+        db_usuario[ctx]["balance"] = nuevo_bal_absoluto
+        
+        registrar_en_excel(usuario, db_global[usuario]["password"], ctx, fecha_sel, nuevo_bal_absoluto, pnl, trade_nuevo, db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
+        
+        st.success("✅ Trade Saved!")
+        time.sleep(1) # Pausa de 1 segundo para que el usuario pueda leer el mensaje verde
+        st.rerun()
+
+# ==========================================
+# 10. CALENDARIO Y RESUMEN
+# ==========================================
+# --- AUTO-ACTIVAR CHECKBOX SI PASÓ LA CUENTA ---
+if paso_cuenta and "toggle_funded_state" not in st.session_state:
+    st.session_state.toggle_funded_state = True
+    
+modo_funded_activo = st.session_state.get("toggle_funded_state", False) and paso_cuenta
+
+col_cal, col_det = st.columns([2, 1]) 
+
+anio_sel = st.session_state.cal_year
+mes_sel = st.session_state.cal_month
+nombre_mes = calendar.month_name[mes_sel]
+
+trades_mes_top = []
+for k, lista_t in db_usuario[ctx]["trades"].items():
+    if k[0] == anio_sel and k[1] == mes_sel:
+        for t in lista_t:
+            if modo_funded_activo and t.get("is_pre_funded", False): continue
+            trades_mes_top.append(t["pnl"])
+
+with col_cal:
+    total_trades_top = len(trades_mes_top)
+    net_pnl_top = sum(trades_mes_top) if total_trades_top > 0 else 0.0
+    wins_top = len([t for t in trades_mes_top if t > 0])
+    win_pct_top = (wins_top / total_trades_top * 100) if total_trades_top > 0 else 0.0
+    
+    color_pnl_top = "#00C897" if net_pnl_top >= 0 else "#FF4C4C"
+    bg_pnl_top = "#e6f9f4" if net_pnl_top >= 0 else "#ffeded"
+    simb_pnl_top = "+" if net_pnl_top > 0 else ""
+    
+    color_win_top = "#00C897" if win_pct_top >= 50 else "#FF4C4C"
+    bg_win_top = "#e6f9f4" if win_pct_top >= 50 else "#ffeded"
+
+    c_izq, c_cen, c_der, c_stats = st.columns([0.6, 2, 0.6, 3.8])
+    with c_izq: 
+        st.button("◀", on_click=cambiar_mes, args=(-1,), use_container_width=True)
+    with c_cen: 
+        st.markdown(f'<div style="text-align:center; font-weight:600; font-size:var(--cal-mes-size); color:{c_mes}; margin-top:2px;">{nombre_mes} {anio_sel}</div>', unsafe_allow_html=True)
+    with c_der: 
+        st.button("▶", on_click=cambiar_mes, args=(1,), use_container_width=True)
+    with c_stats:
+        st.markdown(f'''
+            <div style="display:flex; justify-content:flex-end; align-items:center; gap:20px; margin-top:8px;">
+                <div style="font-weight:700; font-size:var(--size-top-stats); color:{c_mes}; display:flex; align-items:center; gap:8px;"> P&L: <span style="background-color:{bg_pnl_top}; color:{color_pnl_top}; padding:4px 12px; border-radius:12px; font-weight:800;">{simb_pnl_top}${net_pnl_top:,.2f}</span></div>
+                <div style="font-weight:700; font-size:var(--size-top-stats); color:{c_mes}; display:flex; align-items:center; gap:8px;">Win Rate: <span style="background-color:{bg_win_top}; color:{color_win_top}; padding:4px 12px; border-radius:12px; font-weight:800;">{win_pct_top:.1f}%</span></div>
+            </div>
+        ''', unsafe_allow_html=True)
+    
+    st.markdown("<br>", unsafe_allow_html=True)
+    
+    dias_semana = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+    calendar.setfirstweekday(calendar.SUNDAY)
+    mes_matriz = calendar.monthcalendar(anio_sel, mes_sel)
+    
+    h_cols = st.columns(7)
+    for i, d in enumerate(dias_semana):
+        h_cols[i].markdown(f"<div class='txt-dias-sem'>{d}</div>", unsafe_allow_html=True)
+    
+    for semana_dias in mes_matriz:
+        d_cols = st.columns(7)
+        for i, dia in enumerate(semana_dias):
+            with d_cols[i]:
+                if dia == 0: st.markdown('<div class="card cell-empty"></div>', unsafe_allow_html=True)
+                else:
+                    dia_trades = db_usuario[ctx]["trades"].get((anio_sel, mes_sel, dia), [])
+                    
+                    trades_visibles = []
+                    for t in dia_trades:
+                        if st.session_state.get("toggle_funded_state", False) and t.get("is_pre_funded", False): continue
+                        if filtro == OPT_FILTRO_2 and t["pnl"] <= 0: continue
+                        if filtro == OPT_FILTRO_3 and t["pnl"] >= 0: continue
+                        trades_visibles.append(t)
+
+                    if trades_visibles:
+                        pnl_dia = sum(t["pnl"] for t in trades_visibles)
+                        c_cls = "cell-win" if pnl_dia >= 0 else "cell-loss"
+                        c_sim = "+" if pnl_dia > 0 else ""
+                        
+                        bal_ini = trades_visibles[-1]["balance_final"] - pnl_dia
+                        pct = (pnl_dia / bal_ini * 100) if bal_ini != 0 else 0
+                        pct_str = f"{c_sim}{pct:.2f}%"
+
+                        todas_imagenes = []
+                        for t in trades_visibles:
+                            todas_imagenes.extend(t.get("imagenes", []))
+                            
+                        if todas_imagenes:
+                            id_modal = f"mod_{anio_sel}_{mes_sel}_{dia}"
+                            
+                            # 1. Preparar las imagenes: solo la primera (indice 0) es visible
+                            img_tags = ""
+                            for idx_img_gal, img_url in enumerate(todas_imagenes):
+                                disp = "block" if idx_img_gal == 0 else "none"
+                                img_tags += f'<img src="{img_url}" class="gallery-img" data-idx="{idx_img_gal}" style="display: {disp};">'
+                            
+                            # 2. Agregar controles de navegacion solo si hay mas de 1 imagen
+                            nav_html = ""
+                            if len(todas_imagenes) > 1:
+                                nav_html = f'<div class="gallery-nav"><div class="prev-img-btn">◀</div><div class="img-counter">1 / {len(todas_imagenes)}</div><div class="next-img-btn">▶</div></div>'
+
+                            # 3. Ensamblar el modal con atributos de galeria
+                            cam_html = f'<div><input type="checkbox" id="{id_modal}" class="modal-toggle" style="display:none;"><label for="{id_modal}"><div class="cam-icon">{BTN_CAM_EMOJI}</div></label><div class="fs-modal" data-current="0" data-total="{len(todas_imagenes)}"><div class="modal-controls">{nav_html}<div class="zoom-out-btn">➖</div><div class="zoom-in-btn">➕</div><label for="{id_modal}" class="close-btn">{TXT_CERRAR_MODAL}</label></div>{img_tags}</div></div>'
+                        else:
+                            cam_html = ""
+                            
+                        notas_html_contenido = ""
+                        has_notes = False
+                        
+                        for idx_t, t in enumerate(trades_visibles):
+                            if bool(t.get("razon_trade", "").strip() or t.get("Corrections", "").strip() or t.get("Emotions", "").strip() or t.get("Confluences", [])):
+                                has_notes = True
+                                confluences_str = ", ".join(t.get("Confluences", []))
+                                
+                                pnl_val_nota = t["pnl"]
+                                pnl_color_nota = "#00C897" if pnl_val_nota >= 0 else "#FF4C4C"
+                                simbolo_nota = "+" if pnl_val_nota > 0 else ("-" if pnl_val_nota < 0 else "")
+                                pnl_formateado_nota = f"{simbolo_nota}${abs(pnl_val_nota):,.2f}"
+                                
+                                notas_html_contenido += f'<div style="margin-bottom: 15px;"><h4 style="color:{pnl_color_nota}; margin:0;">Trade {idx_t+1} = {pnl_formateado_nota}</h4><b>Bias:</b> <span class="note-val">{t.get("bias", "NEUTRO")}</span><br><b>Confluences:</b> <span class="note-val">{confluences_str}</span><br><b>Reason For Trade:</b> <span class="note-val">{t.get("razon_trade", "")}</span><br><b>Corrections:</b> <span class="note-val">{t.get("Corrections", "")}</span><br><b>Risk:</b> <span class="note-val">{t.get("risk", "")}</span><br><b>RR:</b> <span class="note-val">{t.get("RR", "")}</span><br><b>Trade Type:</b> <span class="note-val">{t.get("trade_type", "")}</span><br><b>Emotions:</b> <span class="note-val">{t.get("Emotions", "")}</span></div>'
+                                
+                        if has_notes:
+                            id_note_modal = f"mod_note_{anio_sel}_{mes_sel}_{dia}"
+                            note_html = f'<div><input type="checkbox" id="{id_note_modal}" class="modal-toggle" style="display:none;"><label for="{id_note_modal}"><div class="note-icon">💭</div></label><div class="fs-modal"><label for="{id_note_modal}" class="close-btn">{TXT_CERRAR_MODAL}</label><div class="note-modal-content"><h3 style="text-align:center; margin-top:0; font-size: var(--note-lbl-size);">💭 Trades - {dia}/{mes_sel}/{anio_sel}</h3><hr>{notas_html_contenido}</div></div></div>'
+                        else:
+                            note_html = ""
+                        
+                        st.markdown(f'<div class="card {c_cls}"><div class="day-number">{dia}</div><div class="day-content"><span class="day-pnl">{c_sim}${pnl_dia:,.2f}</span><br><span class="day-pct">{pct_str}</span></div>{cam_html}{note_html}</div>', unsafe_allow_html=True)
+                    else:
+                        op = "0.2" if len(dia_trades) > 0 else "1"
+                        st.markdown(f'<div class="card cell-empty" style="opacity:{op}"><div class="day-number">{dia}</div></div>', unsafe_allow_html=True)
+
+def get_bar_svg(w, l, t):
+    tot = w + l + t
+    if tot == 0:
+        # Gráfico por defecto cuando no hay datos (Muestra "NO DATA" centrado)
+        return '''<svg width="100%" height="100%" viewBox="0 0 100 100">
+            <line x1="5" y1="85" x2="95" y2="85" stroke="#4A5568" stroke-width="2" stroke-linecap="round" />
+            <text x="50" y="50" fill="gray" font-size="14" font-family="sans-serif" font-weight="bold" text-anchor="middle">NO DATA</text>
+        </svg>'''
+
+    max_v = max(w, l, t)
+    if max_v == 0: max_v = 1
+
+    # Calculamos la altura de cada barra sobre un máximo de 65 (para dejar espacio al texto)
+    hw = (w / max_v) * 65  
+    hl = (l / max_v) * 65
+    ht = (t / max_v) * 65
+
+    svg = '<svg width="100%" height="100%" viewBox="0 0 100 100">'
+    
+    # Línea base (Eje X)
+    svg += '<line x1="5" y1="85" x2="95" y2="85" stroke="#4A5568" stroke-width="2" stroke-linecap="round" />'
+
+    # Barra WINS (Verde)
+    if w > 0:
+        svg += f'<rect x="12" y="{85 - hw}" width="22" height="{hw}" fill="#00C897" rx="3" />'
+        svg += f'<text x="23" y="{80 - hw}" fill="#00C897" font-size="14" font-family="sans-serif" font-weight="bold" text-anchor="middle">{w}</text>'
+        svg += f'<text x="23" y="98" fill="#00C897" font-size="12" font-family="sans-serif" font-weight="bold" text-anchor="middle">W</text>'
+        
+    # Barra LOSSES (Rojo)
+    if l > 0:
+        svg += f'<rect x="39" y="{85 - hl}" width="22" height="{hl}" fill="#FF4C4C" rx="3" />'
+        svg += f'<text x="50" y="{80 - hl}" fill="#FF4C4C" font-size="14" font-family="sans-serif" font-weight="bold" text-anchor="middle">{l}</text>'
+        svg += f'<text x="50" y="98" fill="#FF4C4C" font-size="12" font-family="sans-serif" font-weight="bold" text-anchor="middle">L</text>'
+        
+    # Barra BREAKEVEN (Gris)
+    if t > 0:
+        svg += f'<rect x="66" y="{85 - ht}" width="22" height="{ht}" fill="gray" rx="3" />'
+        svg += f'<text x="77" y="{80 - ht}" fill="gray" font-size="14" font-family="sans-serif" font-weight="bold" text-anchor="middle">{t}</text>'
+        svg += f'<text x="77" y="98" fill="gray" font-size="12" font-family="sans-serif" font-weight="bold" text-anchor="middle">BE</text>'
+
+    svg += '</svg>'
+    return svg
+
+    max_v = max(w, l, t)
+    if max_v == 0: max_v = 1
+
+    # Calculamos la altura de cada barra sobre un máximo de 65 (para dejar espacio al texto)
+    hw = (w / max_v) * 65  
+    hl = (l / max_v) * 65
+    ht = (t / max_v) * 65
+
+    svg = '<svg width="100%" height="100%" viewBox="0 0 100 100">'
+    
+    # Línea base (Eje X)
+    svg += '<line x1="5" y1="85" x2="95" y2="85" stroke="#4A5568" stroke-width="2" stroke-linecap="round" />'
+
+    # Barra WINS (Verde)
+    if w > 0:
+        svg += f'<rect x="12" y="{85 - hw}" width="22" height="{hw}" fill="#00C897" rx="3" />'
+        svg += f'<text x="23" y="{80 - hw}" fill="#00C897" font-size="14" font-family="sans-serif" font-weight="bold" text-anchor="middle">{w}</text>'
+        svg += f'<text x="23" y="98" fill="#00C897" font-size="12" font-family="sans-serif" font-weight="bold" text-anchor="middle">W</text>'
+        
+    # Barra LOSSES (Rojo)
+    if l > 0:
+        svg += f'<rect x="39" y="{85 - hl}" width="22" height="{hl}" fill="#FF4C4C" rx="3" />'
+        svg += f'<text x="50" y="{80 - hl}" fill="#FF4C4C" font-size="14" font-family="sans-serif" font-weight="bold" text-anchor="middle">{l}</text>'
+        svg += f'<text x="50" y="98" fill="#FF4C4C" font-size="12" font-family="sans-serif" font-weight="bold" text-anchor="middle">L</text>'
+        
+    # Barra BREAKEVEN (Gris)
+    if t > 0:
+        svg += f'<rect x="66" y="{85 - ht}" width="22" height="{ht}" fill="gray" rx="3" />'
+        svg += f'<text x="77" y="{80 - ht}" fill="gray" font-size="14" font-family="sans-serif" font-weight="bold" text-anchor="middle">{t}</text>'
+        svg += f'<text x="77" y="98" fill="gray" font-size="12" font-family="sans-serif" font-weight="bold" text-anchor="middle">BE</text>'
+
+    svg += '</svg>'
+    return svg
+
+with col_det:
+    # 1. Filtramos los trades cronologicos dependiendo si el Switch esta activo
+    trades_cronologicos = []
+    for c, lt in sorted(db_usuario[ctx]["trades"].items(), key=lambda x: datetime(x[0][0], x[0][1], x[0][2])):
+        for t in lt:
+            if st.session_state.get("toggle_funded_state", False) and t.get("is_pre_funded", False): continue
+            trades_cronologicos.append(t)
+    
+    # 2. Setup de topes y balance (El balance inicial vuelve a ser 25k si esta activo)
+    bal_inicial = bal_inicial_abs
+    
+    max_bal = bal_inicial
+    _current_sim_bal = bal_inicial
+    for t in trades_cronologicos:
+        # FIX: Calculamos tu balance máximo usando solo el PnL de esta etapa (Eval o PA)
+        _current_sim_bal += t["pnl"]
+        if _current_sim_bal > max_bal: max_bal = _current_sim_bal
+            
+    if bal_inicial <= 35000:
+        meta_t = 1500; lim_dd = 1000; alerta_dd = 500; tope_dd = 26100
+    elif bal_inicial <= 75000:
+        meta_t = 3000; lim_dd = 2000; alerta_dd = 1000; tope_dd = 52100
+    else:
+        meta_t = 6000; lim_dd = 3000; alerta_dd = 1500; tope_dd = 103100
+        
+    # 3. Calculos matematicos (Usando el bal_mostrar del Header)
+    nivel_perdida = max_bal - lim_dd
+    if nivel_perdida > tope_dd: nivel_perdida = tope_dd
+        
+    progreso = bal_mostrar - bal_inicial
+    falta_tg = meta_t - progreso
+    distancia_dd = bal_mostrar - nivel_perdida
+    
+    color_dd = "pnl-value pnl-value-loss" if distancia_dd < alerta_dd else "pnl-value"
+    
+    if distancia_dd <= 0:
+        texto_lose = "LOST 💀"; texto_dd = "LOST 💀"; texto_tg = "LOST 💀"
+        color_tg = "pnl-value pnl-value-loss"
+    else:
+        texto_lose = f"${distancia_dd:,.2f}"; texto_dd = f"${nivel_perdida:,.2f}"
+        
+        if paso_cuenta:
+            # NUEVO TARGET PA: Lo que falta desde TU BALANCE ACTUAL para llegar a la zona segura (tope_dd).
+            falta_para_tope = tope_dd - bal_mostrar
+            if falta_para_tope <= 0:
+                texto_tg = "$0.00"
+            else:
+                texto_tg = f"${falta_para_tope:,.2f}"
+            color_tg = "pnl-value"
+        elif falta_tg <= 0:
+            texto_tg = "PASSED 🎉"
+            color_tg = "pnl-value"
+        else:
+            texto_tg = f"${falta_tg:,.2f}"
+            color_tg = "pnl-value pnl-value-loss" if falta_tg > meta_t else "pnl-value"
+    
+    # 4. Mostrar el Switch (SOLO aparece si ya pasaste la cuenta)
+    
+    # --- NUEVO FIX: Ancla CSS que sube absolutamente TODA la columna derecha junta ---
+    st.markdown("""
+    <style>
+    div[data-testid="stElementContainer"]:has(.ancla-subir-todo) {
+        margin-top: -215px !important;
+        margin-bottom: 0px !important;
+    }
+    </style>
+    <div class="ancla-subir-todo"></div>
+    """, unsafe_allow_html=True)
+
+    # Reservamos el espacio invisible para que las cajas NUNCA salten de posición
+    if paso_cuenta:
+        st.toggle("Funded Account", key="toggle_funded_state")
+    else:
+        st.markdown("<div style='height: 42px;'></div>", unsafe_allow_html=True)
+    
+    c_tg, c_dd, c_lose = st.columns(3)
+    e_caja = f"margin-top: 0px; margin-bottom: 10px; padding: 10px !important; min-height: 85px !important; display: flex; flex-direction: column; justify-content: center;"
+    
+    # Extirpamos la clase CSS rebelde y generamos los colores manualmente
+    c_hex_tg = "#FF4C4C" if "loss" in color_tg else "#00C897"
+    c_hex_dd = "#FF4C4C" if "loss" in color_dd else "#00C897"
+
+    with c_tg: st.markdown(f'<div class="metric-card card-pnl" style="{e_caja}"><div class="metric-header"><span class="title-net-pnl" style="font-size: 12px;">Target</span></div><div style="color: {c_hex_tg}; font-size: 20px; font-weight: 800;">{texto_tg}</div></div>', unsafe_allow_html=True)
+    with c_dd: st.markdown(f'<div class="metric-card card-pnl" style="{e_caja}"><div class="metric-header"><span class="title-net-pnl" style="font-size: 12px;">Drawdown</span></div><div style="color: {c_hex_dd}; font-size: 20px; font-weight: 800;">{texto_dd}</div></div>', unsafe_allow_html=True)
+    with c_lose: st.markdown(f'<div class="metric-card card-pnl" style="{e_caja}"><div class="metric-header"><span class="title-net-pnl" style="font-size: 12px;">Lose Account</span></div><div style="color: {c_hex_dd}; font-size: 20px; font-weight: 800;">{texto_lose}</div></div>', unsafe_allow_html=True)
+
+    ver_todo = st.toggle("View All Time ", value=False)
+    
+    if st.session_state.get("toggle_funded_state", False) and paso_cuenta:
+        todos_los_trades_planos = trades_cronologicos
+    else:
+        todos_los_trades_planos = []
+        for k, lista in db_usuario[ctx]["trades"].items():
+            todos_los_trades_planos.extend(lista)
+            
+    if ver_todo:
+        trades_lista = [t["pnl"] for t in todos_los_trades_planos]
+        titulo_pnl = "Net P&L "
+        titulo_win = "Win Rate "
+    else:
+        trades_lista = trades_mes_top
+        titulo_pnl = CARD_PNL_TITULO
+        titulo_win = CARD_WIN_TITULO
+        
+    total_trades = len(trades_lista)
+    
+    net_pnl = sum(trades_lista) if total_trades > 0 else 0.0
+    
+    # LÓGICA DE LOS $30: 
+    # Win es >= $30 | Loss es <= -$30 | BE es en el medio (-$29.99 a $29.99)
+    wins = len([t for t in trades_lista if t >= 30])
+    losses = len([t for t in trades_lista if t <= -30])
+    ties = len([t for t in trades_lista if -30 < t < 30])
+    
+    total_validos = wins + losses + ties
+    win_pct = (wins / total_validos * 100) if total_validos > 0 else 0.0
+    
+    color_pnl = "pnl-value" if net_pnl >= 0 else "pnl-value pnl-value-loss"
+    simbolo_pnl = "+" if net_pnl > 0 else ""
+    c_win_card = "#00C897" if win_pct >= 50 else "#FF4C4C"
+    
+    # --- CÁLCULO DE AVERAGE RR ---
+    rr_valores = []
+    # Buscamos en los trades del mes o de todo el tiempo según el toggle (ocultando los viejos si Funded está activo)
+    trades_para_rr = todos_los_trades_planos if ver_todo else [
+        tr for k, v in db_usuario[ctx]["trades"].items() 
+        if k[0] == anio_sel and k[1] == mes_sel 
+        for tr in v if not (modo_funded_activo and tr.get("is_pre_funded", False))
+    ]
+    
+    for t in trades_para_rr:
+        rr_str = str(t.get('RR', '1:0'))
+        if ":" in rr_str:
+            try:
+                # Extraemos el número después de los ":" (ej: de 1:2.5 saca 2.5)
+                val = float(rr_str.split(":")[1])
+                if val > 0: rr_valores.append(val)
+            except: pass
+    
+    rr_promedio = sum(rr_valores) / len(rr_valores) if rr_valores else 0.0
+
+    # --- DISEÑO DE LAS 3 TARJETAS INDEPENDIENTES ---
+    c_met1, c_met2, c_met3 = st.columns(3)
+
+    c_hex_pnl = "#00C897" if net_pnl >= 0 else "#FF4C4C"
+    with c_met1:
+        st.markdown(f"""
+            <div class="metric-card card-pnl">
+                <div class="metric-header"><span class="title-net-pnl">{titulo_pnl}</span></div>
+                <div style="color: {c_hex_pnl}; font-size: 20px; font-weight: 800;">{simbolo_pnl}${net_pnl:,.2f}</div>
+            </div>
+        """, unsafe_allow_html=True)
+
+    with c_met2:
+        st.markdown(f"""
+            <div class="metric-card card-win">
+                <div class="metric-header"><span class="title-trade-win">Total Trades</span></div>
+                <div class="rr-value" style="color: white; font-size: 20px !important;">{total_trades}</div>
+            </div>
+        """, unsafe_allow_html=True)
+
+    with c_met3:
+        st.markdown(f"""
+            <div class="metric-card card-rr">
+                <div class="metric-header"><span class="title-trade-win">AVERAGE RR</span></div>
+                <div class="rr-value" style="color: #FFFFFF; font-size: 20px !important;">1 / {rr_promedio:.2f}</div>
+            </div>
+        """, unsafe_allow_html=True)
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    bar_html = get_bar_svg(wins, losses, ties)
+    
+    wl_parts_pie = []
+    if wins >= 1: wl_parts_pie.append(f'<span style="color:#00C897;">{wins}W</span>')
+    if losses >= 1: wl_parts_pie.append(f'<span style="color:#FF4C4C;">{losses}L</span>')
+    if ties >= 1: wl_parts_pie.append(f'<span style="color:gray;">{ties}BE</span>')
+    
+    # Si no hay trades, mostramos todo en 0 para que no quede el hueco en blanco
+    if total_validos == 0:
+        wl_text_pie = '<span style="color:gray;">0W / 0L / 0BE</span>'
+    else:
+        wl_text_pie = ' <span style="color:gray;">/</span> '.join(wl_parts_pie)
+
+    st.markdown(f"""
+        <div class="metric-card card-win">
+            <div>
+                <div class="metric-header"><span class="title-trade-win">{titulo_win}</span></div>
+                <div class="win-value" style="color: {c_win_card};">{win_pct:.2f}%</div>
+            </div>
+            <div style="display:flex; flex-direction:row; align-items:center; justify-content:center; gap:20px; margin-top:0px; padding:0px;">
+                <div style="width: var(--pie-size); height: var(--pie-size); transform: translateY(var(--pie-y-offset)); flex-shrink: 0; display:flex; margin: -15px 0;">
+                    {bar_html}
+                </div>
+                <div style="font-size: calc(var(--size-box-wl) * 1.5); font-weight: 800; text-align:center; white-space:nowrap; transform: translateY(var(--pie-y-offset));">
+                    {wl_text_pie}
+                </div>
+            </div>
+        </div>
+    """, unsafe_allow_html=True)
+    
+    def get_col_simb(valor):
+        if valor > 0: return "txt-green", "+"
+        elif valor < 0: return "txt-red", ""
+        else: return "txt-gray", ""
+
+    def calc_pct(valor):
+        base = bal_actual - valor
+        return (valor / base * 100) if base != 0 else 0.0
+    
+    if not ver_todo:
+        semanas_stats = {i: {"pnl": 0.0, "w": 0, "l": 0} for i in range(1, len(mes_matriz) + 1)}
+        
+        for key, lista_t in db_usuario[ctx]["trades"].items():
+            if key[0] == anio_sel and key[1] == mes_sel:
+                dia = key[2]
+                for idx, semana in enumerate(mes_matriz):
+                    if dia in semana:
+                        for val in lista_t:
+                            if st.session_state.get("toggle_funded_state", False) and val.get("is_pre_funded", False): continue
+                            semanas_stats[idx + 1]["pnl"] += val["pnl"]
+                            if val["pnl"] > 0: semanas_stats[idx + 1]["w"] += 1
+                            elif val["pnl"] < 0: semanas_stats[idx + 1]["l"] += 1
+                        break
+
+        m_total = sum(s["pnl"] for s in semanas_stats.values())
+        m_w = sum(s["w"] for s in semanas_stats.values())
+        m_l = sum(s["l"] for s in semanas_stats.values())
+        
+        cM, sM = get_col_simb(m_total)
+        pct_m = calc_pct(m_total)
+
+        titulos_semanas = [TXT_W1, TXT_W2, TXT_W3, TXT_W4, TXT_W5, TXT_W6]
+        
+        semanas_html = ""
+        for idx, (num_sem, stats) in enumerate(semanas_stats.items()):
+            titulo_str = titulos_semanas[idx] if idx < len(titulos_semanas) else f"Week {num_sem}"
+            c_sem, s_sem = get_col_simb(stats["pnl"])
+            pct_sem = calc_pct(stats["pnl"])
+            
+            wl_parts_sem = []
+            if stats["w"] >= 1: wl_parts_sem.append(f'<span style="color:#00C897;">{stats["w"]}W</span>')
+            if stats["l"] >= 1: wl_parts_sem.append(f'<span style="color:#FF4C4C;">{stats["l"]}L</span>')
+            wl_text_sem = ' <span style="color:gray;">/</span> '.join(wl_parts_sem)
+
+            semanas_html += f'<div class="wk-box"><div class="wk-title" style="font-size:var(--size-box-titles) !important;">{titulo_str}</div><div class="wk-val {c_sem}" style="font-size:var(--size-box-vals) !important;">{s_sem}${stats["pnl"]:,.2f}<br><span style="font-size:var(--size-box-pct);">{s_sem}{pct_sem:.2f}%</span><br><span style="font-size: var(--size-box-wl); font-weight: 500;">{wl_text_sem}</span></div></div>'
+
+        wl_parts_mo = []
+        if m_w >= 1: wl_parts_mo.append(f'<span style="color:#00C897;">{m_w}W</span>')
+        if m_l >= 1: wl_parts_mo.append(f'<span style="color:#FF4C4C;">{m_l}L</span>')
+        wl_text_mo = ' <span style="color:gray;">/</span> '.join(wl_parts_mo)
+
+        st.markdown(f'<div class="weeks-container">{semanas_html}<div class="mo-box"><div class="mo-title" style="font-size:var(--size-box-titles) !important;">{TXT_MO}</div><div class="mo-val {cM}" style="font-size:var(--size-box-vals) !important;">{sM}${m_total:,.2f}<br><span style="font-size:var(--size-box-pct);">{sM}{pct_m:.2f}%</span><br><span style="font-size: var(--size-box-wl); font-weight: 500;">{wl_text_mo}</span></div></div></div>', unsafe_allow_html=True)
+
+    else:
+        meses_stats = {}
+        for key, lista_t in db_usuario[ctx]["trades"].items():
+            y, m = key[0], key[1]
+            if (y, m) not in meses_stats:
+                meses_stats[(y, m)] = {"pnl": 0.0, "w": 0, "l": 0}
+            for val in lista_t:
+                if st.session_state.get("toggle_funded_state", False) and val.get("is_pre_funded", False): continue
+                meses_stats[(y, m)]["pnl"] += val["pnl"]
+                if val["pnl"] > 0: meses_stats[(y, m)]["w"] += 1
+                elif val["pnl"] < 0: meses_stats[(y, m)]["l"] += 1
+        
+        meses_html = ""
+        for (y, m) in sorted(meses_stats.keys()):
+            val_m = meses_stats[(y, m)]["pnl"]
+            w_m = meses_stats[(y, m)]["w"]
+            l_m = meses_stats[(y, m)]["l"]
+            
+            nombre_m = f"{calendar.month_abbr[m]} {y}"
+            c_m, s_m = get_col_simb(val_m)
+            pct_m_box = calc_pct(val_m)
+            
+            wl_parts_all = []
+            if w_m >= 1: wl_parts_all.append(f'<span style="color:#00C897;">{w_m}W</span>')
+            if l_m >= 1: wl_parts_all.append(f'<span style="color:#FF4C4C;">{l_m}L</span>')
+            wl_text_all = ' <span style="color:gray;">/</span> '.join(wl_parts_all)
+
+            meses_html += f'<div class="wk-box"><div class="wk-title" style="font-size:var(--size-box-titles) !important;">{nombre_m}</div><div class="wk-val {c_m}" style="font-size:var(--size-box-vals) !important;">{s_m}${val_m:,.2f}<br><span style="font-size:var(--size-box-pct);">{s_m}{pct_m_box:.2f}%</span><br><span style="font-size: var(--size-box-wl); font-weight: 500;">{wl_text_all}</span></div></div>'
+        
+        if meses_html:
+            st.markdown(f'<div class="weeks-container">{meses_html}</div>', unsafe_allow_html=True)
+        else:
+            st.info("No hay meses con trades registrados aún.")
+
+# ==========================================
+# 11 Y 12. TABLAS Y EDICIÓN A LA MITAD (COLUMNAS)
+# ==========================================
+st.markdown("<br>", unsafe_allow_html=True)
+st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
 
 col_mitad_1, col_mitad_2 = st.columns(2)
 
