@@ -205,8 +205,21 @@ def reescribir_excel_usuario(usuario):
     except Exception:
         pass
 
+# --- AUTO-DETECTAR MÓVIL (Oculto) ---
+components.html("""
+<script>
+const urlParams = new URLSearchParams(window.parent.location.search);
+if (!urlParams.has('device')) {
+    const isMobile = window.parent.innerWidth <= 768;
+    urlParams.set('device', isMobile ? 'Móvil' : 'PC');
+    window.parent.location.search = urlParams.toString();
+}
+</script>
+""", height=0, width=0)
+
 # --- RECUERDA LA SESIÓN Y DISPOSITIVO AL RECARGAR ---
-if "dispositivo_actual" not in st.session_state: st.session_state.dispositivo_actual = "PC"
+if "dispositivo_actual" not in st.session_state: 
+    st.session_state.dispositivo_actual = "PC"
 
 try:
     if "user" in st.query_params and st.query_params["user"] in db_global:
@@ -227,7 +240,6 @@ if st.session_state.usuario_actual is None or st.session_state.usuario_actual no
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
         st.markdown("<h3 style='text-align:center; color:gray;'>Iniciar Sesión</h3>", unsafe_allow_html=True)
-        modo_movil_login = st.checkbox("📱 Start on Mobile", value=(st.session_state.dispositivo_actual == "Móvil"))
         
         modo_acceso = st.radio("Opciones:", ["Entrar", "Registrarse"], horizontal=True)
         
@@ -245,7 +257,8 @@ if st.session_state.usuario_actual is None or st.session_state.usuario_actual no
                     
                     if db_global[log_user]["password"] == log_pass:
                         st.session_state.usuario_actual = log_user
-                        st.session_state.dispositivo_actual = "Móvil" if modo_movil_login else "PC"
+                        # Toma el dispositivo detectado por el JavaScript en la URL
+                        st.session_state.dispositivo_actual = st.query_params.get("device", "PC")
                         try: 
                             st.query_params["user"] = log_user
                             st.query_params["device"] = st.session_state.dispositivo_actual
@@ -662,6 +675,13 @@ st.markdown(f"""
         transition: all 0.2s ease !important;
     }}
     [data-testid="collapsedControl"] svg {{
+        color: {c_dash} !important;
+    }}
+
+    /* NUEVO: Agrandar botones de abrir/cerrar menú (las flechas << y >>) */
+    [data-testid="stSidebarCollapseButton"] button,
+    button[kind="header"] {{
+        transform: scale(1.8) !important; /* Hazlo más grande aumentando este número (ej: 2.0) */
         color: {c_dash} !important;
     }}
 
