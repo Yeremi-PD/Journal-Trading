@@ -1587,6 +1587,24 @@ with col_det:
 
     st.markdown("<br>", unsafe_allow_html=True)
 
+    # --- CÁLCULO DE DAYS DONE ---
+    # Determinamos el umbral según el balance inicial
+    if bal_inicial_abs <= 35000: umbral_pago = 100    # Cuenta 25k
+    elif bal_inicial_abs <= 75000: umbral_pago = 250  # Cuenta 50k
+    else: umbral_pago = 300                           # Cuenta 100k
+
+    # Agrupamos los trades por día para ver el profit total diario
+    dias_ganadores_count = 0
+    trades_por_dia = {}
+    
+    for tr in trades_para_rr: # 'trades_para_rr' ya contiene los trades filtrados (mes o todo el tiempo)
+        f_str = tr['fecha_str']
+        trades_por_dia[f_str] = trades_por_dia.get(f_str, 0) + tr['pnl']
+    
+    for fecha, pnl_total_dia in trades_por_dia.items():
+        if pnl_total_dia >= umbral_pago:
+            dias_ganadores_count += 1
+
     bar_html = get_bar_svg(wins, losses, ties)
     
     wl_parts_pie = []
@@ -1594,17 +1612,19 @@ with col_det:
     if losses >= 1: wl_parts_pie.append(f'<span style="color:#FF4C4C;">{losses}L</span>')
     if ties >= 1: wl_parts_pie.append(f'<span style="color:gray;">{ties}BE</span>')
     
-    # Si no hay trades, mostramos todo en 0 para que no quede el hueco en blanco
-    if total_validos == 0:
-        wl_text_pie = '<span style="color:gray;">0W / 0L / 0BE</span>'
-    else:
-        wl_text_pie = ' <span style="color:gray;">/</span> '.join(wl_parts_pie)
+    wl_text_pie = ' <span style="color:gray;">/</span> '.join(wl_parts_pie) if total_validos > 0 else '<span style="color:gray;">0W / 0L / 0BE</span>'
 
     st.markdown(f"""
         <div class="metric-card card-win">
-            <div>
-                <div class="metric-header"><span class="title-trade-win">{titulo_win}</span></div>
-                <div class="win-value" style="color: {c_win_card};">{win_pct:.2f}%</div>
+            <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                <div>
+                    <div class="metric-header"><span class="title-trade-win">{titulo_win}</span></div>
+                    <div class="win-value" style="color: {c_win_card};">{win_pct:.2f}%</div>
+                </div>
+                <div style="background: rgba(255,255,255,0.05); border: 1px solid {border_color}; border-radius: 10px; padding: 8px 12px; text-align: center; min-width: 80px;">
+                    <div style="font-size: 10px; font-weight: 700; color: gray; text-transform: uppercase; letter-spacing: 1px;">Days Done</div>
+                    <div style="font-size: 22px; font-weight: 900; color: #00C897;">{dias_ganadores_count}</div>
+                </div>
             </div>
             <div style="display:flex; flex-direction:row; align-items:center; justify-content:center; gap:20px; margin-top:0px; padding:0px;">
                 <div style="width: var(--pie-size); height: var(--pie-size); transform: translateY(var(--pie-y-offset)); flex-shrink: 0; display:flex; margin: -15px 0;">
