@@ -653,28 +653,29 @@ st.sidebar.markdown("<br>", unsafe_allow_html=True) # Pequeño espacio entre los
 # BOTÓN DE CERRAR SESIÓN
 st.sidebar.markdown("---")
 if st.sidebar.button("🚪 Log Out", use_container_width=True): 
-    # 1. Limpiamos los parámetros de la URL para que el sistema no intente auto-loguear
+    # 1. Limpieza total inmediata de la sesión en el servidor
+    for key in list(st.session_state.keys()):
+        del st.session_state[key]
+    
+    # 2. Limpieza de los parámetros de la URL
     st.query_params.clear()
     
-    # 2. Borramos el usuario del estado de la sesión actual
-    st.session_state.usuario_actual = None
-    
-    # 3. Ejecutamos el script de limpieza total en el navegador
-    # Eliminamos el st.stop() para evitar la pantalla negra y usamos un pequeño delay
+    # 3. Script "Bomba" de limpieza en el navegador y redirección inmediata
     components.html("""
     <script>
-        // Borramos el localStorage para que el celular NO recuerde al usuario anterior
-        window.parent.localStorage.clear(); 
+        // Borramos TODA la memoria del navegador (localStorage y sessionStorage)
+        window.parent.localStorage.clear();
+        window.parent.sessionStorage.clear();
         
-        // Redirigimos a la URL raíz de la app totalmente limpia
-        // Esto garantiza que aparezca la pantalla de LOGIN para el siguiente usuario
-        setTimeout(function(){
-            window.parent.location.href = window.parent.location.origin + window.parent.location.pathname;
-        }, 200);
+        // Redirección forzada e inmediata a la URL limpia
+        // Usamos window.top para asegurarnos de romper cualquier iframe
+        const cleanURL = window.parent.location.origin + window.parent.location.pathname;
+        window.parent.location.replace(cleanURL);
     </script>
     """, height=0, width=0)
     
-    st.info("Cerrando sesión de forma segura... Por favor espera.")
+    # Evitamos que se quede pegado deteniendo cualquier proceso extra
+    st.rerun()
 
 
 # ==========================================
