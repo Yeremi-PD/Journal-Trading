@@ -501,7 +501,7 @@ if st.sidebar.button("💾 Save Design Settings", use_container_width=True):
     st.sidebar.success("✅ Settings Saved!")
 
 st.sidebar.markdown("---")
-st.sidebar.markdown("### 💼 Manage Accounts")
+st.sidebar.markdown("### Manage Accounts")
 
 with st.sidebar.expander("Manage Accounts"):
     # --- 1. CREAR NUEVA CUENTA ---
@@ -597,7 +597,7 @@ st.sidebar.markdown(f"""
     </style>
 """, unsafe_allow_html=True)
 
-st.sidebar.markdown("### 🌓 Theme")
+st.sidebar.markdown("### Theme")
 
 texto_boton_tema = "🌙 Switch to Dark Theme" if st.session_state.tema == "Claro" else "☀️ Switch to Light Theme"
 if st.sidebar.button(texto_boton_tema):
@@ -605,7 +605,7 @@ if st.sidebar.button(texto_boton_tema):
     st.rerun()
         
 st.sidebar.markdown("---")
-st.sidebar.markdown("### 🛡️ Admin")
+st.sidebar.markdown("### Admin")
 with st.sidebar.expander("🛡️ Admin Settings"):
     admin_pass = st.text_input("Admin Password", type="password")
     
