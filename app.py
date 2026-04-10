@@ -612,7 +612,7 @@ with st.sidebar.expander("🖥️ Dashboard Settings"):
 with st.sidebar.expander("🔠 Text & Chart Settings"):
     if st.button("🔄 Reset Texts & Charts", key="res_txt", use_container_width=True): reset_settings("txt"); st.rerun()
     user_settings["size_top_stats"] = st.slider(" P&L and Win Rate Size (Top)", 10, 40, user_settings["size_top_stats"])
-    user_settings["size_card_titles"] = st.slider("Titles Size (All-Time, etc)", 10, 40, user_settings["size_card_titles"])
+    user_settings["size_card_titles"] = st.slider("Titles Size (, etc)", 10, 40, user_settings["size_card_titles"])
     user_settings["size_box_titles"] = st.slider("Titles Size (Week/Month)", 10, 40, user_settings["size_box_titles"])
     user_settings["size_box_vals"] = st.slider("P&L Boxes Size", 10, 50, user_settings["size_box_vals"])
     user_settings["size_box_pct"] = st.slider("% Boxes Size", 10, 40, user_settings["size_box_pct"])
@@ -1416,7 +1416,7 @@ with col_det:
     with c_dd: st.markdown(f'<div class="metric-card card-pnl" style="{e_caja}"><div class="metric-header"><span class="title-net-pnl" style="font-size: 12px;">Drawdown</span></div><div class="{color_dd}" style="font-size: 15px;">{texto_dd}</div></div>', unsafe_allow_html=True)
     with c_lose: st.markdown(f'<div class="metric-card card-pnl" style="{e_caja}"><div class="metric-header"><span class="title-net-pnl" style="font-size: 12px;">Lose Account</span></div><div class="{color_dd}" style="font-size: 15px;">{texto_lose}</div></div>', unsafe_allow_html=True)
 
-    ver_todo = st.toggle("View All-Time", value=False)
+    ver_todo = st.toggle("View ", value=False)
     
     if st.session_state.get("toggle_funded_state", False) and paso_cuenta:
         todos_los_trades_planos = trades_cronologicos
@@ -1427,8 +1427,8 @@ with col_det:
             
     if ver_todo:
         trades_lista = [t["pnl"] for t in todos_los_trades_planos]
-        titulo_pnl = "Net P&L All-Time"
-        titulo_win = "Win Rate All-Time"
+        titulo_pnl = "Net P&L "
+        titulo_win = "Win Rate "
     else:
         trades_lista = trades_mes_top
         titulo_pnl = CARD_PNL_TITULO
