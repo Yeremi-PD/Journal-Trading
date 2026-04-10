@@ -1403,11 +1403,22 @@ with col_det:
             color_tg = "pnl-value pnl-value-loss" if falta_tg > meta_t else "pnl-value"
     
     # 4. Mostrar el Switch (SOLO aparece si ya pasaste la cuenta)
-    margen_cajas = "-25px"
+    
+    # --- NUEVO FIX: Ancla CSS que sube absolutamente TODA la columna derecha junta ---
+    st.markdown("""
+    <style>
+    div[data-testid="stElementContainer"]:has(.ancla-subir-todo) {
+        margin-top: -225px !important;
+        margin-bottom: 0px !important;
+    }
+    </style>
+    <div class="ancla-subir-todo"></div>
+    """, unsafe_allow_html=True)
+
+    margen_cajas = "0px" # Las cajas ya no usan margen negativo propio, el ancla sube todo el bloque
+    
     if paso_cuenta:
-        st.markdown("<div style='margin-top: -25px; margin-bottom: -225px;'></div>", unsafe_allow_html=True)
         st.toggle("Funded Account", key="toggle_funded_state")
-        margen_cajas = "0px" # Al bajar el boton, quitamos el margen negativo
     
     c_tg, c_dd, c_lose = st.columns(3)
     e_caja = f"margin-top: {margen_cajas}; margin-bottom: 10px; padding: 10px !important; min-height: 85px !important; display: flex; flex-direction: column; justify-content: center;"
