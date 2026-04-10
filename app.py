@@ -1341,39 +1341,50 @@ with col_det:
         if t["balance_final"] > max_bal:
             max_bal = t["balance_final"]
             
-    # 2. Determinar limites segun el tamaño de la cuenta
+    # 2. Determinar limites y alertas segun el tamaño de la cuenta
     if bal_inicial <= 35000:
         meta_target = 1500
         limite_dd = 1000
+        alerta_dd = 500  # Se pone rojo si falta menos de esto para perder
     elif bal_inicial <= 75000:
         meta_target = 3000
         limite_dd = 2000
+        alerta_dd = 1000
     else:
         meta_target = 6000
         limite_dd = 3000
+        alerta_dd = 1500
         
-    # 3. Calculos: Trailing Drawdown Limit
+    # 3. Calculos: Cuanto falta para Target y Distancia al Drawdown
     nivel_perdida_maxima = max_bal - limite_dd
     progreso_target = bal_actual - bal_inicial
+    falta_target = meta_target - progreso_target
     
-    color_tg = "pnl-value" if progreso_target >= 0 else "pnl-value pnl-value-loss"
-    simb_tg = "+" if progreso_target > 0 else ""
+    distancia_al_dd = bal_actual - nivel_perdida_maxima
     
-    # Se pone rojo solo si rompes la regla (tu balance actual cae por debajo del nivel de perdida)
-    color_dd = "pnl-value" if bal_actual > nivel_perdida_maxima else "pnl-value pnl-value-loss"
+    # Lógica de Color para el Drawdown (Rojo si estas en la zona de peligro o ya perdiste)
+    color_dd = "pnl-value pnl-value-loss" if distancia_al_dd < alerta_dd else "pnl-value"
     
-    # 4. Renderizar tarjetas (Alineadas a 10px de la linea divisoria usando margin-top: -22px)
+    # Lógica de Texto para el Target
+    if falta_target <= 0:
+        texto_target = "PASSED 🎉"
+        color_tg = "pnl-value"
+    else:
+        texto_target = f"${falta_target:,.2f}"
+        color_tg = "pnl-value"
+    
+    # 4. Renderizar tarjetas (Subiendo -65px para matar el margen oculto de Streamlit)
     c_tg, c_dd = st.columns(2)
     with c_tg:
         st.markdown(f"""
-            <div class="metric-card card-pnl" style="margin-top: -22px; margin-bottom: 10px; padding: 12px 15px !important; min-height: 85px !important;">
-                <div class="metric-header"><span class="title-net-pnl" style="font-size: 15px;">Target ${meta_target:,.0f}</span></div>
-                <div class="{color_tg}" style="font-size: 20px;">{simb_tg}${progreso_target:,.2f}</div>
+            <div class="metric-card card-pnl" style="margin-top: -65px; margin-bottom: 10px; padding: 12px 15px !important; min-height: 85px !important;">
+                <div class="metric-header"><span class="title-net-pnl" style="font-size: 15px;">Left for Target</span></div>
+                <div class="{color_tg}" style="font-size: 20px;">{texto_target}</div>
             </div>
         """, unsafe_allow_html=True)
     with c_dd:
         st.markdown(f"""
-            <div class="metric-card card-pnl" style="margin-top: -22px; margin-bottom: 10px; padding: 12px 15px !important; min-height: 85px !important;">
+            <div class="metric-card card-pnl" style="margin-top: -65px; margin-bottom: 10px; padding: 12px 15px !important; min-height: 85px !important;">
                 <div class="metric-header"><span class="title-net-pnl" style="font-size: 15px;">Max DD Level</span></div>
                 <div class="{color_dd}" style="font-size: 20px;">${nivel_perdida_maxima:,.2f}</div>
             </div>
