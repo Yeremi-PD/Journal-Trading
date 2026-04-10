@@ -217,6 +217,21 @@ if (!urlParams.has('device')) {
 </script>
 """, height=0, width=0)
 
+# --- AUTO-DETECTAR MÓVIL ANTES DE CARGAR ---
+components.html("""
+<script>
+// Si la URL no tiene el parámetro 'device', detectamos la pantalla
+const urlParams = new URLSearchParams(window.parent.location.search);
+if (!urlParams.has('device')) {
+    const isMobile = window.parent.innerWidth <= 768; // 768px es el ancho típico de celulares/tablets
+    if (isMobile) {
+        urlParams.set('device', 'Móvil');
+        window.parent.location.search = urlParams.toString(); // Recarga y le avisa a Python
+    }
+}
+</script>
+""", height=0, width=0)
+
 # --- RECUERDA LA SESIÓN Y DISPOSITIVO AL RECARGAR ---
 if "dispositivo_actual" not in st.session_state: 
     st.session_state.dispositivo_actual = "PC"
@@ -638,10 +653,11 @@ else:
 def gen_css_vars(s):
     return f"--size-top-stats:{s['size_top_stats']}px;--size-card-titles:{s['size_card_titles']}px;--size-box-titles:{s['size_box_titles']}px;--size-box-vals:{s['size_box_vals']}px;--size-box-pct:{s['size_box_pct']}px;--size-box-wl:{s['size_box_wl']}px;--pie-size:{s['pie_size']}px;--pie-y-offset:{s['pie_y_offset']}px;--cal-mes-size:{s['cal_mes_size']}px;--cal-pnl-size:{s['cal_pnl_size']}px;--cal-pct-size:{s['cal_pct_size']}px;--cal-dia-size:{s['cal_dia_size']}px;--cal-cam-size:{s['cal_cam_size']}px;--cal-note-size:{s.get('cal_note_size',30)}px;--cal-scale:{s['cal_scale']}px;--cal-line-height:{s['cal_line_height']};--bal-num-sz:{s['bal_num_sz']}px;--bal-box-w:{s['bal_box_w']}%;--bal-box-pad:{s['bal_box_pad']}px;--cal-txt-y:{s.get('cal_txt_y',0)}px;--cal-txt-pad:{s.get('cal_txt_pad',0)}px;--note-lbl-size:{s.get('note_lbl_size',16)}px;--note-val-size:{s.get('note_val_size',16)}px;"
 
-# NUEVO: Generar lógica CSS de rotación solo si el usuario activó la orientación horizontal
+# NUEVO: Generar lógica CSS de rotación incluyendo Modales y Popovers
 rotacion_css = ""
 if user_settings.get("orientacion_horizontal", False):
     rotacion_css = """
+    /* Gira la app principal */
     [data-testid="stAppViewContainer"] {
         position: absolute !important;
         top: 50% !important;
@@ -653,6 +669,20 @@ if user_settings.get("orientacion_horizontal", False):
         overflow-y: auto !important;
     }
     header[data-testid="stHeader"] { display: none !important; }
+
+    /* Gira el calendario, notas (popovers) y el fondo negro de las fotos */
+    div[data-baseweb="popover"], .fs-modal {
+        transform: rotate(90deg) !important;
+        transform-origin: center center !important;
+    }
+    
+    /* Ajuste matemático para que la foto en pantalla completa quede centrada en el celular al girar */
+    .fs-modal {
+        width: 100vh !important;
+        height: 100vw !important;
+        top: calc((100vh - 100vw) / 2) !important;
+        left: calc((100vw - 100vh) / 2) !important;
+    }
     """
 
 st.markdown(f"""
@@ -678,10 +708,21 @@ st.markdown(f"""
         color: {c_dash} !important;
     }}
 
-    /* NUEVO: Agrandar botones de abrir/cerrar menú (las flechas << y >>) */
-    [data-testid="stSidebarCollapseButton"] button,
-    button[kind="header"] {{
-        transform: scale(1.8) !important; /* Hazlo más grande aumentando este número (ej: 2.0) */
+    /* Agrandar el botón de CERRAR (<<) cuando la barra está abierta */
+    [data-testid="stSidebarCollapseButton"] {{
+        transform: scale(1.8) !important;
+        transform-origin: center !important;
+    }}
+
+    /* Agrandar enormemente el botón de ABRIR (>) cuando la barra está escondida */
+    [data-testid="collapsedControl"] {{
+        transform: scale(2.5) !important; /* Cambia a 3.0 si lo quieres AÚN más grande */
+        transform-origin: top left !important;
+        left: 15px !important;
+        top: 15px !important; /* Aumenta este número (ej: 80px) si quieres que el botón baje más */
+        z-index: 999999 !important;
+    }}
+    [data-testid="collapsedControl"] svg {{
         color: {c_dash} !important;
     }}
 
