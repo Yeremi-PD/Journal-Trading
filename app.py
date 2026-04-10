@@ -933,7 +933,7 @@ col_t, col_fil, col_data, col_bal = st.columns([3, 1.5, 1.5, 2])
 
 with col_t: 
     # NUEVO: Icono ">>" minimalista y empujado hasta el tope de la pantalla
-    st.markdown('<div id="btn-abrir-menu" style="position: absolute; top: -125px; left: 0px; font-size: 90px; font-weight: 1200; color: #718096; cursor: pointer; z-index: 999999; letter-spacing: -4px;">»</div>', unsafe_allow_html=True)
+    st.markdown('<div id="btn-abrir-menu" style="position: absolute; top: -135px; left: 0px; font-size: 90px; font-weight: 1200; color: #718096; cursor: pointer; z-index: 999999; letter-spacing: -4px;">»</div>', unsafe_allow_html=True)
     
     # Usamos la variable 'usuario' directamente en el f-string
     st.markdown(f'<p class="dashboard-title">Hi, {usuario}</p>', unsafe_allow_html=True)
