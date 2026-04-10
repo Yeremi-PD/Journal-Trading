@@ -603,6 +603,7 @@ with st.sidebar.expander("🛡️ Admin Settings"):
                 ventana_borrar_usuario(u)
 
 st.sidebar.markdown("---")
+st.sidebar.markdown("### Dashboard Settings")
 with st.sidebar.expander("🖥️ Dashboard Settings"):
     if st.button("🔄 Reset Dashboard", key="res_dash", use_container_width=True): reset_settings("dash"); st.rerun()
     user_settings["bal_num_sz"] = st.slider("Balance Numbers Size", 10, 60, user_settings["bal_num_sz"])
