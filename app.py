@@ -34,10 +34,7 @@ def convertir_img_base64(uploaded_file):
     return f"data:{uploaded_file.type};base64,{base64.b64encode(uploaded_file.getvalue()).decode()}"
 
 def inicializar_data_usuario():
-    return {
-        "Account Real": {"balance": 25000.00, "trades": {}},
-        "Account Demo": {"balance": 25000.00, "trades": {}}
-    }
+    return {}
 
 def inicializar_settings():
     return {
@@ -419,10 +416,6 @@ for dev in ["PC", "Móvil"]:
             db_global[usuario]["settings"][dev][k] = v
 
 user_settings = db_global[usuario]["settings"][st.session_state.dispositivo_actual]
-
-for cuenta in ["Account Real", "Account Demo"]:
-    if cuenta not in db_usuario:
-        db_usuario[cuenta] = {"balance": 25000.00, "trades": {}}
 
 hoy = datetime.now()
 if "cal_month" not in st.session_state: st.session_state.cal_month = hoy.month
