@@ -1789,28 +1789,31 @@ observer.observe(doc.body, { childList: true, subtree: true });
 doc.addEventListener('click', function(e) {
     let target = e.target;
 
-    // --- LÓGICA DE ZOOM GRADUAL (+ y -) ---
+    // --- LÓGICA DE ZOOM GRADUAL (Escalones fijos: 25, 50, 75, 100...) ---
     if (target && (target.classList.contains('zoom-in-btn') || target.classList.contains('zoom-out-btn'))) {
         const modal = target.closest('.fs-modal');
         const imgs = modal.querySelectorAll('img');
         const isZoomIn = target.classList.contains('zoom-in-btn');
 
         imgs.forEach(img => {
-            // 80 es el tamaño original en 'vw' (viewport width)
-            let currentWidth = parseFloat(img.getAttribute('data-zoom')) || 80;
+            // Escalones exactos de zoom (80vw es el original, luego sube 25 en 25)
+            const zoomLevels = [80, 105, 130, 155, 180, 205]; 
+            // Buscamos en qué escalón estamos (0 por defecto)
+            let currentIndex = parseInt(img.getAttribute('data-zoom-idx')) || 0;
             
             if (isZoomIn) {
-                currentWidth += 50; // Sube de 50 en 50
-                if (currentWidth > 400) currentWidth = 400; // Límite máximo de zoom
+                currentIndex++; // Subimos un escalón (+)
+                if (currentIndex >= zoomLevels.length) currentIndex = zoomLevels.length - 1; // Tope máximo
             } else {
-                currentWidth -= 50; // Baja de 50 en 50
-                if (currentWidth <= 80) currentWidth = 80; // Vuelve a la normalidad
+                currentIndex--; // Bajamos un escalón (-)
+                if (currentIndex < 0) currentIndex = 0; // Tope mínimo (original)
             }
 
-            img.setAttribute('data-zoom', currentWidth);
+            img.setAttribute('data-zoom-idx', currentIndex);
+            let currentWidth = zoomLevels[currentIndex];
             
-            if (currentWidth > 80) {
-                // USAMOS setProperty con 'important' para vencer al CSS original
+            if (currentIndex > 0) {
+                // Si estamos en un escalón con zoom, forzamos las propiedades
                 modal.style.setProperty('display', 'block', 'important');
                 modal.style.setProperty('overflow', 'auto', 'important');
                 modal.style.setProperty('text-align', 'center', 'important');
@@ -1820,7 +1823,7 @@ doc.addEventListener('click', function(e) {
                 img.style.setProperty('max-height', 'none', 'important');
                 img.style.setProperty('margin-top', '80px', 'important');
             } else {
-                // Si el tamaño vuelve a 80, limpiamos las propiedades forzadas
+                // Si volvemos al escalón 0, borramos las modificaciones
                 modal.style.removeProperty('display');
                 modal.style.removeProperty('overflow');
                 modal.style.removeProperty('text-align');
@@ -1840,7 +1843,8 @@ doc.addEventListener('click', function(e) {
         if(modal) {
             const imgs = modal.querySelectorAll('img');
             imgs.forEach(img => {
-                img.setAttribute('data-zoom', 80);
+                // Volvemos el índice a 0 al cerrar
+                img.setAttribute('data-zoom-idx', 0);
                 modal.style.removeProperty('display');
                 modal.style.removeProperty('overflow');
                 modal.style.removeProperty('text-align');
