@@ -1428,9 +1428,9 @@ with col_det:
     c_hex_tg = "#FF4C4C" if "loss" in color_tg else "#00C897"
     c_hex_dd = "#FF4C4C" if "loss" in color_dd else "#00C897"
 
-    with c_tg: st.markdown(f'<div class="metric-card card-pnl" style="{e_caja}"><div class="metric-header"><span class="title-net-pnl" style="font-size: 12px;">Target</span></div><div style="color: {c_hex_tg}; font-size: 14px; font-weight: 800;">{texto_tg}</div></div>', unsafe_allow_html=True)
-    with c_dd: st.markdown(f'<div class="metric-card card-pnl" style="{e_caja}"><div class="metric-header"><span class="title-net-pnl" style="font-size: 12px;">Drawdown</span></div><div style="color: {c_hex_dd}; font-size: 14px; font-weight: 800;">{texto_dd}</div></div>', unsafe_allow_html=True)
-    with c_lose: st.markdown(f'<div class="metric-card card-pnl" style="{e_caja}"><div class="metric-header"><span class="title-net-pnl" style="font-size: 12px;">Lose Account</span></div><div style="color: {c_hex_dd}; font-size: 14px; font-weight: 800;">{texto_lose}</div></div>', unsafe_allow_html=True)
+    with c_tg: st.markdown(f'<div class="metric-card card-pnl" style="{e_caja}"><div class="metric-header"><span class="title-net-pnl" style="font-size: 12px;">Target</span></div><div style="color: {c_hex_tg}; font-size: 20px; font-weight: 800;">{texto_tg}</div></div>', unsafe_allow_html=True)
+    with c_dd: st.markdown(f'<div class="metric-card card-pnl" style="{e_caja}"><div class="metric-header"><span class="title-net-pnl" style="font-size: 12px;">Drawdown</span></div><div style="color: {c_hex_dd}; font-size: 20px; font-weight: 800;">{texto_dd}</div></div>', unsafe_allow_html=True)
+    with c_lose: st.markdown(f'<div class="metric-card card-pnl" style="{e_caja}"><div class="metric-header"><span class="title-net-pnl" style="font-size: 12px;">Lose Account</span></div><div style="color: {c_hex_dd}; font-size: 20px; font-weight: 800;">{texto_lose}</div></div>', unsafe_allow_html=True)
 
     ver_todo = st.toggle("View All Time ", value=False)
     
