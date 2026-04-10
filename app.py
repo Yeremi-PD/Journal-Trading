@@ -1424,9 +1424,13 @@ with col_det:
     c_tg, c_dd, c_lose = st.columns(3)
     e_caja = f"margin-top: 0px; margin-bottom: 10px; padding: 10px !important; min-height: 85px !important; display: flex; flex-direction: column; justify-content: center;"
     
-    with c_tg: st.markdown(f'<div class="metric-card card-pnl" style="{e_caja}"><div class="metric-header"><span class="title-net-pnl" style="font-size: 12px;">Target</span></div><div class="{color_tg}" style="font-size: 16px !important;">{texto_tg}</div></div>', unsafe_allow_html=True)
-    with c_dd: st.markdown(f'<div class="metric-card card-pnl" style="{e_caja}"><div class="metric-header"><span class="title-net-pnl" style="font-size: 12px;">Drawdown</span></div><div class="{color_dd}" style="font-size: 16px !important;">{texto_dd}</div></div>', unsafe_allow_html=True)
-    with c_lose: st.markdown(f'<div class="metric-card card-pnl" style="{e_caja}"><div class="metric-header"><span class="title-net-pnl" style="font-size: 12px;">Lose Account</span></div><div class="{color_dd}" style="font-size: 16px !important;">{texto_lose}</div></div>', unsafe_allow_html=True)
+    # Extirpamos la clase CSS rebelde y generamos los colores manualmente
+    c_hex_tg = "#FF4C4C" if "loss" in color_tg else "#00C897"
+    c_hex_dd = "#FF4C4C" if "loss" in color_dd else "#00C897"
+
+    with c_tg: st.markdown(f'<div class="metric-card card-pnl" style="{e_caja}"><div class="metric-header"><span class="title-net-pnl" style="font-size: 12px;">Target</span></div><div style="color: {c_hex_tg}; font-size: 14px; font-weight: 800;">{texto_tg}</div></div>', unsafe_allow_html=True)
+    with c_dd: st.markdown(f'<div class="metric-card card-pnl" style="{e_caja}"><div class="metric-header"><span class="title-net-pnl" style="font-size: 12px;">Drawdown</span></div><div style="color: {c_hex_dd}; font-size: 14px; font-weight: 800;">{texto_dd}</div></div>', unsafe_allow_html=True)
+    with c_lose: st.markdown(f'<div class="metric-card card-pnl" style="{e_caja}"><div class="metric-header"><span class="title-net-pnl" style="font-size: 12px;">Lose Account</span></div><div style="color: {c_hex_dd}; font-size: 14px; font-weight: 800;">{texto_lose}</div></div>', unsafe_allow_html=True)
 
     ver_todo = st.toggle("View All Time ", value=False)
     
@@ -1486,11 +1490,12 @@ with col_det:
     # --- DISEÑO DE LAS 3 TARJETAS INDEPENDIENTES ---
     c_met1, c_met2, c_met3 = st.columns(3)
 
+    c_hex_pnl = "#00C897" if net_pnl >= 0 else "#FF4C4C"
     with c_met1:
         st.markdown(f"""
             <div class="metric-card card-pnl">
                 <div class="metric-header"><span class="title-net-pnl">{titulo_pnl}</span></div>
-                <div class="{color_pnl}" style="font-size: 16px !important;">{simbolo_pnl}${net_pnl:,.2f}</div>
+                <div style="color: {c_hex_pnl}; font-size: 14px; font-weight: 800;">{simbolo_pnl}${net_pnl:,.2f}</div>
             </div>
         """, unsafe_allow_html=True)
 
