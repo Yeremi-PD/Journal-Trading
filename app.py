@@ -1785,27 +1785,72 @@ bloquearTeclado();
 const observer = new MutationObserver(bloquearTeclado);
 observer.observe(doc.body, { childList: true, subtree: true });
 
-// 3. Conectar el nuevo botón ">>" y el botón de "🔍 ZOOM"
+// 3. Conectar el nuevo botón ">>" y los botones de ZOOM Gradual (+ y -)
 doc.addEventListener('click', function(e) {
     let target = e.target;
 
-    // --- NUEVO: Lógica para el botón de ZOOM ---
-    if (target && target.classList.contains('zoom-btn')) {
+    // --- LÓGICA DE ZOOM GRADUAL (+ y -) ---
+    if (target && (target.classList.contains('zoom-in-btn') || target.classList.contains('zoom-out-btn'))) {
         const modal = target.closest('.fs-modal');
         const imgs = modal.querySelectorAll('img');
-        
-        if (modal.classList.contains('is-zoomed')) {
-            // Quitar Zoom
-            modal.classList.remove('is-zoomed');
-            imgs.forEach(img => img.classList.remove('zoomed-img'));
-            target.innerText = '🔍 ZOOM';
-        } else {
-            // Aplicar Zoom
-            modal.classList.add('is-zoomed');
-            imgs.forEach(img => img.classList.add('zoomed-img'));
-            target.innerText = '➖ RESTAURAR';
+        const isZoomIn = target.classList.contains('zoom-in-btn');
+
+        imgs.forEach(img => {
+            // 80 es el tamaño original en 'vw' (viewport width)
+            let currentWidth = parseFloat(img.getAttribute('data-zoom')) || 80;
+            
+            if (isZoomIn) {
+                currentWidth += 50; // Sube de 50 en 50
+                if (currentWidth > 400) currentWidth = 400; // Límite máximo de zoom
+            } else {
+                currentWidth -= 50; // Baja de 50 en 50
+                if (currentWidth <= 80) currentWidth = 80; // Vuelve a la normalidad
+            }
+
+            img.setAttribute('data-zoom', currentWidth);
+            
+            if (currentWidth > 80) {
+                // USAMOS setProperty con 'important' para vencer al CSS original
+                modal.style.setProperty('display', 'block', 'important');
+                modal.style.setProperty('overflow', 'auto', 'important');
+                modal.style.setProperty('text-align', 'center', 'important');
+                img.style.setProperty('width', currentWidth + 'vw', 'important');
+                img.style.setProperty('max-width', currentWidth + 'vw', 'important');
+                img.style.setProperty('height', 'auto', 'important');
+                img.style.setProperty('max-height', 'none', 'important');
+                img.style.setProperty('margin-top', '80px', 'important');
+            } else {
+                // Si el tamaño vuelve a 80, limpiamos las propiedades forzadas
+                modal.style.removeProperty('display');
+                modal.style.removeProperty('overflow');
+                modal.style.removeProperty('text-align');
+                img.style.removeProperty('width');
+                img.style.removeProperty('max-width');
+                img.style.removeProperty('height');
+                img.style.removeProperty('max-height');
+                img.style.removeProperty('margin-top');
+            }
+        });
+        return; // Detiene la ejecución aquí
+    }
+
+    // --- REINICIAR ZOOM AL CERRAR ---
+    if (target && target.classList.contains('close-btn')) {
+        const modal = target.closest('.fs-modal');
+        if(modal) {
+            const imgs = modal.querySelectorAll('img');
+            imgs.forEach(img => {
+                img.setAttribute('data-zoom', 80);
+                modal.style.removeProperty('display');
+                modal.style.removeProperty('overflow');
+                modal.style.removeProperty('text-align');
+                img.style.removeProperty('width');
+                img.style.removeProperty('max-width');
+                img.style.removeProperty('height');
+                img.style.removeProperty('max-height');
+                img.style.removeProperty('margin-top');
+            });
         }
-        return; // Detiene la ejecución aquí para que no interfiera con lo demás
     }
 
     // --- Lógica del botón de menú ">>" ---
