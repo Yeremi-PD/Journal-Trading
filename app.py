@@ -1404,7 +1404,7 @@ with col_det:
     else:
         texto_lose = f"${distancia_dd:,.2f}"; texto_dd = f"${nivel_perdida:,.2f}"
         if falta_tg <= 0:
-            texto_tg = "PASSED 🎉"; color_tg = "pnl-value"
+            texto_tg = f"${tope_dd:,.2f}"; color_tg = "pnl-value"
         else:
             texto_tg = f"${falta_tg:,.2f}"
             color_tg = "pnl-value pnl-value-loss" if falta_tg > meta_t else "pnl-value"
