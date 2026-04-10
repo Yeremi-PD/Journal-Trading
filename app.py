@@ -1212,6 +1212,7 @@ with col_cal:
                     
                     trades_visibles = []
                     for t in dia_trades:
+                        if st.session_state.get("toggle_funded_state", False) and t.get("is_pre_funded", False): continue
                         if filtro == OPT_FILTRO_2 and t["pnl"] <= 0: continue
                         if filtro == OPT_FILTRO_3 and t["pnl"] >= 0: continue
                         trades_visibles.append(t)
@@ -1409,10 +1410,14 @@ with col_det:
     with c_lose: st.markdown(f'<div class="metric-card card-pnl" style="{e_caja}"><div class="metric-header"><span class="title-net-pnl" style="font-size: 12px;">Lose Account</span></div><div class="{color_dd}" style="font-size: 15px;">{texto_lose}</div></div>', unsafe_allow_html=True)
 
     ver_todo = st.toggle("View All-Time", value=False)
-    todos_los_trades_planos = trades_cronologicos # Se inyecta a las estadisticas de abajo
+    
+    if st.session_state.get("toggle_funded_state", False) and paso_cuenta:
+        todos_los_trades_planos = trades_cronologicos
+    else:
+        todos_los_trades_planos = []
         for k, lista in db_usuario[ctx]["trades"].items():
             todos_los_trades_planos.extend(lista)
-        
+            
     if ver_todo:
         trades_lista = [t["pnl"] for t in todos_los_trades_planos]
         titulo_pnl = "Net P&L All-Time"
@@ -1532,6 +1537,7 @@ with col_det:
                 for idx, semana in enumerate(mes_matriz):
                     if dia in semana:
                         for val in lista_t:
+                            if st.session_state.get("toggle_funded_state", False) and val.get("is_pre_funded", False): continue
                             semanas_stats[idx + 1]["pnl"] += val["pnl"]
                             if val["pnl"] > 0: semanas_stats[idx + 1]["w"] += 1
                             elif val["pnl"] < 0: semanas_stats[idx + 1]["l"] += 1
@@ -1573,6 +1579,7 @@ with col_det:
             if (y, m) not in meses_stats:
                 meses_stats[(y, m)] = {"pnl": 0.0, "w": 0, "l": 0}
             for val in lista_t:
+                if st.session_state.get("toggle_funded_state", False) and val.get("is_pre_funded", False): continue
                 meses_stats[(y, m)]["pnl"] += val["pnl"]
                 if val["pnl"] > 0: meses_stats[(y, m)]["w"] += 1
                 elif val["pnl"] < 0: meses_stats[(y, m)]["l"] += 1
@@ -1656,6 +1663,7 @@ with col_mitad_1:
                 fecha_dt = datetime(anio_t, mes_t, dia_t)
 
                 for i, data in enumerate(lista_trades):
+                    if st.session_state.get("toggle_funded_state", False) and data.get("is_pre_funded", False): continue
                     pnl_val = float(data['pnl'])
                     color_md = "green" if pnl_val > 0 else ("red" if pnl_val < 0 else "gray")
                     simbolo = "+" if pnl_val > 0 else ""
@@ -1803,6 +1811,7 @@ with col_mitad_2:
                     continue
 
                 for i, trade in enumerate(list_t):
+                    if st.session_state.get("toggle_funded_state", False) and trade.get("is_pre_funded", False): continue
                     fecha = date(key[0], key[1], key[2])
                     pnl = trade.get('pnl', 0)
                     pnl_simbol = "+" if pnl > 0 else ""
@@ -1908,7 +1917,7 @@ doc.addEventListener('keydown', function(e) {
     }
 });
 
-// 2. Bloquear teclado móvil en Filtros, Data Source y Calendario
+// 2. Bloquear teclado movil en Filtros, Data Source y Calendario
 function bloquearTeclado() {
     const inputs = doc.querySelectorAll('div[data-testid="stSelectbox"] input, div[data-testid="stDateInput"] input');
     inputs.forEach(input => {
@@ -1933,7 +1942,6 @@ doc.addEventListener('click', function(e) {
         const total = parseInt(modal.getAttribute('data-total')) || 1;
         const isNext = target.classList.contains('next-img-btn');
 
-        // Calcular nuevo indice (carrusel infinito)
         if (isNext) {
             currentIdx = (currentIdx + 1) % total;
         } else {
@@ -1941,7 +1949,6 @@ doc.addEventListener('click', function(e) {
         }
         modal.setAttribute('data-current', currentIdx);
 
-        // Actualizar visibilidad
         const imgs = modal.querySelectorAll('.gallery-img');
         imgs.forEach(img => {
             const idx = parseInt(img.getAttribute('data-idx'));
@@ -1949,7 +1956,6 @@ doc.addEventListener('click', function(e) {
                 img.style.setProperty('display', 'block', 'important');
             } else {
                 img.style.setProperty('display', 'none', 'important');
-                // Quitar zoom si estaba aplicado en la foto oculta
                 img.setAttribute('data-zoom-idx', 0);
                 img.style.removeProperty('width');
                 img.style.removeProperty('max-width');
@@ -1959,18 +1965,15 @@ doc.addEventListener('click', function(e) {
             }
         });
 
-        // Actualizar el numero de la foto
         const counter = modal.querySelector('.img-counter');
         if (counter) counter.innerText = (currentIdx + 1) + ' / ' + total;
-        
         return;
     }
 
-    // --- LOGICA DE ZOOM GRADUAL (Solo afecta a la imagen visible) ---
+    // --- LOGICA DE ZOOM GRADUAL ---
     if (target && (target.classList.contains('zoom-in-btn') || target.classList.contains('zoom-out-btn'))) {
         const modal = target.closest('.fs-modal');
         const currentIdx = modal.getAttribute('data-current') || "0";
-        // Apuntar a la imagen que esta viendose en este momento
         const img = modal.querySelector(`.gallery-img[data-idx="${currentIdx}"]`) || modal.querySelector('img');
         
         if (!img) return;
@@ -2016,7 +2019,6 @@ doc.addEventListener('click', function(e) {
     if (target && target.classList.contains('close-btn')) {
         const modal = target.closest('.fs-modal');
         if(modal) {
-            // Regresar a la foto 1 siempre
             modal.setAttribute('data-current', '0');
             const counter = modal.querySelector('.img-counter');
             const total = modal.getAttribute('data-total') || 1;
@@ -2034,7 +2036,6 @@ doc.addEventListener('click', function(e) {
                 img.style.removeProperty('max-height');
                 img.style.removeProperty('margin-top');
                 
-                // Mostrar solo la primera foto al cerrar
                 const idx = parseInt(img.getAttribute('data-idx')) || 0;
                 img.style.setProperty('display', idx === 0 ? 'block' : 'none', 'important');
             });
@@ -2050,94 +2051,6 @@ doc.addEventListener('click', function(e) {
             let btnAlternativo = doc.querySelector('[data-testid="stSidebarCollapseButton"] button') || doc.querySelector('[data-testid="stSidebarCollapseButton"]');
             if (btnAbrir) btnAbrir.click();
             else if (btnAlternativo) btnAlternativo.click();
-            break;
-        }
-        target = target.parentNode;
-    }
-}, true); // <-- EL 'true' ES VITAL: Fuerza a leer nuestro clic antes de que React lo elimine
-</script>
-        const modal = target.closest('.fs-modal');
-        const imgs = modal.querySelectorAll('img');
-        const isZoomIn = target.classList.contains('zoom-in-btn');
-
-        imgs.forEach(img => {
-            // Escalones exactos de zoom (80vw es el original, luego sube 25 en 25)
-            const zoomLevels = [80, 105, 130, 155, 180, 205]; 
-            // Buscamos en qué escalón estamos (0 por defecto)
-            let currentIndex = parseInt(img.getAttribute('data-zoom-idx')) || 0;
-            
-            if (isZoomIn) {
-                currentIndex++; // Subimos un escalón (+)
-                if (currentIndex >= zoomLevels.length) currentIndex = zoomLevels.length - 1; // Tope máximo
-            } else {
-                currentIndex--; // Bajamos un escalón (-)
-                if (currentIndex < 0) currentIndex = 0; // Tope mínimo (original)
-            }
-
-            img.setAttribute('data-zoom-idx', currentIndex);
-            let currentWidth = zoomLevels[currentIndex];
-            
-            if (currentIndex > 0) {
-                // Si estamos en un escalón con zoom, forzamos las propiedades
-                modal.style.setProperty('display', 'block', 'important');
-                modal.style.setProperty('overflow', 'auto', 'important');
-                modal.style.setProperty('text-align', 'center', 'important');
-                img.style.setProperty('width', currentWidth + 'vw', 'important');
-                img.style.setProperty('max-width', currentWidth + 'vw', 'important');
-                img.style.setProperty('height', 'auto', 'important');
-                img.style.setProperty('max-height', 'none', 'important');
-                img.style.setProperty('margin-top', '80px', 'important');
-            } else {
-                // Si volvemos al escalón 0, borramos las modificaciones
-                modal.style.removeProperty('display');
-                modal.style.removeProperty('overflow');
-                modal.style.removeProperty('text-align');
-                img.style.removeProperty('width');
-                img.style.removeProperty('max-width');
-                img.style.removeProperty('height');
-                img.style.removeProperty('max-height');
-                img.style.removeProperty('margin-top');
-            }
-        });
-        return; // Detiene la ejecución aquí
-    }
-
-    // --- REINICIAR ZOOM AL CERRAR ---
-    if (target && target.classList.contains('close-btn')) {
-        const modal = target.closest('.fs-modal');
-        if(modal) {
-            const imgs = modal.querySelectorAll('img');
-            imgs.forEach(img => {
-                // Volvemos el índice a 0 al cerrar
-                img.setAttribute('data-zoom-idx', 0);
-                modal.style.removeProperty('display');
-                modal.style.removeProperty('overflow');
-                modal.style.removeProperty('text-align');
-                img.style.removeProperty('width');
-                img.style.removeProperty('max-width');
-                img.style.removeProperty('height');
-                img.style.removeProperty('max-height');
-                img.style.removeProperty('margin-top');
-            });
-        }
-    }
-
-    // --- Lógica del botón de menú ">>" ---
-    while(target && target !== doc) {
-        if (target.id === 'btn-abrir-menu') {
-            // Evitamos que Streamlit bloquee la acción
-            e.preventDefault();
-            e.stopPropagation();
-            
-            // En modo "Escritorio" Streamlit a veces usa selectores distintos, buscamos todos los posibles
-            let btnAbrir = doc.querySelector('[data-testid="collapsedControl"]');
-            let btnAlternativo = doc.querySelector('[data-testid="stSidebarCollapseButton"] button') || doc.querySelector('[data-testid="stSidebarCollapseButton"]');
-            
-            if (btnAbrir) {
-                btnAbrir.click();
-            } else if (btnAlternativo) {
-                btnAlternativo.click();
-            }
             break;
         }
         target = target.parentNode;
