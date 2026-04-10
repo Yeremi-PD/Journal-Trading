@@ -1405,15 +1405,17 @@ with col_det:
     # 4. Mostrar el Switch (SOLO aparece si ya pasaste la cuenta)
     margen_cajas = "-145px"
     if paso_cuenta:
-        # AQUÍ ESTÁ LA MAGIA REAL: Atacamos el contenedor del toggle directamente con CSS
         st.markdown("""
-        <style>
-        div[data-testid="stToggle"] {
-            margin-top: -75px !important; /* Aumenta este valor (ej. -90px) si quieres que suba aún más */
-            position: relative;
-            z-index: 10;
-        }
-        </style>
+            <div id="ancla-switch"></div>
+            <style>
+                /* MAGIA ABSOLUTA: Busca el contenedor exacto del switch y lo saca del flujo para que no empuje nada */
+                div[data-testid="element-container"]:has(#ancla-switch) + div[data-testid="element-container"] {
+                    transform: translateY(-210px) !important; /* Lo sube muy por encima de las tarjetas */
+                    margin-bottom: -40px !important; /* Elimina su espacio invisible para que no empuje las cajas */
+                    position: relative !important;
+                    z-index: 99999 !important;
+                }
+            </style>
         """, unsafe_allow_html=True)
         st.toggle("Funded Account", key="toggle_funded_state")
         margen_cajas = "-145px" 
