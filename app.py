@@ -1103,16 +1103,16 @@ st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
 with st.form(key="form_main_entry", clear_on_submit=True, border=False):
     c1, c2, c_img, c_not, c_espacio = st.columns([1.5, 0.5, 2.5, 0.6, 3.4]) 
     
-with c1:
-            st.markdown(f'<div class="lbl-input">{LBL_INPUT}</div>', unsafe_allow_html=True)
-            # FIX: Cambiado a text_input con CSS inyectado para detectar el "+" o "-" sin perder el diseño
-            st.markdown(f"""<style>
-            div[data-testid="stTextInput"]:has(input[aria-label="Balance Input"]) {{ margin-left: {INPUT_BAL_X}px !important; margin-top: {INPUT_BAL_Y}px !important; width: {INPUT_BAL_W} !important; min-width: {INPUT_BAL_W} !important; max-width: {INPUT_BAL_W} !important; }}
-            div[data-testid="stTextInput"]:has(input[aria-label="Balance Input"]) > div:last-child, div[data-testid="stTextInput"]:has(input[aria-label="Balance Input"]) div[data-baseweb="base-input"], div[data-testid="stTextInput"]:has(input[aria-label="Balance Input"]) div[data-baseweb="input"] {{ height: {INPUT_BAL_H} !important; min-height: {INPUT_BAL_H} !important; background-color: {input_bg} !important; border-color: {border_color} !important; }}
-            div[data-testid="stTextInput"]:has(input[aria-label="Balance Input"]) input {{ color: {c_lbl_in} !important; font-size: {INPUT_BAL_TXT_SIZE}px !important; background-color: {input_bg} !important; font-weight: bold !important; height: {INPUT_BAL_H} !important; box-sizing: border-box !important; padding-top: 15px !important; padding-bottom: 15px !important; display: flex !important; align-items: center !important; line-height: normal !important; }}
-            </style>""", unsafe_allow_html=True)
-            nuevo_bal_input_str = st.text_input("Balance Input", value=f"{bal_mostrar:.2f}", label_visibility="collapsed")
-            btn_save = st.form_submit_button("SAVE", key="btn_save_main")
+    with c1:
+        st.markdown(f'<div class="lbl-input">{LBL_INPUT}</div>', unsafe_allow_html=True)
+        # FIX: Cambiado a text_input con CSS inyectado para detectar el "+" o "-" sin perder el diseño
+        st.markdown(f"""<style>
+        div[data-testid="stTextInput"]:has(input[aria-label="Balance Input"]) {{ margin-left: {INPUT_BAL_X}px !important; margin-top: {INPUT_BAL_Y}px !important; width: {INPUT_BAL_W} !important; min-width: {INPUT_BAL_W} !important; max-width: {INPUT_BAL_W} !important; }}
+        div[data-testid="stTextInput"]:has(input[aria-label="Balance Input"]) > div:last-child, div[data-testid="stTextInput"]:has(input[aria-label="Balance Input"]) div[data-baseweb="base-input"], div[data-testid="stTextInput"]:has(input[aria-label="Balance Input"]) div[data-baseweb="input"] {{ height: {INPUT_BAL_H} !important; min-height: {INPUT_BAL_H} !important; background-color: {input_bg} !important; border-color: {border_color} !important; }}
+        div[data-testid="stTextInput"]:has(input[aria-label="Balance Input"]) input {{ color: {c_lbl_in} !important; font-size: {INPUT_BAL_TXT_SIZE}px !important; background-color: {input_bg} !important; font-weight: bold !important; height: {INPUT_BAL_H} !important; box-sizing: border-box !important; padding-top: 15px !important; padding-bottom: 15px !important; display: flex !important; align-items: center !important; line-height: normal !important; }}
+        </style>""", unsafe_allow_html=True)
+        nuevo_bal_input_str = st.text_input("Balance Input", value=f"{bal_mostrar:.2f}", label_visibility="collapsed")
+        btn_save = st.form_submit_button("SAVE", key="btn_save_main")
         
     with c2:
         st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True) 
@@ -1137,10 +1137,8 @@ with c1:
     with c_not:
         st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True) 
         with st.popover("📝", use_container_width=True):
-            # Título gigante (blindado)
             st.markdown("<div class='titulo-trade-details'>Trade Details</div>", unsafe_allow_html=True)
             
-            # 1. BIAS
             st.markdown("<div style='font-weight: 900; font-size: 14px; margin-top: 5px; margin-bottom: 0px;'>Bias</div>", unsafe_allow_html=True)
             bias_opts = ['LONG', 'SHORT', 'NONE']
             nuevo_bias_list = []
@@ -1149,7 +1147,6 @@ with c1:
                 if cols_bias[idx].checkbox(op, key=f"new_bias_{idx}"): nuevo_bias_list.append(op)
             nuevo_bias = ", ".join(nuevo_bias_list) if nuevo_bias_list else "NONE"
             
-            # 2. CONFLUENCES
             st.markdown("<div style='font-weight: 900; font-size: 14px; margin-top: 15px; margin-bottom: 0px;'>Confluences</div>", unsafe_allow_html=True)
             all_confs_list = ['BIAS WELL', 'LIQ SWEEP', 'IFVG', 'FVG', 'EQH / EQL', 'BSL / SSL', 'POI', 'SMT', 'Order Block', 'Continuation', 'Data High / Data Low', 'CISD']
             nuevo_conf = []
@@ -1158,11 +1155,9 @@ with c1:
                 if cols_conf[idx % 3].checkbox(c_name, key=f"new_conf_{idx}"):
                     nuevo_conf.append(c_name)
                     
-            # 3. REASON FOR TRADE (Movido hacia arriba, altura reducida a 45)
             st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
             nuevo_razon = st.text_area("Reason For Trade", value='', height=45)
             
-            # 4. RISK (Con más separación entre opciones)
             st.markdown("<div style='font-weight: 900; font-size: 14px; margin-top: 5px; margin-bottom: 0px;'>Risk</div>", unsafe_allow_html=True)
             risk_opts = ['1%', '0.9%', '0.8%', '0.7%', '0.6%', '0.5%', '0.4%']
             nuevo_risk_list = []
@@ -1171,7 +1166,6 @@ with c1:
                 if cols_risk[idx].checkbox(op, key=f"new_risk_{idx}"): nuevo_risk_list.append(op)
             nuevo_risk = ", ".join(nuevo_risk_list) if nuevo_risk_list else ""
             
-            # 5. RR (Con más separación)
             st.markdown("<div style='font-weight: 900; font-size: 14px; margin-top: 5px; margin-bottom: 0px;'>RR</div>", unsafe_allow_html=True)
             rr_opts = ['1:1', '1:1.5', '1:2', '1:3', '1:4']
             nuevo_rr_list = []
@@ -1180,7 +1174,6 @@ with c1:
                 if cols_rr[idx].checkbox(op, key=f"new_rr_{idx}"): nuevo_rr_list.append(op)
             nuevo_rr = ", ".join(nuevo_rr_list) if nuevo_rr_list else ""
             
-            # 6. TRADE TYPE
             st.markdown("<div style='font-weight: 900; font-size: 14px; margin-top: 5px; margin-bottom: 0px;'>Trade Type</div>", unsafe_allow_html=True)
             tt_opts = ['A+', 'A', 'B', 'C']
             nuevo_tt_list = []
@@ -1189,14 +1182,11 @@ with c1:
                 if cols_tt[idx].checkbox(op, key=f"new_tt_{idx}"): nuevo_tt_list.append(op)
             nuevo_tt = ", ".join(nuevo_tt_list) if nuevo_tt_list else ""
 
-            # 7. EMOTIONS (Penúltimo, altura 45)
             st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
             nuevo_emo = st.text_area("Emotions", value='', height=45)
-
-            # 8. CORRECTIONS (Último, altura 45)
             nuevo_corr = st.text_area("Corrections", value='', height=45)
 
-if btn_save:
+    if btn_save:
         viejo_real = db_usuario[ctx]["balance"]
         
         # FIX: LÓGICA DE BALANCE INTELIGENTE (+300, -300 o Balance Total)
@@ -1211,9 +1201,6 @@ if btn_save:
                 pnl = valor_float - bal_mostrar if valor_float != bal_mostrar else 0.0
         except ValueError:
             pnl = 0.0
-        
-        # El balance interno "histórico" suma ese PnL para no romper las gráficas viejas
-        nuevo_bal_absoluto = viejo_real + pnl
         
         # El balance interno "histórico" suma ese PnL para no romper las gráficas viejas
         nuevo_bal_absoluto = viejo_real + pnl
