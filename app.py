@@ -1215,6 +1215,9 @@ if btn_save:
         # El balance interno "histórico" suma ese PnL para no romper las gráficas viejas
         nuevo_bal_absoluto = viejo_real + pnl
         
+        # El balance interno "histórico" suma ese PnL para no romper las gráficas viejas
+        nuevo_bal_absoluto = viejo_real + pnl
+        
         clave_final = (fecha_sel.year, fecha_sel.month, fecha_sel.day)
         
         imgs_finales = []
