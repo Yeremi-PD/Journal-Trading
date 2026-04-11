@@ -719,7 +719,7 @@ def modal_galeria_individual(contexto):
     with col_nav1:
         if st.button("⬅️ PREV", use_container_width=True):
             st.session_state.galeria_idx = (st.session_state.galeria_idx - 1) % total
-            st.rerun()
+            # Eliminamos el st.rerun() porque el dialog se actualiza solo
             
     with col_nav2:
         st.markdown(f"<div style='text-align: center; font-weight: bold; font-size: 18px;'>Image {st.session_state.galeria_idx + 1} of {total}</div>", unsafe_allow_html=True)
@@ -728,7 +728,7 @@ def modal_galeria_individual(contexto):
     with col_nav3:
         if st.button("NEXT ➡️", use_container_width=True):
             st.session_state.galeria_idx = (st.session_state.galeria_idx + 1) % total
-            st.rerun()
+            # Eliminamos el st.rerun() porque el dialog se actualiza solo
 
     st.markdown("---")
 
