@@ -686,6 +686,34 @@ if st.sidebar.button("↻ Force Sync with Google Sheets", use_container_width=Tr
     get_global_db.clear()
     st.rerun()
 
+# --- NUEVA GALERÍA DE IMÁGENES GLOBALES ---
+st.sidebar.markdown("---")
+st.sidebar.markdown("### Gallery")
+
+@st.dialog("🖼️ All Saved Images", width="large")
+def modal_ver_todas_las_imagenes(contexto):
+    todas_las_fotos = []
+    # Recorremos los trades ordenados desde el más nuevo al más viejo
+    for clave, lista_t in sorted(db_usuario[contexto]["trades"].items(), key=lambda x: date(x[0][0], x[0][1], x[0][2]), reverse=True):
+        for t in lista_t:
+            for img in t.get("imagenes", []):
+                todas_las_fotos.append({"fecha": t["fecha_str"], "img": img})
+    
+    if not todas_las_fotos:
+        st.info("No hay imágenes guardadas en esta cuenta aún.")
+    else:
+        st.markdown(f"**Total images found:** {len(todas_las_fotos)}")
+        # Mostramos las imágenes en una cuadrícula de 2 columnas
+        cols = st.columns(2)
+        for idx, item in enumerate(todas_las_fotos):
+            with cols[idx % 2]:
+                st.markdown(f"<div style='text-align: center; font-weight: bold; margin-bottom: 5px; color: gray;'>🗓️ {item['fecha']}</div>", unsafe_allow_html=True)
+                st.image(item["img"], use_container_width=True)
+                st.markdown("<br>", unsafe_allow_html=True)
+
+if st.sidebar.button("🖼️ View All Images", use_container_width=True):
+    modal_ver_todas_las_imagenes(st.session_state.data_source_sel)
+
 st.sidebar.markdown("<br>", unsafe_allow_html=True) # Pequeño espacio entre los botones
 
 # BOTÓN DE CERRAR SESIÓN
