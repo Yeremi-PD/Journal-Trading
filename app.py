@@ -1230,6 +1230,7 @@ with st.form(key="form_main_entry", clear_on_submit=True, border=False):
             st.session_state.fecha_backtesting = fecha_sel
             st.session_state.cal_month = fecha_sel.month
             st.session_state.cal_year = fecha_sel.year
+            st.session_state.forzar_sync_mes = True  # <--- CANDADO DE SEGURIDAD ACTIVADO
         
         registrar_en_excel(usuario, db_global[usuario]["password"], ctx, fecha_sel, nuevo_bal_absoluto, pnl, trade_nuevo, db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
         
@@ -1247,6 +1248,12 @@ if paso_cuenta and "toggle_funded_state" not in st.session_state:
 modo_funded_activo = st.session_state.get("toggle_funded_state", False) and paso_cuenta
 
 col_cal, col_det = st.columns([2, 1]) 
+
+# --- APLICAR CANDADO DE SINCRONIZACIÓN ---
+if st.session_state.get("modo_backtesting", False) and st.session_state.get("forzar_sync_mes", False):
+    st.session_state.cal_month = st.session_state.fecha_backtesting.month
+    st.session_state.cal_year = st.session_state.fecha_backtesting.year
+    st.session_state.forzar_sync_mes = False
 
 anio_sel = st.session_state.cal_year
 mes_sel = st.session_state.cal_month
