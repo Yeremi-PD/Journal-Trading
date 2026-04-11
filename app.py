@@ -1103,7 +1103,16 @@ with st.form(key="form_main_entry", clear_on_submit=True, border=False):
         
     with c2:
         st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True) 
-        fecha_defecto = st.session_state.fecha_backtesting if st.session_state.modo_backtesting else hoy
+        
+        # Sincronización inteligente: Solo en modo backtesting lee el mes del calendario de abajo
+        if st.session_state.modo_backtesting:
+            if st.session_state.fecha_backtesting.month != st.session_state.cal_month or st.session_state.fecha_backtesting.year != st.session_state.cal_year:
+                fecha_defecto = date(st.session_state.cal_year, st.session_state.cal_month, 1)
+            else:
+                fecha_defecto = st.session_state.fecha_backtesting
+        else:
+            fecha_defecto = hoy
+            
         fecha_sel = st.date_input("Fecha", value=fecha_defecto, label_visibility="collapsed", key="btn_fecha_directa")
             
     with c_img:
@@ -1216,8 +1225,11 @@ with st.form(key="form_main_entry", clear_on_submit=True, border=False):
 
         db_usuario[ctx]["balance"] = nuevo_bal_absoluto
         
+        # Forzar al calendario visual a moverse al mes del trade que acabas de guardar (Solo Backtesting)
         if st.session_state.modo_backtesting:
             st.session_state.fecha_backtesting = fecha_sel
+            st.session_state.cal_month = fecha_sel.month
+            st.session_state.cal_year = fecha_sel.year
         
         registrar_en_excel(usuario, db_global[usuario]["password"], ctx, fecha_sel, nuevo_bal_absoluto, pnl, trade_nuevo, db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
         
