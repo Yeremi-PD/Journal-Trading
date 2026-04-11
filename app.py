@@ -1110,6 +1110,7 @@ with st.form(key="form_main_entry", clear_on_submit=True, border=False):
         div[data-testid="stTextInput"]:has(input[aria-label="Balance Input"]) {{ margin-left: {INPUT_BAL_X}px !important; margin-top: {INPUT_BAL_Y}px !important; width: {INPUT_BAL_W} !important; min-width: {INPUT_BAL_W} !important; max-width: {INPUT_BAL_W} !important; }}
         div[data-testid="stTextInput"]:has(input[aria-label="Balance Input"]) > div:last-child, div[data-testid="stTextInput"]:has(input[aria-label="Balance Input"]) div[data-baseweb="base-input"], div[data-testid="stTextInput"]:has(input[aria-label="Balance Input"]) div[data-baseweb="input"] {{ height: {INPUT_BAL_H} !important; min-height: {INPUT_BAL_H} !important; background-color: {input_bg} !important; border-color: {border_color} !important; }}
         div[data-testid="stTextInput"]:has(input[aria-label="Balance Input"]) input {{ color: {c_lbl_in} !important; font-size: {INPUT_BAL_TXT_SIZE}px !important; background-color: {input_bg} !important; font-weight: bold !important; height: {INPUT_BAL_H} !important; box-sizing: border-box !important; padding-top: 15px !important; padding-bottom: 15px !important; display: flex !important; align-items: center !important; line-height: normal !important; }}
+        div[data-testid="InputInstructions"] {{ display: none !important; }}
         </style>""", unsafe_allow_html=True)
         nuevo_bal_input_str = st.text_input("Balance Input", value=f"{bal_mostrar:.2f}", label_visibility="collapsed")
         btn_save = st.form_submit_button("SAVE", key="btn_save_main")
