@@ -512,6 +512,15 @@ with st.sidebar.expander("➕ Create New Account"):
     if st.button("🚀 Create Account", use_container_width=True, key="btn_crear_cta_sidebar"):
         if nueva_cuenta_nombre and nueva_cuenta_nombre not in db_usuario:
             db_usuario[nueva_cuenta_nombre] = {"balance": nueva_cuenta_bal, "trades": {}}
+            
+            # --- SOLUCIÓN: Auto-seleccionar la cuenta recién creada ---
+            st.session_state.data_source_sel = nueva_cuenta_nombre
+            try:
+                st.query_params["account"] = nueva_cuenta_nombre
+            except:
+                pass
+            # -----------------------------------------------------------
+            
             reescribir_excel_usuario(usuario)
             st.success(f"Account '{nueva_cuenta_nombre}' created!")
             st.rerun()
