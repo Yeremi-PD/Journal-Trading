@@ -697,11 +697,26 @@ if "galeria_idx" not in st.session_state:
 @st.dialog("🖼️ Image Gallery", width="large")
 def modal_galeria_individual(contexto):
     todas_las_fotos = []
-    # Recorremos los trades para juntar todas las fotos
-    for clave, lista_t in sorted(db_usuario[contexto]["trades"].items(), key=lambda x: date(x[0][0], x[0][1], x[0][2]), reverse=True):
-        for t in lista_t:
+    
+    # Extraemos todas las fotos y las preparamos con su fecha matemática
+    for clave, lista_t in db_usuario[contexto]["trades"].items():
+        # Invertimos los trades del día para que el último trade salga primero
+        for t in reversed(lista_t):
             for img in t.get("imagenes", []):
-                todas_las_fotos.append({"fecha": t["fecha_str"], "img": img})
+                try:
+                    # Convertimos el texto (ej: 14/08/2024) en una fecha real de Python
+                    dt_obj = datetime.strptime(t["fecha_str"], "%d/%m/%Y")
+                except:
+                    dt_obj = datetime(clave[0], clave[1], clave[2])
+                    
+                todas_las_fotos.append({
+                    "fecha_dt": dt_obj, 
+                    "fecha": t["fecha_str"], 
+                    "img": img
+                })
+                
+    # 🟢 EL TRUCO: Ordenar toda la lista por la fecha real (de la más NUEVA a la más VIEJA)
+    todas_las_fotos.sort(key=lambda x: x["fecha_dt"], reverse=True)
     
     if not todas_las_fotos:
         st.info("No hay imágenes guardadas en esta cuenta aún.")
