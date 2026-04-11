@@ -1193,7 +1193,7 @@ with st.form(key="form_main_entry", clear_on_submit=True, border=False):
         
         # FIX: Si está vacío, detenemos todo y sacamos un error
         if entrada_limpia == "":
-            st.error("⚠️ El cuadro no puede estar vacío. Ingresa un Balance o un P&L (ej: +300 o -150).")
+            st.error("⚠️ El cuadro no puede estar vacío.")
         else:
             viejo_real = db_usuario[ctx]["balance"]
             
