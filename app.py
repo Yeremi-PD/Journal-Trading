@@ -1103,10 +1103,15 @@ st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
 with st.form(key="form_main_entry", clear_on_submit=True, border=False):
     c1, c2, c_img, c_not, c_espacio = st.columns([1.5, 0.5, 2.5, 0.6, 3.4]) 
     
-    with c1:
+with c1:
             st.markdown(f'<div class="lbl-input">{LBL_INPUT}</div>', unsafe_allow_html=True)
-            # FIX: El cuadro ahora mostrará el balance reseteado (bal_mostrar)
-            nuevo_bal_input = st.number_input("Balance", value=float(bal_mostrar), format="%.2f", label_visibility="collapsed")
+            # FIX: Cambiado a text_input con CSS inyectado para detectar el "+" o "-" sin perder el diseño
+            st.markdown(f"""<style>
+            div[data-testid="stTextInput"]:has(input[aria-label="Balance Input"]) {{ margin-left: {INPUT_BAL_X}px !important; margin-top: {INPUT_BAL_Y}px !important; width: {INPUT_BAL_W} !important; min-width: {INPUT_BAL_W} !important; max-width: {INPUT_BAL_W} !important; }}
+            div[data-testid="stTextInput"]:has(input[aria-label="Balance Input"]) > div:last-child, div[data-testid="stTextInput"]:has(input[aria-label="Balance Input"]) div[data-baseweb="base-input"], div[data-testid="stTextInput"]:has(input[aria-label="Balance Input"]) div[data-baseweb="input"] {{ height: {INPUT_BAL_H} !important; min-height: {INPUT_BAL_H} !important; background-color: {input_bg} !important; border-color: {border_color} !important; }}
+            div[data-testid="stTextInput"]:has(input[aria-label="Balance Input"]) input {{ color: {c_lbl_in} !important; font-size: {INPUT_BAL_TXT_SIZE}px !important; background-color: {input_bg} !important; font-weight: bold !important; height: {INPUT_BAL_H} !important; box-sizing: border-box !important; padding-top: 15px !important; padding-bottom: 15px !important; display: flex !important; align-items: center !important; line-height: normal !important; }}
+            </style>""", unsafe_allow_html=True)
+            nuevo_bal_input_str = st.text_input("Balance Input", value=f"{bal_mostrar:.2f}", label_visibility="collapsed")
             btn_save = st.form_submit_button("SAVE", key="btn_save_main")
         
     with c2:
@@ -1191,11 +1196,21 @@ with st.form(key="form_main_entry", clear_on_submit=True, border=False):
             # 8. CORRECTIONS (Último, altura 45)
             nuevo_corr = st.text_area("Corrections", value='', height=45)
 
-    if btn_save:
+if btn_save:
         viejo_real = db_usuario[ctx]["balance"]
         
-        # FIX: Calculamos el PnL comparando lo que escribiste con el balance reseteado que estabas viendo
-        pnl = nuevo_bal_input - bal_mostrar if nuevo_bal_input != bal_mostrar else 0.0
+        # FIX: LÓGICA DE BALANCE INTELIGENTE (+300, -300 o Balance Total)
+        entrada_limpia = str(nuevo_bal_input_str).strip()
+        try:
+            if entrada_limpia.startswith('+') or entrada_limpia.startswith('-'):
+                # Si arranca con + o -, es PnL directo
+                pnl = float(entrada_limpia)
+            else:
+                # Si solo puso números, calculamos la diferencia con la lógica original
+                valor_float = float(entrada_limpia.replace(',', ''))
+                pnl = valor_float - bal_mostrar if valor_float != bal_mostrar else 0.0
+        except ValueError:
+            pnl = 0.0
         
         # El balance interno "histórico" suma ese PnL para no romper las gráficas viejas
         nuevo_bal_absoluto = viejo_real + pnl
