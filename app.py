@@ -1112,7 +1112,8 @@ with st.form(key="form_main_entry", clear_on_submit=True, border=False):
         div[data-testid="stTextInput"]:has(input[aria-label="Balance Input"]) input {{ color: {c_lbl_in} !important; font-size: {INPUT_BAL_TXT_SIZE}px !important; background-color: {input_bg} !important; font-weight: bold !important; height: {INPUT_BAL_H} !important; box-sizing: border-box !important; padding-top: 15px !important; padding-bottom: 15px !important; display: flex !important; align-items: center !important; line-height: normal !important; }}
         div[data-testid="InputInstructions"] {{ display: none !important; }}
         </style>""", unsafe_allow_html=True)
-        nuevo_bal_input_str = st.text_input("Balance Input", value=f"{bal_mostrar:.2f}", label_visibility="collapsed")
+        # FIX: Empieza vacío para forzarte a escribir, pero muestra el balance actual como "fantasma"
+        nuevo_bal_input_str = st.text_input("Balance Input", value="", placeholder=f"{bal_mostrar:.2f}", label_visibility="collapsed")
         btn_save = st.form_submit_button("SAVE", key="btn_save_main")
         
     with c2:
@@ -1188,69 +1189,74 @@ with st.form(key="form_main_entry", clear_on_submit=True, border=False):
             nuevo_corr = st.text_area("Corrections", value='', height=45)
 
     if btn_save:
-        viejo_real = db_usuario[ctx]["balance"]
-        
-        # FIX: LÓGICA DE BALANCE INTELIGENTE (+300, -300 o Balance Total)
         entrada_limpia = str(nuevo_bal_input_str).strip()
-        try:
-            if entrada_limpia.startswith('+') or entrada_limpia.startswith('-'):
-                # Si arranca con + o -, es PnL directo
-                pnl = float(entrada_limpia)
-            else:
-                # Si solo puso números, calculamos la diferencia con la lógica original
-                valor_float = float(entrada_limpia.replace(',', ''))
-                pnl = valor_float - bal_mostrar if valor_float != bal_mostrar else 0.0
-        except ValueError:
-            pnl = 0.0
         
-        # El balance interno "histórico" suma ese PnL para no romper las gráficas viejas
-        nuevo_bal_absoluto = viejo_real + pnl
-        
-        clave_final = (fecha_sel.year, fecha_sel.month, fecha_sel.day)
-        
-        imgs_finales = []
-        if imgs_subidas:
-            for img in imgs_subidas:
-                imgs_finales.append(convertir_img_base64(img))
-        
-        if link_imagen.strip().startswith("http"):
-            imgs_finales.append(link_imagen.strip())
-        
-        trade_nuevo = {
-            "pnl": pnl,
-            "balance_final": nuevo_bal_absoluto,
-            "fecha_str": fecha_sel.strftime("%d/%m/%Y"),
-            "imagenes": imgs_finales,
-            "bias": nuevo_bias,
-            "Confluences": nuevo_conf,
-            "razon_trade": nuevo_razon,
-            "Corrections": nuevo_corr,
-            "risk": nuevo_risk,
-            "RR": nuevo_rr,
-            "trade_type": nuevo_tt,
-            "Emotions": nuevo_emo
-        }
-        
-        if clave_final not in db_usuario[ctx]["trades"]:
-            db_usuario[ctx]["trades"][clave_final] = []
+        # FIX: Si está vacío, detenemos todo y sacamos un error
+        if entrada_limpia == "":
+            st.error("⚠️ El cuadro no puede estar vacío. Ingresa un Balance o un P&L (ej: +300 o -150).")
+        else:
+            viejo_real = db_usuario[ctx]["balance"]
             
-        db_usuario[ctx]["trades"][clave_final].append(trade_nuevo)
-        import time # Importamos time para la pausa
+            # FIX: LÓGICA DE BALANCE INTELIGENTE (+300, -300 o Balance Total)
+            try:
+                if entrada_limpia.startswith('+') or entrada_limpia.startswith('-'):
+                    # Si arranca con + o -, es PnL directo
+                    pnl = float(entrada_limpia)
+                else:
+                    # Si solo puso números, calculamos la diferencia con la lógica original
+                    valor_float = float(entrada_limpia.replace(',', ''))
+                    pnl = valor_float - bal_mostrar if valor_float != bal_mostrar else 0.0
+            except ValueError:
+                pnl = 0.0
+            
+            # El balance interno "histórico" suma ese PnL para no romper las gráficas viejas
+            nuevo_bal_absoluto = viejo_real + pnl
+            
+            clave_final = (fecha_sel.year, fecha_sel.month, fecha_sel.day)
+            
+            imgs_finales = []
+            if imgs_subidas:
+                for img in imgs_subidas:
+                    imgs_finales.append(convertir_img_base64(img))
+            
+            if link_imagen.strip().startswith("http"):
+                imgs_finales.append(link_imagen.strip())
+            
+            trade_nuevo = {
+                "pnl": pnl,
+                "balance_final": nuevo_bal_absoluto,
+                "fecha_str": fecha_sel.strftime("%d/%m/%Y"),
+                "imagenes": imgs_finales,
+                "bias": nuevo_bias,
+                "Confluences": nuevo_conf,
+                "razon_trade": nuevo_razon,
+                "Corrections": nuevo_corr,
+                "risk": nuevo_risk,
+                "RR": nuevo_rr,
+                "trade_type": nuevo_tt,
+                "Emotions": nuevo_emo
+            }
+            
+            if clave_final not in db_usuario[ctx]["trades"]:
+                db_usuario[ctx]["trades"][clave_final] = []
+                
+            db_usuario[ctx]["trades"][clave_final].append(trade_nuevo)
+            import time # Importamos time para la pausa
 
-        db_usuario[ctx]["balance"] = nuevo_bal_absoluto
-        
-        # Forzar al calendario visual a moverse al mes del trade que acabas de guardar (Solo Backtesting)
-        if st.session_state.modo_backtesting:
-            st.session_state.fecha_backtesting = fecha_sel
-            st.session_state.cal_month = fecha_sel.month
-            st.session_state.cal_year = fecha_sel.year
-            st.session_state.forzar_sync_mes = True  # <--- CANDADO DE SEGURIDAD ACTIVADO
-        
-        registrar_en_excel(usuario, db_global[usuario]["password"], ctx, fecha_sel, nuevo_bal_absoluto, pnl, trade_nuevo, db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
-        
-        st.success("✅ Trade Saved!")
-        time.sleep(1) # Pausa de 1 segundo para que el usuario pueda leer el mensaje verde
-        st.rerun()
+            db_usuario[ctx]["balance"] = nuevo_bal_absoluto
+            
+            # Forzar al calendario visual a moverse al mes del trade que acabas de guardar (Solo Backtesting)
+            if st.session_state.modo_backtesting:
+                st.session_state.fecha_backtesting = fecha_sel
+                st.session_state.cal_month = fecha_sel.month
+                st.session_state.cal_year = fecha_sel.year
+                st.session_state.forzar_sync_mes = True  # <--- CANDADO DE SEGURIDAD ACTIVADO
+            
+            registrar_en_excel(usuario, db_global[usuario]["password"], ctx, fecha_sel, nuevo_bal_absoluto, pnl, trade_nuevo, db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
+            
+            st.success("✅ Trade Saved!")
+            time.sleep(1) # Pausa de 1 segundo para que el usuario pueda leer el mensaje verde
+            st.rerun()
 
 # ==========================================
 # 10. CALENDARIO Y RESUMEN
