@@ -504,6 +504,7 @@ if st.sidebar.button("💾 Save Design Settings", use_container_width=True):
     st.sidebar.success("✅ Settings Saved!")
 
 st.sidebar.markdown("---")
+st.sidebar.markdown("### Backtesting")
 st.session_state.modo_backtesting = st.sidebar.toggle("⏪ Backtesting Mode", value=st.session_state.modo_backtesting)
 
 st.sidebar.markdown("---")
