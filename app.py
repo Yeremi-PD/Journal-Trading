@@ -686,14 +686,18 @@ if st.sidebar.button("↻ Force Sync with Google Sheets", use_container_width=Tr
     get_global_db.clear()
     st.rerun()
 
-# --- NUEVA GALERÍA DE IMÁGENES GLOBALES ---
+# --- NUEVA GALERÍA DE IMÁGENES GLOBALES (MODO DIAPOSITIVA) ---
 st.sidebar.markdown("---")
 st.sidebar.markdown("### Gallery")
 
-@st.dialog("🖼️ All Saved Images", width="large")
-def modal_ver_todas_las_imagenes(contexto):
+# Inicializamos el índice de la galería si no existe
+if "galeria_idx" not in st.session_state:
+    st.session_state.galeria_idx = 0
+
+@st.dialog("🖼️ Image Gallery", width="large")
+def modal_galeria_individual(contexto):
     todas_las_fotos = []
-    # Recorremos los trades ordenados desde el más nuevo al más viejo
+    # Recorremos los trades para juntar todas las fotos
     for clave, lista_t in sorted(db_usuario[contexto]["trades"].items(), key=lambda x: date(x[0][0], x[0][1], x[0][2]), reverse=True):
         for t in lista_t:
             for img in t.get("imagenes", []):
@@ -701,20 +705,43 @@ def modal_ver_todas_las_imagenes(contexto):
     
     if not todas_las_fotos:
         st.info("No hay imágenes guardadas en esta cuenta aún.")
-    else:
-        st.markdown(f"**Total images found:** {len(todas_las_fotos)}")
-        # Mostramos las imágenes en una cuadrícula de 2 columnas
-        cols = st.columns(2)
-        for idx, item in enumerate(todas_las_fotos):
-            with cols[idx % 2]:
-                st.markdown(f"<div style='text-align: center; font-weight: bold; margin-bottom: 5px; color: gray;'>🗓️ {item['fecha']}</div>", unsafe_allow_html=True)
-                st.image(item["img"], use_container_width=True)
-                st.markdown("<br>", unsafe_allow_html=True)
+        return
+
+    total = len(todas_las_fotos)
+    
+    # Ajustar el índice por si se borraron fotos o está fuera de rango
+    if st.session_state.galeria_idx >= total:
+        st.session_state.galeria_idx = 0
+
+    # --- CONTROLES DE NAVEGACIÓN ---
+    col_nav1, col_nav2, col_nav3 = st.columns([1, 2, 1])
+    
+    with col_nav1:
+        if st.button("⬅️ PREV", use_container_width=True):
+            st.session_state.galeria_idx = (st.session_state.galeria_idx - 1) % total
+            st.rerun()
+            
+    with col_nav2:
+        st.markdown(f"<div style='text-align: center; font-weight: bold; font-size: 18px;'>Image {st.session_state.galeria_idx + 1} of {total}</div>", unsafe_allow_html=True)
+        st.markdown(f"<div style='text-align: center; color: gray;'>🗓️ Date: {todas_las_fotos[st.session_state.galeria_idx]['fecha']}</div>", unsafe_allow_html=True)
+
+    with col_nav3:
+        if st.button("NEXT ➡️", use_container_width=True):
+            st.session_state.galeria_idx = (st.session_state.galeria_idx + 1) % total
+            st.rerun()
+
+    st.markdown("---")
+
+    # --- VISUALIZACIÓN DE LA IMAGEN ---
+    # Mostramos la imagen actual
+    foto_actual = todas_las_fotos[st.session_state.galeria_idx]["img"]
+    st.image(foto_actual, use_container_width=True)
 
 if st.sidebar.button("🖼️ View All Images", use_container_width=True):
-    modal_ver_todas_las_imagenes(st.session_state.data_source_sel)
+    st.session_state.galeria_idx = 0 # Empezar siempre desde la primera
+    modal_galeria_individual(st.session_state.data_source_sel)
 
-st.sidebar.markdown("<br>", unsafe_allow_html=True) # Pequeño espacio entre los botones
+st.sidebar.markdown("<br>", unsafe_allow_html=True)
 
 # BOTÓN DE CERRAR SESIÓN
 st.sidebar.markdown("---")
