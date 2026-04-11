@@ -451,7 +451,10 @@ for dev in ["PC", "Móvil"]:
 
 user_settings = db_global[usuario]["settings"][st.session_state.dispositivo_actual]
 
-hoy = datetime.now()
+hoy = datetime.now().date()
+if "modo_backtesting" not in st.session_state: st.session_state.modo_backtesting = False
+if "fecha_backtesting" not in st.session_state: st.session_state.fecha_backtesting = hoy
+
 if "cal_month" not in st.session_state: st.session_state.cal_month = hoy.month
 if "cal_year" not in st.session_state: st.session_state.cal_year = hoy.year
 
@@ -499,6 +502,9 @@ if st.sidebar.button("💾 Save Design Settings", use_container_width=True):
     bal_act = db_usuario[ctx_act]["balance"]
     registrar_en_excel(usuario, db_global[usuario]["password"], ctx_act, datetime.now(), bal_act, 0.0, {}, db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
     st.sidebar.success("✅ Settings Saved!")
+
+st.sidebar.markdown("---")
+st.session_state.modo_backtesting = st.sidebar.toggle("⏪ Backtesting Mode", value=st.session_state.modo_backtesting)
 
 st.sidebar.markdown("---")
 st.sidebar.markdown("### Manage Accounts")
@@ -1097,7 +1103,8 @@ with st.form(key="form_main_entry", clear_on_submit=True, border=False):
         
     with c2:
         st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True) 
-        fecha_sel = st.date_input("Fecha", value=hoy, label_visibility="collapsed", key="btn_fecha_directa")
+        fecha_defecto = st.session_state.fecha_backtesting if st.session_state.modo_backtesting else hoy
+        fecha_sel = st.date_input("Fecha", value=fecha_defecto, label_visibility="collapsed", key="btn_fecha_directa")
             
     with c_img:
         st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True) 
@@ -1208,6 +1215,9 @@ with st.form(key="form_main_entry", clear_on_submit=True, border=False):
         import time # Importamos time para la pausa
 
         db_usuario[ctx]["balance"] = nuevo_bal_absoluto
+        
+        if st.session_state.modo_backtesting:
+            st.session_state.fecha_backtesting = fecha_sel
         
         registrar_en_excel(usuario, db_global[usuario]["password"], ctx, fecha_sel, nuevo_bal_absoluto, pnl, trade_nuevo, db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
         
