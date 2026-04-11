@@ -1027,7 +1027,15 @@ _tc = []
 for c, lt in sorted(db_usuario[ctx]["trades"].items(), key=lambda x: datetime(x[0][0], x[0][1], x[0][2])):
     _tc.extend(lt)
 
-bal_inicial_abs = _tc[0]["balance_final"] - _tc[0]["pnl"] if _tc else bal_actual
+# FIX: Blindar el balance inicial contra trades desordenados en Backtesting
+bruto_inicial = bal_actual - sum(t["pnl"] for t in _tc) if _tc else bal_actual
+if bruto_inicial > 75000:
+    bal_inicial_abs = 100000.0
+elif bruto_inicial > 35000:
+    bal_inicial_abs = 50000.0
+else:
+    bal_inicial_abs = 25000.0
+
 meta_global = 1500 if bal_inicial_abs <= 35000 else (3000 if bal_inicial_abs <= 75000 else 6000)
 
 paso_cuenta = False
