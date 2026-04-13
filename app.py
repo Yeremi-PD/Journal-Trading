@@ -1703,7 +1703,6 @@ with col_det:
             # Guardamos en Google Sheets permanentemente
             reescribir_excel_usuario(usuario)
             
-            st.toast("⚠️ Has tocado el límite de pérdida. Toca levantarse y seguir.", icon="💀")
             
             html_script_perdida = """
             <script>
