@@ -1126,30 +1126,34 @@ if paso_cuenta:
     if "toggle_funded_state" not in st.session_state:
         st.session_state.toggle_funded_state = True
         
-    # GUARDADO PERMANENTE EN LA BASE DE DATOS (SETTINGS)
-    clave_celeb_db = "pa_celeb_v2_" + str(ctx)
+    # NUEVA LLAVE MAESTRA para forzar la animación
+    clave_celeb_db = "pa_celeb_FINAL_1_" + str(ctx)
     
     if not db_global[usuario]["settings"]["PC"].get(clave_celeb_db, False):
-        # Lo marcamos como celebrado en la memoria de la base de datos
+        
+        # 1. Guardamos silenciosamente en tu Google Sheets para que sea definitivo
         db_global[usuario]["settings"]["PC"][clave_celeb_db] = True
         db_global[usuario]["settings"]["Móvil"][clave_celeb_db] = True
-        
-        # Guardamos silenciosamente en tu Google Sheets para que sea definitivo
         reescribir_excel_usuario(usuario)
         
+        # 2. Toast de depuración (Si ves esto y no la pantalla, el problema es el navegador, no Python)
+        st.toast("¡Detectamos que pasaste a PA!", icon="🎉")
         st.balloons()
         
         html_script = """
         <script>
-            if (!window.parent.document.getElementById('confetti-script')) {
-                const script = window.parent.document.createElement('script');
-                script.id = 'confetti-script';
-                script.src = 'https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js';
-                script.onload = function() { iniciarCelebracionCompleta(); };
-                window.parent.document.head.appendChild(script);
-            } else {
-                iniciarCelebracionCompleta();
-            }
+            // Retrasamos la ejecución medio segundo para asegurar que la página ya está lista
+            setTimeout(function() {
+                if (!window.parent.document.getElementById('confetti-script')) {
+                    const script = window.parent.document.createElement('script');
+                    script.id = 'confetti-script';
+                    script.src = 'https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js';
+                    script.onload = function() { iniciarCelebracionCompleta(); };
+                    window.parent.document.head.appendChild(script);
+                } else {
+                    iniciarCelebracionCompleta();
+                }
+            }, 500);
 
             function iniciarCelebracionCompleta() {
                 const doc = window.parent.document;
@@ -1197,14 +1201,17 @@ if paso_cuenta:
                 var colors = ['#00C897', '#FFFFFF', '#FFD700', '#FF4C4C']; 
                 
                 (function frame() {
-                    window.parent.confetti({
-                        particleCount: 7, angle: 60, spread: 60, origin: { x: 0, y: 0.6 },
-                        colors: colors, zIndex: 9999999
-                    });
-                    window.parent.confetti({
-                        particleCount: 7, angle: 120, spread: 60, origin: { x: 1, y: 0.6 },
-                        colors: colors, zIndex: 9999999
-                    });
+                    // Prevenir error si la librería aún no enganchó en window
+                    if (window.parent.confetti) {
+                        window.parent.confetti({
+                            particleCount: 7, angle: 60, spread: 60, origin: { x: 0, y: 0.6 },
+                            colors: colors, zIndex: 9999999
+                        });
+                        window.parent.confetti({
+                            particleCount: 7, angle: 120, spread: 60, origin: { x: 1, y: 0.6 },
+                            colors: colors, zIndex: 9999999
+                        });
+                    }
                     
                     if (window.parent.Date.now() < end) {
                         window.parent.requestAnimationFrame(frame);
@@ -1213,12 +1220,14 @@ if paso_cuenta:
 
                 setTimeout(() => {
                     overlay.style.animation = 'fadeOutCelebration 1s forwards';
-                    setTimeout(() => { doc.body.removeChild(overlay); }, 1000);
+                    setTimeout(() => { 
+                        if(doc.body.contains(overlay)) { doc.body.removeChild(overlay); }
+                    }, 1000);
                 }, 6500);
             }
         </script>
         """
-        components.html(html_script, height=0, width=0)
+        components.html(html_script, height=1, width=1)
 
 modo_funded_activo = st.session_state.get("toggle_funded_state", False) and paso_cuenta
 
