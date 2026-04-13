@@ -123,6 +123,9 @@ def get_global_db():
                             risk_leido = str(row_data.get('Risk', '')).strip()
                             rr_leido = str(row_data.get('RR', '')).strip()
                             tt_leido = str(row_data.get('Trade Type', '')).strip()
+                            reason_leido = str(row_data.get('Reason', '')).strip()
+                            corr_leido = str(row_data.get('Corrections', '')).strip()
+                            emo_leido = str(row_data.get('Emotions', '')).strip()
 
                             trade_info = {
                                 "pnl": safe_float(row_data.get('PnL', 0)),
@@ -131,11 +134,12 @@ def get_global_db():
                                 "imagenes": [], 
                                 "bias": bias_leido if bias_leido else "NEUTRO", 
                                 "Confluences": conf_leidas, 
-                                "razon_trade": "", "Corrections": "", 
+                                "razon_trade": reason_leido, 
+                                "Corrections": corr_leido, 
                                 "risk": risk_leido if risk_leido else "0.5%", 
                                 "RR": rr_leido if rr_leido else "1:2", 
                                 "trade_type": tt_leido if tt_leido else "A", 
-                                "Emotions": ""
+                                "Emotions": emo_leido
                             }
                             
                             img_col_str = str(row_data.get('Imagenes', ''))
@@ -153,9 +157,13 @@ def get_global_db():
                                     if not risk_leido and "risk" in parsed_extra: trade_info["risk"] = parsed_extra["risk"]
                                     if not rr_leido and "RR" in parsed_extra: trade_info["RR"] = parsed_extra["RR"]
                                     if not tt_leido and "trade_type" in parsed_extra: trade_info["trade_type"] = parsed_extra["trade_type"]
+                                    if not reason_leido and "razon_trade" in parsed_extra: trade_info["razon_trade"] = parsed_extra["razon_trade"]
+                                    if not corr_leido and "Corrections" in parsed_extra: trade_info["Corrections"] = parsed_extra["Corrections"]
+                                    if not emo_leido and "Emotions" in parsed_extra: trade_info["Emotions"] = parsed_extra["Emotions"]
                                     
-                                    # Cargamos el resto de cosas que siguen viviendo en ExtraData (Emotions, Reason, etc.)
-                                    trade_info.update({k:v for k,v in parsed_extra.items() if k not in ['bias', 'Confluences', 'risk', 'RR', 'trade_type']})
+                                    # Cargamos el resto de cosas que siguen viviendo en ExtraData
+                                    ex_keys = ['bias', 'Confluences', 'risk', 'RR', 'trade_type', 'razon_trade', 'Corrections', 'Emotions']
+                                    trade_info.update({k:v for k,v in parsed_extra.items() if k not in ex_keys})
                                 except: pass
                             
                             if cuenta not in db_temp[user]["data"]:
@@ -182,7 +190,7 @@ def registrar_en_excel(usuario, password, cuenta, fecha_obj, balance, pnl, trade
             try: hoja_user = db_spreadsheet.worksheet(usuario)
             except gspread.exceptions.WorksheetNotFound:
                 hoja_user = db_spreadsheet.add_worksheet(title=usuario, rows="1000", cols="20")
-                headers = ["Usuario", "Password", "Cuenta", "Fecha", "Balance", "PnL", "Imagenes", "Settings_PC", "Settings_Movil", "Bias", "Confluences", "Risk", "RR", "Trade Type", "ExtraData"]
+                headers = ["Usuario", "Password", "Cuenta", "Fecha", "Balance", "PnL", "Imagenes", "Settings_PC", "Settings_Movil", "Bias", "Confluences", "Risk", "RR", "Trade Type", "Reason", "Corrections", "Emotions", "ExtraData"]
                 hoja_user.append_row(headers)
 
             fecha_texto = fecha_obj.strftime("%d/%m/%Y")
@@ -197,20 +205,24 @@ def registrar_en_excel(usuario, password, cuenta, fecha_obj, balance, pnl, trade
             set_pc_str = json.dumps(settings_pc) if settings_pc else "{}"
             set_mov_str = json.dumps(settings_movil) if settings_movil else "{}"
             
-            # Extraemos los datos principales para sus propias columnas
+            # Extraemos los datos para sus propias columnas
             val_bias = trade_data.get("bias", "NONE")
             val_confs = ", ".join(trade_data.get("Confluences", []))
             val_risk = trade_data.get("risk", "")
             val_rr = trade_data.get("RR", "")
             val_tt = trade_data.get("trade_type", "")
+            val_reason = trade_data.get("razon_trade", "")
+            val_corr = trade_data.get("Corrections", "")
+            val_emo = trade_data.get("Emotions", "")
             
             # Removemos estos datos de ExtraData para no duplicarlos
-            extra_data = {k:v for k,v in trade_data.items() if k not in ['pnl', 'balance_final', 'fecha_str', 'imagenes', 'bias', 'Confluences', 'risk', 'RR', 'trade_type']}
+            keys_to_remove = ['pnl', 'balance_final', 'fecha_str', 'imagenes', 'bias', 'Confluences', 'risk', 'RR', 'trade_type', 'razon_trade', 'Corrections', 'Emotions']
+            extra_data = {k:v for k,v in trade_data.items() if k not in keys_to_remove}
             
             safe_user = str(usuario).strip() if usuario else "Desconocido"
             safe_pass = str(password).strip() if password else "123"
 
-            nueva_fila = [safe_user, safe_pass, str(cuenta), fecha_texto, float(balance), float(pnl), imgs_texto, set_pc_str, set_mov_str, val_bias, val_confs, val_risk, val_rr, val_tt, json.dumps(extra_data)]
+            nueva_fila = [safe_user, safe_pass, str(cuenta), fecha_texto, float(balance), float(pnl), imgs_texto, set_pc_str, set_mov_str, val_bias, val_confs, val_risk, val_rr, val_tt, val_reason, val_corr, val_emo, json.dumps(extra_data)]
             hoja_user.append_row(nueva_fila)
         except Exception:
             pass
@@ -221,7 +233,7 @@ def reescribir_excel_usuario(usuario):
         hoja_user = db_spreadsheet.worksheet(usuario)
         hoja_user.clear()
         
-        headers = ["Usuario", "Password", "Cuenta", "Fecha", "Balance", "PnL", "Imagenes", "Settings_PC", "Settings_Movil", "Bias", "Confluences", "Risk", "RR", "Trade Type", "ExtraData"]
+        headers = ["Usuario", "Password", "Cuenta", "Fecha", "Balance", "PnL", "Imagenes", "Settings_PC", "Settings_Movil", "Bias", "Confluences", "Risk", "RR", "Trade Type", "Reason", "Corrections", "Emotions", "ExtraData"]
         filas_a_insertar = [headers]
         pwd = db_global[usuario]["password"]
         set_pc_str = json.dumps(db_global[usuario]["settings"]["PC"])
@@ -239,12 +251,16 @@ def reescribir_excel_usuario(usuario):
                     val_risk = t.get("risk", "")
                     val_rr = t.get("RR", "")
                     val_tt = t.get("trade_type", "")
+                    val_reason = t.get("razon_trade", "")
+                    val_corr = t.get("Corrections", "")
+                    val_emo = t.get("Emotions", "")
                     
-                    extra_data = {k:v for k,v in t.items() if k not in ['pnl', 'balance_final', 'fecha_str', 'imagenes', 'bias', 'Confluences', 'risk', 'RR', 'trade_type']}
+                    keys_to_remove = ['pnl', 'balance_final', 'fecha_str', 'imagenes', 'bias', 'Confluences', 'risk', 'RR', 'trade_type', 'razon_trade', 'Corrections', 'Emotions']
+                    extra_data = {k:v for k,v in t.items() if k not in keys_to_remove}
                     
                     filas_a_insertar.append([
                         usuario, pwd, cuenta, t["fecha_str"], float(t["balance_final"]), float(t["pnl"]), 
-                        imgs_texto, set_pc_str, set_mov_str, val_bias, val_confs, val_risk, val_rr, val_tt, json.dumps(extra_data)
+                        imgs_texto, set_pc_str, set_mov_str, val_bias, val_confs, val_risk, val_rr, val_tt, val_reason, val_corr, val_emo, json.dumps(extra_data)
                     ])
         hoja_user.update(filas_a_insertar)
     except Exception:
