@@ -1704,11 +1704,20 @@ with col_det:
                                 color: white; font-family: 'Inter', sans-serif; text-align: center;
                                 opacity: 0; animation: fadeInLost 1s forwards;
                                 pointer-events: none;
+                                overflow: hidden;
                             }
                             
-                            .lost-content { transform: scale(1.2); animation: dropInLost 0.5s forwards cubic-bezier(0.25, 0.46, 0.45, 0.94); }
+                            .lost-content { transform: scale(1.2); animation: dropInLost 0.5s forwards cubic-bezier(0.25, 0.46, 0.45, 0.94); z-index: 2; }
                             .lost-title { font-size: 90px; font-weight: 900; margin-bottom: 20px; letter-spacing: -3px; line-height: 1; color: #FF4C4C; text-shadow: 0 0 40px rgba(255,76,76,0.6); }
                             .lost-sub { font-size: 25px; font-weight: 800; color: #A0AEC0; text-transform: uppercase; letter-spacing: 2px; line-height: 1.4; }
+                            
+                            .skull-particle {
+                                position: absolute;
+                                top: -100px;
+                                z-index: 1;
+                                user-select: none;
+                                filter: drop-shadow(0 0 5px rgba(255,0,0,0.3));
+                            }
                             
                             @keyframes fadeInLost { to { opacity: 1; } }
                             @keyframes fadeOutLost { from { opacity: 1; } to { opacity: 0; } }
@@ -1719,13 +1728,30 @@ with col_det:
                                 10%, 30%, 50%, 70%, 90% { transform: translate(-8px, 0); }
                                 20%, 40%, 60%, 80% { transform: translate(8px, 0); }
                             }
+                            
+                            @keyframes fallSkull {
+                                0% { transform: translateY(-100px) rotate(0deg); opacity: 1; }
+                                100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+                            }
                         `;
                         doc.head.appendChild(style);
                     }
 
                     const overlay = doc.createElement('div');
                     overlay.id = 'lost-overlay';
+                    
+                    // Generador de lluvia de calaveras
+                    let skullsHtml = '';
+                    for (let i = 0; i < 40; i++) {
+                        let left = Math.random() * 100;
+                        let size = Math.random() * 40 + 20; // Tamaño entre 20px y 60px
+                        let duration = Math.random() * 2.5 + 2; // Velocidad de caída
+                        let delay = Math.random() * 1.5; // Retraso de inicio
+                        skullsHtml += `<div class="skull-particle" style="left: ${left}vw; font-size: ${size}px; animation: fallSkull ${duration}s linear ${delay}s forwards;">💀</div>`;
+                    }
+
                     overlay.innerHTML = `
+                        ${skullsHtml}
                         <div class="lost-content">
                             <div class="lost-title">💀 ACCOUNT LOST</div>
                             <div class="lost-sub">EL FRACASO ES SOLO INFORMACIÓN.<br>¡LEVÁNTATE Y VUELVE AL PLAN, """ + usuario.upper() + """!</div>
@@ -1733,11 +1759,9 @@ with col_det:
                     `;
                     doc.body.appendChild(overlay);
                     
-                    // Efecto de temblor en la pantalla al perder la cuenta
                     doc.body.style.animation = 'shakeScreen 0.4s ease-in-out';
                     setTimeout(() => { doc.body.style.animation = ''; }, 400);
 
-                    // El mensaje se queda 6.5 segundos y luego se desvanece suavemente
                     setTimeout(() => {
                         overlay.style.animation = 'fadeOutLost 1.5s forwards';
                         setTimeout(() => { doc.body.removeChild(overlay); }, 1500);
