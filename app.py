@@ -1193,7 +1193,7 @@ if paso_cuenta:
                 var end = window.parent.Date.now() + duration;
                 var colors = ['#00C897', '#FFFFFF', '#FFD700', '#FF4C4C']; 
                 
-                (function frame() {
+                (function frame() {{
                     window.parent.confetti({{
                         particleCount: 7, angle: 60, spread: 60, origin: {{ x: 0, y: 0.6 }},
                         colors: colors, zIndex: 9999999
@@ -1206,7 +1206,7 @@ if paso_cuenta:
                     if (window.parent.Date.now() < end) {{
                         window.parent.requestAnimationFrame(frame);
                     }}
-                }());
+                }}());
 
                 // 5. ELIMINAR EL LETRERO DESPUÉS DE UN TIEMPO
                 setTimeout(() => {{
