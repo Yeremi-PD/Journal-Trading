@@ -1678,6 +1678,75 @@ with col_det:
     if distancia_dd <= 0:
         texto_lose = "LOST 💀"; texto_dd = "LOST 💀"; texto_tg = "LOST 💀"
         c_hex_tg = "#FF4C4C"
+        
+        clave_perdida = f"perdida_PA_{ctx}"
+        if not st.session_state.get(clave_perdida, False):
+            st.session_state[clave_perdida] = True
+            st.toast("⚠️ Has tocado el límite de pérdida. Toca levantarse y seguir.", icon="💀")
+            
+            html_script_perdida = """
+            <script>
+                function iniciarPantallaPerdida() {
+                    const doc = window.parent.document;
+                    
+                    if (!doc.getElementById('lost-style')) {
+                        const style = doc.createElement('style');
+                        style.id = 'lost-style';
+                        style.innerHTML = `
+                            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@800;900&display=swap');
+                            
+                            #lost-overlay {
+                                position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+                                background-color: rgba(20,0,0,0.95);
+                                backdrop-filter: blur(12px);
+                                z-index: 9999998;
+                                display: flex; flex-direction: column; align-items: center; justify-content: center;
+                                color: white; font-family: 'Inter', sans-serif; text-align: center;
+                                opacity: 0; animation: fadeInLost 1s forwards;
+                                pointer-events: none;
+                            }
+                            
+                            .lost-content { transform: scale(1.2); animation: dropInLost 0.5s forwards cubic-bezier(0.25, 0.46, 0.45, 0.94); }
+                            .lost-title { font-size: 90px; font-weight: 900; margin-bottom: 20px; letter-spacing: -3px; line-height: 1; color: #FF4C4C; text-shadow: 0 0 40px rgba(255,76,76,0.6); }
+                            .lost-sub { font-size: 25px; font-weight: 800; color: #A0AEC0; text-transform: uppercase; letter-spacing: 2px; line-height: 1.4; }
+                            
+                            @keyframes fadeInLost { to { opacity: 1; } }
+                            @keyframes fadeOutLost { from { opacity: 1; } to { opacity: 0; } }
+                            @keyframes dropInLost { to { transform: scale(1); } }
+                            
+                            @keyframes shakeScreen {
+                                0%, 100% { transform: translate(0, 0); }
+                                10%, 30%, 50%, 70%, 90% { transform: translate(-8px, 0); }
+                                20%, 40%, 60%, 80% { transform: translate(8px, 0); }
+                            }
+                        `;
+                        doc.head.appendChild(style);
+                    }
+
+                    const overlay = doc.createElement('div');
+                    overlay.id = 'lost-overlay';
+                    overlay.innerHTML = `
+                        <div class="lost-content">
+                            <div class="lost-title">💀 ACCOUNT LOST</div>
+                            <div class="lost-sub">EL FRACASO ES SOLO INFORMACIÓN.<br>¡LEVÁNTATE Y VUELVE AL PLAN, """ + usuario.upper() + """!</div>
+                        </div>
+                    `;
+                    doc.body.appendChild(overlay);
+                    
+                    // Efecto de temblor en la pantalla al perder la cuenta
+                    doc.body.style.animation = 'shakeScreen 0.4s ease-in-out';
+                    setTimeout(() => { doc.body.style.animation = ''; }, 400);
+
+                    // El mensaje se queda 6.5 segundos y luego se desvanece suavemente
+                    setTimeout(() => {
+                        overlay.style.animation = 'fadeOutLost 1.5s forwards';
+                        setTimeout(() => { doc.body.removeChild(overlay); }, 1500);
+                    }, 6500);
+                }
+                iniciarPantallaPerdida();
+            </script>
+            """
+            components.html(html_script_perdida, height=0, width=0)
     else:
         texto_lose = f"${distancia_dd:,.2f}"; texto_dd = f"${nivel_perdida:,.2f}"
         
