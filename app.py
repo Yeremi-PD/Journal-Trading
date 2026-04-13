@@ -116,12 +116,26 @@ def get_global_db():
                                 if str(row_data.get(c_name, "")).strip().upper() == "X":
                                     confluencias_leidas.append(c_name)
 
+# Extraemos de las columnas si ya existen en el Excel
+                            bias_leido = str(row_data.get('Bias', '')).strip()
+                            conf_leidas_str = str(row_data.get('Confluences', '')).strip()
+                            conf_leidas = [c.strip() for c in conf_leidas_str.split(',')] if conf_leidas_str else []
+                            risk_leido = str(row_data.get('Risk', '')).strip()
+                            rr_leido = str(row_data.get('RR', '')).strip()
+                            tt_leido = str(row_data.get('Trade Type', '')).strip()
+
                             trade_info = {
                                 "pnl": safe_float(row_data.get('PnL', 0)),
                                 "balance_final": safe_float(row_data.get('Balance', 0)),
                                 "fecha_str": f_str,
                                 "imagenes": [], 
-                                "bias": "NEUTRO", "Confluences": confluencias_leidas, "razon_trade": "", "Corrections": "", "risk": "0.5%", "RR": "1:2", "trade_type": "A", "Emotions": ""
+                                "bias": bias_leido if bias_leido else "NEUTRO", 
+                                "Confluences": conf_leidas, 
+                                "razon_trade": "", "Corrections": "", 
+                                "risk": risk_leido if risk_leido else "0.5%", 
+                                "RR": rr_leido if rr_leido else "1:2", 
+                                "trade_type": tt_leido if tt_leido else "A", 
+                                "Emotions": ""
                             }
                             
                             img_col_str = str(row_data.get('Imagenes', ''))
@@ -133,9 +147,15 @@ def get_global_db():
                             if extra:
                                 try: 
                                     parsed_extra = json.loads(extra)
-                                    if "Confluences" in parsed_extra and not confluencias_leidas:
-                                        trade_info["Confluences"] = parsed_extra["Confluences"]
-                                    trade_info.update({k:v for k,v in parsed_extra.items() if k != "Confluences"})
+                                    # MIGRACIÓN: Si las columnas de Excel estaban vacías, rescatamos los datos del JSON viejo
+                                    if not bias_leido and "bias" in parsed_extra: trade_info["bias"] = parsed_extra["bias"]
+                                    if not conf_leidas and "Confluences" in parsed_extra: trade_info["Confluences"] = parsed_extra["Confluences"]
+                                    if not risk_leido and "risk" in parsed_extra: trade_info["risk"] = parsed_extra["risk"]
+                                    if not rr_leido and "RR" in parsed_extra: trade_info["RR"] = parsed_extra["RR"]
+                                    if not tt_leido and "trade_type" in parsed_extra: trade_info["trade_type"] = parsed_extra["trade_type"]
+                                    
+                                    # Cargamos el resto de cosas que siguen viviendo en ExtraData (Emotions, Reason, etc.)
+                                    trade_info.update({k:v for k,v in parsed_extra.items() if k not in ['bias', 'Confluences', 'risk', 'RR', 'trade_type']})
                                 except: pass
                             
                             if cuenta not in db_temp[user]["data"]:
@@ -159,13 +179,10 @@ db_global = get_global_db()
 def registrar_en_excel(usuario, password, cuenta, fecha_obj, balance, pnl, trade_data, settings_pc, settings_movil):
     if db_spreadsheet:
         try:
-            lista_confluencias = ['BIAS WELL', 'LIQ SWEEP', 'IFVG', 'FVG', 'EQH / EQL', 'BSL / SSL', 'POI', 'SMT', 'Order Block', 'Continuation', 'Data High / Data Low', 'CISD']
-            
-            try: 
-                hoja_user = db_spreadsheet.worksheet(usuario)
+            try: hoja_user = db_spreadsheet.worksheet(usuario)
             except gspread.exceptions.WorksheetNotFound:
-                hoja_user = db_spreadsheet.add_worksheet(title=usuario, rows="1000", cols="30")
-                headers = ["Usuario", "Password", "Cuenta", "Fecha", "Balance", "PnL", "Imagenes", "Settings_PC", "Settings_Movil"] + lista_confluencias + ["ExtraData"]
+                hoja_user = db_spreadsheet.add_worksheet(title=usuario, rows="1000", cols="20")
+                headers = ["Usuario", "Password", "Cuenta", "Fecha", "Balance", "PnL", "Imagenes", "Settings_PC", "Settings_Movil", "Bias", "Confluences", "Risk", "RR", "Trade Type", "ExtraData"]
                 hoja_user.append_row(headers)
 
             fecha_texto = fecha_obj.strftime("%d/%m/%Y")
@@ -179,14 +196,21 @@ def registrar_en_excel(usuario, password, cuenta, fecha_obj, balance, pnl, trade
             
             set_pc_str = json.dumps(settings_pc) if settings_pc else "{}"
             set_mov_str = json.dumps(settings_movil) if settings_movil else "{}"
-            extra_data = {k:v for k,v in trade_data.items() if k not in ['pnl', 'balance_final', 'fecha_str', 'imagenes', 'Confluences']}
+            
+            # Extraemos los datos principales para sus propias columnas
+            val_bias = trade_data.get("bias", "NONE")
+            val_confs = ", ".join(trade_data.get("Confluences", []))
+            val_risk = trade_data.get("risk", "")
+            val_rr = trade_data.get("RR", "")
+            val_tt = trade_data.get("trade_type", "")
+            
+            # Removemos estos datos de ExtraData para no duplicarlos
+            extra_data = {k:v for k,v in trade_data.items() if k not in ['pnl', 'balance_final', 'fecha_str', 'imagenes', 'bias', 'Confluences', 'risk', 'RR', 'trade_type']}
             
             safe_user = str(usuario).strip() if usuario else "Desconocido"
             safe_pass = str(password).strip() if password else "123"
 
-            marcas_confluencias = [("X" if c in trade_data.get("Confluences", []) else "") for c in lista_confluencias]
-            
-            nueva_fila = [safe_user, safe_pass, str(cuenta), fecha_texto, float(balance), float(pnl), imgs_texto, set_pc_str, set_mov_str] + marcas_confluencias + [json.dumps(extra_data)]
+            nueva_fila = [safe_user, safe_pass, str(cuenta), fecha_texto, float(balance), float(pnl), imgs_texto, set_pc_str, set_mov_str, val_bias, val_confs, val_risk, val_rr, val_tt, json.dumps(extra_data)]
             hoja_user.append_row(nueva_fila)
         except Exception:
             pass
@@ -194,13 +218,11 @@ def registrar_en_excel(usuario, password, cuenta, fecha_obj, balance, pnl, trade
 def reescribir_excel_usuario(usuario):
     if not db_spreadsheet: return
     try:
-        lista_confluencias = ['BIAS WELL', 'LIQ SWEEP', 'IFVG', 'FVG', 'EQH / EQL', 'BSL / SSL', 'POI', 'SMT', 'Order Block', 'Continuation', 'Data High / Data Low', 'CISD']
         hoja_user = db_spreadsheet.worksheet(usuario)
         hoja_user.clear()
         
-        headers = ["Usuario", "Password", "Cuenta", "Fecha", "Balance", "PnL", "Imagenes", "Settings_PC", "Settings_Movil"] + lista_confluencias + ["ExtraData"]
+        headers = ["Usuario", "Password", "Cuenta", "Fecha", "Balance", "PnL", "Imagenes", "Settings_PC", "Settings_Movil", "Bias", "Confluences", "Risk", "RR", "Trade Type", "ExtraData"]
         filas_a_insertar = [headers]
-        
         pwd = db_global[usuario]["password"]
         set_pc_str = json.dumps(db_global[usuario]["settings"]["PC"])
         set_mov_str = json.dumps(db_global[usuario]["settings"]["Móvil"])
@@ -212,14 +234,18 @@ def reescribir_excel_usuario(usuario):
                     num_fotos = len(t.get("imagenes", []))
                     imgs_texto = ", ".join(links) if links else (f"📸 Tiene {num_fotos} foto(s)" if num_fotos > 0 else "")
                     
-                    extra_data = {k:v for k,v in t.items() if k not in ['pnl', 'balance_final', 'fecha_str', 'imagenes', 'Confluences']}
-                    marcas_confluencias = [("X" if c in t.get("Confluences", []) else "") for c in lista_confluencias]
+                    val_bias = t.get("bias", "NONE")
+                    val_confs = ", ".join(t.get("Confluences", []))
+                    val_risk = t.get("risk", "")
+                    val_rr = t.get("RR", "")
+                    val_tt = t.get("trade_type", "")
+                    
+                    extra_data = {k:v for k,v in t.items() if k not in ['pnl', 'balance_final', 'fecha_str', 'imagenes', 'bias', 'Confluences', 'risk', 'RR', 'trade_type']}
                     
                     filas_a_insertar.append([
                         usuario, pwd, cuenta, t["fecha_str"], float(t["balance_final"]), float(t["pnl"]), 
-                        imgs_texto, set_pc_str, set_mov_str
-                    ] + marcas_confluencias + [json.dumps(extra_data)])
-                    
+                        imgs_texto, set_pc_str, set_mov_str, val_bias, val_confs, val_risk, val_rr, val_tt, json.dumps(extra_data)
+                    ])
         hoja_user.update(filas_a_insertar)
     except Exception:
         pass
