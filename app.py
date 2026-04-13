@@ -1182,7 +1182,7 @@ if paso_cuenta:
                 overlay.id = 'celebration-overlay';
                 overlay.innerHTML = `
                     <div class="cel-content">
-                        <div class="cel-title">🏆 ¡FELICIDADES<br>""" + usuario.upper() + """!</div>
+                        <div class="cel-title">🏆 ¡FELICIDADES!<br>""" + usuario.upper() + """</div>
                         <div class="cel-sub">AHORA SU CUENTA ES PA ACCOUNT</div>
                     </div>
                 `;
