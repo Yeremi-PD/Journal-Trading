@@ -1190,7 +1190,7 @@ if paso_cuenta:
                 overlay.id = 'celebration-overlay';
                 overlay.innerHTML = `
                     <div class="cel-content">
-                        <div class="cel-title">🏆 ¡CONGRATULATIONS!<br>""" + usuario.upper() + """</div>
+                        <div class="cel-title">🏆 ¡CONGRATULATIONS! 🏆<br>""" + usuario.upper() + """</div>
                         <div class="cel-sub">YOUR ACCOUNT IS NOW A PERFORMANCE ACCOUNT</div>
                     </div>
                 `;
@@ -1774,7 +1774,7 @@ with col_det:
                     overlay.innerHTML = `
                         ${skullsHtml}
                         <div class="lost-content">
-                            <div class="lost-title">💀 ACCOUNT LOST</div>
+                            <div class="lost-title">💀 ACCOUNT LOST 💀</div>
                             <div class="lost-sub">FAILURE IS JUST INFORMATION.<br>¡GET UP AND GET BACK TO THE PLAN, """ + usuario.upper() + """!</div>
                         </div>
                     `;
