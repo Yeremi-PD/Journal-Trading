@@ -1127,15 +1127,26 @@ if paso_cuenta:
         st.session_state.toggle_funded_state = True
         
     # Cambiamos la llave para forzar que lo veas ahora mismo
-    clave_celebracion = f"celebrado_PA_globos_{ctx}"
+    clave_celebracion = f"celebrado_PA_{ctx}"
     
     if not st.session_state.get(clave_celebracion, False):
         st.session_state[clave_celebracion] = True
         
         st.balloons()
         
+        # Usamos strings puros (sin la 'f') para evitar bugs silenciosos de Streamlit
         html_script = """
         <script>
+            if (!window.parent.document.getElementById('confetti-script')) {
+                const script = window.parent.document.createElement('script');
+                script.id = 'confetti-script';
+                script.src = 'https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js';
+                script.onload = function() { iniciarCelebracionCompleta(); };
+                window.parent.document.head.appendChild(script);
+            } else {
+                iniciarCelebracionCompleta();
+            }
+
             function iniciarCelebracionCompleta() {
                 const doc = window.parent.document;
                 
@@ -1154,49 +1165,22 @@ if paso_cuenta:
                             color: white; font-family: 'Inter', sans-serif; text-align: center;
                             opacity: 0; animation: fadeInCelebration 0.8s forwards;
                             pointer-events: none;
-                            overflow: hidden;
                         }
                         
-                        .cel-content { transform: scale(0.5); animation: scaleInCelebration 0.8s 0.2s forwards cubic-bezier(0.17, 0.89, 0.32, 1.49); z-index: 2; }
+                        .cel-content { transform: scale(0.5); animation: scaleInCelebration 0.8s 0.2s forwards cubic-bezier(0.17, 0.89, 0.32, 1.49); }
                         .cel-title { font-size: 80px; font-weight: 900; margin-bottom: 20px; letter-spacing: -4px; line-height: 1; text-shadow: 0 10px 20px rgba(0,0,0,0.5); }
                         .cel-sub { font-size: 30px; font-weight: 800; color: #00C897; text-transform: uppercase; letter-spacing: 2px; }
-                        
-                        .balloon-particle {
-                            position: absolute;
-                            bottom: -100px; /* Empiezan desde abajo */
-                            z-index: 1;
-                            user-select: none;
-                            filter: drop-shadow(0 0 8px rgba(255,255,255,0.2));
-                        }
                         
                         @keyframes fadeInCelebration { to { opacity: 1; } }
                         @keyframes fadeOutCelebration { from { opacity: 1; } to { opacity: 0; } }
                         @keyframes scaleInCelebration { to { transform: scale(1); } }
-                        
-                        @keyframes floatBalloon {
-                            0% { transform: translateY(100px) rotate(0deg); opacity: 1; }
-                            50% { transform: translateY(-60vh) rotate(15deg); }
-                            100% { transform: translateY(-120vh) rotate(-15deg); opacity: 0; }
-                        }
                     `;
                     doc.head.appendChild(style);
                 }
 
                 const overlay = doc.createElement('div');
                 overlay.id = 'celebration-overlay';
-                
-                // Generador de lluvia de globos
-                let balloonsHtml = '';
-                for (let i = 0; i < 45; i++) {
-                    let left = Math.random() * 100;
-                    let size = Math.random() * 50 + 30; // Tamaño entre 30px y 80px
-                    let duration = Math.random() * 3.5 + 2.5; // Velocidad de subida
-                    let delay = Math.random() * 1.5; // Retraso
-                    balloonsHtml += `<div class="balloon-particle" style="left: ${left}vw; font-size: ${size}px; animation: floatBalloon ${duration}s ease-in-out ${delay}s forwards;">🎈</div>`;
-                }
-
                 overlay.innerHTML = `
-                    ${balloonsHtml}
                     <div class="cel-content">
                         <div class="cel-title">🏆 ¡FELICIDADES!<br>""" + usuario.upper() + """</div>
                         <div class="cel-sub">AHORA SU CUENTA ES PA ACCOUNT</div>
@@ -1204,14 +1188,30 @@ if paso_cuenta:
                 `;
                 doc.body.appendChild(overlay);
 
-                // Desaparecer después de un rato
+                var duration = 5 * 1000;
+                var end = window.parent.Date.now() + duration;
+                var colors = ['#00C897', '#FFFFFF', '#FFD700', '#FF4C4C']; 
+                
+                (function frame() {
+                    window.parent.confetti({
+                        particleCount: 7, angle: 60, spread: 60, origin: { x: 0, y: 0.6 },
+                        colors: colors, zIndex: 9999999
+                    });
+                    window.parent.confetti({
+                        particleCount: 7, angle: 120, spread: 60, origin: { x: 1, y: 0.6 },
+                        colors: colors, zIndex: 9999999
+                    });
+                    
+                    if (window.parent.Date.now() < end) {
+                        window.parent.requestAnimationFrame(frame);
+                    }
+                }());
+
                 setTimeout(() => {
                     overlay.style.animation = 'fadeOutCelebration 1s forwards';
                     setTimeout(() => { doc.body.removeChild(overlay); }, 1000);
                 }, 6500);
             }
-            
-            iniciarCelebracionCompleta();
         </script>
         """
         components.html(html_script, height=0, width=0)
