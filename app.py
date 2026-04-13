@@ -1127,7 +1127,7 @@ if paso_cuenta:
         st.session_state.toggle_funded_state = True
         
     # GUARDADO PERMANENTE EN LA BASE DE DATOS (SETTINGS)
-    clave_celeb_db = f"pa_celebrado_{ctx}"
+    clave_celeb_db = "pa_celeb_v2_" + str(ctx)
     
     if not db_global[usuario]["settings"]["PC"].get(clave_celeb_db, False):
         # Lo marcamos como celebrado en la memoria de la base de datos
@@ -1137,29 +1137,30 @@ if paso_cuenta:
         # Guardamos silenciosamente en tu Google Sheets para que sea definitivo
         reescribir_excel_usuario(usuario)
         
-        components.html(f"""
+        st.balloons()
+        
+        html_script = """
         <script>
-            // 1. CARGAR LIBRERÍA DE CONFETI SI NO EXISTE
-            if (!window.parent.document.getElementById('confetti-script')) {{
+            if (!window.parent.document.getElementById('confetti-script')) {
                 const script = window.parent.document.createElement('script');
                 script.id = 'confetti-script';
                 script.src = 'https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js';
-                script.onload = function() {{ iniciarCelebracionCompleta(); }};
+                script.onload = function() { iniciarCelebracionCompleta(); };
                 window.parent.document.head.appendChild(script);
-            }} else {{
+            } else {
                 iniciarCelebracionCompleta();
-            }}
+            }
 
-            function iniciarCelebracionCompleta() {{
+            function iniciarCelebracionCompleta() {
                 const doc = window.parent.document;
                 
-                if (!doc.getElementById('celebration-style')) {{
+                if (!doc.getElementById('celebration-style')) {
                     const style = doc.createElement('style');
                     style.id = 'celebration-style';
                     style.innerHTML = `
                         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@800;900&display=swap');
                         
-                        #celebration-overlay {{
+                        #celebration-overlay {
                             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
                             background-color: rgba(0,0,0,0.9);
                             backdrop-filter: blur(10px);
@@ -1168,24 +1169,24 @@ if paso_cuenta:
                             color: white; font-family: 'Inter', sans-serif; text-align: center;
                             opacity: 0; animation: fadeInCelebration 0.8s forwards;
                             pointer-events: none;
-                        }}
+                        }
                         
-                        .cel-content {{ transform: scale(0.5); animation: scaleInCelebration 0.8s 0.2s forwards cubic-bezier(0.17, 0.89, 0.32, 1.49); }}
-                        .cel-title {{ font-size: 80px; font-weight: 900; margin-bottom: 20px; letter-spacing: -4px; line-height: 1; text-shadow: 0 10px 20px rgba(0,0,0,0.5); }}
-                        .cel-sub {{ font-size: 30px; font-weight: 800; color: #00C897; text-transform: uppercase; letter-spacing: 2px; }}
+                        .cel-content { transform: scale(0.5); animation: scaleInCelebration 0.8s 0.2s forwards cubic-bezier(0.17, 0.89, 0.32, 1.49); }
+                        .cel-title { font-size: 80px; font-weight: 900; margin-bottom: 20px; letter-spacing: -4px; line-height: 1; text-shadow: 0 10px 20px rgba(0,0,0,0.5); }
+                        .cel-sub { font-size: 30px; font-weight: 800; color: #00C897; text-transform: uppercase; letter-spacing: 2px; }
                         
-                        @keyframes fadeInCelebration {{ to {{ opacity: 1; }} }}
-                        @keyframes fadeOutCelebration {{ from {{ opacity: 1; }} to {{ opacity: 0; }} }}
-                        @keyframes scaleInCelebration {{ to {{ transform: scale(1); }} }}
+                        @keyframes fadeInCelebration { to { opacity: 1; } }
+                        @keyframes fadeOutCelebration { from { opacity: 1; } to { opacity: 0; } }
+                        @keyframes scaleInCelebration { to { transform: scale(1); } }
                     `;
                     doc.head.appendChild(style);
-                }}
+                }
 
                 const overlay = doc.createElement('div');
                 overlay.id = 'celebration-overlay';
                 overlay.innerHTML = `
                     <div class="cel-content">
-                        <div class="cel-title">🏆 ¡FELICIDADES!<br>{usuario.upper()}</div>
+                        <div class="cel-title">🏆 ¡FELICIDADES!<br>""" + usuario.upper() + """</div>
                         <div class="cel-sub">AHORA SU CUENTA ES PA ACCOUNT</div>
                     </div>
                 `;
@@ -1195,28 +1196,29 @@ if paso_cuenta:
                 var end = window.parent.Date.now() + duration;
                 var colors = ['#00C897', '#FFFFFF', '#FFD700', '#FF4C4C']; 
                 
-                (function frame() {{
-                    window.parent.confetti({{
-                        particleCount: 7, angle: 60, spread: 60, origin: {{ x: 0, y: 0.6 }},
+                (function frame() {
+                    window.parent.confetti({
+                        particleCount: 7, angle: 60, spread: 60, origin: { x: 0, y: 0.6 },
                         colors: colors, zIndex: 9999999
-                    }});
-                    window.parent.confetti({{
-                        particleCount: 7, angle: 120, spread: 60, origin: {{ x: 1, y: 0.6 }},
+                    });
+                    window.parent.confetti({
+                        particleCount: 7, angle: 120, spread: 60, origin: { x: 1, y: 0.6 },
                         colors: colors, zIndex: 9999999
-                    }});
+                    });
                     
-                    if (window.parent.Date.now() < end) {{
+                    if (window.parent.Date.now() < end) {
                         window.parent.requestAnimationFrame(frame);
-                    }}
-                }}());
+                    }
+                }());
 
-                setTimeout(() => {{
+                setTimeout(() => {
                     overlay.style.animation = 'fadeOutCelebration 1s forwards';
-                    setTimeout(() => {{ doc.body.removeChild(overlay); }}, 1000);
-                }}, 6500);
-            }}
+                    setTimeout(() => { doc.body.removeChild(overlay); }, 1000);
+                }, 6500);
+            }
         </script>
-        """, height=0, width=0)
+        """
+        components.html(html_script, height=0, width=0)
 
 modo_funded_activo = st.session_state.get("toggle_funded_state", False) and paso_cuenta
 
