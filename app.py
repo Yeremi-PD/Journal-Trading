@@ -1123,50 +1123,50 @@ for idx, tr in enumerate(_tc):
 
 # FIX: Avisar desde aquí arriba que la cuenta ya es PA para que no haya que refrescar la página
 if paso_cuenta:
-    if "toggle_funded_state" not in st.session_state:
-        st.session_state.toggle_funded_state = True
-        
-    clave_celebracion = f"celebrado_{ctx}"
-    if not st.session_state.get(clave_celebracion, False):
-        st.session_state[clave_celebracion] = True
-        
-        st.toast(f"🏆 ¡FELICIDADES {usuario.upper()}! Has pasado a PA Account", icon="🚀")
-        st.balloons()
-        
-        components.html("""
-        <script>
-            if (!window.parent.document.getElementById('confetti-script')) {
-                const script = window.parent.document.createElement('script');
-                script.id = 'confetti-script';
-                script.src = 'https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js';
-                script.onload = function() { lanzarConfeti(); };
-                window.parent.document.head.appendChild(script);
-            } else {
-                lanzarConfeti();
-            }
+    if "toggle_funded_state" not in st.session_state:
+        st.session_state.toggle_funded_state = True
+        
+    clave_celebracion = f"celebrado_{ctx}"
+    if not st.session_state.get(clave_celebracion, False):
+        st.session_state[clave_celebracion] = True
+        
+        st.toast(f"🏆 ¡FELICIDADES {usuario.upper()}! Has pasado a PA Account", icon="🚀")
+        st.balloons()
+        
+        components.html("""
+        <script>
+            if (!window.parent.document.getElementById('confetti-script')) {
+                const script = window.parent.document.createElement('script');
+                script.id = 'confetti-script';
+                script.src = 'https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js';
+                script.onload = function() { lanzarConfeti(); };
+                window.parent.document.head.appendChild(script);
+            } else {
+                lanzarConfeti();
+            }
 
-            function lanzarConfeti() {
-                var duration = 4 * 1000;
-                var end = window.parent.Date.now() + duration;
-                var colors = ['#00C897', '#FFFFFF', '#FFD700', '#FF4C4C']; 
-                
-                (function frame() {
-                    window.parent.confetti({
-                        particleCount: 6, angle: 60, spread: 55, origin: { x: 0 },
-                        colors: colors, zIndex: 9999999
-                    });
-                    window.parent.confetti({
-                        particleCount: 6, angle: 120, spread: 55, origin: { x: 1 },
-                        colors: colors, zIndex: 9999999
-                    });
-                    
-                    if (window.parent.Date.now() < end) {
-                        window.parent.requestAnimationFrame(frame);
-                    }
-                }());
-            }
-        </script>
-        """, height=0, width=0)
+            function lanzarConfeti() {
+                var duration = 4 * 1000;
+                var end = window.parent.Date.now() + duration;
+                var colors = ['#00C897', '#FFFFFF', '#FFD700', '#FF4C4C']; 
+                
+                (function frame() {
+                    window.parent.confetti({
+                        particleCount: 6, angle: 60, spread: 55, origin: { x: 0 },
+                        colors: colors, zIndex: 9999999
+                    });
+                    window.parent.confetti({
+                        particleCount: 6, angle: 120, spread: 55, origin: { x: 1 },
+                        colors: colors, zIndex: 9999999
+                    });
+                    
+                    if (window.parent.Date.now() < end) {
+                        window.parent.requestAnimationFrame(frame);
+                    }
+                }());
+            }
+        </script>
+        """, height=0, width=0)
 
 modo_funded_activo = st.session_state.get("toggle_funded_state", False) and paso_cuenta
 
