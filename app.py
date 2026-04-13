@@ -1692,9 +1692,17 @@ with col_det:
         texto_lose = "LOST 💀"; texto_dd = "LOST 💀"; texto_tg = "LOST 💀"
         c_hex_tg = "#FF4C4C"
         
-        clave_perdida = f"perdida_PA_{ctx}"
-        if not st.session_state.get(clave_perdida, False):
-            st.session_state[clave_perdida] = True
+        # GUARDADO PERMANENTE EN LA BASE DE DATOS PARA QUE NO SALGA AL REFRESCAR
+        clave_perdida_db = "cuenta_quemada_v1_" + str(ctx)
+        
+        if not db_global[usuario]["settings"]["PC"].get(clave_perdida_db, False):
+            # Lo marcamos como visto en la memoria global
+            db_global[usuario]["settings"]["PC"][clave_perdida_db] = True
+            db_global[usuario]["settings"]["Móvil"][clave_perdida_db] = True
+            
+            # Guardamos en Google Sheets permanentemente
+            reescribir_excel_usuario(usuario)
+            
             st.toast("⚠️ Has tocado el límite de pérdida. Toca levantarse y seguir.", icon="💀")
             
             html_script_perdida = """
@@ -1777,13 +1785,17 @@ with col_det:
 
                     setTimeout(() => {
                         overlay.style.animation = 'fadeOutLost 1.5s forwards';
-                        setTimeout(() => { doc.body.removeChild(overlay); }, 1500);
+                        setTimeout(() => { 
+                            if(doc.body.contains(overlay)) { doc.body.removeChild(overlay); }
+                        }, 1500);
                     }, 6500);
                 }
-                iniciarPantallaPerdida();
+                
+                // Retraso pequeño para asegurar que la página cargó
+                setTimeout(iniciarPantallaPerdida, 500);
             </script>
             """
-            components.html(html_script_perdida, height=0, width=0)
+            components.html(html_script_perdida, height=1, width=1)
     else:
         texto_lose = f"${distancia_dd:,.2f}"; texto_dd = f"${nivel_perdida:,.2f}"
         
