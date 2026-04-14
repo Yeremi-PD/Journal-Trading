@@ -2185,8 +2185,7 @@ with col_cal:
                 if st.form_submit_button("WITHDRAW", use_container_width=True):
                     # --- CONDICIÓN DE BLOQUEO DE RETIROS ---
                     if payout_disp_local < 500 or dias_ganadores_count < 5:
-                        st.error(f"⚠️ Requires $500 Available (You have ${max(0, payout_disp_local):.2f}) 
-                        and 5 Days Done (You have {dias_ganadores_count}).")
+                        st.error(f"⚠️ Requires $500 Available (You have ${max(0, payout_disp_local):.2f})\n⚠️ And 5 Days Done (You have {dias_ganadores_count}).")
                     elif retiro_val > 0:
                         if retiro_val > payout_disp_local:
                             st.error(f"⚠️ Cannot withdraw more than your Available Payout (${payout_disp_local:,.2f})")
