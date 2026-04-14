@@ -2190,7 +2190,7 @@ with col_cal:
         
         with c_p1:
             texto_retiro = TEXTOS_APP[idioma_sel]["metrics"]["withdraw_amt"]
-st.markdown(f'<div style="font-size: 20px; font-weight: 700; color: #FFFFFF; margin-bottom: 5px;">{texto_retiro}</div>', unsafe_allow_html=True)
+            st.markdown(f'<div style="font-size: 20px; font-weight: 700; color: #FFFFFF; margin-bottom: 5px;">{texto_retiro}</div>', unsafe_allow_html=True)
             with st.form(key="form_payout", clear_on_submit=True, border=False):
                 retiro_val = st.number_input("Amount", min_value=0.0, format="%.2f", label_visibility="collapsed")
                 
