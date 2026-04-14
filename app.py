@@ -1442,9 +1442,12 @@ with st.form(key="form_main_entry", clear_on_submit=True, border=False):
                     # Si arranca con + o -, es PnL directo
                     pnl = float(entrada_limpia)
                 else:
-                    # Si solo puso números, calculamos la diferencia con la lógica original
+                    # Si solo puso números, calculamos la diferencia o asumimos PnL si es menor a 20k
                     valor_float = float(entrada_limpia.replace(',', ''))
-                    pnl = valor_float - bal_mostrar if valor_float != bal_mostrar else 0.0
+                    if abs(valor_float) < 20000:
+                        pnl = valor_float
+                    else:
+                        pnl = valor_float - bal_mostrar if valor_float != bal_mostrar else 0.0
             except ValueError:
                 pnl = 0.0
             
