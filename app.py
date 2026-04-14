@@ -2071,7 +2071,7 @@ with col_det:
                 </div>
             </div>
         </div>
-    """, unsafe_allow_html=True)-------------------------------------------------------/////////////////////////
+    """, unsafe_allow_html=True)
     
     def get_col_simb(valor):
         if valor > 0: return "txt-green", "+"
