@@ -561,6 +561,23 @@ try:
 except: 
     pass
 
+# --- NUEVO: SELECTOR DE IDIOMA ---
+idioma_guardado = db_global[usuario]["settings"]["PC"].get("idioma", "EN")
+
+idioma_visual = st.sidebar.radio(
+    "Language / Idioma:", 
+    ["🇬🇧 EN", "🇪🇸 ES"], 
+    index=0 if "EN" in idioma_guardado else 1
+)
+
+idioma_sel = "EN" if "EN" in idioma_visual else "ES"
+st.session_state.idioma_actual = idioma_sel
+
+# Lo asignamos a la configuración global para que se guarde permanentemente en tu Google Sheets
+db_global[usuario]["settings"]["PC"]["idioma"] = idioma_sel
+db_global[usuario]["settings"]["Móvil"]["idioma"] = idioma_sel
+# ---------------------------------
+
 if st.sidebar.button("💾 Save Design Settings", use_container_width=True):
     ctx_act = st.session_state.data_source_sel
     bal_act = db_usuario[ctx_act]["balance"]
