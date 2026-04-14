@@ -1988,24 +1988,6 @@ with col_det:
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # --- CÁLCULO DE DAYS DONE ---
-    # Determinamos el umbral según el balance inicial
-    if bal_inicial_abs <= 35000: umbral_pago = 100    # Cuenta 25k
-    elif bal_inicial_abs <= 75000: umbral_pago = 250  # Cuenta 50k
-    else: umbral_pago = 300                           # Cuenta 100k
-
-    # Agrupamos los trades por día para ver el profit total diario
-    dias_ganadores_count = 0
-    trades_por_dia = {}
-    
-    for tr in trades_para_rr: # 'trades_para_rr' ya contiene los trades filtrados (mes o todo el tiempo)
-        f_str = tr['fecha_str']
-        trades_por_dia[f_str] = trades_por_dia.get(f_str, 0) + tr['pnl']
-    
-    for fecha, pnl_total_dia in trades_por_dia.items():
-        if pnl_total_dia >= umbral_pago:
-            dias_ganadores_count += 1
-
     bar_html = get_bar_svg(wins, losses, ties)
     
     wl_parts_pie = []
@@ -2021,10 +2003,6 @@ with col_det:
                 <div>
                     <div class="metric-header"><span class="title-trade-win">{titulo_win}</span></div>
                     <div class="win-value" style="color: {c_win_card};">{win_pct:.2f}%</div>
-                </div>
-                <div style="background: rgba(255,255,255,0.05); border: 1px solid {border_color}; border-radius: 10px; padding: 8px 12px; text-align: center; min-width: 80px;">
-                    <div style="font-size: 10px; font-weight: 700; color: #ffffff; text-transform: uppercase; letter-spacing: 1px;">Days Done</div>
-                    <div style="font-size: 22px; font-weight: 900; color: #00C897;">{dias_ganadores_count}</div>
                 </div>
             </div>
             <div style="display:flex; flex-direction:row; align-items:center; justify-content:center; gap:20px; margin-top:0px; padding:0px;">
@@ -2124,6 +2102,62 @@ with col_det:
             st.markdown(f'<div class="weeks-container">{meses_html}</div>', unsafe_allow_html=True)
         else:
             st.info("No hay meses con trades registrados aún.")
+
+    if paso_cuenta:
+        st.markdown("<br>", unsafe_allow_html=True)
+        st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
+        st.markdown(f"<h3 style='color: {c_dash}; font-weight: 800; margin-bottom: 15px;'>💸 Payout Management</h3>", unsafe_allow_html=True)
+        
+        # Sincronización de retiros en la base de datos de configuraciones
+        if "payouts" not in db_global[usuario]["settings"]["PC"]:
+            db_global[usuario]["settings"]["PC"]["payouts"] = {}
+        if "payouts" not in db_global[usuario]["settings"]["Móvil"]:
+            db_global[usuario]["settings"]["Móvil"]["payouts"] = {}
+            
+        payouts_dict = db_global[usuario]["settings"]["PC"]["payouts"]
+        payouts_cta = payouts_dict.get(ctx, [])
+        
+        total_retirado = sum(payouts_cta)
+        retiros_realizados = len(payouts_cta)
+        
+        # CÁLCULO DE DAYS DONE
+        if bal_inicial_abs <= 35000: umbral_pago = 100
+        elif bal_inicial_abs <= 75000: umbral_pago = 250
+        else: umbral_pago = 300
+        
+        dias_ganadores_count = 0
+        trades_por_dia = {}
+        for tr in trades_cronologicos:
+            f_str = tr['fecha_str']
+            trades_por_dia[f_str] = trades_por_dia.get(f_str, 0) + tr['pnl']
+        for fecha, pnl_total_dia in trades_por_dia.items():
+            if pnl_total_dia >= umbral_pago:
+                dias_ganadores_count += 1
+        
+        e_caja_p = f"padding: 15px; min-height: 110px; display: flex; flex-direction: column; justify-content: center; background-color: {card_bg}; border: 1px solid {border_color}; border-radius: 15px;"
+        
+        st.markdown("""<style>
+        div[data-testid="stForm"]:has(input[aria-label="Amount"]) div[data-testid="stNumberInput"] { width: 100% !important; min-width: 100% !important; max-width: 100% !important; margin: 0 !important; }
+        div[data-testid="stForm"]:has(input[aria-label="Amount"]) [data-testid="stFormSubmitButton"] button { width: 100% !important; margin: 5px 0 0 0 !important; background-color: #FF4C4C !important; color: white !important;}
+        </style>""", unsafe_allow_html=True)
+        
+        c_p1, c_p2, c_p3, c_p4 = st.columns(4)
+        
+        with c_p1:
+            st.markdown(f'<div style="font-size: 13px; font-weight: 700; color: gray; text-transform: uppercase; margin-bottom: 5px;">Withdraw (Amount)</div>', unsafe_allow_html=True)
+            with st.form(key="form_payout", clear_on_submit=True, border=False):
+                retiro_val = st.number_input("Amount", min_value=0.0, format="%.2f", label_visibility="collapsed")
+                if st.form_submit_button("➖ WITHDRAW", use_container_width=True):
+                    if retiro_val > 0:
+                        payouts_dict.setdefault(ctx, []).append(retiro_val)
+                        db_global[usuario]["settings"]["Móvil"]["payouts"] = payouts_dict
+                        db_usuario[ctx]["balance"] -= retiro_val
+                        reescribir_excel_usuario(usuario)
+                        st.rerun()
+
+        with c_p2: st.markdown(f'<div style="{e_caja_p}"><div style="font-size: 13px; font-weight: 700; color: gray; text-transform: uppercase;">Total Withdrawn</div><div style="color: #00C897; font-size: 26px; font-weight: 800;">${total_retirado:,.2f}</div></div>', unsafe_allow_html=True)
+        with c_p3: st.markdown(f'<div style="{e_caja_p}"><div style="font-size: 13px; font-weight: 700; color: gray; text-transform: uppercase;">Withdrawals Made</div><div style="color: {c_dash}; font-size: 26px; font-weight: 800;">{retiros_realizados}</div></div>', unsafe_allow_html=True)
+        with c_p4: st.markdown(f'<div style="{e_caja_p}"><div style="font-size: 13px; font-weight: 700; color: gray; text-transform: uppercase;">Days Done</div><div style="color: #00C897; font-size: 26px; font-weight: 800;">{dias_ganadores_count}</div></div>', unsafe_allow_html=True)
 
 # ==========================================
 # 11 Y 12. TABLAS Y EDICIÓN A LA MITAD (COLUMNAS)
