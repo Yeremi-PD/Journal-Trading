@@ -2202,11 +2202,104 @@ with col_cal:
                             db_global[usuario]["settings"]["Móvil"]["payout_dates"] = payout_dates_save
                             
                             reescribir_excel_usuario(usuario)
+                            st.session_state.retiro_exitoso = True
                             st.rerun()
 
-        with c_p2: st.markdown(f'<div style="{e_caja_p}"><div style="font-size: 20px; font-weight: 700; color: #FFFFFF;">Total Withdrawn</div><div style="color: #00C897; font-size: 26px; font-weight: 800;">${total_retirado:,.2f}</div></div>', unsafe_allow_html=True)
-        with c_p3: st.markdown(f'<div style="{e_caja_p}"><div style="font-size: 20px; font-weight: 700; color: #FFFFFF; ">Total Withdrawals</div><div style="color: {c_dash}; font-size: 26px; font-weight: 800;">{retiros_realizados}</div></div>', unsafe_allow_html=True)
-        with c_p4: st.markdown(f'<div style="{e_caja_p}"><div style="font-size: 20px; font-weight: 700; color: #FFFFFF; ">Days Done</div><div style="color: #00C897; font-size: 26px; font-weight: 800;">{dias_ganadores_count}</div></div>', unsafe_allow_html=True)
+        with c_p2: st.markdown(f'<div style="{e_caja_p}"><div style="font-size: 20px; font-weight: 700; color: #FFFFFF; text-transform: none;">Total Withdrawn</div><div style="color: #00C897; font-size: 26px; font-weight: 800;">${total_retirado:,.2f}</div></div>', unsafe_allow_html=True)
+        with c_p3: st.markdown(f'<div style="{e_caja_p}"><div style="font-size: 20px; font-weight: 700; color: #FFFFFF; text-transform: none;">Total Withdrawals</div><div style="color: {c_dash}; font-size: 26px; font-weight: 800;">{retiros_realizados}</div></div>', unsafe_allow_html=True)
+        with c_p4: st.markdown(f'<div style="{e_caja_p}"><div style="font-size: 20px; font-weight: 700; color: #FFFFFF; text-transform: none;">Days Done</div><div style="color: #00C897; font-size: 26px; font-weight: 800;">{dias_ganadores_count}</div></div>', unsafe_allow_html=True)
+
+        # --- CELEBRACIÓN DE RETIRO ---
+        if st.session_state.get("retiro_exitoso", False):
+            st.toast("¡Retiro exitoso!", icon="💸")
+            st.balloons()
+            html_script_payout = """
+            <script>
+                setTimeout(function() {
+                    if (!window.parent.document.getElementById('confetti-script')) {
+                        const script = window.parent.document.createElement('script');
+                        script.id = 'confetti-script';
+                        script.src = 'https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js';
+                        script.onload = function() { iniciarCelebracionRetiro(); };
+                        window.parent.document.head.appendChild(script);
+                    } else {
+                        iniciarCelebracionRetiro();
+                    }
+                }, 500);
+
+                function iniciarCelebracionRetiro() {
+                    const doc = window.parent.document;
+                    
+                    if (!doc.getElementById('celebration-style')) {
+                        const style = doc.createElement('style');
+                        style.id = 'celebration-style';
+                        style.innerHTML = `
+                            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@800;900&display=swap');
+                            
+                            #celebration-overlay {
+                                position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+                                background-color: rgba(0,0,0,0.9);
+                                backdrop-filter: blur(10px);
+                                z-index: 9999998;
+                                display: flex; flex-direction: column; align-items: center; justify-content: center;
+                                color: white; font-family: 'Inter', sans-serif; text-align: center;
+                                opacity: 0; animation: fadeInCelebration 0.8s forwards;
+                                pointer-events: none;
+                            }
+                            
+                            .cel-content { transform: scale(0.5); animation: scaleInCelebration 0.8s 0.2s forwards cubic-bezier(0.17, 0.89, 0.32, 1.49); }
+                            .cel-title { font-size: 80px; font-weight: 900; margin-bottom: 20px; letter-spacing: -4px; line-height: 1; text-shadow: 0 10px 20px rgba(0,0,0,0.5); }
+                            .cel-sub { font-size: 30px; font-weight: 800; color: #00C897; text-transform: uppercase; letter-spacing: 2px; }
+                            
+                            @keyframes fadeInCelebration { to { opacity: 1; } }
+                            @keyframes fadeOutCelebration { from { opacity: 1; } to { opacity: 0; } }
+                            @keyframes scaleInCelebration { to { transform: scale(1); } }
+                        `;
+                        doc.head.appendChild(style);
+                    }
+
+                    const overlay = doc.createElement('div');
+                    overlay.id = 'celebration-overlay';
+                    overlay.innerHTML = `
+                        <div class="cel-content">
+                            <div class="cel-title">💸 WITHDRAWAL SUCCESSFUL 💸<br>""" + usuario.upper() + """</div>
+                            <div class="cel-sub">ENJOY YOUR HARD EARNED MONEY!</div>
+                        </div>
+                    `;
+                    doc.body.appendChild(overlay);
+
+                    var duration = 5 * 1000;
+                    var end = window.parent.Date.now() + duration;
+                    var colors = ['#00C897', '#FFFFFF', '#FFD700', '#FF4C4C']; 
+                    
+                    (function frame() {
+                        if (window.parent.confetti) {
+                            window.parent.confetti({
+                                particleCount: 7, angle: 60, spread: 60, origin: { x: 0, y: 0.6 },
+                                colors: colors, zIndex: 9999999
+                            });
+                            window.parent.confetti({
+                                particleCount: 7, angle: 120, spread: 60, origin: { x: 1, y: 0.6 },
+                                colors: colors, zIndex: 9999999
+                            });
+                        }
+                        
+                        if (window.parent.Date.now() < end) {
+                            window.parent.requestAnimationFrame(frame);
+                        }
+                    }());
+
+                    setTimeout(() => {
+                        overlay.style.animation = 'fadeOutCelebration 1s forwards';
+                        setTimeout(() => { 
+                            if(doc.body.contains(overlay)) { doc.body.removeChild(overlay); }
+                        }, 1000);
+                    }, 6500);
+                }
+            </script>
+            """
+            components.html(html_script_payout, height=1, width=1)
+            st.session_state.retiro_exitoso = False
 
 # ==========================================
 # 11 Y 12. TABLAS Y EDICIÓN A LA MITAD (COLUMNAS)
