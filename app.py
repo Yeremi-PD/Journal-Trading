@@ -2270,20 +2270,52 @@ with col_cal:
                     `;
                     doc.body.appendChild(overlay);
 
-                    var duration = 5 * 1000;
+                    var duration = 6 * 1000;
                     var end = window.parent.Date.now() + duration;
-                    var colors = ['#00C897', '#FFFFFF', '#FFD700', '#FF4C4C']; 
+                    var colors = ['#00C897', '#FFFFFF', '#FFD700']; 
                     
                     (function frame() {
                         if (window.parent.confetti) {
+                            // --- LLUVIA DE DINERO DESDE ARRIBA ---
+                            // Caída de partículas estándar (verdes/doradas)
                             window.parent.confetti({
-                                particleCount: 7, angle: 60, spread: 60, origin: { x: 0, y: 0.6 },
-                                colors: colors, zIndex: 9999999
+                                particleCount: 3,
+                                startVelocity: 0,
+                                ticks: 200,
+                                gravity: 0.8,
+                                origin: { y: -0.1, x: Math.random() }, // Sale de arriba, X aleatoria
+                                colors: colors,
+                                zIndex: 9999999
                             });
+
+                            // Caída de Emojis de Dinero
                             window.parent.confetti({
-                                particleCount: 7, angle: 120, spread: 60, origin: { x: 1, y: 0.6 },
-                                colors: colors, zIndex: 9999999
+                                particleCount: 1,
+                                startVelocity: 0,
+                                ticks: 200,
+                                gravity: 0.6, // Un poco más lento para que se note
+                                origin: { y: -0.1, x: Math.random() },
+                                shapes: ['text'],
+                                shapeOptions: {
+                                    text: {
+                                        value: ['💸', '💰', '$']
+                                    }
+                                },
+                                flat: true, // Hace que giren como billetes reales
+                                zIndex: 9999999
                             });
+
+                            // --- MANTENER UN POCO DE EFECTO LATERAL ---
+                            if (window.parent.Date.now() % 5 === 0) { // Solo cada tanto
+                                window.parent.confetti({
+                                    particleCount: 2, angle: 60, spread: 50, origin: { x: 0, y: 0.7 },
+                                    colors: colors, zIndex: 9999999
+                                });
+                                window.parent.confetti({
+                                    particleCount: 2, angle: 120, spread: 50, origin: { x: 1, y: 0.7 },
+                                    colors: colors, zIndex: 9999999
+                                });
+                            }
                         }
                         
                         if (window.parent.Date.now() < end) {
@@ -2292,11 +2324,11 @@ with col_cal:
                     }());
 
                     setTimeout(() => {
-                        overlay.style.animation = 'fadeOutCelebration 1s forwards';
+                        overlay.style.animation = 'fadeOutCelebration 1.5s forwards';
                         setTimeout(() => { 
                             if(doc.body.contains(overlay)) { doc.body.removeChild(overlay); }
-                        }, 1000);
-                    }, 6500);
+                        }, 1500);
+                    }, 7000); // Un poco más de tiempo para disfrutar la lluvia
                 }
             </script>
             """
