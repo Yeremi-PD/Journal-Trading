@@ -2167,21 +2167,34 @@ with col_cal:
             st.markdown(f'<div style="font-size: 13px; font-weight: 700; color: gray; text-transform: uppercase; margin-bottom: 5px;">Withdraw (Amount)</div>', unsafe_allow_html=True)
             with st.form(key="form_payout", clear_on_submit=True, border=False):
                 retiro_val = st.number_input("Amount", min_value=0.0, format="%.2f", label_visibility="collapsed")
+                
+                # --- CALCULAR PAYOUT DISPONIBLE LOCALMENTE ---
+                if bal_inicial_abs <= 35000: tope_payout = 26100
+                elif bal_inicial_abs <= 75000: tope_payout = 52100
+                else: tope_payout = 103100
+                payout_disp_local = bal_mostrar - tope_payout
+                
                 if st.form_submit_button("➖ WITHDRAW", use_container_width=True):
-                    if retiro_val > 0:
-                        payouts_dict.setdefault(ctx, []).append(retiro_val)
-                        db_global[usuario]["settings"]["Móvil"]["payouts"] = payouts_dict
-                        db_usuario[ctx]["balance"] -= retiro_val
-                        
-                        # --- GUARDAR FECHA DEL RETIRO PARA VOLVER A 0 ---
-                        payout_dates_save = db_global[usuario]["settings"]["PC"].get("payout_dates", {})
-                        if trades_cronologicos:
-                            payout_dates_save[ctx] = trades_cronologicos[-1]['fecha_str']
-                        db_global[usuario]["settings"]["PC"]["payout_dates"] = payout_dates_save
-                        db_global[usuario]["settings"]["Móvil"]["payout_dates"] = payout_dates_save
-                        
-                        reescribir_excel_usuario(usuario)
-                        st.rerun()
+                    # --- CONDICIÓN DE BLOQUEO DE RETIROS ---
+                    if payout_disp_local < 500 or dias_ganadores_count < 5:
+                        st.error(f"⚠️ Requires $500 Available (You have ${max(0, payout_disp_local):.2f}) and 5 Days Done (You have {dias_ganadores_count}).")
+                    elif retiro_val > 0:
+                        if retiro_val > payout_disp_local:
+                            st.error(f"⚠️ Cannot withdraw more than your Available Payout (${payout_disp_local:,.2f})")
+                        else:
+                            payouts_dict.setdefault(ctx, []).append(retiro_val)
+                            db_global[usuario]["settings"]["Móvil"]["payouts"] = payouts_dict
+                            db_usuario[ctx]["balance"] -= retiro_val
+                            
+                            # --- GUARDAR FECHA DEL RETIRO PARA VOLVER A 0 ---
+                            payout_dates_save = db_global[usuario]["settings"]["PC"].get("payout_dates", {})
+                            if trades_cronologicos:
+                                payout_dates_save[ctx] = trades_cronologicos[-1]['fecha_str']
+                            db_global[usuario]["settings"]["PC"]["payout_dates"] = payout_dates_save
+                            db_global[usuario]["settings"]["Móvil"]["payout_dates"] = payout_dates_save
+                            
+                            reescribir_excel_usuario(usuario)
+                            st.rerun()
 
         with c_p2: st.markdown(f'<div style="{e_caja_p}"><div style="font-size: 13px; font-weight: 700; color: gray; text-transform: uppercase;">Total Withdrawn</div><div style="color: #00C897; font-size: 26px; font-weight: 800;">${total_retirado:,.2f}</div></div>', unsafe_allow_html=True)
         with c_p3: st.markdown(f'<div style="{e_caja_p}"><div style="font-size: 13px; font-weight: 700; color: gray; text-transform: uppercase;">Withdrawals Made</div><div style="color: {c_dash}; font-size: 26px; font-weight: 800;">{retiros_realizados}</div></div>', unsafe_allow_html=True)
