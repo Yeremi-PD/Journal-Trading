@@ -1295,10 +1295,16 @@ if paso_cuenta:
 
 modo_funded_activo = st.session_state.get("toggle_funded_state", False) and paso_cuenta
 
+# --- RECUPERAR RETIROS GLOBALES PARA AJUSTAR BALANCE VISUAL Y MÉTRICAS ---
+if "payouts" not in db_global[usuario]["settings"]["PC"]:
+    db_global[usuario]["settings"]["PC"]["payouts"] = {}
+payouts_dict_global = db_global[usuario]["settings"]["PC"]["payouts"]
+total_retirado_global = sum(payouts_dict_global.get(ctx, []))
+
 bal_mostrar = bal_actual
 if modo_funded_activo:
     ganancia_f = sum(tr["pnl"] for tr in _tc[idx_pase+1:])
-    bal_mostrar = bal_inicial_abs + ganancia_f
+    bal_mostrar = bal_inicial_abs + ganancia_f - total_retirado_global
 
 # --- CREACIÓN DE LAS COLUMNAS ---
 col_t, col_fil, col_data, col_bal = st.columns([3, 1.5, 1.5, 2])
