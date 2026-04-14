@@ -2204,9 +2204,9 @@ with col_cal:
                             reescribir_excel_usuario(usuario)
                             st.rerun()
 
-        with c_p2: st.markdown(f'<div style="{e_caja_p}"><div style="font-size: 13px; font-weight: 700; color: gray; text-transform: uppercase;">Total Withdrawn</div><div style="color: #00C897; font-size: 26px; font-weight: 800;">${total_retirado:,.2f}</div></div>', unsafe_allow_html=True)
-        with c_p3: st.markdown(f'<div style="{e_caja_p}"><div style="font-size: 13px; font-weight: 700; color: gray; text-transform: uppercase;">Total Withdrawals</div><div style="color: {c_dash}; font-size: 26px; font-weight: 800;">{retiros_realizados}</div></div>', unsafe_allow_html=True)
-        with c_p4: st.markdown(f'<div style="{e_caja_p}"><div style="font-size: 13px; font-weight: 700; color: gray; text-transform: uppercase;">Days Done</div><div style="color: #00C897; font-size: 26px; font-weight: 800;">{dias_ganadores_count}</div></div>', unsafe_allow_html=True)
+        with c_p2: st.markdown(f'<div style="{e_caja_p}"><div style="font-size: 25px; font-weight: 700; color: gray; text-transform: uppercase;">Total Withdrawn</div><div style="color: #00C897; font-size: 26px; font-weight: 800;">${total_retirado:,.2f}</div></div>', unsafe_allow_html=True)
+        with c_p3: st.markdown(f'<div style="{e_caja_p}"><div style="font-size: 25px; font-weight: 700; color: gray; text-transform: uppercase;">Total Withdrawals</div><div style="color: {c_dash}; font-size: 26px; font-weight: 800;">{retiros_realizados}</div></div>', unsafe_allow_html=True)
+        with c_p4: st.markdown(f'<div style="{e_caja_p}"><div style="font-size: 25px; font-weight: 700; color: gray; text-transform: uppercase;">Days Done</div><div style="color: #00C897; font-size: 26px; font-weight: 800;">{dias_ganadores_count}</div></div>', unsafe_allow_html=True)
 
 # ==========================================
 # 11 Y 12. TABLAS Y EDICIÓN A LA MITAD (COLUMNAS)
