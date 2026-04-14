@@ -2126,11 +2126,30 @@ with col_cal:
         elif bal_inicial_abs <= 75000: umbral_pago = 250
         else: umbral_pago = 300
         
+        # --- LÓGICA PARA RESETEAR DAYS DONE AL RETIRAR ---
+        payout_dates = db_global[usuario]["settings"]["PC"].get("payout_dates", {})
+        fecha_corte_str = payout_dates.get(ctx, None)
+        fecha_corte_dt = None
+        if fecha_corte_str:
+            try:
+                fecha_corte_dt = datetime.strptime(fecha_corte_str, "%d/%m/%Y")
+            except:
+                pass
+        
         dias_ganadores_count = 0
         trades_por_dia = {}
         for tr in trades_cronologicos:
+            if fecha_corte_dt:
+                try:
+                    dt_tr = datetime.strptime(tr['fecha_str'], "%d/%m/%Y")
+                    if dt_tr <= fecha_corte_dt:
+                        continue # Ya se retiró después de este trade
+                except:
+                    pass
+            
             f_str = tr['fecha_str']
             trades_por_dia[f_str] = trades_por_dia.get(f_str, 0) + tr['pnl']
+            
         for fecha, pnl_total_dia in trades_por_dia.items():
             if pnl_total_dia >= umbral_pago:
                 dias_ganadores_count += 1
@@ -2153,6 +2172,14 @@ with col_cal:
                         payouts_dict.setdefault(ctx, []).append(retiro_val)
                         db_global[usuario]["settings"]["Móvil"]["payouts"] = payouts_dict
                         db_usuario[ctx]["balance"] -= retiro_val
+                        
+                        # --- GUARDAR FECHA DEL RETIRO PARA VOLVER A 0 ---
+                        payout_dates_save = db_global[usuario]["settings"]["PC"].get("payout_dates", {})
+                        if trades_cronologicos:
+                            payout_dates_save[ctx] = trades_cronologicos[-1]['fecha_str']
+                        db_global[usuario]["settings"]["PC"]["payout_dates"] = payout_dates_save
+                        db_global[usuario]["settings"]["Móvil"]["payout_dates"] = payout_dates_save
+                        
                         reescribir_excel_usuario(usuario)
                         st.rerun()
 
