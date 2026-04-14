@@ -1636,63 +1636,6 @@ with col_cal:
                         op = "0.2" if len(dia_trades) > 0 else "1"
                         st.markdown(f'<div class="card cell-empty" style="opacity:{op}"><div class="day-number">{dia}</div></div>', unsafe_allow_html=True)
 
-    if paso_cuenta:
-        st.markdown("<br>", unsafe_allow_html=True)
-        st.markdown(f"<h4 style='color: {c_dash}; font-weight: 800; margin-bottom: 10px;'>💸 Payout Management</h4>", unsafe_allow_html=True)
-        
-        if "payouts" not in db_global[usuario]["settings"]["PC"]:
-            db_global[usuario]["settings"]["PC"]["payouts"] = {}
-        if "payouts" not in db_global[usuario]["settings"]["Móvil"]:
-            db_global[usuario]["settings"]["Móvil"]["payouts"] = {}
-            
-        payouts_dict = db_global[usuario]["settings"]["PC"]["payouts"]
-        payouts_cta = payouts_dict.get(ctx, [])
-        
-        total_retirado = sum(payouts_cta)
-        retiros_realizados = len(payouts_cta)
-        
-        # CÁLCULO DE DAYS DONE INDEPENDIENTE
-        if bal_inicial_abs <= 35000: umbral_pago = 100
-        elif bal_inicial_abs <= 75000: umbral_pago = 250
-        else: umbral_pago = 300
-        
-        dias_ganadores_count = 0
-        trades_por_dia = {}
-        for tr in _tc:
-            if st.session_state.get("toggle_funded_state", False) and tr.get("is_pre_funded", False):
-                continue
-            f_str = tr['fecha_str']
-            trades_por_dia[f_str] = trades_por_dia.get(f_str, 0) + tr['pnl']
-        
-        for fecha, pnl_total_dia in trades_por_dia.items():
-            if pnl_total_dia >= umbral_pago:
-                dias_ganadores_count += 1
-        
-        e_caja_p = f"padding: 10px; min-height: 90px; display: flex; flex-direction: column; justify-content: center; background-color: {card_bg}; border: 1px solid {border_color}; border-radius: 12px;"
-        
-        st.markdown('''<style>
-        div[data-testid="stForm"]:has(input[aria-label="Amount"]) div[data-testid="stNumberInput"] { width: 100% !important; min-width: 100% !important; max-width: 100% !important; margin: 0 !important; }
-        div[data-testid="stForm"]:has(input[aria-label="Amount"]) [data-testid="stFormSubmitButton"] button { width: 100% !important; margin: 5px 0 0 0 !important; background-color: #FF4C4C !important; color: white !important;}
-        </style>''', unsafe_allow_html=True)
-        
-        c_p1, c_p2, c_p3, c_p4 = st.columns(4)
-        
-        with c_p1:
-            st.markdown(f'<div style="font-size: 11px; font-weight: 700; color: gray; text-transform: uppercase; margin-bottom: 5px;">Withdraw (Amount)</div>', unsafe_allow_html=True)
-            with st.form(key="form_payout", clear_on_submit=True, border=False):
-                retiro_val = st.number_input("Amount", min_value=0.0, format="%.2f", label_visibility="collapsed")
-                if st.form_submit_button("➖ WITHDRAW", use_container_width=True):
-                    if retiro_val > 0:
-                        payouts_dict.setdefault(ctx, []).append(retiro_val)
-                        db_global[usuario]["settings"]["Móvil"]["payouts"] = payouts_dict
-                        db_usuario[ctx]["balance"] -= retiro_val
-                        reescribir_excel_usuario(usuario)
-                        st.rerun()
-
-        with c_p2: st.markdown(f'<div style="{e_caja_p}"><div style="font-size: 11px; font-weight: 700; color: gray; text-transform: uppercase;">Total Withdrawn</div><div style="color: #00C897; font-size: 20px; font-weight: 800;">${total_retirado:,.2f}</div></div>', unsafe_allow_html=True)
-        with c_p3: st.markdown(f'<div style="{e_caja_p}"><div style="font-size: 11px; font-weight: 700; color: gray; text-transform: uppercase;">Withdrawals Made</div><div style="color: {c_dash}; font-size: 20px; font-weight: 800;">{retiros_realizados}</div></div>', unsafe_allow_html=True)
-        with c_p4: st.markdown(f'<div style="{e_caja_p}"><div style="font-size: 11px; font-weight: 700; color: gray; text-transform: uppercase;">Days Done</div><div style="color: #00C897; font-size: 20px; font-weight: 800;">{dias_ganadores_count}</div></div>', unsafe_allow_html=True)
-
 def get_bar_svg(w, l, t):
     tot = w + l + t
     if tot == 0:
