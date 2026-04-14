@@ -1651,7 +1651,401 @@ with col_cal:
         total_retirado = sum(payouts_cta)
         retiros_realizados = len(payouts_cta)
         
-        bar_html = get_bar_svg(wins, losses, ties)
+        # CÁLCULO DE DAYS DONE INDEPENDIENTE
+        if bal_inicial_abs <= 35000: umbral_pago = 100
+        elif bal_inicial_abs <= 75000: umbral_pago = 250
+        else: umbral_pago = 300
+        
+        dias_ganadores_count = 0
+        trades_por_dia = {}
+        for tr in _tc:
+            if st.session_state.get("toggle_funded_state", False) and tr.get("is_pre_funded", False):
+                continue
+            f_str = tr['fecha_str']
+            trades_por_dia[f_str] = trades_por_dia.get(f_str, 0) + tr['pnl']
+        
+        for fecha, pnl_total_dia in trades_por_dia.items():
+            if pnl_total_dia >= umbral_pago:
+                dias_ganadores_count += 1
+        
+        e_caja_p = f"padding: 10px; min-height: 90px; display: flex; flex-direction: column; justify-content: center; background-color: {card_bg}; border: 1px solid {border_color}; border-radius: 12px;"
+        
+        st.markdown('''<style>
+        div[data-testid="stForm"]:has(input[aria-label="Amount"]) div[data-testid="stNumberInput"] { width: 100% !important; min-width: 100% !important; max-width: 100% !important; margin: 0 !important; }
+        div[data-testid="stForm"]:has(input[aria-label="Amount"]) [data-testid="stFormSubmitButton"] button { width: 100% !important; margin: 5px 0 0 0 !important; background-color: #FF4C4C !important; color: white !important;}
+        </style>''', unsafe_allow_html=True)
+        
+        c_p1, c_p2, c_p3, c_p4 = st.columns(4)
+        
+        with c_p1:
+            st.markdown(f'<div style="font-size: 11px; font-weight: 700; color: gray; text-transform: uppercase; margin-bottom: 5px;">Withdraw (Amount)</div>', unsafe_allow_html=True)
+            with st.form(key="form_payout", clear_on_submit=True, border=False):
+                retiro_val = st.number_input("Amount", min_value=0.0, format="%.2f", label_visibility="collapsed")
+                if st.form_submit_button("➖ WITHDRAW", use_container_width=True):
+                    if retiro_val > 0:
+                        payouts_dict.setdefault(ctx, []).append(retiro_val)
+                        db_global[usuario]["settings"]["Móvil"]["payouts"] = payouts_dict
+                        db_usuario[ctx]["balance"] -= retiro_val
+                        reescribir_excel_usuario(usuario)
+                        st.rerun()
+
+        with c_p2: st.markdown(f'<div style="{e_caja_p}"><div style="font-size: 11px; font-weight: 700; color: gray; text-transform: uppercase;">Total Withdrawn</div><div style="color: #00C897; font-size: 20px; font-weight: 800;">${total_retirado:,.2f}</div></div>', unsafe_allow_html=True)
+        with c_p3: st.markdown(f'<div style="{e_caja_p}"><div style="font-size: 11px; font-weight: 700; color: gray; text-transform: uppercase;">Withdrawals Made</div><div style="color: {c_dash}; font-size: 20px; font-weight: 800;">{retiros_realizados}</div></div>', unsafe_allow_html=True)
+        with c_p4: st.markdown(f'<div style="{e_caja_p}"><div style="font-size: 11px; font-weight: 700; color: gray; text-transform: uppercase;">Days Done</div><div style="color: #00C897; font-size: 20px; font-weight: 800;">{dias_ganadores_count}</div></div>', unsafe_allow_html=True)
+
+def get_bar_svg(w, l, t):
+    tot = w + l + t
+    if tot == 0:
+        # Gráfico por defecto cuando no hay datos (Muestra "NO DATA" centrado)
+        return '''<svg width="100%" height="100%" viewBox="0 0 100 100">
+            <line x1="5" y1="85" x2="95" y2="85" stroke="#4A5568" stroke-width="2" stroke-linecap="round" />
+            <text x="50" y="50" fill="gray" font-size="14" font-family="sans-serif" font-weight="bold" text-anchor="middle">NO DATA</text>
+        </svg>'''
+
+    max_v = max(w, l, t)
+    if max_v == 0: max_v = 1
+
+    # Calculamos la altura de cada barra sobre un máximo de 65 (para dejar espacio al texto)
+    hw = (w / max_v) * 65  
+    hl = (l / max_v) * 65
+    ht = (t / max_v) * 65
+
+    svg = '<svg width="100%" height="100%" viewBox="0 0 100 100">'
+    
+    # Línea base (Eje X)
+    svg += '<line x1="5" y1="85" x2="95" y2="85" stroke="#4A5568" stroke-width="2" stroke-linecap="round" />'
+
+    # Barra WINS (Verde)
+    if w > 0:
+        svg += f'<rect x="12" y="{85 - hw}" width="22" height="{hw}" fill="#00C897" rx="3" />'
+        svg += f'<text x="23" y="{80 - hw}" fill="#00C897" font-size="14" font-family="sans-serif" font-weight="bold" text-anchor="middle">{w}</text>'
+        svg += f'<text x="23" y="98" fill="#00C897" font-size="12" font-family="sans-serif" font-weight="bold" text-anchor="middle">W</text>'
+        
+    # Barra LOSSES (Rojo)
+    if l > 0:
+        svg += f'<rect x="39" y="{85 - hl}" width="22" height="{hl}" fill="#FF4C4C" rx="3" />'
+        svg += f'<text x="50" y="{80 - hl}" fill="#FF4C4C" font-size="14" font-family="sans-serif" font-weight="bold" text-anchor="middle">{l}</text>'
+        svg += f'<text x="50" y="98" fill="#FF4C4C" font-size="12" font-family="sans-serif" font-weight="bold" text-anchor="middle">L</text>'
+        
+    # Barra BREAKEVEN (Gris)
+    if t > 0:
+        svg += f'<rect x="66" y="{85 - ht}" width="22" height="{ht}" fill="gray" rx="3" />'
+        svg += f'<text x="77" y="{80 - ht}" fill="gray" font-size="14" font-family="sans-serif" font-weight="bold" text-anchor="middle">{t}</text>'
+        svg += f'<text x="77" y="98" fill="gray" font-size="12" font-family="sans-serif" font-weight="bold" text-anchor="middle">BE</text>'
+
+    svg += '</svg>'
+    return svg
+
+    max_v = max(w, l, t)
+    if max_v == 0: max_v = 1
+
+    # Calculamos la altura de cada barra sobre un máximo de 65 (para dejar espacio al texto)
+    hw = (w / max_v) * 65  
+    hl = (l / max_v) * 65
+    ht = (t / max_v) * 65
+
+    svg = '<svg width="100%" height="100%" viewBox="0 0 100 100">'
+    
+    # Línea base (Eje X)
+    svg += '<line x1="5" y1="85" x2="95" y2="85" stroke="#4A5568" stroke-width="2" stroke-linecap="round" />'
+
+    # Barra WINS (Verde)
+    if w > 0:
+        svg += f'<rect x="12" y="{85 - hw}" width="22" height="{hw}" fill="#00C897" rx="3" />'
+        svg += f'<text x="23" y="{80 - hw}" fill="#00C897" font-size="14" font-family="sans-serif" font-weight="bold" text-anchor="middle">{w}</text>'
+        svg += f'<text x="23" y="98" fill="#00C897" font-size="12" font-family="sans-serif" font-weight="bold" text-anchor="middle">W</text>'
+        
+    # Barra LOSSES (Rojo)
+    if l > 0:
+        svg += f'<rect x="39" y="{85 - hl}" width="22" height="{hl}" fill="#FF4C4C" rx="3" />'
+        svg += f'<text x="50" y="{80 - hl}" fill="#FF4C4C" font-size="14" font-family="sans-serif" font-weight="bold" text-anchor="middle">{l}</text>'
+        svg += f'<text x="50" y="98" fill="#FF4C4C" font-size="12" font-family="sans-serif" font-weight="bold" text-anchor="middle">L</text>'
+        
+    # Barra BREAKEVEN (Gris)
+    if t > 0:
+        svg += f'<rect x="66" y="{85 - ht}" width="22" height="{ht}" fill="gray" rx="3" />'
+        svg += f'<text x="77" y="{80 - ht}" fill="gray" font-size="14" font-family="sans-serif" font-weight="bold" text-anchor="middle">{t}</text>'
+        svg += f'<text x="77" y="98" fill="gray" font-size="12" font-family="sans-serif" font-weight="bold" text-anchor="middle">BE</text>'
+
+    svg += '</svg>'
+    return svg
+
+with col_det:
+    # 1. Filtramos los trades cronológicos
+    trades_cronologicos = []
+    for c, lt in sorted(db_usuario[ctx]["trades"].items(), key=lambda x: datetime(x[0][0], x[0][1], x[0][2])):
+        for t in lt:
+            if st.session_state.get("toggle_funded_state", False) and t.get("is_pre_funded", False): continue
+            trades_cronologicos.append(t)
+    
+    # 2. Setup de topes y balance
+    bal_inicial = bal_inicial_abs
+    
+    max_bal = bal_inicial
+    _current_sim_bal = bal_inicial
+    for t in trades_cronologicos:
+        _current_sim_bal += t["pnl"]
+        if _current_sim_bal > max_bal: max_bal = _current_sim_bal
+            
+    if bal_inicial <= 35000:
+        meta_t = 1500; lim_dd = 1000; alerta_dd = 500; tope_dd = 26100
+    elif bal_inicial <= 75000:
+        meta_t = 3000; lim_dd = 2000; alerta_dd = 1000; tope_dd = 52100
+    else:
+        meta_t = 6000; lim_dd = 3000; alerta_dd = 1500; tope_dd = 103100
+        
+    # 3. Cálculos matemáticos
+    nivel_perdida = max_bal - lim_dd
+    if nivel_perdida > tope_dd: nivel_perdida = tope_dd
+        
+    progreso = bal_mostrar - bal_inicial
+    falta_tg = meta_t - progreso
+    distancia_dd = bal_mostrar - nivel_perdida
+    
+    # Colores base para Drawdown y Lose Account
+    c_hex_dd = "#FF4C4C" if distancia_dd < alerta_dd else "#00C897"
+    
+    # Variable para el nombre y color dinámico del Target
+    titulo_target_dinamico = "Target"
+    c_hex_tg = "#FFFFFF" # Blanco por defecto
+
+    if distancia_dd <= 0:
+        texto_lose = "LOST 💀"; texto_dd = "LOST 💀"; texto_tg = "LOST 💀"
+        c_hex_tg = "#FF4C4C"
+        
+        # GUARDADO PERMANENTE EN LA BASE DE DATOS PARA QUE NO SALGA AL REFRESCAR
+        clave_perdida_db = "cuenta_quemada_v1_" + str(ctx)
+        
+        if not db_global[usuario]["settings"]["PC"].get(clave_perdida_db, False):
+            # Lo marcamos como visto en la memoria global
+            db_global[usuario]["settings"]["PC"][clave_perdida_db] = True
+            db_global[usuario]["settings"]["Móvil"][clave_perdida_db] = True
+            
+            # Guardamos en Google Sheets permanentemente
+            reescribir_excel_usuario(usuario)
+            
+            
+            html_script_perdida = """
+            <script>
+                function iniciarPantallaPerdida() {
+                    const doc = window.parent.document;
+                    
+                    if (!doc.getElementById('lost-style')) {
+                        const style = doc.createElement('style');
+                        style.id = 'lost-style';
+                        style.innerHTML = `
+                            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@800;900&display=swap');
+                            
+                            #lost-overlay {
+                                position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+                                background-color: rgba(20,0,0,0.95);
+                                backdrop-filter: blur(12px);
+                                z-index: 9999998;
+                                display: flex; flex-direction: column; align-items: center; justify-content: center;
+                                color: white; font-family: 'Inter', sans-serif; text-align: center;
+                                opacity: 0; animation: fadeInLost 1s forwards;
+                                pointer-events: none;
+                                overflow: hidden;
+                            }
+                            
+                            .lost-content { transform: scale(1.2); animation: dropInLost 0.5s forwards cubic-bezier(0.25, 0.46, 0.45, 0.94); z-index: 2; }
+                            .lost-title { font-size: 90px; font-weight: 900; margin-bottom: 20px; letter-spacing: -3px; line-height: 1; color: #FF4C4C; text-shadow: 0 0 40px rgba(255,76,76,0.6); }
+                            .lost-sub { font-size: 25px; font-weight: 800; color: #A0AEC0; text-transform: uppercase; letter-spacing: 2px; line-height: 1.4; }
+                            
+                            .skull-particle {
+                                position: absolute;
+                                top: -100px;
+                                z-index: 1;
+                                user-select: none;
+                                filter: drop-shadow(0 0 5px rgba(255,0,0,0.3));
+                            }
+                            
+                            @keyframes fadeInLost { to { opacity: 1; } }
+                            @keyframes fadeOutLost { from { opacity: 1; } to { opacity: 0; } }
+                            @keyframes dropInLost { to { transform: scale(1); } }
+                            
+                            @keyframes shakeScreen {
+                                0%, 100% { transform: translate(0, 0); }
+                                10%, 30%, 50%, 70%, 90% { transform: translate(-8px, 0); }
+                                20%, 40%, 60%, 80% { transform: translate(8px, 0); }
+                            }
+                            
+                            @keyframes fallSkull {
+                                0% { transform: translateY(-100px) rotate(0deg); opacity: 1; }
+                                100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+                            }
+                        `;
+                        doc.head.appendChild(style);
+                    }
+
+                    const overlay = doc.createElement('div');
+                    overlay.id = 'lost-overlay';
+                    
+                    // Generador de lluvia de calaveras
+                    let skullsHtml = '';
+                    for (let i = 0; i < 40; i++) {
+                        let left = Math.random() * 100;
+                        let size = Math.random() * 40 + 20; // Tamaño entre 20px y 60px
+                        let duration = Math.random() * 2.5 + 2; // Velocidad de caída
+                        let delay = Math.random() * 1.5; // Retraso de inicio
+                        skullsHtml += `<div class="skull-particle" style="left: ${left}vw; font-size: ${size}px; animation: fallSkull ${duration}s linear ${delay}s forwards;">💀</div>`;
+                    }
+
+                    overlay.innerHTML = `
+                        ${skullsHtml}
+                        <div class="lost-content">
+                            <div class="lost-title">💀 ACCOUNT LOST 💀</div>
+                            <div class="lost-sub">FAILURE IS JUST INFORMATION.<br>¡GET UP AND GET BACK TO THE PLAN, """ + usuario.upper() + """!</div>
+                        </div>
+                    `;
+                    doc.body.appendChild(overlay);
+                    
+                    doc.body.style.animation = 'shakeScreen 0.4s ease-in-out';
+                    setTimeout(() => { doc.body.style.animation = ''; }, 400);
+
+                    setTimeout(() => {
+                        overlay.style.animation = 'fadeOutLost 1.5s forwards';
+                        setTimeout(() => { 
+                            if(doc.body.contains(overlay)) { doc.body.removeChild(overlay); }
+                        }, 1500);
+                    }, 6500);
+                }
+                
+                // Retraso pequeño para asegurar que la página cargó
+                setTimeout(iniciarPantallaPerdida, 500);
+            </script>
+            """
+            components.html(html_script_perdida, height=1, width=1)
+    else:
+        texto_lose = f"${distancia_dd:,.2f}"; texto_dd = f"${nivel_perdida:,.2f}"
+        
+        if paso_cuenta:
+            falta_para_tope = tope_dd - bal_mostrar
+            if falta_para_tope <= 0:
+                titulo_target_dinamico = "Available Payout"
+                payout_disponible = abs(falta_para_tope)
+                texto_tg = f"${payout_disponible:,.2f}"
+                c_hex_tg = "#00C897" # Verde cuando es ganancia extra
+            else:
+                titulo_target_dinamico = "Target"
+                texto_tg = f"${falta_para_tope:,.2f}"
+                c_hex_tg = "#FFFFFF"
+        elif falta_tg <= 0:
+            texto_tg = "PASSED 🎉"
+            c_hex_tg = "#00C897"
+        else:
+            texto_tg = f"${falta_tg:,.2f}"
+            c_hex_tg = "#FF4C4C" if falta_tg > meta_t else "#FFFFFF"
+
+    # --- DISEÑO Y POSICIONAMIENTO ---
+    st.markdown("""
+    <style>
+    div[data-testid="stElementContainer"]:has(.ancla-subir-todo) {
+        margin-top: -215px !important;
+        margin-bottom: 0px !important;
+    }
+    </style>
+    <div class="ancla-subir-todo"></div>
+    """, unsafe_allow_html=True)
+
+    if paso_cuenta:
+        st.toggle("Funded Account", key="toggle_funded_state")
+    else:
+        st.markdown("<div style='height: 42px;'></div>", unsafe_allow_html=True)
+    
+    c_tg_col, c_dd_col, c_lose_col = st.columns(3)
+    e_caja = "margin-top: -10px; margin-bottom: 10px; padding: 10px !important; min-height: 85px !important; display: flex; flex-direction: column; justify-content: center;"
+    
+    with c_tg_col: st.markdown(f'<div class="metric-card card-pnl" style="{e_caja}"><div class="metric-header"><span class="title-net-pnl" style="font-size: 12px;">{titulo_target_dinamico}</span></div><div style="color: {c_hex_dd}; font-size: 20px; font-weight: 800;">{texto_tg}</div></div>', unsafe_allow_html=True)
+    with c_dd_col: st.markdown(f'<div class="metric-card card-pnl" style="{e_caja}"><div class="metric-header"><span class="title-net-pnl" style="font-size: 12px;">Drawdown</span></div><div style="color: {c_hex_dd}; font-size: 20px; font-weight: 800;">{texto_dd}</div></div>', unsafe_allow_html=True)
+    with c_lose_col: st.markdown(f'<div class="metric-card card-pnl" style="{e_caja}"><div class="metric-header"><span class="title-net-pnl" style="font-size: 12px;">Lose Account</span></div><div style="color: {c_hex_dd}; font-size: 20px; font-weight: 800;">{texto_lose}</div></div>', unsafe_allow_html=True)
+    
+    ver_todo = st.toggle("View All Time ", value=False)
+    
+    if st.session_state.get("toggle_funded_state", False) and paso_cuenta:
+        todos_los_trades_planos = trades_cronologicos
+    else:
+        todos_los_trades_planos = []
+        for k, lista in db_usuario[ctx]["trades"].items():
+            todos_los_trades_planos.extend(lista)
+            
+    if ver_todo:
+        trades_lista = [t["pnl"] for t in todos_los_trades_planos]
+        titulo_pnl = "Net P&L "
+        titulo_win = "Win Rate "
+    else:
+        trades_lista = trades_mes_top
+        titulo_pnl = CARD_PNL_TITULO
+        titulo_win = CARD_WIN_TITULO
+        
+    total_trades = len(trades_lista)
+    
+    net_pnl = sum(trades_lista) if total_trades > 0 else 0.0
+    
+    # LÓGICA DE LOS $30: 
+    # Win es >= $30 | Loss es <= -$30 | BE es en el medio (-$29.99 a $29.99)
+    wins = len([t for t in trades_lista if t >= 30])
+    losses = len([t for t in trades_lista if t <= -30])
+    ties = len([t for t in trades_lista if -30 < t < 30])
+    
+    total_validos = wins + losses + ties
+    win_pct = (wins / total_validos * 100) if total_validos > 0 else 0.0
+    
+    color_pnl = "pnl-value" if net_pnl >= 0 else "pnl-value pnl-value-loss"
+    simbolo_pnl = "+" if net_pnl > 0 else ""
+    c_win_card = "#00C897" if win_pct >= 50 else "#FF4C4C"
+    
+    # --- CÁLCULO DE AVERAGE RR ---
+    rr_valores = []
+    # Buscamos en los trades del mes o de todo el tiempo según el toggle (ocultando los viejos si Funded está activo)
+    trades_para_rr = todos_los_trades_planos if ver_todo else [
+        tr for k, v in db_usuario[ctx]["trades"].items() 
+        if k[0] == anio_sel and k[1] == mes_sel 
+        for tr in v if not (modo_funded_activo and tr.get("is_pre_funded", False))
+    ]
+    
+    for t in trades_para_rr:
+        rr_str = str(t.get('RR', '1:0'))
+        if ":" in rr_str:
+            try:
+                # Extraemos el número después de los ":" (ej: de 1:2.5 saca 2.5)
+                val = float(rr_str.split(":")[1])
+                if val > 0: rr_valores.append(val)
+            except: pass
+    
+    rr_promedio = sum(rr_valores) / len(rr_valores) if rr_valores else 0.0
+
+    # --- DISEÑO DE LAS 3 TARJETAS INDEPENDIENTES ---
+    c_met1, c_met2, c_met3 = st.columns(3)
+
+    c_hex_pnl = "#00C897" if net_pnl >= 0 else "#FF4C4C"
+    with c_met1:
+        st.markdown(f"""
+            <div class="metric-card card-pnl">
+                <div class="metric-header"><span class="title-net-pnl">{titulo_pnl}</span></div>
+                <div style="color: {c_hex_pnl}; font-size: 20px; font-weight: 800;">{simbolo_pnl}${net_pnl:,.2f}</div>
+            </div>
+        """, unsafe_allow_html=True)
+
+    with c_met2:
+        st.markdown(f"""
+            <div class="metric-card card-win">
+                <div class="metric-header"><span class="title-trade-win">Total Trades</span></div>
+                <div class="rr-value" style="color: white; font-size: 20px !important;">{total_trades}</div>
+            </div>
+        """, unsafe_allow_html=True)
+
+    with c_met3:
+        st.markdown(f"""
+            <div class="metric-card card-rr">
+                <div class="metric-header"><span class="title-trade-win">Average RR</span></div>
+                <div class="rr-value" style="color: #FFFFFF; font-size: 20px !important;">1 / {rr_promedio:.2f}</div>
+            </div>
+        """, unsafe_allow_html=True)
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    bar_html = get_bar_svg(wins, losses, ties)
     
     wl_parts_pie = []
     if wins >= 1: wl_parts_pie.append(f'<span style="color:#00C897;">{wins}W</span>')
@@ -1677,7 +2071,7 @@ with col_cal:
                 </div>
             </div>
         </div>
-    """, unsafe_allow_html=True)
+    """, unsafe_allow_html=True)-------------------------------------------------------/////////////////////////
     
     def get_col_simb(valor):
         if valor > 0: return "txt-green", "+"
