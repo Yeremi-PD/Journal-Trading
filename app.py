@@ -2187,7 +2187,9 @@ with col_cal:
                     if payout_disp_local < 500 or dias_ganadores_count < 5:
                         st.error(f"⚠️ Requires 500 (You have ${max(0, payout_disp_local):.2f})\n  ⚠️ And 5 Days Done (You have {dias_ganadores_count}).")
                     elif retiro_val > 0:
-                        if retiro_val > payout_disp_local:
+                        if retiro_val < 500:
+                            st.error("⚠️ The minimum withdrawal amount is $500.00")
+                        elif retiro_val > payout_disp_local:
                             st.error(f"⚠️ Cannot withdraw more than your Available Payout (${payout_disp_local:,.2f})")
                         else:
                             payouts_dict.setdefault(ctx, []).append(retiro_val)
