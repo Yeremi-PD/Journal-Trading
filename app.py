@@ -2182,7 +2182,7 @@ with col_cal:
                 else: tope_payout = 103100
                 payout_disp_local = bal_mostrar - tope_payout
                 
-                if st.form_submit_button("➖ WITHDRAW", use_container_width=True):
+                if st.form_submit_button("WITHDRAW", use_container_width=True):
                     # --- CONDICIÓN DE BLOQUEO DE RETIROS ---
                     if payout_disp_local < 500 or dias_ganadores_count < 5:
                         st.error(f"⚠️ Requires $500 Available (You have ${max(0, payout_disp_local):.2f}) and 5 Days Done (You have {dias_ganadores_count}).")
