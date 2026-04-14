@@ -2116,7 +2116,6 @@ with col_cal:
     if paso_cuenta:
         st.markdown("<br>", unsafe_allow_html=True)
         st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
-        st.markdown(f"<h3 style='color: {c_dash}; font-weight: 800; margin-bottom: 15px;'>💸 Payout Management</h3>", unsafe_allow_html=True)
         
         # Sincronización de retiros en la base de datos de configuraciones
         if "payouts" not in db_global[usuario]["settings"]["PC"]:
