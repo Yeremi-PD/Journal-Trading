@@ -2172,7 +2172,7 @@ with col_cal:
         c_p1, c_p2, c_p3, c_p4 = st.columns(4)
         
         with c_p1:
-            st.markdown(f'<div style="font-size: 13px; font-weight: 700; color: gray; text-transform: uppercase; margin-bottom: 5px;">Withdraw (Amount)</div>', unsafe_allow_html=True)
+            st.markdown(f'<div style="font-size: 13px; font-weight: 700; color: gray; text-transform: uppercase; margin-bottom: 5px;">Amount To Withdraw</div>', unsafe_allow_html=True)
             with st.form(key="form_payout", clear_on_submit=True, border=False):
                 retiro_val = st.number_input("Amount", min_value=0.0, format="%.2f", label_visibility="collapsed")
                 
@@ -2205,7 +2205,7 @@ with col_cal:
                             st.rerun()
 
         with c_p2: st.markdown(f'<div style="{e_caja_p}"><div style="font-size: 13px; font-weight: 700; color: gray; text-transform: uppercase;">Total Withdrawn</div><div style="color: #00C897; font-size: 26px; font-weight: 800;">${total_retirado:,.2f}</div></div>', unsafe_allow_html=True)
-        with c_p3: st.markdown(f'<div style="{e_caja_p}"><div style="font-size: 13px; font-weight: 700; color: gray; text-transform: uppercase;">Withdrawals Made</div><div style="color: {c_dash}; font-size: 26px; font-weight: 800;">{retiros_realizados}</div></div>', unsafe_allow_html=True)
+        with c_p3: st.markdown(f'<div style="{e_caja_p}"><div style="font-size: 13px; font-weight: 700; color: gray; text-transform: uppercase;">Total Withdrawals</div><div style="color: {c_dash}; font-size: 26px; font-weight: 800;">{retiros_realizados}</div></div>', unsafe_allow_html=True)
         with c_p4: st.markdown(f'<div style="{e_caja_p}"><div style="font-size: 13px; font-weight: 700; color: gray; text-transform: uppercase;">Days Done</div><div style="color: #00C897; font-size: 26px; font-weight: 800;">{dias_ganadores_count}</div></div>', unsafe_allow_html=True)
 
 # ==========================================
