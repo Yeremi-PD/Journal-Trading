@@ -2103,6 +2103,7 @@ with col_det:
         else:
             st.info("No hay meses con trades registrados aún.")
 
+with col_cal:
     if paso_cuenta:
         st.markdown("<br>", unsafe_allow_html=True)
         st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
