@@ -2189,10 +2189,16 @@ with col_cal:
         c_p1, c_p2, c_p3, c_p4 = st.columns(4)
         
         with c_p1:
-            texto_retiro = TEXTOS_APP[idioma_sel]["metrics"]["withdraw_amt"]
-            st.markdown(f'<div style="font-size: 20px; font-weight: 700; color: #FFFFFF; margin-bottom: 5px;">{texto_retiro}</div>', unsafe_allow_html=True)
+            t_retiro = TEXTOS_APP[idioma_sel]["metrics"]["withdraw_amt"]
+            t_monto = TEXTOS_APP[idioma_sel]["metrics"]["amount"]
+            t_btn_retirar = TEXTOS_APP[idioma_sel]["metrics"]["btn_withdraw"]
+            t_err_req = TEXTOS_APP[idioma_sel]["metrics"]["err_req"]
+            t_err_min = TEXTOS_APP[idioma_sel]["metrics"]["err_min"]
+            t_err_max = TEXTOS_APP[idioma_sel]["metrics"]["err_max"]
+
+            st.markdown(f'<div style="font-size: 20px; font-weight: 700; color: #FFFFFF; margin-bottom: 5px;">{t_retiro}</div>', unsafe_allow_html=True)
             with st.form(key="form_payout", clear_on_submit=True, border=False):
-                retiro_val = st.number_input("Amount", min_value=0.0, format="%.2f", label_visibility="collapsed")
+                retiro_val = st.number_input(t_monto, min_value=0.0, format="%.2f", label_visibility="collapsed")
                 
                 # --- CALCULAR PAYOUT DISPONIBLE LOCALMENTE ---
                 if bal_inicial_abs <= 35000: tope_payout = 26100
@@ -2200,15 +2206,15 @@ with col_cal:
                 else: tope_payout = 103100
                 payout_disp_local = bal_mostrar - tope_payout
                 
-                if st.form_submit_button("WITHDRAW", use_container_width=True):
+                if st.form_submit_button(t_btn_retirar, use_container_width=True):
                     # --- CONDICIÓN DE BLOQUEO DE RETIROS ---
                     if payout_disp_local < 500 or dias_ganadores_count < 5:
-                        st.error(f"⚠️ Requires 500 (You have ${max(0, payout_disp_local):.2f})\n  ⚠️ And 5 Days Done (You have {dias_ganadores_count}).")
+                        st.error(t_err_req.format(max(0, payout_disp_local), dias_ganadores_count))
                     elif retiro_val > 0:
                         if retiro_val < 500:
-                            st.error("⚠️ The minimum withdrawal amount is $500.00")
+                            st.error(t_err_min)
                         elif retiro_val > payout_disp_local:
-                            st.error(f"⚠️ Cannot withdraw more than your Available Payout (${payout_disp_local:,.2f})")
+                            st.error(t_err_max.format(payout_disp_local))
                         else:
                             payouts_dict.setdefault(ctx, []).append(retiro_val)
                             db_global[usuario]["settings"]["Móvil"]["payouts"] = payouts_dict
@@ -2225,9 +2231,13 @@ with col_cal:
                             st.session_state.retiro_exitoso = True
                             st.rerun()
 
-        with c_p2: st.markdown(f'<div style="{e_caja_p}"><div style="font-size: 20px; font-weight: 700; color: #FFFFFF; text-transform: none;">Total Withdrawn</div><div style="color: #00C897; font-size: 26px; font-weight: 800;">${total_retirado:,.2f}</div></div>', unsafe_allow_html=True)
-        with c_p3: st.markdown(f'<div style="{e_caja_p}"><div style="font-size: 20px; font-weight: 700; color: #FFFFFF; text-transform: none;">Total Withdrawals</div><div style="color: {c_dash}; font-size: 26px; font-weight: 800;">{retiros_realizados}</div></div>', unsafe_allow_html=True)
-        with c_p4: st.markdown(f'<div style="{e_caja_p}"><div style="font-size: 20px; font-weight: 700; color: #FFFFFF; text-transform: none;">Days Done</div><div style="color: #00C897; font-size: 26px; font-weight: 800;">{dias_ganadores_count}</div></div>', unsafe_allow_html=True)
+        t_total_retirado = TEXTOS_APP[idioma_sel]["metrics"]["total_withdrawn"]
+        t_retiros_totales = TEXTOS_APP[idioma_sel]["metrics"]["total_withdrawals"]
+        t_dias_listos = TEXTOS_APP[idioma_sel]["metrics"]["days_done"]
+
+        with c_p2: st.markdown(f'<div style="{e_caja_p}"><div style="font-size: 20px; font-weight: 700; color: #FFFFFF; text-transform: none;">{t_total_retirado}</div><div style="color: #00C897; font-size: 26px; font-weight: 800;">${total_retirado:,.2f}</div></div>', unsafe_allow_html=True)
+        with c_p3: st.markdown(f'<div style="{e_caja_p}"><div style="font-size: 20px; font-weight: 700; color: #FFFFFF; text-transform: none;">{t_retiros_totales}</div><div style="color: {c_dash}; font-size: 26px; font-weight: 800;">{retiros_realizados}</div></div>', unsafe_allow_html=True)
+        with c_p4: st.markdown(f'<div style="{e_caja_p}"><div style="font-size: 20px; font-weight: 700; color: #FFFFFF; text-transform: none;">{t_dias_listos}</div><div style="color: #00C897; font-size: 26px; font-weight: 800;">{dias_ganadores_count}</div></div>', unsafe_allow_html=True)
 
         # --- CELEBRACIÓN DE RETIRO ---
         if st.session_state.get("retiro_exitoso", False):
@@ -2278,12 +2288,15 @@ with col_cal:
                         doc.head.appendChild(style);
                     }
 
+                    const t_celeb_1 = "` + TEXTOS_APP[idioma_sel]['metrics']['celeb_payout_1'] + `";
+                    const t_celeb_2 = "` + TEXTOS_APP[idioma_sel]['metrics']['celeb_payout_2'] + `";
+                    
                     const overlay = doc.createElement('div');
                     overlay.id = 'celebration-overlay';
                     overlay.innerHTML = `
                         <div class="cel-content">
-                            <div class="cel-title">💸 WITHDRAWAL SUCCESSFUL 💸<br>""" + usuario.upper() + """</div>
-                            <div class="cel-sub">HAVE A FEW BEERS WITH THAT MONEY</div>
+                            <div class="cel-title">${t_celeb_1}<br>""" + usuario.upper() + """</div>
+                            <div class="cel-sub">${t_celeb_2}</div>
                         </div>
                     `;
                     doc.body.appendChild(overlay);
