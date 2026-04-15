@@ -1299,12 +1299,25 @@ with col_cal:
         st.session_state.cal_month = meses_lista_jump.index(m_str) + 1
         st.session_state.cal_year = y_val
 
-    c_izq, c_cen, c_der, c_jump, c_stats = st.columns([0.6, 2, 0.6, 0.7, 3.1])
+    c_izq, c_cen, c_der, c_jump, c_stats = st.columns([0.6, 2, 0.6, 0.6, 3.2])
     with c_izq: st.button("◀", on_click=cambiar_mes, args=(-1,), use_container_width=True)
     with c_cen: st.markdown(f'<div style="text-align:center; font-weight:600; font-size:var(--cal-mes-size); color:{c_mes}; margin-top:2px;">{nombre_mes} {anio_sel}</div>', unsafe_allow_html=True)
     with c_der: st.button("▶", on_click=cambiar_mes, args=(1,), use_container_width=True)
     with c_jump: 
-        with st.popover("📅"):
+        st.markdown(f"""<style>
+        /* Clona exactamente la altura, padding y fuente de las flechas */
+        div[data-testid="column"]:nth-child(4) button[data-testid="stPopoverButton"] {{
+            transform: translate(calc({FLECHAS_X}px * -1), {FLECHAS_Y}px) !important; 
+            font-size: {FLECHAS_SIZE - 5}px !important;
+            padding: 0 !important;
+            min-height: 0 !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            line-height: 1 !important;
+        }}
+        </style>""", unsafe_allow_html=True)
+        with st.popover("📅", use_container_width=True):
             if st.session_state.idioma == "ES":
                 meses_lista_jump = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
             else:
