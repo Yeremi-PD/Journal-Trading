@@ -1289,10 +1289,30 @@ with col_cal:
     color_win_top = "#00C897" if win_pct_top >= 50 else "#FF4C4C"
     bg_win_top = "#e6f9f4" if win_pct_top >= 50 else "#ffeded"
 
-    c_izq, c_cen, c_der, c_stats = st.columns([0.6, 2, 0.6, 3.8])
+    @st.dialog("📅 Selector de Fecha / Date Selector")
+    def modal_saltar_fecha():
+        if st.session_state.idioma == "ES":
+            meses_lista_jump = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
+            lbl_mes, lbl_anio, lbl_btn = "Mes", "Año", "Ir a fecha"
+        else:
+            meses_lista_jump = list(calendar.month_name)[1:]
+            lbl_mes, lbl_anio, lbl_btn = "Month", "Year", "Go to date"
+        
+        nuevo_mes_jump = st.selectbox(lbl_mes, meses_lista_jump, index=st.session_state.cal_month - 1, key="jump_month")
+        nuevo_anio_jump = st.number_input(lbl_anio, min_value=2000, max_value=2100, value=st.session_state.cal_year, step=1, key="jump_year")
+        
+        if st.button(lbl_btn, use_container_width=True, key="btn_jump_go"):
+            st.session_state.cal_month = meses_lista_jump.index(nuevo_mes_jump) + 1
+            st.session_state.cal_year = nuevo_anio_jump
+            st.rerun()
+
+    c_izq, c_cen, c_der, c_jump, c_stats = st.columns([0.6, 2, 0.6, 0.6, 3.2])
     with c_izq: st.button("◀", on_click=cambiar_mes, args=(-1,), use_container_width=True)
     with c_cen: st.markdown(f'<div style="text-align:center; font-weight:600; font-size:var(--cal-mes-size); color:{c_mes}; margin-top:2px;">{nombre_mes} {anio_sel}</div>', unsafe_allow_html=True)
     with c_der: st.button("▶", on_click=cambiar_mes, args=(1,), use_container_width=True)
+    with c_jump: 
+        if st.button("📅", use_container_width=True, key="btn_open_jump"):
+            modal_saltar_fecha()
     with c_stats:
         st.markdown(f'''<div style="display:flex; justify-content:flex-end; align-items:center; gap:20px; margin-top:8px;"><div style="font-weight:700; font-size:var(--size-top-stats); color:{c_mes}; display:flex; align-items:center; gap:8px;"> P&L: <span style="background-color:{bg_pnl_top}; color:{color_pnl_top}; padding:4px 12px; border-radius:12px; font-weight:800;">{simb_pnl_top}${net_pnl_top:,.2f}</span></div><div style="font-weight:700; font-size:var(--size-top-stats); color:{c_mes}; display:flex; align-items:center; gap:8px;">Win Rate: <span style="background-color:{bg_win_top}; color:{color_win_top}; padding:4px 12px; border-radius:12px; font-weight:800;">{win_pct_top:.1f}%</span></div></div>''', unsafe_allow_html=True)
     
