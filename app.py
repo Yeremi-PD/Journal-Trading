@@ -596,7 +596,7 @@ st.sidebar.markdown(f"### {_l['sidebar']['manage_acc']}")
 
 with st.sidebar.expander(_l['sidebar']['create_acc']):
     st.markdown(f"**{_l['sidebar']['acc_details']}**")
-    nueva_cuenta_nombre = st.text_input(_l['sidebar']['acc_name'], key="input_nombre_nueva_cta")
+    nueva_cuenta_nombre = st.text_input(_l['setup']['acc_name'], key="input_nombre_nueva_cta")
     nueva_cuenta_bal = st.selectbox(_l['sidebar']['sel_bal'], [25000.0, 50000.0, 100000.0], format_func=lambda x: f"${x:,.0f}", key="select_bal_nueva_cta")
     
     if st.button(_l['sidebar']['btn_create_acc'], use_container_width=True, key="btn_crear_cta_sidebar"):
