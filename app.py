@@ -419,7 +419,7 @@ else:
 # 3. SECCIÓN DE AJUSTES MANUALES (CONSTANTES)
 # ==========================================
 TEMA_POR_DEFECTO = "Oscuro"
-TXT_DASHBOARD, TXT_DASH_SIZE, TXT_DASH_X, TXT_DASH_Y = _l['dash']['title'] if 'title' in _l['dash'] else "Dashboard", 60, 0, -20
+TXT_DASHBOARD, TXT_DASH_SIZE, TXT_DASH_X, TXT_DASH_Y = "Hola" if st.session_state.idioma == "ES" else "Hi", 60, 0, -20
 TXT_DASH_COLOR_C, TXT_DASH_COLOR_O = "#000000", "#FFFFFF"
 LBL_FILTROS, LBL_FILTROS_SIZE, LBL_FILTROS_X, LBL_FILTROS_Y = _l['dash']['filt'], 20, 0, 0
 LBL_FILTROS_COLOR_C, LBL_FILTROS_COLOR_O = "#000000", "#FFFFFF"
