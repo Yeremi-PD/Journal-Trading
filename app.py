@@ -409,24 +409,90 @@ else:
     """, height=0, width=0)
 
 # ==========================================
-# 3. SECCIÓN DE AJUSTES MANUALES (CONSTANTES)
+# 3. SECCIÓN DE AJUSTES MANUALES (CONSTANTES E IDIOMAS)
 # ==========================================
 TEMA_POR_DEFECTO = "Oscuro"
-TXT_DASHBOARD, TXT_DASH_SIZE, TXT_DASH_X, TXT_DASH_Y = "Dashboard", 60, 0, -20
+
+if "idioma" not in st.session_state:
+    st.session_state.idioma = "ES"
+
+# --- DICCIONARIO CENTRAL DE IDIOMAS (SECCIONES) ---
+LANG = {
+    "ES": {
+        "dashboard": {
+            "title": "Dashboard",
+            "filters": "Filtros",
+            "opt_all": "Todos",
+            "opt_tp": "Take Profit",
+            "opt_sl": "Stop Loss",
+            "data_source": "Origen de Datos",
+            "account_real": "Cuenta Real",
+            "account_demo": "Cuenta Demo",
+            "balance_input": "Balance:",
+            "account_balance": "BALANCE DE CUENTA",
+            "upload": "Subir",
+            "link": "",
+            "close_modal": "✖ CERRAR"
+        },
+        "calendar": {
+            "net_pnl": "P&L Neto ",
+            "win_rate": "Win Rate ",
+            "w1": "Semana 1",
+            "w2": "Semana 2",
+            "w3": "Semana 3",
+            "w4": "Semana 4",
+            "w5": "Semana 5",
+            "w6": "Semana 6",
+            "month": "Mes"
+        }
+    },
+    "EN": {
+        "dashboard": {
+            "title": "Dashboard",
+            "filters": "Filters",
+            "opt_all": "All",
+            "opt_tp": "Take Profit",
+            "opt_sl": "Stop Loss",
+            "data_source": "Data Source",
+            "account_real": "Account Real",
+            "account_demo": "Account Demo",
+            "balance_input": "Balance:",
+            "account_balance": "ACCOUNT BALANCE",
+            "upload": "Upload",
+            "link": "",
+            "close_modal": "✖ CLOSE"
+        },
+        "calendar": {
+            "net_pnl": "Net P&L ",
+            "win_rate": "Win Rate ",
+            "w1": "Week 1",
+            "w2": "Week 2",
+            "w3": "Week 3",
+            "w4": "Week 4",
+            "w5": "Week 5",
+            "w6": "Week 6",
+            "month": "Month"
+        }
+    }
+}
+
+_lang = LANG[st.session_state.idioma]
+
+TXT_DASHBOARD, TXT_DASH_SIZE, TXT_DASH_X, TXT_DASH_Y = _lang["dashboard"]["title"], 60, 0, -20
 TXT_DASH_COLOR_C, TXT_DASH_COLOR_O = "#000000", "#FFFFFF"
-LBL_FILTROS, LBL_FILTROS_SIZE, LBL_FILTROS_X, LBL_FILTROS_Y = "Filters", 20, 0, 0
+LBL_FILTROS, LBL_FILTROS_SIZE, LBL_FILTROS_X, LBL_FILTROS_Y = _lang["dashboard"]["filters"], 20, 0, 0
 LBL_FILTROS_COLOR_C, LBL_FILTROS_COLOR_O = "#000000", "#FFFFFF"
-OPT_FILTRO_1, OPT_FILTRO_2, OPT_FILTRO_3 = "All", "Take Profit", "Stop Loss"
+OPT_FILTRO_1, OPT_FILTRO_2, OPT_FILTRO_3 = _lang["dashboard"]["opt_all"], _lang["dashboard"]["opt_tp"], _lang["dashboard"]["opt_sl"]
 OPT_FILTROS_SIZE, OPT_FILTROS_COLOR_C, OPT_FILTROS_COLOR_O = 15, "#000000", "#FFFFFF"
-LBL_DATA, LBL_DATA_SIZE, LBL_DATA_X, LBL_DATA_Y = "Data Source", 20, 0, 0
+LBL_DATA, LBL_DATA_SIZE, LBL_DATA_X, LBL_DATA_Y = _lang["dashboard"]["data_source"], 20, 0, 0
 LBL_DATA_COLOR_C, LBL_DATA_COLOR_O = "#000000", "#FFFFFF"
-OPT_DATA_1, OPT_DATA_2 = "Account Real", "Account Demo"
+OPT_DATA_1, OPT_DATA_2 = _lang["dashboard"]["account_real"], _lang["dashboard"]["account_demo"]
 OPT_DATA_SIZE, OPT_DATA_COLOR_C, OPT_DATA_COLOR_O = 14, "#000000", "#FFFFFF"
-LBL_INPUT, LBL_INPUT_SIZE, LBL_INPUT_X, LBL_INPUT_Y = "Balance:", 20, 0, 0
+LBL_INPUT, LBL_INPUT_SIZE, LBL_INPUT_X, LBL_INPUT_Y = _lang["dashboard"]["balance_input"], 20, 0, 0
 LBL_INPUT_COLOR_C, LBL_INPUT_COLOR_O = "#000000", "#FFFFFF"
 INPUT_BAL_W, INPUT_BAL_H, INPUT_BAL_X, INPUT_BAL_Y, INPUT_BAL_TXT_SIZE = "200px", "60px", 0, 0, 25
 INPUT_FONDO_C, INPUT_FONDO_O = "#FFFFFF", "#1A202C"
-LBL_BAL_TOTAL, LBL_BAL_TOTAL_SIZE, LBL_BAL_TOTAL_X, LBL_BAL_TOTAL_Y = "ACCOUNT BALANCE", 18, 0, 0
+LBL_BAL_TOTAL, LBL_BAL_TOTAL_SIZE, LBL_BAL_TOTAL_X, LBL_BAL_TOTAL_Y = _lang["dashboard"]["account_balance"], 18, 0, 0
 LBL_BAL_TOTAL_COLOR_C, LBL_BAL_TOTAL_COLOR_O = "#000000", "#FFFFFF"
 BALANCE_BOX_X, BALANCE_BOX_Y = 0, 0
 LINEA_GROSOR, LINEA_ANCHO, LINEA_X, LINEA_MARGEN_SUP, LINEA_MARGEN_INF = 1.5, 100, 0, 10, 25
@@ -434,20 +500,20 @@ LINEA_COLOR_C, LINEA_COLOR_O = "#E2E8F0", "#4A5568"
 DROPZONE_W, DROPZONE_H, DROPZONE_X, DROPZONE_Y = "100%", "75px", 0, 0
 DROPZONE_BG_C, DROPZONE_BG_O = "transparent", "transparent"
 DROPZONE_BORDER_C, DROPZONE_BORDER_O = "1px dashed #E2E8F0", "1px dashed #4A5568"
-BTN_UP_TEXTO, BTN_UP_SIZE, BTN_UP_W, BTN_UP_H = "Upload", "20px", "120px", "45px"
+BTN_UP_TEXTO, BTN_UP_SIZE, BTN_UP_W, BTN_UP_H = _lang["dashboard"]["upload"], "20px", "120px", "45px"
 BTN_UP_BG_C, BTN_UP_BG_O, BTN_UP_TXT_C, BTN_UP_TXT_O = "#E2E8F0", "#4A5568", "#000000", "#FFFFFF"
 
-LBL_LINK, LBL_LINK_SIZE, LBL_LINK_X, LBL_LINK_Y = "", 15, 0, 10
+LBL_LINK, LBL_LINK_SIZE, LBL_LINK_X, LBL_LINK_Y = _lang["dashboard"]["link"], 15, 0, 10
 LINK_IMG_W, LINK_IMG_H, LINK_IMG_X, LINK_IMG_Y, LINK_IMG_TXT_SIZE = "100%", "45px", 0, -30, 15
 
 BTN_CAL_EMOJI, BTN_CAL_W, BTN_CAL_H, BTN_CAL_ICON_SIZE, BTN_CAL_BG_C, BTN_CAL_BG_O = "🗓️", 80, 68, 33, "#F3F4F6", "#2D3748"
 FLECHAS_SIZE, FLECHAS_X, FLECHAS_Y = 40, 0, 0
 TXT_MES_COLOR_C, TXT_MES_COLOR_O, TXT_DIAS_SEM_SIZE, TXT_DIAS_SEM_COLOR_C, TXT_DIAS_SEM_COLOR_O = "#000000", "#FFFFFF", 15, "#000000", "#FFFFFF"
 TXT_NUM_DIA_COLOR_C, TXT_NUM_DIA_COLOR_O, TXT_PCT_DIA_COLOR_C, TXT_PCT_DIA_COLOR_O = "#000000", "#c0c0c0", "#000000", "#000000"
-BTN_CAM_EMOJI, BTN_CAM_X, BTN_CAM_Y, BTN_CAM_BG_C, BTN_CAM_BG_O, TXT_CERRAR_MODAL = "📷", 0, 2, "rgba(0,0,0,0)", "rgba(0,0,0,0)", "✖ CERRAR"
-CARD_PNL_TITULO, CARD_PNL_TITULO_COLOR_C, CARD_PNL_TITULO_COLOR_O, CARD_PNL_W, CARD_PNL_H, CARD_PNL_X, CARD_PNL_Y = "Net P&L ", "#000000", "#FFFFFF", "100%", "auto", 0, 0
-CARD_WIN_TITULO, CARD_WIN_TITULO_COLOR_C, CARD_WIN_TITULO_COLOR_O, CARD_WIN_VALOR_SIZE, CARD_WIN_VALOR_COLOR_C, CARD_WIN_VALOR_COLOR_O, CARD_WIN_W, CARD_WIN_H, CARD_WIN_X, CARD_WIN_Y = "Win Rate ", "#000000", "#FFFFFF", 28, "#000000", "#FFFFFF", "100%", "auto", 0, 0
-TXT_W1, TXT_W2, TXT_W3, TXT_W4, TXT_W5, TXT_W6, TXT_MO = "Week 1", "Week 2", "Week 3", "Week 4", "Week 5", "Week 6", "Month"
+BTN_CAM_EMOJI, BTN_CAM_X, BTN_CAM_Y, BTN_CAM_BG_C, BTN_CAM_BG_O, TXT_CERRAR_MODAL = "📷", 0, 2, "rgba(0,0,0,0)", "rgba(0,0,0,0)", _lang["dashboard"]["close_modal"]
+CARD_PNL_TITULO, CARD_PNL_TITULO_COLOR_C, CARD_PNL_TITULO_COLOR_O, CARD_PNL_W, CARD_PNL_H, CARD_PNL_X, CARD_PNL_Y = _lang["calendar"]["net_pnl"], "#000000", "#FFFFFF", "100%", "auto", 0, 0
+CARD_WIN_TITULO, CARD_WIN_TITULO_COLOR_C, CARD_WIN_TITULO_COLOR_O, CARD_WIN_VALOR_SIZE, CARD_WIN_VALOR_COLOR_C, CARD_WIN_VALOR_COLOR_O, CARD_WIN_W, CARD_WIN_H, CARD_WIN_X, CARD_WIN_Y = _lang["calendar"]["win_rate"], "#000000", "#FFFFFF", 28, "#000000", "#FFFFFF", "100%", "auto", 0, 0
+TXT_W1, TXT_W2, TXT_W3, TXT_W4, TXT_W5, TXT_W6, TXT_MO = _lang["calendar"]["w1"], _lang["calendar"]["w2"], _lang["calendar"]["w3"], _lang["calendar"]["w4"], _lang["calendar"]["w5"], _lang["calendar"]["w6"], _lang["calendar"]["month"]
 WEEKS_TITULOS_COLOR_C, WEEKS_TITULOS_COLOR_O, WEEK_BOX_W, WEEK_BOX_H, Month_BOX_W, Month_BOX_H, WEEKS_CONTENEDOR_X, WEEKS_CONTENEDOR_Y, WEEK_ALIGN = "#000000", "#FFFFFF", "31%", "120px", "100%", "120px", 0, 15, "center"
 
 # ==========================================
@@ -546,7 +612,21 @@ st.sidebar.markdown(
     f"</div>", 
     unsafe_allow_html=True
 )
-# Tu código original (sin cambios en la lógica)
+
+# --- SELECTOR DE IDIOMA ---
+st.sidebar.markdown("---")
+idioma_seleccionado = st.sidebar.radio(
+    "🌐 Language / Idioma:",
+    ["ES (Español)", "EN (English)"],
+    index=0 if st.session_state.idioma == "ES" else 1,
+    horizontal=True
+)
+
+nuevo_idioma = "ES" if "ES" in idioma_seleccionado else "EN"
+if nuevo_idioma != st.session_state.idioma:
+    st.session_state.idioma = nuevo_idioma
+    st.rerun()
+
 st.sidebar.markdown("---")
 dispositivo_visual = st.sidebar.radio(
     "Current Design:", 
@@ -1564,7 +1644,11 @@ with col_cal:
     
     st.markdown("<br>", unsafe_allow_html=True)
     
-    dias_semana = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+    if st.session_state.idioma == "ES":
+        dias_semana = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"]
+    else:
+        dias_semana = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+        
     calendar.setfirstweekday(calendar.SUNDAY)
     mes_matriz = calendar.monthcalendar(anio_sel, mes_sel)
     
