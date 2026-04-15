@@ -671,7 +671,7 @@ if st.sidebar.button(texto_boton_tema):
     st.rerun()
         
 st.sidebar.markdown("---")
-if st.sidebar.button(_l['sidebar']['logout'], use_container_width=True): 
+if st.sidebar.button(_l['sidebar']['admin'], use_container_width=True): 
 with st.sidebar.expander(_l['sidebar']['admin']):
     admin_pass = st.text_input(_l['sidebar']['admin_pass'], type="password")
     @st.dialog(_l['sidebar']['conf_act'])
