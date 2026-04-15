@@ -764,8 +764,7 @@ if st.sidebar.button(_l['sidebar']['view_all'], use_container_width=True):
 
 st.sidebar.markdown("<br>", unsafe_allow_html=True)
 st.sidebar.markdown("---")
-if st.sidebar.button(_l['sidebar']['logout'], use_container_width=True):
-if st.sidebar.button("🚪 Log Out", use_container_width=True): 
+if st.sidebar.button(_l['sidebar']['logout'], use_container_width=True): 
     # 1. Limpieza total inmediata de la sesión en el servidor
     for key in list(st.session_state.keys()):
         del st.session_state[key]
