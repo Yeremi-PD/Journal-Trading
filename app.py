@@ -665,12 +665,14 @@ tamanio_titulo = "18px"
 tamanio_opciones = "16px"
 st.sidebar.markdown(f"""<style>section[data-testid="stSidebar"] div[data-testid="stRadio"] > label p {{font-size: {tamanio_titulo} !important; font-weight: bold !important;}} section[data-testid="stSidebar"] div[data-testid="stRadio"] div[role="radiogroup"] label p {{font-size: {tamanio_opciones} !important;}}</style>""", unsafe_allow_html=True)
 
+st.sidebar.markdown(f"### {_l['sidebar']['sec_theme']}")
 texto_boton_tema = _l['sidebar']['to_dark'] if st.session_state.tema == "Claro" else _l['sidebar']['to_light']
 if st.sidebar.button(texto_boton_tema):
     st.session_state.tema = "Oscuro" if st.session_state.tema == "Claro" else "Claro"
     st.rerun()
         
 st.sidebar.markdown("---")
+st.sidebar.markdown(f"### {_l['sidebar']['admin']}")
 with st.sidebar.expander(_l['sidebar']['admin']):
     admin_pass = st.text_input(_l['sidebar']['admin_pass'], type="password")
     @st.dialog(_l['sidebar']['conf_act'])
@@ -692,6 +694,7 @@ with st.sidebar.expander(_l['sidebar']['admin']):
             if col_btn.button("❌", key=f"del_{u}"): ventana_borrar_usuario(u)
 
 st.sidebar.markdown("---")
+st.sidebar.markdown(f"### {_l['sidebar']['sec_dash']}")
 with st.sidebar.expander(_l['sidebar']['dash_set']):
     if st.button(_l['sidebar']['res_dash'], key="res_dash", use_container_width=True): reset_settings("dash"); st.rerun()
     user_settings["bal_num_sz"] = st.slider(_l['sidebar']['bal_num_sz'], 10, 60, user_settings["bal_num_sz"])
@@ -726,11 +729,13 @@ with st.sidebar.expander(_l['sidebar']['cal_set']):
 
 st.sidebar.markdown("<div style='margin-top: 0px;'></div>", unsafe_allow_html=True)
 st.sidebar.markdown("---")
+st.sidebar.markdown(f"### {_l['sidebar']['sec_sync']}")
 if st.sidebar.button(_l['sidebar']['sync'], use_container_width=True):
     get_global_db.clear()
     st.rerun()
 
 st.sidebar.markdown("---")
+st.sidebar.markdown(f"### {_l['sidebar']['sec_gallery']}")
 if "galeria_idx" not in st.session_state: st.session_state.galeria_idx = 0
 @st.dialog(_l['sidebar']['gallery'], width="large")
 def modal_galeria_individual(contexto):
