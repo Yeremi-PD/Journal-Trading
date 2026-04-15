@@ -612,7 +612,7 @@ with st.sidebar.expander(_l['sidebar']['create_acc']):
             st.warning(_l['sidebar']['exist_name'])
 
 ctx_actual = st.session_state.get("data_source_sel", "Account Real")
-with st.sidebar.expander(f"🔄 {_l['sidebar']['reset_acc']} {ctx_actual}"):
+with st.sidebar.expander(f"{_l['sidebar']['reset_acc']} {ctx_actual}"):
     opciones_reset = {"$25,000": 25000.0, "$50,000": 50000.0, "$100,000": 100000.0}
     seleccion_reset = st.radio(_l['sidebar']['sel_bal'], list(opciones_reset.keys()), key="radio_reset_sidebar")
     nuevo_balance_reset = opciones_reset[seleccion_reset]
@@ -1671,7 +1671,7 @@ def ventana_borrar_trade(ctx, clave, i, usuario_actual):
         st.rerun()
 
 with col_mitad_1:
-    with st.expander(f"🕒 {_l['hist']['ord_hist']}", expanded=False):
+    with st.expander(_l['hist']['ord_hist'], expanded=False):
         trades_actuales = db_usuario[ctx]["trades"]
         if not trades_actuales: st.info(_l['hist']['no_ord'])
         else:
@@ -1773,7 +1773,7 @@ with col_mitad_1:
             if trades_en_mes == 0: st.info(_l['hist']['no_tr_mo'])
 
 with col_mitad_2:
-    with st.expander(f"📊 {_l['table']['res_tbl']}", expanded=False):
+    with st.expander(_l['table']['res_tbl'], expanded=False):
         all_trades = db_usuario[ctx]["trades"]
         if not all_trades: st.info(_l['table']['no_tr_tbl'])
         else:
