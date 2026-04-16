@@ -1011,6 +1011,7 @@ st.markdown(f"""
 
     .cell-win {{ border: 2px solid #00C897 !important; color: #00664F !important; background-color: #e6f9f4 !important;}}
     .cell-loss {{ border: 2px solid #FF4C4C !important; color: #9B1C1C !important; background-color: #ffeded !important;}}
+    .cell-be {{ border: 2px solid #A0AEC0 !important; color: #718096 !important; background-color: rgba(160, 174, 192, 0.1) !important;}}
     .cell-empty {{ border: 1px solid {border_color} !important; background-color: {empty_cell_bg} !important;}}
 
     .modal-toggle:checked ~ .fs-modal {{ display: flex !important; }}
@@ -1346,8 +1347,15 @@ with col_cal:
                         trades_visibles.append(t)
                     if trades_visibles:
                         pnl_dia = sum(t["pnl"] for t in trades_visibles)
-                        c_cls = "cell-win" if pnl_dia >= 0 else "cell-loss"
-                        c_sim = "+" if pnl_dia > 0 else ""
+                        if pnl_dia >= 30:
+                            c_cls = "cell-win"
+                            c_sim = "+"
+                        elif pnl_dia <= -30:
+                            c_cls = "cell-loss"
+                            c_sim = ""
+                        else:
+                            c_cls = "cell-be"
+                            c_sim = "+" if pnl_dia > 0 else ""
                         bal_ini = trades_visibles[-1]["balance_final"] - pnl_dia
                         pct = (pnl_dia / bal_ini * 100) if bal_ini != 0 else 0
                         pct_str = f"{c_sim}{pct:.2f}%"
