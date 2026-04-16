@@ -1009,9 +1009,10 @@ st.markdown(f"""
     .note-modal-content span.note-val {{ font-size: var(--note-val-size) !important; display: inline-block !important; margin-bottom: 5px !important; color: {c_dash} !important; }}
     .note-modal-content hr {{ border-color: {border_color} !important; margin: 10px 0 !important; }}
 
-    .cell-win {{ border: 2px solid #00C897 !important; color: #00664F !important; background-color: #e6f9f4 !important;}}
+.cell-win {{ border: 2px solid #00C897 !important; color: #00664F !important; background-color: #e6f9f4 !important;}}
     .cell-loss {{ border: 2px solid #FF4C4C !important; color: #9B1C1C !important; background-color: #ffeded !important;}}
-    .cell-be {{ border: 2px solid #00C897 !important; color: #00664F !important; background-color: #a5a5a5}}
+    .cell-be-win {{ border: 2px solid #A0AEC0 !important; color: #00664F !important; background-color: #a5a5a5 !important;}}
+    .cell-be-loss {{ border: 2px solid #A0AEC0 !important; color: #9B1C1C !important; background-color: #a5a5a5 !important;}}
     .cell-empty {{ border: 1px solid {border_color} !important; background-color: {empty_cell_bg} !important;}}
 
     .modal-toggle:checked ~ .fs-modal {{ display: flex !important; }}
@@ -1354,7 +1355,7 @@ with col_cal:
                             c_cls = "cell-loss"
                             c_sim = ""
                         else:
-                            c_cls = "cell-be"
+                            c_cls = "cell-be-win" if pnl_dia >= 0 else "cell-be-loss"
                             c_sim = "+" if pnl_dia > 0 else ""
                         bal_ini = trades_visibles[-1]["balance_final"] - pnl_dia
                         pct = (pnl_dia / bal_ini * 100) if bal_ini != 0 else 0
