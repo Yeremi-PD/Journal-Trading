@@ -1012,7 +1012,7 @@ st.markdown(f"""
 .cell-win {{ border: 2px solid #00C897 !important; color: #00664F !important; background-color: #e6f9f4 !important;}}
     .cell-loss {{ border: 2px solid #FF4C4C !important; color: #9B1C1C !important; background-color: #ffeded !important;}}
     .cell-be-win {{ border: 2px solid #A0AEC0 !important; color: #00664F !important; background-color: #a5a5a5 !important;}}
-    .cell-be-loss {{ border: 2px solid #A0AEC0 !important; color: #9B1C1C !important; background-color: #001662 !important;}}
+    .cell-be-loss {{ border: 2px solid #A0AEC0 !important; color: #9B1C1C !important; background-color: #7e7e7e !important;}}
     .cell-empty {{ border: 1px solid {border_color} !important; background-color: {empty_cell_bg} !important;}}
 
     .modal-toggle:checked ~ .fs-modal {{ display: flex !important; }}
