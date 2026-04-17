@@ -220,7 +220,7 @@ def registrar_en_excel(usuario, password, cuenta, fecha_obj, balance, pnl, trade
             try: hoja_user = db_spreadsheet.worksheet(usuario)
             except gspread.exceptions.WorksheetNotFound:
                 hoja_user = db_spreadsheet.add_worksheet(title=usuario, rows="1000", cols="30")
-                headers = ["Usuario", "Password", "Cuenta", "Fecha", "Hora", "Ticker", "Direccion", "Lotes", "Precio_Entrada", "Precio_Salida", "Comisiones", "Balance", "PnL", "Imagenes", "Settings_PC", "Settings_Movil", "Bias", "Confluences", "Risk", "RR", "Trade Type", "Reason", "Corrections", "Emotions", "Estado_Cuenta", "Retiros_Acumulados", "ExtraData"]
+                headers = ["Usuario", "Password", "Cuenta", "Fecha", "Balance", "PnL", "Imagenes", "Settings_PC", "Settings_Movil", "Bias", "Confluences", "Risk", "RR", "Trade Type", "Reason", "Corrections", "Emotions", "Hora", "Ticker", "Direccion", "Lotes", "Precio_Entrada", "Precio_Salida", "Comisiones", "Estado_Cuenta", "Retiros_Acumulados", "ExtraData"]
                 hoja_user.append_row(headers)
 
             fecha_texto = fecha_obj.strftime("%d/%m/%Y")
@@ -235,15 +235,7 @@ def registrar_en_excel(usuario, password, cuenta, fecha_obj, balance, pnl, trade
             set_pc_str = json.dumps(settings_pc) if settings_pc else "{}"
             set_mov_str = json.dumps(settings_movil) if settings_movil else "{}"
             
-            # Extraemos los datos para sus propias columnas (TODO REGISTRADO)
-            val_hora = trade_data.get("hora", "")
-            val_ticker = trade_data.get("ticker", "")
-            val_dir = trade_data.get("direccion", "")
-            val_lotes = trade_data.get("lotes", "")
-            val_pe = trade_data.get("precio_entrada", "")
-            val_ps = trade_data.get("precio_salida", "")
-            val_com = trade_data.get("comisiones", "")
-            
+            # Extraemos los datos originales
             val_bias = trade_data.get("bias", "NONE")
             val_confs = ", ".join(trade_data.get("Confluences", []))
             val_risk = trade_data.get("risk", "")
@@ -253,6 +245,14 @@ def registrar_en_excel(usuario, password, cuenta, fecha_obj, balance, pnl, trade
             val_corr = trade_data.get("Corrections", "")
             val_emo = trade_data.get("Emotions", "")
             
+            # Extraemos los datos nuevos agregados AL FINAL
+            val_hora = trade_data.get("hora", "")
+            val_ticker = trade_data.get("ticker", "")
+            val_dir = trade_data.get("direccion", "")
+            val_lotes = trade_data.get("lotes", "")
+            val_pe = trade_data.get("precio_entrada", "")
+            val_ps = trade_data.get("precio_salida", "")
+            val_com = trade_data.get("comisiones", "")
             val_estado = trade_data.get("estado_cuenta", "Eval")
             val_retiros = trade_data.get("retiros_acumulados", 0.0)
             
@@ -263,7 +263,7 @@ def registrar_en_excel(usuario, password, cuenta, fecha_obj, balance, pnl, trade
             safe_user = str(usuario).strip() if usuario else "Desconocido"
             safe_pass = str(password).strip() if password else "123"
 
-            nueva_fila = [safe_user, safe_pass, str(cuenta), fecha_texto, val_hora, val_ticker, val_dir, val_lotes, val_pe, val_ps, val_com, float(balance), float(pnl), imgs_texto, set_pc_str, set_mov_str, val_bias, val_confs, val_risk, val_rr, val_tt, val_reason, val_corr, val_emo, val_estado, float(val_retiros), json.dumps(extra_data)]
+            nueva_fila = [safe_user, safe_pass, str(cuenta), fecha_texto, float(balance), float(pnl), imgs_texto, set_pc_str, set_mov_str, val_bias, val_confs, val_risk, val_rr, val_tt, val_reason, val_corr, val_emo, val_hora, val_ticker, val_dir, val_lotes, val_pe, val_ps, val_com, val_estado, float(val_retiros), json.dumps(extra_data)]
             hoja_user.append_row(nueva_fila)
         except Exception:
             pass
@@ -274,7 +274,7 @@ def reescribir_excel_usuario(usuario):
         hoja_user = db_spreadsheet.worksheet(usuario)
         hoja_user.clear()
         
-        headers = ["Usuario", "Password", "Cuenta", "Fecha", "Hora", "Ticker", "Direccion", "Lotes", "Precio_Entrada", "Precio_Salida", "Comisiones", "Balance", "PnL", "Imagenes", "Settings_PC", "Settings_Movil", "Bias", "Confluences", "Risk", "RR", "Trade Type", "Reason", "Corrections", "Emotions", "Estado_Cuenta", "Retiros_Acumulados", "ExtraData"]
+        headers = ["Usuario", "Password", "Cuenta", "Fecha", "Balance", "PnL", "Imagenes", "Settings_PC", "Settings_Movil", "Bias", "Confluences", "Risk", "RR", "Trade Type", "Reason", "Corrections", "Emotions", "Hora", "Ticker", "Direccion", "Lotes", "Precio_Entrada", "Precio_Salida", "Comisiones", "Estado_Cuenta", "Retiros_Acumulados", "ExtraData"]
         filas_a_insertar = [headers]
         pwd = db_global[usuario]["password"]
         set_pc_str = json.dumps(db_global[usuario]["settings"]["PC"])
@@ -287,14 +287,6 @@ def reescribir_excel_usuario(usuario):
                     num_fotos = len(t.get("imagenes", []))
                     imgs_texto = ", ".join(links) if links else (f"📸 Tiene {num_fotos} foto(s)" if num_fotos > 0 else "")
                     
-                    val_hora = t.get("hora", "")
-                    val_ticker = t.get("ticker", "")
-                    val_dir = t.get("direccion", "")
-                    val_lotes = t.get("lotes", "")
-                    val_pe = t.get("precio_entrada", "")
-                    val_ps = t.get("precio_salida", "")
-                    val_com = t.get("comisiones", "")
-                    
                     val_bias = t.get("bias", "NONE")
                     val_confs = ", ".join(t.get("Confluences", []))
                     val_risk = t.get("risk", "")
@@ -304,6 +296,13 @@ def reescribir_excel_usuario(usuario):
                     val_corr = t.get("Corrections", "")
                     val_emo = t.get("Emotions", "")
                     
+                    val_hora = t.get("hora", "")
+                    val_ticker = t.get("ticker", "")
+                    val_dir = t.get("direccion", "")
+                    val_lotes = t.get("lotes", "")
+                    val_pe = t.get("precio_entrada", "")
+                    val_ps = t.get("precio_salida", "")
+                    val_com = t.get("comisiones", "")
                     val_estado = t.get("estado_cuenta", "Eval")
                     val_retiros = t.get("retiros_acumulados", 0.0)
                     
@@ -311,8 +310,8 @@ def reescribir_excel_usuario(usuario):
                     extra_data = {k:v for k,v in t.items() if k not in keys_to_remove}
                     
                     filas_a_insertar.append([
-                        usuario, pwd, cuenta, t["fecha_str"], val_hora, val_ticker, val_dir, val_lotes, val_pe, val_ps, val_com, float(t["balance_final"]), float(t["pnl"]), 
-                        imgs_texto, set_pc_str, set_mov_str, val_bias, val_confs, val_risk, val_rr, val_tt, val_reason, val_corr, val_emo, val_estado, float(val_retiros), json.dumps(extra_data)
+                        usuario, pwd, cuenta, t["fecha_str"], float(t["balance_final"]), float(t["pnl"]), 
+                        imgs_texto, set_pc_str, set_mov_str, val_bias, val_confs, val_risk, val_rr, val_tt, val_reason, val_corr, val_emo, val_hora, val_ticker, val_dir, val_lotes, val_pe, val_ps, val_com, val_estado, float(val_retiros), json.dumps(extra_data)
                     ])
         hoja_user.update(filas_a_insertar)
     except Exception:
