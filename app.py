@@ -126,6 +126,16 @@ def get_global_db():
                             reason_leido = str(row_data.get('Reason', '')).strip()
                             corr_leido = str(row_data.get('Corrections', '')).strip()
                             emo_leido = str(row_data.get('Emotions', '')).strip()
+                            
+                            hora_leida = str(row_data.get('Hora', '')).strip()
+                            ticker_leido = str(row_data.get('Ticker', '')).strip()
+                            dir_leido = str(row_data.get('Direccion', '')).strip()
+                            lotes_leido = str(row_data.get('Lotes', '')).strip()
+                            pe_leido = str(row_data.get('Precio_Entrada', '')).strip()
+                            ps_leido = str(row_data.get('Precio_Salida', '')).strip()
+                            com_leida = str(row_data.get('Comisiones', '')).strip()
+                            estado_leido = str(row_data.get('Estado_Cuenta', '')).strip()
+                            retiros_leidos = safe_float(row_data.get('Retiros_Acumulados', 0.0))
 
                             trade_info = {
                                 "pnl": safe_float(row_data.get('PnL', 0)),
@@ -139,7 +149,16 @@ def get_global_db():
                                 "risk": risk_leido if risk_leido else "0.5%", 
                                 "RR": rr_leido if rr_leido else "1:2", 
                                 "trade_type": tt_leido if tt_leido else "A", 
-                                "Emotions": emo_leido
+                                "Emotions": emo_leido,
+                                "hora": hora_leida,
+                                "ticker": ticker_leido,
+                                "direccion": dir_leido,
+                                "lotes": lotes_leido,
+                                "precio_entrada": pe_leido,
+                                "precio_salida": ps_leido,
+                                "comisiones": com_leida,
+                                "estado_cuenta": estado_leido if estado_leido else "Eval",
+                                "retiros_acumulados": retiros_leidos
                             }
                             
                             img_col_str = str(row_data.get('Imagenes', ''))
@@ -161,8 +180,19 @@ def get_global_db():
                                     if not corr_leido and "Corrections" in parsed_extra: trade_info["Corrections"] = parsed_extra["Corrections"]
                                     if not emo_leido and "Emotions" in parsed_extra: trade_info["Emotions"] = parsed_extra["Emotions"]
                                     
+                                    # MIGRACIÓN NUEVA: Rescatar datos ocultos si existen
+                                    if not hora_leida and "hora" in parsed_extra: trade_info["hora"] = parsed_extra["hora"]
+                                    if not ticker_leido and "ticker" in parsed_extra: trade_info["ticker"] = parsed_extra["ticker"]
+                                    if not dir_leido and "direccion" in parsed_extra: trade_info["direccion"] = parsed_extra["direccion"]
+                                    if not lotes_leido and "lotes" in parsed_extra: trade_info["lotes"] = parsed_extra["lotes"]
+                                    if not pe_leido and "precio_entrada" in parsed_extra: trade_info["precio_entrada"] = parsed_extra["precio_entrada"]
+                                    if not ps_leido and "precio_salida" in parsed_extra: trade_info["precio_salida"] = parsed_extra["precio_salida"]
+                                    if not com_leida and "comisiones" in parsed_extra: trade_info["comisiones"] = parsed_extra["comisiones"]
+                                    if not estado_leido and "estado_cuenta" in parsed_extra: trade_info["estado_cuenta"] = parsed_extra["estado_cuenta"]
+                                    if not retiros_leidos and "retiros_acumulados" in parsed_extra: trade_info["retiros_acumulados"] = safe_float(parsed_extra["retiros_acumulados"])
+
                                     # Cargamos el resto de cosas que siguen viviendo en ExtraData
-                                    ex_keys = ['bias', 'Confluences', 'risk', 'RR', 'trade_type', 'razon_trade', 'Corrections', 'Emotions']
+                                    ex_keys = ['bias', 'Confluences', 'risk', 'RR', 'trade_type', 'razon_trade', 'Corrections', 'Emotions', 'hora', 'ticker', 'direccion', 'lotes', 'precio_entrada', 'precio_salida', 'comisiones', 'estado_cuenta', 'retiros_acumulados']
                                     trade_info.update({k:v for k,v in parsed_extra.items() if k not in ex_keys})
                                 except: pass
                             
@@ -189,8 +219,8 @@ def registrar_en_excel(usuario, password, cuenta, fecha_obj, balance, pnl, trade
         try:
             try: hoja_user = db_spreadsheet.worksheet(usuario)
             except gspread.exceptions.WorksheetNotFound:
-                hoja_user = db_spreadsheet.add_worksheet(title=usuario, rows="1000", cols="20")
-                headers = ["Usuario", "Password", "Cuenta", "Fecha", "Balance", "PnL", "Imagenes", "Settings_PC", "Settings_Movil", "Bias", "Confluences", "Risk", "RR", "Trade Type", "Reason", "Corrections", "Emotions", "ExtraData"]
+                hoja_user = db_spreadsheet.add_worksheet(title=usuario, rows="1000", cols="30")
+                headers = ["Usuario", "Password", "Cuenta", "Fecha", "Hora", "Ticker", "Direccion", "Lotes", "Precio_Entrada", "Precio_Salida", "Comisiones", "Balance", "PnL", "Imagenes", "Settings_PC", "Settings_Movil", "Bias", "Confluences", "Risk", "RR", "Trade Type", "Reason", "Corrections", "Emotions", "Estado_Cuenta", "Retiros_Acumulados", "ExtraData"]
                 hoja_user.append_row(headers)
 
             fecha_texto = fecha_obj.strftime("%d/%m/%Y")
@@ -205,7 +235,15 @@ def registrar_en_excel(usuario, password, cuenta, fecha_obj, balance, pnl, trade
             set_pc_str = json.dumps(settings_pc) if settings_pc else "{}"
             set_mov_str = json.dumps(settings_movil) if settings_movil else "{}"
             
-            # Extraemos los datos para sus propias columnas
+            # Extraemos los datos para sus propias columnas (TODO REGISTRADO)
+            val_hora = trade_data.get("hora", "")
+            val_ticker = trade_data.get("ticker", "")
+            val_dir = trade_data.get("direccion", "")
+            val_lotes = trade_data.get("lotes", "")
+            val_pe = trade_data.get("precio_entrada", "")
+            val_ps = trade_data.get("precio_salida", "")
+            val_com = trade_data.get("comisiones", "")
+            
             val_bias = trade_data.get("bias", "NONE")
             val_confs = ", ".join(trade_data.get("Confluences", []))
             val_risk = trade_data.get("risk", "")
@@ -215,14 +253,17 @@ def registrar_en_excel(usuario, password, cuenta, fecha_obj, balance, pnl, trade
             val_corr = trade_data.get("Corrections", "")
             val_emo = trade_data.get("Emotions", "")
             
+            val_estado = trade_data.get("estado_cuenta", "Eval")
+            val_retiros = trade_data.get("retiros_acumulados", 0.0)
+            
             # Removemos estos datos de ExtraData para no duplicarlos
-            keys_to_remove = ['pnl', 'balance_final', 'fecha_str', 'imagenes', 'bias', 'Confluences', 'risk', 'RR', 'trade_type', 'razon_trade', 'Corrections', 'Emotions']
+            keys_to_remove = ['pnl', 'balance_final', 'fecha_str', 'imagenes', 'bias', 'Confluences', 'risk', 'RR', 'trade_type', 'razon_trade', 'Corrections', 'Emotions', 'hora', 'ticker', 'direccion', 'lotes', 'precio_entrada', 'precio_salida', 'comisiones', 'estado_cuenta', 'retiros_acumulados']
             extra_data = {k:v for k,v in trade_data.items() if k not in keys_to_remove}
             
             safe_user = str(usuario).strip() if usuario else "Desconocido"
             safe_pass = str(password).strip() if password else "123"
 
-            nueva_fila = [safe_user, safe_pass, str(cuenta), fecha_texto, float(balance), float(pnl), imgs_texto, set_pc_str, set_mov_str, val_bias, val_confs, val_risk, val_rr, val_tt, val_reason, val_corr, val_emo, json.dumps(extra_data)]
+            nueva_fila = [safe_user, safe_pass, str(cuenta), fecha_texto, val_hora, val_ticker, val_dir, val_lotes, val_pe, val_ps, val_com, float(balance), float(pnl), imgs_texto, set_pc_str, set_mov_str, val_bias, val_confs, val_risk, val_rr, val_tt, val_reason, val_corr, val_emo, val_estado, float(val_retiros), json.dumps(extra_data)]
             hoja_user.append_row(nueva_fila)
         except Exception:
             pass
@@ -233,7 +274,7 @@ def reescribir_excel_usuario(usuario):
         hoja_user = db_spreadsheet.worksheet(usuario)
         hoja_user.clear()
         
-        headers = ["Usuario", "Password", "Cuenta", "Fecha", "Balance", "PnL", "Imagenes", "Settings_PC", "Settings_Movil", "Bias", "Confluences", "Risk", "RR", "Trade Type", "Reason", "Corrections", "Emotions", "ExtraData"]
+        headers = ["Usuario", "Password", "Cuenta", "Fecha", "Hora", "Ticker", "Direccion", "Lotes", "Precio_Entrada", "Precio_Salida", "Comisiones", "Balance", "PnL", "Imagenes", "Settings_PC", "Settings_Movil", "Bias", "Confluences", "Risk", "RR", "Trade Type", "Reason", "Corrections", "Emotions", "Estado_Cuenta", "Retiros_Acumulados", "ExtraData"]
         filas_a_insertar = [headers]
         pwd = db_global[usuario]["password"]
         set_pc_str = json.dumps(db_global[usuario]["settings"]["PC"])
@@ -246,6 +287,14 @@ def reescribir_excel_usuario(usuario):
                     num_fotos = len(t.get("imagenes", []))
                     imgs_texto = ", ".join(links) if links else (f"📸 Tiene {num_fotos} foto(s)" if num_fotos > 0 else "")
                     
+                    val_hora = t.get("hora", "")
+                    val_ticker = t.get("ticker", "")
+                    val_dir = t.get("direccion", "")
+                    val_lotes = t.get("lotes", "")
+                    val_pe = t.get("precio_entrada", "")
+                    val_ps = t.get("precio_salida", "")
+                    val_com = t.get("comisiones", "")
+                    
                     val_bias = t.get("bias", "NONE")
                     val_confs = ", ".join(t.get("Confluences", []))
                     val_risk = t.get("risk", "")
@@ -255,12 +304,15 @@ def reescribir_excel_usuario(usuario):
                     val_corr = t.get("Corrections", "")
                     val_emo = t.get("Emotions", "")
                     
-                    keys_to_remove = ['pnl', 'balance_final', 'fecha_str', 'imagenes', 'bias', 'Confluences', 'risk', 'RR', 'trade_type', 'razon_trade', 'Corrections', 'Emotions']
+                    val_estado = t.get("estado_cuenta", "Eval")
+                    val_retiros = t.get("retiros_acumulados", 0.0)
+                    
+                    keys_to_remove = ['pnl', 'balance_final', 'fecha_str', 'imagenes', 'bias', 'Confluences', 'risk', 'RR', 'trade_type', 'razon_trade', 'Corrections', 'Emotions', 'hora', 'ticker', 'direccion', 'lotes', 'precio_entrada', 'precio_salida', 'comisiones', 'estado_cuenta', 'retiros_acumulados']
                     extra_data = {k:v for k,v in t.items() if k not in keys_to_remove}
                     
                     filas_a_insertar.append([
-                        usuario, pwd, cuenta, t["fecha_str"], float(t["balance_final"]), float(t["pnl"]), 
-                        imgs_texto, set_pc_str, set_mov_str, val_bias, val_confs, val_risk, val_rr, val_tt, val_reason, val_corr, val_emo, json.dumps(extra_data)
+                        usuario, pwd, cuenta, t["fecha_str"], val_hora, val_ticker, val_dir, val_lotes, val_pe, val_ps, val_com, float(t["balance_final"]), float(t["pnl"]), 
+                        imgs_texto, set_pc_str, set_mov_str, val_bias, val_confs, val_risk, val_rr, val_tt, val_reason, val_corr, val_emo, val_estado, float(val_retiros), json.dumps(extra_data)
                     ])
         hoja_user.update(filas_a_insertar)
     except Exception:
@@ -1251,7 +1303,35 @@ with st.form(key="form_main_entry", clear_on_submit=True, border=False):
             if imgs_subidas:
                 for img in imgs_subidas: imgs_finales.append(convertir_img_base64(img))
             if link_imagen.strip().startswith("http"): imgs_finales.append(link_imagen.strip())
-            trade_nuevo = {"pnl": pnl, "balance_final": nuevo_bal_absoluto, "fecha_str": fecha_sel.strftime("%d/%m/%Y"), "imagenes": imgs_finales, "bias": nuevo_bias, "Confluences": nuevo_conf, "razon_trade": nuevo_razon, "Corrections": nuevo_corr, "risk": nuevo_risk, "RR": nuevo_rr, "trade_type": nuevo_tt, "Emotions": nuevo_emo}
+            estado_actual = "PA" if st.session_state.get("toggle_funded_state", False) else "Eval"
+            if "payouts" in db_global[usuario]["settings"]["PC"]:
+                retiros_ac = sum(db_global[usuario]["settings"]["PC"]["payouts"].get(ctx, []))
+            else:
+                retiros_ac = 0.0
+
+            trade_nuevo = {
+                "pnl": pnl, 
+                "balance_final": nuevo_bal_absoluto, 
+                "fecha_str": fecha_sel.strftime("%d/%m/%Y"), 
+                "imagenes": imgs_finales, 
+                "bias": nuevo_bias, 
+                "Confluences": nuevo_conf, 
+                "razon_trade": nuevo_razon, 
+                "Corrections": nuevo_corr, 
+                "risk": nuevo_risk, 
+                "RR": nuevo_rr, 
+                "trade_type": nuevo_tt, 
+                "Emotions": nuevo_emo,
+                "hora": "",              
+                "ticker": "",            
+                "direccion": "",         
+                "lotes": "",             
+                "precio_entrada": "",    
+                "precio_salida": "",     
+                "comisiones": "",        
+                "estado_cuenta": estado_actual,
+                "retiros_acumulados": retiros_ac
+            }
             if clave_final not in db_usuario[ctx]["trades"]: db_usuario[ctx]["trades"][clave_final] = []
             db_usuario[ctx]["trades"][clave_final].append(trade_nuevo)
             import time
