@@ -1368,8 +1368,10 @@ for k, lista_t in db_usuario[ctx]["trades"].items():
 with col_cal:
     total_trades_top = len(trades_mes_top)
     net_pnl_top = sum(trades_mes_top) if total_trades_top > 0 else 0.0
-    wins_top = len([t for t in trades_mes_top if t > 0])
-    win_pct_top = (wins_top / total_trades_top * 100) if total_trades_top > 0 else 0.0
+    wins_top = len([t for t in trades_mes_top if t >= 30])
+    losses_top = len([t for t in trades_mes_top if t <= -30])
+    total_validos_top = wins_top + losses_top
+    win_pct_top = (wins_top / total_validos_top * 100) if total_validos_top > 0 else 0.0
     color_pnl_top = "#00C897" if net_pnl_top >= 0 else "#FF4C4C"
     bg_pnl_top = "#e6f9f4" if net_pnl_top >= 0 else "#ffeded"
     simb_pnl_top = "+" if net_pnl_top > 0 else ""
@@ -1589,10 +1591,8 @@ with col_det:
     wins = len([t for t in trades_lista if t >= 30])
     losses = len([t for t in trades_lista if t <= -30])
     ties = len([t for t in trades_lista if -30 < t < 30])
-    total_validos = wins + losses + ties
+    total_validos = wins + losses
     win_pct = (wins / total_validos * 100) if total_validos > 0 else 0.0
-    
-    color_pnl = "pnl-value" if net_pnl >= 0 else "pnl-value pnl-value-loss"
     simbolo_pnl = "+" if net_pnl > 0 else ""
     c_win_card = "#00C897" if win_pct >= 50 else "#FF4C4C"
     
