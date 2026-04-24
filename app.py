@@ -275,12 +275,12 @@ def registrar_en_excel(usuario, password, cuenta, fecha_obj, balance, pnl, trade
         except Exception:
             pass
 
-    def reescribir_excel_usuario(usuario):
-    if not db_spreadsheet: return
-    try:
-        headers = ["Usuario", "Password", "Cuenta", "Fecha", "Balance", "PnL", "Imagenes", "Settings_PC", "Settings_Movil", "Bias", "Confluences", "Risk", "RR", "Trade Type", "Reason", "Corrections", "Emotions", "Hora", "Ticker", "Direccion", "Lotes", "Precio_Entrada", "Precio_Salida", "Comisiones", "Estado_Cuenta", "Retiros_Acumulados", "ExtraData"]
-        filas_a_insertar = [headers]
-        pwd = db_global[usuario]["password"]
+    # SOLO borramos la hoja si la lista se construyó con éxito (Protección contra pérdida de datos)
+        hoja_user = db_spreadsheet.worksheet(usuario)
+        hoja_user.clear()
+        hoja_user.update(filas_a_insertar)
+    except Exception:
+        pass
         set_pc_str = json.dumps(db_global[usuario]["settings"]["PC"])
         set_mov_str = json.dumps(db_global[usuario]["settings"]["Móvil"])
 
