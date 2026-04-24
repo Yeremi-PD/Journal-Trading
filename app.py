@@ -31,32 +31,7 @@ def conectar_google_sheets():
 
 db_spreadsheet = conectar_google_sheets()
 
-from googleapiclient.discovery import build
-from googleapiclient.http import MediaIoBaseUpload
-
-def subir_imagen_a_drive(uploaded_file):
-    try:
-        # 1. Autenticación usando tus mismas credenciales
-        scope = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
-        creds = Credentials.from_service_account_info(st.secrets["gcp_service_account"], scopes=scope)
-        drive_service = build('drive', 'v3', credentials=creds)
-
-        # 2. Preparar el archivo
-        file_metadata = {'name': f"Trade_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{uploaded_file.name}"}
-        media = MediaIoBaseUpload(io.BytesIO(uploaded_file.getvalue()), mimetype=uploaded_file.type, resumable=True)
-
-        # 3. Subir el archivo
-        file = drive_service.files().create(body=file_metadata, media_body=media, fields='id, webViewLink, webContentLink').execute()
-        
-        # 4. Dar permisos de lectura pública (para que se vea en la app)
-        drive_service.permissions().create(fileId=file.get('id'), body={'type': 'anyone', 'role': 'reader'}).execute()
-
-        # 5. Retornar el link directo
-        return file.get('webViewLink')
-    except Exception as e:
-        # Plan B de emergencia: Si Drive falla por alguna razón, usamos Base64 para no perder la foto
-        import base64
-        return f"data:{uploaded_file.type};base64,{base64.b64encode(uploaded_file.getvalue()).decode()}"
+# Función de imágenes por archivo desactivada. Solo usaremos Links.
 
 def inicializar_data_usuario():
     return {}
@@ -1331,8 +1306,6 @@ with st.form(key="form_main_entry", clear_on_submit=True, border=False):
             nuevo_bal_absoluto = viejo_real + pnl
             clave_final = (fecha_sel.year, fecha_sel.month, fecha_sel.day)
             imgs_finales = []
-            if imgs_subidas:
-                for img in imgs_subidas: imgs_finales.append(subir_imagen_a_drive(img))
             if link_imagen.strip().startswith("http"): imgs_finales.append(link_imagen.strip())
             estado_actual = "PA" if st.session_state.get("toggle_funded_state", False) else "Eval"
             if "payouts" in db_global[usuario]["settings"]["PC"]:
@@ -1801,11 +1774,7 @@ def borrar_imagen_historial(contexto, clave, idx_trade, idx_img):
     if len(db_usuario[contexto]["trades"][clave][idx_trade]["imagenes"]) > idx_img: db_usuario[contexto]["trades"][clave][idx_trade]["imagenes"].pop(idx_img)
 
 def agregar_imagenes_historial(contexto, clave, idx_trade, widget_id):
-    archivos_nuevos = st.session_state.get(widget_id)
-    if archivos_nuevos:
-        for img in archivos_nuevos:
-            link_drive = subir_imagen_a_drive(img)
-            db_usuario[contexto]["trades"][clave][idx_trade]["imagenes"].append(link_drive)
+    pass # Desactivado: Las imágenes ahora se agregan solo mediante el campo de Link
 
 @st.dialog("⚠️ Confirmar Borrado de Trade")
 def ventana_borrar_trade(ctx, clave, i, usuario_actual):
