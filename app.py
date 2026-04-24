@@ -482,6 +482,7 @@ else:
 # 3. SECCIÓN DE AJUSTES MANUALES (CONSTANTES)
 # ==========================================
 # OPTIMIZACIÓN 5: Centralizamos las reglas de fondeo para fácil modificación
+TEMA_POR_DEFECTO = "Oscuro"
 REGLAS_CUENTAS = {
     25000.0:  {"meta": 1500, "lim_dd": 1000, "alerta_dd": 500,  "tope_payout": 26100, "umbral_dia": 100},
     50000.0:  {"meta": 3000, "lim_dd": 2000, "alerta_dd": 1000, "tope_payout": 52100, "umbral_dia": 250},
