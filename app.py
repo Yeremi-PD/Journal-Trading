@@ -19,6 +19,7 @@ st.set_page_config(page_title="Yeremi Journal Pro", layout="wide")
 # ==========================================
 # 2. BASE DE DATOS GLOBAL Y LOGIN (GOOGLE SHEETS)
 # ==========================================
+@st.cache_resource(ttl=3000, show_spinner=False)
 def conectar_google_sheets():
     try:
         scope = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
@@ -553,7 +554,7 @@ if not db_usuario:
 
 # Solo lee la URL si es la primera vez que entras (o si recargas con F5)
 if "data_source_sel" not in st.session_state:
-    cuenta_inicial = "APEX-555371-01......(1)"
+    cuenta_inicial = list(db_usuario.keys())[0] if db_usuario else "Account Real"
     try:
         if "account" in st.query_params and st.query_params["account"] in db_usuario:
             cuenta_inicial = st.query_params["account"]
