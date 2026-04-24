@@ -481,7 +481,12 @@ else:
 # ==========================================
 # 3. SECCIÓN DE AJUSTES MANUALES (CONSTANTES)
 # ==========================================
-TEMA_POR_DEFECTO = "Oscuro"
+# OPTIMIZACIÓN 5: Centralizamos las reglas de fondeo para fácil modificación
+REGLAS_CUENTAS = {
+    25000.0:  {"meta": 1500, "lim_dd": 1000, "alerta_dd": 500,  "tope_payout": 26100, "umbral_dia": 100},
+    50000.0:  {"meta": 3000, "lim_dd": 2000, "alerta_dd": 1000, "tope_payout": 52100, "umbral_dia": 250},
+    100000.0: {"meta": 6000, "lim_dd": 3000, "alerta_dd": 1500, "tope_payout": 103100, "umbral_dia": 300}
+}
 TXT_DASHBOARD, TXT_DASH_SIZE, TXT_DASH_X, TXT_DASH_Y = "Hola" if st.session_state.idioma == "ES" else "Hi", 60, 0, -20
 TXT_DASH_COLOR_C, TXT_DASH_COLOR_O = "#000000", "#FFFFFF"
 LBL_FILTROS, LBL_FILTROS_SIZE, LBL_FILTROS_X, LBL_FILTROS_Y = _l['dash']['filt'], 20, 0, 0
@@ -1529,9 +1534,12 @@ with col_det:
         max_bal = bal_inicial
         _current_sim_bal = bal_inicial
             
-    if bal_inicial <= 35000: meta_t = 1500; lim_dd = 1000; alerta_dd = 500; tope_dd = 26100
-    elif bal_inicial <= 75000: meta_t = 3000; lim_dd = 2000; alerta_dd = 1000; tope_dd = 52100
-    else: meta_t = 6000; lim_dd = 3000; alerta_dd = 1500; tope_dd = 103100
+# Usamos el diccionario para obtener las reglas según el balance inicial
+    regla = REGLAS_CUENTAS.get(bal_inicial, REGLAS_CUENTAS[50000.0]) # 50k por defecto si no existe
+    meta_t = regla["meta"]
+    lim_dd = regla["lim_dd"]
+    alerta_dd = regla["alerta_dd"]
+    tope_dd = regla["tope_payout"]
         
     nivel_perdida = max_bal - lim_dd
     if nivel_perdida > tope_dd: nivel_perdida = tope_dd
@@ -1721,9 +1729,10 @@ with col_cal:
         payouts_cta = payouts_dict.get(ctx, [])
         total_retirado = sum(payouts_cta)
         retiros_realizados = len(payouts_cta)
-        if bal_inicial_abs <= 35000: umbral_pago = 100
-        elif bal_inicial_abs <= 75000: umbral_pago = 250
-        else: umbral_pago = 300
+# Usamos las reglas centralizadas
+        regla_wd = REGLAS_CUENTAS.get(bal_inicial_abs, REGLAS_CUENTAS[50000.0])
+        umbral_pago = regla_wd["umbral_dia"]
+        tope_payout = regla_wd["tope_payout"]
         payout_dates = db_global[usuario]["settings"]["PC"].get("payout_dates", {})
         fecha_corte_str = payout_dates.get(ctx, None)
         fecha_corte_dt = None
