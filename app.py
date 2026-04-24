@@ -797,13 +797,6 @@ with st.sidebar.expander(_l['sidebar']['cal_set']):
     user_settings["cal_txt_y"] = st.slider(_l['sidebar']['cal_y'], -50, 50, user_settings.get("cal_txt_y", 0))
     user_settings["cal_txt_pad"] = st.slider(_l['sidebar']['cal_pad'], -50, 50, user_settings.get("cal_txt_pad", 0))
 
-st.sidebar.markdown("<div style='margin-top: 0px;'></div>", unsafe_allow_html=True)
-st.sidebar.markdown("---")
-st.sidebar.markdown(f"### {_l['sidebar']['sec_sync']}")
-if st.sidebar.button(_l['sidebar']['sync'], use_container_width=True):
-    get_global_db.clear()
-    st.rerun()
-
 st.sidebar.markdown("---")
 st.sidebar.markdown(f"### {_l['sidebar']['sec_gallery']}")
 if "galeria_idx" not in st.session_state: st.session_state.galeria_idx = 0
