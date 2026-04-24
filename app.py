@@ -276,13 +276,10 @@ def registrar_en_excel(usuario, password, cuenta, fecha_obj, balance, pnl, trade
             pass
 
 def reescribir_excel_usuario(usuario):
-    if not db_spreadsheet: return
-    try:
-        hoja_user = db_spreadsheet.worksheet(usuario)
-        hoja_user.clear()
-        
-        headers = ["Usuario", "Password", "Cuenta", "Fecha", "Balance", "PnL", "Imagenes", "Settings_PC", "Settings_Movil", "Bias", "Confluences", "Risk", "RR", "Trade Type", "Reason", "Corrections", "Emotions", "Hora", "Ticker", "Direccion", "Lotes", "Precio_Entrada", "Precio_Salida", "Comisiones", "Estado_Cuenta", "Retiros_Acumulados", "ExtraData"]
-        filas_a_insertar = [headers]
+    if not db_spreadsheet: return
+    try:
+        headers = ["Usuario", "Password", "Cuenta", "Fecha", "Balance", "PnL", "Imagenes", "Settings_PC", "Settings_Movil", "Bias", "Confluences", "Risk", "RR", "Trade Type", "Reason", "Corrections", "Emotions", "Hora", "Ticker", "Direccion", "Lotes", "Precio_Entrada", "Precio_Salida", "Comisiones", "Estado_Cuenta", "Retiros_Acumulados", "ExtraData"]
+        filas_a_insertar = [headers]
         pwd = db_global[usuario]["password"]
         set_pc_str = json.dumps(db_global[usuario]["settings"]["PC"])
         set_mov_str = json.dumps(db_global[usuario]["settings"]["Móvil"])
@@ -319,10 +316,13 @@ def reescribir_excel_usuario(usuario):
                     filas_a_insertar.append([
                         usuario, pwd, cuenta, t["fecha_str"], float(t["balance_final"]), float(t["pnl"]), 
                         imgs_texto, set_pc_str, set_mov_str, val_bias, val_confs, val_risk, val_rr, val_tt, val_reason, val_corr, val_emo, val_hora, val_ticker, val_dir, val_lotes, val_pe, val_ps, val_com, val_estado, float(val_retiros), json.dumps(extra_data)
-                    ])
-        hoja_user.update(filas_a_insertar)
-    except Exception:
-        pass
+                    ])
+        # SOLO borramos la hoja si la lista se construyó con éxito (Protección contra pérdida de datos)
+        hoja_user = db_spreadsheet.worksheet(usuario)
+        hoja_user.clear()
+        hoja_user.update(filas_a_insertar)
+    except Exception:
+        pass
 
 # --- AUTO-DETECTAR MÓVIL (Oculto) ---
 components.html("""
@@ -1583,21 +1583,23 @@ with col_det:
         for k, lista in db_usuario[ctx]["trades"].items(): todos_los_trades_planos.extend(lista)
             
     if ver_todo:
-        trades_lista = [t["pnl"] for t in todos_los_trades_planos]
-        titulo_pnl = _l['cal']['net_pnl']
-        titulo_win = _l['cal']['win_rate']
-    else:
-        trades_lista = trades_mes_top
-        titulo_pnl = CARD_PNL_TITULO
-        titulo_win = CARD_WIN_TITULO
-        
-    total_trades = len(trades_lista)
-    net_pnl = sum(trades_lista) if total_trades > 0 else 0.0
-    wins = len([t for t in trades_lista if t >= 30])
-    losses = len([t for t in trades_lista if t <= -30])
-    ties = len([t for t in trades_lista if -30 < t < 30])
-    total_validos = wins + losses
-    win_pct = (wins / total_validos * 100) if total_validos > 0 else 0.0
+        trades_lista = [t["pnl"] for t in todos_los_trades_planos]
+        titulo_pnl = _l['cal']['net_pnl']
+        titulo_win = _l['cal']['win_rate']
+    else:
+        trades_lista = trades_mes_top
+        titulo_pnl = CARD_PNL_TITULO
+        titulo_win = CARD_WIN_TITULO
+        
+    # CÁLCULOS OPTIMIZADOS CON PANDAS
+    df_stats = pd.DataFrame(trades_lista, columns=['pnl'])
+    total_trades = len(df_stats)
+    net_pnl = df_stats['pnl'].sum() if total_trades > 0 else 0.0
+    wins = int((df_stats['pnl'] >= 30).sum()) if total_trades > 0 else 0
+    losses = int((df_stats['pnl'] <= -30).sum()) if total_trades > 0 else 0
+    ties = int(((df_stats['pnl'] > -30) & (df_stats['pnl'] < 30)).sum()) if total_trades > 0 else 0
+    total_validos = wins + losses
+    win_pct = (wins / total_validos * 100) if total_validos > 0 else 0.0
     simbolo_pnl = "+" if net_pnl > 0 else ""
     c_win_card = "#00C897" if win_pct >= 50 else "#FF4C4C"
     
