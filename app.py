@@ -1517,11 +1517,17 @@ with col_det:
             trades_cronologicos.append(t)
     
     bal_inicial = bal_inicial_abs
-    max_bal = bal_inicial
-    _current_sim_bal = bal_inicial
-    for t in trades_cronologicos:
-        _current_sim_bal += t["pnl"]
-        if _current_sim_bal > max_bal: max_bal = _current_sim_bal
+    
+    # OPTIMIZACIÓN 4: Pandas hace el cálculo acumulado (cumsum) y saca el máximo al instante
+    if trades_cronologicos:
+        df_trades = pd.DataFrame(trades_cronologicos)
+        # Suma acumulada de todos los PnL + Balance Inicial
+        df_trades['running_bal'] = bal_inicial + df_trades['pnl'].cumsum()
+        max_bal = max(bal_inicial, df_trades['running_bal'].max())
+        _current_sim_bal = df_trades['running_bal'].iloc[-1]
+    else:
+        max_bal = bal_inicial
+        _current_sim_bal = bal_inicial
             
     if bal_inicial <= 35000: meta_t = 1500; lim_dd = 1000; alerta_dd = 500; tope_dd = 26100
     elif bal_inicial <= 75000: meta_t = 3000; lim_dd = 2000; alerta_dd = 1000; tope_dd = 52100
