@@ -1574,7 +1574,7 @@ with col_det:
     
     with c_tg_col: st.markdown(f'<div class="metric-card card-pnl" style="{e_caja}"><div class="metric-header"><span class="title-net-pnl" style="font-size: 12px;">{titulo_target_dinamico}</span></div><div style="color: {c_hex_dd}; font-size: 20px; font-weight: 800;">{texto_tg}</div></div>', unsafe_allow_html=True)
     with c_dd_col: st.markdown(f'<div class="metric-card card-pnl" style="{e_caja}"><div class="metric-header"><span class="title-net-pnl" style="font-size: 12px;">{_l["cal"]["dd"]}</span></div><div style="color: {c_hex_dd}; font-size: 20px; font-weight: 800;">{texto_dd}</div></div>', unsafe_allow_html=True)
-with c_lose_col: st.markdown(f'<div class="metric-card card-pnl" style="{e_caja}"><div class="metric-header"><span class="title-net-pnl" style="font-size: 12px;">{_l["cal"]["lose_acc"]}</span></div><div style="color: {c_hex_dd}; font-size: 20px; font-weight: 800;">{texto_lose}</div></div>', unsafe_allow_html=True)
+    with c_lose_col: st.markdown(f'<div class="metric-card card-pnl" style="{e_caja}"><div class="metric-header"><span class="title-net-pnl" style="font-size: 12px;">{_l["cal"]["lose_acc"]}</span></div><div style="color: {c_hex_dd}; font-size: 20px; font-weight: 800;">{texto_lose}</div></div>', unsafe_allow_html=True)
     
     ver_todo = st.toggle(_l['cal']['view_all'], value=False)
     
