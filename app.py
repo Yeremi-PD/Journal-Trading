@@ -1576,7 +1576,7 @@ with col_det:
     with c_dd_col: st.markdown(f'<div class="metric-card card-pnl" style="{e_caja}"><div class="metric-header"><span class="title-net-pnl" style="font-size: 12px;">{_l["cal"]["dd"]}</span></div><div style="color: {c_hex_dd}; font-size: 20px; font-weight: 800;">{texto_dd}</div></div>', unsafe_allow_html=True)
     with c_lose_col: st.markdown(f'<div class="metric-card card-pnl" style="{e_caja}"><div class="metric-header"><span class="title-net-pnl" style="font-size: 12px;">{_l["cal"]["lose_acc"]}</span></div><div style="color: {c_hex_dd}; font-size: 20px; font-weight: 800;">{texto_lose}</div></div>', unsafe_allow_html=True)
     
-    ver_todo = st.toggle(_l['cal']['view_all'], value=False)
+ver_todo = st.toggle(_l['cal']['view_all'], value=False)
     
     if st.session_state.get("toggle_funded_state", False) and paso_cuenta: todos_los_trades_planos = trades_cronologicos
     else:
@@ -1584,23 +1584,23 @@ with col_det:
         for k, lista in db_usuario[ctx]["trades"].items(): todos_los_trades_planos.extend(lista)
             
     if ver_todo:
-        trades_lista = [t["pnl"] for t in todos_los_trades_planos]
-        titulo_pnl = _l['cal']['net_pnl']
-        titulo_win = _l['cal']['win_rate']
-    else:
-        trades_lista = trades_mes_top
-        titulo_pnl = CARD_PNL_TITULO
-        titulo_win = CARD_WIN_TITULO
-        
-    # CÁLCULOS OPTIMIZADOS CON PANDAS
-    df_stats = pd.DataFrame(trades_lista, columns=['pnl'])
-    total_trades = len(df_stats)
-    net_pnl = df_stats['pnl'].sum() if total_trades > 0 else 0.0
-    wins = int((df_stats['pnl'] >= 30).sum()) if total_trades > 0 else 0
-    losses = int((df_stats['pnl'] <= -30).sum()) if total_trades > 0 else 0
-    ties = int(((df_stats['pnl'] > -30) & (df_stats['pnl'] < 30)).sum()) if total_trades > 0 else 0
-    total_validos = wins + losses
-    win_pct = (wins / total_validos * 100) if total_validos > 0 else 0.0
+        trades_lista = [t["pnl"] for t in todos_los_trades_planos]
+        titulo_pnl = _l['cal']['net_pnl']
+        titulo_win = _l['cal']['win_rate']
+    else:
+        trades_lista = trades_mes_top
+        titulo_pnl = CARD_PNL_TITULO
+        titulo_win = CARD_WIN_TITULO
+        
+    # CALCULOS OPTIMIZADOS CON PANDAS
+    df_stats = pd.DataFrame(trades_lista, columns=['pnl'])
+    total_trades = len(df_stats)
+    net_pnl = float(df_stats['pnl'].sum()) if total_trades > 0 else 0.0
+    wins = int((df_stats['pnl'] >= 30).sum()) if total_trades > 0 else 0
+    losses = int((df_stats['pnl'] <= -30).sum()) if total_trades > 0 else 0
+    ties = int(((df_stats['pnl'] > -30) & (df_stats['pnl'] < 30)).sum()) if total_trades > 0 else 0
+    total_validos = wins + losses
+    win_pct = (wins / total_validos * 100) if total_validos > 0 else 0.0
     simbolo_pnl = "+" if net_pnl > 0 else ""
     c_win_card = "#00C897" if win_pct >= 50 else "#FF4C4C"
     
