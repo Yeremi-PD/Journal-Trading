@@ -206,10 +206,12 @@ def get_global_db():
                             
                             # Actualizamos el balance global al último leído
                             db_temp[user]["data"][cuenta]["balance"] = safe_float(row_data.get('Balance', 0))
-                        except Exception:
-                            pass
-            except Exception:
-                pass
+                        except Exception as e_row:
+                            # OPTIMIZACIÓN 2B: Log de fila fallida
+                            print(f"Advertencia: Error procesando fila de la cuenta '{cuenta}' para '{user}': {e_row}")
+            except Exception as e_sheet:
+                # Log de hoja completa fallida
+                print(f"Error cargando datos de la hoja del usuario '{user}': {e_sheet}")
     return db_temp
 
 import copy
@@ -272,8 +274,9 @@ def registrar_en_excel(usuario, password, cuenta, fecha_obj, balance, pnl, trade
 
             nueva_fila = [safe_user, safe_pass, str(cuenta), fecha_texto, float(balance), float(pnl), imgs_texto, set_pc_str, set_mov_str, val_bias, val_confs, val_risk, val_rr, val_tt, val_reason, val_corr, val_emo, val_hora, val_ticker, val_dir, val_lotes, val_pe, val_ps, val_com, val_estado, float(val_retiros), json.dumps(extra_data)]
             hoja_user.append_row(nueva_fila)
-        except Exception:
-            pass
+        except Exception as e:
+            # OPTIMIZACIÓN 2A: Imprimimos el error exacto en la consola para no estar ciegos
+            print(f"ERROR GRAVE: Falló el guardado (append_row) para {usuario}. Detalles: {e}")
 
 def reescribir_excel_usuario(usuario):
     if not db_spreadsheet: return
@@ -318,12 +321,13 @@ def reescribir_excel_usuario(usuario):
                         imgs_texto, set_pc_str, set_mov_str, val_bias, val_confs, val_risk, val_rr, val_tt, val_reason, val_corr, val_emo, val_hora, val_ticker, val_dir, val_lotes, val_pe, val_ps, val_com, val_estado, float(val_retiros), json.dumps(extra_data)
                     ])
         
-        # SOLO borramos la hoja si la lista se construyó con éxito (Protección contra pérdida de datos)
+        # OPTIMIZACIÓN 1.2: Uso del parámetro 'values' y 'range_name' para evitar deprecaciones 
+        # de la librería gspread y hacer que el guardado masivo sea instantáneo.
         hoja_user = db_spreadsheet.worksheet(usuario)
         hoja_user.clear()
-        hoja_user.update(filas_a_insertar)
-    except Exception:
-        pass
+        hoja_user.update(values=filas_a_insertar, range_name="A1")
+    except Exception as e:
+        print(f"Error al reescribir excel: {e}")
 
 # --- AUTO-DETECTAR MÓVIL (Oculto) ---
 components.html("""
@@ -642,9 +646,9 @@ except:
     pass
 
 if st.sidebar.button(_l['sidebar']['save_design'], use_container_width=True):
-    ctx_act = st.session_state.data_source_sel
-    bal_act = db_usuario[ctx_act]["balance"]
-    registrar_en_excel(usuario, db_global[usuario]["password"], ctx_act, datetime.now(), bal_act, 0.0, {}, db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
+    # OPTIMIZACIÓN 1: En vez de insertar una fila vacía de trade para guardar ajustes, 
+    # reescribimos limpiamente sin generar basura en el Excel.
+    reescribir_excel_usuario(usuario)
     st.sidebar.success(_l['sidebar']['saved_design'])
 
 st.sidebar.markdown("---")
