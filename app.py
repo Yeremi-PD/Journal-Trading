@@ -15,12 +15,22 @@ import zipfile
 # 1. CONFIGURACIÓN INICIAL
 # ==========================================
 from PIL import Image, ImageOps
-logo_app = Image.open("logo.png")
-# Esto convierte tu imagen a un cuadrado perfecto agregando relleno, evitando que se distorsione
-tamaño_max = max(logo_app.size)
-logo_cuadrado = ImageOps.pad(logo_app, (tamaño_max, tamaño_max))
 
-st.set_page_config(page_title="Yeremi Journal Pro", page_icon=logo_cuadrado, layout="wide")
+# Abrimos la imagen asegurando que lea el fondo transparente (RGBA)
+logo_raw = Image.open("logo.png").convert("RGBA")
+
+# 1. Recortar TODO el espacio transparente inútil de los bordes
+caja_del_logo = logo_raw.getbbox()
+if caja_del_logo:
+    logo_recortado = logo_raw.crop(caja_del_logo)
+else:
+    logo_recortado = logo_raw
+
+# 2. Ahora sí, lo volvemos un cuadrado perfecto basado SOLO en el escudo
+tamaño_max = max(logo_recortado.size)
+logo_final = ImageOps.pad(logo_recortado, (tamaño_max, tamaño_max))
+
+st.set_page_config(page_title="Yeremi Journal Pro", page_icon=logo_final, layout="wide")
 
 # ==========================================
 # 2. BASE DE DATOS GLOBAL Y LOGIN (GOOGLE SHEETS)
