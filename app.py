@@ -14,7 +14,13 @@ import zipfile
 # ==========================================
 # 1. CONFIGURACIÓN INICIAL
 # ==========================================
-st.set_page_config(page_title="Yeremi Journal Pro", page_icon="logo.png", layout="wide")
+from PIL import Image, ImageOps
+logo_app = Image.open("nombre_de_tu_imagen.png")
+# Esto convierte tu imagen a un cuadrado perfecto agregando relleno, evitando que se distorsione
+tamaño_max = max(logo_app.size)
+logo_cuadrado = ImageOps.pad(logo_app, (tamaño_max, tamaño_max))
+
+st.set_page_config(page_title="Yeremi Journal Pro", page_icon=logo_cuadrado, layout="wide")
 
 # ==========================================
 # 2. BASE DE DATOS GLOBAL Y LOGIN (GOOGLE SHEETS)
