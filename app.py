@@ -14,7 +14,7 @@ import zipfile
 # ==========================================
 # 1. CONFIGURACIÓN INICIAL
 # ==========================================
-st.set_page_config(page_title="Yeremi Journal Pro", layout="wide")
+st.set_page_config(page_title="Yeremi Journal Pro", page_icon="nombre_de_tu_imagen.png", layout="wide")
 
 # ==========================================
 # 2. BASE DE DATOS GLOBAL Y LOGIN (GOOGLE SHEETS)
