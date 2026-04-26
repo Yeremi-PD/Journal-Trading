@@ -15,7 +15,7 @@ import zipfile
 # 1. CONFIGURACIÓN INICIAL
 # ==========================================
 from PIL import Image, ImageOps
-logo_app = Image.open("nombre_de_tu_imagen.png")
+logo_app = Image.open("logo.png")
 # Esto convierte tu imagen a un cuadrado perfecto agregando relleno, evitando que se distorsione
 tamaño_max = max(logo_app.size)
 logo_cuadrado = ImageOps.pad(logo_app, (tamaño_max, tamaño_max))
