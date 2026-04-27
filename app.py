@@ -499,6 +499,13 @@ else:
 # ==========================================
 # OPTIMIZACIÓN 5: Centralizamos las reglas de fondeo para fácil modificación
 TEMA_POR_DEFECTO = "Oscuro"
+ORIGEN_EMOJIS = {
+    "Fondeo": "🏦",
+    "TradingView": "📈",
+    "Mentoría": "👨‍🏫",
+    "FX Replay": "⏪",
+    "Otros": "🚀"
+}
 REGLAS_CUENTAS = {
     25000.0:  {"meta": 1500, "lim_dd": 1000, "alerta_dd": 500,  "tope_payout": 26100, "umbral_dia": 100},
     50000.0:  {"meta": 3000, "lim_dd": 2000, "alerta_dd": 1000, "tope_payout": 52100, "umbral_dia": 250},
@@ -1270,6 +1277,8 @@ with st.form(key="form_main_entry", clear_on_submit=True, border=False):
         st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True) 
         with st.popover("📝", use_container_width=True):
             st.markdown(f"<div class='titulo-trade-details'>{_l['dash']['trade_det']}</div>", unsafe_allow_html=True)
+            st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 5px; margin-bottom: 0px;'>Origen del Trade</div>", unsafe_allow_html=True)
+            nuevo_origen = st.selectbox("Origen", list(ORIGEN_EMOJIS.keys()), key="sel_origen_main", label_visibility="collapsed")
             st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 5px; margin-bottom: 0px;'>{_l['dash']['bias']}</div>", unsafe_allow_html=True)
             bias_opts = ['LONG', 'SHORT', 'NONE']
             nuevo_bias_list = []
@@ -1346,6 +1355,7 @@ with st.form(key="form_main_entry", clear_on_submit=True, border=False):
                 "RR": nuevo_rr, 
                 "trade_type": nuevo_tt, 
                 "Emotions": nuevo_emo,
+                "origen": nuevo_origen,
                 "hora": "",              
                 "ticker": "",            
                 "direccion": "",         
@@ -1845,7 +1855,8 @@ with col_mitad_1:
                     simbolo = "+" if pnl_val > 0 else ""
                     c_exp, c_trash = st.columns([0.85, 0.15])
                     with c_exp:
-                        with st.expander(f"🗓️ {data['fecha_str']} (Trade #{i+1}) | P&L: :{color_md}[{simbolo}${pnl_val:,.2f}]"):
+                        emoji_orig = ORIGEN_EMOJIS.get(data.get("origen", "Otros"), "🚀")
+                        with st.expander(f"{emoji_orig} {data['fecha_str']} (Trade #{i+1}) | P&L: :{color_md}[{simbolo}${pnl_val:,.2f}]"):
                             st.markdown(f"**{_l['hist']['fin']}**")
                             c_ed1, c_ed2, c_ed3 = st.columns(3)
                             with c_ed1: nueva_fecha = st.date_input(_l['hist']['day'], value=fecha_dt, key=f"f_{clave}_{i}")
