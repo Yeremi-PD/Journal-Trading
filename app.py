@@ -2224,9 +2224,20 @@ function bloquearTeclado() {
     const inputs = doc.querySelectorAll('div[data-testid="stSelectbox"] input, div[data-testid="stDateInput"] input');
     inputs.forEach(input => {
         input.setAttribute('inputmode', 'none'); 
-        input.setAttribute('readonly', 'true'); 
+        // ELIMINADO: input.setAttribute('readonly', 'true'); porque esto bloqueaba el despliegue del menú
         input.style.webkitTapHighlightColor = 'transparent';
         input.style.outline = 'none';
+        input.style.cursor = 'pointer'; 
+        input.style.caretColor = 'transparent'; 
+        if (input.hasAttribute('readonly')) {
+            input.removeAttribute('readonly');
+        }
+    });
+    
+    // Forzamos el cursor de la manita en la caja principal
+    const selects = doc.querySelectorAll('div[data-baseweb="select"]');
+    selects.forEach(select => {
+        select.style.cursor = 'pointer';
     });
 }
 bloquearTeclado();
