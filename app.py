@@ -608,19 +608,11 @@ for dev in ["PC", "Móvil"]:
 user_settings = db_global[usuario]["settings"][st.session_state.dispositivo_actual]
 
 hoy = datetime.now().date()
+if "modo_backtesting" not in st.session_state: st.session_state.modo_backtesting = False
 if "fecha_backtesting" not in st.session_state: st.session_state.fecha_backtesting = hoy
 
-# Sincronización automática con el último trade registrado
-if "cal_month" not in st.session_state or "cal_year" not in st.session_state:
-    cuenta_activa = st.session_state.data_source_sel
-    if db_usuario.get(cuenta_activa) and db_usuario[cuenta_activa]["trades"]:
-        # Obtenemos la fecha más reciente de los trades guardados
-        ultimo_registro = max(db_usuario[cuenta_activa]["trades"].keys()) 
-        st.session_state.cal_year = ultimo_registro[0]
-        st.session_state.cal_month = ultimo_registro[1]
-    else:
-        st.session_state.cal_month = hoy.month
-        st.session_state.cal_year = hoy.year
+if "cal_month" not in st.session_state: st.session_state.cal_month = hoy.month
+if "cal_year" not in st.session_state: st.session_state.cal_year = hoy.year
 
 def cambiar_mes(delta):
     st.session_state.cal_month += delta
@@ -680,6 +672,7 @@ def contenido_ajustes():
 
     st.markdown("---")
     st.markdown(f"### {_l['sidebar']['sec_backtest']}")
+    st.session_state.modo_backtesting = st.toggle(_l['sidebar']['bt_mode'], value=st.session_state.modo_backtesting)
 
     st.markdown("---")
     st.markdown(f"### {_l['sidebar']['manage_acc']}")
@@ -885,19 +878,22 @@ st.markdown(f"""
         display: none !important; 
     }}
     .block-container, [data-testid="stAppViewBlockContainer"] {{ 
-        padding-top: 20px !important;
+        padding-top: 0px !important; 
         margin-top: 0px !important; 
-        overflow: visible !important;
     }}
     
 /* 🔴 EL SECRETO: OCULTAR EL "RUNNING..." PARA QUE SEA INSTANTÁNEO 🔴 */
     [data-testid="stStatusWidget"] {{ visibility: hidden !important; display: none !important; }}
     
-/* 🌟 MAGIA DE LAS PESTAÑAS (TABS) PREMIUM ESTILO FINANCE CENTER 🌟 */
-    div[data-testid="stTabs"] {{ 
-        padding: 40px 0px 20px 0px !important; 
-        margin-top: 10px !important; 
-        overflow: visible !important; 
+    /* 🌟 MAGIA DE LAS PESTAÑAS (TABS) PREMIUM ESTILO FINANCE CENTER 🌟 */
+    div[data-testid="stTabs"] {{ padding: 15px 0px 20px 0px !important; margin-top: 5px !important; }}
+    div[data-testid="stTabs"] button {{
+        font-size: 18px !important; font-weight: 700 !important;
+        background-color: rgba(40, 40, 40, 0.4) !important; border-radius: 12px !important; 
+        padding: 12px 24px !important; margin: 0px 8px !important;
+        border: 1px solid {border_color} !important;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2) !important;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important; color: {c_dash} !important;
     }}
     div[data-testid="stTabs"] button:hover {{
         transform: translateY(-4px) !important; border-color: #00C897 !important;
@@ -1338,25 +1334,25 @@ with col_set:
     <label for="toggle-settings" class="btn-fake-gear">⚙️</label>
     """, unsafe_allow_html=True)
 
-    # === LO SACAMOS DE LA COLUMNA PARA QUE USE LA PANTALLA COMPLETA ===
-with st.container():
-    st.markdown('<div id="ancla-modal-ajustes"><label for="toggle-settings" class="btn-close-settings">✖ CERRAR</label></div>', unsafe_allow_html=True)
-    contenido_ajustes()
-    
-    # Script francotirador: Busca este bloque exacto y lo vuelve flotante sin recargar nada
-    components.html("""
-    <script>
-        const doc = window.parent.document;
-        const ancla = doc.getElementById('ancla-modal-ajustes');
-        if (ancla) {
-            const modalContainer = ancla.closest('div[data-testid="stVerticalBlock"]');
-            if (modalContainer) {
-                modalContainer.classList.add('fixed-modal-ajustes');
+    # Contenedor aislado para inyectarle la clase del Cuadro/Modal
+    with st.container():
+        st.markdown('<div id="ancla-modal-ajustes"><label for="toggle-settings" class="btn-close-settings">✖ CERRAR</label></div>', unsafe_allow_html=True)
+        contenido_ajustes()
+        
+        # Script francotirador: Busca este bloque exacto y lo vuelve flotante sin recargar nada
+        components.html("""
+        <script>
+            const doc = window.parent.document;
+            const ancla = doc.getElementById('ancla-modal-ajustes');
+            if (ancla) {
+                const modalContainer = ancla.closest('div[data-testid="stVerticalBlock"]');
+                if (modalContainer) {
+                    modalContainer.classList.add('fixed-modal-ajustes');
+                }
             }
-        }
-    </script>
-    """, height=0, width=0)
-# ==============================================================
+        </script>
+        """, height=0, width=0)
+    # ==============================================================
 
 with col_t:
     if paso_cuenta: badge_html = f'<span style="font-size: 20px; background-color: #00C897; color: white; padding: 4px 12px; border-radius: 8px; margin-left: 15px; font-weight: 800; letter-spacing: 0px;">{_l["dash"]["pa"]}</span>'
@@ -1388,8 +1384,11 @@ with st.form(key="form_main_entry", clear_on_submit=True, border=False):
         btn_save = st.form_submit_button(_l['dash']['save'], key="btn_save_main")
     with c2:
         st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True) 
-        # La fecha por defecto será el día de hoy, pero puedes elegir cualquiera
-        fecha_sel = st.date_input("Fecha", value=hoy, label_visibility="collapsed", key="btn_fecha_directa")
+        if st.session_state.modo_backtesting:
+            if st.session_state.fecha_backtesting.month != st.session_state.cal_month or st.session_state.fecha_backtesting.year != st.session_state.cal_year: fecha_defecto = date(st.session_state.cal_year, st.session_state.cal_month, 1)
+            else: fecha_defecto = st.session_state.fecha_backtesting
+        else: fecha_defecto = hoy
+        fecha_sel = st.date_input("Fecha", value=fecha_defecto, label_visibility="collapsed", key="btn_fecha_directa")
     with c_img:
         st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True) 
         imgs_subidas = st.file_uploader("", accept_multiple_files=True, label_visibility="collapsed")
@@ -1548,13 +1547,10 @@ with col_cal:
         }
         .fixed-modal-jump {
             display: none; position: fixed !important; top: 50% !important; left: 50% !important;
-            transform: translate(-50%, -50%) !important; 
-            width: 90vw !important; max-width: 400px !important; 
+            transform: translate(-50%, -50%) !important; width: 90vw !important; max-width: 400px !important;
             background-color: var(--card_bg, #2D3748) !important; z-index: 9999999 !important;
-            border-radius: 15px !important; padding: 25px !important; 
-            border: 2px solid #00C897 !important;
+            border-radius: 15px !important; padding: 25px !important; border: 2px solid #00C897 !important;
             box-shadow: 0px 20px 50px rgba(0,0,0,0.9) !important;
-            overflow: visible !important; 
         }
         body:has(#toggle-jump:checked) .fixed-modal-jump,
         body:has(#toggle-jump:checked) .jump-overlay { display: flex !important; flex-direction: column !important; }
@@ -1564,47 +1560,20 @@ with col_cal:
             cursor: pointer; transition: 0.2s; color: white; margin-top: 1px;
         }
         .btn-fake-jump:hover { border-color: #00C897; background: rgba(0, 200, 151, 0.1); }
-        
-        /* 1. MATA EL CUADRO GRIS DEL FORMULARIO */
-        body .fixed-modal-jump div[data-testid="stForm"] {
-            background-color: transparent !important;
-            border: none !important;
-            padding: 0 !important;
+        .btn-close-jump {
+            position: absolute; top: 15px; right: 15px; background: #FF4C4C; color: white;
+            padding: 6px 16px; border-radius: 8px; font-weight: 800; cursor: pointer;
+            z-index: 10000000; box-shadow: 0 4px 6px rgba(0,0,0,0.3); transition: 0.2s;
         }
-
-        /* 2. LIBERA AL INPUT Y BOTON DEL TAMAÑO FIJO GLOBAL (Los estira al 100%) */
-        body .fixed-modal-jump div[data-testid="stNumberInput"] { 
-            width: 100% !important; min-width: 100% !important; max-width: 100% !important; margin: 0 !important; 
-        }
-        body .fixed-modal-jump div[data-testid="stFormSubmitButton"] button { 
-            width: 100% !important; min-width: 100% !important; max-width: 100% !important; margin: 25px 0 0 0 !important; 
-        }
-        
-        /* 3. MATA EL CURSOR DE TEXTO Y PONE LA MANITO NORMAL */
-        body .fixed-modal-jump div[data-testid="stSelectbox"] input {
-            cursor: pointer !important;
-            caret-color: transparent !important;
-        }
-        body .fixed-modal-jump div[data-testid="stSelectbox"] div[data-baseweb="select"] {
-            cursor: pointer !important;
-        }
-
-        /* 4. RESCATA LA LISTA DE MESES DE LA OSCURIDAD (Prioridad Absoluta) */
-        [data-baseweb="popover"],
-        ul[role="listbox"],
-        div[data-baseweb="popover"] * {
-            z-index: 2147483647 !important; /* El número máximo posible en la web */
-        }
+        .btn-close-jump:hover { transform: scale(1.05); }
         </style>
-        
         <input type="checkbox" id="toggle-jump">
         <div class="jump-overlay"><label for="toggle-jump" style="width:100%; height:100%; display:block; cursor:pointer;"></label></div>
         <label for="toggle-jump" class="btn-fake-jump">📅</label>
         """, unsafe_allow_html=True)
 
         with st.container():
-            st.markdown('<div id="ancla-modal-jump"><h3 style="text-align:center; margin-top:0px; margin-bottom:25px;">📅 Selector de Fecha</h3></div>', unsafe_allow_html=True)
-            
+            st.markdown('<div id="ancla-modal-jump"><label for="toggle-jump" class="btn-close-jump">✖ CERRAR</label><h3 style="text-align:center; margin-top:0;">📅 Selector de Fecha</h3></div>', unsafe_allow_html=True)
             if st.session_state.idioma == "ES":
                 meses_lista_jump = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
                 lbl_mes, lbl_anio, lbl_btn = "Mes", "Año", "Ir a fecha"
@@ -1612,15 +1581,14 @@ with col_cal:
                 meses_lista_jump = list(calendar.month_name)[1:]
                 lbl_mes, lbl_anio, lbl_btn = "Month", "Year", "Go to date"
             
-            with st.form(key="form_jump_date", border=False):
-                nuevo_mes_jump = st.selectbox(lbl_mes, meses_lista_jump, index=st.session_state.cal_month - 1, key="jump_month")
-                nuevo_anio_jump = st.number_input(lbl_anio, min_value=2000, max_value=2100, value=st.session_state.cal_year, step=1, key="jump_year")
-                
-                if st.form_submit_button(lbl_btn, use_container_width=True):
-                    st.session_state.cal_month = meses_lista_jump.index(nuevo_mes_jump) + 1
-                    st.session_state.cal_year = nuevo_anio_jump
-                    components.html("<script>window.parent.sessionStorage.setItem('jump_open', 'false'); window.parent.document.getElementById('toggle-jump').checked = false;</script>", height=0, width=0)
-                    st.rerun()
+            nuevo_mes_jump = st.selectbox(lbl_mes, meses_lista_jump, index=st.session_state.cal_month - 1, key="jump_month")
+            nuevo_anio_jump = st.number_input(lbl_anio, min_value=2000, max_value=2100, value=st.session_state.cal_year, step=1, key="jump_year")
+            
+            # Solo aquí, al dar click en "Ir a fecha", hacemos el refresh necesario
+            if st.button(lbl_btn, use_container_width=True, key="btn_jump_go"):
+                st.session_state.cal_month = meses_lista_jump.index(nuevo_mes_jump) + 1
+                st.session_state.cal_year = nuevo_anio_jump
+                st.rerun()
             
             components.html("""
             <script>
@@ -2029,11 +1997,14 @@ with tab_hist:
         trades_actuales = db_usuario[ctx]["trades"]
         if not trades_actuales: st.info(_l['hist']['no_ord'])
         else:
+            c_h1, c_h2, c_h3 = st.columns([1, 2, 1])
+            with c_h1: st.button("◀", on_click=cambiar_mes, args=(-1,), key="btn_h_prev", use_container_width=True)
             if st.session_state.idioma == "ES":
                 meses_es = ["", "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
                 nom_mes = meses_es[st.session_state.cal_month]
             else: nom_mes = calendar.month_name[st.session_state.cal_month]
-            st.markdown(f"<h4 style='text-align:center; color:{c_dash}; margin-top:5px;'>🗓️ {nom_mes} {st.session_state.cal_year}</h4>", unsafe_allow_html=True)
+            with c_h2: st.markdown(f"<h4 style='text-align:center; color:{c_dash}; margin-top:5px;'>🗓️ {nom_mes} {st.session_state.cal_year}</h4>", unsafe_allow_html=True)
+            with c_h3: st.button("▶", on_click=cambiar_mes, args=(1,), key="btn_h_next", use_container_width=True)
             st.markdown("---")
             trades_ordenados = sorted(trades_actuales.items(), key=lambda x: datetime(x[0][0], x[0][1], x[0][2]), reverse=True)
             trades_en_mes = 0 
@@ -2128,11 +2099,14 @@ with tab_tabla:
         all_trades = db_usuario[ctx]["trades"]
         if not all_trades: st.info(_l['table']['no_tr_tbl'])
         else:
+            c_t1, c_t2, c_t3 = st.columns([1, 2, 1])
+            with c_t1: st.button("◀", on_click=cambiar_mes, args=(-1,), key="btn_t_prev", use_container_width=True)
             if st.session_state.idioma == "ES":
                 meses_es = ["", "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
                 nom_mes = meses_es[st.session_state.cal_month]
             else: nom_mes = calendar.month_name[st.session_state.cal_month]
-            st.markdown(f"<h4 style='text-align:center; color:{c_dash}; margin-top:5px;'>🗓️ {nom_mes} {st.session_state.cal_year}</h4>", unsafe_allow_html=True)
+            with c_t2: st.markdown(f"<h4 style='text-align:center; color:{c_dash}; margin-top:5px;'>🗓️ {nom_mes} {st.session_state.cal_year}</h4>", unsafe_allow_html=True)
+            with c_t3: st.button("▶", on_click=cambiar_mes, args=(1,), key="btn_t_next", use_container_width=True)
             st.markdown("---")
             table_data = []
             for key, list_t in sorted(all_trades.items(), key=lambda x: date(x[0][0], x[0][1], x[0][2]), reverse=True):
@@ -2188,36 +2162,8 @@ doc.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
         const modals = doc.querySelectorAll('.modal-toggle');
         modals.forEach(m => m.checked = false);
-        const jump = doc.getElementById('toggle-jump'); if (jump) { jump.checked = false; window.parent.sessionStorage.setItem('jump_open', 'false'); }
-        const set = doc.getElementById('toggle-settings'); if (set) { set.checked = false; window.parent.sessionStorage.setItem('settings_open', 'false'); }
     }
 });
-
-// 1.5 MEMORIA PARA QUE LOS MODALES DE AJUSTES Y FECHA NO SE CIERREN AL REFRESCAR
-function mantenerModalAbierto(idCheck, storageKey) {
-    const checkbox = doc.getElementById(idCheck);
-    if (checkbox) {
-        // Recuperar estado al recargar
-        if (window.parent.sessionStorage.getItem(storageKey) === 'true') {
-            checkbox.checked = true;
-        }
-        // Guardar estado al abrir/cerrar
-        checkbox.addEventListener('change', function() {
-            window.parent.sessionStorage.setItem(storageKey, this.checked);
-        });
-        // Si el usuario presiona el botón "✖ CERRAR", forzamos la limpieza de la memoria
-        const labelsCerrar = doc.querySelectorAll(`label[for="${idCheck}"]`);
-        labelsCerrar.forEach(lbl => {
-            if (lbl.classList.contains('btn-close-jump') || lbl.classList.contains('btn-close-settings')) {
-                lbl.addEventListener('click', function() {
-                    window.parent.sessionStorage.setItem(storageKey, 'false');
-                });
-            }
-        });
-    }
-}
-mantenerModalAbierto('toggle-jump', 'jump_open');
-mantenerModalAbierto('toggle-settings', 'settings_open');
 
 // 2. Bloquear teclado movil en Filtros, Data Source y Calendario
 function bloquearTeclado() {
