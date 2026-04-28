@@ -1399,6 +1399,22 @@ div[data-testid="stForm"] [data-testid="stFormSubmitButton"] button {
     margin-top: 25px !important; /* Lo empuja abajo para alinearlo con los inputs */
 }
 
+/* ==========================================
+   AJUSTES DEL CUADRO "DATE" (FECHA)
+========================================== */
+div[data-testid="stForm"] div[data-testid="stDateInput"] {
+    width: 100% !important;         /* Qué tanto llena su espacio */
+    margin-top: 0px !important;     /* Mueve el cuadro hacia arriba o abajo */
+    margin-left: 0px !important;    /* Muévelo hacia los lados */
+}
+
+/* Para cambiar la altura específica del cuadro de la fecha */
+div[data-testid="stForm"] div[data-testid="stDateInput"] div[data-baseweb="input"], 
+div[data-testid="stForm"] div[data-testid="stDateInput"] div[data-baseweb="base-input"] {
+    min-height: 40px !important;    /* Altura del cuadro */
+    height: 40px !important;        /* Altura del cuadro */
+}
+
 /* Botón de Popover (Trade Details) */
 div[data-testid="stForm"] div[data-testid="stPopover"] > button {
     background-color: #2D3748 !important;
