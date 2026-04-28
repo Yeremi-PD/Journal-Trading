@@ -628,250 +628,211 @@ def reset_settings(category):
     for k in keys: s[k] = defaults[k]
 
 # ==========================================
-# 5. BARRA LATERAL (AJUSTES Y ADMIN)
+# 5. MODAL DE AJUSTES Y ADMIN (REEMPLAZA BARRA LATERAL)
 # ==========================================
-tamanio_texto_cuenta = "22px"
+@st.dialog("⚙️ Menú de Ajustes", width="large")
+def modal_ajustes():
+    tamanio_texto_cuenta = "22px"
+    st.markdown(
+        f"<div style='margin-top:-15px; font-size: {tamanio_texto_cuenta}; font-weight: bold;'>"
+        f"👤 {_l['sidebar']['account']} <span style='color: #00C897;'>{usuario}</span>"
+        f"</div>", 
+        unsafe_allow_html=True
+    )
 
-tamanio_texto_cuenta = "22px"
-
-st.sidebar.markdown(
-    f"<div style='margin-top:-15px; font-size: {tamanio_texto_cuenta}; font-weight: bold;'>"
-    f"👤 {_l['sidebar']['account']} <span style='color: #00C897;'>{usuario}</span>"
-    f"</div>", 
-    unsafe_allow_html=True
-)
-
-st.sidebar.markdown("---")
-idioma_seleccionado = st.sidebar.radio(
-    _l['sidebar']['lang'],
-    ["ES", "EN"],
-    index=0 if st.session_state.idioma == "ES" else 1,
-    horizontal=True
-)
-nuevo_idioma = "ES" if "ES" in idioma_seleccionado else "EN"
-if nuevo_idioma != st.session_state.idioma:
-    st.session_state.idioma = nuevo_idioma
-    st.rerun()
-
-st.sidebar.markdown("---")
-dispositivo_visual = st.sidebar.radio(
-    _l['sidebar']['design'], 
-    [_l['sidebar']['pc'], _l['sidebar']['mobile']], 
-    index=0 if "PC" in st.session_state.dispositivo_actual else 1
-)
-
-st.session_state.dispositivo_actual = "PC" if _l['sidebar']['pc'] in dispositivo_visual else "Móvil"
-
-try: 
-    st.query_params["device"] = st.session_state.dispositivo_actual
-except: 
-    pass
-
-if st.sidebar.button(_l['sidebar']['save_design'], use_container_width=True):
-    # OPTIMIZACIÓN 1: En vez de insertar una fila vacía de trade para guardar ajustes, 
-    # reescribimos limpiamente sin generar basura en el Excel.
-    reescribir_excel_usuario(usuario)
-    st.sidebar.success(_l['sidebar']['saved_design'])
-
-st.sidebar.markdown("---")
-st.sidebar.markdown(f"### {_l['sidebar']['sec_backtest']}")
-st.session_state.modo_backtesting = st.sidebar.toggle(_l['sidebar']['bt_mode'], value=st.session_state.modo_backtesting)
-
-st.sidebar.markdown("---")
-st.sidebar.markdown(f"### {_l['sidebar']['manage_acc']}")
-
-with st.sidebar.expander(_l['sidebar']['create_acc']):
-    st.markdown(f"**{_l['sidebar']['acc_details']}**")
-    nueva_cuenta_nombre = st.text_input(_l['setup']['acc_name'], key="input_nombre_nueva_cta")
-    nueva_cuenta_bal = st.selectbox(_l['sidebar']['sel_bal'], [25000.0, 50000.0, 100000.0], format_func=lambda x: f"${x:,.0f}", key="select_bal_nueva_cta")
-    
-    if st.button(_l['sidebar']['btn_create_acc'], use_container_width=True, key="btn_crear_cta_sidebar"):
-        if nueva_cuenta_nombre and nueva_cuenta_nombre not in db_usuario:
-            db_usuario[nueva_cuenta_nombre] = {"balance": nueva_cuenta_bal, "trades": {}}
-            st.session_state.data_source_sel = nueva_cuenta_nombre
-            try: st.query_params["account"] = nueva_cuenta_nombre
-            except: pass
-            reescribir_excel_usuario(usuario)
-            st.success(f"Account '{nueva_cuenta_nombre}' created!")
-            st.rerun()
-        elif nueva_cuenta_nombre in db_usuario:
-            st.warning(_l['sidebar']['exist_name'])
-
-ctx_actual = st.session_state.get("data_source_sel", "Account Real")
-with st.sidebar.expander(f"{_l['sidebar']['reset_acc']} {ctx_actual}"):
-    opciones_reset = {"$25,000": 25000.0, "$50,000": 50000.0, "$100,000": 100000.0}
-    seleccion_reset = st.radio(_l['sidebar']['sel_bal'], list(opciones_reset.keys()), key="radio_reset_sidebar")
-    nuevo_balance_reset = opciones_reset[seleccion_reset]
-    
-    if "confirm_reset" not in st.session_state: st.session_state.confirm_reset = False
-    
-    if st.button(_l['sidebar']['btn_conf_reset'], use_container_width=True, key="btn_solicitar_reset"):
-        st.session_state.confirm_reset = True
-        
-    if st.session_state.confirm_reset:
-        st.warning(f"{_l['sidebar']['ask_reset']} {ctx_actual}?")
-        cr_yes, cr_no = st.columns(2)
-        if cr_yes.button(_l['sidebar']['yes_reset'], key="btn_si_reset_final"):
-            db_usuario[ctx_actual]["balance"] = nuevo_balance_reset
-            db_usuario[ctx_actual]["trades"] = {}
-            reescribir_excel_usuario(usuario)
-            st.session_state.confirm_reset = False
-            st.rerun()
-        if cr_no.button(_l['sidebar']['no'], key="btn_no_reset_final"):
-            st.session_state.confirm_reset = False
-            st.rerun()
-
-with st.sidebar.expander(_l['sidebar']['del_acc']):
-    cuenta_a_borrar = st.selectbox(_l['sidebar']['sel_del'], list(db_usuario.keys()), key="select_eliminar_cta")
-    
-    if "confirm_delete_acc" not in st.session_state: st.session_state.confirm_delete_acc = False
-    
-    if st.button(_l['sidebar']['btn_del'], use_container_width=True, key="btn_solicitar_borrado"):
-        if len(db_usuario) <= 1:
-            st.error(_l['sidebar']['err_del_only'])
-        else:
-            st.session_state.confirm_delete_acc = True
-            
-    if st.session_state.confirm_delete_acc:
-        st.warning(f"{_l['sidebar']['ask_del']} '{cuenta_a_borrar}'?")
-        cd_yes, cd_no = st.columns(2)
-        if cd_yes.button(_l['sidebar']['yes_del'], key="btn_si_borrar_final"):
-            del db_usuario[cuenta_a_borrar]
-            if st.session_state.data_source_sel == cuenta_a_borrar:
-                st.session_state.data_source_sel = list(db_usuario.keys())[0]
-            reescribir_excel_usuario(usuario)
-            st.session_state.confirm_delete_acc = False
-            st.rerun()
-        if cd_no.button(_l['sidebar']['cancel'], key="btn_no_borrar_final"):
-            st.session_state.confirm_delete_acc = False
-            st.rerun()
-
-st.sidebar.markdown("---")
-tamanio_titulo = "18px"
-tamanio_opciones = "16px"
-st.sidebar.markdown(f"""<style>section[data-testid="stSidebar"] div[data-testid="stRadio"] > label p {{font-size: {tamanio_titulo} !important; font-weight: bold !important;}} section[data-testid="stSidebar"] div[data-testid="stRadio"] div[role="radiogroup"] label p {{font-size: {tamanio_opciones} !important;}}</style>""", unsafe_allow_html=True)
-
-st.sidebar.markdown(f"### {_l['sidebar']['sec_theme']}")
-texto_boton_tema = _l['sidebar']['to_dark'] if st.session_state.tema == "Claro" else _l['sidebar']['to_light']
-if st.sidebar.button(texto_boton_tema):
-    st.session_state.tema = "Oscuro" if st.session_state.tema == "Claro" else "Claro"
-    st.rerun()
-        
-st.sidebar.markdown("---")
-st.sidebar.markdown(f"### {_l['sidebar']['admin']}")
-with st.sidebar.expander(_l['sidebar']['admin']):
-    admin_pass = st.text_input(_l['sidebar']['admin_pass'], type="password")
-    @st.dialog(_l['sidebar']['conf_act'])
-    def ventana_borrar_usuario(u):
-        st.write(f"{_l['sidebar']['ask_del_user']} **{u}**?")
-        if st.button(_l['sidebar']['yes_del_user'], type="primary", use_container_width=True):
-            del db_global[u]
-            if st.session_state.usuario_actual == u: 
-                st.session_state.usuario_actual = None
-                try: st.query_params.clear()
-                except: pass
-            st.rerun()
-    if admin_pass == "Yfutures.":
-        st.success(_l['sidebar']['acc_granted'])
-        for u, data in list(db_global.items()):
-            col_u, col_p, col_btn = st.columns([2, 2, 1])
-            col_u.write(f"**{u}**")
-            col_p.write(f"{data['password']}")
-            if col_btn.button("❌", key=f"del_{u}"): ventana_borrar_usuario(u)
-
-st.sidebar.markdown("---")
-st.sidebar.markdown(f"### {_l['sidebar']['sec_dash']}")
-with st.sidebar.expander(_l['sidebar']['dash_set']):
-    if st.button(_l['sidebar']['res_dash'], key="res_dash", use_container_width=True): reset_settings("dash"); st.rerun()
-    user_settings["bal_num_sz"] = st.slider(_l['sidebar']['bal_num_sz'], 10, 60, user_settings["bal_num_sz"])
-    user_settings["bal_box_w"] = st.slider(_l['sidebar']['green_w'], 10, 100, user_settings["bal_box_w"])
-    user_settings["bal_box_pad"] = st.slider(_l['sidebar']['green_pad'], 0, 50, user_settings["bal_box_pad"])
-
-with st.sidebar.expander(_l['sidebar']['txt_chart_set']):
-    if st.button(_l['sidebar']['res_txt'], key="res_txt", use_container_width=True): reset_settings("txt"); st.rerun()
-    user_settings["size_top_stats"] = st.slider(_l['sidebar']['sz_top'], 10, 40, user_settings["size_top_stats"])
-    user_settings["size_card_titles"] = st.slider(_l['sidebar']['sz_tit'], 10, 40, user_settings["size_card_titles"])
-    user_settings["size_box_titles"] = st.slider(_l['sidebar']['sz_tit_wm'], 10, 40, user_settings["size_box_titles"])
-    user_settings["size_box_vals"] = st.slider(_l['sidebar']['sz_pnl_box'], 10, 50, user_settings["size_box_vals"])
-    user_settings["size_box_pct"] = st.slider(_l['sidebar']['sz_pct_box'], 10, 40, user_settings["size_box_pct"])
-    user_settings["size_box_wl"] = st.slider(_l['sidebar']['sz_wl_box'], 10, 40, user_settings["size_box_wl"])
-    user_settings["pie_size"] = st.slider(_l['sidebar']['pie_sz'], 50, 300, user_settings["pie_size"])
-    user_settings["pie_y_offset"] = st.slider(_l['sidebar']['pie_y'], -100, 100, user_settings["pie_y_offset"])
-
-with st.sidebar.expander(_l['sidebar']['cal_set']):
-    if st.button(_l['sidebar']['res_cal'], key="res_cal", use_container_width=True): reset_settings("cal"); st.rerun()
-    user_settings["cal_mes_size"] = st.slider(_l['sidebar']['cal_mo_sz'], 10, 50, user_settings["cal_mes_size"])
-    user_settings["cal_pnl_size"] = st.slider(_l['sidebar']['cal_pnl_sz'], 10, 40, user_settings["cal_pnl_size"])
-    user_settings["cal_pct_size"] = st.slider(_l['sidebar']['cal_pct_sz'], 10, 30, user_settings["cal_pct_size"])
-    user_settings["cal_dia_size"] = st.slider(_l['sidebar']['cal_num_sz'], 10, 30, user_settings["cal_dia_size"])
-    user_settings["cal_cam_size"] = st.slider(_l['sidebar']['cal_cam_sz'], 10, 50, user_settings["cal_cam_size"])
-    user_settings["cal_note_size"] = st.slider(_l['sidebar']['cal_note_sz'], 10, 50, user_settings.get("cal_note_size", 30))
-    user_settings["note_lbl_size"] = st.slider(_l['sidebar']['cal_note_lbl'], 10, 40, user_settings.get("note_lbl_size", 16))
-    user_settings["note_val_size"] = st.slider(_l['sidebar']['cal_note_val'], 10, 40, user_settings.get("note_val_size", 16))
-    user_settings["cal_scale"] = st.slider(_l['sidebar']['cal_scale'], 50, 200, user_settings["cal_scale"])
-    user_settings["cal_line_height"] = st.slider(_l['sidebar']['cal_space'], 0.5, 3.0, user_settings["cal_line_height"], 0.1)
-    user_settings["cal_txt_y"] = st.slider(_l['sidebar']['cal_y'], -50, 50, user_settings.get("cal_txt_y", 0))
-    user_settings["cal_txt_pad"] = st.slider(_l['sidebar']['cal_pad'], -50, 50, user_settings.get("cal_txt_pad", 0))
-
-st.sidebar.markdown("---")
-st.sidebar.markdown(f"### {_l['sidebar']['sec_gallery']}")
-if "galeria_idx" not in st.session_state: st.session_state.galeria_idx = 0
-@st.dialog(_l['sidebar']['gallery'], width="large")
-def modal_galeria_individual(contexto):
-    todas_las_fotos = []
-    for clave, lista_t in db_usuario[contexto]["trades"].items():
-        for t in reversed(lista_t):
-            for img in t.get("imagenes", []):
-                try: dt_obj = datetime.strptime(t["fecha_str"], "%d/%m/%Y")
-                except: dt_obj = datetime(clave[0], clave[1], clave[2])
-                todas_las_fotos.append({"fecha_dt": dt_obj, "fecha": t["fecha_str"], "img": img})
-    todas_las_fotos.sort(key=lambda x: x["fecha_dt"], reverse=True)
-    if not todas_las_fotos:
-        st.info(_l['sidebar']['no_img'])
-        return
-    total = len(todas_las_fotos)
-    if st.session_state.galeria_idx >= total: st.session_state.galeria_idx = 0
-    col_nav1, col_nav2, col_nav3 = st.columns([1, 2, 1])
-    with col_nav1:
-        if st.button(_l['sidebar']['prev'], use_container_width=True): st.session_state.galeria_idx = (st.session_state.galeria_idx - 1) % total
-    with col_nav2:
-        st.markdown(f"<div style='text-align: center; font-weight: bold; font-size: 18px;'>{_l['sidebar']['img_of']} {st.session_state.galeria_idx + 1} {_l['sidebar']['of']} {total}</div>", unsafe_allow_html=True)
-        st.markdown(f"<div style='text-align: center; color: gray;'>{_l['sidebar']['date']} {todas_las_fotos[st.session_state.galeria_idx]['fecha']}</div>", unsafe_allow_html=True)
-    with col_nav3:
-        if st.button(_l['sidebar']['next'], use_container_width=True): st.session_state.galeria_idx = (st.session_state.galeria_idx + 1) % total
     st.markdown("---")
-    st.image(todas_las_fotos[st.session_state.galeria_idx]["img"], use_container_width=True)
+    idioma_seleccionado = st.radio(
+        _l['sidebar']['lang'],
+        ["ES", "EN"],
+        index=0 if st.session_state.idioma == "ES" else 1,
+        horizontal=True
+    )
+    nuevo_idioma = "ES" if "ES" in idioma_seleccionado else "EN"
+    if nuevo_idioma != st.session_state.idioma:
+        st.session_state.idioma = nuevo_idioma
+        st.rerun()
 
-if st.sidebar.button(_l['sidebar']['view_all'], use_container_width=True):
-    st.session_state.galeria_idx = 0 
-    modal_galeria_individual(st.session_state.data_source_sel)
+    st.markdown("---")
+    dispositivo_visual = st.radio(
+        _l['sidebar']['design'], 
+        [_l['sidebar']['pc'], _l['sidebar']['mobile']], 
+        index=0 if "PC" in st.session_state.dispositivo_actual else 1
+    )
 
-st.sidebar.markdown("<br>", unsafe_allow_html=True)
-st.sidebar.markdown("---")
-if st.sidebar.button(_l['sidebar']['logout'], use_container_width=True): 
-    # 1. Limpieza total inmediata de la sesión en el servidor
-    for key in list(st.session_state.keys()):
-        del st.session_state[key]
-    
-    # 2. Limpieza de los parámetros de la URL
-    st.query_params.clear()
-    
-    # 3. Script "Bomba" de limpieza en el navegador y redirección inmediata
-    components.html("""
-    <script>
-        // Borramos TODA la memoria del navegador (localStorage y sessionStorage)
-        window.parent.localStorage.clear();
-        window.parent.sessionStorage.clear();
+    st.session_state.dispositivo_actual = "PC" if _l['sidebar']['pc'] in dispositivo_visual else "Móvil"
+
+    try: 
+        st.query_params["device"] = st.session_state.dispositivo_actual
+    except: 
+        pass
+
+    if st.button(_l['sidebar']['save_design'], use_container_width=True):
+        reescribir_excel_usuario(usuario)
+        st.success(_l['sidebar']['saved_design'])
+
+    st.markdown("---")
+    st.markdown(f"### {_l['sidebar']['sec_backtest']}")
+    st.session_state.modo_backtesting = st.toggle(_l['sidebar']['bt_mode'], value=st.session_state.modo_backtesting)
+
+    st.markdown("---")
+    st.markdown(f"### {_l['sidebar']['manage_acc']}")
+
+    with st.expander(_l['sidebar']['create_acc']):
+        st.markdown(f"**{_l['sidebar']['acc_details']}**")
+        nueva_cuenta_nombre = st.text_input(_l['setup']['acc_name'], key="input_nombre_nueva_cta")
+        nueva_cuenta_bal = st.selectbox(_l['sidebar']['sel_bal'], [25000.0, 50000.0, 100000.0], format_func=lambda x: f"${x:,.0f}", key="select_bal_nueva_cta")
         
-        // Redirección forzada e inmediata a la URL limpia
-        // Usamos window.top para asegurarnos de romper cualquier iframe
-        const cleanURL = window.parent.location.origin + window.parent.location.pathname;
-        window.parent.location.replace(cleanURL);
-    </script>
-    """, height=0, width=0)
-    
-    # Evitamos que se quede pegado deteniendo cualquier proceso extra
-    st.rerun()
+        if st.button(_l['sidebar']['btn_create_acc'], use_container_width=True, key="btn_crear_cta_sidebar"):
+            if nueva_cuenta_nombre and nueva_cuenta_nombre not in db_usuario:
+                db_usuario[nueva_cuenta_nombre] = {"balance": nueva_cuenta_bal, "trades": {}}
+                st.session_state.data_source_sel = nueva_cuenta_nombre
+                try: st.query_params["account"] = nueva_cuenta_nombre
+                except: pass
+                reescribir_excel_usuario(usuario)
+                st.success(f"Account '{nueva_cuenta_nombre}' created!")
+                st.rerun()
+            elif nueva_cuenta_nombre in db_usuario:
+                st.warning(_l['sidebar']['exist_name'])
+
+    ctx_actual = st.session_state.get("data_source_sel", "Account Real")
+    with st.expander(f"{_l['sidebar']['reset_acc']} {ctx_actual}"):
+        opciones_reset = {"$25,000": 25000.0, "$50,000": 50000.0, "$100,000": 100000.0}
+        seleccion_reset = st.radio(_l['sidebar']['sel_bal'], list(opciones_reset.keys()), key="radio_reset_sidebar")
+        nuevo_balance_reset = opciones_reset[seleccion_reset]
+        
+        if "confirm_reset" not in st.session_state: st.session_state.confirm_reset = False
+        
+        if st.button(_l['sidebar']['btn_conf_reset'], use_container_width=True, key="btn_solicitar_reset"):
+            st.session_state.confirm_reset = True
+            
+        if st.session_state.confirm_reset:
+            st.warning(f"{_l['sidebar']['ask_reset']} {ctx_actual}?")
+            cr_yes, cr_no = st.columns(2)
+            if cr_yes.button(_l['sidebar']['yes_reset'], key="btn_si_reset_final"):
+                db_usuario[ctx_actual]["balance"] = nuevo_balance_reset
+                db_usuario[ctx_actual]["trades"] = {}
+                reescribir_excel_usuario(usuario)
+                st.session_state.confirm_reset = False
+                st.rerun()
+            if cr_no.button(_l['sidebar']['no'], key="btn_no_reset_final"):
+                st.session_state.confirm_reset = False
+                st.rerun()
+
+    with st.expander(_l['sidebar']['del_acc']):
+        cuenta_a_borrar = st.selectbox(_l['sidebar']['sel_del'], list(db_usuario.keys()), key="select_eliminar_cta")
+        
+        if "confirm_delete_acc" not in st.session_state: st.session_state.confirm_delete_acc = False
+        
+        if st.button(_l['sidebar']['btn_del'], use_container_width=True, key="btn_solicitar_borrado"):
+            if len(db_usuario) <= 1:
+                st.error(_l['sidebar']['err_del_only'])
+            else:
+                st.session_state.confirm_delete_acc = True
+                
+        if st.session_state.confirm_delete_acc:
+            st.warning(f"{_l['sidebar']['ask_del']} '{cuenta_a_borrar}'?")
+            cd_yes, cd_no = st.columns(2)
+            if cd_yes.button(_l['sidebar']['yes_del'], key="btn_si_borrar_final"):
+                del db_usuario[cuenta_a_borrar]
+                if st.session_state.data_source_sel == cuenta_a_borrar:
+                    st.session_state.data_source_sel = list(db_usuario.keys())[0]
+                reescribir_excel_usuario(usuario)
+                st.session_state.confirm_delete_acc = False
+                st.rerun()
+            if cd_no.button(_l['sidebar']['cancel'], key="btn_no_borrar_final"):
+                st.session_state.confirm_delete_acc = False
+                st.rerun()
+
+    st.markdown("---")
+    tamanio_titulo = "18px"
+    tamanio_opciones = "16px"
+    st.markdown(f"""<style>div[role="dialog"] div[data-testid="stRadio"] > label p {{font-size: {tamanio_titulo} !important; font-weight: bold !important;}} div[role="dialog"] div[data-testid="stRadio"] div[role="radiogroup"] label p {{font-size: {tamanio_opciones} !important;}}</style>""", unsafe_allow_html=True)
+
+    st.markdown(f"### {_l['sidebar']['sec_theme']}")
+    texto_boton_tema = _l['sidebar']['to_dark'] if st.session_state.tema == "Claro" else _l['sidebar']['to_light']
+    if st.button(texto_boton_tema):
+        st.session_state.tema = "Oscuro" if st.session_state.tema == "Claro" else "Claro"
+        st.rerun()
+            
+    st.markdown("---")
+    st.markdown(f"### {_l['sidebar']['admin']}")
+    with st.expander(_l['sidebar']['admin']):
+        admin_pass = st.text_input(_l['sidebar']['admin_pass'], type="password")
+        if admin_pass == "Yfutures.":
+            st.success(_l['sidebar']['acc_granted'])
+            for u, data in list(db_global.items()):
+                col_u, col_p, col_btn = st.columns([2, 2, 1])
+                col_u.write(f"**{u}**")
+                col_p.write(f"{data['password']}")
+                if col_btn.button("❌", key=f"del_usr_{u}"):
+                    del db_global[u]
+                    if st.session_state.usuario_actual == u: 
+                        st.session_state.usuario_actual = None
+                        try: st.query_params.clear()
+                        except: pass
+                    st.rerun()
+
+    st.markdown("---")
+    st.markdown(f"### {_l['sidebar']['sec_dash']}")
+    with st.expander(_l['sidebar']['dash_set']):
+        if st.button(_l['sidebar']['res_dash'], key="res_dash", use_container_width=True): 
+            reset_settings("dash")
+            st.rerun()
+        user_settings["bal_num_sz"] = st.slider(_l['sidebar']['bal_num_sz'], 10, 60, user_settings["bal_num_sz"])
+        user_settings["bal_box_w"] = st.slider(_l['sidebar']['green_w'], 10, 100, user_settings["bal_box_w"])
+        user_settings["bal_box_pad"] = st.slider(_l['sidebar']['green_pad'], 0, 50, user_settings["bal_box_pad"])
+
+    with st.expander(_l['sidebar']['txt_chart_set']):
+        if st.button(_l['sidebar']['res_txt'], key="res_txt", use_container_width=True): 
+            reset_settings("txt")
+            st.rerun()
+        user_settings["size_top_stats"] = st.slider(_l['sidebar']['sz_top'], 10, 40, user_settings["size_top_stats"])
+        user_settings["size_card_titles"] = st.slider(_l['sidebar']['sz_tit'], 10, 40, user_settings["size_card_titles"])
+        user_settings["size_box_titles"] = st.slider(_l['sidebar']['sz_tit_wm'], 10, 40, user_settings["size_box_titles"])
+        user_settings["size_box_vals"] = st.slider(_l['sidebar']['sz_pnl_box'], 10, 50, user_settings["size_box_vals"])
+        user_settings["size_box_pct"] = st.slider(_l['sidebar']['sz_pct_box'], 10, 40, user_settings["size_box_pct"])
+        user_settings["size_box_wl"] = st.slider(_l['sidebar']['sz_wl_box'], 10, 40, user_settings["size_box_wl"])
+        user_settings["pie_size"] = st.slider(_l['sidebar']['pie_sz'], 50, 300, user_settings["pie_size"])
+        user_settings["pie_y_offset"] = st.slider(_l['sidebar']['pie_y'], -100, 100, user_settings["pie_y_offset"])
+
+    with st.expander(_l['sidebar']['cal_set']):
+        if st.button(_l['sidebar']['res_cal'], key="res_cal", use_container_width=True): 
+            reset_settings("cal")
+            st.rerun()
+        user_settings["cal_mes_size"] = st.slider(_l['sidebar']['cal_mo_sz'], 10, 50, user_settings["cal_mes_size"])
+        user_settings["cal_pnl_size"] = st.slider(_l['sidebar']['cal_pnl_sz'], 10, 40, user_settings["cal_pnl_size"])
+        user_settings["cal_pct_size"] = st.slider(_l['sidebar']['cal_pct_sz'], 10, 30, user_settings["cal_pct_size"])
+        user_settings["cal_dia_size"] = st.slider(_l['sidebar']['cal_num_sz'], 10, 30, user_settings["cal_dia_size"])
+        user_settings["cal_cam_size"] = st.slider(_l['sidebar']['cal_cam_sz'], 10, 50, user_settings["cal_cam_size"])
+        user_settings["cal_note_size"] = st.slider(_l['sidebar']['cal_note_sz'], 10, 50, user_settings.get("cal_note_size", 30))
+        user_settings["note_lbl_size"] = st.slider(_l['sidebar']['cal_note_lbl'], 10, 40, user_settings.get("note_lbl_size", 16))
+        user_settings["note_val_size"] = st.slider(_l['sidebar']['cal_note_val'], 10, 40, user_settings.get("note_val_size", 16))
+        user_settings["cal_scale"] = st.slider(_l['sidebar']['cal_scale'], 50, 200, user_settings["cal_scale"])
+        user_settings["cal_line_height"] = st.slider(_l['sidebar']['cal_space'], 0.5, 3.0, user_settings["cal_line_height"], 0.1)
+        user_settings["cal_txt_y"] = st.slider(_l['sidebar']['cal_y'], -50, 50, user_settings.get("cal_txt_y", 0))
+        user_settings["cal_txt_pad"] = st.slider(_l['sidebar']['cal_pad'], -50, 50, user_settings.get("cal_txt_pad", 0))
+
+    st.markdown("---")
+    st.markdown(f"### {_l['sidebar']['sec_gallery']}")
+    if st.button(_l['sidebar']['view_all'], use_container_width=True):
+        st.session_state.galeria_idx = 0 
+        modal_galeria_individual(st.session_state.data_source_sel)
+
+    st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown("---")
+    if st.button(_l['sidebar']['logout'], use_container_width=True): 
+        for key in list(st.session_state.keys()):
+            del st.session_state[key]
+        st.query_params.clear()
+        components.html("""
+        <script>
+            window.parent.localStorage.clear();
+            window.parent.sessionStorage.clear();
+            const cleanURL = window.parent.location.origin + window.parent.location.pathname;
+            window.parent.location.replace(cleanURL);
+        </script>
+        """, height=0, width=0)
+        st.rerun()
 
 
 # ==========================================
@@ -907,22 +868,9 @@ st.markdown(f"""
     
     :root {{ {gen_css_vars(user_settings)} }}
 
-    /* Agrandar el botón de CERRAR (<<) cuando la barra está abierta */
-    [data-testid="stSidebarCollapseButton"] {{
-        transform: scale(1.8) !important;
-        transform-origin: center !important;
-    }}
-
-    /* Agrandar enormemente el botón de ABRIR (>) cuando la barra está escondida */
-    [data-testid="collapsedControl"] {{
-        transform: scale(2.5) !important; /* Cambia a 3.0 si lo quieres AÚN más grande */
-        transform-origin: top left !important;
-        left: 15px !important;
-        top: 15px !important; /* Aumenta este número (ej: 80px) si quieres que el botón baje más */
-        z-index: 999999 !important;
-    }}
-    [data-testid="collapsedControl"] svg {{
-        color: {c_dash} !important;
+/* Ocultar Barra Lateral y Controles Nativos por Completo */
+    [data-testid="stSidebar"] {{ display: none !important; }}
+    [data-testid="collapsedControl"] {{ display: none !important; }}
     }}
 
     .stApp {{ background-color: {bg_color} !important; font-family: 'Inter', sans-serif !important; }}
@@ -1224,9 +1172,14 @@ if modo_funded_activo:
     ganancia_f = sum(tr["pnl"] for tr in _tc[idx_pase+1:])
     bal_mostrar = bal_inicial_abs + ganancia_f - total_retirado_global
 
-col_t, col_fil, col_data, col_bal = st.columns([3, 1.5, 1.5, 2])
-with col_t: 
-    st.markdown('<div id="btn-abrir-menu" style="position: absolute; top: -135px; left: 0px; font-size: 90px; font-weight: 1200; color: #718096; cursor: pointer; z-index: 999999; letter-spacing: -4px;">»</div>', unsafe_allow_html=True)
+col_t, col_fil, col_data, col_bal, col_set = st.columns([2.5, 1.5, 1.5, 2, 0.5])
+
+with col_set:
+    st.markdown("<div style='height: 25px;'></div>", unsafe_allow_html=True)
+    if st.button("⚙️", key="btn_abrir_ajustes", use_container_width=True):
+        modal_ajustes()
+
+with col_t:
     if paso_cuenta: badge_html = f'<span style="font-size: 20px; background-color: #00C897; color: white; padding: 4px 12px; border-radius: 8px; margin-left: 15px; font-weight: 800; letter-spacing: 0px;">{_l["dash"]["pa"]}</span>'
     else: badge_html = f'<span style="font-size: 20px; background-color: #4A5568; color: white; padding: 4px 12px; border-radius: 8px; margin-left: 15px; font-weight: 800; letter-spacing: 0px;">{_l["dash"]["eval"]}</span>'
     st.markdown(f'<div class="dashboard-title" style="display: flex; align-items: center;">{TXT_DASHBOARD}, {usuario} {badge_html}</div>', unsafe_allow_html=True)
@@ -2115,19 +2068,6 @@ doc.addEventListener('click', function(e) {
         }
     }
 
-    // --- Logica del boton de menu ">>" ---
-    while(target && target !== doc) {
-        if (target.id === 'btn-abrir-menu') {
-            e.preventDefault();
-            e.stopPropagation();
-            let btnAbrir = doc.querySelector('[data-testid="collapsedControl"]');
-            let btnAlternativo = doc.querySelector('[data-testid="stSidebarCollapseButton"] button') || doc.querySelector('[data-testid="stSidebarCollapseButton"]');
-            if (btnAbrir) btnAbrir.click();
-            else if (btnAlternativo) btnAlternativo.click();
-            break;
-        }
-        target = target.parentNode;
-    }
 }, true); // <-- EL 'true' ES VITAL: Fuerza a leer nuestro clic antes de que React lo elimine
 </script>
 """, height=0, width=0)
