@@ -1441,9 +1441,9 @@ div[data-testid="stForm"] div[data-testid="stPopover"] > button {
     
     height: 20px !important;              /* Altura del botón (ajústala a tu gusto) */
     min-height: 40px !important;          /* Mantén esto igual al 'height' */
-    width: 100% !important;               /* Ancho del botón */
+    width: 1001% !important;               /* Ancho del botón */
     
-    margin-top: 0px !important;           /* MUÉVELO ARRIBA O ABAJO para alinearlo con las otras cajas */
+    margin-top: 101px !important;           /* MUÉVELO ARRIBA O ABAJO para alinearlo con las otras cajas */
     
     color: white !important;              
     display: flex !important;
