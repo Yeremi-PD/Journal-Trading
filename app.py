@@ -2227,15 +2227,6 @@ function bloquearTeclado() {
         input.setAttribute('readonly', 'true'); 
         input.style.webkitTapHighlightColor = 'transparent';
         input.style.outline = 'none';
-        input.style.cursor = 'pointer'; 
-        input.style.caretColor = 'transparent'; 
-        input.style.pointerEvents = 'none'; 
-    });
-    
-    // Forzamos el cursor de la manita en la caja principal
-    const selects = doc.querySelectorAll('div[data-baseweb="select"]');
-    selects.forEach(select => {
-        select.style.cursor = 'pointer';
     });
 }
 bloquearTeclado();
