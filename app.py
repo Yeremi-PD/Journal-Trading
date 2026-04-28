@@ -285,6 +285,9 @@ def registrar_en_excel(usuario, password, cuenta, fecha_obj, balance, pnl, trade
             keys_to_remove = ['pnl', 'balance_final', 'fecha_str', 'imagenes', 'bias', 'Confluences', 'risk', 'RR', 'trade_type', 'razon_trade', 'Corrections', 'Emotions', 'hora', 'ticker', 'direccion', 'lotes', 'precio_entrada', 'precio_salida', 'comisiones', 'estado_cuenta', 'retiros_acumulados']
             extra_data = {k:v for k,v in trade_data.items() if k not in keys_to_remove}
             
+            # INYECTAMOS EL MODO BACKTESTING DESDE LA CUENTA
+            extra_data["backtesting_mode"] = db_global[usuario]["data"][cuenta].get("backtesting_mode", False)
+            
             safe_user = str(usuario).strip() if usuario else "Desconocido"
             safe_pass = str(password).strip() if password else "123"
 
@@ -332,6 +335,8 @@ def reescribir_excel_usuario(usuario):
                     keys_to_remove = ['pnl', 'balance_final', 'fecha_str', 'imagenes', 'bias', 'Confluences', 'risk', 'RR', 'trade_type', 'razon_trade', 'Corrections', 'Emotions', 'hora', 'ticker', 'direccion', 'lotes', 'precio_entrada', 'precio_salida', 'comisiones', 'estado_cuenta', 'retiros_acumulados']
                     extra_data = {k:v for k,v in t.items() if k not in keys_to_remove}
                     
+                    # INYECTAMOS EL MODO BACKTESTING DESDE LA CUENTA
+                    extra_data["backtesting_mode"] = d_cuenta.get("backtesting_mode", False)
                     filas_a_insertar.append([
                         usuario, pwd, cuenta, t["fecha_str"], float(t["balance_final"]), float(t["pnl"]), 
                         imgs_texto, set_pc_str, set_mov_str, val_bias, val_confs, val_risk, val_rr, val_tt, val_reason, val_corr, val_emo, val_hora, val_ticker, val_dir, val_lotes, val_pe, val_ps, val_com, val_estado, float(val_retiros), json.dumps(extra_data)
