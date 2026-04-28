@@ -907,6 +907,22 @@ st.markdown(f"""
     div[data-testid="stTabs"] [data-baseweb="tab-highlight-point"] {{ display: none !important; }}
     div[data-baseweb="tab-list"] {{ justify-content: center !important; gap: 10px !important; border-bottom: none !important; }}
 
+/* 🔴 OPCIÓN NUCLEAR: ELIMINAR ESPACIO SUPERIOR EN CUALQUIER VERSIÓN DE STREAMLIT 🔴 */
+    header, [data-testid="stHeader"], .stApp > header {{ 
+        display: none !important; 
+        height: 0px !important; 
+        min-height: 0px !important; 
+    }}
+    
+    .block-container, 
+    [data-testid="stAppViewBlockContainer"], 
+    [data-testid="stMainBlockContainer"],
+    .main .block-container {{ 
+        padding-top: 0px !important; 
+        margin-top: 0px !important; 
+        max-width: 100% !important;
+    }}
+
     .stApp {{ background-color: {bg_color} !important; font-family: 'Inter', sans-serif !important; }}
     div[data-testid="column"] {{ overflow: visible !important; position: relative !important; }}
     
