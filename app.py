@@ -608,11 +608,18 @@ for dev in ["PC", "Móvil"]:
 user_settings = db_global[usuario]["settings"][st.session_state.dispositivo_actual]
 
 hoy = datetime.now().date()
-if "modo_backtesting" not in st.session_state: st.session_state.modo_backtesting = False
 if "fecha_backtesting" not in st.session_state: st.session_state.fecha_backtesting = hoy
 
-if "cal_month" not in st.session_state: st.session_state.cal_month = hoy.month
-if "cal_year" not in st.session_state: st.session_state.cal_year = hoy.year
+# Sincronización automática con el último trade registrado
+if "cal_month" not in st.session_state or "cal_year" not in st.session_state:
+    if db_usuario.get(ctx) and db_usuario[ctx]["trades"]:
+        # Obtenemos la fecha más reciente de los trades guardados
+        ultimo_registro = max(db_usuario[ctx]["trades"].keys()) # max() busca el año/mes/día más alto
+        st.session_state.cal_year = ultimo_registro[0]
+        st.session_state.cal_month = ultimo_registro[1]
+    else:
+        st.session_state.cal_month = hoy.month
+        st.session_state.cal_year = hoy.year
 
 def cambiar_mes(delta):
     st.session_state.cal_month += delta
@@ -672,7 +679,6 @@ def contenido_ajustes():
 
     st.markdown("---")
     st.markdown(f"### {_l['sidebar']['sec_backtest']}")
-    st.session_state.modo_backtesting = st.toggle(_l['sidebar']['bt_mode'], value=st.session_state.modo_backtesting)
 
     st.markdown("---")
     st.markdown(f"### {_l['sidebar']['manage_acc']}")
@@ -1381,11 +1387,8 @@ with st.form(key="form_main_entry", clear_on_submit=True, border=False):
         btn_save = st.form_submit_button(_l['dash']['save'], key="btn_save_main")
     with c2:
         st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True) 
-        if st.session_state.modo_backtesting:
-            if st.session_state.fecha_backtesting.month != st.session_state.cal_month or st.session_state.fecha_backtesting.year != st.session_state.cal_year: fecha_defecto = date(st.session_state.cal_year, st.session_state.cal_month, 1)
-            else: fecha_defecto = st.session_state.fecha_backtesting
-        else: fecha_defecto = hoy
-        fecha_sel = st.date_input("Fecha", value=fecha_defecto, label_visibility="collapsed", key="btn_fecha_directa")
+        # La fecha por defecto será el día de hoy, pero puedes elegir cualquiera
+        fecha_sel = st.date_input("Fecha", value=hoy, label_visibility="collapsed", key="btn_fecha_directa")
     with c_img:
         st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True) 
         imgs_subidas = st.file_uploader("", accept_multiple_files=True, label_visibility="collapsed")
