@@ -612,9 +612,10 @@ if "fecha_backtesting" not in st.session_state: st.session_state.fecha_backtesti
 
 # Sincronización automática con el último trade registrado
 if "cal_month" not in st.session_state or "cal_year" not in st.session_state:
-    if db_usuario.get(ctx) and db_usuario[ctx]["trades"]:
+    cuenta_activa = st.session_state.data_source_sel
+    if db_usuario.get(cuenta_activa) and db_usuario[cuenta_activa]["trades"]:
         # Obtenemos la fecha más reciente de los trades guardados
-        ultimo_registro = max(db_usuario[ctx]["trades"].keys()) # max() busca el año/mes/día más alto
+        ultimo_registro = max(db_usuario[cuenta_activa]["trades"].keys()) 
         st.session_state.cal_year = ultimo_registro[0]
         st.session_state.cal_month = ultimo_registro[1]
     else:
