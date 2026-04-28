@@ -1440,9 +1440,9 @@ div[data-testid="stFileUploader"] {
 /* Diseño interno del cajón de subida */
 div[data-testid="stFileUploader"] [data-testid="stFileUploadDropzone"] {
     padding: 8px !important;
-    min-height: 10px !important;    /* Altura exacta del botón */
-    background-color: #2D3748 !important;
-    border: 1px dashed #4A5568 !important;
+    min-height: 40px !important;    /* Altura exacta del botón */
+    background-color: transparent !important; /* <--- FONDO GRIS ELIMINADO */
+    border: 1px dashed #4A5568 !important; /* Si quieres quitarle el borde de rayitas, cambia esto a 'none !important;' */
     border-radius: 6px !important;
     display: flex !important;
     align-items: center !important;
