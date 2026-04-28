@@ -1346,7 +1346,7 @@ with st.form(key="form_main_entry", clear_on_submit=True, border=False):
         else:
             fecha_ultimo_trade_cta = hoy
 
-        if st.session_state.modo_backtesting:
+        if db_usuario[ctx].get("backtesting_mode", False):
             if st.session_state.fecha_backtesting.month != st.session_state.cal_month or st.session_state.fecha_backtesting.year != st.session_state.cal_year: 
                 fecha_defecto = date(st.session_state.cal_year, st.session_state.cal_month, 1)
             else: 
@@ -1454,7 +1454,7 @@ with st.form(key="form_main_entry", clear_on_submit=True, border=False):
             db_usuario[ctx]["trades"][clave_final].append(trade_nuevo)
             import time
             db_usuario[ctx]["balance"] = nuevo_bal_absoluto
-            if st.session_state.modo_backtesting:
+            if db_usuario[ctx].get("backtesting_mode", False):
                 st.session_state.fecha_backtesting = fecha_sel
                 st.session_state.cal_month = fecha_sel.month
                 st.session_state.cal_year = fecha_sel.year
