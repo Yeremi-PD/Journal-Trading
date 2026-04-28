@@ -1403,9 +1403,9 @@ div[data-testid="stForm"] [data-testid="stFormSubmitButton"] button {
    AJUSTES DEL CUADRO "DATE" (FECHA)
 ========================================== */
 div[data-testid="stForm"] div[data-testid="stDateInput"] {
-    width: 100% !important;         /* Qué tanto llena su espacio */
+    width: 90% !important;         /* Qué tanto llena su espacio */
     margin-top: 0px !important;     /* Mueve el cuadro hacia arriba o abajo */
-    margin-left: -15px !important;    /* Muévelo hacia los lados */
+    margin-left: -px !important;    /* Muévelo hacia los lados */
 }
 
 /* Para cambiar la altura específica del cuadro de la fecha */
