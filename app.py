@@ -944,12 +944,18 @@ st.markdown(f"""
     .balance-box {{ background: #00C897 !important; color: white !important; padding: var(--bal-box-pad) 0px !important; border-radius: 80px !important; text-align: center !important; font-weight: 700 !important; font-size: var(--bal-num-sz) !important; width: var(--bal-box-w) !important; margin: 0 auto !important; transform: translate({BALANCE_BOX_X}px, {BALANCE_BOX_Y}px) !important; }}
     .thin-line {{ border-bottom: {LINEA_GROSOR}px solid {c_linea} !important; margin: {LINEA_MARGEN_SUP}px 0px {LINEA_MARGEN_INF}px 0px !important; width: {LINEA_ANCHO}% !important; transform: translateX({LINEA_X}px) !important; }}
 
-    div[data-testid="stSelectbox"] label, div[data-testid="stNumberInput"] label {{ display: none !important; }}
-    div[data-baseweb="select"] > div, ul[role="listbox"] {{ background-color: {card_bg} !important; border-color: {border_color} !important; }}
-    div[data-testid="stSelectbox"] div[data-baseweb="select"] *, ul[role="listbox"] * {{ font-size: {OPT_FILTROS_SIZE}px !important; color: {c_opt_filtros} !important; }}
-    div[data-testid="stSelectbox"] input {{ color: transparent !important; }}
-    li[role="option"] {{ background-color: F3F4F6 !important; }}
-    li[role="option"]:hover {{ background-color: {border_color} !important; }}
+    div[data-testid="stSelectbox"] label, div[data-testid="stNumberInput"] label { display: none !important;
+    }
+    div[data-baseweb="select"] > div, ul[role="listbox"] { background-color: {card_bg} !important; border-color: {border_color} !important;
+    }
+    div[data-testid="stSelectbox"] div[data-baseweb="select"] *, ul[role="listbox"] * { font-size: {OPT_FILTROS_SIZE}px !important; color: {c_opt_filtros} !important;
+    }
+    div[data-testid="stSelectbox"] input { color: transparent !important; pointer-events: none !important; }
+    li[role="option"] { background-color: #F3F4F6 !important;
+    }
+    li[role="option"]:hover { background-color: {border_color} !important; }
+    div[data-testid="stExpanderDetails"] { overflow: visible !important; }
+    [data-baseweb="popover"] { z-index: 2147483647 !important; }
 
     div[data-testid="stNumberInput"] {{ margin-left: {INPUT_BAL_X}px !important; margin-top: {INPUT_BAL_Y}px !important; width: {INPUT_BAL_W} !important; min-width: {INPUT_BAL_W} !important; max-width: {INPUT_BAL_W} !important; }}
     div[data-testid="stNumberInput"] button {{ display: none !important; }} 
@@ -2224,14 +2230,12 @@ function bloquearTeclado() {
     const inputs = doc.querySelectorAll('div[data-testid="stSelectbox"] input, div[data-testid="stDateInput"] input');
     inputs.forEach(input => {
         input.setAttribute('inputmode', 'none'); 
-        // ELIMINADO: input.setAttribute('readonly', 'true'); porque esto bloqueaba el despliegue del menú
+        input.setAttribute('readonly', 'true'); 
         input.style.webkitTapHighlightColor = 'transparent';
         input.style.outline = 'none';
         input.style.cursor = 'pointer'; 
         input.style.caretColor = 'transparent'; 
-        if (input.hasAttribute('readonly')) {
-            input.removeAttribute('readonly');
-        }
+        input.style.pointerEvents = 'none'; 
     });
     
     // Forzamos el cursor de la manita en la caja principal
