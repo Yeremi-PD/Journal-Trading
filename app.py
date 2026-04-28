@@ -1515,7 +1515,7 @@ with col_cal:
         div[data-testid="column"]:nth-child(3) button {{
             height: 46px !important;
             min-height: 46px !important;
-            margin-top: 4px !important;
+            margin-top: 94px !important;
             border-radius: 8px !important;
             display: flex !important;
             align-items: center !important;
@@ -1533,7 +1533,7 @@ with col_cal:
             width: 100% !important;
             height: 46px !important;
             min-height: 46px !important;
-            margin-top: 4px !important;
+            margin-top: 49px !important;
             padding: 0 !important;
             border-radius: 8px !important;
             background-color: {btn_bg} !important;
