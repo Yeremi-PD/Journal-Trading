@@ -700,12 +700,20 @@ def contenido_ajustes():
     st.markdown("---")
     st.markdown(f"### {_l['sidebar']['sec_backtest']}")
     
+    # Buscamos la cuenta activa de forma segura antes de pedir datos
+    cuenta_bt_segura = st.session_state.get("data_source_sel", "Account Real")
+    if cuenta_bt_segura not in db_usuario and db_usuario:
+        cuenta_bt_segura = list(db_usuario.keys())[0]
+        
     # Toggle vinculado a la cuenta actual
-    modo_bt_actual = db_usuario[ctx_actual].get("backtesting_mode", False)
+    modo_bt_actual = False
+    if cuenta_bt_segura in db_usuario:
+        modo_bt_actual = db_usuario[cuenta_bt_segura].get("backtesting_mode", False)
+        
     nuevo_bt = st.toggle(_l['sidebar']['bt_mode'], value=modo_bt_actual)
     
-    if nuevo_bt != modo_bt_actual:
-        db_usuario[ctx_actual]["backtesting_mode"] = nuevo_bt
+    if nuevo_bt != modo_bt_actual and cuenta_bt_segura in db_usuario:
+        db_usuario[cuenta_bt_segura]["backtesting_mode"] = nuevo_bt
         reescribir_excel_usuario(usuario)
         st.rerun()
 
