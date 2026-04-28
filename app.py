@@ -1368,9 +1368,9 @@ div[data-testid="stForm"] div[data-baseweb="base-input"] {
 
 div[data-testid="stForm"] input {
     color: white !important;
-    font-size: 141px !important;
+    font-size: 14px !important;
     padding: 0 10px !important;
-    height: 40px !important;
+    height: 410px !important;
     line-height: 40px !important;
 }
 
