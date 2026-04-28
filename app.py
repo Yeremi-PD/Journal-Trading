@@ -1338,25 +1338,25 @@ with col_set:
     <label for="toggle-settings" class="btn-fake-gear">⚙️</label>
     """, unsafe_allow_html=True)
 
-    # Contenedor aislado para inyectarle la clase del Cuadro/Modal
-    with st.container():
-        st.markdown('<div id="ancla-modal-ajustes"><label for="toggle-settings" class="btn-close-settings">✖ CERRAR</label></div>', unsafe_allow_html=True)
-        contenido_ajustes()
-        
-        # Script francotirador: Busca este bloque exacto y lo vuelve flotante sin recargar nada
-        components.html("""
-        <script>
-            const doc = window.parent.document;
-            const ancla = doc.getElementById('ancla-modal-ajustes');
-            if (ancla) {
-                const modalContainer = ancla.closest('div[data-testid="stVerticalBlock"]');
-                if (modalContainer) {
-                    modalContainer.classList.add('fixed-modal-ajustes');
-                }
+    # === LO SACAMOS DE LA COLUMNA PARA QUE USE LA PANTALLA COMPLETA ===
+with st.container():
+    st.markdown('<div id="ancla-modal-ajustes"><label for="toggle-settings" class="btn-close-settings">✖ CERRAR</label></div>', unsafe_allow_html=True)
+    contenido_ajustes()
+    
+    # Script francotirador: Busca este bloque exacto y lo vuelve flotante sin recargar nada
+    components.html("""
+    <script>
+        const doc = window.parent.document;
+        const ancla = doc.getElementById('ancla-modal-ajustes');
+        if (ancla) {
+            const modalContainer = ancla.closest('div[data-testid="stVerticalBlock"]');
+            if (modalContainer) {
+                modalContainer.classList.add('fixed-modal-ajustes');
             }
-        </script>
-        """, height=0, width=0)
-    # ==============================================================
+        }
+    </script>
+    """, height=0, width=0)
+# ==============================================================
 
 with col_t:
     if paso_cuenta: badge_html = f'<span style="font-size: 20px; background-color: #00C897; color: white; padding: 4px 12px; border-radius: 8px; margin-left: 15px; font-weight: 800; letter-spacing: 0px;">{_l["dash"]["pa"]}</span>'
