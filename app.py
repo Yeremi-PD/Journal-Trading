@@ -1503,37 +1503,44 @@ with col_cal:
 # === MODAL INSTANTÁNEO DEL SELECTOR DE FECHAS ===
     c_izq, c_cen, c_der, c_jump, c_stats = st.columns([0.6, 2, 0.6, 0.6, 3.2])
     with c_izq: st.button("◀", on_click=cambiar_mes, args=(-1,), use_container_width=True)
-    with c_cen: st.markdown(f'<div style="text-align:center; font-weight:600; font-size:var(--cal-mes-size); color:{c_mes}; margin-top:4px;">{nombre_mes} {anio_sel}</div>', unsafe_allow_html=True)
+    with c_cen: st.markdown(f'<div style="text-align:center; font-weight:600; font-size:var(--cal-mes-size); color:{c_mes}; margin-top:2px;">{nombre_mes} {anio_sel}</div>', unsafe_allow_html=True)
     with c_der: st.button("▶", on_click=cambiar_mes, args=(1,), use_container_width=True)
     
     with c_jump:
-        # Forzamos altura y alineación exacta para que las flechas y el calendario sean perfectamente simétricos
         st.markdown(f"""
         <style>
-        /* Igualar altura y alineación de las flechas izquierda (1) y derecha (3) */
+        /* 1. Controlar la altura exacta de las flechas (Columnas 1 y 3) */
         div[data-testid="column"]:nth-child(1) button,
         div[data-testid="column"]:nth-child(3) button {{
-            height: 46px !important;
-            min-height: 46px !important;
-            margin-top: 94px !important;
+            height: 42px !important;
+            min-height: 42px !important;
+            margin-top: 0px !important;
+            padding: 0 !important;
             border-radius: 8px !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
         }}
         
+        /* 2. LIBERAR el contenedor del popover de las ataduras globales */
         div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"],
-        div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] > div:first-child {{
+        div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] > div {{
             width: 100% !important;
-            min-width: 0 !important;
-            height: auto !important;
+            height: 42px !important;
+            min-height: 42px !important;
+            position: relative !important;
+            display: block !important;
+            margin: 0 !important;
+            padding: 0 !important;
         }}
-        /* Igualar altura y alineación del botón del calendario (4) */
-        div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] > button {{
+
+        /* 3. ROMPER LA ATADURA: Quitamos el 'position: absolute' global y lo igualamos a las flechas */
+        div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] button,
+        div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] > div > button {{
+            position: relative !important; /* <--- ESTO ES LO QUE LO LIBERA */
+            top: auto !important;
+            left: auto !important;
             width: 100% !important;
-            height: 46px !important;
-            min-height: 46px !important;
-            margin-top: 49px !important;
+            height: 42px !important;
+            min-height: 42px !important;
+            margin-top: 0px !important;
             padding: 0 !important;
             border-radius: 8px !important;
             background-color: {btn_bg} !important;
@@ -1541,17 +1548,19 @@ with col_cal:
             display: flex !important;
             align-items: center !important;
             justify-content: center !important;
-            position: relative !important;
-            top: 0 !important;
+            z-index: 10 !important;
         }}
-        /* Aumentar un poco el emoji para equilibrar con las flechas */
-        div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] > button p {{
-            font-size: 24px !important;
+
+        div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] button p,
+        div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] > div > button p {{
+            font-size: 22px !important;
             margin: 0 !important;
             line-height: 1 !important;
             color: {btn_txt} !important;
         }}
-        div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] > button:hover {{
+
+        div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] button:hover,
+        div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] > div > button:hover {{
             border-color: #00C897 !important;
         }}
         </style>
