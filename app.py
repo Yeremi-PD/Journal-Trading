@@ -1377,10 +1377,26 @@ div[data-testid="stForm"] input {
     line-height: 40px !important;
 }
 
-/* Reparación para que la fecha se vea blanca y sin el emoji viejo encima */
+/* 🟢 1. CANTIDAD MÁS GRANDE, BLANCA Y CENTRADA (Apunta a la 2da columna) */
+div[data-testid="stForm"] div[data-testid="column"]:nth-child(2) input {
+    font-size: 24px !important;
+    font-weight: 900 !important;
+    color: #FFFFFF !important;
+    -webkit-text-fill-color: #FFFFFF !important;
+    text-align: center !important;
+}
+
+/* 🟢 2. FECHA EXACTAMENTE CENTRADA */
 div[data-testid="stForm"] div[data-testid="stDateInput"] input {
     color: white !important;
     -webkit-text-fill-color: white !important;
+    text-align: center !important;
+    cursor: pointer !important;
+}
+
+/* 🟢 3. OCULTAR EL BOTÓN UPLOAD DEFINITIVAMENTE */
+div[data-testid="stFileUploader"] {
+    display: none !important;
 }
 div[data-testid="stForm"] div[data-testid="stDateInput"]::after {
     display: none !important; 
@@ -1570,9 +1586,7 @@ with col_form_area:
         with c_link:
             st.markdown('<div class="lbl-header">🔗 Image Link:</div>', unsafe_allow_html=True)
             link_imagen = st.text_input("Link", value="", label_visibility="collapsed", placeholder="🔗 Pega el Enlace de la Imagen")
-            
-            # El uploader real (Ahora visible, funcional y editable desde tu CSS)
-            imgs_subidas = st.file_uploader("Upload Dropzone", accept_multiple_files=True, label_visibility="collapsed")
+            # Botón upload eliminado a petición, solo usamos el Link de arriba.
             
         with c_btn:
             btn_save = st.form_submit_button("GUARDAR", key="btn_save_main")
@@ -1596,18 +1610,8 @@ with col_form_area:
             if link_imagen.strip().startswith("http"): 
                 imgs_finales.append(link_imagen.strip())
             
-            # PROCESAMIENTO DEL BOTÓN UPLOAD
+            # Botón upload eliminado, mantenemos la lista de Base64 vacía por si hay imágenes viejas en el historial
             imagenes_base64_extra = []
-            if imgs_subidas:
-                for img_file in imgs_subidas:
-                    try:
-                        bytes_data = img_file.getvalue()
-                        b64_encoded = base64.b64encode(bytes_data).decode()
-                        str_b64 = f"data:image/png;base64,{b64_encoded}"
-                        imgs_finales.append(str_b64)
-                        imagenes_base64_extra.append(str_b64)
-                    except Exception as e: 
-                        print("Error convirtiendo imagen:", e)
 
             estado_actual = "PA" if st.session_state.get("toggle_funded_state", False) else "Eval"
             if "payouts" in db_global[usuario]["settings"]["PC"]:
