@@ -1423,7 +1423,7 @@ div[data-testid="stForm"] div[data-testid="stPopover"] > button p {
 ========================================== */
 div[data-testid="stForm"] div[data-testid="stTextInput"]:has(input[aria-label="Link"]) {
     width: 100% !important;         /* Cambia a 80%, 200px, etc. */
-    margin-top: 25px !important;     /* Mueve el input hacia arriba o abajo */
+    margin-top: 35px !important;     /* Mueve el input hacia arriba o abajo */
     margin-left: 0px !important;    /* Mueve el input hacia los lados */
 }
 
@@ -1433,14 +1433,14 @@ div[data-testid="stForm"] div[data-testid="stTextInput"]:has(input[aria-label="L
 div[data-testid="stFileUploader"] {
     display: block !important;      /* Revive el botón */
     width: 100% !important;         /* Ajusta el ancho total del botón */
-    margin-top: -10px !important;    /* Separación desde el cuadro del Link */
+    margin-top: -30px !important;    /* Separación desde el cuadro del Link */
     margin-left: 0px !important;    /* Posición lateral */
 }
 
 /* Diseño interno del cajón de subida */
 div[data-testid="stFileUploader"] [data-testid="stFileUploadDropzone"] {
     padding: 8px !important;
-    min-height: 40px !important;    /* Altura exacta del botón */
+    min-height: 30px !important;    /* Altura exacta del botón */
     background-color: #2D3748 !important;
     border: 1px dashed #4A5568 !important;
     border-radius: 6px !important;
