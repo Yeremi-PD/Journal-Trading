@@ -873,6 +873,11 @@ st.markdown(f"""
     [data-testid="collapsedControl"] {{ display: none !important; }}
     }}
 
+/* 🔴 ELIMINAR ESPACIO EN BLANCO SUPERIOR 🔴 */
+    [data-testid="stHeader"] {{ display: none !important; height: 0px !important; min-height: 0px !important; }}
+    [data-testid="stAppViewBlockContainer"] {{ padding-top: 30px !important; padding-bottom: 10px !important; }}
+    [data-testid="block-container"] {{ padding-top: 30px !important; }}
+
     .stApp {{ background-color: {bg_color} !important; font-family: 'Inter', sans-serif !important; }}
     div[data-testid="column"] {{ overflow: visible !important; position: relative !important; }}
     
