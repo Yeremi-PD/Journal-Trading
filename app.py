@@ -608,7 +608,10 @@ for dev in ["PC", "Móvil"]:
 user_settings = db_global[usuario]["settings"][st.session_state.dispositivo_actual]
 
 hoy = datetime.now().date()
-if "modo_backtesting" not in st.session_state: st.session_state.modo_backtesting = False
+# El modo backtesting ahora vive dentro de la data de cada cuenta para ser permanente
+if "backtesting_mode" not in db_usuario[st.session_state.data_source_sel]:
+    db_usuario[st.session_state.data_source_sel]["backtesting_mode"] = False
+
 if "fecha_backtesting" not in st.session_state: st.session_state.fecha_backtesting = hoy
 
 # --- LÓGICA DE AUTO-TRANSPORTE AL ÚLTIMO MES TRADEADO ---
@@ -696,7 +699,15 @@ def contenido_ajustes():
 
     st.markdown("---")
     st.markdown(f"### {_l['sidebar']['sec_backtest']}")
-    st.session_state.modo_backtesting = st.toggle(_l['sidebar']['bt_mode'], value=st.session_state.modo_backtesting)
+    
+    # Toggle vinculado a la cuenta actual
+    modo_bt_actual = db_usuario[ctx_actual].get("backtesting_mode", False)
+    nuevo_bt = st.toggle(_l['sidebar']['bt_mode'], value=modo_bt_actual)
+    
+    if nuevo_bt != modo_bt_actual:
+        db_usuario[ctx_actual]["backtesting_mode"] = nuevo_bt
+        reescribir_excel_usuario(usuario)
+        st.rerun()
 
     st.markdown("---")
     st.markdown(f"### {_l['sidebar']['manage_acc']}")
@@ -1225,9 +1236,11 @@ for idx, tr in enumerate(_tc):
 
 for idx, tr in enumerate(_tc): tr["is_pre_funded"] = (idx <= idx_pase)
 
-if paso_cuenta:
+# Solo activamos celebraciones y estatus PA si NO estamos en modo Backtesting
+if paso_cuenta and not db_usuario[ctx].get("backtesting_mode", False):
     if "toggle_funded_state" not in st.session_state: st.session_state.toggle_funded_state = True
     clave_celeb_db = "pa_celeb_FINAL_1_" + str(ctx)
+    
     if not db_global[usuario]["settings"]["PC"].get(clave_celeb_db, False):
         db_global[usuario]["settings"]["PC"][clave_celeb_db] = True
         db_global[usuario]["settings"]["Móvil"][clave_celeb_db] = True
@@ -1669,8 +1682,10 @@ with col_det:
     titulo_target_dinamico = _l['cal']['target']
     c_hex_tg = "#FFFFFF" 
 
-    if distancia_dd <= 0:
-        texto_lose = _l['cal']['lost']; texto_dd = _l['cal']['lost']; texto_tg = _l['cal']['lost']
+    # Solo mostramos alertas de cuenta perdida si NO estamos en modo Backtesting
+    if distancia_dd <= 0 and not db_usuario[ctx].get("backtesting_mode", False):
+        texto_lose = _l['cal']['lost']; texto_dd = _l['cal']['lost'];
+        texto_tg = _l['cal']['lost']
         c_hex_tg = "#FF4C4C"
         clave_perdida_db = "cuenta_quemada_v1_" + str(ctx)
         if not db_global[usuario]["settings"]["PC"].get(clave_perdida_db, False):
