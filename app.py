@@ -1332,154 +1332,27 @@ with col_bal:
 
 st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
 
-with st.form(key="form_main_entry", clear_on_submit=True, border=False):
-    c1, c2, c_img, c_not, c_espacio = st.columns([1.5, 0.5, 2.5, 0.6, 3.4]) 
-    with c1:
-        st.markdown(f'<div class="lbl-input">{LBL_INPUT}</div>', unsafe_allow_html=True)
-        st.markdown(f"""<style>div[data-testid="stTextInput"]:has(input[aria-label="Balance Input"]) {{ margin-left: {INPUT_BAL_X}px !important; margin-top: {INPUT_BAL_Y}px !important; width: {INPUT_BAL_W} !important; min-width: {INPUT_BAL_W} !important; max-width: {INPUT_BAL_W} !important; }} div[data-testid="stTextInput"]:has(input[aria-label="Balance Input"]) > div:last-child, div[data-testid="stTextInput"]:has(input[aria-label="Balance Input"]) div[data-baseweb="base-input"], div[data-testid="stTextInput"]:has(input[aria-label="Balance Input"]) div[data-baseweb="input"] {{ height: {INPUT_BAL_H} !important; min-height: {INPUT_BAL_H} !important; background-color: {input_bg} !important; border-color: {border_color} !important; }} div[data-testid="stTextInput"]:has(input[aria-label="Balance Input"]) input {{ color: {c_lbl_in} !important; font-size: {INPUT_BAL_TXT_SIZE}px !important; background-color: {input_bg} !important; font-weight: bold !important; height: {INPUT_BAL_H} !important; box-sizing: border-box !important; padding-top: 15px !important; padding-bottom: 15px !important; display: flex !important; align-items: center !important; line-height: normal !important; }} div[data-testid="InputInstructions"] {{ display: none !important; }}</style>""", unsafe_allow_html=True)
-        nuevo_bal_input_str = st.text_input("Balance Input", value="", placeholder=f"{bal_mostrar:.2f}", label_visibility="collapsed")
-        btn_save = st.form_submit_button(_l['dash']['save'], key="btn_save_main")
-    with c2:
-        st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True) 
-        # Buscamos la fecha del último trade de esta cuenta para el selector
-        trades_de_esta_cta = db_usuario[ctx].get("trades", {})
-        if trades_de_esta_cta:
-            ult_f = max(trades_de_esta_cta.keys())
-            fecha_ultimo_trade_cta = date(ult_f[0], ult_f[1], ult_f[2])
-        else:
-            fecha_ultimo_trade_cta = hoy
+# =====================================================================
+# INICIO DE LA NUEVA INTERFAZ SUPERIOR ESTILO "CONTROL AND DATA ENTRY"
+# =====================================================================
 
-        if db_usuario[ctx].get("backtesting_mode", False):
-            if st.session_state.fecha_backtesting.month != st.session_state.cal_month or st.session_state.fecha_backtesting.year != st.session_state.cal_year: 
-                fecha_defecto = date(st.session_state.cal_year, st.session_state.cal_month, 1)
-            else: 
-                fecha_defecto = st.session_state.fecha_backtesting
-        else: 
-            fecha_defecto = fecha_ultimo_trade_cta
-            
-        fecha_sel = st.date_input("Fecha", value=fecha_defecto, label_visibility="collapsed", key="btn_fecha_directa")
-    with c_img:
-        st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True) 
-        imgs_subidas = st.file_uploader("", accept_multiple_files=True, label_visibility="collapsed")
-        st.markdown(f'<div class="lbl-link">{LBL_LINK}</div>', unsafe_allow_html=True)
-        link_imagen = st.text_input("Link", value="", label_visibility="collapsed", placeholder=_l['dash']['paste_link'])
-    with c_not:
-        st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True) 
-        with st.popover("📝", use_container_width=True):
-            st.markdown(f"<div class='titulo-trade-details'>{_l['dash']['trade_det']}</div>", unsafe_allow_html=True)
-            st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 5px; margin-bottom: 0px;'>{_l['dash']['bias']}</div>", unsafe_allow_html=True)
-            bias_opts = ['LONG', 'SHORT', 'NONE']
-            nuevo_bias_list = []
-            cols_bias = st.columns([1, 1, 1, 3])
-            for idx, op in enumerate(bias_opts):
-                if cols_bias[idx].checkbox(op, key=f"new_bias_{idx}"): nuevo_bias_list.append(op)
-            nuevo_bias = ", ".join(nuevo_bias_list) if nuevo_bias_list else "NONE"
-            st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 15px; margin-bottom: 0px;'>{_l['dash']['conf']}</div>", unsafe_allow_html=True)
-            all_confs_list = ['BIAS WELL', 'LIQ SWEEP', 'IFVG', 'FVG', 'EQH / EQL', 'BSL / SSL', 'POI', 'SMT', 'Order Block', 'Continuation', 'Data High / Data Low', 'CISD']
-            nuevo_conf = []
-            cols_conf = st.columns(3)
-            for idx, c_name in enumerate(all_confs_list):
-                if cols_conf[idx % 3].checkbox(c_name, key=f"new_conf_{idx}"): nuevo_conf.append(c_name)
-            st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
-            nuevo_razon = st.text_area(_l['dash']['reason'], value='', height=45)
-            st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 5px; margin-bottom: 0px;'>{_l['dash']['risk']}</div>", unsafe_allow_html=True)
-            risk_opts = ['1%', '0.9%', '0.8%', '0.7%', '0.6%', '0.5%', '0.4%']
-            nuevo_risk_list = []
-            cols_risk = st.columns([1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 0.2])
-            for idx, op in enumerate(risk_opts):
-                if cols_risk[idx].checkbox(op, key=f"new_risk_{idx}"): nuevo_risk_list.append(op)
-            nuevo_risk = ", ".join(nuevo_risk_list) if nuevo_risk_list else ""
-            st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 5px; margin-bottom: 0px;'>{_l['dash']['rr']}</div>", unsafe_allow_html=True)
-            rr_opts = ['1:1', '1:1.5', '1:2', '1:3', '1:4']
-            nuevo_rr_list = []
-            cols_rr = st.columns([1.5, 1.5, 1.5, 1.5, 1.5, 1.5]) 
-            for idx, op in enumerate(rr_opts):
-                if cols_rr[idx].checkbox(op, key=f"new_rr_{idx}"): nuevo_rr_list.append(op)
-            nuevo_rr = ", ".join(nuevo_rr_list) if nuevo_rr_list else ""
-            st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 5px; margin-bottom: 0px;'>{_l['dash']['tt']}</div>", unsafe_allow_html=True)
-            tt_opts = ['A+', 'A', 'B', 'C']
-            nuevo_tt_list = []
-            cols_tt = st.columns([1, 1, 1, 1, 4])
-            for idx, op in enumerate(tt_opts):
-                if cols_tt[idx].checkbox(op, key=f"new_tt_{idx}"): nuevo_tt_list.append(op)
-            nuevo_tt = ", ".join(nuevo_tt_list) if nuevo_tt_list else ""
-            st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
-            nuevo_emo = st.text_area(_l['dash']['emo'], value='', height=45)
-            nuevo_corr = st.text_area(_l['dash']['corr'], value='', height=45)
+# 1. Preparación de variables de tiempo y lógica
+anio_sel = st.session_state.cal_year
+mes_sel = st.session_state.cal_month
 
-    if btn_save:
-        entrada_limpia = str(nuevo_bal_input_str).strip()
-        if entrada_limpia == "":
-            st.error(_l['dash']['err_empty'])
-        else:
-            viejo_real = db_usuario[ctx]["balance"]
-            try:
-                if entrada_limpia.startswith('+') or entrada_limpia.startswith('-'): pnl = float(entrada_limpia)
-                else:
-                    valor_float = float(entrada_limpia.replace(',', ''))
-                    if abs(valor_float) < 20000: pnl = valor_float
-                    else: pnl = valor_float - bal_mostrar if valor_float != bal_mostrar else 0.0
-            except ValueError: pnl = 0.0
-            nuevo_bal_absoluto = viejo_real + pnl
-            clave_final = (fecha_sel.year, fecha_sel.month, fecha_sel.day)
-            imgs_finales = []
-            if link_imagen.strip().startswith("http"): imgs_finales.append(link_imagen.strip())
-            estado_actual = "PA" if st.session_state.get("toggle_funded_state", False) else "Eval"
-            if "payouts" in db_global[usuario]["settings"]["PC"]:
-                retiros_ac = sum(db_global[usuario]["settings"]["PC"]["payouts"].get(ctx, []))
-            else:
-                retiros_ac = 0.0
-
-            trade_nuevo = {
-                "pnl": pnl, 
-                "balance_final": nuevo_bal_absoluto, 
-                "fecha_str": fecha_sel.strftime("%d/%m/%Y"), 
-                "imagenes": imgs_finales, 
-                "bias": nuevo_bias, 
-                "Confluences": nuevo_conf, 
-                "razon_trade": nuevo_razon, 
-                "Corrections": nuevo_corr, 
-                "risk": nuevo_risk, 
-                "RR": nuevo_rr, 
-                "trade_type": nuevo_tt, 
-                "Emotions": nuevo_emo,
-                "hora": "",              
-                "ticker": "",            
-                "direccion": "",         
-                "lotes": "",             
-                "precio_entrada": "",    
-                "precio_salida": "",     
-                "comisiones": "",        
-                "estado_cuenta": estado_actual,
-                "retiros_acumulados": retiros_ac
-            }
-            if clave_final not in db_usuario[ctx]["trades"]: db_usuario[ctx]["trades"][clave_final] = []
-            db_usuario[ctx]["trades"][clave_final].append(trade_nuevo)
-            import time
-            db_usuario[ctx]["balance"] = nuevo_bal_absoluto
-            if db_usuario[ctx].get("backtesting_mode", False):
-                st.session_state.fecha_backtesting = fecha_sel
-                st.session_state.cal_month = fecha_sel.month
-                st.session_state.cal_year = fecha_sel.year
-                st.session_state.forzar_sync_mes = True 
-            registrar_en_excel(usuario, db_global[usuario]["password"], ctx, fecha_sel, nuevo_bal_absoluto, pnl, trade_nuevo, db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
-            st.success(_l['dash']['trade_saved'])
-            time.sleep(1)
-            st.rerun()
+if st.session_state.idioma == "ES":
+    meses_lista_nombres = ["", "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
+    nombre_mes = meses_lista_nombres[mes_sel]
+    lbl_mes, lbl_anio, lbl_btn = "Mes", "Año", "Ir a fecha"
+else:
+    meses_lista_nombres = [""] + list(calendar.month_name)[1:]
+    nombre_mes = meses_lista_nombres[mes_sel]
+    lbl_mes, lbl_anio, lbl_btn = "Month", "Year", "Go to date"
 
 if paso_cuenta and "toggle_funded_state" not in st.session_state: st.session_state.toggle_funded_state = True
 modo_funded_activo = st.session_state.get("toggle_funded_state", False) and paso_cuenta
 
-col_cal, col_det = st.columns([2, 1]) 
-if st.session_state.get("modo_backtesting", False) and st.session_state.get("forzar_sync_mes", False):
-    st.session_state.cal_month = st.session_state.fecha_backtesting.month
-    st.session_state.cal_year = st.session_state.fecha_backtesting.year
-    st.session_state.forzar_sync_mes = False
-
-anio_sel = st.session_state.cal_year
-mes_sel = st.session_state.cal_month
-nombre_mes = calendar.month_name[mes_sel]
-
+# 2. Cálculos de P&L y Win Rate para la parte superior
 trades_mes_top = []
 for k, lista_t in db_usuario[ctx]["trades"].items():
     if k[0] == anio_sel and k[1] == mes_sel:
@@ -1487,109 +1360,305 @@ for k, lista_t in db_usuario[ctx]["trades"].items():
             if modo_funded_activo and t.get("is_pre_funded", False): continue
             trades_mes_top.append(t["pnl"])
 
-with col_cal:
-    total_trades_top = len(trades_mes_top)
-    net_pnl_top = sum(trades_mes_top) if total_trades_top > 0 else 0.0
-    wins_top = len([t for t in trades_mes_top if t >= 30])
-    losses_top = len([t for t in trades_mes_top if t <= -30])
-    total_validos_top = wins_top + losses_top
-    win_pct_top = (wins_top / total_validos_top * 100) if total_validos_top > 0 else 0.0
-    color_pnl_top = "#00C897" if net_pnl_top >= 0 else "#FF4C4C"
-    bg_pnl_top = "#e6f9f4" if net_pnl_top >= 0 else "#ffeded"
-    simb_pnl_top = "+" if net_pnl_top > 0 else ""
-    color_win_top = "#00C897" if win_pct_top >= 50 else "#FF4C4C"
-    bg_win_top = "#e6f9f4" if win_pct_top >= 50 else "#ffeded"
+total_trades_top = len(trades_mes_top)
+net_pnl_top = sum(trades_mes_top) if total_trades_top > 0 else 0.0
+wins_top = len([t for t in trades_mes_top if t >= 30])
+losses_top = len([t for t in trades_mes_top if t <= -30])
+total_validos_top = wins_top + losses_top
+win_pct_top = (wins_top / total_validos_top * 100) if total_validos_top > 0 else 0.0
+color_pnl_top = "#00C897" if net_pnl_top >= 0 else "#FF4C4C"
+simb_pnl_top = "+" if net_pnl_top > 0 else ""
+color_win_top = "#00C897" if win_pct_top >= 50 else "#FF4C4C"
 
-# === MODAL INSTANTÁNEO DEL SELECTOR DE FECHAS ===
-    c_izq, c_cen, c_der, c_jump, c_stats = st.columns([0.6, 2, 0.6, 0.6, 3.2])
-    with c_izq: st.button("◀", on_click=cambiar_mes, args=(-1,), use_container_width=True)
-    with c_cen: st.markdown(f'<div style="text-align:center; font-weight:600; font-size:var(--cal-mes-size); color:{c_mes}; margin-top:2px;">{nombre_mes} {anio_sel}</div>', unsafe_allow_html=True)
-    with c_der: st.button("▶", on_click=cambiar_mes, args=(1,), use_container_width=True)
-    
-    with c_jump:
-        st.markdown(f"""
-        <style>
-        /* 1. Controlar la altura exacta de las flechas (Columnas 1 y 3) */
-        div[data-testid="column"]:nth-child(1) button,
-        div[data-testid="column"]:nth-child(3) button {{
-            height: 42px !important;
-            min-height: 42px !important;
-            margin-top: 0px !important;
-            padding: 0 !important;
-            border-radius: 8px !important;
-        }}
-        
-        /* 2. LIBERAR el contenedor del popover de las ataduras globales */
-        div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"],
-        div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] > div {{
-            width: 100% !important;
-            height: 42px !important;
-            min-height: 42px !important;
-            position: relative !important;
-            display: block !important;
-            margin: 0 !important;
-            padding: 0 !important;
-        }}
+# Preparar fecha por defecto del formulario
+trades_de_esta_cta = db_usuario[ctx].get("trades", {})
+if trades_de_esta_cta:
+    ult_f = max(trades_de_esta_cta.keys())
+    fecha_ultimo_trade_cta = date(ult_f[0], ult_f[1], ult_f[2])
+else:
+    fecha_ultimo_trade_cta = hoy
 
-        /* 3. ROMPER LA ATADURA: Quitamos el 'position: absolute' global y lo igualamos a las flechas */
-        div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] button,
-        div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] > div > button {{
-            position: relative !important; /* <--- ESTO ES LO QUE LO LIBERA */
-            top: auto !important;
-            left: auto !important;
-            width: 100% !important;
-            height: 42px !important;
-            min-height: 42px !important;
-            margin-top: 0px !important;
-            padding: 0 !important;
-            border-radius: 8px !important;
-            background-color: {btn_bg} !important;
-            border: 1px solid {border_color} !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            z-index: 10 !important;
-        }}
+if db_usuario[ctx].get("backtesting_mode", False):
+    if st.session_state.fecha_backtesting.month != st.session_state.cal_month or st.session_state.fecha_backtesting.year != st.session_state.cal_year: 
+        fecha_defecto = date(st.session_state.cal_year, st.session_state.cal_month, 1)
+    else: 
+        fecha_defecto = st.session_state.fecha_backtesting
+else: 
+    fecha_defecto = fecha_ultimo_trade_cta
 
-        div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] button p,
-        div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] > div > button p {{
-            font-size: 22px !important;
-            margin: 0 !important;
-            line-height: 1 !important;
-            color: {btn_txt} !important;
-        }}
+# 3. CSS para el nuevo diseño idéntico a la imagen
+st.markdown("""
+<style>
+.panel-premium {
+    background-color: #212530;
+    border: 1px solid #2D3342;
+    border-radius: 12px;
+    padding: 15px 20px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+    margin-bottom: 12px;
+}
+.panel-title {
+    color: white;
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 15px;
+    font-family: 'Inter', sans-serif;
+}
+.month-text-premium {
+    color: white;
+    font-size: 22px;
+    font-weight: 700;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    margin-top: 4px;
+}
+.summary-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+.summary-label {
+    color: #A0AEC0;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+.summary-value {
+    font-size: 20px;
+    font-weight: 800;
+}
+.field-label-premium {
+    color: white;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    display: block;
+}
 
-        div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] button:hover,
-        div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] > div > button:hover {{
-            border-color: #00C897 !important;
-        }}
-        </style>
-        """, unsafe_allow_html=True)
+/* Ajustes de botones y formularios */
+div[data-testid="column"] button:has(div:contains("◀")),
+div[data-testid="column"] button:has(div:contains("▶")) {
+    background-color: #2D3342 !important;
+    border: 1px solid #3B4253 !important;
+    color: white !important;
+    border-radius: 8px !important;
+    height: 40px !important;
+    min-height: 40px !important;
+}
+div[data-testid="column"] button:has(div:contains("◀")):hover,
+div[data-testid="column"] button:has(div:contains("▶")):hover {
+    border-color: #00C897 !important;
+}
+[data-testid="stFormSubmitButton"] button {
+    background-color: #00C897 !important;
+    color: white !important;
+    border-radius: 8px !important;
+    border: none !important;
+    font-weight: bold !important;
+    height: 40px !important;
+    min-height: 40px !important;
+}
+[data-testid="stFormSubmitButton"] button:hover {
+    background-color: #00A67D !important;
+}
+/* Entradas de texto oscuras */
+div[data-testid="stTextInput"] input, div[data-testid="stDateInput"] input {
+    background-color: #1A1D24 !important;
+    border: 1px solid #2D3342 !important;
+    color: white !important;
+    border-radius: 8px !important;
+}
+</style>
+""", unsafe_allow_html=True)
 
+# 4. RENDERIZADO DE LA PARTE SUPERIOR (Fila 1: Control y Summary)
+col_ctrl, col_sum = st.columns([1.5, 1])
+with col_ctrl:
+    st.markdown('<div class="panel-premium" style="height: 120px;">', unsafe_allow_html=True)
+    st.markdown('<div class="panel-title">Mensual Control and Data Entry</div>', unsafe_allow_html=True)
+    c_i1, c_i2, c_i3 = st.columns([0.15, 0.7, 0.15])
+    with c_i1: st.button("◀", on_click=cambiar_mes, args=(-1,), use_container_width=True, key="btn_prev_premium")
+    with c_i2: st.markdown(f'<div class="month-text-premium">{nombre_mes} {anio_sel}</div>', unsafe_allow_html=True)
+    with c_i3: 
+        st.markdown("""<style>div[data-testid="column"]:nth-child(3) div[data-testid="stPopover"], div[data-testid="column"]:nth-child(3) div[data-testid="stPopover"] > div { position: relative !important; display: block !important; width: 100% !important; margin: 0 !important; padding: 0 !important; } div[data-testid="column"]:nth-child(3) div[data-testid="stPopover"] > button, div[data-testid="column"]:nth-child(3) div[data-testid="stPopover"] > div > button { position: relative !important; top: auto !important; left: auto !important; height: 40px !important; min-height: 40px !important; background-color: #2D3342 !important; border: 1px solid #3B4253 !important; border-radius: 8px !important; width: 100% !important; display: flex !important; align-items: center !important; justify-content: center !important; } div[data-testid="column"]:nth-child(3) div[data-testid="stPopover"] > button p, div[data-testid="column"]:nth-child(3) div[data-testid="stPopover"] > div > button p { font-size: 20px !important; margin:0 !important; color: white !important;}</style>""", unsafe_allow_html=True)
         with st.popover("📅", use_container_width=True):
             st.markdown('<h4 style="text-align:center; margin-top:0;">📅 Selector de Fecha</h4>', unsafe_allow_html=True)
-            if st.session_state.idioma == "ES":
-                meses_lista_jump = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
-                lbl_mes, lbl_anio, lbl_btn = "Mes", "Año", "Ir a fecha"
-            else:
-                meses_lista_jump = list(calendar.month_name)[1:]
-                lbl_mes, lbl_anio, lbl_btn = "Month", "Year", "Go to date"
-            
-            # Selector de Mes
-            nuevo_mes_jump = st.selectbox(lbl_mes, meses_lista_jump, index=st.session_state.cal_month - 1, key="jump_month")
-            
-            # Selector de Año como Lista (Ajusta los años si necesitas más)
+            nuevo_mes_jump = st.selectbox(lbl_mes, meses_lista_nombres[1:], index=mes_sel - 1, key="jump_month")
             años_disponibles = [2023, 2024, 2025, 2026, 2027, 2028, 2029, 2030]
-            idx_año_defecto = años_disponibles.index(st.session_state.cal_year) if st.session_state.cal_year in años_disponibles else 0
+            idx_año_defecto = años_disponibles.index(anio_sel) if anio_sel in años_disponibles else 0
             nuevo_anio_jump = st.selectbox(lbl_anio, años_disponibles, index=idx_año_defecto, key="jump_year_list")
-            
             if st.button(lbl_btn, use_container_width=True, key="btn_jump_go"):
-                st.session_state.cal_month = meses_lista_jump.index(nuevo_mes_jump) + 1
+                st.session_state.cal_month = meses_lista_nombres.index(nuevo_mes_jump) if nuevo_mes_jump in meses_lista_nombres else 1
                 st.session_state.cal_year = nuevo_anio_jump
                 st.rerun()
-    with c_stats:
-        st.markdown(f'''<div style="display:flex; justify-content:flex-end; align-items:center; gap:20px; margin-top:8px;"><div style="font-weight:700; font-size:var(--size-top-stats); color:{c_mes}; display:flex; align-items:center; gap:8px;"> P&L: <span style="background-color:{bg_pnl_top}; color:{color_pnl_top}; padding:4px 12px; border-radius:12px; font-weight:800;">{simb_pnl_top}${net_pnl_top:,.2f}</span></div><div style="font-weight:700; font-size:var(--size-top-stats); color:{c_mes}; display:flex; align-items:center; gap:8px;">Win Rate: <span style="background-color:{bg_win_top}; color:{color_win_top}; padding:4px 12px; border-radius:12px; font-weight:800;">{win_pct_top:.1f}%</span></div></div>''', unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+with col_sum:
+    st.markdown('<div class="panel-premium" style="height: 120px;">', unsafe_allow_html=True)
+    st.markdown('<div class="panel-title">Month Summary</div>', unsafe_allow_html=True)
+    c_s1, c_s2 = st.columns(2)
+    with c_s1: st.markdown(f'<div class="summary-box"><div class="summary-label">P&L Neto</div><div class="summary-value" style="color:{color_pnl_top};">{simb_pnl_top}${net_pnl_top:,.2f}</div></div>', unsafe_allow_html=True)
+    with c_s2: st.markdown(f'<div class="summary-box"><div class="summary-label">Win Rate:</div><div class="summary-value" style="color:{color_win_top};">{win_pct_top:.1f}%</div></div>', unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+# 5. RENDERIZADO DEL FORMULARIO (Fila 2: Formulario de Entrada de Datos)
+st.markdown('<div class="panel-premium" style="padding-bottom: 5px;">', unsafe_allow_html=True)
+
+col_form_area, col_next_btn = st.columns([12, 0.7])
+
+with col_form_area:
+    with st.form(key="form_main_entry", clear_on_submit=True, border=False):
+        cf1, cf2, cf3, cf4, cf_btn = st.columns([1.5, 1.5, 2.5, 3.5, 1.2])
+        with cf1:
+            st.markdown('<span class="field-label-premium">Date:</span>', unsafe_allow_html=True)
+            fecha_sel = st.date_input("Date", value=fecha_defecto, label_visibility="collapsed")
+        with cf2:
+            st.markdown('<span class="field-label-premium">Cantidad:</span>', unsafe_allow_html=True)
+            nuevo_bal_input_str = st.text_input("Cantidad", value="", placeholder=f"{bal_mostrar:.2f}", label_visibility="collapsed")
+        with cf3:
+            st.markdown('<span class="field-label-premium">📝 Trade Details:</span>', unsafe_allow_html=True)
+            st.markdown("""<style>div[data-testid="column"]:nth-child(3) div[data-testid="stPopover"], div[data-testid="column"]:nth-child(3) div[data-testid="stPopover"] > div { position: relative !important; display: block !important; margin: 0 !important; padding: 0 !important; } div[data-testid="column"]:nth-child(3) div[data-testid="stPopover"] > button, div[data-testid="column"]:nth-child(3) div[data-testid="stPopover"] > div > button { position: relative !important; top: auto !important; left: auto !important; height: 40px !important; min-height: 40px !important; border-radius: 8px !important; background-color: #1A1D24 !important; border: 1px solid #2D3342 !important; width: 100% !important; z-index: 10 !important;} div[data-testid="column"]:nth-child(3) div[data-testid="stPopover"] > button p, div[data-testid="column"]:nth-child(3) div[data-testid="stPopover"] > div > button p { color: transparent !important; }</style>""", unsafe_allow_html=True)
+            with st.popover("📝", use_container_width=True):
+                st.markdown(f"<div class='titulo-trade-details'>{_l['dash']['trade_det']}</div>", unsafe_allow_html=True)
+                st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 5px; margin-bottom: 0px;'>{_l['dash']['bias']}</div>", unsafe_allow_html=True)
+                bias_opts = ['LONG', 'SHORT', 'NONE']
+                nuevo_bias_list = []
+                cols_bias = st.columns([1, 1, 1, 3])
+                for idx, op in enumerate(bias_opts):
+                    if cols_bias[idx].checkbox(op, key=f"new_bias_{idx}"): nuevo_bias_list.append(op)
+                nuevo_bias = ", ".join(nuevo_bias_list) if nuevo_bias_list else "NONE"
+                
+                st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 15px; margin-bottom: 0px;'>{_l['dash']['conf']}</div>", unsafe_allow_html=True)
+                all_confs_list = ['BIAS WELL', 'LIQ SWEEP', 'IFVG', 'FVG', 'EQH / EQL', 'BSL / SSL', 'POI', 'SMT', 'Order Block', 'Continuation', 'Data High / Data Low', 'CISD']
+                nuevo_conf = []
+                cols_conf = st.columns(3)
+                for idx, c_name in enumerate(all_confs_list):
+                    if cols_conf[idx % 3].checkbox(c_name, key=f"new_conf_{idx}"): nuevo_conf.append(c_name)
+                    
+                st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
+                nuevo_razon = st.text_area(_l['dash']['reason'], value='', height=45)
+                
+                st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 5px; margin-bottom: 0px;'>{_l['dash']['risk']}</div>", unsafe_allow_html=True)
+                risk_opts = ['1%', '0.9%', '0.8%', '0.7%', '0.6%', '0.5%', '0.4%']
+                nuevo_risk_list = []
+                cols_risk = st.columns([1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 0.2])
+                for idx, op in enumerate(risk_opts):
+                    if cols_risk[idx].checkbox(op, key=f"new_risk_{idx}"): nuevo_risk_list.append(op)
+                nuevo_risk = ", ".join(nuevo_risk_list) if nuevo_risk_list else ""
+                
+                st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 5px; margin-bottom: 0px;'>{_l['dash']['rr']}</div>", unsafe_allow_html=True)
+                rr_opts = ['1:1', '1:1.5', '1:2', '1:3', '1:4']
+                nuevo_rr_list = []
+                cols_rr = st.columns([1.5, 1.5, 1.5, 1.5, 1.5, 1.5]) 
+                for idx, op in enumerate(rr_opts):
+                    if cols_rr[idx].checkbox(op, key=f"new_rr_{idx}"): nuevo_rr_list.append(op)
+                nuevo_rr = ", ".join(nuevo_rr_list) if nuevo_rr_list else ""
+                
+                st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 5px; margin-bottom: 0px;'>{_l['dash']['tt']}</div>", unsafe_allow_html=True)
+                tt_opts = ['A+', 'A', 'B', 'C']
+                nuevo_tt_list = []
+                cols_tt = st.columns([1, 1, 1, 1, 4])
+                for idx, op in enumerate(tt_opts):
+                    if cols_tt[idx].checkbox(op, key=f"new_tt_{idx}"): nuevo_tt_list.append(op)
+                nuevo_tt = ", ".join(nuevo_tt_list) if nuevo_tt_list else ""
+                
+                st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
+                nuevo_emo = st.text_area(_l['dash']['emo'], value='', height=45)
+                nuevo_corr = st.text_area(_l['dash']['corr'], value='', height=45)
+
+        with cf4:
+            st.markdown('<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0px;"><span class="field-label-premium">🔗 Image Link:</span></div>', unsafe_allow_html=True)
+            # Ocultamos uploader nativo para simular el mini-botón de la imagen "Upload"
+            st.markdown("""<style>div[data-testid="stFileUploader"] { margin-top: -30px !important; width: 65px !important; min-width: 65px !important; float: right; position: relative; z-index: 10;} div[data-testid="stFileUploadDropzone"] { height: 26px !important; background-color: #2D3342 !important; border: 1px solid #3B4253 !important; } div[data-testid="stFileUploadDropzone"] button::after { content: "⬆ Upload" !important; font-size: 11px !important;} div[data-testid="stTextInput"] { clear: both; }</style>""", unsafe_allow_html=True)
+            imgs_subidas = st.file_uploader("", accept_multiple_files=True, label_visibility="collapsed")
+            link_imagen = st.text_input("Link", value="", label_visibility="collapsed", placeholder=_l['dash']['paste_link'])
+            
+        with cf_btn:
+            st.markdown('<div style="height:25px;"></div>', unsafe_allow_html=True)
+            btn_save = st.form_submit_button("GUARDAR", use_container_width=True)
+
+        # LÓGICA DE GUARDADO (TOTALMENTE INTACTA)
+        if btn_save:
+            entrada_limpia = str(nuevo_bal_input_str).strip()
+            if entrada_limpia == "":
+                st.error(_l['dash']['err_empty'])
+            else:
+                viejo_real = db_usuario[ctx]["balance"]
+                try:
+                    if entrada_limpia.startswith('+') or entrada_limpia.startswith('-'): pnl = float(entrada_limpia)
+                    else:
+                        valor_float = float(entrada_limpia.replace(',', ''))
+                        if abs(valor_float) < 20000: pnl = valor_float
+                        else: pnl = valor_float - bal_mostrar if valor_float != bal_mostrar else 0.0
+                except ValueError: pnl = 0.0
+                nuevo_bal_absoluto = viejo_real + pnl
+                clave_final = (fecha_sel.year, fecha_sel.month, fecha_sel.day)
+                
+                imgs_finales = []
+                if link_imagen.strip().startswith("http"): imgs_finales.append(link_imagen.strip())
+                estado_actual = "PA" if st.session_state.get("toggle_funded_state", False) else "Eval"
+                if "payouts" in db_global[usuario]["settings"]["PC"]:
+                    retiros_ac = sum(db_global[usuario]["settings"]["PC"]["payouts"].get(ctx, []))
+                else:
+                    retiros_ac = 0.0
+
+                trade_nuevo = {
+                    "pnl": pnl, 
+                    "balance_final": nuevo_bal_absoluto, 
+                    "fecha_str": fecha_sel.strftime("%d/%m/%Y"), 
+                    "imagenes": imgs_finales, 
+                    "bias": nuevo_bias, 
+                    "Confluences": nuevo_conf, 
+                    "razon_trade": nuevo_razon, 
+                    "Corrections": nuevo_corr, 
+                    "risk": nuevo_risk, 
+                    "RR": nuevo_rr, 
+                    "trade_type": nuevo_tt, 
+                    "Emotions": nuevo_emo,
+                    "hora": "",              
+                    "ticker": "",            
+                    "direccion": "",         
+                    "lotes": "",             
+                    "precio_entrada": "",    
+                    "precio_salida": "",     
+                    "comisiones": "",        
+                    "estado_cuenta": estado_actual,
+                    "retiros_acumulados": retiros_ac
+                }
+                if clave_final not in db_usuario[ctx]["trades"]: db_usuario[ctx]["trades"][clave_final] = []
+                db_usuario[ctx]["trades"][clave_final].append(trade_nuevo)
+                
+                import time
+                db_usuario[ctx]["balance"] = nuevo_bal_absoluto
+                if db_usuario[ctx].get("backtesting_mode", False):
+                    st.session_state.fecha_backtesting = fecha_sel
+                    st.session_state.cal_month = fecha_sel.month
+                    st.session_state.cal_year = fecha_sel.year
+                    st.session_state.forzar_sync_mes = True 
+                registrar_en_excel(usuario, db_global[usuario]["password"], ctx, fecha_sel, nuevo_bal_absoluto, pnl, trade_nuevo, db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
+                st.success(_l['dash']['trade_saved'])
+                time.sleep(1)
+                st.rerun()
+
+with col_next_btn:
+    st.markdown('<div style="height:25px;"></div>', unsafe_allow_html=True)
+    st.button("▶", on_click=cambiar_mes, args=(1,), use_container_width=True, key="btn_next_premium")
     
+st.markdown('</div>', unsafe_allow_html=True)
+
+# 6. REINICIO DE LAS COLUMNAS PARA EL CALENDARIO INFERIOR
+col_cal, col_det = st.columns([2, 1]) 
+if st.session_state.get("modo_backtesting", False) and st.session_state.get("forzar_sync_mes", False):
+    st.session_state.cal_month = st.session_state.fecha_backtesting.month
+    st.session_state.cal_year = st.session_state.fecha_backtesting.year
+    st.session_state.forzar_sync_mes = False
+
+with col_cal:
+    st.markdown("<br>", unsafe_allow_html=True)    
     st.markdown("<br>", unsafe_allow_html=True)
     if st.session_state.idioma == "ES": dias_semana = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"]
     else: dias_semana = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
