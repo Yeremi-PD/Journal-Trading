@@ -1423,7 +1423,7 @@ div[data-testid="stForm"] div[data-testid="stPopover"] > button p {
 ========================================== */
 div[data-testid="stForm"] div[data-testid="stTextInput"]:has(input[aria-label="Link"]) {
     width: 100% !important;         /* Cambia a 80%, 200px, etc. */
-    margin-top: -100px !important;     /* Mueve el input hacia arriba o abajo */
+    margin-top: 19px !important;     /* Mueve el input hacia arriba o abajo */
     margin-left: 0px !important;    /* Mueve el input hacia los lados */
 }
 
