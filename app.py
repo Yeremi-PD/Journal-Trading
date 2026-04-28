@@ -1401,7 +1401,7 @@ div[data-testid="stForm"] div[data-testid="stPopover"] > button {
     background-color: #2D3748 !important;
     border: 1px solid #4A5568 !important;
     border-radius: 6px !important;
-    height: 34px !important; /* Más chino (finito) */
+    height: 4px !important; /* Más chino (finito) */
     min-height: 34px !important;
     margin-top: 3px !important; /* Para centrarlo con las otras cajas que miden 40px */
     color: white !important;
