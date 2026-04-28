@@ -1347,7 +1347,7 @@ div[data-testid="stForm"] {
 
 /* Títulos pequeños de arriba (Date:, Cantidad:, etc.) */
 .lbl-header {
-    font-size: 13px !important;
+    font-size: 20px !important;
     font-weight: 700 !important;
     color: #E2E8F0 !important;
     margin-bottom: 6px !important;
