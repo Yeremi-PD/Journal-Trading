@@ -885,15 +885,14 @@ st.markdown(f"""
 /* 🔴 EL SECRETO: OCULTAR EL "RUNNING..." PARA QUE SEA INSTANTÁNEO 🔴 */
     [data-testid="stStatusWidget"] {{ visibility: hidden !important; display: none !important; }}
     
-    /* 🌟 MAGIA DE LAS PESTAÑAS (TABS) PREMIUM ESTILO FINANCE CENTER 🌟 */
-    div[data-testid="stTabs"] {{ padding: 15px 0px 20px 0px !important; margin-top: 5px !important; }}
+/* 🌟 MAGIA DE LAS PESTAÑAS (TABS) PREMIUM ESTILO FINANCE CENTER 🌟 */
+    div[data-testid="stTabs"] {{ padding: 25px 0px 20px 0px !important; margin-top: 5px !important; overflow: visible !important; }}
     div[data-testid="stTabs"] button {{
         font-size: 18px !important; font-weight: 700 !important;
         background-color: rgba(40, 40, 40, 0.4) !important; border-radius: 12px !important; 
-        padding: 12px 24px !important; margin: 0px 8px !important;
-        border: 1px solid {border_color} !important;
-        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2) !important;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important; color: {c_dash} !important;
+        padding: 12px 24px !important; margin: 0px 8px !important; border: 1px solid {border_color} !important;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2) !important; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important; 
+        color: {c_dash} !important; overflow: visible !important; z-index: 10 !important; }}
     }}
     div[data-testid="stTabs"] button:hover {{
         transform: translateY(-4px) !important; border-color: #00C897 !important;
@@ -1999,14 +1998,11 @@ with tab_hist:
         trades_actuales = db_usuario[ctx]["trades"]
         if not trades_actuales: st.info(_l['hist']['no_ord'])
         else:
-            c_h1, c_h2, c_h3 = st.columns([1, 2, 1])
-            with c_h1: st.button("◀", on_click=cambiar_mes, args=(-1,), key="btn_h_prev", use_container_width=True)
             if st.session_state.idioma == "ES":
                 meses_es = ["", "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
                 nom_mes = meses_es[st.session_state.cal_month]
             else: nom_mes = calendar.month_name[st.session_state.cal_month]
-            with c_h2: st.markdown(f"<h4 style='text-align:center; color:{c_dash}; margin-top:5px;'>🗓️ {nom_mes} {st.session_state.cal_year}</h4>", unsafe_allow_html=True)
-            with c_h3: st.button("▶", on_click=cambiar_mes, args=(1,), key="btn_h_next", use_container_width=True)
+            st.markdown(f"<h4 style='text-align:center; color:{c_dash}; margin-top:5px;'>🗓️ {nom_mes} {st.session_state.cal_year}</h4>", unsafe_allow_html=True)
             st.markdown("---")
             trades_ordenados = sorted(trades_actuales.items(), key=lambda x: datetime(x[0][0], x[0][1], x[0][2]), reverse=True)
             trades_en_mes = 0 
@@ -2101,14 +2097,11 @@ with tab_tabla:
         all_trades = db_usuario[ctx]["trades"]
         if not all_trades: st.info(_l['table']['no_tr_tbl'])
         else:
-            c_t1, c_t2, c_t3 = st.columns([1, 2, 1])
-            with c_t1: st.button("◀", on_click=cambiar_mes, args=(-1,), key="btn_t_prev", use_container_width=True)
             if st.session_state.idioma == "ES":
                 meses_es = ["", "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
                 nom_mes = meses_es[st.session_state.cal_month]
             else: nom_mes = calendar.month_name[st.session_state.cal_month]
-            with c_t2: st.markdown(f"<h4 style='text-align:center; color:{c_dash}; margin-top:5px;'>🗓️ {nom_mes} {st.session_state.cal_year}</h4>", unsafe_allow_html=True)
-            with c_t3: st.button("▶", on_click=cambiar_mes, args=(1,), key="btn_t_next", use_container_width=True)
+            st.markdown(f"<h4 style='text-align:center; color:{c_dash}; margin-top:5px;'>🗓️ {nom_mes} {st.session_state.cal_year}</h4>", unsafe_allow_html=True)
             st.markdown("---")
             table_data = []
             for key, list_t in sorted(all_trades.items(), key=lambda x: date(x[0][0], x[0][1], x[0][2]), reverse=True):
