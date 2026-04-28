@@ -1405,10 +1405,22 @@ with st.form(key="form_main_entry", clear_on_submit=True, border=False):
         btn_save = st.form_submit_button(_l['dash']['save'], key="btn_save_main")
     with c2:
         st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True) 
+        # Buscamos la fecha del último trade de esta cuenta para el selector
+        trades_de_esta_cta = db_usuario[ctx].get("trades", {})
+        if trades_de_esta_cta:
+            ult_f = max(trades_de_esta_cta.keys())
+            fecha_ultimo_trade_cta = date(ult_f[0], ult_f[1], ult_f[2])
+        else:
+            fecha_ultimo_trade_cta = hoy
+
         if st.session_state.modo_backtesting:
-            if st.session_state.fecha_backtesting.month != st.session_state.cal_month or st.session_state.fecha_backtesting.year != st.session_state.cal_year: fecha_defecto = date(st.session_state.cal_year, st.session_state.cal_month, 1)
-            else: fecha_defecto = st.session_state.fecha_backtesting
-        else: fecha_defecto = hoy
+            if st.session_state.fecha_backtesting.month != st.session_state.cal_month or st.session_state.fecha_backtesting.year != st.session_state.cal_year: 
+                fecha_defecto = date(st.session_state.cal_year, st.session_state.cal_month, 1)
+            else: 
+                fecha_defecto = st.session_state.fecha_backtesting
+        else: 
+            fecha_defecto = fecha_ultimo_trade_cta
+            
         fecha_sel = st.date_input("Fecha", value=fecha_defecto, label_visibility="collapsed", key="btn_fecha_directa")
     with c_img:
         st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True) 
