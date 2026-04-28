@@ -1249,12 +1249,13 @@ for idx, tr in enumerate(_tc):
 
 for idx, tr in enumerate(_tc): tr["is_pre_funded"] = (idx <= idx_pase)
 
-# Solo activamos celebraciones y estatus PA si NO estamos en modo Backtesting
-if paso_cuenta and not db_usuario[ctx].get("backtesting_mode", False):
+# El estatus PA/Eval se calcula siempre para que veas si la cuenta es fondeada o no
+if paso_cuenta:
     if "toggle_funded_state" not in st.session_state: st.session_state.toggle_funded_state = True
     clave_celeb_db = "pa_celeb_FINAL_1_" + str(ctx)
-    
-    if not db_global[usuario]["settings"]["PC"].get(clave_celeb_db, False):
+  
+    # Solo disparamos la celebración (globos y pantalla) si NO estamos en modo Backtesting
+    if not db_global[usuario]["settings"]["PC"].get(clave_celeb_db, False) and not db_usuario[ctx].get("backtesting_mode", False):
         db_global[usuario]["settings"]["PC"][clave_celeb_db] = True
         db_global[usuario]["settings"]["Móvil"][clave_celeb_db] = True
         reescribir_excel_usuario(usuario)
@@ -1695,7 +1696,7 @@ with col_det:
     titulo_target_dinamico = _l['cal']['target']
     c_hex_tg = "#FFFFFF" 
 
-    # Solo mostramos alertas de cuenta perdida si NO estamos en modo Backtesting
+    # Lógica de cuenta quemada: Solo bloquea si NO estamos en modo Backtesting
     if distancia_dd <= 0 and not db_usuario[ctx].get("backtesting_mode", False):
         texto_lose = _l['cal']['lost']; texto_dd = _l['cal']['lost'];
         texto_tg = _l['cal']['lost']
@@ -1708,7 +1709,9 @@ with col_det:
             html_script_perdida = """<script>function iniciarPantallaPerdida() { const doc = window.parent.document; if (!doc.getElementById('lost-style')) { const style = doc.createElement('style'); style.id = 'lost-style'; style.innerHTML = `@import url('https://fonts.googleapis.com/css2?family=Inter:wght@800;900&display=swap'); #lost-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(20,0,0,0.95); backdrop-filter: blur(12px); z-index: 9999998; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; font-family: 'Inter', sans-serif; text-align: center; opacity: 0; animation: fadeInLost 1s forwards; pointer-events: none; overflow: hidden; } .lost-content { transform: scale(1.2); animation: dropInLost 0.5s forwards cubic-bezier(0.25, 0.46, 0.45, 0.94); z-index: 2; } .lost-title { font-size: 90px; font-weight: 900; margin-bottom: 20px; letter-spacing: -3px; line-height: 1; color: #FF4C4C; text-shadow: 0 0 40px rgba(255,76,76,0.6); } .lost-sub { font-size: 25px; font-weight: 800; color: #A0AEC0; text-transform: uppercase; letter-spacing: 2px; line-height: 1.4; } .skull-particle { position: absolute; top: -100px; z-index: 1; user-select: none; filter: drop-shadow(0 0 5px rgba(255,0,0,0.3)); } @keyframes fadeInLost { to { opacity: 1; } } @keyframes fadeOutLost { from { opacity: 1; } to { opacity: 0; } } @keyframes dropInLost { to { transform: scale(1); } } @keyframes shakeScreen { 0%, 100% { transform: translate(0, 0); } 10%, 30%, 50%, 70%, 90% { transform: translate(-8px, 0); } 20%, 40%, 60%, 80% { transform: translate(8px, 0); } } @keyframes fallSkull { 0% { transform: translateY(-100px) rotate(0deg); opacity: 1; } 100% { transform: translateY(110vh) rotate(360deg); opacity: 0; } }`; doc.head.appendChild(style); } const overlay = doc.createElement('div'); overlay.id = 'lost-overlay'; let skullsHtml = ''; for (let i = 0; i < 40; i++) { let left = Math.random() * 100; let size = Math.random() * 40 + 20; let duration = Math.random() * 2.5 + 2; let delay = Math.random() * 1.5; skullsHtml += `<div class="skull-particle" style="left: ${left}vw; font-size: ${size}px; animation: fallSkull ${duration}s linear ${delay}s forwards;">💀</div>`; } overlay.innerHTML = `${skullsHtml}<div class="lost-content"><div class="lost-title">"""+_l['cal']['acc_lost']+"""</div><div class="lost-sub">"""+_l['cal']['fail_info']+""" """ + usuario.upper() + """!</div></div>`; doc.body.appendChild(overlay); doc.body.style.animation = 'shakeScreen 0.4s ease-in-out'; setTimeout(() => { doc.body.style.animation = ''; }, 400); setTimeout(() => { overlay.style.animation = 'fadeOutLost 1.5s forwards'; setTimeout(() => { if(doc.body.contains(overlay)) { doc.body.removeChild(overlay); } }, 1500); }, 6500); } setTimeout(iniciarPantallaPerdida, 500); </script>"""
             components.html(html_script_perdida, height=1, width=1)
     else:
+        # Si es Backtesting y está quemada, mostramos los números en lugar de "LOST"
         texto_lose = f"${distancia_dd:,.2f}"; texto_dd = f"${nivel_perdida:,.2f}"
+        
         if paso_cuenta:
             falta_para_tope = tope_dd - bal_mostrar
             if falta_para_tope <= 0:
