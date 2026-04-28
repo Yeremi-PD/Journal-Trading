@@ -1503,25 +1503,38 @@ with col_cal:
 # === MODAL INSTANTÁNEO DEL SELECTOR DE FECHAS ===
     c_izq, c_cen, c_der, c_jump, c_stats = st.columns([0.6, 2, 0.6, 0.6, 3.2])
     with c_izq: st.button("◀", on_click=cambiar_mes, args=(-1,), use_container_width=True)
-    with c_cen: st.markdown(f'<div style="text-align:center; font-weight:600; font-size:var(--cal-mes-size); color:{c_mes}; margin-top:2px;">{nombre_mes} {anio_sel}</div>', unsafe_allow_html=True)
+    with c_cen: st.markdown(f'<div style="text-align:center; font-weight:600; font-size:var(--cal-mes-size); color:{c_mes}; margin-top:4px;">{nombre_mes} {anio_sel}</div>', unsafe_allow_html=True)
     with c_der: st.button("▶", on_click=cambiar_mes, args=(1,), use_container_width=True)
     
     with c_jump:
-        # Forzamos la misma altura (42px), fondo y bordes exactos que los botones de las flechas
+        # Forzamos altura y alineación exacta para que las flechas y el calendario sean perfectamente simétricos
         st.markdown(f"""
         <style>
+        /* Igualar altura y alineación de las flechas izquierda (1) y derecha (3) */
+        div[data-testid="column"]:nth-child(1) button,
+        div[data-testid="column"]:nth-child(3) button {{
+            height: 46px !important;
+            min-height: 46px !important;
+            margin-top: 4px !important;
+            border-radius: 8px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }}
+        
         div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"],
         div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] > div:first-child {{
             width: 100% !important;
             min-width: 0 !important;
             height: auto !important;
         }}
+        /* Igualar altura y alineación del botón del calendario (4) */
         div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] > button {{
             width: 100% !important;
-            height: 42px !important;
-            min-height: 42px !important;
+            height: 46px !important;
+            min-height: 46px !important;
+            margin-top: 4px !important;
             padding: 0 !important;
-            margin: 0 !important;
             border-radius: 8px !important;
             background-color: {btn_bg} !important;
             border: 1px solid {border_color} !important;
@@ -1531,8 +1544,9 @@ with col_cal:
             position: relative !important;
             top: 0 !important;
         }}
+        /* Aumentar un poco el emoji para equilibrar con las flechas */
         div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] > button p {{
-            font-size: 20px !important;
+            font-size: 24px !important;
             margin: 0 !important;
             line-height: 1 !important;
             color: {btn_txt} !important;
