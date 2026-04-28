@@ -1549,12 +1549,12 @@ with col_cal:
         .fixed-modal-jump {
             display: none; position: fixed !important; top: 50% !important; left: 50% !important;
             transform: translate(-50%, -50%) !important; 
-            width: 95vw !important; max-width: 600px !important; /* HICIMOS LA VENTANA MÁS GRANDE */
+            width: 90vw !important; max-width: 400px !important; 
             background-color: var(--card_bg, #2D3748) !important; z-index: 9999999 !important;
-            border-radius: 15px !important; padding: 35px !important; 
+            border-radius: 15px !important; padding: 25px !important; 
             border: 2px solid #00C897 !important;
             box-shadow: 0px 20px 50px rgba(0,0,0,0.9) !important;
-            overflow: visible !important; /* VITAL: Para que la lista de meses no se corte */
+            overflow: visible !important; 
         }
         body:has(#toggle-jump:checked) .fixed-modal-jump,
         body:has(#toggle-jump:checked) .jump-overlay { display: flex !important; flex-direction: column !important; }
@@ -1565,9 +1565,25 @@ with col_cal:
         }
         .btn-fake-jump:hover { border-color: #00C897; background: rgba(0, 200, 151, 0.1); }
         
-        /* FIX: Ocultar el cuadro gris molesto y forzar los menús desplegables a estar arriba */
-        div[data-testid="InputInstructions"] { display: none !important; }
-        div[data-baseweb="popover"], ul[role="listbox"] { z-index: 99999999 !important; }
+        /* 1. MATA EL CUADRO GRIS DEL FORMULARIO */
+        body .fixed-modal-jump div[data-testid="stForm"] {
+            background-color: transparent !important;
+            border: none !important;
+            padding: 0 !important;
+        }
+
+        /* 2. LIBERA AL INPUT Y BOTON DEL TAMAÑO FIJO GLOBAL (Los estira al 100%) */
+        body .fixed-modal-jump div[data-testid="stNumberInput"] { 
+            width: 100% !important; min-width: 100% !important; max-width: 100% !important; margin: 0 !important; 
+        }
+        body .fixed-modal-jump div[data-testid="stFormSubmitButton"] button { 
+            width: 100% !important; min-width: 100% !important; max-width: 100% !important; margin: 25px 0 0 0 !important; 
+        }
+        
+        /* 3. ELEVA EL MENÚ DESPLEGABLE (Meses) POR ENCIMA DE LA PANTALLA NEGRA */
+        div[data-baseweb="popover"], div[role="listbox"] {
+            z-index: 99999999 !important;
+        }
         </style>
         
         <input type="checkbox" id="toggle-jump">
@@ -1576,7 +1592,6 @@ with col_cal:
         """, unsafe_allow_html=True)
 
         with st.container():
-            # Título limpio, SIN botón de cerrar
             st.markdown('<div id="ancla-modal-jump"><h3 style="text-align:center; margin-top:0px; margin-bottom:25px;">📅 Selector de Fecha</h3></div>', unsafe_allow_html=True)
             
             if st.session_state.idioma == "ES":
@@ -1586,7 +1601,6 @@ with col_cal:
                 meses_lista_jump = list(calendar.month_name)[1:]
                 lbl_mes, lbl_anio, lbl_btn = "Month", "Year", "Go to date"
             
-            # EL FORMULARIO: Garantiza que nada se mueva ni haga refresh hasta presionar el botón verde
             with st.form(key="form_jump_date", border=False):
                 nuevo_mes_jump = st.selectbox(lbl_mes, meses_lista_jump, index=st.session_state.cal_month - 1, key="jump_month")
                 nuevo_anio_jump = st.number_input(lbl_anio, min_value=2000, max_value=2100, value=st.session_state.cal_year, step=1, key="jump_year")
@@ -1594,7 +1608,6 @@ with col_cal:
                 if st.form_submit_button(lbl_btn, use_container_width=True):
                     st.session_state.cal_month = meses_lista_jump.index(nuevo_mes_jump) + 1
                     st.session_state.cal_year = nuevo_anio_jump
-                    # Apagamos el modal por debajo para que se cierre tras aplicar la fecha
                     components.html("<script>window.parent.sessionStorage.setItem('jump_open', 'false'); window.parent.document.getElementById('toggle-jump').checked = false;</script>", height=0, width=0)
                     st.rerun()
             
