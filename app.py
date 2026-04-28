@@ -1333,20 +1333,20 @@ with col_bal:
 st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
 
 with st.form(key="form_main_entry", clear_on_submit=True, border=False):
-    # Proporciones calculadas para alinear perfectamente con el ancho del calendario (66% de la pantalla)
+    # Proporciones alineadas en UNA SOLA TIRA
     c_bal, c_save, c_date, c_link, c_not, c_espacio = st.columns([1.2, 0.8, 0.8, 2.0, 0.5, 2.7]) 
     
     with c_bal:
         st.markdown(f'<div class="lbl-input">{LBL_INPUT}</div>', unsafe_allow_html=True)
         st.markdown(f"""<style>
-        /* Ajuste de altura a {BTN_CAL_H}px para que toda la tira quede idéntica */
+        /* CSS Unificado: Mismo fondito, marco y altura para todo */
         div[data-testid="stTextInput"]:has(input[aria-label="Balance Input"]) {{ margin: 0 !important; width: 100% !important; min-width: 100% !important; max-width: 100% !important; }}
-        div[data-testid="stTextInput"]:has(input[aria-label="Balance Input"]) > div:last-child, div[data-testid="stTextInput"]:has(input[aria-label="Balance Input"]) div[data-baseweb="base-input"], div[data-testid="stTextInput"]:has(input[aria-label="Balance Input"]) div[data-baseweb="input"] {{ height: {BTN_CAL_H}px !important; min-height: {BTN_CAL_H}px !important; background-color: {input_bg} !important; border-color: {border_color} !important; }}
+        div[data-testid="stTextInput"]:has(input[aria-label="Balance Input"]) > div:last-child, div[data-testid="stTextInput"]:has(input[aria-label="Balance Input"]) div[data-baseweb="base-input"], div[data-testid="stTextInput"]:has(input[aria-label="Balance Input"]) div[data-baseweb="input"] {{ height: {BTN_CAL_H}px !important; min-height: {BTN_CAL_H}px !important; background-color: {input_bg} !important; border: 1px solid {border_color} !important; border-radius: 8px !important; }}
         div[data-testid="stTextInput"]:has(input[aria-label="Balance Input"]) input {{ color: {c_lbl_in} !important; font-size: {INPUT_BAL_TXT_SIZE}px !important; background-color: {input_bg} !important; font-weight: bold !important; height: {BTN_CAL_H}px !important; box-sizing: border-box !important; padding-top: 15px !important; padding-bottom: 15px !important; display: flex !important; align-items: center !important; line-height: normal !important; }}
         
         div[data-testid="stTextInput"]:has(input[aria-label="Link"]) {{ width: 100% !important; min-width: 100% !important; transform: none !important; margin-top: 0px !important; }}
-        div[data-testid="stTextInput"]:has(input[aria-label="Link"]) > div:last-child, div[data-testid="stTextInput"]:has(input[aria-label="Link"]) div[data-baseweb="base-input"], div[data-testid="stTextInput"]:has(input[aria-label="Link"]) div[data-baseweb="input"] {{ height: {BTN_CAL_H}px !important; min-height: {BTN_CAL_H}px !important; border-radius: 8px !important; border-color: {border_color} !important; }}
-        div[data-testid="stTextInput"]:has(input[aria-label="Link"]) input {{ height: {BTN_CAL_H}px !important; font-size: {LINK_IMG_TXT_SIZE}px !important; }}
+        div[data-testid="stTextInput"]:has(input[aria-label="Link"]) > div:last-child, div[data-testid="stTextInput"]:has(input[aria-label="Link"]) div[data-baseweb="base-input"], div[data-testid="stTextInput"]:has(input[aria-label="Link"]) div[data-baseweb="input"] {{ height: {BTN_CAL_H}px !important; min-height: {BTN_CAL_H}px !important; background-color: {input_bg} !important; border: 1px solid {border_color} !important; border-radius: 8px !important; }}
+        div[data-testid="stTextInput"]:has(input[aria-label="Link"]) input {{ color: {c_lbl_in} !important; font-size: {LINK_IMG_TXT_SIZE}px !important; background-color: {input_bg} !important; font-weight: bold !important; height: {BTN_CAL_H}px !important; box-sizing: border-box !important; padding-top: 15px !important; padding-bottom: 15px !important; display: flex !important; align-items: center !important; line-height: normal !important; }}
         
         [data-testid="stFormSubmitButton"] button {{ width: 100% !important; height: {BTN_CAL_H}px !important; min-height: {BTN_CAL_H}px !important; margin-left: 0px !important; margin-top: 0px !important; border-radius: 8px !important; font-size: 18px !important; }}
         div[data-testid="InputInstructions"] {{ display: none !important; }}
@@ -1377,7 +1377,7 @@ with st.form(key="form_main_entry", clear_on_submit=True, border=False):
         fecha_sel = st.date_input("Fecha", value=fecha_defecto, label_visibility="collapsed", key="btn_fecha_directa")
         
     with c_link:
-        st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True) 
+        st.markdown(f'<div class="lbl-link" style="margin-top: -10px; margin-bottom: 5px;">{LBL_LINK}</div>', unsafe_allow_html=True) 
         link_imagen = st.text_input("Link", value="", label_visibility="collapsed", placeholder=_l['dash']['paste_link'])
         
     with c_not:
