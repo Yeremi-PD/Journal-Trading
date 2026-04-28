@@ -611,6 +611,27 @@ hoy = datetime.now().date()
 if "modo_backtesting" not in st.session_state: st.session_state.modo_backtesting = False
 if "fecha_backtesting" not in st.session_state: st.session_state.fecha_backtesting = hoy
 
+# --- LÓGICA DE AUTO-TRANSPORTE AL ÚLTIMO MES TRADEADO ---
+if "cuenta_previa_calendario" not in st.session_state:
+    st.session_state.cuenta_previa_calendario = None
+
+# Si la cuenta cambió o es la primera vez que entramos en la sesión
+if st.session_state.data_source_sel != st.session_state.cuenta_previa_calendario:
+    st.session_state.cuenta_previa_calendario = st.session_state.data_source_sel
+    
+    # Buscamos la fecha del último trade para la cuenta seleccionada actualmente
+    trades_de_la_cuenta = db_usuario[st.session_state.data_source_sel].get("trades", {})
+    if trades_de_la_cuenta:
+        # Obtenemos la fecha máxima (año, mes, día) de todas las llaves del diccionario
+        max_fecha = max(trades_de_la_cuenta.keys())
+        st.session_state.cal_year = max_fecha[0]
+        st.session_state.cal_month = max_fecha[1]
+    else:
+        # Si la cuenta no tiene trades registrados, vamos al mes actual por defecto
+        st.session_state.cal_month = hoy.month
+        st.session_state.cal_year = hoy.year
+
+# Inicialización de seguridad por si no existen trades aún
 if "cal_month" not in st.session_state: st.session_state.cal_month = hoy.month
 if "cal_year" not in st.session_state: st.session_state.cal_year = hoy.year
 
