@@ -1421,98 +1421,102 @@ div[data-testid="stFileUploader"] {
 </style>
 """, unsafe_allow_html=True)
 
-with st.form(key="form_main_entry", clear_on_submit=True, border=False):
-    # Proporciones exactas de las columnas de la imagen
-    c_date, c_cant, c_det, c_link, c_btn = st.columns([1.2, 1.5, 2.5, 3.5, 1.2])
-    
-    with c_date:
-        st.markdown('<div class="lbl-header">Date:</div>', unsafe_allow_html=True)
-        # Lógica original de la fecha
-        trades_de_esta_cta = db_usuario[ctx].get("trades", {})
-        if trades_de_esta_cta:
-            ult_f = max(trades_de_esta_cta.keys())
-            fecha_ultimo_trade_cta = date(ult_f[0], ult_f[1], ult_f[2])
-        else:
-            fecha_ultimo_trade_cta = hoy
+# 🚀 Envolvemos el form en la misma proporción del calendario [2, 1] para que midan EXACTAMENTE lo mismo
+col_form_area, col_form_vacia = st.columns([2, 1])
 
-        if db_usuario[ctx].get("backtesting_mode", False):
-            if st.session_state.fecha_backtesting.month != st.session_state.cal_month or st.session_state.fecha_backtesting.year != st.session_state.cal_year: 
-                fecha_defecto = date(st.session_state.cal_year, st.session_state.cal_month, 1)
+with col_form_area:
+    with st.form(key="form_main_entry", clear_on_submit=True, border=False):
+        # Ajustamos ligeramente las proporciones internas para que quepan perfecto en el nuevo ancho
+        c_date, c_cant, c_det, c_link, c_btn = st.columns([1.2, 1.2, 1.8, 2.5, 1])
+        
+        with c_date:
+            st.markdown('<div class="lbl-header">Date:</div>', unsafe_allow_html=True)
+            # Lógica original de la fecha
+            trades_de_esta_cta = db_usuario[ctx].get("trades", {})
+            if trades_de_esta_cta:
+                ult_f = max(trades_de_esta_cta.keys())
+                fecha_ultimo_trade_cta = date(ult_f[0], ult_f[1], ult_f[2])
+            else:
+                fecha_ultimo_trade_cta = hoy
+
+            if db_usuario[ctx].get("backtesting_mode", False):
+                if st.session_state.fecha_backtesting.month != st.session_state.cal_month or st.session_state.fecha_backtesting.year != st.session_state.cal_year: 
+                    fecha_defecto = date(st.session_state.cal_year, st.session_state.cal_month, 1)
+                else: 
+                    fecha_defecto = st.session_state.fecha_backtesting
             else: 
-                fecha_defecto = st.session_state.fecha_backtesting
-        else: 
-            fecha_defecto = fecha_ultimo_trade_cta
+                fecha_defecto = fecha_ultimo_trade_cta
+                
+            fecha_sel = st.date_input("Fecha", value=fecha_defecto, label_visibility="collapsed", key="btn_fecha_directa")
             
-        fecha_sel = st.date_input("Fecha", value=fecha_defecto, label_visibility="collapsed", key="btn_fecha_directa")
-        
-    with c_cant:
-        st.markdown('<div class="lbl-header">Cantidad:</div>', unsafe_allow_html=True)
-        nuevo_bal_input_str = st.text_input("Balance Input", value="", placeholder=f"{bal_mostrar:.2f}", label_visibility="collapsed")
-        
-    with c_det:
-        st.markdown('<div class="lbl-header">📝 Trade Details:</div>', unsafe_allow_html=True)
-        with st.popover(" ", use_container_width=True):
-            # Lógica original de los detalles del trade
-            st.markdown(f"<div class='titulo-trade-details'>{_l['dash']['trade_det']}</div>", unsafe_allow_html=True)
-            st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 5px; margin-bottom: 0px;'>{_l['dash']['bias']}</div>", unsafe_allow_html=True)
-            bias_opts = ['LONG', 'SHORT', 'NONE']
-            nuevo_bias_list = []
-            cols_bias = st.columns([1, 1, 1, 3])
-            for idx, op in enumerate(bias_opts):
-                if cols_bias[idx].checkbox(op, key=f"new_bias_{idx}"): nuevo_bias_list.append(op)
+        with c_cant:
+            st.markdown('<div class="lbl-header">Cantidad:</div>', unsafe_allow_html=True)
+            nuevo_bal_input_str = st.text_input("Balance Input", value="", placeholder=f"{bal_mostrar:.2f}", label_visibility="collapsed")
             
-            nuevo_bias = ", ".join(nuevo_bias_list) if nuevo_bias_list else "NONE"
-            st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 15px; margin-bottom: 0px;'>{_l['dash']['conf']}</div>", unsafe_allow_html=True)
-            all_confs_list = ['BIAS WELL', 'LIQ SWEEP', 'IFVG', 'FVG', 'EQH / EQL', 'BSL / SSL', 'POI', 'SMT', 'Order Block', 'Continuation', 'Data High / Data Low', 'CISD']
-            nuevo_conf = []
-            cols_conf = st.columns(3)
-        
-            for idx, c_name in enumerate(all_confs_list):
-                if cols_conf[idx % 3].checkbox(c_name, key=f"new_conf_{idx}"): nuevo_conf.append(c_name)
-            st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
-            nuevo_razon = st.text_area(_l['dash']['reason'], value='', height=45)
-            st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 5px; margin-bottom: 0px;'>{_l['dash']['risk']}</div>", unsafe_allow_html=True)
-            risk_opts = ['1%', '0.9%', '0.8%', '0.7%', '0.6%', '0.5%', '0.4%']
-            nuevo_risk_list = []
-            cols_risk = st.columns([1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 0.2])
-            for idx, op in enumerate(risk_opts):
-                if cols_risk[idx].checkbox(op, key=f"new_risk_{idx}"): nuevo_risk_list.append(op)
-    
-            nuevo_risk = ", ".join(nuevo_risk_list) if nuevo_risk_list else ""
-            st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 5px; margin-bottom: 0px;'>{_l['dash']['rr']}</div>", unsafe_allow_html=True)
-            rr_opts = ['1:1', '1:1.5', '1:2', '1:3', '1:4']
-            nuevo_rr_list = []
-            cols_rr = st.columns([1.5, 1.5, 1.5, 1.5, 1.5, 1.5]) 
+        with c_det:
+            st.markdown('<div class="lbl-header">📝 Trade Details:</div>', unsafe_allow_html=True)
+            with st.popover(" ", use_container_width=True):
+                # Lógica original de los detalles del trade
+                st.markdown(f"<div class='titulo-trade-details'>{_l['dash']['trade_det']}</div>", unsafe_allow_html=True)
+                st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 5px; margin-bottom: 0px;'>{_l['dash']['bias']}</div>", unsafe_allow_html=True)
+                bias_opts = ['LONG', 'SHORT', 'NONE']
+                nuevo_bias_list = []
+                cols_bias = st.columns([1, 1, 1, 3])
+                for idx, op in enumerate(bias_opts):
+                    if cols_bias[idx].checkbox(op, key=f"new_bias_{idx}"): nuevo_bias_list.append(op)
+                
+                nuevo_bias = ", ".join(nuevo_bias_list) if nuevo_bias_list else "NONE"
+                st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 15px; margin-bottom: 0px;'>{_l['dash']['conf']}</div>", unsafe_allow_html=True)
+                all_confs_list = ['BIAS WELL', 'LIQ SWEEP', 'IFVG', 'FVG', 'EQH / EQL', 'BSL / SSL', 'POI', 'SMT', 'Order Block', 'Continuation', 'Data High / Data Low', 'CISD']
+                nuevo_conf = []
+                cols_conf = st.columns(3)
             
-            for idx, op in enumerate(rr_opts):
-                if cols_rr[idx].checkbox(op, key=f"new_rr_{idx}"): nuevo_rr_list.append(op)
-            nuevo_rr = ", ".join(nuevo_rr_list) if nuevo_rr_list else ""
-            st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 5px; margin-bottom: 0px;'>{_l['dash']['tt']}</div>", unsafe_allow_html=True)
-            tt_opts = ['A+', 'A', 'B', 'C']
-            nuevo_tt_list = []
-            cols_tt = st.columns([1, 1, 1, 1, 4])
-            for idx, op in enumerate(tt_opts):
-                if cols_tt[idx].checkbox(op, key=f"new_tt_{idx}"): nuevo_tt_list.append(op)
-          
-            nuevo_tt = ", ".join(nuevo_tt_list) if nuevo_tt_list else ""
-            st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
-            nuevo_emo = st.text_area(_l['dash']['emo'], value='', height=45)
-            nuevo_corr = st.text_area(_l['dash']['corr'], value='', height=45)
-            
-    with c_link:
-        # Estructura para el Link replicando el diseño visual del Upload pequeño de la imagen
-        st.markdown(f'''
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <div class="lbl-header">🔗 Image Link:</div>
-            <div style="font-size:11px; color:#A0AEC0; font-weight:bold; background:rgba(255,255,255,0.05); padding:4px 10px; border-radius:4px; margin-bottom:6px; cursor:pointer; border: 1px solid #4A5568;">📤 Upload</div>
-        </div>
-        ''', unsafe_allow_html=True)
-        link_imagen = st.text_input("Link", value="", label_visibility="collapsed", placeholder="🔗 Pega el Enlace de la Imagen")
-        # El uploader real vive aquí para no romper tu lógica, pero está oculto visualmente por el CSS
-        imgs_subidas = st.file_uploader("", accept_multiple_files=True, label_visibility="collapsed")
+                for idx, c_name in enumerate(all_confs_list):
+                    if cols_conf[idx % 3].checkbox(c_name, key=f"new_conf_{idx}"): nuevo_conf.append(c_name)
+                st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
+                nuevo_razon = st.text_area(_l['dash']['reason'], value='', height=45)
+                st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 5px; margin-bottom: 0px;'>{_l['dash']['risk']}</div>", unsafe_allow_html=True)
+                risk_opts = ['1%', '0.9%', '0.8%', '0.7%', '0.6%', '0.5%', '0.4%']
+                nuevo_risk_list = []
+                cols_risk = st.columns([1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 0.2])
+                for idx, op in enumerate(risk_opts):
+                    if cols_risk[idx].checkbox(op, key=f"new_risk_{idx}"): nuevo_risk_list.append(op)
         
-    with c_btn:
-        btn_save = st.form_submit_button("GUARDAR", key="btn_save_main")
+                nuevo_risk = ", ".join(nuevo_risk_list) if nuevo_risk_list else ""
+                st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 5px; margin-bottom: 0px;'>{_l['dash']['rr']}</div>", unsafe_allow_html=True)
+                rr_opts = ['1:1', '1:1.5', '1:2', '1:3', '1:4']
+                nuevo_rr_list = []
+                cols_rr = st.columns([1.5, 1.5, 1.5, 1.5, 1.5, 1.5]) 
+                
+                for idx, op in enumerate(rr_opts):
+                    if cols_rr[idx].checkbox(op, key=f"new_rr_{idx}"): nuevo_rr_list.append(op)
+                nuevo_rr = ", ".join(nuevo_rr_list) if nuevo_rr_list else ""
+                st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 5px; margin-bottom: 0px;'>{_l['dash']['tt']}</div>", unsafe_allow_html=True)
+                tt_opts = ['A+', 'A', 'B', 'C']
+                nuevo_tt_list = []
+                cols_tt = st.columns([1, 1, 1, 1, 4])
+                for idx, op in enumerate(tt_opts):
+                    if cols_tt[idx].checkbox(op, key=f"new_tt_{idx}"): nuevo_tt_list.append(op)
+              
+                nuevo_tt = ", ".join(nuevo_tt_list) if nuevo_tt_list else ""
+                st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
+                nuevo_emo = st.text_area(_l['dash']['emo'], value='', height=45)
+                nuevo_corr = st.text_area(_l['dash']['corr'], value='', height=45)
+                
+        with c_link:
+            # Estructura para el Link replicando el diseño visual del Upload pequeño de la imagen
+            st.markdown(f'''
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div class="lbl-header">🔗 Image Link:</div>
+                <div style="font-size:11px; color:#A0AEC0; font-weight:bold; background:rgba(255,255,255,0.05); padding:4px 10px; border-radius:4px; margin-bottom:6px; cursor:pointer; border: 1px solid #4A5568;">📤 Upload</div>
+            </div>
+            ''', unsafe_allow_html=True)
+            link_imagen = st.text_input("Link", value="", label_visibility="collapsed", placeholder="🔗 Pega el Enlace de la Imagen")
+            # El uploader real vive aquí para no romper tu lógica, pero está oculto visualmente por el CSS
+            imgs_subidas = st.file_uploader("", accept_multiple_files=True, label_visibility="collapsed")
+            
+        with c_btn:
+            btn_save = st.form_submit_button("GUARDAR", key="btn_save_main")
 
     if btn_save:
         entrada_limpia = str(nuevo_bal_input_str).strip()
