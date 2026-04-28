@@ -1245,8 +1245,114 @@ with col_set:
     <div style='height: 25px;'></div>
     """, unsafe_allow_html=True)
     
-    with st.popover("⚙️", use_container_width=True):
+    # === MODAL DE AJUSTES INSTANTÁNEO (Puro CSS y JS, Cero Refresh) ===
+    st.markdown("""
+    <style>
+    /* 1. Checkbox oculto que controla si está abierto o cerrado */
+    #toggle-settings { display: none; }
+    
+    /* 2. Fondo oscuro borroso (Overlay) */
+    .settings-overlay {
+        display: none;
+        position: fixed;
+        top: 0; left: 0; width: 100vw; height: 100vh;
+        background: rgba(0, 0, 0, 0.85);
+        z-index: 9999998;
+        backdrop-filter: blur(5px);
+    }
+    
+    /* 3. El diseño del CUADRO (Modal) fijo y centrado */
+    .fixed-modal-ajustes {
+        display: none; /* Oculto por defecto */
+        position: fixed !important;
+        top: 50% !important;
+        left: 50% !important;
+        transform: translate(-50%, -50%) !important;
+        width: 95vw !important;
+        max-width: 650px !important;
+        height: 85vh !important;
+        background-color: var(--card_bg, #2D3748) !important;
+        z-index: 9999999 !important;
+        border-radius: 15px !important;
+        box-shadow: 0px 20px 50px rgba(0,0,0,0.9) !important;
+        padding: 25px !important;
+        overflow-y: auto !important;
+        border: 2px solid #00C897 !important;
+    }
+
+    /* 4. Magia CSS: Mostrar todo al darle click al botón */
+    body:has(#toggle-settings:checked) .fixed-modal-ajustes,
+    body:has(#toggle-settings:checked) .settings-overlay {
+        display: flex !important;
+        flex-direction: column !important;
+    }
+
+    /* 5. El botón ⚙️ en la barra superior */
+    .btn-fake-gear {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 42px;
+        background: transparent;
+        border: 1px solid #4A5568;
+        border-radius: 8px;
+        font-size: 22px;
+        cursor: pointer;
+        transition: 0.2s ease-in-out;
+        color: white;
+    }
+    .btn-fake-gear:hover {
+        border-color: #00C897;
+        background: rgba(0, 200, 151, 0.1);
+    }
+    
+    /* 6. Botón de Cerrar dentro del Cuadro */
+    .btn-close-settings {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: #FF4C4C;
+        color: white;
+        padding: 6px 16px;
+        border-radius: 8px;
+        font-weight: 800;
+        cursor: pointer;
+        z-index: 10000000;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        transition: 0.2s;
+    }
+    .btn-close-settings:hover {
+        transform: scale(1.05);
+    }
+    </style>
+    
+    <input type="checkbox" id="toggle-settings">
+    <div class="settings-overlay">
+        <label for="toggle-settings" style="width:100%; height:100%; display:block; cursor:pointer;"></label>
+    </div>
+    <label for="toggle-settings" class="btn-fake-gear">⚙️</label>
+    """, unsafe_allow_html=True)
+
+    # Contenedor aislado para inyectarle la clase del Cuadro/Modal
+    with st.container():
+        st.markdown('<div id="ancla-modal-ajustes"><label for="toggle-settings" class="btn-close-settings">✖ CERRAR</label></div>', unsafe_allow_html=True)
         contenido_ajustes()
+        
+        # Script francotirador: Busca este bloque exacto y lo vuelve flotante sin recargar nada
+        components.html("""
+        <script>
+            const doc = window.parent.document;
+            const ancla = doc.getElementById('ancla-modal-ajustes');
+            if (ancla) {
+                const modalContainer = ancla.closest('div[data-testid="stVerticalBlock"]');
+                if (modalContainer) {
+                    modalContainer.classList.add('fixed-modal-ajustes');
+                }
+            }
+        </script>
+        """, height=0, width=0)
+    # ==============================================================
 
 with col_t:
     if paso_cuenta: badge_html = f'<span style="font-size: 20px; background-color: #00C897; color: white; padding: 4px 12px; border-radius: 8px; margin-left: 15px; font-weight: 800; letter-spacing: 0px;">{_l["dash"]["pa"]}</span>'
@@ -1425,30 +1531,147 @@ with col_cal:
     color_win_top = "#00C897" if win_pct_top >= 50 else "#FF4C4C"
     bg_win_top = "#e6f9f4" if win_pct_top >= 50 else "#ffeded"
 
-    @st.dialog("📅 Selector de Fecha / Date Selector")
-    def modal_saltar_fecha():
-        if st.session_state.idioma == "ES":
-            meses_lista_jump = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
-            lbl_mes, lbl_anio, lbl_btn = "Mes", "Año", "Ir a fecha"
-        else:
-            meses_lista_jump = list(calendar.month_name)[1:]
-            lbl_mes, lbl_anio, lbl_btn = "Month", "Year", "Go to date"
-        
-        nuevo_mes_jump = st.selectbox(lbl_mes, meses_lista_jump, index=st.session_state.cal_month - 1, key="jump_month")
-        nuevo_anio_jump = st.number_input(lbl_anio, min_value=2000, max_value=2100, value=st.session_state.cal_year, step=1, key="jump_year")
-        
-        if st.button(lbl_btn, use_container_width=True, key="btn_jump_go"):
-            st.session_state.cal_month = meses_lista_jump.index(nuevo_mes_jump) + 1
-            st.session_state.cal_year = nuevo_anio_jump
-            st.rerun()
-
+    # === MODAL INSTANTÁNEO DEL SELECTOR DE FECHAS ===
+# === MODAL INSTANTÁNEO Y GRANDE DEL SELECTOR DE FECHAS ===
     c_izq, c_cen, c_der, c_jump, c_stats = st.columns([0.6, 2, 0.6, 0.6, 3.2])
     with c_izq: st.button("◀", on_click=cambiar_mes, args=(-1,), use_container_width=True)
     with c_cen: st.markdown(f'<div style="text-align:center; font-weight:600; font-size:var(--cal-mes-size); color:{c_mes}; margin-top:2px;">{nombre_mes} {anio_sel}</div>', unsafe_allow_html=True)
     with c_der: st.button("▶", on_click=cambiar_mes, args=(1,), use_container_width=True)
+    
     with c_jump: 
-        if st.button("📅", use_container_width=True, key="btn_open_jump"):
-            modal_saltar_fecha()
+        st.markdown("""
+        <style>
+        #toggle-jump { display: none; }
+        .jump-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0, 0, 0, 0.85); z-index: 9999998; backdrop-filter: blur(5px);
+        }
+        .fixed-modal-jump {
+            display: none; position: fixed !important; top: 50% !important; left: 50% !important;
+            transform: translate(-50%, -50%) !important; 
+            width: 95vw !important; max-width: 600px !important; /* 🔥 CUADRO MÁS GRANDE AQUÍ 🔥 */
+            height: auto !important; max-height: 85vh !important;
+            background-color: var(--card_bg, #2D3748) !important; z-index: 9999999 !important;
+            border-radius: 15px !important; padding: 30px !important; border: 2px solid #00C897 !important;
+            box-shadow: 0px 20px 50px rgba(0,0,0,0.9) !important;
+        }
+        body:has(#toggle-jump:checked) .fixed-modal-jump,
+        body:has(#toggle-jump:checked) .jump-overlay { display: flex !important; flex-direction: column !important; }
+        .btn-fake-jump {
+            display: flex; align-items: center; justify-content: center; width: 100%; height: 35px;
+            background: transparent; border: 1px solid #4A5568; border-radius: 8px; font-size: 20px;
+            cursor: pointer; transition: 0.2s; color: white; margin-top: 1px;
+        }
+        .btn-fake-jump:hover { border-color: #00C897; background: rgba(0, 200, 151, 0.1); }
+        .btn-close-jump {
+            position: absolute; top: 15px; right: 15px; background: #FF4C4C; color: white;
+            padding: 6px 16px; border-radius: 8px; font-weight: 800; cursor: pointer;
+            z-index: 10000000; box-shadow: 0 4px 6px rgba(0,0,0,0.3); transition: 0.2s;
+        }
+        .btn-close-jump:hover { transform: scale(1.05); }
+        </style>
+        <input type="checkbox" id="toggle-jump">
+        <div class="jump-overlay"><label for="toggle-jump" style="width:100%; height:100%; display:block; cursor:pointer;"></label></div>
+        <label for="toggle-jump" class="btn-fake-jump">📅</label>
+        """, unsafe_allow_html=True)
+
+        with st.container():
+            st.markdown('<div id="ancla-modal-jump"><label for="toggle-jump" class="btn-close-jump">✖ CERRAR</label><h2 style="text-align:center; margin-top:0; font-size: 30px;">📅 Selector de Fecha</h2></div>', unsafe_allow_html=True)
+            if st.session_state.idioma == "ES":
+                meses_lista_jump = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
+                lbl_mes, lbl_anio, lbl_btn = "Mes", "Año", "Ir a fecha"
+            else:
+                meses_lista_jump = list(calendar.month_name)[1:]
+                lbl_mes, lbl_anio, lbl_btn = "Month", "Year", "Go to date"
+            
+            # 🔥 ESCUDO ANTI-REDIBUJADOS: st.form envuelve los inputs 🔥
+            with st.form("form_jump_date", border=False):
+                st.markdown("<br>", unsafe_allow_html=True)
+                nuevo_mes_jump = st.selectbox(lbl_mes, meses_lista_jump, index=st.session_state.cal_month - 1, key="jump_month")
+                nuevo_anio_jump = st.number_input(lbl_anio, min_value=2000, max_value=2100, value=st.session_state.cal_year, step=1, key="jump_year")
+                
+                st.markdown("<br>", unsafe_allow_html=True)
+                # El botón final que ejecutará 1 solo redibujado de la página al final
+                submitted = st.form_submit_button(lbl_btn, use_container_width=True)
+                if submitted:
+                    st.session_state.cal_month = meses_lista_jump.index(nuevo_mes_jump) + 1
+                    st.session_state.cal_year = nuevo_anio_jump
+                    st.rerun()
+            
+            components.html("""
+            <script>
+                const doc = window.parent.document;
+                const ancla = doc.getElementById('ancla-modal-jump');
+                if (ancla) {
+                    const modalContainer = ancla.closest('div[data-testid="stVerticalBlock"]');
+                    if (modalContainer) { modalContainer.classList.add('fixed-modal-jump'); }
+                }
+            </script>
+            """, height=0, width=0)
+    
+    with c_jump: 
+        st.markdown("""
+        <style>
+        #toggle-jump { display: none; }
+        .jump-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0, 0, 0, 0.85); z-index: 9999998; backdrop-filter: blur(5px);
+        }
+        .fixed-modal-jump {
+            display: none; position: fixed !important; top: 50% !important; left: 50% !important;
+            transform: translate(-50%, -50%) !important; width: 90vw !important; max-width: 400px !important;
+            background-color: var(--card_bg, #2D3748) !important; z-index: 9999999 !important;
+            border-radius: 15px !important; padding: 25px !important; border: 2px solid #00C897 !important;
+            box-shadow: 0px 20px 50px rgba(0,0,0,0.9) !important;
+        }
+        body:has(#toggle-jump:checked) .fixed-modal-jump,
+        body:has(#toggle-jump:checked) .jump-overlay { display: flex !important; flex-direction: column !important; }
+        .btn-fake-jump {
+            display: flex; align-items: center; justify-content: center; width: 100%; height: 35px;
+            background: transparent; border: 1px solid #4A5568; border-radius: 8px; font-size: 20px;
+            cursor: pointer; transition: 0.2s; color: white; margin-top: 1px;
+        }
+        .btn-fake-jump:hover { border-color: #00C897; background: rgba(0, 200, 151, 0.1); }
+        .btn-close-jump {
+            position: absolute; top: 15px; right: 15px; background: #FF4C4C; color: white;
+            padding: 6px 16px; border-radius: 8px; font-weight: 800; cursor: pointer;
+            z-index: 10000000; box-shadow: 0 4px 6px rgba(0,0,0,0.3); transition: 0.2s;
+        }
+        .btn-close-jump:hover { transform: scale(1.05); }
+        </style>
+        <input type="checkbox" id="toggle-jump">
+        <div class="jump-overlay"><label for="toggle-jump" style="width:100%; height:100%; display:block; cursor:pointer;"></label></div>
+        <label for="toggle-jump" class="btn-fake-jump">📅</label>
+        """, unsafe_allow_html=True)
+
+        with st.container():
+            st.markdown('<div id="ancla-modal-jump"><label for="toggle-jump" class="btn-close-jump">✖ CERRAR</label><h3 style="text-align:center; margin-top:0;">📅 Selector de Fecha</h3></div>', unsafe_allow_html=True)
+            if st.session_state.idioma == "ES":
+                meses_lista_jump = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
+                lbl_mes, lbl_anio, lbl_btn = "Mes", "Año", "Ir a fecha"
+            else:
+                meses_lista_jump = list(calendar.month_name)[1:]
+                lbl_mes, lbl_anio, lbl_btn = "Month", "Year", "Go to date"
+            
+            nuevo_mes_jump = st.selectbox(lbl_mes, meses_lista_jump, index=st.session_state.cal_month - 1, key="jump_month")
+            nuevo_anio_jump = st.number_input(lbl_anio, min_value=2000, max_value=2100, value=st.session_state.cal_year, step=1, key="jump_year")
+            
+            # Solo aquí, al dar click en "Ir a fecha", hacemos el refresh necesario
+            if st.button(lbl_btn, use_container_width=True, key="btn_jump_go"):
+                st.session_state.cal_month = meses_lista_jump.index(nuevo_mes_jump) + 1
+                st.session_state.cal_year = nuevo_anio_jump
+                st.rerun()
+            
+            components.html("""
+            <script>
+                const doc = window.parent.document;
+                const ancla = doc.getElementById('ancla-modal-jump');
+                if (ancla) {
+                    const modalContainer = ancla.closest('div[data-testid="stVerticalBlock"]');
+                    if (modalContainer) { modalContainer.classList.add('fixed-modal-jump'); }
+                }
+            </script>
+            """, height=0, width=0)
     with c_stats:
         st.markdown(f'''<div style="display:flex; justify-content:flex-end; align-items:center; gap:20px; margin-top:8px;"><div style="font-weight:700; font-size:var(--size-top-stats); color:{c_mes}; display:flex; align-items:center; gap:8px;"> P&L: <span style="background-color:{bg_pnl_top}; color:{color_pnl_top}; padding:4px 12px; border-radius:12px; font-weight:800;">{simb_pnl_top}${net_pnl_top:,.2f}</span></div><div style="font-weight:700; font-size:var(--size-top-stats); color:{c_mes}; display:flex; align-items:center; gap:8px;">Win Rate: <span style="background-color:{bg_win_top}; color:{color_win_top}; padding:4px 12px; border-radius:12px; font-weight:800;">{win_pct_top:.1f}%</span></div></div>''', unsafe_allow_html=True)
     
