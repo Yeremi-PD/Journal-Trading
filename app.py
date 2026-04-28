@@ -1253,129 +1253,32 @@ col_t, col_fil, col_data, col_bal, col_set = st.columns([2.5, 1.5, 1.5, 2, 0.5])
 with col_set:
     st.markdown("""
     <style>
-    /* Liberar al botón ⚙️ de las reglas del calendario para que se adapte perfecto */
+    /* CSS para asegurar que el botón nativo ⚙️ encaje perfectamente */
     div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"],
-    div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > div:first-child { width: 100% !important; min-width: 0 !important; height: auto !important; }
-    
-    div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > button,
-    div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] button[kind="secondary"] { 
-        width: 100% !important; height: 42px !important; min-height: 42px !important; 
-        border-radius: 8px !important; position: relative !important; 
-        background-color: transparent !important; display: flex !important; 
-        align-items: center !important; justify-content: center !important;
+    div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > div:first-child { 
+        width: 100% !important; height: auto !important;
     }
-    div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > button p { font-size: 22px !important; margin: 0 !important; }
-    </style>
-    <div style='height: 25px;'></div>
-    """, unsafe_allow_html=True)
-    
-    # === MODAL DE AJUSTES INSTANTÁNEO (Puro CSS y JS, Cero Refresh) ===
-    st.markdown("""
-    <style>
-    /* 1. Checkbox oculto que controla si está abierto o cerrado */
-    #toggle-settings { display: none; }
-    
-    /* 2. Fondo oscuro borroso (Overlay) */
-    .settings-overlay {
-        display: none;
-        position: fixed;
-        top: 0; left: 0; width: 100vw; height: 100vh;
-        background: rgba(0, 0, 0, 0.85);
-        z-index: 9999998;
-        backdrop-filter: blur(5px);
+    div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > button {
+        width: 100% !important;
+        height: 42px !important; min-height: 42px !important; 
+        border-radius: 8px !important; 
+        background-color: transparent !important; 
+        border: 1px solid #4A5568 !important;
+        display: flex !important; align-items: center !important; justify-content: center !important;
+        margin-top: 25px !important; /* Alineado con los otros campos */
     }
-    
-    /* 3. El diseño del CUADRO (Modal) fijo y centrado */
-    .fixed-modal-ajustes {
-        display: none; /* Oculto por defecto */
-        position: fixed !important;
-        top: 50% !important;
-        left: 50% !important;
-        transform: translate(-50%, -50%) !important;
-        width: 95vw !important;
-        max-width: 650px !important;
-        height: 85vh !important;
-        background-color: var(--card_bg, #2D3748) !important;
-        z-index: 9999999 !important;
-        border-radius: 15px !important;
-        box-shadow: 0px 20px 50px rgba(0,0,0,0.9) !important;
-        padding: 25px !important;
-        overflow-y: auto !important;
-        border: 2px solid #00C897 !important;
+    div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > button p { 
+        font-size: 22px !important; margin: 0 !important; color: white !important;
     }
-
-    /* 4. Magia CSS: Mostrar todo al darle click al botón */
-    body:has(#toggle-settings:checked) .fixed-modal-ajustes,
-    body:has(#toggle-settings:checked) .settings-overlay {
-        display: flex !important;
-        flex-direction: column !important;
-    }
-
-    /* 5. El botón ⚙️ en la barra superior */
-    .btn-fake-gear {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 100%;
-        height: 42px;
-        background: transparent;
-        border: 1px solid #4A5568;
-        border-radius: 8px;
-        font-size: 22px;
-        cursor: pointer;
-        transition: 0.2s ease-in-out;
-        color: white;
-    }
-    .btn-fake-gear:hover {
-        border-color: #00C897;
-        background: rgba(0, 200, 151, 0.1);
-    }
-    
-    /* 6. Botón de Cerrar dentro del Cuadro */
-    .btn-close-settings {
-        position: absolute;
-        top: 15px;
-        right: 15px;
-        background: #FF4C4C;
-        color: white;
-        padding: 6px 16px;
-        border-radius: 8px;
-        font-weight: 800;
-        cursor: pointer;
-        z-index: 10000000;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-        transition: 0.2s;
-    }
-    .btn-close-settings:hover {
-        transform: scale(1.05);
+    div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > button:hover {
+        border-color: #00C897 !important;
+        background: rgba(0, 200, 151, 0.1) !important;
     }
     </style>
-    
-    <input type="checkbox" id="toggle-settings">
-    <div class="settings-overlay">
-        <label for="toggle-settings" style="width:100%; height:100%; display:block; cursor:pointer;"></label>
-    </div>
-    <label for="toggle-settings" class="btn-fake-gear">⚙️</label>
     """, unsafe_allow_html=True)
 
-    # Contenedor aislado para inyectarle la clase del Cuadro/Modal
-    with st.container():
-        st.markdown('<div id="ancla-modal-ajustes"><label for="toggle-settings" class="btn-close-settings">✖ CERRAR</label></div>', unsafe_allow_html=True)
+    with st.popover("⚙️", use_container_width=True):
         contenido_ajustes()
-        
-        # Script francotirador: Busca este bloque exacto y lo vuelve flotante sin recargar nada
-        components.html("""
-        <script>
-            const doc = window.parent.document;
-            const ancla = doc.getElementById('ancla-modal-ajustes');
-            if (ancla) {
-                const modalContainer = ancla.closest('div[data-testid="stVerticalBlock"]');
-                if (modalContainer) {
-                    modalContainer.classList.add('fixed-modal-ajustes');
-                }
-            }
-        </script>
-        """, height=0, width=0)
     # ==============================================================
 
 with col_t:
