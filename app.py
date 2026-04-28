@@ -605,25 +605,7 @@ for dev in ["PC", "Móvil"]:
         if k not in db_global[usuario]["settings"][dev]:
             db_global[usuario]["settings"][dev][k] = v
 
-# IGNORAMOS LA DB Y FORZAMOS AJUSTES DE FÁBRICA PERFECTOS AUTOMÁTICOS
-if st.session_state.dispositivo_actual == "Móvil":
-    user_settings = {
-        "orientacion_horizontal": False, "bal_num_sz": 22, "bal_box_w": 85, "bal_box_pad": 8,
-        "size_top_stats": 14, "size_card_titles": 11, "size_box_titles": 14, "size_box_vals": 16, 
-        "size_box_pct": 12, "size_box_wl": 10, "pie_size": 80, "pie_y_offset": 0,
-        "cal_mes_size": 20, "cal_pnl_size": 18, "cal_pct_size": 14, "cal_dia_size": 14, 
-        "cal_cam_size": 20, "cal_scale": 70, "cal_line_height": 1.1, "cal_txt_y": 0, 
-        "cal_txt_pad": 0, "cal_note_size": 20, "note_lbl_size": 14, "note_val_size": 14
-    }
-else:
-    user_settings = {
-        "orientacion_horizontal": False, "bal_num_sz": 30, "bal_box_w": 50, "bal_box_pad": 10,
-        "size_top_stats": 18, "size_card_titles": 14, "size_box_titles": 20, "size_box_vals": 25, 
-        "size_box_pct": 20, "size_box_wl": 14, "pie_size": 120, "pie_y_offset": 0,
-        "cal_mes_size": 28, "cal_pnl_size": 30, "cal_pct_size": 25, "cal_dia_size": 20, 
-        "cal_cam_size": 30, "cal_scale": 100, "cal_line_height": 1.2, "cal_txt_y": 0, 
-        "cal_txt_pad": 0, "cal_note_size": 30, "note_lbl_size": 16, "note_val_size": 16
-    }
+user_settings = db_global[usuario]["settings"][st.session_state.dispositivo_actual]
 
 hoy = datetime.now().date()
 if "modo_backtesting" not in st.session_state: st.session_state.modo_backtesting = False
@@ -789,6 +771,46 @@ def modal_ajustes():
                         try: st.query_params.clear()
                         except: pass
                     st.rerun()
+
+    st.markdown("---")
+    st.markdown(f"### {_l['sidebar']['sec_dash']}")
+    with st.expander(_l['sidebar']['dash_set']):
+        if st.button(_l['sidebar']['res_dash'], key="res_dash", use_container_width=True): 
+            reset_settings("dash")
+            st.rerun()
+        user_settings["bal_num_sz"] = st.slider(_l['sidebar']['bal_num_sz'], 10, 60, user_settings["bal_num_sz"])
+        user_settings["bal_box_w"] = st.slider(_l['sidebar']['green_w'], 10, 100, user_settings["bal_box_w"])
+        user_settings["bal_box_pad"] = st.slider(_l['sidebar']['green_pad'], 0, 50, user_settings["bal_box_pad"])
+
+    with st.expander(_l['sidebar']['txt_chart_set']):
+        if st.button(_l['sidebar']['res_txt'], key="res_txt", use_container_width=True): 
+            reset_settings("txt")
+            st.rerun()
+        user_settings["size_top_stats"] = st.slider(_l['sidebar']['sz_top'], 10, 40, user_settings["size_top_stats"])
+        user_settings["size_card_titles"] = st.slider(_l['sidebar']['sz_tit'], 10, 40, user_settings["size_card_titles"])
+        user_settings["size_box_titles"] = st.slider(_l['sidebar']['sz_tit_wm'], 10, 40, user_settings["size_box_titles"])
+        user_settings["size_box_vals"] = st.slider(_l['sidebar']['sz_pnl_box'], 10, 50, user_settings["size_box_vals"])
+        user_settings["size_box_pct"] = st.slider(_l['sidebar']['sz_pct_box'], 10, 40, user_settings["size_box_pct"])
+        user_settings["size_box_wl"] = st.slider(_l['sidebar']['sz_wl_box'], 10, 40, user_settings["size_box_wl"])
+        user_settings["pie_size"] = st.slider(_l['sidebar']['pie_sz'], 50, 300, user_settings["pie_size"])
+        user_settings["pie_y_offset"] = st.slider(_l['sidebar']['pie_y'], -100, 100, user_settings["pie_y_offset"])
+
+    with st.expander(_l['sidebar']['cal_set']):
+        if st.button(_l['sidebar']['res_cal'], key="res_cal", use_container_width=True): 
+            reset_settings("cal")
+            st.rerun()
+        user_settings["cal_mes_size"] = st.slider(_l['sidebar']['cal_mo_sz'], 10, 50, user_settings["cal_mes_size"])
+        user_settings["cal_pnl_size"] = st.slider(_l['sidebar']['cal_pnl_sz'], 10, 40, user_settings["cal_pnl_size"])
+        user_settings["cal_pct_size"] = st.slider(_l['sidebar']['cal_pct_sz'], 10, 30, user_settings["cal_pct_size"])
+        user_settings["cal_dia_size"] = st.slider(_l['sidebar']['cal_num_sz'], 10, 30, user_settings["cal_dia_size"])
+        user_settings["cal_cam_size"] = st.slider(_l['sidebar']['cal_cam_sz'], 10, 50, user_settings["cal_cam_size"])
+        user_settings["cal_note_size"] = st.slider(_l['sidebar']['cal_note_sz'], 10, 50, user_settings.get("cal_note_size", 30))
+        user_settings["note_lbl_size"] = st.slider(_l['sidebar']['cal_note_lbl'], 10, 40, user_settings.get("note_lbl_size", 16))
+        user_settings["note_val_size"] = st.slider(_l['sidebar']['cal_note_val'], 10, 40, user_settings.get("note_val_size", 16))
+        user_settings["cal_scale"] = st.slider(_l['sidebar']['cal_scale'], 50, 200, user_settings["cal_scale"])
+        user_settings["cal_line_height"] = st.slider(_l['sidebar']['cal_space'], 0.5, 3.0, user_settings["cal_line_height"], 0.1)
+        user_settings["cal_txt_y"] = st.slider(_l['sidebar']['cal_y'], -50, 50, user_settings.get("cal_txt_y", 0))
+        user_settings["cal_txt_pad"] = st.slider(_l['sidebar']['cal_pad'], -50, 50, user_settings.get("cal_txt_pad", 0))
 
     st.markdown("---")
     st.markdown(f"### {_l['sidebar']['sec_gallery']}")
@@ -1052,15 +1074,12 @@ st.markdown(f"""
     .prev-img-btn:hover, .next-img-btn:hover {{ background: #00C897 !important; }}
 
     .card-pnl, .card-win, .card-rr {{ width: 100% !important; height: auto !important; min-height: 100px !important; }}
-/* Ajustes Auto-Mágicos para Tarjetas (Nunca se rompen en 2 líneas) */
-    .metric-card {{ background-color: {card_bg} !important; border-radius: 15px !important; padding: 12px 5px !important;
-    border: 1px solid {border_color} !important; display: flex !important; flex-direction: column !important; align-items: center !important; text-align: center !important; overflow: hidden !important; }}
-    
-    .metric-header {{ display: flex !important; align-items: center !important; justify-content: center !important; gap: 4px !important; margin-bottom: 5px !important; width: 100% !important; }}
-    
-    .title-net-pnl {{ font-size: var(--size-card-titles) !important; font-weight: 800 !important; color: {c_tit_pnl} !important; white-space: nowrap !important; letter-spacing: -0.5px !important; overflow: visible !important; }}
-    
-    .title-trade-win {{ font-size: var(--size-card-titles) !important; font-weight: 800 !important; color: {c_tit_win} !important; white-space: nowrap !important; letter-spacing: -0.5px !important; overflow: visible !important; }}
+    .metric-card {{ background-color: {card_bg} !important; border-radius: 15px !important; padding: 15px 20px !important; border: 1px solid {border_color} !important; }}
+    .metric-header {{ display: flex !important; align-items: center !important; gap: 8px !important; margin-bottom: 5px !important; }}
+    .title-net-pnl {{ font-size: var(--size-card-titles) !important; font-weight: 700 !important; color: {c_tit_pnl} !important; }}
+    .title-trade-win {{ font-size: var(--size-card-titles) !important; font-weight: 700 !important; color: {c_tit_win} !important; }}
+    .pnl-value {{ font-size: 28px !important; font-weight: 800 !important; color: #00C897 !important; letter-spacing: -0.5px !important; }}
+    .pnl-value-loss {{ color: #FF4C4C !important; }}
     
     /* Win Rate gigante, exactamente del mismo tamaño que P&L */
     .win-value {{ font-size: 28px !important; font-weight: 800 !important; letter-spacing: -0.5px !important; }}
