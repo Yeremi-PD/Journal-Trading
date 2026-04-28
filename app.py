@@ -1368,7 +1368,7 @@ div[data-testid="stForm"] div[data-baseweb="base-input"] {
 
 div[data-testid="stForm"] input {
     color: white !important;
-    font-size: 14px !important;
+    font-size: 141px !important;
     padding: 0 10px !important;
     height: 40px !important;
     line-height: 40px !important;
@@ -1403,7 +1403,7 @@ div[data-testid="stForm"] div[data-testid="stPopover"] > button {
     border-radius: 6px !important;
     height: 4px !important; /* Más chino (finito) */
     min-height: 34px !important;
-    margin-top: 9px !important; /* Para centrarlo con las otras cajas que miden 40px */
+    margin-top: 93px !important; /* Para centrarlo con las otras cajas que miden 40px */
     color: white !important;
     display: flex !important;
     justify-content: flex-start !important;
