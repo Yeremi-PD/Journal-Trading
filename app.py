@@ -1362,8 +1362,8 @@ div[data-testid="stForm"] div[data-baseweb="base-input"] {
     background-color: #2D3748 !important;
     border: 1px solid #4A5568 !important;
     border-radius: 6px !important;
-    height: 404px !important;
-    min-height: 40px !important;
+    height: 40px !important;
+    min-height: 50px !important;
 }
 
 div[data-testid="stForm"] input {
