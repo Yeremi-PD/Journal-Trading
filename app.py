@@ -1332,16 +1332,102 @@ with col_bal:
 
 st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
 
+# === CSS EXCLUSIVO PARA LA BARRA DE ENTRADA (Estilo Finance Center) ===
+st.markdown("""
+<style>
+/* Contenedor principal de la caja */
+div[data-testid="stForm"] {
+    background-color: #1A202C !important;
+    border: 1px solid #4A5568 !important;
+    border-radius: 12px !important;
+    padding: 15px 20px 20px 20px !important;
+    margin-bottom: 25px !important;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2) !important;
+}
+
+/* Títulos pequeños de arriba (Date:, Cantidad:, etc.) */
+.lbl-header {
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    color: #E2E8F0 !important;
+    margin-bottom: 6px !important;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* Inputs de texto y números */
+div[data-testid="stForm"] div[data-baseweb="input"], 
+div[data-testid="stForm"] div[data-baseweb="base-input"] {
+    background-color: #2D3748 !important;
+    border: 1px solid #4A5568 !important;
+    border-radius: 6px !important;
+    height: 40px !important;
+    min-height: 40px !important;
+}
+
+div[data-testid="stForm"] input {
+    color: white !important;
+    font-size: 14px !important;
+    padding: 0 10px !important;
+    height: 40px !important;
+    line-height: 40px !important;
+}
+
+/* Reparación para que la fecha se vea blanca y sin el emoji viejo encima */
+div[data-testid="stForm"] div[data-testid="stDateInput"] input {
+    color: white !important;
+    -webkit-text-fill-color: white !important;
+}
+div[data-testid="stForm"] div[data-testid="stDateInput"]::after {
+    display: none !important; 
+}
+
+/* Botón GUARDAR estilo imagen */
+div[data-testid="stForm"] [data-testid="stFormSubmitButton"] button {
+    background-color: #00C897 !important;
+    color: white !important;
+    font-weight: bold !important;
+    height: 40px !important;
+    min-height: 40px !important;
+    border-radius: 6px !important;
+    border: none !important;
+    width: 100% !important;
+    margin-top: 25px !important; /* Lo empuja abajo para alinearlo con los inputs */
+}
+
+/* Botón de Popover (Trade Details) */
+div[data-testid="stForm"] div[data-testid="stPopover"] > button {
+    background-color: #2D3748 !important;
+    border: 1px solid #4A5568 !important;
+    border-radius: 6px !important;
+    height: 40px !important;
+    min-height: 40px !important;
+    color: white !important;
+    display: flex !important;
+    justify-content: flex-start !important;
+    padding-left: 10px !important;
+}
+
+div[data-testid="stForm"] div[data-testid="stPopover"] > button p {
+    font-size: 14px !important;
+    margin: 0 !important;
+}
+
+/* Ocultar uploader nativo para no romper diseño */
+div[data-testid="stFileUploader"] {
+    display: none !important; 
+}
+</style>
+""", unsafe_allow_html=True)
+
 with st.form(key="form_main_entry", clear_on_submit=True, border=False):
-    c1, c2, c_img, c_not, c_espacio = st.columns([1.5, 0.5, 2.5, 0.6, 3.4]) 
-    with c1:
-        st.markdown(f'<div class="lbl-input">{LBL_INPUT}</div>', unsafe_allow_html=True)
-        st.markdown(f"""<style>div[data-testid="stTextInput"]:has(input[aria-label="Balance Input"]) {{ margin-left: {INPUT_BAL_X}px !important; margin-top: {INPUT_BAL_Y}px !important; width: {INPUT_BAL_W} !important; min-width: {INPUT_BAL_W} !important; max-width: {INPUT_BAL_W} !important; }} div[data-testid="stTextInput"]:has(input[aria-label="Balance Input"]) > div:last-child, div[data-testid="stTextInput"]:has(input[aria-label="Balance Input"]) div[data-baseweb="base-input"], div[data-testid="stTextInput"]:has(input[aria-label="Balance Input"]) div[data-baseweb="input"] {{ height: {INPUT_BAL_H} !important; min-height: {INPUT_BAL_H} !important; background-color: {input_bg} !important; border-color: {border_color} !important; }} div[data-testid="stTextInput"]:has(input[aria-label="Balance Input"]) input {{ color: {c_lbl_in} !important; font-size: {INPUT_BAL_TXT_SIZE}px !important; background-color: {input_bg} !important; font-weight: bold !important; height: {INPUT_BAL_H} !important; box-sizing: border-box !important; padding-top: 15px !important; padding-bottom: 15px !important; display: flex !important; align-items: center !important; line-height: normal !important; }} div[data-testid="InputInstructions"] {{ display: none !important; }}</style>""", unsafe_allow_html=True)
-        nuevo_bal_input_str = st.text_input("Balance Input", value="", placeholder=f"{bal_mostrar:.2f}", label_visibility="collapsed")
-        btn_save = st.form_submit_button(_l['dash']['save'], key="btn_save_main")
-    with c2:
-        st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True) 
-        # Buscamos la fecha del último trade de esta cuenta para el selector
+    # Proporciones exactas de las columnas de la imagen
+    c_date, c_cant, c_det, c_link, c_btn = st.columns([1.2, 1.5, 2.5, 3.5, 1.2])
+    
+    with c_date:
+        st.markdown('<div class="lbl-header">Date:</div>', unsafe_allow_html=True)
+        # Lógica original de la fecha
         trades_de_esta_cta = db_usuario[ctx].get("trades", {})
         if trades_de_esta_cta:
             ult_f = max(trades_de_esta_cta.keys())
@@ -1358,14 +1444,15 @@ with st.form(key="form_main_entry", clear_on_submit=True, border=False):
             fecha_defecto = fecha_ultimo_trade_cta
             
         fecha_sel = st.date_input("Fecha", value=fecha_defecto, label_visibility="collapsed", key="btn_fecha_directa")
-    with c_img:
-        st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True) 
-        imgs_subidas = st.file_uploader("", accept_multiple_files=True, label_visibility="collapsed")
-        st.markdown(f'<div class="lbl-link">{LBL_LINK}</div>', unsafe_allow_html=True)
-        link_imagen = st.text_input("Link", value="", label_visibility="collapsed", placeholder=_l['dash']['paste_link'])
-    with c_not:
-        st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True) 
-        with st.popover("📝", use_container_width=True):
+        
+    with c_cant:
+        st.markdown('<div class="lbl-header">Cantidad:</div>', unsafe_allow_html=True)
+        nuevo_bal_input_str = st.text_input("Balance Input", value="", placeholder=f"{bal_mostrar:.2f}", label_visibility="collapsed")
+        
+    with c_det:
+        st.markdown('<div class="lbl-header">📝 Trade Details:</div>', unsafe_allow_html=True)
+        with st.popover(" ", use_container_width=True):
+            # Lógica original de los detalles del trade
             st.markdown(f"<div class='titulo-trade-details'>{_l['dash']['trade_det']}</div>", unsafe_allow_html=True)
             st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 5px; margin-bottom: 0px;'>{_l['dash']['bias']}</div>", unsafe_allow_html=True)
             bias_opts = ['LONG', 'SHORT', 'NONE']
@@ -1373,11 +1460,13 @@ with st.form(key="form_main_entry", clear_on_submit=True, border=False):
             cols_bias = st.columns([1, 1, 1, 3])
             for idx, op in enumerate(bias_opts):
                 if cols_bias[idx].checkbox(op, key=f"new_bias_{idx}"): nuevo_bias_list.append(op)
+            
             nuevo_bias = ", ".join(nuevo_bias_list) if nuevo_bias_list else "NONE"
             st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 15px; margin-bottom: 0px;'>{_l['dash']['conf']}</div>", unsafe_allow_html=True)
             all_confs_list = ['BIAS WELL', 'LIQ SWEEP', 'IFVG', 'FVG', 'EQH / EQL', 'BSL / SSL', 'POI', 'SMT', 'Order Block', 'Continuation', 'Data High / Data Low', 'CISD']
             nuevo_conf = []
             cols_conf = st.columns(3)
+        
             for idx, c_name in enumerate(all_confs_list):
                 if cols_conf[idx % 3].checkbox(c_name, key=f"new_conf_{idx}"): nuevo_conf.append(c_name)
             st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
@@ -1388,11 +1477,13 @@ with st.form(key="form_main_entry", clear_on_submit=True, border=False):
             cols_risk = st.columns([1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 0.2])
             for idx, op in enumerate(risk_opts):
                 if cols_risk[idx].checkbox(op, key=f"new_risk_{idx}"): nuevo_risk_list.append(op)
+    
             nuevo_risk = ", ".join(nuevo_risk_list) if nuevo_risk_list else ""
             st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 5px; margin-bottom: 0px;'>{_l['dash']['rr']}</div>", unsafe_allow_html=True)
             rr_opts = ['1:1', '1:1.5', '1:2', '1:3', '1:4']
             nuevo_rr_list = []
             cols_rr = st.columns([1.5, 1.5, 1.5, 1.5, 1.5, 1.5]) 
+            
             for idx, op in enumerate(rr_opts):
                 if cols_rr[idx].checkbox(op, key=f"new_rr_{idx}"): nuevo_rr_list.append(op)
             nuevo_rr = ", ".join(nuevo_rr_list) if nuevo_rr_list else ""
@@ -1402,10 +1493,26 @@ with st.form(key="form_main_entry", clear_on_submit=True, border=False):
             cols_tt = st.columns([1, 1, 1, 1, 4])
             for idx, op in enumerate(tt_opts):
                 if cols_tt[idx].checkbox(op, key=f"new_tt_{idx}"): nuevo_tt_list.append(op)
+          
             nuevo_tt = ", ".join(nuevo_tt_list) if nuevo_tt_list else ""
             st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
             nuevo_emo = st.text_area(_l['dash']['emo'], value='', height=45)
             nuevo_corr = st.text_area(_l['dash']['corr'], value='', height=45)
+            
+    with c_link:
+        # Estructura para el Link replicando el diseño visual del Upload pequeño de la imagen
+        st.markdown(f'''
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div class="lbl-header">🔗 Image Link:</div>
+            <div style="font-size:11px; color:#A0AEC0; font-weight:bold; background:rgba(255,255,255,0.05); padding:4px 10px; border-radius:4px; margin-bottom:6px; cursor:pointer; border: 1px solid #4A5568;">📤 Upload</div>
+        </div>
+        ''', unsafe_allow_html=True)
+        link_imagen = st.text_input("Link", value="", label_visibility="collapsed", placeholder="🔗 Pega el Enlace de la Imagen")
+        # El uploader real vive aquí para no romper tu lógica, pero está oculto visualmente por el CSS
+        imgs_subidas = st.file_uploader("", accept_multiple_files=True, label_visibility="collapsed")
+        
+    with c_btn:
+        btn_save = st.form_submit_button("GUARDAR", key="btn_save_main")
 
     if btn_save:
         entrada_limpia = str(nuevo_bal_input_str).strip()
