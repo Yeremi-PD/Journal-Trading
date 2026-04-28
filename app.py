@@ -630,8 +630,8 @@ def reset_settings(category):
 # ==========================================
 # 5. MODAL DE AJUSTES Y ADMIN (REEMPLAZA BARRA LATERAL)
 # ==========================================
-@st.dialog("⚙️ Menú de Ajustes", width="large")
-def modal_ajustes():
+def contenido_ajustes():
+    st.markdown("<h3 style='text-align: center; margin-top: -10px;'>⚙️ Menú de Ajustes</h3>", unsafe_allow_html=True)
     tamanio_texto_cuenta = "22px"
     st.markdown(
         f"<div style='margin-top:-15px; font-size: {tamanio_texto_cuenta}; font-weight: bold;'>"
@@ -1186,14 +1186,26 @@ if modo_funded_activo:
 col_t, col_fil, col_data, col_bal, col_set = st.columns([2.5, 1.5, 1.5, 2, 0.5])
 
 with col_set:
-    st.markdown("<div style='height: 25px;'></div>", unsafe_allow_html=True)
+    st.markdown("""
+    <style>
+    /* Liberar al botón ⚙️ de las reglas del calendario para que se adapte perfecto */
+    div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"],
+    div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > div:first-child { width: 100% !important; min-width: 0 !important; height: auto !important; }
     
-    @st.fragment
-    def aislar_boton_ajustes():
-        if st.button("⚙️", key="btn_abrir_ajustes", use_container_width=True):
-            modal_ajustes()
-            
-    aislar_boton_ajustes()
+    div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > button,
+    div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] button[kind="secondary"] { 
+        width: 100% !important; height: 42px !important; min-height: 42px !important; 
+        border-radius: 8px !important; position: relative !important; 
+        background-color: transparent !important; display: flex !important; 
+        align-items: center !important; justify-content: center !important;
+    }
+    div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > button p { font-size: 22px !important; margin: 0 !important; }
+    </style>
+    <div style='height: 25px;'></div>
+    """, unsafe_allow_html=True)
+    
+    with st.popover("⚙️", use_container_width=True):
+        contenido_ajustes()
 
 with col_t:
     if paso_cuenta: badge_html = f'<span style="font-size: 20px; background-color: #00C897; color: white; padding: 4px 12px; border-radius: 8px; margin-left: 15px; font-weight: 800; letter-spacing: 0px;">{_l["dash"]["pa"]}</span>'
