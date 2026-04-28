@@ -882,6 +882,31 @@ st.markdown(f"""
         margin-top: 0px !important; 
     }}
     
+/* 🔴 EL SECRETO: OCULTAR EL "RUNNING..." PARA QUE SEA INSTANTÁNEO 🔴 */
+    [data-testid="stStatusWidget"] {{ visibility: hidden !important; display: none !important; }}
+    
+    /* 🌟 MAGIA DE LAS PESTAÑAS (TABS) PREMIUM ESTILO FINANCE CENTER 🌟 */
+    div[data-testid="stTabs"] {{ padding: 15px 0px 20px 0px !important; margin-top: 5px !important; }}
+    div[data-testid="stTabs"] button {{
+        font-size: 18px !important; font-weight: 700 !important;
+        background-color: rgba(40, 40, 40, 0.4) !important; border-radius: 12px !important; 
+        padding: 12px 24px !important; margin: 0px 8px !important;
+        border: 1px solid {border_color} !important;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2) !important;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important; color: {c_dash} !important;
+    }}
+    div[data-testid="stTabs"] button:hover {{
+        transform: translateY(-4px) !important; border-color: #00C897 !important;
+        box-shadow: 0px 8px 15px rgba(0, 200, 151, 0.3) !important; z-index: 10 !important;
+    }}
+    div[data-testid="stTabs"] button[aria-selected="true"] {{
+        background: linear-gradient(145deg, #00C897, #007A5E) !important;
+        color: white !important; border: none !important;
+        transform: scale(1.05) translateY(-2px) !important; box-shadow: 0px 0px 20px rgba(0, 200, 151, 0.5) !important;
+    }}
+    div[data-testid="stTabs"] [data-baseweb="tab-highlight-point"] {{ display: none !important; }}
+    div[data-baseweb="tab-list"] {{ justify-content: center !important; gap: 10px !important; border-bottom: none !important; }}
+
     .stApp {{ background-color: {bg_color} !important; font-family: 'Inter', sans-serif !important; }}
     div[data-testid="column"] {{ overflow: visible !important; position: relative !important; }}
     
@@ -1781,7 +1806,9 @@ with col_cal:
 
 st.markdown("<br>", unsafe_allow_html=True)
 st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
-col_mitad_1, col_mitad_2 = st.columns(2)
+
+# 🚀 AQUI CREAMOS LAS PESTAÑAS AL ESTILO FINANCE CENTER 🚀
+tab_hist, tab_tabla = st.tabs(["🕒 HISTORIAL DE ÓRDENES", "📊 TABLA DE RESULTADOS"])
 
 def borrar_imagen_historial(contexto, clave, idx_trade, idx_img):
     if len(db_usuario[contexto]["trades"][clave][idx_trade]["imagenes"]) > idx_img: db_usuario[contexto]["trades"][clave][idx_trade]["imagenes"].pop(idx_img)
@@ -1798,8 +1825,8 @@ def ventana_borrar_trade(ctx, clave, i, usuario_actual):
         reescribir_excel_usuario(usuario_actual)
         st.rerun()
 
-with col_mitad_1:
-    with st.expander(_l['hist']['ord_hist'], expanded=False):
+with tab_hist:
+    with st.container(): # Usamos container para no romper la indentación original
         trades_actuales = db_usuario[ctx]["trades"]
         if not trades_actuales: st.info(_l['hist']['no_ord'])
         else:
@@ -1900,8 +1927,8 @@ with col_mitad_1:
                         if st.button("🗑️", key=f"trash_{clave}_{i}", use_container_width=True): ventana_borrar_trade(ctx, clave, i, usuario)
             if trades_en_mes == 0: st.info(_l['hist']['no_tr_mo'])
 
-with col_mitad_2:
-    with st.expander(_l['table']['res_tbl'], expanded=False):
+with tab_tabla:
+    with st.container():
         all_trades = db_usuario[ctx]["trades"]
         if not all_trades: st.info(_l['table']['no_tr_tbl'])
         else:
