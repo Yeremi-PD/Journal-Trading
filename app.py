@@ -1333,15 +1333,32 @@ with col_bal:
 st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
 
 with st.form(key="form_main_entry", clear_on_submit=True, border=False):
-    c1, c2, c_img, c_not, c_espacio = st.columns([1.5, 0.5, 2.5, 0.6, 3.4]) 
-    with c1:
+    # Proporciones calculadas para alinear perfectamente con el ancho del calendario (66% de la pantalla)
+    c_bal, c_save, c_date, c_link, c_not, c_espacio = st.columns([1.2, 0.8, 0.8, 2.0, 0.5, 2.7]) 
+    
+    with c_bal:
         st.markdown(f'<div class="lbl-input">{LBL_INPUT}</div>', unsafe_allow_html=True)
-        st.markdown(f"""<style>div[data-testid="stTextInput"]:has(input[aria-label="Balance Input"]) {{ margin-left: {INPUT_BAL_X}px !important; margin-top: {INPUT_BAL_Y}px !important; width: {INPUT_BAL_W} !important; min-width: {INPUT_BAL_W} !important; max-width: {INPUT_BAL_W} !important; }} div[data-testid="stTextInput"]:has(input[aria-label="Balance Input"]) > div:last-child, div[data-testid="stTextInput"]:has(input[aria-label="Balance Input"]) div[data-baseweb="base-input"], div[data-testid="stTextInput"]:has(input[aria-label="Balance Input"]) div[data-baseweb="input"] {{ height: {INPUT_BAL_H} !important; min-height: {INPUT_BAL_H} !important; background-color: {input_bg} !important; border-color: {border_color} !important; }} div[data-testid="stTextInput"]:has(input[aria-label="Balance Input"]) input {{ color: {c_lbl_in} !important; font-size: {INPUT_BAL_TXT_SIZE}px !important; background-color: {input_bg} !important; font-weight: bold !important; height: {INPUT_BAL_H} !important; box-sizing: border-box !important; padding-top: 15px !important; padding-bottom: 15px !important; display: flex !important; align-items: center !important; line-height: normal !important; }} div[data-testid="InputInstructions"] {{ display: none !important; }}</style>""", unsafe_allow_html=True)
+        st.markdown(f"""<style>
+        /* Ajuste de altura a {BTN_CAL_H}px para que toda la tira quede idéntica */
+        div[data-testid="stTextInput"]:has(input[aria-label="Balance Input"]) {{ margin: 0 !important; width: 100% !important; min-width: 100% !important; max-width: 100% !important; }}
+        div[data-testid="stTextInput"]:has(input[aria-label="Balance Input"]) > div:last-child, div[data-testid="stTextInput"]:has(input[aria-label="Balance Input"]) div[data-baseweb="base-input"], div[data-testid="stTextInput"]:has(input[aria-label="Balance Input"]) div[data-baseweb="input"] {{ height: {BTN_CAL_H}px !important; min-height: {BTN_CAL_H}px !important; background-color: {input_bg} !important; border-color: {border_color} !important; }}
+        div[data-testid="stTextInput"]:has(input[aria-label="Balance Input"]) input {{ color: {c_lbl_in} !important; font-size: {INPUT_BAL_TXT_SIZE}px !important; background-color: {input_bg} !important; font-weight: bold !important; height: {BTN_CAL_H}px !important; box-sizing: border-box !important; padding-top: 15px !important; padding-bottom: 15px !important; display: flex !important; align-items: center !important; line-height: normal !important; }}
+        
+        div[data-testid="stTextInput"]:has(input[aria-label="Link"]) {{ width: 100% !important; min-width: 100% !important; transform: none !important; margin-top: 0px !important; }}
+        div[data-testid="stTextInput"]:has(input[aria-label="Link"]) > div:last-child, div[data-testid="stTextInput"]:has(input[aria-label="Link"]) div[data-baseweb="base-input"], div[data-testid="stTextInput"]:has(input[aria-label="Link"]) div[data-baseweb="input"] {{ height: {BTN_CAL_H}px !important; min-height: {BTN_CAL_H}px !important; border-radius: 8px !important; border-color: {border_color} !important; }}
+        div[data-testid="stTextInput"]:has(input[aria-label="Link"]) input {{ height: {BTN_CAL_H}px !important; font-size: {LINK_IMG_TXT_SIZE}px !important; }}
+        
+        [data-testid="stFormSubmitButton"] button {{ width: 100% !important; height: {BTN_CAL_H}px !important; min-height: {BTN_CAL_H}px !important; margin-left: 0px !important; margin-top: 0px !important; border-radius: 8px !important; font-size: 18px !important; }}
+        div[data-testid="InputInstructions"] {{ display: none !important; }}
+        </style>""", unsafe_allow_html=True)
         nuevo_bal_input_str = st.text_input("Balance Input", value="", placeholder=f"{bal_mostrar:.2f}", label_visibility="collapsed")
+        
+    with c_save:
+        st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True)
         btn_save = st.form_submit_button(_l['dash']['save'], key="btn_save_main")
-    with c2:
+        
+    with c_date:
         st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True) 
-        # Buscamos la fecha del último trade de esta cuenta para el selector
         trades_de_esta_cta = db_usuario[ctx].get("trades", {})
         if trades_de_esta_cta:
             ult_f = max(trades_de_esta_cta.keys())
@@ -1358,11 +1375,11 @@ with st.form(key="form_main_entry", clear_on_submit=True, border=False):
             fecha_defecto = fecha_ultimo_trade_cta
             
         fecha_sel = st.date_input("Fecha", value=fecha_defecto, label_visibility="collapsed", key="btn_fecha_directa")
-    with c_img:
+        
+    with c_link:
         st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True) 
-        imgs_subidas = st.file_uploader("", accept_multiple_files=True, label_visibility="collapsed")
-        st.markdown(f'<div class="lbl-link">{LBL_LINK}</div>', unsafe_allow_html=True)
         link_imagen = st.text_input("Link", value="", label_visibility="collapsed", placeholder=_l['dash']['paste_link'])
+        
     with c_not:
         st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True) 
         with st.popover("📝", use_container_width=True):
