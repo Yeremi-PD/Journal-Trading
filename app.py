@@ -1538,10 +1538,16 @@ with col_cal:
     with c_der: st.button("▶", on_click=cambiar_mes, args=(1,), use_container_width=True)
     
     with c_jump:
-        # CSS rápido para que el popover encaje con el diseño que ya tienes
+        # CSS reforzado para que el botón mida y se vea exactamente como el original
         st.markdown("""
         <style>
+        div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"],
+        div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] > div:first-child {
+            width: 100% !important;
+            height: 35px !important;
+        }
         div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] > button {
+            width: 100% !important;
             height: 35px !important;
             min-height: 35px !important;
             padding: 0 !important;
@@ -1549,7 +1555,14 @@ with col_cal:
             border-radius: 8px !important;
             background-color: transparent !important;
             border: 1px solid #4A5568 !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+        div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] > button p {
             font-size: 20px !important;
+            margin: 0 !important;
+            line-height: 1 !important;
             color: white !important;
         }
         div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] > button:hover {
