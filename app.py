@@ -878,21 +878,19 @@ st.markdown(f"""
         display: none !important; 
     }}
     .block-container, [data-testid="stAppViewBlockContainer"] {{ 
-        padding-top: 0px !important; 
+        padding-top: 20px !important;
         margin-top: 0px !important; 
+        overflow: visible !important;
     }}
     
 /* 🔴 EL SECRETO: OCULTAR EL "RUNNING..." PARA QUE SEA INSTANTÁNEO 🔴 */
     [data-testid="stStatusWidget"] {{ visibility: hidden !important; display: none !important; }}
     
 /* 🌟 MAGIA DE LAS PESTAÑAS (TABS) PREMIUM ESTILO FINANCE CENTER 🌟 */
-    div[data-testid="stTabs"] {{ padding: 25px 0px 20px 0px !important; margin-top: 5px !important; overflow: visible !important; }}
-    div[data-testid="stTabs"] button {{
-        font-size: 18px !important; font-weight: 700 !important;
-        background-color: rgba(40, 40, 40, 0.4) !important; border-radius: 12px !important; 
-        padding: 12px 24px !important; margin: 0px 8px !important; border: 1px solid {border_color} !important;
-        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2) !important; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important; 
-        color: {c_dash} !important; overflow: visible !important; z-index: 10 !important; }}
+    div[data-testid="stTabs"] {{ 
+        padding: 40px 0px 20px 0px !important; 
+        margin-top: 10px !important; 
+        overflow: visible !important; 
     }}
     div[data-testid="stTabs"] button:hover {{
         transform: translateY(-4px) !important; border-color: #00C897 !important;
