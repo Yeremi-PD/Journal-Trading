@@ -1427,8 +1427,8 @@ col_form_area, col_form_vacia = st.columns([2, 1])
 
 with col_form_area:
     with st.form(key="form_main_entry", clear_on_submit=True, border=False):
-        # Damos más ancho al Date (1.5) y al Trade Details (2.2)
-        c_date, c_cant, c_det, c_link, c_btn = st.columns([1.5, 1.1, 2.2, 2.5, 1])
+        # Le damos mucho más espacio a Date (1.8) y reducimos un poco Cantidad (0.9)
+        c_date, c_cant, c_det, c_link, c_btn = st.columns([1.8, 0.9, 2.1, 2.5, 1])
         
         with c_date:
             st.markdown('<div class="lbl-header">Date:</div>', unsafe_allow_html=True)
@@ -1507,10 +1507,12 @@ with col_form_area:
         with c_link:
             st.markdown('<div class="lbl-header">🔗 Image Link:</div>', unsafe_allow_html=True)
             link_imagen = st.text_input("Link", value="", label_visibility="collapsed", placeholder="🔗 Pega el Enlace de la Imagen")
-            # El botón de Upload debajo a la izquierda
+            
+            # Usamos margin-top negativo para anular el salto de línea de Streamlit y pegarlo a la caja
             st.markdown('''
-            <div style="font-size:11px; color:#A0AEC0; font-weight:bold; background:rgba(255,255,255,0.05); padding:4px 10px; border-radius:4px; margin-top:4px; display:inline-block; cursor:pointer; border: 1px solid #4A5568;">📤 Upload</div>
+            <div style="font-size:10px; color:#A0AEC0; font-weight:bold; background:rgba(255,255,255,0.05); padding:2px 8px; border-radius:4px; display:inline-block; cursor:pointer; border: 1px solid #4A5568; margin-top:-16px; position:relative; z-index:10;">📤 Upload</div>
             ''', unsafe_allow_html=True)
+            
             # El uploader real oculto
             imgs_subidas = st.file_uploader("", accept_multiple_files=True, label_visibility="collapsed")
             
