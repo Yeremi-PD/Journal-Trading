@@ -1403,7 +1403,7 @@ div[data-testid="stForm"] div[data-testid="stPopover"] > button {
     border-radius: 6px !important;
     height: 4px !important; /* Más chino (finito) */
     min-height: 34px !important;
-    margin-top: 3px !important; /* Para centrarlo con las otras cajas que miden 40px */
+    margin-top: 93px !important; /* Para centrarlo con las otras cajas que miden 40px */
     color: white !important;
     display: flex !important;
     justify-content: flex-start !important;
