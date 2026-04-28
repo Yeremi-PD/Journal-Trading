@@ -1363,7 +1363,7 @@ div[data-testid="stForm"] div[data-baseweb="base-input"] {
     border: 1px solid #4A5568 !important;
     border-radius: 20px !important;
     height: 40px !important;
-    min-height: 502px !important;
+    min-height: 50px !important;
 }
 
 div[data-testid="stForm"] input {
