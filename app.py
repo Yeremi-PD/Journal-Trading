@@ -1187,8 +1187,13 @@ col_t, col_fil, col_data, col_bal, col_set = st.columns([2.5, 1.5, 1.5, 2, 0.5])
 
 with col_set:
     st.markdown("<div style='height: 25px;'></div>", unsafe_allow_html=True)
-    if st.button("⚙️", key="btn_abrir_ajustes", use_container_width=True):
-        modal_ajustes()
+    
+    @st.fragment
+    def aislar_boton_ajustes():
+        if st.button("⚙️", key="btn_abrir_ajustes", use_container_width=True):
+            modal_ajustes()
+            
+    aislar_boton_ajustes()
 
 with col_t:
     if paso_cuenta: badge_html = f'<span style="font-size: 20px; background-color: #00C897; color: white; padding: 4px 12px; border-radius: 8px; margin-left: 15px; font-weight: 800; letter-spacing: 0px;">{_l["dash"]["pa"]}</span>'
