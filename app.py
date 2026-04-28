@@ -1581,14 +1581,16 @@ with col_cal:
                 meses_lista_jump = list(calendar.month_name)[1:]
                 lbl_mes, lbl_anio, lbl_btn = "Month", "Year", "Go to date"
             
-            nuevo_mes_jump = st.selectbox(lbl_mes, meses_lista_jump, index=st.session_state.cal_month - 1, key="jump_month")
-            nuevo_anio_jump = st.number_input(lbl_anio, min_value=2000, max_value=2100, value=st.session_state.cal_year, step=1, key="jump_year")
-            
-            # Solo aquí, al dar click en "Ir a fecha", hacemos el refresh necesario
-            if st.button(lbl_btn, use_container_width=True, key="btn_jump_go"):
-                st.session_state.cal_month = meses_lista_jump.index(nuevo_mes_jump) + 1
-                st.session_state.cal_year = nuevo_anio_jump
-                st.rerun()
+            # Envolvemos en un FORM para matar los refreshes inútiles al tocar el selectbox
+            with st.form(key="form_jump_date", border=False):
+                nuevo_mes_jump = st.selectbox(lbl_mes, meses_lista_jump, index=st.session_state.cal_month - 1, key="jump_month")
+                nuevo_anio_jump = st.number_input(lbl_anio, min_value=2000, max_value=2100, value=st.session_state.cal_year, step=1, key="jump_year")
+                
+                # Usamos form_submit_button en lugar de button
+                if st.form_submit_button(lbl_btn, use_container_width=True):
+                    st.session_state.cal_month = meses_lista_jump.index(nuevo_mes_jump) + 1
+                    st.session_state.cal_year = nuevo_anio_jump
+                    st.rerun()
             
             components.html("""
             <script>
