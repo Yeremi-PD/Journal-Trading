@@ -1081,11 +1081,13 @@ st.markdown(f"""
     .pnl-value {{ font-size: 28px !important; font-weight: 800 !important; color: #00C897 !important; letter-spacing: -0.5px !important; }}
     .pnl-value-loss {{ color: #FF4C4C !important; }}
     
-    /* Win Rate gigante, exactamente del mismo tamaño que P&L */
-    .win-value {{ font-size: 28px !important; font-weight: 800 !important; letter-spacing: -0.5px !important; }}
+/* Win Rate gigante, exactamente del mismo tamaño que P&L */
+    .win-value {{ font-size: var(--size-box-vals) !important;
+    font-weight: 800 !important; letter-spacing: -0.5px !important; }}
     
     /* Total Trades y RR (Unificados en tamaño mediano) */
-    .rr-value {{ font-size: 25px !important; font-weight: 800 !important; letter-spacing: -0.5px !important; }}
+    .rr-value {{ font-size: var(--size-box-vals) !important;
+    font-weight: 800 !important; letter-spacing: -0.5px !important; }}
 
     .calendar-wrapper div[data-testid="column"]:first-child button {{ transform: translate({FLECHAS_X}px, {FLECHAS_Y}px) !important; font-size: {FLECHAS_SIZE}px !important; }}
     .calendar-wrapper div[data-testid="column"]:nth-child(3) button {{ transform: translate(calc({FLECHAS_X}px * -1), {FLECHAS_Y}px) !important; font-size: {FLECHAS_SIZE}px !important; }}
@@ -1562,9 +1564,9 @@ with col_det:
     c_tg_col, c_dd_col, c_lose_col = st.columns(3)
     e_caja = "margin-top: -10px; margin-bottom: 10px; padding: 10px !important; min-height: 85px !important; display: flex; flex-direction: column; justify-content: center;"
     
-    with c_tg_col: st.markdown(f'<div class="metric-card card-pnl" style="{e_caja}"><div class="metric-header"><span class="title-net-pnl" style="font-size: 12px;">{titulo_target_dinamico}</span></div><div style="color: {c_hex_dd}; font-size: 20px; font-weight: 800;">{texto_tg}</div></div>', unsafe_allow_html=True)
-    with c_dd_col: st.markdown(f'<div class="metric-card card-pnl" style="{e_caja}"><div class="metric-header"><span class="title-net-pnl" style="font-size: 12px;">{_l["cal"]["dd"]}</span></div><div style="color: {c_hex_dd}; font-size: 20px; font-weight: 800;">{texto_dd}</div></div>', unsafe_allow_html=True)
-    with c_lose_col: st.markdown(f'<div class="metric-card card-pnl" style="{e_caja}"><div class="metric-header"><span class="title-net-pnl" style="font-size: 12px;">{_l["cal"]["lose_acc"]}</span></div><div style="color: {c_hex_dd}; font-size: 20px; font-weight: 800;">{texto_lose}</div></div>', unsafe_allow_html=True)
+    with c_tg_col: st.markdown(f'<div class="metric-card card-pnl" style="{e_caja}"><div class="metric-header"><span class="title-net-pnl" style="font-size: var(--size-card-titles);">{titulo_target_dinamico}</span></div><div style="color: {c_hex_dd}; font-size: var(--size-box-vals); font-weight: 800;">{texto_tg}</div></div>', unsafe_allow_html=True)
+    with c_dd_col: st.markdown(f'<div class="metric-card card-pnl" style="{e_caja}"><div class="metric-header"><span class="title-net-pnl" style="font-size: var(--size-card-titles);">{_l["cal"]["dd"]}</span></div><div style="color: {c_hex_dd}; font-size: var(--size-box-vals); font-weight: 800;">{texto_dd}</div></div>', unsafe_allow_html=True)
+    with c_lose_col: st.markdown(f'<div class="metric-card card-pnl" style="{e_caja}"><div class="metric-header"><span class="title-net-pnl" style="font-size: var(--size-card-titles);">{_l["cal"]["lose_acc"]}</span></div><div style="color: {c_hex_dd}; font-size: var(--size-box-vals); font-weight: 800;">{texto_lose}</div></div>', unsafe_allow_html=True)
     
     ver_todo = st.toggle(_l['cal']['view_all'], value=False)
     
@@ -1607,9 +1609,9 @@ with col_det:
 
     c_met1, c_met2, c_met3 = st.columns(3)
     c_hex_pnl = "#00C897" if net_pnl >= 0 else "#FF4C4C"
-    with c_met1: st.markdown(f"""<div class="metric-card card-pnl"><div class="metric-header"><span class="title-net-pnl">{titulo_pnl}</span></div><div style="color: {c_hex_pnl}; font-size: 20px; font-weight: 800;">{simbolo_pnl}${net_pnl:,.2f}</div></div>""", unsafe_allow_html=True)
-    with c_met2: st.markdown(f"""<div class="metric-card card-win"><div class="metric-header"><span class="title-trade-win">{_l['cal']['tot_tr']}</span></div><div class="rr-value" style="color: white; font-size: 20px !important;">{total_trades}</div></div>""", unsafe_allow_html=True)
-    with c_met3: st.markdown(f"""<div class="metric-card card-rr"><div class="metric-header"><span class="title-trade-win">{_l['cal']['avg_rr']}</span></div><div class="rr-value" style="color: #FFFFFF; font-size: 20px !important;">1 / {rr_promedio:.2f}</div></div>""", unsafe_allow_html=True)
+    with c_met1: st.markdown(f"""<div class="metric-card card-pnl"><div class="metric-header"><span class="title-net-pnl" style="font-size: var(--size-card-titles);">{titulo_pnl}</span></div><div style="color: {c_hex_pnl}; font-size: var(--size-box-vals); font-weight: 800;">{simbolo_pnl}${net_pnl:,.2f}</div></div>""", unsafe_allow_html=True)
+    with c_met2: st.markdown(f"""<div class="metric-card card-win"><div class="metric-header"><span class="title-trade-win" style="font-size: var(--size-card-titles);">{_l['cal']['tot_tr']}</span></div><div class="rr-value" style="color: white; font-size: var(--size-box-vals) !important;">{total_trades}</div></div>""", unsafe_allow_html=True)
+    with c_met3: st.markdown(f"""<div class="metric-card card-rr"><div class="metric-header"><span class="title-trade-win" style="font-size: var(--size-card-titles);">{_l['cal']['avg_rr']}</span></div><div class="rr-value" style="color: #FFFFFF; font-size: var(--size-box-vals) !important;">1 / {rr_promedio:.2f}</div></div>""", unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
     bar_html = get_bar_svg(wins, losses, ties)
