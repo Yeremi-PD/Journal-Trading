@@ -1374,8 +1374,13 @@ div[data-testid="stForm"] input {
     line-height: 40px !important;
 }
 
-/* Reparación para que la fecha se vea blanca y sin el emoji viejo encima */
+/* 🔥 LA MAGIA AQUÍ: Liberamos a la Fecha de la maldición de los 80px para que ocupe todo el ancho 🔥 */
+div[data-testid="stForm"] div[data-testid="stDateInput"],
+div[data-testid="stForm"] div[data-testid="stDateInput"] > div:first-child,
 div[data-testid="stForm"] div[data-testid="stDateInput"] input {
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
     color: white !important;
     -webkit-text-fill-color: white !important;
 }
@@ -1393,17 +1398,17 @@ div[data-testid="stForm"] [data-testid="stFormSubmitButton"] button {
     border-radius: 6px !important;
     border: none !important;
     width: 100% !important;
-    margin-top: 25px !important; /* Lo empuja abajo para alinearlo con los inputs */
+    margin-top: 25px !important;
 }
 
-/* Botón de Popover (Trade Details) */
+/* Botón de Popover (Trade Details) MÁS CHINO/FINO */
 div[data-testid="stForm"] div[data-testid="stPopover"] > button {
     background-color: #2D3748 !important;
     border: 1px solid #4A5568 !important;
     border-radius: 6px !important;
-    height: 34px !important; /* Más chino (finito) */
+    height: 34px !important; 
     min-height: 34px !important;
-    margin-top: 3px !important; /* Para centrarlo con las otras cajas que miden 40px */
+    margin-top: 3px !important;
     color: white !important;
     display: flex !important;
     justify-content: flex-start !important;
@@ -1422,17 +1427,16 @@ div[data-testid="stFileUploader"] {
 </style>
 """, unsafe_allow_html=True)
 
-# 🚀 Envolvemos el form en la misma proporción del calendario [2, 1] para que midan EXACTAMENTE lo mismo
+# 🚀 Envolvemos el form en la misma proporción del calendario [2, 1]
 col_form_area, col_form_vacia = st.columns([2, 1])
 
 with col_form_area:
     with st.form(key="form_main_entry", clear_on_submit=True, border=False):
-        # Le damos mucho más espacio a Date (1.8) y reducimos un poco Cantidad (0.9)
+        # 🔥 Le damos mucho más espacio a Date (1.8) y reducimos Cantidad (0.9)
         c_date, c_cant, c_det, c_link, c_btn = st.columns([1.8, 0.9, 2.1, 2.5, 1])
         
         with c_date:
             st.markdown('<div class="lbl-header">Date:</div>', unsafe_allow_html=True)
-            # Lógica original de la fecha
             trades_de_esta_cta = db_usuario[ctx].get("trades", {})
             if trades_de_esta_cta:
                 ult_f = max(trades_de_esta_cta.keys())
@@ -1457,7 +1461,6 @@ with col_form_area:
         with c_det:
             st.markdown('<div class="lbl-header">📝 Trade Details:</div>', unsafe_allow_html=True)
             with st.popover(" ", use_container_width=True):
-                # Lógica original de los detalles del trade
                 st.markdown(f"<div class='titulo-trade-details'>{_l['dash']['trade_det']}</div>", unsafe_allow_html=True)
                 st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 5px; margin-bottom: 0px;'>{_l['dash']['bias']}</div>", unsafe_allow_html=True)
                 bias_opts = ['LONG', 'SHORT', 'NONE']
@@ -1508,9 +1511,9 @@ with col_form_area:
             st.markdown('<div class="lbl-header">🔗 Image Link:</div>', unsafe_allow_html=True)
             link_imagen = st.text_input("Link", value="", label_visibility="collapsed", placeholder="🔗 Pega el Enlace de la Imagen")
             
-            # Usamos margin-top negativo para anular el salto de línea de Streamlit y pegarlo a la caja
+            # 🔥 Aquí usamos translateY(-22px) para pegarlo a un milímetro exacto de la caja de arriba 🔥
             st.markdown('''
-            <div style="font-size:10px; color:#A0AEC0; font-weight:bold; background:rgba(255,255,255,0.05); padding:2px 8px; border-radius:4px; display:inline-block; cursor:pointer; border: 1px solid #4A5568; margin-top:-16px; position:relative; z-index:10;">📤 Upload</div>
+            <div style="font-size:10px; color:#A0AEC0; font-weight:bold; background:rgba(255,255,255,0.05); padding:2px 8px; border-radius:4px; display:inline-block; cursor:pointer; border: 1px solid #4A5568; transform: translateY(-22px); position:relative; z-index:10;">📤 Upload</div>
             ''', unsafe_allow_html=True)
             
             # El uploader real oculto
