@@ -1538,37 +1538,39 @@ with col_cal:
     with c_der: st.button("▶", on_click=cambiar_mes, args=(1,), use_container_width=True)
     
     with c_jump:
-        # CSS reforzado para que el botón mida y se vea exactamente como el original
-        st.markdown("""
+        # Forzamos la misma altura (42px), fondo y bordes exactos que los botones de las flechas
+        st.markdown(f"""
         <style>
         div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"],
-        div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] > div:first-child {
+        div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] > div:first-child {{
             width: 100% !important;
-            height: 35px !important;
-        }
-        div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] > button {
+            min-width: 0 !important;
+            height: auto !important;
+        }}
+        div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] > button {{
             width: 100% !important;
-            height: 35px !important;
-            min-height: 35px !important;
+            height: 42px !important;
+            min-height: 42px !important;
             padding: 0 !important;
-            margin-top: 1px !important;
+            margin: 0 !important;
             border-radius: 8px !important;
-            background-color: transparent !important;
-            border: 1px solid #4A5568 !important;
+            background-color: {btn_bg} !important;
+            border: 1px solid {border_color} !important;
             display: flex !important;
             align-items: center !important;
             justify-content: center !important;
-        }
-        div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] > button p {
+            position: relative !important;
+            top: 0 !important;
+        }}
+        div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] > button p {{
             font-size: 20px !important;
             margin: 0 !important;
             line-height: 1 !important;
-            color: white !important;
-        }
-        div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] > button:hover {
+            color: {btn_txt} !important;
+        }}
+        div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] > button:hover {{
             border-color: #00C897 !important;
-            background-color: rgba(0, 200, 151, 0.1) !important;
-        }
+        }}
         </style>
         """, unsafe_allow_html=True)
 
