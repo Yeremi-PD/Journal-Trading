@@ -1431,22 +1431,31 @@ div[data-testid="stForm"] div[data-testid="stDateInput"] div[data-baseweb="base-
     height: 40px !important;        /* Altura del cuadro */
 }
 
-/* Botón de Popover (Trade Details) */
+/* ==========================================
+   AJUSTES DEL BOTÓN "TRADE DETAILS"
+========================================== */
 div[data-testid="stForm"] div[data-testid="stPopover"] > button {
-    background-color: #2D3748 !important;
-    border: 1px solid #4A5568 !important;
-    border-radius: 6px !important;
-    height: 4px !important; /* Más chino (finito) */
-    min-height: 34px !important;
-    margin-top: 93px !important; /* Para centrarlo con las otras cajas que miden 40px */
-    color: white !important;
+    background-color: #2D3748 !important; /* Color de fondo del botón */
+    border: 1px solid #4A5568 !important; /* Color y grosor del borde */
+    border-radius: 8px !important;        /* Qué tan redondas quieres las esquinas */
+    
+    height: 40px !important;              /* Altura del botón (ajústala a tu gusto) */
+    min-height: 40px !important;          /* Mantén esto igual al 'height' */
+    width: 100% !important;               /* Ancho del botón */
+    
+    margin-top: 0px !important;           /* MUÉVELO ARRIBA O ABAJO para alinearlo con las otras cajas */
+    
+    color: white !important;              
     display: flex !important;
-    justify-content: flex-start !important;
-    padding-left: 10px !important;
+    justify-content: center !important;   /* Centra el texto. Si lo quieres a la izquierda pon 'flex-start' */
+    align-items: center !important;
+    padding: 0 10px !important;
 }
 
+/* Control del TEXTO dentro del botón */
 div[data-testid="stForm"] div[data-testid="stPopover"] > button p {
-    font-size: 14px !important;
+    font-size: 16px !important;           /* Tamaño del texto */
+    font-weight: bold !important;         /* Texto en Negrita */
     margin: 0 !important;
 }
 
@@ -1535,7 +1544,8 @@ with col_form_area:
             
         with c_det:
             st.markdown('<div class="lbl-header">📝 Trade Details:</div>', unsafe_allow_html=True)
-            with st.popover(" ", use_container_width=True):
+            # AQUÍ CAMBIAS EL TEXTO DEL BOTÓN ("📝 Abrir Detalles", etc.)
+            with st.popover("Abrir Detalles", use_container_width=True):
                 # Lógica original de los detalles del trade
                 st.markdown(f"<div class='titulo-trade-details'>{_l['dash']['trade_det']}</div>", unsafe_allow_html=True)
                 st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 5px; margin-bottom: 0px;'>{_l['dash']['bias']}</div>", unsafe_allow_html=True)
