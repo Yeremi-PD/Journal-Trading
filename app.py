@@ -612,26 +612,29 @@ if "modo_backtesting" not in st.session_state: st.session_state.modo_backtesting
 if "fecha_backtesting" not in st.session_state: st.session_state.fecha_backtesting = hoy
 
 # --- LÓGICA DE AUTO-TRANSPORTE AL ÚLTIMO MES TRADEADO ---
+# Se activa cuando entras o cuando cambias de cuenta en el selectbox (refresco instantáneo)
 if "cuenta_previa_calendario" not in st.session_state:
     st.session_state.cuenta_previa_calendario = None
 
-# Si la cuenta cambió o es la primera vez que entramos en la sesión
-if st.session_state.data_source_sel != st.session_state.cuenta_previa_calendario:
-    st.session_state.cuenta_previa_calendario = st.session_state.data_source_sel
-    
-    # Buscamos la fecha del último trade para la cuenta seleccionada actualmente
-    trades_de_la_cuenta = db_usuario[st.session_state.data_source_sel].get("trades", {})
-    if trades_de_la_cuenta:
-        # Obtenemos la fecha máxima (año, mes, día) de todas las llaves del diccionario
-        max_fecha = max(trades_de_la_cuenta.keys())
-        st.session_state.cal_year = max_fecha[0]
-        st.session_state.cal_month = max_fecha[1]
-    else:
-        # Si la cuenta no tiene trades registrados, vamos al mes actual por defecto
-        st.session_state.cal_month = hoy.month
-        st.session_state.cal_year = hoy.year
+# Detectamos si la cuenta seleccionada es diferente a la última procesada
+cuenta_actual_en_uso = st.session_state.get("data_source_sel")
 
-# Inicialización de seguridad por si no existen trades aún
+if cuenta_actual_en_uso != st.session_state.cuenta_previa_calendario:
+    st.session_state.cuenta_previa_calendario = cuenta_actual_en_uso
+    
+    # Buscamos la fecha del último trade para la cuenta seleccionada
+    if cuenta_actual_en_uso in db_usuario:
+        trades_cta = db_usuario[cuenta_actual_en_uso].get("trades", {})
+        if trades_cta:
+            ult_f = max(trades_cta.keys()) # Obtiene la fecha más reciente
+            st.session_state.cal_year = ult_f[0]
+            st.session_state.cal_month = ult_f[1]
+        else:
+            # Si no hay trades, volvemos a la fecha de hoy
+            st.session_state.cal_month = hoy.month
+            st.session_state.cal_year = hoy.year
+
+# Inicialización obligatoria de seguridad
 if "cal_month" not in st.session_state: st.session_state.cal_month = hoy.month
 if "cal_year" not in st.session_state: st.session_state.cal_year = hoy.year
 
@@ -1616,8 +1619,13 @@ with col_cal:
                 meses_lista_jump = list(calendar.month_name)[1:]
                 lbl_mes, lbl_anio, lbl_btn = "Month", "Year", "Go to date"
             
+            # Selector de Mes
             nuevo_mes_jump = st.selectbox(lbl_mes, meses_lista_jump, index=st.session_state.cal_month - 1, key="jump_month")
-            nuevo_anio_jump = st.number_input(lbl_anio, min_value=2000, max_value=2100, value=st.session_state.cal_year, step=1, key="jump_year")
+            
+            # Selector de Año como Lista (Ajusta los años si necesitas más)
+            años_disponibles = [2023, 2024, 2025, 2026, 2027, 2028, 2029, 2030]
+            idx_año_defecto = años_disponibles.index(st.session_state.cal_year) if st.session_state.cal_year in años_disponibles else 0
+            nuevo_anio_jump = st.selectbox(lbl_anio, años_disponibles, index=idx_año_defecto, key="jump_year_list")
             
             if st.button(lbl_btn, use_container_width=True, key="btn_jump_go"):
                 st.session_state.cal_month = meses_lista_jump.index(nuevo_mes_jump) + 1
