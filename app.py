@@ -1423,7 +1423,7 @@ div[data-testid="stForm"] div[data-testid="stPopover"] > button p {
 ========================================== */
 div[data-testid="stForm"] div[data-testid="stTextInput"]:has(input[aria-label="Link"]) {
     width: 100% !important;         /* Cambia a 80%, 200px, etc. */
-    margin-top: 19px !important;     /* Mueve el input hacia arriba o abajo */
+    margin-top: 25px !important;     /* Mueve el input hacia arriba o abajo */
     margin-left: 0px !important;    /* Mueve el input hacia los lados */
 }
 
@@ -1433,7 +1433,7 @@ div[data-testid="stForm"] div[data-testid="stTextInput"]:has(input[aria-label="L
 div[data-testid="stFileUploader"] {
     display: block !important;      /* Revive el botón */
     width: 100% !important;         /* Ajusta el ancho total del botón */
-    margin-top: 10px !important;    /* Separación desde el cuadro del Link */
+    margin-top: -10px !important;    /* Separación desde el cuadro del Link */
     margin-left: 0px !important;    /* Posición lateral */
 }
 
