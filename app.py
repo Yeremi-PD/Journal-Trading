@@ -1548,11 +1548,13 @@ with col_cal:
         }
         .fixed-modal-jump {
             display: none; position: fixed !important; top: 50% !important; left: 50% !important;
-            transform: translate(-50%, -50%) !important; width: 90vw !important; max-width: 450px !important;
+            transform: translate(-50%, -50%) !important; 
+            width: 95vw !important; max-width: 600px !important; /* HICIMOS LA VENTANA MÁS GRANDE */
             background-color: var(--card_bg, #2D3748) !important; z-index: 9999999 !important;
-            border-radius: 15px !important; padding: 25px !important; 
+            border-radius: 15px !important; padding: 35px !important; 
             border: 2px solid #00C897 !important;
             box-shadow: 0px 20px 50px rgba(0,0,0,0.9) !important;
+            overflow: visible !important; /* VITAL: Para que la lista de meses no se corte */
         }
         body:has(#toggle-jump:checked) .fixed-modal-jump,
         body:has(#toggle-jump:checked) .jump-overlay { display: flex !important; flex-direction: column !important; }
@@ -1562,20 +1564,21 @@ with col_cal:
             cursor: pointer; transition: 0.2s; color: white; margin-top: 1px;
         }
         .btn-fake-jump:hover { border-color: #00C897; background: rgba(0, 200, 151, 0.1); }
-        .btn-close-jump {
-            position: absolute; top: 15px; right: 15px; background: #FF4C4C; color: white;
-            padding: 6px 16px; border-radius: 8px; font-weight: 800; cursor: pointer;
-            z-index: 10000000; box-shadow: 0 4px 6px rgba(0,0,0,0.3); transition: 0.2s;
-        }
-        .btn-close-jump:hover { transform: scale(1.05); }
+        
+        /* FIX: Ocultar el cuadro gris molesto y forzar los menús desplegables a estar arriba */
+        div[data-testid="InputInstructions"] { display: none !important; }
+        div[data-baseweb="popover"], ul[role="listbox"] { z-index: 99999999 !important; }
         </style>
+        
         <input type="checkbox" id="toggle-jump">
         <div class="jump-overlay"><label for="toggle-jump" style="width:100%; height:100%; display:block; cursor:pointer;"></label></div>
         <label for="toggle-jump" class="btn-fake-jump">📅</label>
         """, unsafe_allow_html=True)
 
         with st.container():
-            st.markdown('<div id="ancla-modal-jump"><label for="toggle-jump" class="btn-close-jump">✖ CERRAR</label><h3 style="text-align:center; margin-top:35px; margin-bottom:20px;">📅 Selector de Fecha</h3></div>', unsafe_allow_html=True)
+            # Título limpio, SIN botón de cerrar
+            st.markdown('<div id="ancla-modal-jump"><h3 style="text-align:center; margin-top:0px; margin-bottom:25px;">📅 Selector de Fecha</h3></div>', unsafe_allow_html=True)
+            
             if st.session_state.idioma == "ES":
                 meses_lista_jump = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
                 lbl_mes, lbl_anio, lbl_btn = "Mes", "Año", "Ir a fecha"
@@ -1583,6 +1586,7 @@ with col_cal:
                 meses_lista_jump = list(calendar.month_name)[1:]
                 lbl_mes, lbl_anio, lbl_btn = "Month", "Year", "Go to date"
             
+            # EL FORMULARIO: Garantiza que nada se mueva ni haga refresh hasta presionar el botón verde
             with st.form(key="form_jump_date", border=False):
                 nuevo_mes_jump = st.selectbox(lbl_mes, meses_lista_jump, index=st.session_state.cal_month - 1, key="jump_month")
                 nuevo_anio_jump = st.number_input(lbl_anio, min_value=2000, max_value=2100, value=st.session_state.cal_year, step=1, key="jump_year")
@@ -1590,8 +1594,8 @@ with col_cal:
                 if st.form_submit_button(lbl_btn, use_container_width=True):
                     st.session_state.cal_month = meses_lista_jump.index(nuevo_mes_jump) + 1
                     st.session_state.cal_year = nuevo_anio_jump
-                    # Limpiamos la memoria JS para que el modal se cierre correctamente
-                    components.html("<script>window.parent.sessionStorage.setItem('jump_open', 'false');</script>", height=0, width=0)
+                    # Apagamos el modal por debajo para que se cierre tras aplicar la fecha
+                    components.html("<script>window.parent.sessionStorage.setItem('jump_open', 'false'); window.parent.document.getElementById('toggle-jump').checked = false;</script>", height=0, width=0)
                     st.rerun()
             
             components.html("""
