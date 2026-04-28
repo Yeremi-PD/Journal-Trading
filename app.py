@@ -1439,7 +1439,7 @@ div[data-testid="stForm"] div[data-testid="stPopover"] > button {
     border: 1px solid #4A5568 !important; /* Color y grosor del borde */
     border-radius: 8px !important;        /* Qué tan redondas quieres las esquinas */
     
-    height: 40px !important;              /* Altura del botón (ajústala a tu gusto) */
+    height: 20px !important;              /* Altura del botón (ajústala a tu gusto) */
     min-height: 40px !important;          /* Mantén esto igual al 'height' */
     width: 100% !important;               /* Ancho del botón */
     
