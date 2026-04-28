@@ -1548,9 +1548,10 @@ with col_cal:
         }
         .fixed-modal-jump {
             display: none; position: fixed !important; top: 50% !important; left: 50% !important;
-            transform: translate(-50%, -50%) !important; width: 90vw !important; max-width: 400px !important;
+            transform: translate(-50%, -50%) !important; width: 90vw !important; max-width: 450px !important;
             background-color: var(--card_bg, #2D3748) !important; z-index: 9999999 !important;
-            border-radius: 15px !important; padding: 25px !important; border: 2px solid #00C897 !important;
+            border-radius: 15px !important; padding: 25px !important; 
+            border: 2px solid #00C897 !important;
             box-shadow: 0px 20px 50px rgba(0,0,0,0.9) !important;
         }
         body:has(#toggle-jump:checked) .fixed-modal-jump,
@@ -1574,7 +1575,7 @@ with col_cal:
         """, unsafe_allow_html=True)
 
         with st.container():
-            st.markdown('<div id="ancla-modal-jump"><label for="toggle-jump" class="btn-close-jump">✖ CERRAR</label><h3 style="text-align:center; margin-top:0;">📅 Selector de Fecha</h3></div>', unsafe_allow_html=True)
+            st.markdown('<div id="ancla-modal-jump"><label for="toggle-jump" class="btn-close-jump">✖ CERRAR</label><h3 style="text-align:center; margin-top:35px; margin-bottom:20px;">📅 Selector de Fecha</h3></div>', unsafe_allow_html=True)
             if st.session_state.idioma == "ES":
                 meses_lista_jump = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
                 lbl_mes, lbl_anio, lbl_btn = "Mes", "Año", "Ir a fecha"
@@ -1582,15 +1583,15 @@ with col_cal:
                 meses_lista_jump = list(calendar.month_name)[1:]
                 lbl_mes, lbl_anio, lbl_btn = "Month", "Year", "Go to date"
             
-            # Envolvemos en un FORM para matar los refreshes inútiles al tocar el selectbox
             with st.form(key="form_jump_date", border=False):
                 nuevo_mes_jump = st.selectbox(lbl_mes, meses_lista_jump, index=st.session_state.cal_month - 1, key="jump_month")
                 nuevo_anio_jump = st.number_input(lbl_anio, min_value=2000, max_value=2100, value=st.session_state.cal_year, step=1, key="jump_year")
                 
-                # Usamos form_submit_button en lugar de button
                 if st.form_submit_button(lbl_btn, use_container_width=True):
                     st.session_state.cal_month = meses_lista_jump.index(nuevo_mes_jump) + 1
                     st.session_state.cal_year = nuevo_anio_jump
+                    # Limpiamos la memoria JS para que el modal se cierre correctamente
+                    components.html("<script>window.parent.sessionStorage.setItem('jump_open', 'false');</script>", height=0, width=0)
                     st.rerun()
             
             components.html("""
@@ -2159,8 +2160,36 @@ doc.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
         const modals = doc.querySelectorAll('.modal-toggle');
         modals.forEach(m => m.checked = false);
+        const jump = doc.getElementById('toggle-jump'); if (jump) { jump.checked = false; window.parent.sessionStorage.setItem('jump_open', 'false'); }
+        const set = doc.getElementById('toggle-settings'); if (set) { set.checked = false; window.parent.sessionStorage.setItem('settings_open', 'false'); }
     }
 });
+
+// 1.5 MEMORIA PARA QUE LOS MODALES DE AJUSTES Y FECHA NO SE CIERREN AL REFRESCAR
+function mantenerModalAbierto(idCheck, storageKey) {
+    const checkbox = doc.getElementById(idCheck);
+    if (checkbox) {
+        // Recuperar estado al recargar
+        if (window.parent.sessionStorage.getItem(storageKey) === 'true') {
+            checkbox.checked = true;
+        }
+        // Guardar estado al abrir/cerrar
+        checkbox.addEventListener('change', function() {
+            window.parent.sessionStorage.setItem(storageKey, this.checked);
+        });
+        // Si el usuario presiona el botón "✖ CERRAR", forzamos la limpieza de la memoria
+        const labelsCerrar = doc.querySelectorAll(`label[for="${idCheck}"]`);
+        labelsCerrar.forEach(lbl => {
+            if (lbl.classList.contains('btn-close-jump') || lbl.classList.contains('btn-close-settings')) {
+                lbl.addEventListener('click', function() {
+                    window.parent.sessionStorage.setItem(storageKey, 'false');
+                });
+            }
+        });
+    }
+}
+mantenerModalAbierto('toggle-jump', 'jump_open');
+mantenerModalAbierto('toggle-settings', 'settings_open');
 
 // 2. Bloquear teclado movil en Filtros, Data Source y Calendario
 function bloquearTeclado() {
