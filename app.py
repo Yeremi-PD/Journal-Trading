@@ -186,6 +186,9 @@ def get_global_db():
                             if extra:
                                 try: 
                                     parsed_extra = json.loads(extra)
+                                    # Rescatar imágenes subidas manualmente (Base64)
+                                    if "imagenes_b64" in parsed_extra:
+                                        trade_info["imagenes"].extend(parsed_extra["imagenes_b64"])
                                     # MIGRACIÓN: Si las columnas de Excel estaban vacías, rescatamos los datos del JSON viejo
                                     if not bias_leido and "bias" in parsed_extra: trade_info["bias"] = parsed_extra["bias"]
                                     if not conf_leidas and "Confluences" in parsed_extra: trade_info["Confluences"] = parsed_extra["Confluences"]
@@ -1415,9 +1418,53 @@ div[data-testid="stForm"] div[data-testid="stPopover"] > button p {
     margin: 0 !important;
 }
 
-/* Ocultar uploader nativo para no romper diseño */
+/* ==========================================
+   AJUSTES DEL CUADRO "PEGAR ENLACE"
+========================================== */
+div[data-testid="stForm"] div[data-testid="stTextInput"]:has(input[aria-label="Link"]) {
+    width: 100% !important;         /* Cambia a 80%, 200px, etc. */
+    margin-top: 0px !important;     /* Mueve el input hacia arriba o abajo */
+    margin-left: 0px !important;    /* Mueve el input hacia los lados */
+}
+
+/* ==========================================
+   AJUSTES DEL BOTÓN "UPLOAD" (Subir Archivo)
+========================================== */
 div[data-testid="stFileUploader"] {
+    display: block !important;      /* Revive el botón */
+    width: 100% !important;         /* Ajusta el ancho total del botón */
+    margin-top: 10px !important;    /* Separación desde el cuadro del Link */
+    margin-left: 0px !important;    /* Posición lateral */
+}
+
+/* Diseño interno del cajón de subida */
+div[data-testid="stFileUploader"] [data-testid="stFileUploadDropzone"] {
+    padding: 8px !important;
+    min-height: 40px !important;    /* Altura exacta del botón */
+    background-color: #2D3748 !important;
+    border: 1px dashed #4A5568 !important;
+    border-radius: 6px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+/* Ocultar los textos feos por defecto de Streamlit */
+div[data-testid="stFileUploader"] [data-testid="stFileUploadDropzone"] button,
+div[data-testid="stFileUploader"] [data-testid="stFileUploadDropzone"] div > span,
+div[data-testid="stFileUploader"] [data-testid="stFileUploadDropzone"] small {
     display: none !important; 
+}
+
+/* El texto que verás en tu botón */
+div[data-testid="stFileUploader"] [data-testid="stFileUploadDropzone"]::after {
+    content: "📤 Seleccionar Imagen de la PC";
+    color: #A0AEC0 !important;
+    font-size: 14px !important;
+    font-weight: bold !important;
+    cursor: pointer;
+}
+</style>
 }
 </style>
 """, unsafe_allow_html=True)
@@ -1508,13 +1555,8 @@ with col_form_area:
             st.markdown('<div class="lbl-header">🔗 Image Link:</div>', unsafe_allow_html=True)
             link_imagen = st.text_input("Link", value="", label_visibility="collapsed", placeholder="🔗 Pega el Enlace de la Imagen")
             
-            # Usamos margin-top negativo para anular el salto de línea de Streamlit y pegarlo a la caja
-            st.markdown('''
-            <div style="font-size:10px; color:#A0AEC0; font-weight:bold; background:rgba(255,255,255,0.05); padding:2px 8px; border-radius:4px; display:inline-block; cursor:pointer; border: 1px solid #4A5568; margin-top:-16px; position:relative; z-index:10;">📤 Upload</div>
-            ''', unsafe_allow_html=True)
-            
-            # El uploader real oculto
-            imgs_subidas = st.file_uploader("", accept_multiple_files=True, label_visibility="collapsed")
+            # El uploader real (Ahora visible, funcional y editable desde tu CSS)
+            imgs_subidas = st.file_uploader("Upload Dropzone", accept_multiple_files=True, label_visibility="collapsed")
             
         with c_btn:
             btn_save = st.form_submit_button("GUARDAR", key="btn_save_main")
@@ -1535,7 +1577,22 @@ with col_form_area:
             nuevo_bal_absoluto = viejo_real + pnl
             clave_final = (fecha_sel.year, fecha_sel.month, fecha_sel.day)
             imgs_finales = []
-            if link_imagen.strip().startswith("http"): imgs_finales.append(link_imagen.strip())
+            if link_imagen.strip().startswith("http"): 
+                imgs_finales.append(link_imagen.strip())
+            
+            # PROCESAMIENTO DEL BOTÓN UPLOAD
+            imagenes_base64_extra = []
+            if imgs_subidas:
+                for img_file in imgs_subidas:
+                    try:
+                        bytes_data = img_file.getvalue()
+                        b64_encoded = base64.b64encode(bytes_data).decode()
+                        str_b64 = f"data:image/png;base64,{b64_encoded}"
+                        imgs_finales.append(str_b64)
+                        imagenes_base64_extra.append(str_b64)
+                    except Exception as e: 
+                        print("Error convirtiendo imagen:", e)
+
             estado_actual = "PA" if st.session_state.get("toggle_funded_state", False) else "Eval"
             if "payouts" in db_global[usuario]["settings"]["PC"]:
                 retiros_ac = sum(db_global[usuario]["settings"]["PC"]["payouts"].get(ctx, []))
@@ -1547,6 +1604,7 @@ with col_form_area:
                 "balance_final": nuevo_bal_absoluto, 
                 "fecha_str": fecha_sel.strftime("%d/%m/%Y"), 
                 "imagenes": imgs_finales, 
+                "imagenes_b64": imagenes_base64_extra, # Se aisla aquí para que guarde en ExtraData
                 "bias": nuevo_bias, 
                 "Confluences": nuevo_conf, 
                 "razon_trade": nuevo_razon, 
