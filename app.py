@@ -1428,7 +1428,7 @@ col_form_area, col_form_vacia = st.columns([2, 1])
 with col_form_area:
     with st.form(key="form_main_entry", clear_on_submit=True, border=False):
         # Le damos mucho más espacio a Date (1.8) y reducimos un poco Cantidad (0.9)
-        c_date, c_cant, c_det, c_link, c_btn = st.columns([1.8, 1.9, 1.1, 2.5, 1])
+        c_date, c_cant, c_det, c_link, c_btn = st.columns([0.8, 1.9, 1.1, 2.5, 1])
         
         with c_date:
             st.markdown('<div class="lbl-header">Date:</div>', unsafe_allow_html=True)
