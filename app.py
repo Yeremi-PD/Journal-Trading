@@ -934,26 +934,29 @@ st.markdown(f"""
     [data-testid="stStatusWidget"] {{ visibility: hidden !important; display: none !important; }}
     
     /* 🌟 MAGIA DE LAS PESTAÑAS (TABS) PREMIUM ESTILO FINANCE CENTER 🌟 */
-    div[data-testid="stTabs"] {{ padding: 15px 0px 20px 0px !important; margin-top: 5px !important; }}
+    div[data-testid="stTabs"] {{ padding: 25px 0px 35px 0px !important;
+margin-top: 20px !important; overflow: visible !important; }}
     div[data-testid="stTabs"] button {{
-        font-size: 18px !important; font-weight: 700 !important;
+        font-size: 21px !important;
+font-weight: 800 !important;
         background-color: rgba(40, 40, 40, 0.4) !important; border-radius: 12px !important; 
-        padding: 12px 24px !important; margin: 0px 8px !important;
-        border: 1px solid {border_color} !important;
+        padding: 16px 32px !important; margin: 0px 15px !important;
+border: 1px solid {border_color} !important;
         box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2) !important;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important; color: {c_dash} !important;
-    }}
+transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important; color: {c_dash} !important;
+}}
     div[data-testid="stTabs"] button:hover {{
         transform: translateY(-4px) !important; border-color: #00C897 !important;
-        box-shadow: 0px 8px 15px rgba(0, 200, 151, 0.3) !important; z-index: 10 !important;
-    }}
+box-shadow: 0px 8px 20px rgba(0, 200, 151, 0.4) !important; z-index: 10 !important;
+}}
     div[data-testid="stTabs"] button[aria-selected="true"] {{
         background: linear-gradient(145deg, #00C897, #007A5E) !important;
-        color: white !important; border: none !important;
-        transform: scale(1.05) translateY(-2px) !important; box-shadow: 0px 0px 20px rgba(0, 200, 151, 0.5) !important;
-    }}
+color: white !important; border: none !important;
+        transform: scale(1.05) translateY(-2px) !important; box-shadow: 0px 0px 25px rgba(0, 200, 151, 0.5) !important;
+}}
     div[data-testid="stTabs"] [data-baseweb="tab-highlight-point"] {{ display: none !important; }}
-    div[data-baseweb="tab-list"] {{ justify-content: center !important; gap: 10px !important; border-bottom: none !important; }}
+    div[data-baseweb="tab-list"] {{ justify-content: center !important;
+gap: 25px !important; border-bottom: none !important; overflow: visible !important; padding-bottom: 15px !important; }}
 
 /* 🔴 OPCIÓN NUCLEAR: ELIMINAR ESPACIO SUPERIOR EN CUALQUIER VERSIÓN DE STREAMLIT 🔴 */
     header, [data-testid="stHeader"], .stApp > header {{ 
