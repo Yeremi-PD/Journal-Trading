@@ -1401,8 +1401,9 @@ div[data-testid="stForm"] div[data-testid="stPopover"] > button {
     background-color: #2D3748 !important;
     border: 1px solid #4A5568 !important;
     border-radius: 6px !important;
-    height: 40px !important;
-    min-height: 40px !important;
+    height: 34px !important; /* Más chino (finito) */
+    min-height: 34px !important;
+    margin-top: 3px !important; /* Para centrarlo con las otras cajas que miden 40px */
     color: white !important;
     display: flex !important;
     justify-content: flex-start !important;
@@ -1426,8 +1427,8 @@ col_form_area, col_form_vacia = st.columns([2, 1])
 
 with col_form_area:
     with st.form(key="form_main_entry", clear_on_submit=True, border=False):
-        # Ajustamos ligeramente las proporciones internas para que quepan perfecto en el nuevo ancho
-        c_date, c_cant, c_det, c_link, c_btn = st.columns([1.2, 1.2, 1.8, 2.5, 1])
+        # Damos más ancho al Date (1.5) y al Trade Details (2.2)
+        c_date, c_cant, c_det, c_link, c_btn = st.columns([1.5, 1.1, 2.2, 2.5, 1])
         
         with c_date:
             st.markdown('<div class="lbl-header">Date:</div>', unsafe_allow_html=True)
@@ -1504,15 +1505,13 @@ with col_form_area:
                 nuevo_corr = st.text_area(_l['dash']['corr'], value='', height=45)
                 
         with c_link:
-            # Estructura para el Link replicando el diseño visual del Upload pequeño de la imagen
-            st.markdown(f'''
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-                <div class="lbl-header">🔗 Image Link:</div>
-                <div style="font-size:11px; color:#A0AEC0; font-weight:bold; background:rgba(255,255,255,0.05); padding:4px 10px; border-radius:4px; margin-bottom:6px; cursor:pointer; border: 1px solid #4A5568;">📤 Upload</div>
-            </div>
-            ''', unsafe_allow_html=True)
+            st.markdown('<div class="lbl-header">🔗 Image Link:</div>', unsafe_allow_html=True)
             link_imagen = st.text_input("Link", value="", label_visibility="collapsed", placeholder="🔗 Pega el Enlace de la Imagen")
-            # El uploader real vive aquí para no romper tu lógica, pero está oculto visualmente por el CSS
+            # El botón de Upload debajo a la izquierda
+            st.markdown('''
+            <div style="font-size:11px; color:#A0AEC0; font-weight:bold; background:rgba(255,255,255,0.05); padding:4px 10px; border-radius:4px; margin-top:4px; display:inline-block; cursor:pointer; border: 1px solid #4A5568;">📤 Upload</div>
+            ''', unsafe_allow_html=True)
+            # El uploader real oculto
             imgs_subidas = st.file_uploader("", accept_multiple_files=True, label_visibility="collapsed")
             
         with c_btn:
