@@ -1332,65 +1332,59 @@ with col_bal:
 
 st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
 
-# === CSS EXCLUSIVO PARA LA BARRA DE ENTRADA (Alineada y vinculada a Sidebar) ===
-st.markdown(f"""
+# === CSS EXCLUSIVO PARA LA BARRA DE ENTRADA (Estilo Finance Center) ===
+st.markdown("""
 <style>
-/* Contenedor principal alineado al calendario */
-div[data-testid="stForm"] {{
+/* Contenedor principal de la caja */
+div[data-testid="stForm"] {
     background-color: #1A202C !important;
     border: 1px solid #4A5568 !important;
     border-radius: 12px !important;
     padding: 15px 20px 20px 20px !important;
     margin-bottom: 25px !important;
     box-shadow: 0 4px 10px rgba(0,0,0,0.2) !important;
-}}
+}
 
-/* Etiquetas vinculadas al mismo slider que "P&L Neto" (Size Card Titles) */
-.lbl-header {{
-    font-size: var(--size-card-titles) !important; 
+/* Títulos pequeños de arriba (Date:, Cantidad:, etc.) */
+.lbl-header {
+    font-size: 13px !important;
     font-weight: 700 !important;
     color: #E2E8F0 !important;
     margin-bottom: 6px !important;
     display: flex;
     align-items: center;
     gap: 5px;
-    white-space: nowrap;
-}}
+}
 
 /* Inputs de texto y números */
 div[data-testid="stForm"] div[data-baseweb="input"], 
-div[data-testid="stForm"] div[data-baseweb="base-input"] {{
+div[data-testid="stForm"] div[data-baseweb="base-input"] {
     background-color: #2D3748 !important;
     border: 1px solid #4A5568 !important;
     border-radius: 6px !important;
     height: 40px !important;
     min-height: 40px !important;
-}}
+}
 
-div[data-testid="stForm"] input {{
+div[data-testid="stForm"] input {
     color: white !important;
     font-size: 14px !important;
     padding: 0 10px !important;
     height: 40px !important;
     line-height: 40px !important;
-}}
+}
 
-/* Liberar Date para que ocupe todo el ancho de su columna más larga */
-div[data-testid="stForm"] div[data-testid="stDateInput"],
-div[data-testid="stForm"] div[data-testid="stDateInput"] > div:first-child,
-div[data-testid="stForm"] div[data-testid="stDateInput"] input {{
-    width: 100% !important;
-    min-width: 100% !important;
-    max-width: 100% !important;
+/* Reparación para que la fecha se vea blanca y sin el emoji viejo encima */
+div[data-testid="stForm"] div[data-testid="stDateInput"] input {
     color: white !important;
     -webkit-text-fill-color: white !important;
-}}
-div[data-testid="stForm"] div[data-testid="stDateInput"]::after {{
+}
+div[data-testid="stForm"] div[data-testid="stDateInput"]::after {
     display: none !important; 
-}}
+}
 
-/* Botón GUARDAR alineado horizontalmente */
-div[data-testid="stForm"] [data-testid="stFormSubmitButton"] button {{
+/* Botón GUARDAR estilo imagen */
+div[data-testid="stForm"] [data-testid="stFormSubmitButton"] button {
     background-color: #00C897 !important;
     color: white !important;
     font-weight: bold !important;
@@ -1399,45 +1393,61 @@ div[data-testid="stForm"] [data-testid="stFormSubmitButton"] button {{
     border-radius: 6px !important;
     border: none !important;
     width: 100% !important;
-    margin-top: 25px !important; /* Alineado con la fila de inputs */
-}}
+    margin-top: 25px !important; /* Lo empuja abajo para alinearlo con los inputs */
+}
 
-/* Popover de Trade Details (Más fino/Chino) */
-div[data-testid="stForm"] div[data-testid="stPopover"] > button {{
+/* Botón de Popover (Trade Details) */
+div[data-testid="stForm"] div[data-testid="stPopover"] > button {
     background-color: #2D3748 !important;
     border: 1px solid #4A5568 !important;
     border-radius: 6px !important;
-    height: 34px !important; 
+    height: 34px !important; /* Más chino (finito) */
     min-height: 34px !important;
-    margin-top: 3px !important;
+    margin-top: 3px !important; /* Para centrarlo con las otras cajas que miden 40px */
     color: white !important;
     display: flex !important;
     justify-content: flex-start !important;
     padding-left: 10px !important;
-}}
+}
 
-/* Ocultar el file uploader nativo */
-div[data-testid="stFileUploader"] {{
+div[data-testid="stForm"] div[data-testid="stPopover"] > button p {
+    font-size: 14px !important;
+    margin: 0 !important;
+}
+
+/* Ocultar uploader nativo para no romper diseño */
+div[data-testid="stFileUploader"] {
     display: none !important; 
-}}
+}
 </style>
 """, unsafe_allow_html=True)
 
-# 🚀 Mantener ancho del calendario usando la columna [2, 1]
+# 🚀 Envolvemos el form en la misma proporción del calendario [2, 1] para que midan EXACTAMENTE lo mismo
 col_form_area, col_form_vacia = st.columns([2, 1])
 
 with col_form_area:
     with st.form(key="form_main_entry", clear_on_submit=True, border=False):
-        # 🔥 Date es ahora más ancho (2.2) para que la fecha no se corte
-        c_date, c_cant, c_det, c_link, c_btn = st.columns([2.2, 1.1, 2.0, 3.2, 1.1])
+        # Le damos mucho más espacio a Date (1.8) y reducimos un poco Cantidad (0.9)
+        c_date, c_cant, c_det, c_link, c_btn = st.columns([1.8, 0.9, 2.1, 2.5, 1])
         
         with c_date:
             st.markdown('<div class="lbl-header">Date:</div>', unsafe_allow_html=True)
-            # Lógica de fecha original
+            # Lógica original de la fecha
             trades_de_esta_cta = db_usuario[ctx].get("trades", {})
-            fecha_defecto = date(ult_f[0], ult_f[1], ult_f[2]) if trades_de_esta_cta else hoy
+            if trades_de_esta_cta:
+                ult_f = max(trades_de_esta_cta.keys())
+                fecha_ultimo_trade_cta = date(ult_f[0], ult_f[1], ult_f[2])
+            else:
+                fecha_ultimo_trade_cta = hoy
+
             if db_usuario[ctx].get("backtesting_mode", False):
-                fecha_defecto = st.session_state.fecha_backtesting if st.session_state.fecha_backtesting.month == st.session_state.cal_month else date(st.session_state.cal_year, st.session_state.cal_month, 1)
+                if st.session_state.fecha_backtesting.month != st.session_state.cal_month or st.session_state.fecha_backtesting.year != st.session_state.cal_year: 
+                    fecha_defecto = date(st.session_state.cal_year, st.session_state.cal_month, 1)
+                else: 
+                    fecha_defecto = st.session_state.fecha_backtesting
+            else: 
+                fecha_defecto = fecha_ultimo_trade_cta
+                
             fecha_sel = st.date_input("Fecha", value=fecha_defecto, label_visibility="collapsed", key="btn_fecha_directa")
             
         with c_cant:
@@ -1447,29 +1457,63 @@ with col_form_area:
         with c_det:
             st.markdown('<div class="lbl-header">📝 Trade Details:</div>', unsafe_allow_html=True)
             with st.popover(" ", use_container_width=True):
+                # Lógica original de los detalles del trade
                 st.markdown(f"<div class='titulo-trade-details'>{_l['dash']['trade_det']}</div>", unsafe_allow_html=True)
-                st.markdown(f"<div style='font-weight: 900; font-size: 14px;'>{_l['dash']['bias']}</div>", unsafe_allow_html=True)
+                st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 5px; margin-bottom: 0px;'>{_l['dash']['bias']}</div>", unsafe_allow_html=True)
                 bias_opts = ['LONG', 'SHORT', 'NONE']
-                nuevo_bias_list = [op for idx, op in enumerate(bias_opts) if st.checkbox(op, key=f"new_bias_{idx}")]
+                nuevo_bias_list = []
+                cols_bias = st.columns([1, 1, 1, 3])
+                for idx, op in enumerate(bias_opts):
+                    if cols_bias[idx].checkbox(op, key=f"new_bias_{idx}"): nuevo_bias_list.append(op)
+                
                 nuevo_bias = ", ".join(nuevo_bias_list) if nuevo_bias_list else "NONE"
-                st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 15px;'>{_l['dash']['conf']}</div>", unsafe_allow_html=True)
+                st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 15px; margin-bottom: 0px;'>{_l['dash']['conf']}</div>", unsafe_allow_html=True)
                 all_confs_list = ['BIAS WELL', 'LIQ SWEEP', 'IFVG', 'FVG', 'EQH / EQL', 'BSL / SSL', 'POI', 'SMT', 'Order Block', 'Continuation', 'Data High / Data Low', 'CISD']
+                nuevo_conf = []
                 cols_conf = st.columns(3)
-                nuevo_conf = [c_name for idx, c_name in enumerate(all_confs_list) if cols_conf[idx % 3].checkbox(c_name, key=f"new_conf_{idx}")]
-                nuevo_razon = st.text_area(_l['dash']['reason'], height=45)
-                nuevo_risk = ", ".join([op for idx, op in enumerate(['1%', '0.9%', '0.8%', '0.7%', '0.6%', '0.5%', '0.4%']) if st.columns(8)[idx].checkbox(op, key=f"new_risk_{idx}")])
-                nuevo_rr = ", ".join([op for idx, op in enumerate(['1:1', '1:1.5', '1:2', '1:3', '1:4']) if st.columns(6)[idx].checkbox(op, key=f"new_rr_{idx}")])
-                nuevo_tt = ", ".join([op for idx, op in enumerate(['A+', 'A', 'B', 'C']) if st.columns(5)[idx].checkbox(op, key=f"new_tt_{idx}")])
-                nuevo_emo = st.text_area(_l['dash']['emo'], height=45)
-                nuevo_corr = st.text_area(_l['dash']['corr'], height=45)
+            
+                for idx, c_name in enumerate(all_confs_list):
+                    if cols_conf[idx % 3].checkbox(c_name, key=f"new_conf_{idx}"): nuevo_conf.append(c_name)
+                st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
+                nuevo_razon = st.text_area(_l['dash']['reason'], value='', height=45)
+                st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 5px; margin-bottom: 0px;'>{_l['dash']['risk']}</div>", unsafe_allow_html=True)
+                risk_opts = ['1%', '0.9%', '0.8%', '0.7%', '0.6%', '0.5%', '0.4%']
+                nuevo_risk_list = []
+                cols_risk = st.columns([1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 0.2])
+                for idx, op in enumerate(risk_opts):
+                    if cols_risk[idx].checkbox(op, key=f"new_risk_{idx}"): nuevo_risk_list.append(op)
+        
+                nuevo_risk = ", ".join(nuevo_risk_list) if nuevo_risk_list else ""
+                st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 5px; margin-bottom: 0px;'>{_l['dash']['rr']}</div>", unsafe_allow_html=True)
+                rr_opts = ['1:1', '1:1.5', '1:2', '1:3', '1:4']
+                nuevo_rr_list = []
+                cols_rr = st.columns([1.5, 1.5, 1.5, 1.5, 1.5, 1.5]) 
+                
+                for idx, op in enumerate(rr_opts):
+                    if cols_rr[idx].checkbox(op, key=f"new_rr_{idx}"): nuevo_rr_list.append(op)
+                nuevo_rr = ", ".join(nuevo_rr_list) if nuevo_rr_list else ""
+                st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 5px; margin-bottom: 0px;'>{_l['dash']['tt']}</div>", unsafe_allow_html=True)
+                tt_opts = ['A+', 'A', 'B', 'C']
+                nuevo_tt_list = []
+                cols_tt = st.columns([1, 1, 1, 1, 4])
+                for idx, op in enumerate(tt_opts):
+                    if cols_tt[idx].checkbox(op, key=f"new_tt_{idx}"): nuevo_tt_list.append(op)
+              
+                nuevo_tt = ", ".join(nuevo_tt_list) if nuevo_tt_list else ""
+                st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
+                nuevo_emo = st.text_area(_l['dash']['emo'], value='', height=45)
+                nuevo_corr = st.text_area(_l['dash']['corr'], value='', height=45)
                 
         with c_link:
             st.markdown('<div class="lbl-header">🔗 Image Link:</div>', unsafe_allow_html=True)
-            link_imagen = st.text_input("Link", label_visibility="collapsed", placeholder="🔗 Pega el Enlace de la Imagen")
-            # 🔥 Botón Upload anclado debajo (Posición absoluta para no empujar la caja)
+            link_imagen = st.text_input("Link", value="", label_visibility="collapsed", placeholder="🔗 Pega el Enlace de la Imagen")
+            
+            # Usamos margin-top negativo para anular el salto de línea de Streamlit y pegarlo a la caja
             st.markdown('''
-            <div style="position: absolute; margin-top: 2px; font-size:10px; color:#A0AEC0; font-weight:bold; background:rgba(255,255,255,0.05); padding:2px 8px; border-radius:4px; cursor:pointer; border: 1px solid #4A5568; z-index:10;">📤 Upload</div>
+            <div style="font-size:10px; color:#A0AEC0; font-weight:bold; background:rgba(255,255,255,0.05); padding:2px 8px; border-radius:4px; display:inline-block; cursor:pointer; border: 1px solid #4A5568; margin-top:-16px; position:relative; z-index:10;">📤 Upload</div>
             ''', unsafe_allow_html=True)
+            
+            # El uploader real oculto
             imgs_subidas = st.file_uploader("", accept_multiple_files=True, label_visibility="collapsed")
             
         with c_btn:
