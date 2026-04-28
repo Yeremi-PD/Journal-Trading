@@ -1580,9 +1580,20 @@ with col_cal:
             width: 100% !important; min-width: 100% !important; max-width: 100% !important; margin: 25px 0 0 0 !important; 
         }
         
-        /* 3. ELEVA EL MENÚ DESPLEGABLE (Meses) POR ENCIMA DE LA PANTALLA NEGRA */
-        div[data-baseweb="popover"], div[role="listbox"] {
-            z-index: 99999999 !important;
+        /* 3. MATA EL CURSOR DE TEXTO Y PONE LA MANITO NORMAL */
+        body .fixed-modal-jump div[data-testid="stSelectbox"] input {
+            cursor: pointer !important;
+            caret-color: transparent !important;
+        }
+        body .fixed-modal-jump div[data-testid="stSelectbox"] div[data-baseweb="select"] {
+            cursor: pointer !important;
+        }
+
+        /* 4. RESCATA LA LISTA DE MESES DE LA OSCURIDAD (Prioridad Absoluta) */
+        [data-baseweb="popover"],
+        ul[role="listbox"],
+        div[data-baseweb="popover"] * {
+            z-index: 2147483647 !important; /* El número máximo posible en la web */
         }
         </style>
         
