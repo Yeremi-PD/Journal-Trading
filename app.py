@@ -1411,14 +1411,14 @@ div[data-testid="stForm"] [data-testid="stFormSubmitButton"] button {
     font-size: 18pt !important;           /* <-- TAMAÑO DEL TEXTO DEL BOTÓN */
     font-weight: bold !important;         /* Negrita */
     
-    height: 410px !important;              /* Altura del botón */
-    min-height: 140px !important;          
-    width: 1100% !important;               /* Ancho del botón */
+    height: 50px !important;              /* Altura del botón */
+    min-height: 60px !important;          
+    width: 100% !important;               /* Ancho del botón */
     
     border-radius: 8px !important;        /* Bordes redondeados */
     border: none !important;              /* Sin borde extra */
     
-    margin-top: 0px !important;           /* <-- SÚBELO O BÁJALO para alinearlo con las otras cajas */
+    margin-top: 20px !important;           /* <-- SÚBELO O BÁJALO para alinearlo con las otras cajas */
     
     display: flex !important;
     align-items: center !important;
