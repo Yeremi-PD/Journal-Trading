@@ -1039,9 +1039,18 @@ gap: 25px !important; border-bottom: none !important; overflow: visible !importa
     /* Matamos el color oscuro de la capa base invisible de Streamlit */
     div[data-baseweb="popover"], div[data-baseweb="popover"] > div {{ background-color: {card_bg} !important; border: none !important; outline: none !important; box-shadow: none !important; }}
     
-    /* Mantenemos el tamaño de tu cuadro de Trade Details y reforzamos el color claro */
-    div[data-testid="stPopoverBody"]:has(h3) {{ width: 710px !important; max-width: 95vw !important; max-height: 85vh !important; margin-top: 100px !important; overflow-y: auto !important; box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important; background-color: {card_bg} !important; border: 2px solid {card_bg} !important; }}
-    
+    /* Mantenemos el tamaño de tu cuadro de Trade Details (AMPLIADO 50%) */
+    div[data-testid="stPopoverBody"]:has(h3),
+    div[data-testid="stPopoverBody"]:has(.titulo-trade-details) {{ 
+        width: 1065px !important; /* <-- AQUÍ ESTÁ EL TAMAÑO NUEVO (710px + 50%) */
+        max-width: 95vw !important; 
+        max-height: 85vh !important; 
+        margin-top: 100px !important; 
+        overflow-y: auto !important; 
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important;
+        background-color: {card_bg} !important; 
+        border: 2px solid {card_bg} !important; 
+    }}
     /* 1. Volvemos TODOS los radios CUADRADOS sin importar dónde estén */
     div[data-testid="stPopoverBody"] div[role="radiogroup"] div[role="radio"] > div:first-child {{ 
         border-radius: 4px !important; 
