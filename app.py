@@ -1757,7 +1757,7 @@ with col_cal:
             box-shadow: none !important;
             color: {c_mes} !important;
             font-size: var(--cal-mes-size) !important;
-            font-weight: 600 !important;
+            font-weight: 1600 !important;
             margin-top: -5px !important;
             padding: 0 !important;
             transition: all 0.2s ease !important;
