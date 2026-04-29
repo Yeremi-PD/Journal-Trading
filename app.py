@@ -1761,7 +1761,7 @@ with col_cal:
         /* 1. Controlar la altura exacta de las flechas (Columnas 1 y 3) */
         div[data-testid="column"]:nth-child(1) button,
         div[data-testid="column"]:nth-child(3) button {{
-            height: 42px !important;
+            height: 42px !important;       /* <-- ALTURA DE LAS FLECHAS */
             min-height: 42px !important;
             margin-top: 0px !important;
             padding: 0 !important;
@@ -1772,7 +1772,9 @@ with col_cal:
         div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"],
         div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] > div {{
             width: 100% !important;
-            height: 42px !important;
+            min-width: 10px !important;    /* <--- ESTO ROMPE EL CANDADO GLOBAL QUE NO DEJABA ACHICARLO */
+            max-width: 100% !important;
+            height: 42px !important;       /* <-- ALTURA DE LA CAJA DEL BOTÓN 📅 */
             min-height: 42px !important;
             position: relative !important;
             display: block !important;
@@ -1783,13 +1785,17 @@ with col_cal:
         /* 3. ROMPER LA ATADURA: Quitamos el 'position: absolute' global y lo igualamos a las flechas */
         div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] button,
         div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] > div > button {{
-            position: relative !important; /* <--- ESTO ES LO QUE LO LIBERA */
+            position: relative !important;
             top: auto !important;
             left: auto !important;
+            
             width: 100% !important;
-            height: 42px !important;
+            min-width: 10px !important;    /* <--- ELIMINA EL LIMITE DE ANCHO MÍNIMO */
+            
+            height: 42px !important;       /* <-- ALTURA DEL BOTÓN 📅 (Debe ser igual a las otras) */
             min-height: 42px !important;
-            margin-top: 0px !important;
+            margin-top: 0px !important;    /* <-- MUÉVELO ARRIBA O ABAJO */
+            
             padding: 0 !important;
             border-radius: 8px !important;
             background-color: {btn_bg} !important;
@@ -1802,7 +1808,7 @@ with col_cal:
 
         div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] button p,
         div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] > div > button p {{
-            font-size: 22px !important;
+            font-size: 22px !important;    /* <-- TAMAÑO DEL EMOJI 📅 O DEL TEXTO */
             margin: 0 !important;
             line-height: 1 !important;
             color: {btn_txt} !important;
