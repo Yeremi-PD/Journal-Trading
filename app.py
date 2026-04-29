@@ -1799,7 +1799,7 @@ with col_cal:
             min-height: 42px !important;   /* <-- MANTÉN ESTO IGUAL AL ALTO (ej: 50px) */
             
             /* --- 🧭 MOVIMIENTO (ARRIBA, ABAJO, IZQ, DER) --- */
-            margin-top: 0px !important;    /* <-- Bajar: 5px | Subir: -5px */
+            margin-top: 80px !important;    /* <-- Bajar: 5px | Subir: -5px */
             margin-left: 0px !important;   /* <-- Mover Derecha: 10px | Izquierda: -10px */
             
             /* --- 🎨 DISEÑO Y COLORES --- */
