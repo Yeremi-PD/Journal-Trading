@@ -1588,7 +1588,7 @@ with col_form_area:
             
         with c_cant:
             st.markdown('<div class="lbl-header">Cantidad:</div>', unsafe_allow_html=True)
-            nuevo_bal_input_str = st.text_input("Balance Input", value="", placeholder=f"{bal_mostrar:.2f}", label_visibility="collapsed")
+            nuevo_bal_input_str = st.text_input(" ", value="", placeholder=f"{bal_mostrar:.2f}", label_visibility="collapsed")
             
         with c_det:
             st.markdown('<div class="lbl-header">📝 Trade Details:</div>', unsafe_allow_html=True)
