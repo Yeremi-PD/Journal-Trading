@@ -1565,7 +1565,7 @@ col_form_area, col_form_vacia = st.columns([2, 1])
 with col_form_area:
     with st.form(key="form_main_entry", clear_on_submit=True, border=False):
         # Le damos mucho más espacio a Date (1.8) y reducimos un poco Cantidad (0.9)
-        c_date, c_cant, c_det, c_link, c_btn = st.columns([0.8, 1.2, 1.1, 2.5, 1])
+        c_date, c_cant, c_det, c_link, c_btn, c_cal = st.columns([0.8, 1.2, 1.1, 2.3, 0.8, 0.4])
         
         with c_date:
             st.markdown('<div class="lbl-header">Date:</div>', unsafe_allow_html=True)
@@ -1649,6 +1649,8 @@ with col_form_area:
             
         with c_btn:
             btn_save = st.form_submit_button("GUARDAR", key="btn_save_main")
+            
+        with c_stats:
 
     if btn_save:
         entrada_limpia = str(nuevo_bal_input_str).strip()
@@ -1750,7 +1752,7 @@ with col_cal:
     bg_win_top = "#e6f9f4" if win_pct_top >= 50 else "#ffeded"
 
 # === MODAL INSTANTÁNEO DEL SELECTOR DE FECHAS ===
-    c_izq, c_cen, c_der, c_jump, c_stats = st.columns([0.6, 2, 0.6, 0.6, 3.2])
+    c_izq, c_cen, c_der, c_stats = st.columns([0.6, 2, 0.6, 3.8])
     with c_izq: st.button("◀", on_click=cambiar_mes, args=(-1,), use_container_width=True)
     with c_cen: st.markdown(f'<div style="text-align:center; font-weight:600; font-size:var(--cal-mes-size); color:{c_mes}; margin-top:2px;">{nombre_mes} {anio_sel}</div>', unsafe_allow_html=True)
     with c_der: st.button("▶", on_click=cambiar_mes, args=(1,), use_container_width=True)
