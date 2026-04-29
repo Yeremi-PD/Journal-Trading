@@ -1565,7 +1565,7 @@ col_form_area, col_form_vacia = st.columns([2, 1])
 with col_form_area:
     with st.form(key="form_main_entry", clear_on_submit=True, border=False):
         # Le damos mucho más espacio a Date (1.8) y reducimos un poco Cantidad (0.9)
-        c_date, c_cant, c_det, c_link, c_btn, c_cal = st.columns([0.8, 1.2, 1.1, 2.3, 0.8, 0.4])
+        c_date, c_cant, c_det, c_link, c_btn = st.columns([0.8, 1.2, 1.1, 2.5, 1])
         
         with c_date:
             st.markdown('<div class="lbl-header">Date:</div>', unsafe_allow_html=True)
@@ -1755,11 +1755,87 @@ with col_cal:
     with c_cen: st.markdown(f'<div style="text-align:center; font-weight:600; font-size:var(--cal-mes-size); color:{c_mes}; margin-top:2px;">{nombre_mes} {anio_sel}</div>', unsafe_allow_html=True)
     with c_der: st.button("▶", on_click=cambiar_mes, args=(1,), use_container_width=True)
     
-    # === MODAL INSTANTÁNEO DEL SELECTOR DE FECHAS ===
-    c_izq, c_cen, c_der, c_stats = st.columns([0.6, 2, 0.6, 3.8])
-    with c_izq: st.button("◀", on_click=cambiar_mes, args=(-1,), use_container_width=True)
-    with c_cen: st.markdown(f'<div style="text-align:center; font-weight:600; font-size:var(--cal-mes-size); color:{c_mes}; margin-top:2px;">{nombre_mes} {anio_sel}</div>', unsafe_allow_html=True)
-    with c_der: st.button("▶", on_click=cambiar_mes, args=(1,), use_container_width=True)
+    with c_jump:
+        st.markdown(f"""
+        <style>
+        /* 1. Controlar la altura exacta de las flechas (Columnas 1 y 3) */
+        div[data-testid="column"]:nth-child(1) button,
+        div[data-testid="column"]:nth-child(3) button {{
+            height: 42px !important;
+            min-height: 42px !important;
+            margin-top: 0px !important;
+            padding: 0 !important;
+            border-radius: 8px !important;
+        }}
+        
+        /* 2. LIBERAR el contenedor del popover de las ataduras globales */
+        div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"],
+        div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] > div {{
+            width: 100% !important;
+            height: 42px !important;
+            min-height: 42px !important;
+            position: relative !important;
+            display: block !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }}
+
+        /* 3. ROMPER LA ATADURA: Quitamos el 'position: absolute' global y lo igualamos a las flechas */
+        div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] button,
+        div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] > div > button {{
+            position: relative !important; /* <--- ESTO ES LO QUE LO LIBERA */
+            top: auto !important;
+            left: auto !important;
+            width: 100% !important;
+            height: 42px !important;
+            min-height: 42px !important;
+            margin-top: 0px !important;
+            padding: 0 !important;
+            border-radius: 8px !important;
+            background-color: {btn_bg} !important;
+            border: 1px solid {border_color} !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            z-index: 10 !important;
+        }}
+
+        div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] button p,
+        div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] > div > button p {{
+            font-size: 22px !important;
+            margin: 0 !important;
+            line-height: 1 !important;
+            color: {btn_txt} !important;
+        }}
+
+        div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] button:hover,
+        div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] > div > button:hover {{
+            border-color: #00C897 !important;
+        }}
+        </style>
+        """, unsafe_allow_html=True)
+
+        with st.popover("📅", use_container_width=True):
+            st.markdown('<h4 style="text-align:center; margin-top:0;">📅 Selector de Fecha</h4>', unsafe_allow_html=True)
+            if st.session_state.idioma == "ES":
+                meses_lista_jump = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
+                lbl_mes, lbl_anio, lbl_btn = "Mes", "Año", "Ir a fecha"
+            else:
+                meses_lista_jump = list(calendar.month_name)[1:]
+                lbl_mes, lbl_anio, lbl_btn = "Month", "Year", "Go to date"
+            
+            # Selector de Mes
+            nuevo_mes_jump = st.selectbox(lbl_mes, meses_lista_jump, index=st.session_state.cal_month - 1, key="jump_month")
+            
+            # Selector de Año como Lista (Ajusta los años si necesitas más)
+            años_disponibles = [2023, 2024, 2025, 2026, 2027, 2028, 2029, 2030]
+            idx_año_defecto = años_disponibles.index(st.session_state.cal_year) if st.session_state.cal_year in años_disponibles else 0
+            nuevo_anio_jump = st.selectbox(lbl_anio, años_disponibles, index=idx_año_defecto, key="jump_year_list")
+            
+            if st.button(lbl_btn, use_container_width=True, key="btn_jump_go"):
+                st.session_state.cal_month = meses_lista_jump.index(nuevo_mes_jump) + 1
+                st.session_state.cal_year = nuevo_anio_jump
+                st.rerun()
     with c_stats:
         st.markdown(f'''<div style="display:flex; justify-content:flex-end; align-items:center; gap:20px; margin-top:8px;"><div style="font-weight:700; font-size:var(--size-top-stats); color:{c_mes}; display:flex; align-items:center; gap:8px;"> P&L: <span style="background-color:{bg_pnl_top}; color:{color_pnl_top}; padding:4px 12px; border-radius:12px; font-weight:800;">{simb_pnl_top}${net_pnl_top:,.2f}</span></div><div style="font-weight:700; font-size:var(--size-top-stats); color:{c_mes}; display:flex; align-items:center; gap:8px;">Win Rate: <span style="background-color:{bg_win_top}; color:{color_win_top}; padding:4px 12px; border-radius:12px; font-weight:800;">{win_pct_top:.1f}%</span></div></div>''', unsafe_allow_html=True)
     
