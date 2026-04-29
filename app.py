@@ -922,7 +922,6 @@ st.markdown(f"""
 /* Ocultar Barra Lateral y Controles Nativos por Completo */
     [data-testid="stSidebar"] {{ display: none !important; }}
     [data-testid="collapsedControl"] {{ display: none !important; }}
-    }}
 
 /* 🔴 ANIQUILACIÓN TOTAL DEL ESPACIO SUPERIOR 🔴 */
     header[data-testid="stHeader"] {{ 
