@@ -1042,7 +1042,7 @@ gap: 25px !important; border-bottom: none !important; overflow: visible !importa
     /* Mantenemos el tamaño de tu cuadro de Trade Details (AMPLIADO 50%) */
     div[data-testid="stPopoverBody"]:has(h3),
     div[data-testid="stPopoverBody"]:has(.titulo-trade-details) {{ 
-        width: 965px !important; /* <-- AQUÍ ESTÁ EL TAMAÑO NUEVO (710px + 50%) */
+        width: 765px !important; /* <-- AQUÍ ESTÁ EL TAMAÑO NUEVO (710px + 50%) */
         max-width: 95vw !important; 
         max-height: 85vh !important; 
         margin-top: 100px !important; 
