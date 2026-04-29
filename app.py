@@ -1749,40 +1749,7 @@ with col_cal:
 # === MODAL INSTANTÁNEO DEL SELECTOR DE FECHAS ELIMINADO ===
     c_izq, c_cen, c_der, c_stats = st.columns([0.6, 2, 0.6, 3.8])
     with c_izq: st.button("◀", on_click=cambiar_mes, args=(-1,), use_container_width=True)
-    with c_cen:
-        st.markdown(f"""<style>
-        div[data-testid="column"]:nth-child(2) div[data-testid="stPopover"] > button {{
-            background: transparent !important;
-            border: none !important;
-            box-shadow: none !important;
-            color: {c_mes} !important;
-            font-size: var(--cal-mes-size) !important;
-            font-weight: 600 !important;
-            margin-top: -5px !important;
-            padding: 0 !important;
-            transition: all 0.2s ease !important;
-        }}
-        div[data-testid="column"]:nth-child(2) div[data-testid="stPopover"] > button:hover {{
-            color: #00C897 !important;
-            transform: scale(1.05) !important;
-        }}
-        </style>""", unsafe_allow_html=True)
-        with st.popover(f"{nombre_mes} {anio_sel} 🔽", use_container_width=True):
-            st.markdown(f"<div style='text-align:center; font-size: 18px; font-weight:900; margin-bottom:10px;'>{_l['cal']['jump_title']}</div>", unsafe_allow_html=True)
-            
-            meses_lista = ["", "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"] if st.session_state.idioma == "ES" else list(calendar.month_name)
-            
-            st.markdown(f"<span style='font-size:14px; font-weight:bold;'>{_l['cal']['jump_mo']}:</span>", unsafe_allow_html=True)
-            nuevo_mes = st.selectbox("jump_mo", range(1, 13), index=mes_sel-1, format_func=lambda x: meses_lista[x], key="jump_mes", label_visibility="collapsed")
-            
-            st.markdown(f"<span style='font-size:14px; font-weight:bold; margin-top:10px; display:block;'>{_l['cal']['jump_yr']}:</span>", unsafe_allow_html=True)
-            nuevo_anio = st.number_input("jump_yr", min_value=2000, max_value=2100, value=anio_sel, step=1, key="jump_anio", label_visibility="collapsed")
-            
-            st.markdown("<br>", unsafe_allow_html=True)
-            if st.button(_l['cal']['jump_btn'], use_container_width=True, key="btn_jump_go"):
-                st.session_state.cal_month = nuevo_mes
-                st.session_state.cal_year = nuevo_anio
-                st.rerun()
+    with c_cen: st.markdown(f'<div style="text-align:center; font-weight:600; font-size:var(--cal-mes-size); color:{c_mes}; margin-top:2px;">{nombre_mes} {anio_sel}</div>', unsafe_allow_html=True)
     with c_der: st.button("▶", on_click=cambiar_mes, args=(1,), use_container_width=True)
     with c_stats:
         st.markdown(f'''<div style="display:flex; justify-content:flex-end; align-items:center; gap:20px; margin-top:8px;"><div style="font-weight:700; font-size:var(--size-top-stats); color:{c_mes}; display:flex; align-items:center; gap:8px;"> P&L: <span style="background-color:{bg_pnl_top}; color:{color_pnl_top}; padding:4px 12px; border-radius:12px; font-weight:800;">{simb_pnl_top}${net_pnl_top:,.2f}</span></div><div style="font-weight:700; font-size:var(--size-top-stats); color:{c_mes}; display:flex; align-items:center; gap:8px;">Win Rate: <span style="background-color:{bg_win_top}; color:{color_win_top}; padding:4px 12px; border-radius:12px; font-weight:800;">{win_pct_top:.1f}%</span></div></div>''', unsafe_allow_html=True)
@@ -2017,31 +1984,7 @@ with col_det:
     if losses >= 1: wl_parts_pie.append(f'<span style="color:#FF4C4C;">{losses}L</span>')
     if ties >= 1: wl_parts_pie.append(f'<span style="color:gray;">{ties}BE</span>')
     wl_text_pie = ' <span style="color:gray;">/</span> '.join(wl_parts_pie) if total_validos > 0 else '<span style="color:gray;">0W / 0L / 0BE</span>'
-    
-    # --- AJUSTES MANUALES DEL CONTENEDOR DE W/L Y LA GRÁFICA ---
-    separacion_elementos = "30px" # Separación horizontal entre la gráfica y el texto (puedes subirlo a 40px, 50px...)
-    margen_superior_caja = "10px" # Espacio entre el porcentaje gigante de Win Rate y esta caja inferior
-    escala_texto_wl = 1.2         # Reduje el texto de 1.5 a 1.2 para que no se apriete, puedes jugar con este número
-    alineacion_caja = "space-around" # Opciones: "center", "space-between" (los manda a las esquinas), "space-around"
-    
-    st.markdown(f"""
-    <div class="metric-card card-win">
-        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-            <div>
-                <div class="metric-header"><span class="title-trade-win">{titulo_win}</span></div>
-                <div class="win-value" style="color: {c_win_card};">{win_pct:.2f}%</div>
-            </div>
-        </div>
-        <div style="display:flex; flex-direction:row; flex-wrap:wrap; align-items:center; justify-content:{alineacion_caja}; gap:{separacion_elementos}; margin-top:{margen_superior_caja}; padding:0px;">
-            <div style="width: var(--pie-size); height: var(--pie-size); transform: translateY(var(--pie-y-offset)); flex-shrink: 0; display:flex; margin: -15px 0;">
-                {bar_html}
-            </div>
-            <div style="font-size: calc(var(--size-box-wl) * {escala_texto_wl}); font-weight: 800; text-align:center; white-space:nowrap; transform: translateY(var(--pie-y-offset));">
-                {wl_text_pie}
-            </div>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown(f"""<div class="metric-card card-win"><div style="display:flex; justify-content:space-between; align-items:flex-start;"><div><div class="metric-header"><span class="title-trade-win">{titulo_win}</span></div><div class="win-value" style="color: {c_win_card};">{win_pct:.2f}%</div></div></div><div style="display:flex; flex-direction:row; align-items:center; justify-content:center; gap:20px; margin-top:0px; padding:0px;"><div style="width: var(--pie-size); height: var(--pie-size); transform: translateY(var(--pie-y-offset)); flex-shrink: 0; display:flex; margin: -15px 0;">{bar_html}</div><div style="font-size: calc(var(--size-box-wl) * 1.5); font-weight: 800; text-align:center; white-space:nowrap; transform: translateY(var(--pie-y-offset));">{wl_text_pie}</div></div></div>""", unsafe_allow_html=True)
     
     def get_col_simb(valor):
         if valor > 0: return "txt-green", "+"
