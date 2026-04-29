@@ -1757,7 +1757,7 @@ with col_cal:
             box-shadow: none !important;
             color: {c_mes} !important;
             font-size: var(--cal-mes-size) !important;
-            font-weight: 1600 !important;
+            font-weight: 600 !important;
             margin-top: -5px !important;
             padding: 0 !important;
             transition: all 0.2s ease !important;
@@ -2017,7 +2017,31 @@ with col_det:
     if losses >= 1: wl_parts_pie.append(f'<span style="color:#FF4C4C;">{losses}L</span>')
     if ties >= 1: wl_parts_pie.append(f'<span style="color:gray;">{ties}BE</span>')
     wl_text_pie = ' <span style="color:gray;">/</span> '.join(wl_parts_pie) if total_validos > 0 else '<span style="color:gray;">0W / 0L / 0BE</span>'
-    st.markdown(f"""<div class="metric-card card-win"><div style="display:flex; justify-content:space-between; align-items:flex-start;"><div><div class="metric-header"><span class="title-trade-win">{titulo_win}</span></div><div class="win-value" style="color: {c_win_card};">{win_pct:.2f}%</div></div></div><div style="display:flex; flex-direction:row; align-items:center; justify-content:center; gap:20px; margin-top:0px; padding:0px;"><div style="width: var(--pie-size); height: var(--pie-size); transform: translateY(var(--pie-y-offset)); flex-shrink: 0; display:flex; margin: -15px 0;">{bar_html}</div><div style="font-size: calc(var(--size-box-wl) * 1.5); font-weight: 800; text-align:center; white-space:nowrap; transform: translateY(var(--pie-y-offset));">{wl_text_pie}</div></div></div>""", unsafe_allow_html=True)
+    
+    # --- AJUSTES MANUALES DEL CONTENEDOR DE W/L Y LA GRÁFICA ---
+    separacion_elementos = "30px" # Separación horizontal entre la gráfica y el texto (puedes subirlo a 40px, 50px...)
+    margen_superior_caja = "10px" # Espacio entre el porcentaje gigante de Win Rate y esta caja inferior
+    escala_texto_wl = 1.2         # Reduje el texto de 1.5 a 1.2 para que no se apriete, puedes jugar con este número
+    alineacion_caja = "space-around" # Opciones: "center", "space-between" (los manda a las esquinas), "space-around"
+    
+    st.markdown(f"""
+    <div class="metric-card card-win">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+            <div>
+                <div class="metric-header"><span class="title-trade-win">{titulo_win}</span></div>
+                <div class="win-value" style="color: {c_win_card};">{win_pct:.2f}%</div>
+            </div>
+        </div>
+        <div style="display:flex; flex-direction:row; flex-wrap:wrap; align-items:center; justify-content:{alineacion_caja}; gap:{separacion_elementos}; margin-top:{margen_superior_caja}; padding:0px;">
+            <div style="width: var(--pie-size); height: var(--pie-size); transform: translateY(var(--pie-y-offset)); flex-shrink: 0; display:flex; margin: -15px 0;">
+                {bar_html}
+            </div>
+            <div style="font-size: calc(var(--size-box-wl) * {escala_texto_wl}); font-weight: 800; text-align:center; white-space:nowrap; transform: translateY(var(--pie-y-offset));">
+                {wl_text_pie}
+            </div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
     
     def get_col_simb(valor):
         if valor > 0: return "txt-green", "+"
