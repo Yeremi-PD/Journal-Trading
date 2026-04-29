@@ -1754,10 +1754,7 @@ with col_cal:
     simb_pnl_top = "+" if net_pnl_top > 0 else ""
     color_win_top = "#00C897" if win_pct_top >= 50 else "#FF4C4C"
     bg_win_top = "#e6f9f4" if win_pct_top >= 50 else "#ffeded"
-
-    with c_stats:
-        st.markdown(f'''<div style="display:flex; justify-content:flex-end; align-items:center; gap:20px; margin-top:8px;"><div style="font-weight:700; font-size:var(--size-top-stats); color:{c_mes}; display:flex; align-items:center; gap:8px;"> P&L: <span style="background-color:{bg_pnl_top}; color:{color_pnl_top}; padding:4px 12px; border-radius:12px; font-weight:800;">{simb_pnl_top}${net_pnl_top:,.2f}</span></div><div style="font-weight:700; font-size:var(--size-top-stats); color:{c_mes}; display:flex; align-items:center; gap:8px;">Win Rate: <span style="background-color:{bg_win_top}; color:{color_win_top}; padding:4px 12px; border-radius:12px; font-weight:800;">{win_pct_top:.1f}%</span></div></div>''', unsafe_allow_html=True)
-    
+ 
     st.markdown("<br>", unsafe_allow_html=True)
     if st.session_state.idioma == "ES": dias_semana = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"]
     else: dias_semana = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
