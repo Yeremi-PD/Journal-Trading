@@ -1765,28 +1765,33 @@ with col_cal:
             border-radius: 8px !important;
         }}
         
-        /* 2. LIBERAR el contenedor del popover de las ataduras globales */
+        /* 2. LIBERTAD ABSOLUTA DEL CONTENEDOR: Aquí controlas tamaño y posición */
         div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"],
         div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] > div {{
-            width: 100% !important;
-            height: 42px !important;
-            min-height: 42px !important;
             position: relative !important;
             display: block !important;
-            margin: 0 !important;
             padding: 0 !important;
+            z-index: 50 !important; /* Para que pase por encima de otros elementos si lo mueves */
+            
+            /* 🟢 TAMAÑO DEL BOTÓN 🟢 */
+            width: 100% !important;      /* Ancho: Puedes poner px (ej: 80px) para ignorar la columna */
+            height: 42px !important;     /* Alto total */
+            min-height: 42px !important; /* Debe ser igual al height */
+
+            /* 🟢 CONTROLES DE MOVIMIENTO 🟢 */
+            margin-top: 0px !important;  /* Usa números negativos (-10px) para subirlo, positivos para bajarlo */
+            margin-left: 0px !important; /* Negativos para la izquierda, positivos para la derecha */
         }}
 
-        /* 3. ROMPER LA ATADURA: Quitamos el 'position: absolute' global y lo igualamos a las flechas */
+        /* 3. DISEÑO VISUAL DEL BOTÓN: Colores y bordes (Se adapta a la caja de arriba) */
         div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] button,
         div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] > div > button {{
-            position: relative !important; /* <--- ESTO ES LO QUE LO LIBERA */
+            position: relative !important;
             top: auto !important;
             left: auto !important;
-            width: 100% !important;
-            height: 42px !important;
-            min-height: 42px !important;
-            margin-top: 0px !important;
+            width: 100% !important;  /* No toques esto, hace que llene la caja que configuraste arriba */
+            height: 100% !important; /* No toques esto */
+            margin: 0px !important;  
             padding: 0 !important;
             border-radius: 8px !important;
             background-color: {btn_bg} !important;
