@@ -1756,73 +1756,80 @@ with col_cal:
     with c_der: st.button("▶", on_click=cambiar_mes, args=(1,), use_container_width=True)
     
     with c_jump:
+        # AQUI ESTA LA MAGIA NUEVA: Un ancla invisible para identificar y dominar solo esta columna
+        st.markdown('<div class="ancla-jump"></div>', unsafe_allow_html=True)
+        
         st.markdown(f"""
         <style>
-        /* 1. Controlar la altura exacta de las flechas (Columnas 1 y 3) */
-        div[data-testid="column"]:nth-child(1) button,
-        div[data-testid="column"]:nth-child(3) button {{
-            height: 42px !important;
-            min-height: 42px !important;
-            margin-top: 0px !important;
-            padding: 0 !important;
-            border-radius: 8px !important;
+        /* 1. MOVEMOS LA COLUMNA ENTERA (Ignora a Streamlit y mueve todo el bloque) */
+        div[data-testid="column"]:has(.ancla-jump) {{
+            transform: translateY(-20px) !important; /* <--- AQUI LO MUEVES (-20px sube, +20px baja) */
+            z-index: 999 !important;
         }}
         
-        /* 2. LIBERAR el contenedor del popover de las ataduras globales */
-        div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"],
-        div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] > div {{
-            width: auto !important;  /* Liberado del 100% obligatorio */
-            height: auto !important; /* Liberado de los 42px obligatorios */
+        /* 2. ROMPEMOS LA PRISIÓN DEL POPOVER GLOBAL */
+        div[data-testid="column"]:has(.ancla-jump) div[data-testid="stPopover"],
+        div[data-testid="column"]:has(.ancla-jump) div[data-testid="stPopover"] > div {{
             position: relative !important;
-            display: block !important;
+            width: 100% !important;
+            height: 42px !important;
+            min-height: 42px !important;
             margin: 0 !important;
             padding: 0 !important;
-            overflow: visible !important; /* Para que no se corte si lo mueves mucho */
         }}
 
-        /* 3. AQUI TIENES EL CONTROL TOTAL DEL BOTON */
-        div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] button,
-        div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] > div > button {{
-            
-            /* --- 🕹️ CONTROLES DE POSICIÓN (Mueve estos valores) --- */
-            transform: translate(0px, 0px) !important; /* Ej: (10px, -5px) mueve 10px a la derecha y 5px arriba */
-            margin-top: 0px !important; /* Suma espacio arriba */
-            margin-left: 0px !important; /* Suma espacio a la izquierda */
-            
-            /* --- 📏 CONTROLES DE TAMAÑO --- */
-            width: 100% !important;     /* Ancho (Cámbialo a 50px o 80% si lo quieres más chico) */
-            height: 42px !important;    /* Alto del botón */
-            min-height: 42px !important;/* Minimo alto (mantenlo igual al 'height') */
-            
-            /* --- 🎨 ESTILOS VISUALES --- */
+        /* 3. DESVINCULAMOS EL BOTÓN Y LE DAMOS SU PROPIO ESTILO INDEPENDIENTE */
+        div[data-testid="column"]:has(.ancla-jump) div[data-testid="stPopover"] button,
+        div[data-testid="column"]:has(.ancla-jump) div[data-testid="stPopover"] > div > button {{
             position: relative !important;
             top: auto !important;
             left: auto !important;
-            padding: 0 !important;
+            width: 100% !important;
+            height: 42px !important;
+            min-height: 42px !important;
             border-radius: 8px !important;
             background-color: {btn_bg} !important;
             border: 1px solid {border_color} !important;
             display: flex !important;
             align-items: center !important;
             justify-content: center !important;
-            z-index: 10 !important;
         }}
 
-        /* TAMAÑO DEL EMOJI/TEXTO DENTRO DEL BOTÓN */
-        div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] button p,
-        div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] > div > button p {{
-            font-size: 22px !important; /* Tamaño del calendario 📅 */
+        div[data-testid="column"]:has(.ancla-jump) div[data-testid="stPopover"] button p,
+        div[data-testid="column"]:has(.ancla-jump) div[data-testid="stPopover"] > div > button p {{
+            font-size: 22px !important;
             margin: 0 !important;
-            line-height: 1 !important;
             color: {btn_txt} !important;
         }}
 
-        div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] button:hover,
-        div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] > div > button:hover {{
+        div[data-testid="column"]:has(.ancla-jump) div[data-testid="stPopover"] button:hover,
+        div[data-testid="column"]:has(.ancla-jump) div[data-testid="stPopover"] > div > button:hover {{
             border-color: #00C897 !important;
         }}
         </style>
         """, unsafe_allow_html=True)
+
+        with st.popover("📅", use_container_width=True):
+            st.markdown('<h4 style="text-align:center; margin-top:0;">📅 Selector de Fecha</h4>', unsafe_allow_html=True)
+            if st.session_state.idioma == "ES":
+                meses_lista_jump = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
+                lbl_mes, lbl_anio, lbl_btn = "Mes", "Año", "Ir a fecha"
+            else:
+                meses_lista_jump = list(calendar.month_name)[1:]
+                lbl_mes, lbl_anio, lbl_btn = "Month", "Year", "Go to date"
+            
+            # Selector de Mes
+            nuevo_mes_jump = st.selectbox(lbl_mes, meses_lista_jump, index=st.session_state.cal_month - 1, key="jump_month")
+            
+            # Selector de Año como Lista
+            años_disponibles = [2023, 2024, 2025, 2026, 2027, 2028, 2029, 2030]
+            idx_año_defecto = años_disponibles.index(st.session_state.cal_year) if st.session_state.cal_year in años_disponibles else 0
+            nuevo_anio_jump = st.selectbox(lbl_anio, años_disponibles, index=idx_año_defecto, key="jump_year_list")
+            
+            if st.button(lbl_btn, use_container_width=True, key="btn_jump_go"):
+                st.session_state.cal_month = meses_lista_jump.index(nuevo_mes_jump) + 1
+                st.session_state.cal_year = nuevo_anio_jump
+                st.rerun()
 
         with st.popover("📅", use_container_width=True):
             st.markdown('<h4 style="text-align:center; margin-top:0;">📅 Selector de Fecha</h4>', unsafe_allow_html=True)
