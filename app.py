@@ -1756,85 +1756,54 @@ with col_cal:
     with c_der: st.button("▶", on_click=cambiar_mes, args=(1,), use_container_width=True)
     
     with c_jump:
-        # 🟢 EL TRUCO DEFINITIVO: Un gancho invisible para encontrar esta columna sin fallar
-        st.markdown('<div class="boton-fecha-hook"></div>', unsafe_allow_html=True)
+        # 1. Creamos un contenedor con un ID único para que el CSS no se pierda
+        st.markdown('<div id="mi-boton-fecha"></div>', unsafe_allow_html=True)
         
         st.markdown(f"""
         <style>
-        /* Control de las flechas (Mes anterior/siguiente) */
-        div[data-testid="column"]:nth-child(1) button,
-        div[data-testid="column"]:nth-child(3) button {{
-            height: 42px !important;       
-            min-height: 42px !important;
-            margin-top: 0px !important;
-            padding: 0 !important;
-            border-radius: 8px !important;
-        }}
+        /* --- FUERZA BRUTA PARA EL BOTÓN SELECTOR 📅 --- */
         
-        /* ==========================================
-           EL BOTÓN REBELDE "📅" AHORA SÍ ESTÁ DOMADO
-        ========================================== */
-        
-        /* 1. Liberamos la caja usando nuestro gancho exacto (:has(.boton-fecha-hook)) */
-        div[data-testid="column"]:has(.boton-fecha-hook) div[data-testid="stPopover"],
-        div[data-testid="column"]:has(.boton-fecha-hook) div[data-testid="stPopover"] > div {{
-            width: 100% !important;        
-            min-width: 10px !important;    
-            height: 42px !important;       /* <-- ALTURA DE LA CAJA */
-            min-height: 42px !important;
+        /* Localizamos el botón exacto a través de nuestro ID */
+        div:has(> #mi-boton-fecha) + div button[kind="secondary"] {{
             position: relative !important;
-            display: block !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            overflow: visible !important;
-        }}
-
-        /* 2. EL BOTÓN REAL: Aquí tienes el control absoluto */
-        div[data-testid="column"]:has(.boton-fecha-hook) div[data-testid="stPopover"] button,
-        div[data-testid="column"]:has(.boton-fecha-hook) div[data-testid="stPopover"] > div > button {{
-            position: relative !important; 
-            top: auto !important;
-            left: auto !important;
-            
-            /* --- 📏 TAMAÑO (ANCHO Y ALTO) --- */
-            width: 1100% !important;        /* <-- ANCHO: Ponle "80px", "150px", o déjalo en 100% */
-            height: 412px !important;       /* <-- ALTO: Súbelo o bájalo (ej: 50px) */
-            min-height: 42px !important;   /* <-- MANTÉN ESTO IGUAL AL ALTO */
-            
-            /* --- 🧭 MOVIMIENTO (ARRIBA, ABAJO, IZQ, DER) --- */
-            margin-top: -140px !important;    /* <-- Bajar: 5px | Subir: -5px */
-            margin-left: 10px !important;   /* <-- Mover Derecha: 10px | Izquierda: -10px */
-            
-            /* --- 🎨 DISEÑO Y COLORES --- */
-            border-radius: 8px !important; 
-            background-color: {btn_bg} !important; 
-            border: 1px solid {border_color} !important; 
-            
-            padding: 0 !important;
             display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            z-index: 99999 !important;     /* <-- Lo forzamos a estar por encima de TODO */
+            
+            /* 📏 TAMAÑO: Cambia estos valores a tu antojo */
+            width: 80px !important;       /* Ancho total */
+            height: 50px !important;      /* Alto total */
+            min-height: 50px !important;
+            min-width: 80px !important;   /* Bloqueamos el ancho mínimo */
+            
+            /* 🧭 POSICIÓN: Muévelo pixel por pixel */
+            margin-top: -5px !important;  /* Negativo sube, Positivo baja */
+            margin-left: 10px !important; /* Negativo izquierda, Positivo derecha */
+            
+            /* 🎨 ESTILO */
+            background-color: {btn_bg} !important;
+            border: 1px solid {border_color} !important;
+            border-radius: 10px !important;
+            z-index: 9999 !important;
         }}
 
-        /* 3. El texto o Emoji 📅 */
-        div[data-testid="column"]:has(.boton-fecha-hook) div[data-testid="stPopover"] button p,
-        div[data-testid="column"]:has(.boton-fecha-hook) div[data-testid="stPopover"] > div > button p {{
-            font-size: 22px !important;    /* <-- TAMAÑO DEL EMOJI */
-            margin: 0 !important;
-            line-height: 1 !important;
+        /* Ajustar el emoji 📅 dentro del botón */
+        div:has(> #mi-boton-fecha) + div button[kind="secondary"] p {{
+            font-size: 24px !important;   /* Tamaño del emoji */
+            font-weight: bold !important;
             color: {btn_txt} !important;
+            margin: 0 !important;
         }}
-
-        /* 4. Efecto al pasar el ratón */
-        div[data-testid="column"]:has(.boton-fecha-hook) div[data-testid="stPopover"] button:hover,
-        div[data-testid="column"]:has(.boton-fecha-hook) div[data-testid="stPopover"] > div > button:hover {{
-            border-color: #00C897 !important; 
-            background-color: rgba(0, 200, 151, 0.1) !important; 
+        
+        /* Quitar cualquier sombra o borde azul de Streamlit al hacer clic */
+        div:has(> #mi-boton-fecha) + div button:focus, 
+        div:has(> #mi-boton-fecha) + div button:active {{
+            outline: none !important;
+            box-shadow: none !important;
+            background-color: {btn_bg} !important;
         }}
         </style>
         """, unsafe_allow_html=True)
-        
+
+        with st.popover("📅", use_container_width=True):
 
         with st.popover("📅", use_container_width=True):
             st.markdown('<h4 style="text-align:center; margin-top:0;">📅 Selector de Fecha</h4>', unsafe_allow_html=True)
