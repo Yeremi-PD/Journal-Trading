@@ -1780,7 +1780,7 @@ with col_cal:
     bg_win_top = "#e6f9f4" if win_pct_top >= 50 else "#ffeded"
 
 # === MODAL INSTANTÁNEO DEL SELECTOR DE FECHAS ===
-    c_izq, c_cen, c_der, c_stats = st.columns([0.6, 2, 0.6, 3.8])
+    c_izq, c_cen, c_der, c_jump, c_stats = st.columns([0.6, 2, 0.6, 0.6, 3.2])
     with c_izq: st.button("◀", on_click=cambiar_mes, args=(-1,), use_container_width=True)
     with c_cen: st.markdown(f'<div style="text-align:center; font-weight:600; font-size:var(--cal-mes-size); color:{c_mes}; margin-top:2px;">{nombre_mes} {anio_sel}</div>', unsafe_allow_html=True)
     with c_der: st.button("▶", on_click=cambiar_mes, args=(1,), use_container_width=True)
