@@ -1755,21 +1755,6 @@ with col_cal:
     color_win_top = "#00C897" if win_pct_top >= 50 else "#FF4C4C"
     bg_win_top = "#e6f9f4" if win_pct_top >= 50 else "#ffeded"
 
-# === MODAL INSTANTÁNEO DEL SELECTOR DE FECHAS ELIMINADO ===
-    c_izq, c_cen, c_der, c_jump, c_stats = st.columns([0.6, 2, 0.6, 0.6, 3.2])
-    with c_izq: st.button("◀", on_click=cambiar_mes, args=(-1,), use_container_width=True)
-    with c_cen: st.markdown(f'<div style="text-align:center; font-weight:600; font-size:var(--cal-mes-size); color:{c_mes}; margin-top:2px;">{nombre_mes} {anio_sel}</div>', unsafe_allow_html=True)
-    with c_der: st.button("▶", on_click=cambiar_mes, args=(1,), use_container_width=True)
-    with c_jump:
-        st.markdown("""<style>div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] { width:100% !important; height:auto !important; min-width:0 !important; min-height:0 !important;} div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] > div:first-child { width:100% !important; height:auto !important; min-height:0 !important;} div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] > button { width:100% !important; height:38px !important; min-height:38px !important; font-size:20px !important; margin-top:0px !important; padding:0 !important; background-color:transparent !important; border:1px solid #4A5568 !important; position:relative !important; border-radius: 8px !important; } div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] > button p { font-size:20px !important; line-height: 1 !important; margin:0 !important; }</style>""", unsafe_allow_html=True)
-        with st.popover("📅", use_container_width=True):
-            meses_lista = ["", "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"] if st.session_state.idioma == "ES" else [""] + list(calendar.month_name)[1:]
-            nuevo_mes = st.selectbox(_l['cal']['jump_mo'], range(1, 13), format_func=lambda x: meses_lista[x], index=st.session_state.cal_month-1, key="jump_mo_sel")
-            nuevo_anio = st.number_input(_l['cal']['jump_yr'], min_value=2000, max_value=2100, value=st.session_state.cal_year, step=1, key="jump_yr_sel")
-            if st.button(_l['cal']['jump_btn'], use_container_width=True, key="btn_jump_go"):
-                st.session_state.cal_month = nuevo_mes
-                st.session_state.cal_year = nuevo_anio
-                st.rerun()
     with c_stats:
         st.markdown(f'''<div style="display:flex; justify-content:flex-end; align-items:center; gap:20px; margin-top:8px;"><div style="font-weight:700; font-size:var(--size-top-stats); color:{c_mes}; display:flex; align-items:center; gap:8px;"> P&L: <span style="background-color:{bg_pnl_top}; color:{color_pnl_top}; padding:4px 12px; border-radius:12px; font-weight:800;">{simb_pnl_top}${net_pnl_top:,.2f}</span></div><div style="font-weight:700; font-size:var(--size-top-stats); color:{c_mes}; display:flex; align-items:center; gap:8px;">Win Rate: <span style="background-color:{bg_win_top}; color:{color_win_top}; padding:4px 12px; border-radius:12px; font-weight:800;">{win_pct_top:.1f}%</span></div></div>''', unsafe_allow_html=True)
     
