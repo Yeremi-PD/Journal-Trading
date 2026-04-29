@@ -1554,8 +1554,6 @@ div[data-testid="stFileUploader"] [data-testid="stFileUploadDropzone"]::after {
     cursor: pointer;
 }
 </style>
-}
-</style>
 """, unsafe_allow_html=True)
 
 # 🚀 Envolvemos el form en la misma proporción del calendario [2, 1] para que midan EXACTAMENTE lo mismo
