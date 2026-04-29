@@ -1439,7 +1439,7 @@ div[data-testid="stForm"] div[data-testid="stPopover"],
 div[data-testid="stForm"] div[data-testid="stPopover"] > div:first-child {
     width: 100% !important;
     min-width: 100% !important;
-    height: 90px !important;        /* <-- Cambia la altura aquí */
+    height: 40px !important;        /* <-- Cambia la altura aquí */
     min-height: 40px !important;    /* <-- Y aquí también */
     position: relative !important;  /* Rompe el amarre del contenedor */
     display: block !important;
@@ -1457,7 +1457,7 @@ div[data-testid="stForm"] div[data-testid="stPopover"] > div:first-child > butto
     width: 100% !important;
     height: 40px !important;        /* <-- Cambia la altura aquí (igual a las de arriba) */
     min-height: 40px !important;    /* <-- Y aquí también */
-    margin-top: 0px !important;     /* <-- Súbelo o bájalo para alinearlo */
+    margin-top: 110px !important;     /* <-- Súbelo o bájalo para alinearlo */
     
     background-color: #2D3748 !important; 
     border: 1px solid #4A5568 !important;
