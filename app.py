@@ -1427,7 +1427,7 @@ div[data-testid="stForm"] div[data-testid="stDateInput"] {
 /* Para cambiar la altura específica del cuadro de la fecha */
 div[data-testid="stForm"] div[data-testid="stDateInput"] div[data-baseweb="input"], 
 div[data-testid="stForm"] div[data-testid="stDateInput"] div[data-baseweb="base-input"] {
-    min-height: 40px !important;    /* Altura del cuadro */
+    min-height: 50px !important;    /* Altura del cuadro */
     height: 40px !important;        /* Altura del cuadro */
 }
 
