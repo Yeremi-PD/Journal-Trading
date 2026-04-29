@@ -1561,11 +1561,12 @@ col_form_area, col_form_vacia = st.columns([2, 1])
 
 with col_form_area:
     with st.form(key="form_main_entry", clear_on_submit=True, border=False):
-# Definimos 6 columnas ahora para incluir el selector
-        c_date, c_cant, c_det, c_link, c_jump, c_btn = st.columns([0.8, 1.2, 1.1, 2.2, 0.5, 1])
+        # Le damos mucho más espacio a Date (1.8) y reducimos un poco Cantidad (0.9)
+        c_date, c_cant, c_det, c_link, c_btn = st.columns([0.8, 1.2, 1.1, 2.5, 1])
         
         with c_date:
             st.markdown('<div class="lbl-header">Date:</div>', unsafe_allow_html=True)
+            # Lógica original de la fecha
             trades_de_esta_cta = db_usuario[ctx].get("trades", {})
             if trades_de_esta_cta:
                 ult_f = max(trades_de_esta_cta.keys())
@@ -1638,32 +1639,11 @@ with col_form_area:
                 nuevo_emo = st.text_area(_l['dash']['emo'], value='', height=45)
                 nuevo_corr = st.text_area(_l['dash']['corr'], value='', height=45)
                 
-       with c_link:
+        with c_link:
             st.markdown('<div class="lbl-header">🔗 Image Link:</div>', unsafe_allow_html=True)
             link_imagen = st.text_input("Link", value="", label_visibility="collapsed", placeholder="🔗 Pega el Enlace de la Imagen")
             # Botón upload eliminado a petición, solo usamos el Link de arriba.
-
-        with c_jump:
-            # CSS para que el botón de salto se alinee con GUARDAR
-            st.markdown("""<style>
-                div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > button {
-                    margin-top: 35px !important;
-                    height: 50px !important;
-                    min-height: 50px !important;
-                    background-color: #2D3748 !important;
-                    border: 1px solid #4A5568 !important;
-                }
-            </style>""", unsafe_allow_html=True)
-            with st.popover("📅", use_container_width=True):
-                st.markdown(f"<div style='text-align:center; font-weight:900;'>{_l['cal']['jump_title']}</div>", unsafe_allow_html=True)
-                meses_lista = ["", "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"] if st.session_state.idioma == "ES" else list(calendar.month_name)
-                nuevo_mes = st.selectbox("Mes", range(1, 13), index=mes_sel-1, format_func=lambda x: meses_lista[x], key="jump_mes_form")
-                nuevo_anio = st.number_input("Año", min_value=2000, max_value=2100, value=anio_sel, step=1, key="jump_anio_form")
-                if st.button(_l['cal']['jump_btn'], use_container_width=True):
-                    st.session_state.cal_month = nuevo_mes
-                    st.session_state.cal_year = nuevo_anio
-                    st.rerun()
-
+            
         with c_btn:
             btn_save = st.form_submit_button("GUARDAR", key="btn_save_main")
 
