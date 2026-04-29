@@ -1439,7 +1439,7 @@ div[data-testid="stForm"] div[data-testid="stPopover"],
 div[data-testid="stForm"] div[data-testid="stPopover"] > div:first-child {
     width: 100% !important;
     min-width: 100% !important;
-    height: 40px !important;        /* <-- Cambia la altura aquí */
+    height: 90px !important;        /* <-- Cambia la altura aquí */
     min-height: 40px !important;    /* <-- Y aquí también */
     position: relative !important;  /* Rompe el amarre del contenedor */
     display: block !important;
