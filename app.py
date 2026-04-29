@@ -1455,9 +1455,9 @@ div[data-testid="stForm"] div[data-testid="stPopover"] > div:first-child > butto
     left: auto !important;
     
     width: 100% !important;
-    height: 40px !important;        /* <-- Cambia la altura aquí (igual a las de arriba) */
+    height: 80px !important;        /* <-- Cambia la altura aquí (igual a las de arriba) */
     min-height: 40px !important;    /* <-- Y aquí también */
-    margin-top: 110px !important;     /* <-- Súbelo o bájalo para alinearlo */
+    margin-top: 0px !important;     /* <-- Súbelo o bájalo para alinearlo */
     
     background-color: #2D3748 !important; 
     border: 1px solid #4A5568 !important;
