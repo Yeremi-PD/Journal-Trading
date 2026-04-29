@@ -1758,65 +1758,76 @@ with col_cal:
     with c_jump:
         st.markdown(f"""
         <style>
-        /* 1. Controlar la altura exacta de las flechas (Columnas 1 y 3) */
+        /* Control de las flechas (Mes anterior/siguiente) para que no estorben */
         div[data-testid="column"]:nth-child(1) button,
         div[data-testid="column"]:nth-child(3) button {{
-            height: 42px !important;       /* <-- ALTURA DE LAS FLECHAS */
+            height: 42px !important;       
             min-height: 42px !important;
             margin-top: 0px !important;
             padding: 0 !important;
             border-radius: 8px !important;
         }}
         
-        /* 2. LIBERAR el contenedor del popover de las ataduras globales */
+        /* ==========================================
+           CONTROL TOTAL ABSOLUTO: BOTÓN SELECTOR DE FECHA 📅
+        ========================================== */
+        
+        /* 1. La caja invisible contenedora (Libera el espacio) */
         div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"],
         div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] > div {{
-            width: 100% !important;
-            min-width: 10px !important;    /* <--- ESTO ROMPE EL CANDADO GLOBAL QUE NO DEJABA ACHICARLO */
-            max-width: 100% !important;
-            height: 42px !important;       /* <-- ALTURA DE LA CAJA DEL BOTÓN 📅 */
+            width: 100% !important;        
+            min-width: 10px !important;    
+            height: 42px !important;       /* <-- ALTURA DEL ESPACIO INVISIBLE */
             min-height: 42px !important;
             position: relative !important;
             display: block !important;
             margin: 0 !important;
             padding: 0 !important;
+            overflow: visible !important;  /* <-- Permite que el botón se salga de su caja si lo haces gigante */
         }}
 
-        /* 3. ROMPER LA ATADURA: Quitamos el 'position: absolute' global y lo igualamos a las flechas */
+        /* 2. EL BOTÓN REAL: Aquí tienes el panel de control */
         div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] button,
         div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] > div > button {{
-            position: relative !important;
+            position: relative !important; 
             top: auto !important;
             left: auto !important;
             
-            width: 100% !important;
-            min-width: 10px !important;    /* <--- ELIMINA EL LIMITE DE ANCHO MÍNIMO */
+            /* --- 📏 TAMAÑO (ANCHO Y ALTO) --- */
+            width: 100% !important;        /* <-- ANCHO: Ponle "80px", "150px", o déjalo en 100% */
+            height: 42px !important;       /* <-- ALTO: Súbelo o bájalo (ej: 50px) */
+            min-height: 42px !important;   /* <-- MANTÉN ESTO IGUAL AL ALTO (ej: 50px) */
             
-            height: 42px !important;       /* <-- ALTURA DEL BOTÓN 📅 (Debe ser igual a las otras) */
-            min-height: 42px !important;
-            margin-top: 0px !important;    /* <-- MUÉVELO ARRIBA O ABAJO */
+            /* --- 🧭 MOVIMIENTO (ARRIBA, ABAJO, IZQ, DER) --- */
+            margin-top: 0px !important;    /* <-- Bajar: 5px | Subir: -5px */
+            margin-left: 0px !important;   /* <-- Mover Derecha: 10px | Izquierda: -10px */
+            
+            /* --- 🎨 DISEÑO Y COLORES --- */
+            border-radius: 8px !important; /* <-- Bordes más o menos redondos */
+            background-color: {btn_bg} !important; /* Fondo normal */
+            border: 1px solid {border_color} !important; /* Borde normal */
             
             padding: 0 !important;
-            border-radius: 8px !important;
-            background-color: {btn_bg} !important;
-            border: 1px solid {border_color} !important;
             display: flex !important;
             align-items: center !important;
             justify-content: center !important;
-            z-index: 10 !important;
+            z-index: 1000 !important;      /* <-- Asegura que el botón siempre esté por encima de todo */
         }}
 
+        /* 3. El texto o Emoji 📅 dentro del botón */
         div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] button p,
         div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] > div > button p {{
-            font-size: 22px !important;    /* <-- TAMAÑO DEL EMOJI 📅 O DEL TEXTO */
+            font-size: 22px !important;    /* <-- TAMAÑO DEL EMOJI / TEXTO */
             margin: 0 !important;
             line-height: 1 !important;
             color: {btn_txt} !important;
         }}
 
+        /* 4. Efecto Hover (Al pasar el ratón) */
         div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] button:hover,
         div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] > div > button:hover {{
-            border-color: #00C897 !important;
+            border-color: #00C897 !important; /* Borde se pone verde */
+            background-color: rgba(0, 200, 151, 0.1) !important; /* Ligeramente verde por dentro */
         }}
         </style>
         """, unsafe_allow_html=True)
