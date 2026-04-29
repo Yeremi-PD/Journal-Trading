@@ -1771,25 +1771,33 @@ with col_cal:
         /* 2. LIBERAR el contenedor del popover de las ataduras globales */
         div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"],
         div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] > div {{
-            width: 100% !important;
-            height: 42px !important;
-            min-height: 42px !important;
+            width: auto !important;  /* Liberado del 100% obligatorio */
+            height: auto !important; /* Liberado de los 42px obligatorios */
             position: relative !important;
             display: block !important;
             margin: 0 !important;
             padding: 0 !important;
+            overflow: visible !important; /* Para que no se corte si lo mueves mucho */
         }}
 
-        /* 3. ROMPER LA ATADURA: Quitamos el 'position: absolute' global y lo igualamos a las flechas */
+        /* 3. AQUI TIENES EL CONTROL TOTAL DEL BOTON */
         div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] button,
         div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] > div > button {{
-            position: relative !important; /* <--- ESTO ES LO QUE LO LIBERA */
+            
+            /* --- 🕹️ CONTROLES DE POSICIÓN (Mueve estos valores) --- */
+            transform: translate(0px, 0px) !important; /* Ej: (10px, -5px) mueve 10px a la derecha y 5px arriba */
+            margin-top: 0px !important; /* Suma espacio arriba */
+            margin-left: 0px !important; /* Suma espacio a la izquierda */
+            
+            /* --- 📏 CONTROLES DE TAMAÑO --- */
+            width: 100% !important;     /* Ancho (Cámbialo a 50px o 80% si lo quieres más chico) */
+            height: 42px !important;    /* Alto del botón */
+            min-height: 42px !important;/* Minimo alto (mantenlo igual al 'height') */
+            
+            /* --- 🎨 ESTILOS VISUALES --- */
+            position: relative !important;
             top: auto !important;
             left: auto !important;
-            width: 100% !important;
-            height: 42px !important;
-            min-height: 42px !important;
-            margin-top: 0px !important;
             padding: 0 !important;
             border-radius: 8px !important;
             background-color: {btn_bg} !important;
@@ -1800,9 +1808,10 @@ with col_cal:
             z-index: 10 !important;
         }}
 
+        /* TAMAÑO DEL EMOJI/TEXTO DENTRO DEL BOTÓN */
         div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] button p,
         div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] > div > button p {{
-            font-size: 22px !important;
+            font-size: 22px !important; /* Tamaño del calendario 📅 */
             margin: 0 !important;
             line-height: 1 !important;
             color: {btn_txt} !important;
