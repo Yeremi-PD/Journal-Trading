@@ -1562,7 +1562,7 @@ col_form_area, col_form_vacia = st.columns([2, 1])
 with col_form_area:
     with st.form(key="form_main_entry", clear_on_submit=True, border=False):
         # Le damos mucho más espacio a Date (1.8) y reducimos un poco Cantidad (0.9)
-        c_date, c_cant, c_det, c_link, c_jump, c_btn = st.columns([0.8, 1.2, 1.1, 1.8, 0.7, 1])
+        c_date, c_cant, c_det, c_link, c_btn = st.columns([0.8, 1.2, 1.1, 2.5, 1])
         
         with c_date:
             st.markdown('<div class="lbl-header">Date:</div>', unsafe_allow_html=True)
@@ -1643,16 +1643,7 @@ with col_form_area:
             st.markdown('<div class="lbl-header">🔗 Image Link:</div>', unsafe_allow_html=True)
             link_imagen = st.text_input("Link", value="", label_visibility="collapsed", placeholder="🔗 Pega el Enlace de la Imagen")
             # Botón upload eliminado a petición, solo usamos el Link de arriba.
-        with c_jump:
-            st.markdown("""<style>div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"], div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > div:first-child { width:100% !important; min-width:100% !important; display:block !important; margin:0 !important; padding:0 !important; height:auto !important; position:relative !important; } div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > button, div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > div:first-child > button { width:100% !important; height:50px !important; min-height:60px !important; margin-top:35px !important; border-radius:8px !important; background-color:#2D3748 !important; border:1px solid #4A5568 !important; display:flex !important; align-items:center !important; justify-content:center !important; position:relative !important; top:auto !important; left:auto !important; z-index:10 !important; } div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > button p, div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > div:first-child > button p { font-size:28px !important; margin:0 !important; color:white !important; } div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > button:hover, div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > div:first-child > button:hover { border-color:#00C897 !important; background:rgba(0,200,151,0.1) !important; } div[data-testid="stPopoverBody"] div[data-testid="stFormSubmitButton"] button { width: 100% !important; height: 45px !important; min-height: 45px !important; margin-top: 15px !important; font-size: 16px !important; font-weight: bold !important; background-color: #00C897 !important; color: white !important; border-radius: 8px !important; }</style>""", unsafe_allow_html=True)
-            with st.popover("📅", use_container_width=True):
-                meses_lista = ["", "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"] if st.session_state.idioma == "ES" else [""] + list(calendar.month_name)[1:]
-                nuevo_mes = st.selectbox(_l['cal']['jump_mo'], range(1, 13), format_func=lambda x: meses_lista[x], index=st.session_state.cal_month-1, key="jump_mo_sel_form")
-                nuevo_anio = st.number_input(_l['cal']['jump_yr'], min_value=2000, max_value=2100, value=st.session_state.cal_year, step=1, key="jump_yr_sel_form")
-                if st.form_submit_button(_l['cal']['jump_btn'], use_container_width=True, key="btn_jump_go"):
-                    st.session_state.cal_month = nuevo_mes
-                    st.session_state.cal_year = nuevo_anio
-                    st.rerun()
+            
         with c_btn:
             btn_save = st.form_submit_button("GUARDAR", key="btn_save_main")
 
@@ -1754,7 +1745,15 @@ with col_cal:
     simb_pnl_top = "+" if net_pnl_top > 0 else ""
     color_win_top = "#00C897" if win_pct_top >= 50 else "#FF4C4C"
     bg_win_top = "#e6f9f4" if win_pct_top >= 50 else "#ffeded"
- 
+
+# === MODAL INSTANTÁNEO DEL SELECTOR DE FECHAS ELIMINADO ===
+    c_izq, c_cen, c_der, c_stats = st.columns([0.6, 2, 0.6, 3.8])
+    with c_izq: st.button("◀", on_click=cambiar_mes, args=(-1,), use_container_width=True)
+    with c_cen: st.markdown(f'<div style="text-align:center; font-weight:600; font-size:var(--cal-mes-size); color:{c_mes}; margin-top:2px;">{nombre_mes} {anio_sel}</div>', unsafe_allow_html=True)
+    with c_der: st.button("▶", on_click=cambiar_mes, args=(1,), use_container_width=True)
+    with c_stats:
+        st.markdown(f'''<div style="display:flex; justify-content:flex-end; align-items:center; gap:20px; margin-top:8px;"><div style="font-weight:700; font-size:var(--size-top-stats); color:{c_mes}; display:flex; align-items:center; gap:8px;"> P&L: <span style="background-color:{bg_pnl_top}; color:{color_pnl_top}; padding:4px 12px; border-radius:12px; font-weight:800;">{simb_pnl_top}${net_pnl_top:,.2f}</span></div><div style="font-weight:700; font-size:var(--size-top-stats); color:{c_mes}; display:flex; align-items:center; gap:8px;">Win Rate: <span style="background-color:{bg_win_top}; color:{color_win_top}; padding:4px 12px; border-radius:12px; font-weight:800;">{win_pct_top:.1f}%</span></div></div>''', unsafe_allow_html=True)
+    
     st.markdown("<br>", unsafe_allow_html=True)
     if st.session_state.idioma == "ES": dias_semana = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"]
     else: dias_semana = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
