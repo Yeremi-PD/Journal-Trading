@@ -1377,12 +1377,12 @@ div[data-testid="stForm"] input {
     line-height: 40px !important;
 }
 
-/* 🟢 1. CANTIDAD MÁS GRANDE, BLANCA Y CENTRADA (Apunta a la 2da columna) */
+/* 🟢 1. CANTIDAD BLANCA Y TEXTO A 18PT (Apunta a la 2da columna) */
 div[data-testid="stForm"] div[data-testid="column"]:nth-child(2) input {
-    font-size: 24px !important;
+    font-size: 18pt !important;       /* <-- AQUÍ CAMBIAS EL TAMAÑO EXACTO */
     font-weight: 900 !important;
-    color: #FFFFFF !important;
-    -webkit-text-fill-color: #FFFFFF !important;
+    color: #FFFFFF !important;        /* <-- COLOR BLANCO */
+    -webkit-text-fill-color: #FFFFFF !important; /* <-- FUERZA EL COLOR BLANCO EN TODOS LOS NAVEGADORES */
     text-align: center !important;
 }
 
@@ -1402,17 +1402,35 @@ div[data-testid="stForm"] div[data-testid="stDateInput"]::after {
     display: none !important; 
 }
 
-/* Botón GUARDAR estilo imagen */
+/* ==========================================
+   AJUSTES DEL BOTÓN "GUARDAR"
+========================================== */
 div[data-testid="stForm"] [data-testid="stFormSubmitButton"] button {
-    background-color: #00C897 !important;
-    color: white !important;
-    font-weight: bold !important;
-    height: 40px !important;
-    min-height: 40px !important;
-    border-radius: 6px !important;
-    border: none !important;
-    width: 100% !important;
-    margin-top: 25px !important; /* Lo empuja abajo para alinearlo con los inputs */
+    background-color: #00C897 !important; /* Color de fondo (Verde) */
+    color: white !important;              /* Color del texto */
+    font-size: 18pt !important;           /* <-- TAMAÑO DEL TEXTO DEL BOTÓN */
+    font-weight: bold !important;         /* Negrita */
+    
+    height: 40px !important;              /* Altura del botón */
+    min-height: 40px !important;          
+    width: 100% !important;               /* Ancho del botón */
+    
+    border-radius: 8px !important;        /* Bordes redondeados */
+    border: none !important;              /* Sin borde extra */
+    
+    margin-top: 0px !important;           /* <-- SÚBELO O BÁJALO para alinearlo con las otras cajas */
+    
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: all 0.2s ease !important; /* Suaviza las animaciones */
+}
+
+/* Efecto al pasar el mouse por encima del botón GUARDAR (Para que se vea más profesional) */
+div[data-testid="stForm"] [data-testid="stFormSubmitButton"] button:hover {
+    background-color: #00A67D !important; /* Verde un poco más oscuro al pasar el mouse */
+    transform: translateY(-2px) !important; /* Se levanta un poquito */
+    box-shadow: 0px 4px 10px rgba(0, 200, 151, 0.4) !important; /* Sombra verde */
 }
 
 /* ==========================================
