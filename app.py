@@ -1432,31 +1432,53 @@ div[data-testid="stForm"] div[data-testid="stDateInput"] div[data-baseweb="base-
 }
 
 /* ==========================================
-   AJUSTES DEL BOTÓN "TRADE DETAILS"
+   AJUSTES DEL BOTÓN "TRADE DETAILS" (LIBERADO)
 ========================================== */
-div[data-testid="stForm"] div[data-testid="stPopover"] > button {
-    background-color: #2D3748 !important; /* Color de fondo del botón */
-    border: 1px solid #4A5568 !important; /* Color y grosor del borde */
-    border-radius: 8px !important;        /* Qué tan redondas quieres las esquinas */
+/* 1. Liberar la caja contenedora de las ataduras del calendario */
+div[data-testid="stForm"] div[data-testid="stPopover"],
+div[data-testid="stForm"] div[data-testid="stPopover"] > div:first-child {
+    width: 100% !important;
+    min-width: 100% !important;
+    height: 40px !important;        /* <-- Cambia la altura aquí */
+    min-height: 40px !important;    /* <-- Y aquí también */
+    position: relative !important;  /* Rompe el amarre del contenedor */
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* 2. Liberar el botón real (Romper el absolute) */
+div[data-testid="stForm"] div[data-testid="stPopover"] > button,
+div[data-testid="stForm"] div[data-testid="stPopover"] > div:first-child > button {
+    position: relative !important;  /* <-- ESTO ROMPE LAS CADENAS VISUALES */
+    top: auto !important;
+    left: auto !important;
     
-    height: 40px !important;              /* Altura del botón (ajústala a tu gusto) */
-    min-height: 40px !important;          /* Mantén esto igual al 'height' */
-    width: 100% !important;               /* Ancho del botón */
+    width: 100% !important;
+    height: 40px !important;        /* <-- Cambia la altura aquí (igual a las de arriba) */
+    min-height: 40px !important;    /* <-- Y aquí también */
+    margin-top: 0px !important;     /* <-- Súbelo o bájalo para alinearlo */
     
-    margin-top: 0px !important;           /* MUÉVELO ARRIBA O ABAJO para alinearlo con las otras cajas */
+    background-color: #2D3748 !important; 
+    border: 1px solid #4A5568 !important;
+    border-radius: 8px !important;        
     
     color: white !important;              
     display: flex !important;
-    justify-content: center !important;   /* Centra el texto. Si lo quieres a la izquierda pon 'flex-start' */
+    justify-content: center !important;   
     align-items: center !important;
     padding: 0 10px !important;
+    z-index: 10 !important;
 }
 
-/* Control del TEXTO dentro del botón */
-div[data-testid="stForm"] div[data-testid="stPopover"] > button p {
+/* 3. Control del TEXTO dentro del botón */
+div[data-testid="stForm"] div[data-testid="stPopover"] > button p,
+div[data-testid="stForm"] div[data-testid="stPopover"] > div:first-child > button p {
     font-size: 16px !important;           /* Tamaño del texto */
-    font-weight: bold !important;         /* Texto en Negrita */
+    font-weight: bold !important;         
     margin: 0 !important;
+    line-height: 1 !important;
+    color: white !important;
 }
 
 /* ==========================================
