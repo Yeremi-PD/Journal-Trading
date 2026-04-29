@@ -1418,7 +1418,7 @@ div[data-testid="stForm"] [data-testid="stFormSubmitButton"] button {
     border-radius: 8px !important;        /* Bordes redondeados */
     border: none !important;              /* Sin borde extra */
     
-    margin-top: 210px !important;           /* <-- SÚBELO O BÁJALO para alinearlo con las otras cajas */
+    margin-top: 50px !important;           /* <-- SÚBELO O BÁJALO para alinearlo con las otras cajas */
     
     display: flex !important;
     align-items: center !important;
