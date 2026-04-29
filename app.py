@@ -1775,8 +1775,8 @@ with col_cal:
             min-width: 80px !important;   /* Bloqueamos el ancho mínimo */
             
             /* 🧭 POSICIÓN: Muévelo pixel por pixel */
-            margin-top: -5px !important;  /* Negativo sube, Positivo baja */
-            margin-left: 10px !important; /* Negativo izquierda, Positivo derecha */
+            margin-top: -115px !important;  /* Negativo sube, Positivo baja */
+            margin-left: 110px !important; /* Negativo izquierda, Positivo derecha */
             
             /* 🎨 ESTILO */
             background-color: {btn_bg} !important;
