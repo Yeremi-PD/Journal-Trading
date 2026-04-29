@@ -1830,28 +1830,6 @@ with col_cal:
                 st.session_state.cal_month = meses_lista_jump.index(nuevo_mes_jump) + 1
                 st.session_state.cal_year = nuevo_anio_jump
                 st.rerun()
-
-        with st.popover("📅", use_container_width=True):
-            st.markdown('<h4 style="text-align:center; margin-top:0;">📅 Selector de Fecha</h4>', unsafe_allow_html=True)
-            if st.session_state.idioma == "ES":
-                meses_lista_jump = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
-                lbl_mes, lbl_anio, lbl_btn = "Mes", "Año", "Ir a fecha"
-            else:
-                meses_lista_jump = list(calendar.month_name)[1:]
-                lbl_mes, lbl_anio, lbl_btn = "Month", "Year", "Go to date"
-            
-            # Selector de Mes
-            nuevo_mes_jump = st.selectbox(lbl_mes, meses_lista_jump, index=st.session_state.cal_month - 1, key="jump_month")
-            
-            # Selector de Año como Lista (Ajusta los años si necesitas más)
-            años_disponibles = [2023, 2024, 2025, 2026, 2027, 2028, 2029, 2030]
-            idx_año_defecto = años_disponibles.index(st.session_state.cal_year) if st.session_state.cal_year in años_disponibles else 0
-            nuevo_anio_jump = st.selectbox(lbl_anio, años_disponibles, index=idx_año_defecto, key="jump_year_list")
-            
-            if st.button(lbl_btn, use_container_width=True, key="btn_jump_go"):
-                st.session_state.cal_month = meses_lista_jump.index(nuevo_mes_jump) + 1
-                st.session_state.cal_year = nuevo_anio_jump
-                st.rerun()
     with c_stats:
         st.markdown(f'''<div style="display:flex; justify-content:flex-end; align-items:center; gap:20px; margin-top:8px;"><div style="font-weight:700; font-size:var(--size-top-stats); color:{c_mes}; display:flex; align-items:center; gap:8px;"> P&L: <span style="background-color:{bg_pnl_top}; color:{color_pnl_top}; padding:4px 12px; border-radius:12px; font-weight:800;">{simb_pnl_top}${net_pnl_top:,.2f}</span></div><div style="font-weight:700; font-size:var(--size-top-stats); color:{c_mes}; display:flex; align-items:center; gap:8px;">Win Rate: <span style="background-color:{bg_win_top}; color:{color_win_top}; padding:4px 12px; border-radius:12px; font-weight:800;">{win_pct_top:.1f}%</span></div></div>''', unsafe_allow_html=True)
     
