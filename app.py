@@ -1804,8 +1804,6 @@ with col_cal:
         """, unsafe_allow_html=True)
 
         with st.popover("📅", use_container_width=True):
-
-        with st.popover("📅", use_container_width=True):
             st.markdown('<h4 style="text-align:center; margin-top:0;">📅 Selector de Fecha</h4>', unsafe_allow_html=True)
             if st.session_state.idioma == "ES":
                 meses_lista_jump = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
