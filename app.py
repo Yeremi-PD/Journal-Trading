@@ -1411,9 +1411,9 @@ div[data-testid="stForm"] [data-testid="stFormSubmitButton"] button {
     font-size: 18pt !important;           /* <-- TAMAÑO DEL TEXTO DEL BOTÓN */
     font-weight: bold !important;         /* Negrita */
     
-    height: 40px !important;              /* Altura del botón */
-    min-height: 40px !important;          
-    width: 100% !important;               /* Ancho del botón */
+    height: 410px !important;              /* Altura del botón */
+    min-height: 140px !important;          
+    width: 1100% !important;               /* Ancho del botón */
     
     border-radius: 8px !important;        /* Bordes redondeados */
     border: none !important;              /* Sin borde extra */
