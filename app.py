@@ -1647,12 +1647,11 @@ with col_form_area:
             link_imagen = st.text_input("Link", value="", label_visibility="collapsed", placeholder="🔗 Pega el Enlace de la Imagen")
             # Botón upload eliminado a petición, solo usamos el Link de arriba.
             
-        with c_btn:
-                    btn_save = st.form_submit_button("GUARDAR", key="btn_save_main")
+with c_btn:
+            btn_save = st.form_submit_button("GUARDAR", key="btn_save_main")
 
-            if btn_save:
-                entrada_limpia = str(nuevo_bal_input_str).strip()
-                if entrada_limpia == "":
+    if btn_save:
+        entrada_limpia = str(nuevo_bal_input_str).strip()
             st.error(_l['dash']['err_empty'])
         else:
             viejo_real = db_usuario[ctx]["balance"]
