@@ -1408,12 +1408,12 @@ div[data-testid="stForm"] div[data-testid="stDateInput"]::after {
 div[data-testid="stForm"] [data-testid="stFormSubmitButton"] button {
     background-color: #00C897 !important; /* Color de fondo (Verde) */
     color: white !important;              /* Color del texto */
-    font-size: 18pt !important;           /* <-- TAMAÑO DEL TEXTO DEL BOTÓN */
+    font-size: 30pt !important;           /* <-- TAMAÑO DEL TEXTO DEL BOTÓN */
     font-weight: bold !important;         /* Negrita */
     
     height: 50px !important;              /* Altura del botón */
     min-height: 60px !important;          
-    width: 150% !important;               /* Ancho del botón */
+    width: 170% !important;               /* Ancho del botón */
     
     border-radius: 8px !important;        /* Bordes redondeados */
     border: none !important;              /* Sin borde extra */
