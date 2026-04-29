@@ -1794,12 +1794,12 @@ with col_cal:
             left: auto !important;
             
             /* --- 📏 TAMAÑO (ANCHO Y ALTO) --- */
-            width: 100% !important;        /* <-- ANCHO: Ponle "80px", "150px", o déjalo en 100% */
+            width: 1100% !important;        /* <-- ANCHO: Ponle "80px", "150px", o déjalo en 100% */
             height: 42px !important;       /* <-- ALTO: Súbelo o bájalo (ej: 50px) */
             min-height: 42px !important;   /* <-- MANTÉN ESTO IGUAL AL ALTO (ej: 50px) */
             
             /* --- 🧭 MOVIMIENTO (ARRIBA, ABAJO, IZQ, DER) --- */
-            margin-top: 80px !important;    /* <-- Bajar: 5px | Subir: -5px */
+            margin-top: 0px !important;    /* <-- Bajar: 5px | Subir: -5px */
             margin-left: 0px !important;   /* <-- Mover Derecha: 10px | Izquierda: -10px */
             
             /* --- 🎨 DISEÑO Y COLORES --- */
