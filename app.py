@@ -1756,21 +1756,22 @@ with col_cal:
     with c_der: st.button("▶", on_click=cambiar_mes, args=(1,), use_container_width=True)
     
     with c_jump:
-        # AQUI ESTA LA MAGIA NUEVA: Un ancla invisible para identificar y dominar solo esta columna
-        st.markdown('<div class="ancla-jump"></div>', unsafe_allow_html=True)
-        
         st.markdown(f"""
         <style>
-        /* 1. MOVEMOS LA COLUMNA ENTERA (Ignora a Streamlit y mueve todo el bloque) */
-        div[data-testid="column"]:has(.ancla-jump) {{
-            transform: translateY(-20px) !important; /* <--- AQUI LO MUEVES (-20px sube, +20px baja) */
-            z-index: 999 !important;
+        /* 1. FORZAMOS A LAS FLECHAS A TENER UN TAMAÑO EXACTO */
+        div[data-testid="column"]:nth-child(1) button,
+        div[data-testid="column"]:nth-child(3) button {{
+            width: 100% !important;
+            height: 42px !important;
+            min-height: 42px !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            border-radius: 8px !important;
         }}
         
-        /* 2. ROMPEMOS LA PRISIÓN DEL POPOVER GLOBAL */
-        div[data-testid="column"]:has(.ancla-jump) div[data-testid="stPopover"],
-        div[data-testid="column"]:has(.ancla-jump) div[data-testid="stPopover"] > div {{
-            position: relative !important;
+        /* 2. LIMPIAMOS EL CONTENEDOR DEL CALENDARIO (Columna 4) */
+        div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"],
+        div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] > div {{
             width: 100% !important;
             height: 42px !important;
             min-height: 42px !important;
@@ -1778,32 +1779,35 @@ with col_cal:
             padding: 0 !important;
         }}
 
-        /* 3. DESVINCULAMOS EL BOTÓN Y LE DAMOS SU PROPIO ESTILO INDEPENDIENTE */
-        div[data-testid="column"]:has(.ancla-jump) div[data-testid="stPopover"] button,
-        div[data-testid="column"]:has(.ancla-jump) div[data-testid="stPopover"] > div > button {{
-            position: relative !important;
-            top: auto !important;
-            left: auto !important;
+        /* 3. AQUI ESTÁ LA MAGIA PARA ELINEARLO PERFECTAMENTE */
+        div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] button,
+        div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] > div > button {{
             width: 100% !important;
             height: 42px !important;
             min-height: 42px !important;
+            margin: 0 !important;
+            padding: 0 !important;
             border-radius: 8px !important;
             background-color: {btn_bg} !important;
             border: 1px solid {border_color} !important;
             display: flex !important;
             align-items: center !important;
             justify-content: center !important;
+            
+            /* 🔴 MODIFICA ESTE NÚMERO PARA SUBIRLO Y ALINEARLO CON LAS FLECHAS 🔴 */
+            transform: translateY(-16px) !important; 
         }}
 
-        div[data-testid="column"]:has(.ancla-jump) div[data-testid="stPopover"] button p,
-        div[data-testid="column"]:has(.ancla-jump) div[data-testid="stPopover"] > div > button p {{
+        div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] button p,
+        div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] > div > button p {{
             font-size: 22px !important;
             margin: 0 !important;
             color: {btn_txt} !important;
+            line-height: 1 !important;
         }}
 
-        div[data-testid="column"]:has(.ancla-jump) div[data-testid="stPopover"] button:hover,
-        div[data-testid="column"]:has(.ancla-jump) div[data-testid="stPopover"] > div > button:hover {{
+        div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] button:hover,
+        div[data-testid="column"]:nth-child(4) div[data-testid="stPopover"] > div > button:hover {{
             border-color: #00C897 !important;
         }}
         </style>
@@ -1818,10 +1822,8 @@ with col_cal:
                 meses_lista_jump = list(calendar.month_name)[1:]
                 lbl_mes, lbl_anio, lbl_btn = "Month", "Year", "Go to date"
             
-            # Selector de Mes
             nuevo_mes_jump = st.selectbox(lbl_mes, meses_lista_jump, index=st.session_state.cal_month - 1, key="jump_month")
             
-            # Selector de Año como Lista
             años_disponibles = [2023, 2024, 2025, 2026, 2027, 2028, 2029, 2030]
             idx_año_defecto = años_disponibles.index(st.session_state.cal_year) if st.session_state.cal_year in años_disponibles else 0
             nuevo_anio_jump = st.selectbox(lbl_anio, años_disponibles, index=idx_año_defecto, key="jump_year_list")
