@@ -1835,7 +1835,6 @@ with col_cal:
         </style>
         """, unsafe_allow_html=True)
         
-        with st.popover("📅", use_container_width=True):
 
         with st.popover("📅", use_container_width=True):
             st.markdown('<h4 style="text-align:center; margin-top:0;">📅 Selector de Fecha</h4>', unsafe_allow_html=True)
