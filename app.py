@@ -1413,7 +1413,7 @@ div[data-testid="stForm"] [data-testid="stFormSubmitButton"] button {
     
     height: 50px !important;              /* Altura del botón */
     min-height: 60px !important;          
-    width: 110% !important;               /* Ancho del botón */
+    width: 150% !important;               /* Ancho del botón */
     
     border-radius: 8px !important;        /* Bordes redondeados */
     border: none !important;              /* Sin borde extra */
