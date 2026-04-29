@@ -1797,13 +1797,13 @@ with col_cal:
             left: auto !important;
             
             /* --- 📏 TAMAÑO (ANCHO Y ALTO) --- */
-            width: 100% !important;        /* <-- ANCHO: Ponle "80px", "150px", o déjalo en 100% */
-            height: 42px !important;       /* <-- ALTO: Súbelo o bájalo (ej: 50px) */
+            width: 1100% !important;        /* <-- ANCHO: Ponle "80px", "150px", o déjalo en 100% */
+            height: 412px !important;       /* <-- ALTO: Súbelo o bájalo (ej: 50px) */
             min-height: 42px !important;   /* <-- MANTÉN ESTO IGUAL AL ALTO */
             
             /* --- 🧭 MOVIMIENTO (ARRIBA, ABAJO, IZQ, DER) --- */
-            margin-top: -40px !important;    /* <-- Bajar: 5px | Subir: -5px */
-            margin-left: 0px !important;   /* <-- Mover Derecha: 10px | Izquierda: -10px */
+            margin-top: -140px !important;    /* <-- Bajar: 5px | Subir: -5px */
+            margin-left: 10px !important;   /* <-- Mover Derecha: 10px | Izquierda: -10px */
             
             /* --- 🎨 DISEÑO Y COLORES --- */
             border-radius: 8px !important; 
