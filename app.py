@@ -1649,8 +1649,38 @@ with col_form_area:
             
         with c_btn:
             btn_save = st.form_submit_button("GUARDAR", key="btn_save_main")
-            
-        with c_stats:
+
+        with c_cal:
+            st.markdown("""<style>
+            div[data-testid="stForm"] div[data-testid="column"]:nth-child(6) div[data-testid="stPopover"] > button {
+                background-color: transparent !important;
+                border: 1px solid #4A5568 !important;
+                height: 40px !important;
+                min-height: 40px !important;
+                margin-top: 25px !important;
+                padding: 0 !important;
+                display: flex !important;
+                justify-content: center !important;
+                border-radius: 6px !important;
+            }
+            div[data-testid="stForm"] div[data-testid="column"]:nth-child(6) div[data-testid="stPopover"] > button p {
+                font-size: 20px !important;
+                margin: 0 !important;
+            }
+            </style>""", unsafe_allow_html=True)
+            with st.popover("📅", use_container_width=True):
+                st.markdown('<h4 style="text-align:center; margin-top:0;">📅 Fecha</h4>', unsafe_allow_html=True)
+                meses_lista_jump = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"] if st.session_state.idioma == "ES" else list(calendar.month_name)[1:]
+                nuevo_mes_jump = st.selectbox("Mes", meses_lista_jump, index=st.session_state.cal_month - 1, key="jump_month_form")
+                años_disponibles = [2023, 2024, 2025, 2026, 2027, 2028, 2029, 2030]
+                idx_año_defecto = años_disponibles.index(st.session_state.cal_year) if st.session_state.cal_year in años_disponibles else 0
+                nuevo_anio_jump = st.selectbox("Año", años_disponibles, index=idx_año_defecto, key="jump_year_form")
+                if st.button("Ir", use_container_width=True, key="btn_jump_go_form"):
+                    st.session_state.cal_month = meses_lista_jump.index(nuevo_mes_jump) + 1
+                    st.session_state.cal_year = nuevo_anio_jump
+                    st.rerun()
+
+    if btn_save:
 
     if btn_save:
         entrada_limpia = str(nuevo_bal_input_str).strip()
