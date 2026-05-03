@@ -255,6 +255,7 @@ def forzar_sincronizacion(cuenta_a_mantener):
     st.rerun()
 
 if "db_global_local" not in st.session_state:
+    st.cache_resource.clear() # <-- Esto obliga a que F5 descargue datos frescos del Excel
     st.session_state.db_global_local = copy.deepcopy(get_global_db())
 
 db_global = st.session_state.db_global_local
