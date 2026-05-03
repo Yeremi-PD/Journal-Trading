@@ -244,10 +244,15 @@ def get_global_db():
 import copy
 
 # Copia de seguridad en la sesión para que ningún usuario altere la data del otro
+def forzar_sincronizacion():
+    st.cache_resource.clear()
+    if "db_global_local" in st.session_state:
+        del st.session_state.db_global_local
+    st.rerun()
+
 if "db_global_local" not in st.session_state:
     st.session_state.db_global_local = copy.deepcopy(get_global_db())
 
-# Usamos la copia aislada
 db_global = st.session_state.db_global_local
 
 def registrar_en_excel(usuario, password, cuenta, fecha_obj, balance, pnl, trade_data, settings_pc, settings_movil):
@@ -884,6 +889,11 @@ def contenido_ajustes():
         user_settings["cal_line_height"] = st.slider(_l['sidebar']['cal_space'], 0.5, 3.0, user_settings["cal_line_height"], 0.1)
         user_settings["cal_txt_y"] = st.slider(_l['sidebar']['cal_y'], -50, 50, user_settings.get("cal_txt_y", 0))
         user_settings["cal_txt_pad"] = st.slider(_l['sidebar']['cal_pad'], -50, 50, user_settings.get("cal_txt_pad", 0))
+
+    st.markdown("---")
+    st.markdown(f"### {_l['sidebar']['sec_sync']}")
+    if st.button(_l['sidebar']['sync'], use_container_width=True):
+        forzar_sincronizacion()
 
     st.markdown("---")
     st.markdown(f"### {_l['sidebar']['sec_gallery']}")
