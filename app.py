@@ -216,8 +216,16 @@ def get_global_db():
                                 except: pass
                             
                             if cuenta not in db_temp[user]["data"]:
-                                db_temp[user]["data"][cuenta] = {"balance": 25000.00, "trades": {}}
-                                
+                                db_temp[user]["data"][cuenta] = {"balance": 25000.00, "trades": {}, "backtesting_mode": False}
+                            
+                            # Recuperar el modo backtesting guardado en el Excel para que no se pierda al recargar
+                            try:
+                                if extra:
+                                    _pe = json.loads(extra)
+                                    if "backtesting_mode" in _pe:
+                                        db_temp[user]["data"][cuenta]["backtesting_mode"] = _pe["backtesting_mode"]
+                            except: pass
+
                             if clave not in db_temp[user]["data"][cuenta]["trades"]:
                                 db_temp[user]["data"][cuenta]["trades"][clave] = []
                                 
@@ -1717,7 +1725,7 @@ if paso_cuenta and "toggle_funded_state" not in st.session_state: st.session_sta
 modo_funded_activo = st.session_state.get("toggle_funded_state", False) and paso_cuenta
 
 col_cal, col_det = st.columns([2, 1]) 
-if st.session_state.get("modo_backtesting", False) and st.session_state.get("forzar_sync_mes", False):
+if db_usuario[ctx].get("backtesting_mode", False) and st.session_state.get("forzar_sync_mes", False):
     st.session_state.cal_month = st.session_state.fecha_backtesting.month
     st.session_state.cal_year = st.session_state.fecha_backtesting.year
     st.session_state.forzar_sync_mes = False
