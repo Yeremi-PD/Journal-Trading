@@ -244,10 +244,14 @@ def get_global_db():
 import copy
 
 # Copia de seguridad en la sesión para que ningún usuario altere la data del otro
-def forzar_sincronizacion():
+def forzar_sincronizacion(cuenta_a_mantener):
     st.cache_resource.clear()
     if "db_global_local" in st.session_state:
         del st.session_state.db_global_local
+    # Forzamos que la sesión y la URL mantengan la cuenta actual
+    st.session_state.data_source_sel = cuenta_a_mantener
+    try: st.query_params["account"] = cuenta_a_mantener
+    except: pass
     st.rerun()
 
 if "db_global_local" not in st.session_state:
@@ -893,7 +897,9 @@ def contenido_ajustes():
     st.markdown("---")
     st.markdown(f"### {_l['sidebar']['sec_sync']}")
     if st.button(_l['sidebar']['sync'], use_container_width=True):
-        forzar_sincronizacion()
+        # Capturamos la cuenta activa antes de sincronizar
+        cta_actual_sync = st.session_state.get("data_source_sel")
+        forzar_sincronizacion(cta_actual_sync)
 
     st.markdown("---")
     st.markdown(f"### {_l['sidebar']['sec_gallery']}")
