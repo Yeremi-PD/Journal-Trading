@@ -2213,7 +2213,8 @@ with tab_hist:
                     color_md = "green" if pnl_val > 0 else ("red" if pnl_val < 0 else "gray")
                     simbolo = "+" if pnl_val > 0 else ""
                     # Le damos 93% de espacio al Trade y solo 7% al botón de borrar
-                    c_exp, c_trash = st.columns([0.93, 0.07])
+                    # Le damos 96% al Trade y solo 4% de espacio al botón
+                    c_exp, c_trash = st.columns([0.96, 0.04])
                     with c_exp:
                         with st.expander(f"🗓️ {data['fecha_str']} (Trade #{i+1}) | P&L: :{color_md}[{simbolo}${pnl_val:,.2f}]"):
                             st.markdown(f"**{_l['hist']['fin']}**")
@@ -2286,7 +2287,8 @@ with tab_hist:
                                 reescribir_excel_usuario(usuario)
                                 st.rerun()
                     with c_trash:
-                        if st.button("🗑️", key=f"trash_{clave}_{i}", use_container_width=True): ventana_borrar_trade(ctx, clave, i, usuario)
+                        # Quitamos el "use_container_width=True" para que sea del tamaño exacto del emoji
+                        if st.button("🗑️", key=f"trash_{clave}_{i}"): ventana_borrar_trade(ctx, clave, i, usuario)
             if trades_en_mes == 0: st.info(_l['hist']['no_tr_mo'])
 
 with tab_tabla:
