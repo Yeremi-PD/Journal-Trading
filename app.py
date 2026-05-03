@@ -603,7 +603,23 @@ if not db_usuario:
 
 # Solo lee la URL si es la primera vez que entras (o si recargas con F5)
 if "data_source_sel" not in st.session_state:
-    cuenta_inicial = list(db_usuario.keys())[0] if db_usuario else "Account Real"
+    cuenta_inicial = "Account Real"
+    if db_usuario:
+        cuenta_inicial = list(db_usuario.keys())[0] # Fallback por si ninguna tiene trades
+        fecha_mas_reciente = None
+        
+        # Escaneamos todas las cuentas para encontrar la del trade más reciente
+        for cta, data_cta in db_usuario.items():
+            trades_cta = data_cta.get("trades", {})
+            if trades_cta:
+                # Obtenemos la fecha máxima de esta cuenta (año, mes, día)
+                ult_f = max(trades_cta.keys()) 
+                ult_f_dt = datetime(ult_f[0], ult_f[1], ult_f[2])
+                
+                # Si es más reciente que la que teníamos guardada, la actualizamos
+                if fecha_mas_reciente is None or ult_f_dt > fecha_mas_reciente:
+                    fecha_mas_reciente = ult_f_dt
+                    cuenta_inicial = cta
     try:
         if "account" in st.query_params and st.query_params["account"] in db_usuario:
             cuenta_inicial = st.query_params["account"]
