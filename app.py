@@ -2212,7 +2212,8 @@ with tab_hist:
                     pnl_val = float(data['pnl'])
                     color_md = "green" if pnl_val > 0 else ("red" if pnl_val < 0 else "gray")
                     simbolo = "+" if pnl_val > 0 else ""
-                    c_exp, c_trash = st.columns([0.85, 0.15])
+                    # Le damos 93% de espacio al Trade y solo 7% al botón de borrar
+                    c_exp, c_trash = st.columns([0.93, 0.07])
                     with c_exp:
                         with st.expander(f"🗓️ {data['fecha_str']} (Trade #{i+1}) | P&L: :{color_md}[{simbolo}${pnl_val:,.2f}]"):
                             st.markdown(f"**{_l['hist']['fin']}**")
