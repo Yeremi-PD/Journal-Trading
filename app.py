@@ -601,31 +601,29 @@ if not db_usuario:
 
 # --- SI LLEGAMOS AQUÍ, EL USUARIO YA TIENE CUENTA ---
 
-# Solo lee la URL si es la primera vez que entras (o si recargas con F5)
+# Auto-selección INTELIGENTE de cuenta (Aplastando la memoria del navegador)
 if "data_source_sel" not in st.session_state:
     cuenta_inicial = "Account Real"
     if db_usuario:
-        cuenta_inicial = list(db_usuario.keys())[0] # Fallback por si ninguna tiene trades
+        cuenta_inicial = list(db_usuario.keys())[0] # Fallback
         fecha_mas_reciente = None
         
-        # Escaneamos todas las cuentas para encontrar la del trade más reciente
         for cta, data_cta in db_usuario.items():
             trades_cta = data_cta.get("trades", {})
             if trades_cta:
-                # Obtenemos la fecha máxima de esta cuenta (año, mes, día)
                 ult_f = max(trades_cta.keys()) 
                 ult_f_dt = datetime(ult_f[0], ult_f[1], ult_f[2])
                 
-                # Si es más reciente que la que teníamos guardada, la actualizamos
                 if fecha_mas_reciente is None or ult_f_dt > fecha_mas_reciente:
                     fecha_mas_reciente = ult_f_dt
                     cuenta_inicial = cta
-    try:
-        if "account" in st.query_params and st.query_params["account"] in db_usuario:
-            cuenta_inicial = st.query_params["account"]
-    except:
-        pass
+                    
+    # Asignamos la cuenta ganadora DIRECTAMENTE (Ignoramos la URL guardada del celular por completo)
     st.session_state.data_source_sel = cuenta_inicial
+    try: 
+        st.query_params["account"] = cuenta_inicial
+    except: 
+        pass
 
 if "settings" not in db_global[usuario]:
     db_global[usuario]["settings"] = {"PC": inicializar_settings(), "Móvil": inicializar_settings()}
