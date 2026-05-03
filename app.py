@@ -610,29 +610,30 @@ if not db_usuario:
 
 # --- SI LLEGAMOS AQUÍ, EL USUARIO YA TIENE CUENTA ---
 
-# Auto-selección INTELIGENTE de cuenta (Aplastando la memoria del navegador)
+# Auto-selección INTELIGENTE (Prioridad: 1. URL existente, 2. Trade más reciente)
 if "data_source_sel" not in st.session_state:
-    cuenta_inicial = "Account Real"
-    if db_usuario:
-        cuenta_inicial = list(db_usuario.keys())[0] # Fallback
+    # Primero chequeamos si la URL ya trae una cuenta (útil para Sincronizar)
+    query_acc = st.query_params.get("account")
+    
+    if query_acc in db_usuario:
+        cuenta_inicial = query_acc
+    else:
+        # Si no hay cuenta en la URL, buscamos la que tiene el trade más nuevo
+        cuenta_inicial = list(db_usuario.keys())[0] if db_usuario else "Account Real"
         fecha_mas_reciente = None
-        
-        for cta, data_cta in db_usuario.items():
-            trades_cta = data_cta.get("trades", {})
-            if trades_cta:
-                ult_f = max(trades_cta.keys()) 
-                ult_f_dt = datetime(ult_f[0], ult_f[1], ult_f[2])
-                
-                if fecha_mas_reciente is None or ult_f_dt > fecha_mas_reciente:
-                    fecha_mas_reciente = ult_f_dt
-                    cuenta_inicial = cta
-                    
-    # Asignamos la cuenta ganadora DIRECTAMENTE (Ignoramos la URL guardada del celular por completo)
+        if db_usuario:
+            for cta, data_cta in db_usuario.items():
+                trades_cta = data_cta.get("trades", {})
+                if trades_cta:
+                    ult_f = max(trades_cta.keys()) 
+                    ult_f_dt = datetime(ult_f[0], ult_f[1], ult_f[2])
+                    if fecha_mas_reciente is None or ult_f_dt > fecha_mas_reciente:
+                        fecha_mas_reciente = ult_f_dt
+                        cuenta_inicial = cta
+    
     st.session_state.data_source_sel = cuenta_inicial
-    try: 
-        st.query_params["account"] = cuenta_inicial
-    except: 
-        pass
+    try: st.query_params["account"] = cuenta_inicial
+    except: pass
 
 if "settings" not in db_global[usuario]:
     db_global[usuario]["settings"] = {"PC": inicializar_settings(), "Móvil": inicializar_settings()}
