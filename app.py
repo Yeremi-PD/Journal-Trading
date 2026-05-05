@@ -275,11 +275,11 @@ def registrar_en_excel(usuario, password, cuenta, fecha_obj, balance, pnl, trade
                 headers = ["Usuario", "Password", "Cuenta", "Fecha", "Balance", "PnL", "Imagenes", "Settings_PC", "Settings_Movil", "Bias", "Confluences", "Risk", "RR", "Trade Type", "Reason", "Corrections", "Emotions", "Hora", "Ticker", "Direccion", "Lotes", "Precio_Entrada", "Precio_Salida", "Comisiones", "Estado_Cuenta", "Retiros_Acumulados", "ExtraData", "Notas_Globales"]
                 hoja_user.append_row(headers)
                 
-                # OBLIGAR A GOOGLE SHEETS A NO ESTIRAR LAS CELDAS Y FIJAR EL ANCHO DE LA COLUMNA DE NOTAS
+                # FIJAR EL ALTO DE TODAS LAS FILAS A 25px PARA QUE NINGUNA SE ESTIRE HACIA ABAJO
                 try:
                     peticiones = [
-                        {"repeatCell": {"range": {"sheetId": hoja_user.id}, "cell": {"userEnteredFormat": {"wrapStrategy": "CLIP"}}, "fields": "userEnteredFormat.wrapStrategy"}},
-                        {"updateDimensionProperties": {"range": {"sheetId": hoja_user.id, "dimension": "COLUMNS", "startIndex": 27, "endIndex": 28}, "properties": {"pixelSize": 150}, "fields": "pixelSize"}}
+                        {"repeatCell": {"range": {"sheetId": hoja_user.id}, "cell": {"userEnteredFormat": {"wrapStrategy": "CLIP", "verticalAlignment": "MIDDLE"}}, "fields": "userEnteredFormat(wrapStrategy,verticalAlignment)"}},
+                        {"updateDimensionProperties": {"range": {"sheetId": hoja_user.id, "dimension": "ROWS"}, "properties": {"pixelSize": 25}, "fields": "pixelSize"}}
                     ]
                     db_spreadsheet.batch_update({"requests": peticiones})
                 except: pass
@@ -387,11 +387,11 @@ def reescribir_excel_usuario(usuario):
         hoja_user.clear()
         hoja_user.update(values=filas_a_insertar, range_name="A1")
         
-        # OBLIGAR A GOOGLE SHEETS A NO ESTIRAR LAS CELDAS Y FIJAR EL ANCHO DE LA COLUMNA DE NOTAS
+        # FIJAR EL ALTO DE TODAS LAS FILAS A 25px PARA QUE NINGUNA SE ESTIRE HACIA ABAJO
         try:
             peticiones = [
-                {"repeatCell": {"range": {"sheetId": hoja_user.id}, "cell": {"userEnteredFormat": {"wrapStrategy": "CLIP"}}, "fields": "userEnteredFormat.wrapStrategy"}},
-                {"updateDimensionProperties": {"range": {"sheetId": hoja_user.id, "dimension": "COLUMNS", "startIndex": 27, "endIndex": 28}, "properties": {"pixelSize": 150}, "fields": "pixelSize"}}
+                {"repeatCell": {"range": {"sheetId": hoja_user.id}, "cell": {"userEnteredFormat": {"wrapStrategy": "CLIP", "verticalAlignment": "MIDDLE"}}, "fields": "userEnteredFormat(wrapStrategy,verticalAlignment)"}},
+                {"updateDimensionProperties": {"range": {"sheetId": hoja_user.id, "dimension": "ROWS"}, "properties": {"pixelSize": 25}, "fields": "pixelSize"}}
             ]
             db_spreadsheet.batch_update({"requests": peticiones})
         except: pass
