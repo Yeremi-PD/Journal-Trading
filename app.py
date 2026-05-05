@@ -274,6 +274,11 @@ def registrar_en_excel(usuario, password, cuenta, fecha_obj, balance, pnl, trade
                 hoja_user = db_spreadsheet.add_worksheet(title=usuario, rows="1000", cols="30")
                 headers = ["Usuario", "Password", "Cuenta", "Fecha", "Balance", "PnL", "Imagenes", "Settings_PC", "Settings_Movil", "Bias", "Confluences", "Risk", "RR", "Trade Type", "Reason", "Corrections", "Emotions", "Hora", "Ticker", "Direccion", "Lotes", "Precio_Entrada", "Precio_Salida", "Comisiones", "Estado_Cuenta", "Retiros_Acumulados", "ExtraData", "Notas_Globales"]
                 hoja_user.append_row(headers)
+                
+                # OBLIGAR A GOOGLE SHEETS A NO ESTIRAR LAS CELDAS (Mantenerlas finas)
+                try:
+                    db_spreadsheet.batch_update({"requests": [{"repeatCell": {"range": {"sheetId": hoja_user.id}, "cell": {"userEnteredFormat": {"wrapStrategy": "CLIP"}}, "fields": "userEnteredFormat.wrapStrategy"}}]})
+                except: pass
 
             fecha_texto = fecha_obj.strftime("%d/%m/%Y")
             links = [img for img in trade_data.get("imagenes", []) if img.startswith("http")]
@@ -377,6 +382,11 @@ def reescribir_excel_usuario(usuario):
         hoja_user = db_spreadsheet.worksheet(usuario)
         hoja_user.clear()
         hoja_user.update(values=filas_a_insertar, range_name="A1")
+        
+        # OBLIGAR A GOOGLE SHEETS A NO ESTIRAR LAS CELDAS (Mantenerlas finas)
+        try:
+            db_spreadsheet.batch_update({"requests": [{"repeatCell": {"range": {"sheetId": hoja_user.id}, "cell": {"userEnteredFormat": {"wrapStrategy": "CLIP"}}, "fields": "userEnteredFormat.wrapStrategy"}}]})
+        except: pass
     except Exception as e:
         print(f"Error al reescribir excel: {e}")
 
