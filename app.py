@@ -105,12 +105,6 @@ def get_global_db():
                                 if set_pc: db_temp[user]["settings"]["PC"].update(set_pc)
                                 set_mov = json.loads(str(row_data.get('Settings_Movil', '{}')).strip() or '{}')
                                 if set_mov: db_temp[user]["settings"]["Móvil"].update(set_mov)
-                                
-                                # 👁️ LEER NOTAS DIRECTAMENTE DEL EXCEL
-                                notas_excel = str(row_data.get('Notas_Globales', '')).strip()
-                                if notas_excel:
-                                    db_temp[user]["settings"]["PC"]["global_notes_body"] = notas_excel
-                                    db_temp[user]["settings"]["Móvil"]["global_notes_body"] = notas_excel
                             except: pass
                             
                             cuenta = str(row_data.get('Cuenta', 'Account Real')).strip()
@@ -272,7 +266,7 @@ def registrar_en_excel(usuario, password, cuenta, fecha_obj, balance, pnl, trade
             try: hoja_user = db_spreadsheet.worksheet(usuario)
             except gspread.exceptions.WorksheetNotFound:
                 hoja_user = db_spreadsheet.add_worksheet(title=usuario, rows="1000", cols="30")
-                headers = ["Usuario", "Password", "Cuenta", "Fecha", "Balance", "PnL", "Imagenes", "Settings_PC", "Settings_Movil", "Bias", "Confluences", "Risk", "RR", "Trade Type", "Reason", "Corrections", "Emotions", "Hora", "Ticker", "Direccion", "Lotes", "Precio_Entrada", "Precio_Salida", "Comisiones", "Estado_Cuenta", "Retiros_Acumulados", "ExtraData", "Notas_Globales"]
+                headers = ["Usuario", "Password", "Cuenta", "Fecha", "Balance", "PnL", "Imagenes", "Settings_PC", "Settings_Movil", "Bias", "Confluences", "Risk", "RR", "Trade Type", "Reason", "Corrections", "Emotions", "Hora", "Ticker", "Direccion", "Lotes", "Precio_Entrada", "Precio_Salida", "Comisiones", "Estado_Cuenta", "Retiros_Acumulados", "ExtraData"]
                 hoja_user.append_row(headers)
 
             fecha_texto = fecha_obj.strftime("%d/%m/%Y")
@@ -318,7 +312,7 @@ def registrar_en_excel(usuario, password, cuenta, fecha_obj, balance, pnl, trade
             safe_user = str(usuario).strip() if usuario else "Desconocido"
             safe_pass = str(password).strip() if password else "123"
 
-            nueva_fila = [safe_user, safe_pass, str(cuenta), fecha_texto, float(balance), float(pnl), imgs_texto, set_pc_str, set_mov_str, val_bias, val_confs, val_risk, val_rr, val_tt, val_reason, val_corr, val_emo, val_hora, val_ticker, val_dir, val_lotes, val_pe, val_ps, val_com, val_estado, float(val_retiros), json.dumps(extra_data), db_global[usuario]["settings"]["PC"].get("global_notes_body", "")]
+            nueva_fila = [safe_user, safe_pass, str(cuenta), fecha_texto, float(balance), float(pnl), imgs_texto, set_pc_str, set_mov_str, val_bias, val_confs, val_risk, val_rr, val_tt, val_reason, val_corr, val_emo, val_hora, val_ticker, val_dir, val_lotes, val_pe, val_ps, val_com, val_estado, float(val_retiros), json.dumps(extra_data)]
             hoja_user.append_row(nueva_fila)
         except Exception as e:
             # OPTIMIZACIÓN 2A: Imprimimos el error exacto en la consola para no estar ciegos
@@ -1338,143 +1332,35 @@ if modo_funded_activo:
     ganancia_f = sum(tr["pnl"] for tr in _tc[idx_pase+1:])
     bal_mostrar = bal_inicial_abs + ganancia_f - total_retirado_global
 
-# CSS invisible fuera de las columnas para no empujar nada hacia abajo
-st.markdown("""
-<style>
-/* CSS para los botones de la barra superior */
-div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"],
-div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > div:first-child,
-div[data-testid="column"]:nth-child(6) div[data-testid="stPopover"],
-div[data-testid="column"]:nth-child(6) div[data-testid="stPopover"] > div:first-child { 
-    width: 100% !important; height: auto !important;
-}
-div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > button,
-div[data-testid="column"]:nth-child(6) div[data-testid="stPopover"] > button {
-    width: 100% !important; height: 42px !important; min-height: 42px !important; 
-    border-radius: 8px !important; background-color: transparent !important; 
-    border: 1px solid #4A5568 !important; display: flex !important;
-    align-items: center !important; justify-content: center !important; margin-top: 25px !important;
-}
-div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > button p,
-div[data-testid="column"]:nth-child(6) div[data-testid="stPopover"] > button p { 
-    font-size: 20px !important; margin: 0 !important; color: white !important;
-}
-div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > button:hover,
-div[data-testid="column"]:nth-child(6) div[data-testid="stPopover"] > button:hover {
-    border-color: #00C897 !important; background: rgba(0, 200, 151, 0.1) !important;
-}
-
-/* MAGIA: Despegar el Popover del botón y mandarlo al centro de la pantalla */
-div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) {
-    position: fixed !important;
-    top: 50% !important;
-    left: 50% !important;
-    transform: translate(-50%, -50%) !important;
-    width: 850px !important;
-    max-width: 95vw !important;
-    height: auto !important;
-    max-height: 90vh !important;
-    border-radius: 15px !important;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.8) !important;
-    z-index: 999999 !important;
-    overflow-y: auto !important;
-    padding: 30px !important;
-}
-</style>
-""", unsafe_allow_html=True)
-
-col_t, col_fil, col_data, col_bal, col_not, col_set = st.columns([2.5, 1.5, 1.5, 2, 0.35, 0.35])
-
-with col_not:
-    with st.popover("📝", use_container_width=True):
-        st.markdown("<div class='identificador-bloc-notas'></div>", unsafe_allow_html=True)
-        
-        pc_set = db_global[usuario]["settings"]["PC"]
-        if "global_notes_title" not in pc_set: pc_set["global_notes_title"] = "MIS REGLAS DE TRADING"
-        if "notes_title_color" not in pc_set: pc_set["notes_title_color"] = "#00C897"
-        if "notes_title_size" not in pc_set: pc_set["notes_title_size"] = 35
-        if "global_notes_body" not in pc_set: pc_set["global_notes_body"] = ""
-        if "notes_body_color" not in pc_set: pc_set["notes_body_color"] = "#E2E8F0"
-        if "notes_body_size" not in pc_set: pc_set["notes_body_size"] = 18
-
-        # ENCAPSULAMOS TODO EN UN FORMULARIO: Garantiza que se guarde en Google Sheets sin interrumpirse
-        with st.form("form_bloc_notas", clear_on_submit=False, border=False):
-            with st.expander("🎨 Ajustes Generales de Diseño"):
-                c_aj_t1, c_aj_t2 = st.columns(2)
-                with c_aj_t1: new_tit_color = st.color_picker("Color Título y Negritas", value=pc_set["notes_title_color"])
-                with c_aj_t2: new_tit_size = st.slider("Tamaño del Título", 15, 60, value=pc_set["notes_title_size"])
-                
-                st.markdown("---")
-                c_aj_b1, c_aj_b2 = st.columns(2)
-                with c_aj_b1: new_bod_color = st.color_picker("Color del Texto", value=pc_set["notes_body_color"])
-                with c_aj_b2: new_bod_size = st.slider("Tamaño del Texto General", 10, 40, value=pc_set["notes_body_size"])
-
-            # Estilos inteligentes que aplican tanto a la caja de texto como al renderizado final (Vista Previa)
-            st.markdown(f"""
-            <style>
-            /* MODO EDICIÓN */
-            div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) div[data-testid="stMarkdownContainer"] strong {{
-                color: {pc_set["notes_title_color"]} !important;
-                font-weight: 900 !important;
-                /* Hacemos que la negrita sea notablemente más grande, como un subtítulo */
-                font-size: calc({pc_set["notes_body_size"]}px + 8px) !important;
-                display: inline-block;
-                margin-top: 10px;
-            }}
-            div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) div[data-testid="stTextArea"] textarea {{
-                color: {pc_set["notes_body_color"]} !important;
-                font-size: {pc_set["notes_body_size"]}px !important;
-                font-weight: 500 !important; height: 350px !important; line-height: 1.6 !important;
-                background-color: rgba(0,0,0,0.2) !important; border: 1px solid #4A5568 !important;
-                border-radius: 10px !important; padding: 20px !important;
-            }}
-            /* MODO VISTA PREVIA (Convertir texto en Negritas más grandes y a color) */
-            div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) div[data-testid="stMarkdownContainer"] p,
-            div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) div[data-testid="stMarkdownContainer"] li {{
-                color: {pc_set["notes_body_color"]} !important;
-                font-size: {pc_set["notes_body_size"]}px !important;
-                line-height: 1.6 !important;
-            }}
-            div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) div[data-testid="stMarkdownContainer"] strong {{
-                color: {pc_set["notes_title_color"]} !important; /* La negrita toma el color del título para resaltar */
-                font-weight: 900 !important;
-                font-size: calc({pc_set["notes_body_size"]}px + 3px) !important; /* Un poco más grande que el texto normal */
-            }}
-            </style>
-            """, unsafe_allow_html=True)
-            
-            tab_edit, tab_ver = st.tabs(["✏️ Editor", "👁️ Vista Previa (Leer)"])
-            
-            with tab_edit:
-                st.caption("💡 **TRUCO:** Para poner subtítulos en **negrita**, enciérralos en asteriscos así: `**Mi Subtítulo**`")
-                nota_titulo = st.text_input("Título", value=pc_set["global_notes_title"], label_visibility="collapsed")
-                nota_cuerpo = st.text_area("Cuerpo", value=pc_set["global_notes_body"], label_visibility="collapsed")
-            
-            with tab_ver:
-                st.info("ℹ️ Guarda los cambios en el botón de abajo para ver la versión actualizada aquí.")
-                st.markdown(f'<div style="color:{pc_set["notes_title_color"]}; font-size:{pc_set["notes_title_size"]}px; font-weight:900; text-align:center; border-bottom: 2px dashed #4A5568; margin-bottom: 20px; padding-bottom: 10px;">{pc_set["global_notes_title"]}</div>', unsafe_allow_html=True)
-                # Renderiza el texto aplicando las negritas de Markdown
-                st.markdown(pc_set["global_notes_body"])
-            
-            st.markdown("<br>", unsafe_allow_html=True)
-            btn_guardar_notas = st.form_submit_button("💾 Guardar Documento en la Nube", use_container_width=True)
-
-        if btn_guardar_notas:
-            for dev in ["PC", "Móvil"]:
-                db_global[usuario]["settings"][dev]["global_notes_title"] = nota_titulo
-                db_global[usuario]["settings"][dev]["notes_title_color"] = new_tit_color
-                db_global[usuario]["settings"][dev]["notes_title_size"] = new_tit_size
-                db_global[usuario]["settings"][dev]["global_notes_body"] = nota_cuerpo
-                db_global[usuario]["settings"][dev]["notes_body_color"] = new_bod_color
-                db_global[usuario]["settings"][dev]["notes_body_size"] = new_bod_size
-            
-            reescribir_excel_usuario(usuario)
-            st.success("¡Documento y estilos guardados con éxito en la Nube!")
-            import time
-            time.sleep(0.5)
-            st.rerun()
+col_t, col_fil, col_data, col_bal, col_set = st.columns([2.5, 1.5, 1.5, 2, 0.5])
 
 with col_set:
+    st.markdown("""
+    <style>
+    /* CSS para asegurar que el botón nativo ⚙️ encaje perfectamente */
+    div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"],
+    div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > div:first-child { 
+        width: 100% !important; height: auto !important;
+    }
+    div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > button {
+        width: 100% !important;
+        height: 42px !important; min-height: 42px !important; 
+        border-radius: 8px !important; 
+        background-color: transparent !important; 
+        border: 1px solid #4A5568 !important;
+        display: flex !important; align-items: center !important; justify-content: center !important;
+        margin-top: 25px !important; /* Alineado con los otros campos */
+    }
+    div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > button p { 
+        font-size: 22px !important; margin: 0 !important; color: white !important;
+    }
+    div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > button:hover {
+        border-color: #00C897 !important;
+        background: rgba(0, 200, 151, 0.1) !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
     with st.popover("⚙️", use_container_width=True):
         contenido_ajustes()
     # ==============================================================
