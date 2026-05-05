@@ -1455,11 +1455,20 @@ with col_not:
             padding: 0 !important;
             margin: 0 !important;
         }}
+        /* Obligar a las cajas invisibles de Streamlit a crecer */
+        div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) div[data-testid="stTextArea"] > div,
+        div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) div[data-testid="stTextArea"] div[data-baseweb="base-input"] {{
+            height: 600px !important;
+            min-height: 600px !important;
+            background-color: transparent !important;
+            border: none !important;
+        }}
         div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) div[data-testid="stTextArea"] textarea {{
             color: {new_bod_color} !important;
             font-size: {new_bod_size}px !important;
             font-weight: 500 !important;
             height: 600px !important;
+            min-height: 600px !important;
             line-height: 1.6 !important;
             background-color: transparent !important;
             border: none !important;
@@ -1477,7 +1486,7 @@ with col_not:
         # Envolvemos todo en un Formulario para evitar redibujado constante
         with st.form("form_notas_globales", border=False):
             nota_titulo = st.text_input("Título", value=pc_set["global_notes_title"], label_visibility="collapsed")
-            nota_cuerpo = st.text_area("Cuerpo", value=pc_set["global_notes_body"], label_visibility="collapsed")
+            nota_cuerpo = st.text_area("Cuerpo", value=pc_set["global_notes_body"], label_visibility="collapsed", height=600)
             
             if st.form_submit_button("💾 GUARDAR DOCUMENTO EN LA NUBE", use_container_width=True):
                 for dev in ["PC", "Móvil"]:
