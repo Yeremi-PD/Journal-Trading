@@ -1430,15 +1430,15 @@ with col_not:
             with c_aj_b1: new_bod_color = st.color_picker("Color del Texto", value=pc_set["notes_body_color"])
             with c_aj_b2: new_bod_size = st.slider("Tamaño del Texto", 10, 40, value=pc_set["notes_body_size"])
 
-        # Aplicar los estilos elegidos al vuelo sin recargar la página
+# Aplicar los estilos elegidos al vuelo sin recargar la página
         st.markdown(f"""
         <style>
         /* Estilos del Título (Sin bordes y pegado arriba) */
-        div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) div[data-testid="stTextInput"] {
+        div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) div[data-testid="stTextInput"] {{
             padding: 0 !important;
             margin: 0 !important;
-        }
-        div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) div[data-testid="stTextInput"] input {
+        }}
+        div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) div[data-testid="stTextInput"] input {{
             color: {new_tit_color} !important;
             font-size: {new_tit_size}px !important;
             font-weight: 900 !important;
@@ -1448,29 +1448,29 @@ with col_not:
             border-radius: 0 !important;
             height: 80px !important;
             box-shadow: none !important;
-        }
+        }}
         
         /* Estilos del Texto (Cuerpo GIGANTE y sin bordes) */
-        div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) div[data-testid="stTextArea"] {
+        div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) div[data-testid="stTextArea"] {{
             padding: 0 !important;
             margin: 0 !important;
-        }
-        div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) div[data-testid="stTextArea"] textarea {
+        }}
+        div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) div[data-testid="stTextArea"] textarea {{
             color: {new_bod_color} !important;
             font-size: {new_bod_size}px !important;
             font-weight: 500 !important;
-            height: 600px !important; /* Cuadro mucho más grande */
+            height: 600px !important;
             line-height: 1.6 !important;
             background-color: transparent !important;
             border: none !important;
             border-radius: 0 !important;
             padding: 30px !important;
-        }
+        }}
 
         /* Quitar el padding del contenedor del Popover para que el texto pegue a los bordes */
-        div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) {
+        div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) {{
             padding: 0 !important;
-        }
+        }}
         </style>
         """, unsafe_allow_html=True)
         
