@@ -1413,6 +1413,7 @@ with col_not:
         
         # Cargar estado guardado de la base de datos
         pc_set = db_global[usuario]["settings"]["PC"]
+        
         if "global_notes_title" not in pc_set: pc_set["global_notes_title"] = "MIS REGLAS DE TRADING"
         if "notes_title_color" not in pc_set: pc_set["notes_title_color"] = "#00C897"
         if "notes_title_size" not in pc_set: pc_set["notes_title_size"] = 35
@@ -1420,25 +1421,52 @@ with col_not:
         if "notes_body_color" not in pc_set: pc_set["notes_body_color"] = "#E2E8F0"
         if "notes_body_size" not in pc_set: pc_set["notes_body_size"] = 18
 
-        with st.expander("🎨 Ajustes de Diseño (Estilo Word)"):
+        # 1. EL FORMULARIO (Donde escribes, con el botón centrado)
+        with st.form("form_notas_globales", border=False):
+            nota_titulo = st.text_input("Título", value=pc_set["global_notes_title"], label_visibility="collapsed")
+            nota_cuerpo = st.text_area("Cuerpo", value=pc_set["global_notes_body"], label_visibility="collapsed", height=600)
+            
+            # Columnas para centrar el botón perfectamente
+            _, col_centro_btn, _ = st.columns([1, 2, 1])
+            with col_centro_btn:
+                btn_guardado = st.form_submit_button("💾 GUARDAR DOCUMENTO EN LA NUBE", use_container_width=True)
+
+        # 2. LOS AJUSTES DE DISEÑO (Una sola vez y ABAJO)
+        with st.expander("🎨 Ajustes de Diseño y Estilo"):
             c_aj_t1, c_aj_t2 = st.columns(2)
-            with c_aj_t1: new_tit_color = st.color_picker("Color del Título", value=pc_set["notes_title_color"])
-            with c_aj_t2: new_tit_size = st.slider("Tamaño del Título", 15, 60, value=pc_set["notes_title_size"])
+            with c_aj_t1: new_tit_color = st.color_picker("Color del Título", value=pc_set["notes_title_color"], key="cp_tit_color_notas_unico")
+            with c_aj_t2: new_tit_size = st.slider("Tamaño del Título", 15, 60, value=pc_set["notes_title_size"], key="sl_tit_size_notas_unico")
             
             st.markdown("---")
             c_aj_b1, c_aj_b2 = st.columns(2)
-            with c_aj_b1: new_bod_color = st.color_picker("Color del Texto", value=pc_set["notes_body_color"])
-            with c_aj_b2: new_bod_size = st.slider("Tamaño del Texto", 10, 40, value=pc_set["notes_body_size"])
+            with c_aj_b1: new_bod_color = st.color_picker("Color del Texto", value=pc_set["notes_body_color"], key="cp_bod_color_notas_unico")
+            with c_aj_b2: new_bod_size = st.slider("Tamaño del Texto", 10, 40, value=pc_set["notes_body_size"], key="sl_bod_size_notas_unico")
 
-# Aplicar los estilos elegidos al vuelo sin recargar la página
+        # 3. LÓGICA DE GUARDADO (Se ejecuta al presionar el botón)
+        if btn_guardado:
+            for dev in ["PC", "Móvil"]:
+                db_global[usuario]["settings"][dev]["global_notes_title"] = nota_titulo
+                db_global[usuario]["settings"][dev]["notes_title_color"] = new_tit_color
+                db_global[usuario]["settings"][dev]["notes_title_size"] = new_tit_size
+                db_global[usuario]["settings"][dev]["global_notes_body"] = nota_cuerpo
+                db_global[usuario]["settings"][dev]["notes_body_color"] = new_bod_color
+                db_global[usuario]["settings"][dev]["notes_body_size"] = new_bod_size
+            
+            reescribir_excel_usuario(usuario)
+            st.success("¡Documento guardado con éxito!")
+            import time
+            time.sleep(1)
+            st.rerun()
+
+        # 4. EL CSS LIMPIO Y PROTEGIDO CONTRA TUS ESTILOS GLOBALES
         st.markdown(f"""
         <style>
-        /* 1. Ocultar el molesto texto de "Press Enter to submit form" */
+        /* Ocultar el molesto texto de "Press Enter to submit form" */
         div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) div[data-testid="InputInstructions"] {{
             display: none !important;
         }}
 
-        /* 2. Destruir las cajas grises de fondo y bordes del Título */
+        /* Destruir las cajas grises de fondo y bordes del Título */
         div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) div[data-testid="stTextInput"] div[data-baseweb="base-input"],
         div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) div[data-testid="stTextInput"] div[data-baseweb="input"] {{
             background-color: transparent !important;
@@ -1446,7 +1474,7 @@ with col_not:
             box-shadow: none !important;
         }}
 
-        /* 3. Estilos limpios del texto del Título */
+        /* Estilos limpios del texto del Título */
         div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) div[data-testid="stTextInput"] input {{
             color: {new_tit_color} !important;
             font-size: {new_tit_size}px !important;
@@ -1458,7 +1486,7 @@ with col_not:
             height: auto !important;
         }}
         
-        /* 4. Destruir las cajas grises y bordes del Cuerpo (TextArea) */
+        /* Destruir las cajas grises y bordes del Cuerpo (TextArea) */
         div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) div[data-testid="stTextArea"] > div,
         div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) div[data-testid="stTextArea"] div[data-baseweb="base-input"],
         div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) div[data-testid="stTextArea"] div[data-baseweb="input"] {{
@@ -1468,7 +1496,7 @@ with col_not:
             height: 600px !important;
         }}
 
-        /* 5. Estilos limpios del texto del Cuerpo */
+        /* Estilos limpios del texto del Cuerpo */
         div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) div[data-testid="stTextArea"] textarea {{
             color: {new_bod_color} !important;
             font-size: {new_bod_size}px !important;
@@ -1480,11 +1508,25 @@ with col_not:
             padding: 10px 20px !important;
         }}
         
-        /* 6. Eliminar cualquier margen o padding rebelde del formulario interno */
+        /* Eliminar cualquier margen o padding rebelde del formulario interno */
         div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) [data-testid="stForm"] {{
             padding: 0 !important;
             border: none !important;
             background-color: transparent !important;
+        }}
+        
+        /* ✅ REGLA MAESTRA: Aislar el botón Guardar para que TU css global no lo desvíe */
+        div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) [data-testid="stFormSubmitButton"] button {{
+            width: 100% !important;
+            margin: 0 auto !important;
+            margin-left: 0 !important; /* Anula el margin-left de tu app principal */
+            height: 45px !important;
+            min-height: 45px !important;
+            font-size: 16px !important;
+            border-radius: 8px !important;
+            display: flex !important;
+            justify-content: center !important;
+            align-items: center !important;
         }}
         </style>
         """, unsafe_allow_html=True)
