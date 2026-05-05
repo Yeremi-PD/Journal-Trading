@@ -1332,35 +1332,88 @@ if modo_funded_activo:
     ganancia_f = sum(tr["pnl"] for tr in _tc[idx_pase+1:])
     bal_mostrar = bal_inicial_abs + ganancia_f - total_retirado_global
 
-col_t, col_fil, col_data, col_bal, col_set = st.columns([2.5, 1.5, 1.5, 2, 0.5])
+col_t, col_fil, col_data, col_bal, col_not, col_set = st.columns([2.5, 1.5, 1.5, 2, 0.35, 0.35])
 
-with col_set:
+with col_not:
     st.markdown("""
     <style>
-    /* CSS para asegurar que el botón nativo ⚙️ encaje perfectamente */
+    /* CSS para los botones de la barra superior (Notas y Ajustes) */
     div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"],
-    div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > div:first-child { 
+    div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > div:first-child,
+    div[data-testid="column"]:nth-child(6) div[data-testid="stPopover"],
+    div[data-testid="column"]:nth-child(6) div[data-testid="stPopover"] > div:first-child { 
         width: 100% !important; height: auto !important;
     }
-    div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > button {
+    div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > button,
+    div[data-testid="column"]:nth-child(6) div[data-testid="stPopover"] > button {
         width: 100% !important;
         height: 42px !important; min-height: 42px !important; 
         border-radius: 8px !important; 
         background-color: transparent !important; 
         border: 1px solid #4A5568 !important;
-        display: flex !important; align-items: center !important; justify-content: center !important;
+        display: flex !important;
+        align-items: center !important; justify-content: center !important;
         margin-top: 25px !important; /* Alineado con los otros campos */
     }
-    div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > button p { 
-        font-size: 22px !important; margin: 0 !important; color: white !important;
+    div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > button p,
+    div[data-testid="column"]:nth-child(6) div[data-testid="stPopover"] > button p { 
+        font-size: 20px !important;
+        margin: 0 !important; color: white !important;
     }
-    div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > button:hover {
+    div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > button:hover,
+    div[data-testid="column"]:nth-child(6) div[data-testid="stPopover"] > button:hover {
         border-color: #00C897 !important;
         background: rgba(0, 200, 151, 0.1) !important;
     }
     </style>
     """, unsafe_allow_html=True)
 
+    with st.popover("📝", use_container_width=True):
+        st.markdown("<h4 style='text-align: center; margin-top: 0;'>📝 Bloc de Notas Global</h4>", unsafe_allow_html=True)
+        
+        # Cargar estado guardado de la base de datos
+        pc_set = db_global[usuario]["settings"]["PC"]
+        if "global_notes" not in pc_set: pc_set["global_notes"] = ""
+        if "notes_color" not in pc_set: pc_set["notes_color"] = "#00C897"
+        if "notes_size" not in pc_set: pc_set["notes_size"] = 18
+        
+        c_nc, c_ns = st.columns(2)
+        with c_nc: 
+            new_color = st.color_picker("Color", value=pc_set["notes_color"])
+        with c_ns: 
+            new_size = st.slider("Tamaño (px)", 10, 40, value=pc_set["notes_size"])
+        
+        st.markdown(f"""
+        <style>
+        div[data-testid="stPopoverBody"] div[data-testid="stTextArea"]:has(textarea[aria-label="Tus_Notas"]) textarea {{
+            color: {new_color} !important;
+            font-size: {new_size}px !important;
+            font-weight: 600 !important;
+            line-height: 1.5 !important;
+            height: 350px !important;
+        }}
+        </style>
+        """, unsafe_allow_html=True)
+        
+        notas_input = st.text_area("Tus_Notas", value=pc_set["global_notes"], label_visibility="collapsed")
+        
+        if st.button("💾 Guardar Notas", use_container_width=True):
+            # Guardamos y replicamos para que se vea igual en PC y Móvil
+            db_global[usuario]["settings"]["PC"]["global_notes"] = notas_input
+            db_global[usuario]["settings"]["PC"]["notes_color"] = new_color
+            db_global[usuario]["settings"]["PC"]["notes_size"] = new_size
+            
+            db_global[usuario]["settings"]["Móvil"]["global_notes"] = notas_input
+            db_global[usuario]["settings"]["Móvil"]["notes_color"] = new_color
+            db_global[usuario]["settings"]["Móvil"]["notes_size"] = new_size
+            
+            reescribir_excel_usuario(usuario)
+            st.success("¡Notas guardadas en la Nube con éxito!")
+            import time
+            time.sleep(1)
+            st.rerun()
+
+with col_set:
     with st.popover("⚙️", use_container_width=True):
         contenido_ajustes()
     # ==============================================================
