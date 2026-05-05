@@ -105,6 +105,12 @@ def get_global_db():
                                 if set_pc: db_temp[user]["settings"]["PC"].update(set_pc)
                                 set_mov = json.loads(str(row_data.get('Settings_Movil', '{}')).strip() or '{}')
                                 if set_mov: db_temp[user]["settings"]["Móvil"].update(set_mov)
+                                
+                                # Leemos la columna "Notas_Globales" directamente desde Excel
+                                nota_global_excel = str(row_data.get('Notas_Globales', '')).strip()
+                                if nota_global_excel:
+                                    db_temp[user]["settings"]["PC"]["global_notes_body"] = nota_global_excel
+                                    db_temp[user]["settings"]["Móvil"]["global_notes_body"] = nota_global_excel
                             except: pass
                             
                             cuenta = str(row_data.get('Cuenta', 'Account Real')).strip()
@@ -266,7 +272,7 @@ def registrar_en_excel(usuario, password, cuenta, fecha_obj, balance, pnl, trade
             try: hoja_user = db_spreadsheet.worksheet(usuario)
             except gspread.exceptions.WorksheetNotFound:
                 hoja_user = db_spreadsheet.add_worksheet(title=usuario, rows="1000", cols="30")
-                headers = ["Usuario", "Password", "Cuenta", "Fecha", "Balance", "PnL", "Imagenes", "Settings_PC", "Settings_Movil", "Bias", "Confluences", "Risk", "RR", "Trade Type", "Reason", "Corrections", "Emotions", "Hora", "Ticker", "Direccion", "Lotes", "Precio_Entrada", "Precio_Salida", "Comisiones", "Estado_Cuenta", "Retiros_Acumulados", "ExtraData"]
+                headers = ["Usuario", "Password", "Cuenta", "Fecha", "Balance", "PnL", "Imagenes", "Settings_PC", "Settings_Movil", "Bias", "Confluences", "Risk", "RR", "Trade Type", "Reason", "Corrections", "Emotions", "Hora", "Ticker", "Direccion", "Lotes", "Precio_Entrada", "Precio_Salida", "Comisiones", "Estado_Cuenta", "Retiros_Acumulados", "ExtraData", "Notas_Globales"]
                 hoja_user.append_row(headers)
 
             fecha_texto = fecha_obj.strftime("%d/%m/%Y")
@@ -312,7 +318,8 @@ def registrar_en_excel(usuario, password, cuenta, fecha_obj, balance, pnl, trade
             safe_user = str(usuario).strip() if usuario else "Desconocido"
             safe_pass = str(password).strip() if password else "123"
 
-            nueva_fila = [safe_user, safe_pass, str(cuenta), fecha_texto, float(balance), float(pnl), imgs_texto, set_pc_str, set_mov_str, val_bias, val_confs, val_risk, val_rr, val_tt, val_reason, val_corr, val_emo, val_hora, val_ticker, val_dir, val_lotes, val_pe, val_ps, val_com, val_estado, float(val_retiros), json.dumps(extra_data)]
+            nota_global_str = settings_pc.get("global_notes_body", "") if settings_pc else ""
+            nueva_fila = [safe_user, safe_pass, str(cuenta), fecha_texto, float(balance), float(pnl), imgs_texto, set_pc_str, set_mov_str, val_bias, val_confs, val_risk, val_rr, val_tt, val_reason, val_corr, val_emo, val_hora, val_ticker, val_dir, val_lotes, val_pe, val_ps, val_com, val_estado, float(val_retiros), json.dumps(extra_data), nota_global_str]
             hoja_user.append_row(nueva_fila)
         except Exception as e:
             # OPTIMIZACIÓN 2A: Imprimimos el error exacto en la consola para no estar ciegos
@@ -321,7 +328,7 @@ def registrar_en_excel(usuario, password, cuenta, fecha_obj, balance, pnl, trade
 def reescribir_excel_usuario(usuario):
     if not db_spreadsheet: return
     try:
-        headers = ["Usuario", "Password", "Cuenta", "Fecha", "Balance", "PnL", "Imagenes", "Settings_PC", "Settings_Movil", "Bias", "Confluences", "Risk", "RR", "Trade Type", "Reason", "Corrections", "Emotions", "Hora", "Ticker", "Direccion", "Lotes", "Precio_Entrada", "Precio_Salida", "Comisiones", "Estado_Cuenta", "Retiros_Acumulados", "ExtraData"]
+        headers = ["Usuario", "Password", "Cuenta", "Fecha", "Balance", "PnL", "Imagenes", "Settings_PC", "Settings_Movil", "Bias", "Confluences", "Risk", "RR", "Trade Type", "Reason", "Corrections", "Emotions", "Hora", "Ticker", "Direccion", "Lotes", "Precio_Entrada", "Precio_Salida", "Comisiones", "Estado_Cuenta", "Retiros_Acumulados", "ExtraData", "Notas_Globales"]
         filas_a_insertar = [headers]
         pwd = db_global[usuario]["password"]
         set_pc_str = json.dumps(db_global[usuario]["settings"]["PC"])
@@ -358,9 +365,11 @@ def reescribir_excel_usuario(usuario):
                     
                     # INYECTAMOS EL MODO BACKTESTING DESDE LA CUENTA
                     extra_data["backtesting_mode"] = d_cuenta.get("backtesting_mode", False)
+                    nota_global_str = db_global[usuario]["settings"]["PC"].get("global_notes_body", "")
                     filas_a_insertar.append([
                         usuario, pwd, cuenta, t["fecha_str"], float(t["balance_final"]), float(t["pnl"]), 
-                        imgs_texto, set_pc_str, set_mov_str, val_bias, val_confs, val_risk, val_rr, val_tt, val_reason, val_corr, val_emo, val_hora, val_ticker, val_dir, val_lotes, val_pe, val_ps, val_com, val_estado, float(val_retiros), json.dumps(extra_data)
+                        imgs_texto, set_pc_str, set_mov_str, val_bias, val_confs, val_risk, 
+                        val_rr, val_tt, val_reason, val_corr, val_emo, val_hora, val_ticker, val_dir, val_lotes, val_pe, val_ps, val_com, val_estado, float(val_retiros), json.dumps(extra_data), nota_global_str
                     ])
         
         # OPTIMIZACIÓN 1.2: Uso del parámetro 'values' y 'range_name' para evitar deprecaciones 
