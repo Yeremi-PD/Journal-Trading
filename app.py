@@ -1424,6 +1424,11 @@ with col_not:
             c_aj_t1, c_aj_t2 = st.columns(2)
             with c_aj_t1: new_tit_color = st.color_picker("Color del Título", value=pc_set["notes_title_color"])
             with c_aj_t2: new_tit_size = st.slider("Tamaño del Título", 15, 60, value=pc_set["notes_title_size"])
+            
+            st.markdown("---")
+            c_aj_b1, c_aj_b2 = st.columns(2)
+            with c_aj_b1: new_bod_color = st.color_picker("Color del Texto", value=pc_set["notes_body_color"])
+            with c_aj_b2: new_bod_size = st.slider("Tamaño del Texto", 10, 40, value=pc_set["notes_body_size"])
 
 # Aplicar los estilos elegidos al vuelo sin recargar la página
         st.markdown(f"""
