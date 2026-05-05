@@ -1433,54 +1433,76 @@ with col_not:
         # Aplicar los estilos elegidos al vuelo sin recargar la página
         st.markdown(f"""
         <style>
-        /* Estilos del Título */
-        div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) div[data-testid="stTextInput"] input {{
+        /* Estilos del Título (Sin bordes y pegado arriba) */
+        div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) div[data-testid="stTextInput"] {
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+        div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) div[data-testid="stTextInput"] input {
             color: {new_tit_color} !important;
             font-size: {new_tit_size}px !important;
             font-weight: 900 !important;
             text-align: center !important;
-            background-color: transparent !important;
+            background-color: rgba(255,255,255,0.05) !important;
             border: none !important;
-            border-bottom: 2px dashed #4A5568 !important;
-            margin-bottom: 10px !important;
+            border-radius: 0 !important;
+            height: 80px !important;
             box-shadow: none !important;
-        }}
+        }
         
-        /* Estilos del Texto (Cuerpo) */
-        div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) div[data-testid="stTextArea"] textarea {{
+        /* Estilos del Texto (Cuerpo GIGANTE y sin bordes) */
+        div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) div[data-testid="stTextArea"] {
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+        div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) div[data-testid="stTextArea"] textarea {
             color: {new_bod_color} !important;
             font-size: {new_bod_size}px !important;
             font-weight: 500 !important;
-            height: 400px !important;
+            height: 600px !important; /* Cuadro mucho más grande */
             line-height: 1.6 !important;
-            background-color: rgba(0,0,0,0.2) !important;
-            border: 1px solid #4A5568 !important;
-            border-radius: 10px !important;
-            padding: 20px !important;
-        }}
+            background-color: transparent !important;
+            border: none !important;
+            border-radius: 0 !important;
+            padding: 30px !important;
+        }
+
+        /* Quitar el padding del contenedor del Popover para que el texto pegue a los bordes */
+        div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) {
+            padding: 0 !important;
+        }
         </style>
         """, unsafe_allow_html=True)
         
-        # El "Editor de Word"
-        nota_titulo = st.text_input("Título", value=pc_set["global_notes_title"], label_visibility="collapsed")
-        nota_cuerpo = st.text_area("Cuerpo", value=pc_set["global_notes_body"], label_visibility="collapsed")
-        
-        st.markdown("<br>", unsafe_allow_html=True)
-        if st.button("💾 Guardar Documento en la Nube", use_container_width=True):
-            # Guardar todo en PC y Móvil
-            for dev in ["PC", "Móvil"]:
-                db_global[usuario]["settings"][dev]["global_notes_title"] = nota_titulo
-                db_global[usuario]["settings"][dev]["notes_title_color"] = new_tit_color
-                db_global[usuario]["settings"][dev]["notes_title_size"] = new_tit_size
-                db_global[usuario]["settings"][dev]["global_notes_body"] = nota_cuerpo
-                db_global[usuario]["settings"][dev]["notes_body_color"] = new_bod_color
-                db_global[usuario]["settings"][dev]["notes_body_size"] = new_bod_size
+        # Envolvemos todo en un Formulario para evitar redibujado constante
+        with st.form("form_notas_globales", border=False):
+            nota_titulo = st.text_input("Título", value=pc_set["global_notes_title"], label_visibility="collapsed")
+            nota_cuerpo = st.text_area("Cuerpo", value=pc_set["global_notes_body"], label_visibility="collapsed")
             
-            reescribir_excel_usuario(usuario)
-            st.success("¡Documento guardado con éxito!")
-            import time
-            time.sleep(1)
-            st.rerun()
+            if st.form_submit_button("💾 GUARDAR DOCUMENTO EN LA NUBE", use_container_width=True):
+                for dev in ["PC", "Móvil"]:
+                    db_global[usuario]["settings"][dev]["global_notes_title"] = nota_titulo
+                    db_global[usuario]["settings"][dev]["notes_title_color"] = new_tit_color
+                    db_global[usuario]["settings"][dev]["notes_title_size"] = new_tit_size
+                    db_global[usuario]["settings"][dev]["global_notes_body"] = nota_cuerpo
+                    db_global[usuario]["settings"][dev]["notes_body_color"] = new_bod_color
+                    db_global[usuario]["settings"][dev]["notes_body_size"] = new_bod_size
+                
+                reescribir_excel_usuario(usuario)
+                st.success("¡Documento guardado!")
+                import time
+                time.sleep(1)
+                st.rerun()
+
+        # Los ajustes de diseño ahora aparecen al final de todo
+        with st.expander("🎨 Ajustes de Diseño y Estilo"):
+            c_aj_t1, c_aj_t2 = st.columns(2)
+            with c_aj_t1: new_tit_color = st.color_picker("Color del Título", value=pc_set["notes_title_color"])
+            with c_aj_t2: new_tit_size = st.slider("Tamaño del Título", 15, 60, value=pc_set["notes_title_size"])
+            st.markdown("---")
+            c_aj_b1, c_aj_b2 = st.columns(2)
+            with c_aj_b1: new_bod_color = st.color_picker("Color del Texto", value=pc_set["notes_body_color"])
+            with c_aj_b2: new_bod_size = st.slider("Tamaño del Texto", 10, 40, value=pc_set["notes_body_size"])
 
 with col_set:
     with st.popover("⚙️", use_container_width=True):
