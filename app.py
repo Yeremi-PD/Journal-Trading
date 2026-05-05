@@ -1433,52 +1433,58 @@ with col_not:
 # Aplicar los estilos elegidos al vuelo sin recargar la página
         st.markdown(f"""
         <style>
-        /* Estilos del Título (Sin bordes y pegado arriba) */
-        div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) div[data-testid="stTextInput"] {{
-            padding: 0 !important;
-            margin: 0 !important;
+        /* 1. Ocultar el molesto texto de "Press Enter to submit form" */
+        div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) div[data-testid="InputInstructions"] {{
+            display: none !important;
         }}
+
+        /* 2. Destruir las cajas grises de fondo y bordes del Título */
+        div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) div[data-testid="stTextInput"] div[data-baseweb="base-input"],
+        div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) div[data-testid="stTextInput"] div[data-baseweb="input"] {{
+            background-color: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+        }}
+
+        /* 3. Estilos limpios del texto del Título */
         div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) div[data-testid="stTextInput"] input {{
             color: {new_tit_color} !important;
             font-size: {new_tit_size}px !important;
             font-weight: 900 !important;
             text-align: center !important;
-            background-color: rgba(255,255,255,0.05) !important;
-            border: none !important;
-            border-radius: 0 !important;
-            height: 80px !important;
-            box-shadow: none !important;
-        }}
-        
-        /* Estilos del Texto (Cuerpo GIGANTE y sin bordes) */
-        div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) div[data-testid="stTextArea"] {{
-            padding: 0 !important;
-            margin: 0 !important;
-        }}
-        /* Obligar a las cajas invisibles de Streamlit a crecer */
-        div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) div[data-testid="stTextArea"] > div,
-        div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) div[data-testid="stTextArea"] div[data-baseweb="base-input"] {{
-            height: 600px !important;
-            min-height: 600px !important;
             background-color: transparent !important;
             border: none !important;
+            padding: 20px !important;
+            height: auto !important;
         }}
+        
+        /* 4. Destruir las cajas grises y bordes del Cuerpo (TextArea) */
+        div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) div[data-testid="stTextArea"] > div,
+        div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) div[data-testid="stTextArea"] div[data-baseweb="base-input"],
+        div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) div[data-testid="stTextArea"] div[data-baseweb="input"] {{
+            background-color: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            height: 600px !important;
+        }}
+
+        /* 5. Estilos limpios del texto del Cuerpo */
         div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) div[data-testid="stTextArea"] textarea {{
             color: {new_bod_color} !important;
             font-size: {new_bod_size}px !important;
             font-weight: 500 !important;
             height: 600px !important;
-            min-height: 600px !important;
             line-height: 1.6 !important;
             background-color: transparent !important;
             border: none !important;
-            border-radius: 0 !important;
-            padding: 30px !important;
+            padding: 10px 20px !important;
         }}
-
-        /* Quitar el padding del contenedor del Popover para que el texto pegue a los bordes */
-        div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) {{
+        
+        /* 6. Eliminar cualquier margen o padding rebelde del formulario interno */
+        div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) [data-testid="stForm"] {{
             padding: 0 !important;
+            border: none !important;
+            background-color: transparent !important;
         }}
         </style>
         """, unsafe_allow_html=True)
