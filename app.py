@@ -1381,10 +1381,8 @@ col_t, col_fil, col_data, col_bal, col_not, col_set = st.columns([2.5, 1.5, 1.5,
 
 with col_not:
     with st.popover("📝", use_container_width=True):
-        # Esta clase invisible le avisa al CSS "¡Oye, este es el Bloc de Notas, mándalo al centro!"
         st.markdown("<div class='identificador-bloc-notas'></div>", unsafe_allow_html=True)
         
-        # Cargar estado guardado de la base de datos
         pc_set = db_global[usuario]["settings"]["PC"]
         if "global_notes_title" not in pc_set: pc_set["global_notes_title"] = "MIS REGLAS DE TRADING"
         if "notes_title_color" not in pc_set: pc_set["notes_title_color"] = "#00C897"
@@ -1393,54 +1391,68 @@ with col_not:
         if "notes_body_color" not in pc_set: pc_set["notes_body_color"] = "#E2E8F0"
         if "notes_body_size" not in pc_set: pc_set["notes_body_size"] = 18
 
-        with st.expander("🎨 Ajustes de Diseño (Estilo Word)"):
-            c_aj_t1, c_aj_t2 = st.columns(2)
-            with c_aj_t1: new_tit_color = st.color_picker("Color del Título", value=pc_set["notes_title_color"])
-            with c_aj_t2: new_tit_size = st.slider("Tamaño del Título", 15, 60, value=pc_set["notes_title_size"])
-            
-            st.markdown("---")
-            c_aj_b1, c_aj_b2 = st.columns(2)
-            with c_aj_b1: new_bod_color = st.color_picker("Color del Texto", value=pc_set["notes_body_color"])
-            with c_aj_b2: new_bod_size = st.slider("Tamaño del Texto", 10, 40, value=pc_set["notes_body_size"])
+        # ENCAPSULAMOS TODO EN UN FORMULARIO: Garantiza que se guarde en Google Sheets sin interrumpirse
+        with st.form("form_bloc_notas", clear_on_submit=False, border=False):
+            with st.expander("🎨 Ajustes Generales de Diseño"):
+                c_aj_t1, c_aj_t2 = st.columns(2)
+                with c_aj_t1: new_tit_color = st.color_picker("Color Título y Negritas", value=pc_set["notes_title_color"])
+                with c_aj_t2: new_tit_size = st.slider("Tamaño del Título", 15, 60, value=pc_set["notes_title_size"])
+                
+                st.markdown("---")
+                c_aj_b1, c_aj_b2 = st.columns(2)
+                with c_aj_b1: new_bod_color = st.color_picker("Color del Texto", value=pc_set["notes_body_color"])
+                with c_aj_b2: new_bod_size = st.slider("Tamaño del Texto General", 10, 40, value=pc_set["notes_body_size"])
 
-        # Aplicar los estilos elegidos al vuelo sin recargar la página
-        st.markdown(f"""
-        <style>
-        /* Estilos del Título */
-        div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) div[data-testid="stTextInput"] input {{
-            color: {new_tit_color} !important;
-            font-size: {new_tit_size}px !important;
-            font-weight: 900 !important;
-            text-align: center !important;
-            background-color: transparent !important;
-            border: none !important;
-            border-bottom: 2px dashed #4A5568 !important;
-            margin-bottom: 10px !important;
-            box-shadow: none !important;
-        }}
-        
-        /* Estilos del Texto (Cuerpo) */
-        div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) div[data-testid="stTextArea"] textarea {{
-            color: {new_bod_color} !important;
-            font-size: {new_bod_size}px !important;
-            font-weight: 500 !important;
-            height: 400px !important;
-            line-height: 1.6 !important;
-            background-color: rgba(0,0,0,0.2) !important;
-            border: 1px solid #4A5568 !important;
-            border-radius: 10px !important;
-            padding: 20px !important;
-        }}
-        </style>
-        """, unsafe_allow_html=True)
-        
-        # El "Editor de Word"
-        nota_titulo = st.text_input("Título", value=pc_set["global_notes_title"], label_visibility="collapsed")
-        nota_cuerpo = st.text_area("Cuerpo", value=pc_set["global_notes_body"], label_visibility="collapsed")
-        
-        st.markdown("<br>", unsafe_allow_html=True)
-        if st.button("💾 Guardar Documento en la Nube", use_container_width=True):
-            # Guardar todo en PC y Móvil
+            # Estilos inteligentes que aplican tanto a la caja de texto como al renderizado final (Vista Previa)
+            st.markdown(f"""
+            <style>
+            /* MODO EDICIÓN */
+            div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) div[data-testid="stTextInput"] input {{
+                color: {pc_set["notes_title_color"]} !important;
+                font-size: {pc_set["notes_title_size"]}px !important;
+                font-weight: 900 !important; text-align: center !important;
+                background-color: transparent !important; border: none !important;
+                border-bottom: 2px dashed #4A5568 !important; margin-bottom: 10px !important; box-shadow: none !important;
+            }}
+            div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) div[data-testid="stTextArea"] textarea {{
+                color: {pc_set["notes_body_color"]} !important;
+                font-size: {pc_set["notes_body_size"]}px !important;
+                font-weight: 500 !important; height: 350px !important; line-height: 1.6 !important;
+                background-color: rgba(0,0,0,0.2) !important; border: 1px solid #4A5568 !important;
+                border-radius: 10px !important; padding: 20px !important;
+            }}
+            /* MODO VISTA PREVIA (Convertir texto en Negritas más grandes y a color) */
+            div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) div[data-testid="stMarkdownContainer"] p,
+            div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) div[data-testid="stMarkdownContainer"] li {{
+                color: {pc_set["notes_body_color"]} !important;
+                font-size: {pc_set["notes_body_size"]}px !important;
+                line-height: 1.6 !important;
+            }}
+            div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) div[data-testid="stMarkdownContainer"] strong {{
+                color: {pc_set["notes_title_color"]} !important; /* La negrita toma el color del título para resaltar */
+                font-weight: 900 !important;
+                font-size: calc({pc_set["notes_body_size"]}px + 3px) !important; /* Un poco más grande que el texto normal */
+            }}
+            </style>
+            """, unsafe_allow_html=True)
+            
+            tab_edit, tab_ver = st.tabs(["✏️ Editor", "👁️ Vista Previa (Leer)"])
+            
+            with tab_edit:
+                st.caption("💡 **TRUCO:** Para poner subtítulos en **negrita**, enciérralos en asteriscos así: `**Mi Subtítulo**`")
+                nota_titulo = st.text_input("Título", value=pc_set["global_notes_title"], label_visibility="collapsed")
+                nota_cuerpo = st.text_area("Cuerpo", value=pc_set["global_notes_body"], label_visibility="collapsed")
+            
+            with tab_ver:
+                st.info("ℹ️ Guarda los cambios en el botón de abajo para ver la versión actualizada aquí.")
+                st.markdown(f'<div style="color:{pc_set["notes_title_color"]}; font-size:{pc_set["notes_title_size"]}px; font-weight:900; text-align:center; border-bottom: 2px dashed #4A5568; margin-bottom: 20px; padding-bottom: 10px;">{pc_set["global_notes_title"]}</div>', unsafe_allow_html=True)
+                # Renderiza el texto aplicando las negritas de Markdown
+                st.markdown(pc_set["global_notes_body"])
+            
+            st.markdown("<br>", unsafe_allow_html=True)
+            btn_guardar_notas = st.form_submit_button("💾 Guardar Documento en la Nube", use_container_width=True)
+
+        if btn_guardar_notas:
             for dev in ["PC", "Móvil"]:
                 db_global[usuario]["settings"][dev]["global_notes_title"] = nota_titulo
                 db_global[usuario]["settings"][dev]["notes_title_color"] = new_tit_color
@@ -1450,9 +1462,9 @@ with col_not:
                 db_global[usuario]["settings"][dev]["notes_body_size"] = new_bod_size
             
             reescribir_excel_usuario(usuario)
-            st.success("¡Documento guardado con éxito!")
+            st.success("¡Documento y estilos guardados con éxito en la Nube!")
             import time
-            time.sleep(1)
+            time.sleep(0.5)
             st.rerun()
 
 with col_set:
