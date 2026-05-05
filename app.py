@@ -1497,12 +1497,12 @@ with col_not:
         # Los ajustes de diseño ahora aparecen al final de todo
         with st.expander("🎨 Ajustes de Diseño y Estilo"):
             c_aj_t1, c_aj_t2 = st.columns(2)
-            with c_aj_t1: new_tit_color = st.color_picker("Color del Título", value=pc_set["notes_title_color"])
-            with c_aj_t2: new_tit_size = st.slider("Tamaño del Título", 15, 60, value=pc_set["notes_title_size"])
+            with c_aj_t1: new_tit_color = st.color_picker("Color del Título", value=pc_set["notes_title_color"], key="cp_tit_color_notas_unico")
+            with c_aj_t2: new_tit_size = st.slider("Tamaño del Título", 15, 60, value=pc_set["notes_title_size"], key="sl_tit_size_notas_unico")
             st.markdown("---")
             c_aj_b1, c_aj_b2 = st.columns(2)
-            with c_aj_b1: new_bod_color = st.color_picker("Color del Texto", value=pc_set["notes_body_color"])
-            with c_aj_b2: new_bod_size = st.slider("Tamaño del Texto", 10, 40, value=pc_set["notes_body_size"])
+            with c_aj_b1: new_bod_color = st.color_picker("Color del Texto", value=pc_set["notes_body_color"], key="cp_bod_color_notas_unico")
+            with c_aj_b2: new_bod_size = st.slider("Tamaño del Texto", 10, 40, value=pc_set["notes_body_size"], key="sl_bod_size_notas_unico")
 
 with col_set:
     with st.popover("⚙️", use_container_width=True):
