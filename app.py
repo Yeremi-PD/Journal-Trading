@@ -1337,7 +1337,7 @@ col_t, col_fil, col_data, col_bal, col_not, col_set = st.columns([2.5, 1.5, 1.5,
 with col_not:
     st.markdown("""
     <style>
-    /* CSS para los botones de la barra superior */
+    /* CSS para los botones de la barra superior (Notas y Ajustes) */
     div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"],
     div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > div:first-child,
     div[data-testid="column"]:nth-child(6) div[data-testid="stPopover"],
@@ -1346,99 +1346,71 @@ with col_not:
     }
     div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > button,
     div[data-testid="column"]:nth-child(6) div[data-testid="stPopover"] > button {
-        width: 100% !important; height: 42px !important; min-height: 42px !important; 
-        border-radius: 8px !important; background-color: transparent !important; 
-        border: 1px solid #4A5568 !important; display: flex !important;
-        align-items: center !important; justify-content: center !important; margin-top: 25px !important;
+        width: 100% !important;
+        height: 42px !important; min-height: 42px !important; 
+        border-radius: 8px !important; 
+        background-color: transparent !important; 
+        border: 1px solid #4A5568 !important;
+        display: flex !important;
+        align-items: center !important; justify-content: center !important;
+        margin-top: 25px !important; /* Alineado con los otros campos */
     }
     div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > button p,
     div[data-testid="column"]:nth-child(6) div[data-testid="stPopover"] > button p { 
-        font-size: 20px !important; margin: 0 !important; color: white !important;
+        font-size: 20px !important;
+        margin: 0 !important; color: white !important;
     }
     div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > button:hover,
     div[data-testid="column"]:nth-child(6) div[data-testid="stPopover"] > button:hover {
-        border-color: #00C897 !important; background: rgba(0, 200, 151, 0.1) !important;
-    }
-    
-    /* MAGIA: Despegar el Popover del botón y mandarlo al centro de la pantalla */
-    div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) {
-        position: fixed !important; top: 50% !important; left: 50% !important;
-        transform: translate(-50%, -50%) !important; width: 850px !important; max-width: 95vw !important;
-        height: auto !important; max-height: 90vh !important; border-radius: 15px !important;
-        box-shadow: 0 20px 60px rgba(0,0,0,0.8) !important; z-index: 999999 !important;
-        overflow-y: auto !important; padding: 30px !important;
+        border-color: #00C897 !important;
+        background: rgba(0, 200, 151, 0.1) !important;
     }
     </style>
     """, unsafe_allow_html=True)
 
     with st.popover("📝", use_container_width=True):
-        st.markdown("<div class='identificador-bloc-notas'></div>", unsafe_allow_html=True)
+        st.markdown("<h4 style='text-align: center; margin-top: 0;'>📝 Bloc de Notas Global</h4>", unsafe_allow_html=True)
         
         # Cargar estado guardado de la base de datos
         pc_set = db_global[usuario]["settings"]["PC"]
-        if "global_notes_title" not in pc_set: pc_set["global_notes_title"] = "MIS REGLAS DE TRADING"
-        if "notes_title_color" not in pc_set: pc_set["notes_title_color"] = "#00C897"
-        if "notes_title_size" not in pc_set: pc_set["notes_title_size"] = 35
-        if "global_notes_body" not in pc_set: pc_set["global_notes_body"] = ""
-        if "notes_body_color" not in pc_set: pc_set["notes_body_color"] = "#E2E8F0"
-        if "notes_body_size" not in pc_set: pc_set["notes_body_size"] = 18
-
-        # ENCAPSULAMOS TODO EN UN FORMULARIO: Cero refrescos automáticos.
-        with st.form("form_bloc_notas", clear_on_submit=False, border=False):
-            with st.expander("🎨 Ajustes Generales de Diseño"):
-                c_aj_t1, c_aj_t2 = st.columns(2)
-                with c_aj_t1: new_tit_color = st.color_picker("Color del Título", value=pc_set["notes_title_color"])
-                with c_aj_t2: new_tit_size = st.slider("Tamaño del Título", 15, 60, value=pc_set["notes_title_size"])
-                
-                st.markdown("---")
-                c_aj_b1, c_aj_b2 = st.columns(2)
-                with c_aj_b1: new_bod_color = st.color_picker("Color del Texto", value=pc_set["notes_body_color"])
-                with c_aj_b2: new_bod_size = st.slider("Tamaño del Texto General", 10, 40, value=pc_set["notes_body_size"])
-
-            # Los estilos se aplicarán en base a lo que esté guardado (o lo que se envíe al guardar)
-            st.markdown(f"""
-            <style>
-            div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) div[data-testid="stTextInput"] input {{
-                color: {pc_set["notes_title_color"]} !important;
-                font-size: {pc_set["notes_title_size"]}px !important;
-                font-weight: 900 !important; text-align: center !important;
-                background-color: transparent !important; border: none !important;
-                border-bottom: 2px dashed #4A5568 !important; margin-bottom: 10px !important; box-shadow: none !important;
-            }}
-            div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) div[data-testid="stTextArea"] textarea {{
-                color: {pc_set["notes_body_color"]} !important;
-                font-size: {pc_set["notes_body_size"]}px !important;
-                font-weight: 500 !important; height: 400px !important; line-height: 1.6 !important;
-                background-color: rgba(0,0,0,0.2) !important; border: 1px solid #4A5568 !important;
-                border-radius: 10px !important; padding: 20px !important;
-            }}
-            </style>
-            """, unsafe_allow_html=True)
+        if "global_notes" not in pc_set: pc_set["global_notes"] = ""
+        if "notes_color" not in pc_set: pc_set["notes_color"] = "#00C897"
+        if "notes_size" not in pc_set: pc_set["notes_size"] = 18
+        
+        c_nc, c_ns = st.columns(2)
+        with c_nc: 
+            new_color = st.color_picker("Color", value=pc_set["notes_color"])
+        with c_ns: 
+            new_size = st.slider("Tamaño (px)", 10, 40, value=pc_set["notes_size"])
+        
+        st.markdown(f"""
+        <style>
+        div[data-testid="stPopoverBody"] div[data-testid="stTextArea"]:has(textarea[aria-label="Tus_Notas"]) textarea {{
+            color: {new_color} !important;
+            font-size: {new_size}px !important;
+            font-weight: 600 !important;
+            line-height: 1.5 !important;
+            height: 350px !important;
+        }}
+        </style>
+        """, unsafe_allow_html=True)
+        
+        notas_input = st.text_area("Tus_Notas", value=pc_set["global_notes"], label_visibility="collapsed")
+        
+        if st.button("💾 Guardar Notas", use_container_width=True):
+            # Guardamos y replicamos para que se vea igual en PC y Móvil
+            db_global[usuario]["settings"]["PC"]["global_notes"] = notas_input
+            db_global[usuario]["settings"]["PC"]["notes_color"] = new_color
+            db_global[usuario]["settings"]["PC"]["notes_size"] = new_size
             
-            st.caption("💡 *Nota: El color y tamaño se aplicarán a todo el bloque de texto. Streamlit no permite sombrear palabras individuales para cambiar su formato.*")
-            
-            nota_titulo = st.text_input("Título", value=pc_set["global_notes_title"], label_visibility="collapsed")
-            nota_cuerpo = st.text_area("Cuerpo", value=pc_set["global_notes_body"], label_visibility="collapsed")
-            
-            st.markdown("<br>", unsafe_allow_html=True)
-            
-            # EL ÚNICO BOTÓN QUE RECARGARÁ LA PÁGINA
-            btn_guardar_notas = st.form_submit_button("💾 Guardar Documento en la Nube", use_container_width=True)
-
-        if btn_guardar_notas:
-            # Guardar todo en PC y Móvil
-            for dev in ["PC", "Móvil"]:
-                db_global[usuario]["settings"][dev]["global_notes_title"] = nota_titulo
-                db_global[usuario]["settings"][dev]["notes_title_color"] = new_tit_color
-                db_global[usuario]["settings"][dev]["notes_title_size"] = new_tit_size
-                db_global[usuario]["settings"][dev]["global_notes_body"] = nota_cuerpo
-                db_global[usuario]["settings"][dev]["notes_body_color"] = new_bod_color
-                db_global[usuario]["settings"][dev]["notes_body_size"] = new_bod_size
+            db_global[usuario]["settings"]["Móvil"]["global_notes"] = notas_input
+            db_global[usuario]["settings"]["Móvil"]["notes_color"] = new_color
+            db_global[usuario]["settings"]["Móvil"]["notes_size"] = new_size
             
             reescribir_excel_usuario(usuario)
-            st.success("¡Documento y estilos guardados con éxito!")
+            st.success("¡Notas guardadas en la Nube con éxito!")
             import time
-            time.sleep(0.5)
+            time.sleep(1)
             st.rerun()
 
 with col_set:
