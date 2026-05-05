@@ -1494,7 +1494,12 @@ with col_not:
             nota_titulo = st.text_input("Título", value=pc_set["global_notes_title"], label_visibility="collapsed")
             nota_cuerpo = st.text_area("Cuerpo", value=pc_set["global_notes_body"], label_visibility="collapsed", height=600)
             
-            if st.form_submit_button("💾 GUARDAR DOCUMENTO EN LA NUBE", use_container_width=True):
+            st.markdown("<br>", unsafe_allow_html=True)
+        _, col_centro_btn, _ = st.columns([1, 2, 1])
+        with col_centro_btn:
+            btn_guardado = st.button("💾 Guardar Documento en la Nube", use_container_width=True)
+            
+        if btn_guardado:
                 for dev in ["PC", "Móvil"]:
                     db_global[usuario]["settings"][dev]["global_notes_title"] = nota_titulo
                     db_global[usuario]["settings"][dev]["notes_title_color"] = new_tit_color
