@@ -1413,6 +1413,7 @@ with col_not:
         
         # Cargar estado guardado de la base de datos
         pc_set = db_global[usuario]["settings"]["PC"]
+        
         if "global_notes_title" not in pc_set: pc_set["global_notes_title"] = "MIS REGLAS DE TRADING"
         if "notes_title_color" not in pc_set: pc_set["notes_title_color"] = "#00C897"
         if "notes_title_size" not in pc_set: pc_set["notes_title_size"] = 35
@@ -1420,17 +1421,44 @@ with col_not:
         if "notes_body_color" not in pc_set: pc_set["notes_body_color"] = "#E2E8F0"
         if "notes_body_size" not in pc_set: pc_set["notes_body_size"] = 18
 
-        with st.expander("🎨 Ajustes de Diseño (Estilo Word)"):
+        # 1. EL FORMULARIO (Donde escribes, con el botón centrado)
+        with st.form("form_notas_globales", border=False):
+            nota_titulo = st.text_input("Título", value=pc_set["global_notes_title"], label_visibility="collapsed")
+            nota_cuerpo = st.text_area("Cuerpo", value=pc_set["global_notes_body"], label_visibility="collapsed", height=600)
+            
+            # Columnas para centrar el botón perfectamente
+            c_btn_izq, c_btn_cen, c_btn_der = st.columns([1, 2, 1])
+            with c_btn_cen:
+                btn_guardar_notas = st.form_submit_button("💾 GUARDAR DOCUMENTO EN LA NUBE", use_container_width=True)
+
+        # 2. LOS AJUSTES DE DISEÑO (Una sola vez y ABAJO)
+        with st.expander("🎨 Ajustes de Diseño y Estilo"):
             c_aj_t1, c_aj_t2 = st.columns(2)
-            with c_aj_t1: new_tit_color = st.color_picker("Color del Título", value=pc_set["notes_title_color"])
-            with c_aj_t2: new_tit_size = st.slider("Tamaño del Título", 15, 60, value=pc_set["notes_title_size"])
+            with c_aj_t1: new_tit_color = st.color_picker("Color del Título", value=pc_set["notes_title_color"], key="cp_tit_color_notas_unico")
+            with c_aj_t2: new_tit_size = st.slider("Tamaño del Título", 15, 60, value=pc_set["notes_title_size"], key="sl_tit_size_notas_unico")
             
             st.markdown("---")
             c_aj_b1, c_aj_b2 = st.columns(2)
-            with c_aj_b1: new_bod_color = st.color_picker("Color del Texto", value=pc_set["notes_body_color"])
-            with c_aj_b2: new_bod_size = st.slider("Tamaño del Texto", 10, 40, value=pc_set["notes_body_size"])
+            with c_aj_b1: new_bod_color = st.color_picker("Color del Texto", value=pc_set["notes_body_color"], key="cp_bod_color_notas_unico")
+            with c_aj_b2: new_bod_size = st.slider("Tamaño del Texto", 10, 40, value=pc_set["notes_body_size"], key="sl_bod_size_notas_unico")
 
-# Aplicar los estilos elegidos al vuelo sin recargar la página
+        # 3. LÓGICA DE GUARDADO (Se ejecuta al presionar el botón)
+        if btn_guardar_notas:
+            for dev in ["PC", "Móvil"]:
+                db_global[usuario]["settings"][dev]["global_notes_title"] = nota_titulo
+                db_global[usuario]["settings"][dev]["notes_title_color"] = new_tit_color
+                db_global[usuario]["settings"][dev]["notes_title_size"] = new_tit_size
+                db_global[usuario]["settings"][dev]["global_notes_body"] = nota_cuerpo
+                db_global[usuario]["settings"][dev]["notes_body_color"] = new_bod_color
+                db_global[usuario]["settings"][dev]["notes_body_size"] = new_bod_size
+            
+            reescribir_excel_usuario(usuario)
+            st.success("¡Documento guardado con éxito!")
+            import time
+            time.sleep(1)
+            st.rerun()
+
+        # 4. EL CSS LIMPIO (Debe ir al final para que tome los colores nuevos de los ajustes)
         st.markdown(f"""
         <style>
         /* 1. Ocultar el molesto texto de "Press Enter to submit form" */
