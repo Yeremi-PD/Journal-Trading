@@ -1332,53 +1332,54 @@ if modo_funded_activo:
     ganancia_f = sum(tr["pnl"] for tr in _tc[idx_pase+1:])
     bal_mostrar = bal_inicial_abs + ganancia_f - total_retirado_global
 
+# CSS invisible fuera de las columnas para no empujar nada hacia abajo
+st.markdown("""
+<style>
+/* CSS para los botones de la barra superior */
+div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"],
+div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > div:first-child,
+div[data-testid="column"]:nth-child(6) div[data-testid="stPopover"],
+div[data-testid="column"]:nth-child(6) div[data-testid="stPopover"] > div:first-child { 
+    width: 100% !important; height: auto !important;
+}
+div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > button,
+div[data-testid="column"]:nth-child(6) div[data-testid="stPopover"] > button {
+    width: 100% !important; height: 42px !important; min-height: 42px !important; 
+    border-radius: 8px !important; background-color: transparent !important; 
+    border: 1px solid #4A5568 !important; display: flex !important;
+    align-items: center !important; justify-content: center !important; margin-top: 25px !important;
+}
+div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > button p,
+div[data-testid="column"]:nth-child(6) div[data-testid="stPopover"] > button p { 
+    font-size: 20px !important; margin: 0 !important; color: white !important;
+}
+div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > button:hover,
+div[data-testid="column"]:nth-child(6) div[data-testid="stPopover"] > button:hover {
+    border-color: #00C897 !important; background: rgba(0, 200, 151, 0.1) !important;
+}
+
+/* MAGIA: Despegar el Popover del botón y mandarlo al centro de la pantalla */
+div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) {
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: 850px !important;
+    max-width: 95vw !important;
+    height: auto !important;
+    max-height: 90vh !important;
+    border-radius: 15px !important;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.8) !important;
+    z-index: 999999 !important;
+    overflow-y: auto !important;
+    padding: 30px !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
 col_t, col_fil, col_data, col_bal, col_not, col_set = st.columns([2.5, 1.5, 1.5, 2, 0.35, 0.35])
 
 with col_not:
-    st.markdown("""
-    <style>
-    /* CSS para los botones de la barra superior */
-    div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"],
-    div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > div:first-child,
-    div[data-testid="column"]:nth-child(6) div[data-testid="stPopover"],
-    div[data-testid="column"]:nth-child(6) div[data-testid="stPopover"] > div:first-child { 
-        width: 100% !important; height: auto !important;
-    }
-    div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > button,
-    div[data-testid="column"]:nth-child(6) div[data-testid="stPopover"] > button {
-        width: 100% !important; height: 42px !important; min-height: 42px !important; 
-        border-radius: 8px !important; background-color: transparent !important; 
-        border: 1px solid #4A5568 !important; display: flex !important;
-        align-items: center !important; justify-content: center !important; margin-top: 25px !important;
-    }
-    div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > button p,
-    div[data-testid="column"]:nth-child(6) div[data-testid="stPopover"] > button p { 
-        font-size: 20px !important; margin: 0 !important; color: white !important;
-    }
-    div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > button:hover,
-    div[data-testid="column"]:nth-child(6) div[data-testid="stPopover"] > button:hover {
-        border-color: #00C897 !important; background: rgba(0, 200, 151, 0.1) !important;
-    }
-    
-    /* MAGIA: Despegar el Popover del botón y mandarlo al centro de la pantalla */
-    div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) {
-        position: fixed !important;
-        top: 50% !important;
-        left: 50% !important;
-        transform: translate(-50%, -50%) !important;
-        width: 850px !important;
-        max-width: 95vw !important;
-        height: auto !important;
-        max-height: 90vh !important;
-        border-radius: 15px !important;
-        box-shadow: 0 20px 60px rgba(0,0,0,0.8) !important;
-        z-index: 999999 !important;
-        overflow-y: auto !important;
-        padding: 30px !important;
-    }
-    </style>
-    """, unsafe_allow_html=True)
-
     with st.popover("📝", use_container_width=True):
         # Esta clase invisible le avisa al CSS "¡Oye, este es el Bloc de Notas, mándalo al centro!"
         st.markdown("<div class='identificador-bloc-notas'></div>", unsafe_allow_html=True)
