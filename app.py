@@ -2146,8 +2146,8 @@ with col_det:
     with c_dd_col: st.markdown(f'<div class="metric-card card-pnl" style="{e_caja}"><div class="metric-header"><span class="title-net-pnl" style="font-size: var(--size-card-titles);">{_l["cal"]["dd"]}</span></div><div style="color: {c_hex_dd}; font-size: var(--size-box-vals); font-weight: 800;">{texto_dd}</div></div>', unsafe_allow_html=True)
     with c_lose_col: st.markdown(f'<div class="metric-card card-pnl" style="{e_caja}"><div class="metric-header"><span class="title-net-pnl" style="font-size: var(--size-card-titles);">{_l["cal"]["lose_acc"]}</span></div><div style="color: {c_hex_dd}; font-size: var(--size-box-vals); font-weight: 800;">{texto_lose}</div></div>', unsafe_allow_html=True)
     
-    # Invertimos la lógica: El botón ahora filtra por mes, y por defecto ves todo el historial
-    ver_solo_mes = st.toggle("📅 Ver Solo Este Mes", value=db_usuario[ctx].get("backtesting_mode", False))
+    # El botón filtra por mes, y SIEMPRE arranca apagado (viendo todo), sin importar el backtesting
+    ver_solo_mes = st.toggle("📅 Ver Solo Este Mes", value=False)
     ver_todo = not ver_solo_mes
     
     if st.session_state.get("toggle_funded_state", False) and paso_cuenta: todos_los_trades_planos = trades_cronologicos
