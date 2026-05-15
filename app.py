@@ -230,6 +230,8 @@ def get_global_db():
                                     _pe = json.loads(extra)
                                     if "backtesting_mode" in _pe:
                                         db_temp[user]["data"][cuenta]["backtesting_mode"] = _pe["backtesting_mode"]
+                                    if "fecha_creacion" in _pe:
+                                        db_temp[user]["data"][cuenta]["fecha_creacion"] = _pe["fecha_creacion"]
                             except: pass
 
                             if clave not in db_temp[user]["data"][cuenta]["trades"]:
@@ -323,6 +325,7 @@ def registrar_en_excel(usuario, password, cuenta, fecha_obj, balance, pnl, trade
             
             # INYECTAMOS EL MODO BACKTESTING DESDE LA CUENTA
             extra_data["backtesting_mode"] = db_global[usuario]["data"][cuenta].get("backtesting_mode", False)
+            extra_data["fecha_creacion"] = db_global[usuario]["data"][cuenta].get("fecha_creacion", hoy.strftime("%d/%m/%Y"))
             
             safe_user = str(usuario).strip() if usuario else "Desconocido"
             safe_pass = str(password).strip() if password else "123"
@@ -627,10 +630,11 @@ if not db_usuario:
         with st.form("form_primera_cuenta"):
             nombre_cta = st.text_input(_l['setup']['acc_name'], value="Account Real")
             bal_inicial_opcion = st.selectbox(_l['setup']['init_bal'], [25000.0, 50000.0, 100000.0], format_func=lambda x: f"${x:,.0f}")
+            f_creacion = st.date_input("Fecha de Inicio de la Prueba", value=hoy)
             
             if st.form_submit_button(_l['setup']['btn_start'], use_container_width=True):
                 if nombre_cta:
-                    db_usuario[nombre_cta] = {"balance": bal_inicial_opcion, "trades": {}}
+                    db_usuario[nombre_cta] = {"balance": bal_inicial_opcion, "trades": {}, "fecha_creacion": f_creacion.strftime("%d/%m/%Y")}
                     st.session_state.data_source_sel = nombre_cta
                     reescribir_excel_usuario(usuario)
                     st.rerun()
@@ -792,10 +796,11 @@ def contenido_ajustes():
         st.markdown(f"**{_l['sidebar']['acc_details']}**")
         nueva_cuenta_nombre = st.text_input(_l['setup']['acc_name'], key="input_nombre_nueva_cta")
         nueva_cuenta_bal = st.selectbox(_l['sidebar']['sel_bal'], [25000.0, 50000.0, 100000.0], format_func=lambda x: f"${x:,.0f}", key="select_bal_nueva_cta")
+        f_creacion_nueva = st.date_input("Fecha de Inicio", value=hoy, key="f_creacion_sidebar")
         
         if st.button(_l['sidebar']['btn_create_acc'], use_container_width=True, key="btn_crear_cta_sidebar"):
             if nueva_cuenta_nombre and nueva_cuenta_nombre not in db_usuario:
-                db_usuario[nueva_cuenta_nombre] = {"balance": nueva_cuenta_bal, "trades": {}}
+                db_usuario[nueva_cuenta_nombre] = {"balance": nueva_cuenta_bal, "trades": {}, "fecha_creacion": f_creacion_nueva.strftime("%d/%m/%Y")}
                 st.session_state.data_source_sel = nueva_cuenta_nombre
                 try: st.query_params["account"] = nueva_cuenta_nombre
                 except: pass
@@ -1966,7 +1971,19 @@ with col_cal:
     with c_cen: st.markdown(f'<div style="text-align:center; font-weight:600; font-size:var(--cal-mes-size); color:{c_mes}; margin-top:2px;">{nombre_mes} {anio_sel}</div>', unsafe_allow_html=True)
     with c_der: st.button("▶", on_click=cambiar_mes, args=(1,), use_container_width=True)
     with c_stats:
-        st.markdown(f'''<div style="display:flex; justify-content:flex-end; align-items:center; gap:20px; margin-top:8px;"><div style="font-weight:700; font-size:var(--size-top-stats); color:{c_mes}; display:flex; align-items:center; gap:8px;"> P&L: <span style="background-color:{bg_pnl_top}; color:{color_pnl_top}; padding:4px 12px; border-radius:12px; font-weight:800;">{simb_pnl_top}${net_pnl_top:,.2f}</span></div><div style="font-weight:700; font-size:var(--size-top-stats); color:{c_mes}; display:flex; align-items:center; gap:8px;">Win Rate: <span style="background-color:{bg_win_top}; color:{color_win_top}; padding:4px 12px; border-radius:12px; font-weight:800;">{win_pct_top:.1f}%</span></div></div>''', unsafe_allow_html=True)
+        # Lógica de cuenta regresiva
+        countdown_html = ""
+        if not paso_cuenta: # Solo si es Eval
+            f_creacion_str = db_usuario[ctx].get("fecha_creacion", hoy.strftime("%d/%m/%Y"))
+            try:
+                f_creacion_dt = datetime.strptime(f_creacion_str, "%d/%m/%Y").date()
+                dias_transcurridos = (hoy - f_creacion_dt).days
+                dias_restantes = max(0, 30 - dias_transcurridos)
+                color_dias = "#00C897" if dias_restantes > 5 else "#FF4C4C"
+                countdown_html = f'<div style="font-weight:700; font-size:var(--size-top-stats); color:{c_mes}; display:flex; align-items:center; gap:8px;"> Días: <span style="background-color:{bg_pnl_top}; color:{color_dias}; padding:4px 12px; border-radius:12px; font-weight:800;">{dias_restantes}</span></div>'
+            except: pass
+        
+        st.markdown(f'''<div style="display:flex; justify-content:flex-end; align-items:center; gap:20px; margin-top:8px;">{countdown_html}<div style="font-weight:700; font-size:var(--size-top-stats); color:{c_mes}; display:flex; align-items:center; gap:8px;"> P&L: <span style="background-color:{bg_pnl_top}; color:{color_pnl_top}; padding:4px 12px; border-radius:12px; font-weight:800;">{simb_pnl_top}${net_pnl_top:,.2f}</span></div><div style="font-weight:700; font-size:var(--size-top-stats); color:{c_mes}; display:flex; align-items:center; gap:8px;">Win Rate: <span style="background-color:{bg_win_top}; color:{color_win_top}; padding:4px 12px; border-radius:12px; font-weight:800;">{win_pct_top:.1f}%</span></div></div>''', unsafe_allow_html=True)
     
     st.markdown("<br>", unsafe_allow_html=True)
     if st.session_state.idioma == "ES": dias_semana = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"]
