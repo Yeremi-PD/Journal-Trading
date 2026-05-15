@@ -1963,23 +1963,41 @@ with col_cal:
     with c_cen: st.markdown(f'<div style="text-align:center; font-weight:600; font-size:var(--cal-mes-size); color:{c_mes}; margin-top:2px;">{nombre_mes} {anio_sel}</div>', unsafe_allow_html=True)
     with c_der: st.button("▶", on_click=cambiar_mes, args=(1,), use_container_width=True)
     with c_stats:
-        # Lógica de cuenta regresiva automática
+        # Lógica de cuenta regresiva (Días operables y Fecha de cierre)
         countdown_html = ""
         if not paso_cuenta: # Solo si es Eval
             f_cierre_str = db_usuario[ctx].get("fecha_cierre")
             try:
                 if f_cierre_str:
                     f_cierre_dt = datetime.strptime(f_cierre_str, "%d/%m/%Y").date()
-                    dias_restantes = (f_cierre_dt - hoy).days
-                    dias_restantes = max(0, dias_restantes) # Evitar números negativos
                 else:
-                    # Fallback a fecha_inicio por si es una cuenta vieja
+                    # Fallback si no hay fecha de cierre guardada
                     f_ini_str = db_usuario[ctx].get("fecha_inicio", hoy.strftime("%d/%m/%Y"))
                     f_ini_dt = datetime.strptime(f_ini_str, "%d/%m/%Y").date()
-                    dias_restantes = max(0, 30 - (hoy - f_ini_dt).days)
+                    f_cierre_dt = f_ini_dt + pd.Timedelta(days=30)
+
+                # 1. Calcular días operables (saltando los sábados)
+                dias_restantes_totales = (f_cierre_dt - hoy).days
+                dias_operables = 0
+                if dias_restantes_totales > 0:
+                    for i in range(1, dias_restantes_totales + 1):
+                        dia_eval = hoy + pd.Timedelta(days=i)
+                        if dia_eval.weekday() != 5: # 5 es Sábado en Python
+                            dias_operables += 1
                 
-                color_dias = "#00C897" if dias_restantes > 5 else "#FF4C4C"
-                countdown_html = f'<div style="font-weight:700; font-size:var(--size-top-stats); color:{c_mes}; display:flex; align-items:center; gap:8px;"> Días: <span style="background-color:{bg_pnl_top}; color:{color_dias}; padding:4px 12px; border-radius:12px; font-weight:800;">{dias_restantes}</span></div>'
+                dias_restantes = max(0, dias_operables)
+                
+                # 2. Formatear la fecha corta (Mes/Día/Año corto)
+                fecha_corta = f"{f_cierre_dt.month}/{f_cierre_dt.day}/{f_cierre_dt.strftime('%y')}"
+
+                # 3. Lógica de colores (Rojo si faltan 5 días o menos)
+                color_alerta = "#FF4C4C" if dias_restantes <= 5 else "#00C897"
+                bg_alerta = "#ffeded" if dias_restantes <= 5 else "#e6f9f4"
+
+                countdown_html = f'''
+                <div style="font-weight:700; font-size:var(--size-top-stats); color:{c_mes}; display:flex; align-items:center; gap:8px;"> Cierre: <span style="background-color:{bg_alerta}; color:{color_alerta}; padding:4px 12px; border-radius:12px; font-weight:800;">{fecha_corta}</span></div>
+                <div style="font-weight:700; font-size:var(--size-top-stats); color:{c_mes}; display:flex; align-items:center; gap:8px;"> Días: <span style="background-color:{bg_alerta}; color:{color_alerta}; padding:4px 12px; border-radius:12px; font-weight:800;">{dias_restantes}</span></div>
+                '''
             except: pass
         
         st.markdown(f'''<div style="display:flex; justify-content:flex-end; align-items:center; gap:20px; margin-top:8px;">{countdown_html}<div style="font-weight:700; font-size:var(--size-top-stats); color:{c_mes}; display:flex; align-items:center; gap:8px;"> P&L: <span style="background-color:{bg_pnl_top}; color:{color_pnl_top}; padding:4px 12px; border-radius:12px; font-weight:800;">{simb_pnl_top}${net_pnl_top:,.2f}</span></div><div style="font-weight:700; font-size:var(--size-top-stats); color:{c_mes}; display:flex; align-items:center; gap:8px;">Win Rate: <span style="background-color:{bg_win_top}; color:{color_win_top}; padding:4px 12px; border-radius:12px; font-weight:800;">{win_pct_top:.1f}%</span></div></div>''', unsafe_allow_html=True)
