@@ -239,8 +239,10 @@ def get_global_db():
                                 
                             db_temp[user]["data"][cuenta]["trades"][clave].append(trade_info)
                             
-                            # Actualizamos el balance global al último leído
+                            # Actualizamos balance y fecha de inicio desde el Excel
                             db_temp[user]["data"][cuenta]["balance"] = safe_float(row_data.get('Balance', 0))
+                            if row_data.get('Fecha_Inicio'):
+                                db_temp[user]["data"][cuenta]["fecha_inicio"] = str(row_data.get('Fecha_Inicio')).strip()
                         except Exception as e_row:
                             # OPTIMIZACIÓN 2B: Log de fila fallida
                             print(f"Advertencia: Error procesando fila de la cuenta '{cuenta}' para '{user}': {e_row}")
@@ -274,7 +276,7 @@ def registrar_en_excel(usuario, password, cuenta, fecha_obj, balance, pnl, trade
             try: hoja_user = db_spreadsheet.worksheet(usuario)
             except gspread.exceptions.WorksheetNotFound:
                 hoja_user = db_spreadsheet.add_worksheet(title=usuario, rows="1000", cols="30")
-                headers = ["Usuario", "Password", "Cuenta", "Fecha", "Balance", "PnL", "Imagenes", "Settings_PC", "Settings_Movil", "Bias", "Confluences", "Risk", "RR", "Trade Type", "Reason", "Corrections", "Emotions", "Hora", "Ticker", "Direccion", "Lotes", "Precio_Entrada", "Precio_Salida", "Comisiones", "Estado_Cuenta", "Retiros_Acumulados", "ExtraData", "Notas_Globales"]
+                headers = ["Usuario", "Password", "Cuenta", "Fecha", "Balance", "PnL", "Imagenes", "Settings_PC", "Settings_Movil", "Bias", "Confluences", "Risk", "RR", "Trade Type", "Reason", "Corrections", "Emotions", "Hora", "Ticker", "Direccion", "Lotes", "Precio_Entrada", "Precio_Salida", "Comisiones", "Estado_Cuenta", "Retiros_Acumulados", "Fecha_Inicio", "ExtraData", "Notas_Globales"]
                 hoja_user.append_row(headers)
                 
                 # FIJAR EL ALTO DE TODAS LAS FILAS A 25px PARA QUE NINGUNA SE ESTIRE HACIA ABAJO
@@ -331,7 +333,8 @@ def registrar_en_excel(usuario, password, cuenta, fecha_obj, balance, pnl, trade
             safe_pass = str(password).strip() if password else "123"
 
             nota_global_str = settings_pc.get("global_notes_body", "") if settings_pc else ""
-            nueva_fila = [safe_user, safe_pass, str(cuenta), fecha_texto, float(balance), float(pnl), imgs_texto, set_pc_str, set_mov_str, val_bias, val_confs, val_risk, val_rr, val_tt, val_reason, val_corr, val_emo, val_hora, val_ticker, val_dir, val_lotes, val_pe, val_ps, val_com, val_estado, float(val_retiros), json.dumps(extra_data), nota_global_str]
+            f_ini_val = db_global[usuario]["data"][cuenta].get("fecha_inicio", "")
+nueva_fila = [safe_user, safe_pass, str(cuenta), fecha_texto, float(balance), float(pnl), imgs_texto, set_pc_str, set_mov_str, val_bias, val_confs, val_risk, val_rr, val_tt, val_reason, val_corr, val_emo, val_hora, val_ticker, val_dir, val_lotes, val_pe, val_ps, val_com, val_estado, float(val_retiros), f_ini_val, json.dumps(extra_data), nota_global_str]
             hoja_user.append_row(nueva_fila)
         except Exception as e:
             # OPTIMIZACIÓN 2A: Imprimimos el error exacto en la consola para no estar ciegos
@@ -381,7 +384,7 @@ def reescribir_excel_usuario(usuario):
                     filas_a_insertar.append([
                         usuario, pwd, cuenta, t["fecha_str"], float(t["balance_final"]), float(t["pnl"]), 
                         imgs_texto, set_pc_str, set_mov_str, val_bias, val_confs, val_risk, 
-                        val_rr, val_tt, val_reason, val_corr, val_emo, val_hora, val_ticker, val_dir, val_lotes, val_pe, val_ps, val_com, val_estado, float(val_retiros), json.dumps(extra_data), nota_global_str
+                        val_rr, val_tt, val_reason, val_corr, val_emo, val_hora, val_ticker, val_dir, val_lotes, val_pe, val_ps, val_com, val_estado, float(val_retiros), d_cuenta.get("fecha_inicio", ""), json.dumps(extra_data), nota_global_str
                     ])
         
         # OPTIMIZACIÓN 1.2: Uso del parámetro 'values' y 'range_name' para evitar deprecaciones 
@@ -630,11 +633,12 @@ if not db_usuario:
         with st.form("form_primera_cuenta"):
             nombre_cta = st.text_input(_l['setup']['acc_name'], value="Account Real")
             bal_inicial_opcion = st.selectbox(_l['setup']['init_bal'], [25000.0, 50000.0, 100000.0], format_func=lambda x: f"${x:,.0f}")
-            f_creacion = st.date_input("Fecha de Inicio de la Prueba", value=hoy)
+            st.markdown("---") # Separador visual
+            f_creacion = st.date_input("📅 Fecha de Inicio de la Evaluación", value=hoy)
             
             if st.form_submit_button(_l['setup']['btn_start'], use_container_width=True):
                 if nombre_cta:
-                    db_usuario[nombre_cta] = {"balance": bal_inicial_opcion, "trades": {}, "fecha_creacion": f_creacion.strftime("%d/%m/%Y")}
+                    db_usuario[nombre_cta] = {"balance": bal_inicial_opcion, "trades": {}, "fecha_inicio": f_creacion.strftime("%d/%m/%Y")}
                     st.session_state.data_source_sel = nombre_cta
                     reescribir_excel_usuario(usuario)
                     st.rerun()
@@ -796,11 +800,11 @@ def contenido_ajustes():
         st.markdown(f"**{_l['sidebar']['acc_details']}**")
         nueva_cuenta_nombre = st.text_input(_l['setup']['acc_name'], key="input_nombre_nueva_cta")
         nueva_cuenta_bal = st.selectbox(_l['sidebar']['sel_bal'], [25000.0, 50000.0, 100000.0], format_func=lambda x: f"${x:,.0f}", key="select_bal_nueva_cta")
-        f_creacion_nueva = st.date_input("Fecha de Inicio", value=hoy, key="f_creacion_sidebar")
+        f_creacion_nueva = st.date_input("📅 Fecha de Inicio", value=hoy, key="f_creacion_sidebar")
         
         if st.button(_l['sidebar']['btn_create_acc'], use_container_width=True, key="btn_crear_cta_sidebar"):
             if nueva_cuenta_nombre and nueva_cuenta_nombre not in db_usuario:
-                db_usuario[nueva_cuenta_nombre] = {"balance": nueva_cuenta_bal, "trades": {}, "fecha_creacion": f_creacion_nueva.strftime("%d/%m/%Y")}
+                db_usuario[nueva_cuenta_nombre] = {"balance": nueva_cuenta_bal, "trades": {}, "fecha_inicio": f_creacion_nueva.strftime("%d/%m/%Y")}
                 st.session_state.data_source_sel = nueva_cuenta_nombre
                 try: st.query_params["account"] = nueva_cuenta_nombre
                 except: pass
