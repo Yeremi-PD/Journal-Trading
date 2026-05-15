@@ -149,13 +149,6 @@ def get_global_db():
                             corr_leido = str(row_data.get('Corrections', '')).strip()
                             emo_leido = str(row_data.get('Emotions', '')).strip()
                             
-                            hora_leida = str(row_data.get('Hora', '')).strip()
-                            ticker_leido = str(row_data.get('Ticker', '')).strip()
-                            dir_leido = str(row_data.get('Direccion', '')).strip()
-                            lotes_leido = str(row_data.get('Lotes', '')).strip()
-                            pe_leido = str(row_data.get('Precio_Entrada', '')).strip()
-                            ps_leido = str(row_data.get('Precio_Salida', '')).strip()
-                            com_leida = str(row_data.get('Comisiones', '')).strip()
                             estado_leido = str(row_data.get('Estado_Cuenta', '')).strip()
                             retiros_leidos = safe_float(row_data.get('Retiros_Acumulados', 0.0))
 
@@ -172,13 +165,6 @@ def get_global_db():
                                 "RR": rr_leido if rr_leido else "1:2", 
                                 "trade_type": tt_leido if tt_leido else "A", 
                                 "Emotions": emo_leido,
-                                "hora": hora_leida,
-                                "ticker": ticker_leido,
-                                "direccion": dir_leido,
-                                "lotes": lotes_leido,
-                                "precio_entrada": pe_leido,
-                                "precio_salida": ps_leido,
-                                "comisiones": com_leida,
                                 "estado_cuenta": estado_leido if estado_leido else "Eval",
                                 "retiros_acumulados": retiros_leidos
                             }
@@ -239,10 +225,12 @@ def get_global_db():
                                 
                             db_temp[user]["data"][cuenta]["trades"][clave].append(trade_info)
                             
-                            # Actualizamos balance y fecha de inicio desde el Excel
+                            # Actualizamos balance, fecha inicio y cierre desde el Excel
                             db_temp[user]["data"][cuenta]["balance"] = safe_float(row_data.get('Balance', 0))
                             if row_data.get('Fecha_Inicio'):
                                 db_temp[user]["data"][cuenta]["fecha_inicio"] = str(row_data.get('Fecha_Inicio')).strip()
+                            if row_data.get('Fecha_Cierre'):
+                                db_temp[user]["data"][cuenta]["fecha_cierre"] = str(row_data.get('Fecha_Cierre')).strip()
                         except Exception as e_row:
                             # OPTIMIZACIÓN 2B: Log de fila fallida
                             print(f"Advertencia: Error procesando fila de la cuenta '{cuenta}' para '{user}': {e_row}")
@@ -276,7 +264,7 @@ def registrar_en_excel(usuario, password, cuenta, fecha_obj, balance, pnl, trade
             try: hoja_user = db_spreadsheet.worksheet(usuario)
             except gspread.exceptions.WorksheetNotFound:
                 hoja_user = db_spreadsheet.add_worksheet(title=usuario, rows="1000", cols="30")
-                headers = ["Usuario", "Password", "Cuenta", "Fecha", "Balance", "PnL", "Imagenes", "Settings_PC", "Settings_Movil", "Bias", "Confluences", "Risk", "RR", "Trade Type", "Reason", "Corrections", "Emotions", "Hora", "Ticker", "Direccion", "Lotes", "Precio_Entrada", "Precio_Salida", "Comisiones", "Estado_Cuenta", "Retiros_Acumulados", "Fecha_Inicio", "ExtraData", "Notas_Globales"]
+                headers = ["Usuario", "Password", "Cuenta", "Fecha", "Balance", "PnL", "Imagenes", "Settings_PC", "Settings_Movil", "Bias", "Confluences", "Risk", "RR", "Trade Type", "Reason", "Corrections", "Emotions", "Estado_Cuenta", "Retiros_Acumulados", "Fecha_Inicio", "Fecha_Cierre", "ExtraData", "Notas_Globales"]
                 hoja_user.append_row(headers)
                 
                 # FIJAR EL ALTO DE TODAS LAS FILAS A 25px PARA QUE NINGUNA SE ESTIRE HACIA ABAJO
@@ -310,24 +298,16 @@ def registrar_en_excel(usuario, password, cuenta, fecha_obj, balance, pnl, trade
             val_corr = trade_data.get("Corrections", "")
             val_emo = trade_data.get("Emotions", "")
             
-            # Extraemos los datos nuevos agregados AL FINAL
-            val_hora = trade_data.get("hora", "")
-            val_ticker = trade_data.get("ticker", "")
-            val_dir = trade_data.get("direccion", "")
-            val_lotes = trade_data.get("lotes", "")
-            val_pe = trade_data.get("precio_entrada", "")
-            val_ps = trade_data.get("precio_salida", "")
-            val_com = trade_data.get("comisiones", "")
+            # Extraemos los datos de estado
             val_estado = trade_data.get("estado_cuenta", "Eval")
             val_retiros = trade_data.get("retiros_acumulados", 0.0)
             
             # Removemos estos datos de ExtraData para no duplicarlos
-            keys_to_remove = ['pnl', 'balance_final', 'fecha_str', 'imagenes', 'bias', 'Confluences', 'risk', 'RR', 'trade_type', 'razon_trade', 'Corrections', 'Emotions', 'hora', 'ticker', 'direccion', 'lotes', 'precio_entrada', 'precio_salida', 'comisiones', 'estado_cuenta', 'retiros_acumulados']
+            keys_to_remove = ['pnl', 'balance_final', 'fecha_str', 'imagenes', 'bias', 'Confluences', 'risk', 'RR', 'trade_type', 'razon_trade', 'Corrections', 'Emotions', 'estado_cuenta', 'retiros_acumulados']
             extra_data = {k:v for k,v in trade_data.items() if k not in keys_to_remove}
             
             # INYECTAMOS EL MODO BACKTESTING DESDE LA CUENTA
             extra_data["backtesting_mode"] = db_global[usuario]["data"][cuenta].get("backtesting_mode", False)
-            extra_data["fecha_creacion"] = db_global[usuario]["data"][cuenta].get("fecha_creacion", hoy.strftime("%d/%m/%Y"))
             
             safe_user = str(usuario).strip() if usuario else "Desconocido"
             safe_pass = str(password).strip() if password else "123"
@@ -335,7 +315,9 @@ def registrar_en_excel(usuario, password, cuenta, fecha_obj, balance, pnl, trade
             nota_global_str = settings_pc.get("global_notes_body", "") if settings_pc else ""
             
             f_ini_val = db_global[usuario]["data"][cuenta].get("fecha_inicio", "")
-            nueva_fila = [safe_user, safe_pass, str(cuenta), fecha_texto, float(balance), float(pnl), imgs_texto, set_pc_str, set_mov_str, val_bias, val_confs, val_risk, val_rr, val_tt, val_reason, val_corr, val_emo, val_hora, val_ticker, val_dir, val_lotes, val_pe, val_ps, val_com, val_estado, float(val_retiros), f_ini_val, json.dumps(extra_data), nota_global_str]
+            f_cie_val = db_global[usuario]["data"][cuenta].get("fecha_cierre", "")
+            
+            nueva_fila = [safe_user, safe_pass, str(cuenta), fecha_texto, float(balance), float(pnl), imgs_texto, set_pc_str, set_mov_str, val_bias, val_confs, val_risk, val_rr, val_tt, val_reason, val_corr, val_emo, val_estado, float(val_retiros), f_ini_val, f_cie_val, json.dumps(extra_data), nota_global_str]
             
             hoja_user.append_row(nueva_fila)
         except Exception as e:
@@ -345,7 +327,7 @@ def registrar_en_excel(usuario, password, cuenta, fecha_obj, balance, pnl, trade
 def reescribir_excel_usuario(usuario):
     if not db_spreadsheet: return
     try:
-        headers = ["Usuario", "Password", "Cuenta", "Fecha", "Balance", "PnL", "Imagenes", "Settings_PC", "Settings_Movil", "Bias", "Confluences", "Risk", "RR", "Trade Type", "Reason", "Corrections", "Emotions", "Hora", "Ticker", "Direccion", "Lotes", "Precio_Entrada", "Precio_Salida", "Comisiones", "Estado_Cuenta", "Retiros_Acumulados", "ExtraData", "Notas_Globales"]
+        headers = ["Usuario", "Password", "Cuenta", "Fecha", "Balance", "PnL", "Imagenes", "Settings_PC", "Settings_Movil", "Bias", "Confluences", "Risk", "RR", "Trade Type", "Reason", "Corrections", "Emotions", "Estado_Cuenta", "Retiros_Acumulados", "Fecha_Inicio", "Fecha_Cierre", "ExtraData", "Notas_Globales"]
         filas_a_insertar = [headers]
         pwd = db_global[usuario]["password"]
         set_pc_str = json.dumps(db_global[usuario]["settings"]["PC"])
@@ -367,26 +349,23 @@ def reescribir_excel_usuario(usuario):
                     val_corr = t.get("Corrections", "")
                     val_emo = t.get("Emotions", "")
                     
-                    val_hora = t.get("hora", "")
-                    val_ticker = t.get("ticker", "")
-                    val_dir = t.get("direccion", "")
-                    val_lotes = t.get("lotes", "")
-                    val_pe = t.get("precio_entrada", "")
-                    val_ps = t.get("precio_salida", "")
-                    val_com = t.get("comisiones", "")
                     val_estado = t.get("estado_cuenta", "Eval")
                     val_retiros = t.get("retiros_acumulados", 0.0)
                     
-                    keys_to_remove = ['pnl', 'balance_final', 'fecha_str', 'imagenes', 'bias', 'Confluences', 'risk', 'RR', 'trade_type', 'razon_trade', 'Corrections', 'Emotions', 'hora', 'ticker', 'direccion', 'lotes', 'precio_entrada', 'precio_salida', 'comisiones', 'estado_cuenta', 'retiros_acumulados']
+                    keys_to_remove = ['pnl', 'balance_final', 'fecha_str', 'imagenes', 'bias', 'Confluences', 'risk', 'RR', 'trade_type', 'razon_trade', 'Corrections', 'Emotions', 'estado_cuenta', 'retiros_acumulados']
                     extra_data = {k:v for k,v in t.items() if k not in keys_to_remove}
                     
                     # INYECTAMOS EL MODO BACKTESTING DESDE LA CUENTA
                     extra_data["backtesting_mode"] = d_cuenta.get("backtesting_mode", False)
                     nota_global_str = db_global[usuario]["settings"]["PC"].get("global_notes_body", "")
+                    
+                    f_ini_val = d_cuenta.get("fecha_inicio", "")
+                    f_cie_val = d_cuenta.get("fecha_cierre", "")
+                    
                     filas_a_insertar.append([
                         usuario, pwd, cuenta, t["fecha_str"], float(t["balance_final"]), float(t["pnl"]), 
                         imgs_texto, set_pc_str, set_mov_str, val_bias, val_confs, val_risk, 
-                        val_rr, val_tt, val_reason, val_corr, val_emo, val_hora, val_ticker, val_dir, val_lotes, val_pe, val_ps, val_com, val_estado, float(val_retiros), d_cuenta.get("fecha_inicio", ""), json.dumps(extra_data), nota_global_str
+                        val_rr, val_tt, val_reason, val_corr, val_emo, val_estado, float(val_retiros), f_ini_val, f_cie_val, json.dumps(extra_data), nota_global_str
                     ])
         
         # OPTIMIZACIÓN 1.2: Uso del parámetro 'values' y 'range_name' para evitar deprecaciones 
@@ -636,11 +615,15 @@ if not db_usuario:
             nombre_cta = st.text_input(_l['setup']['acc_name'], value="Account Real")
             bal_inicial_opcion = st.selectbox(_l['setup']['init_bal'], [25000.0, 50000.0, 100000.0], format_func=lambda x: f"${x:,.0f}")
             st.markdown("---") # Separador visual
-            f_creacion = st.date_input("📅 Fecha de Inicio de la Evaluación", value=hoy)
+            f_creacion = st.date_input("📅 Fecha de Inicio de la Cuenta", value=hoy, use_container_width=True)
+            
+            # Fecha de cierre por defecto (30 días después)
+            f_cierre_defecto = hoy + pd.Timedelta(days=30)
+            f_cierre = st.date_input("🛑 Fecha de Cierre / Corte", value=f_cierre_defecto, use_container_width=True)
             
             if st.form_submit_button(_l['setup']['btn_start'], use_container_width=True):
                 if nombre_cta:
-                    db_usuario[nombre_cta] = {"balance": bal_inicial_opcion, "trades": {}, "fecha_inicio": f_creacion.strftime("%d/%m/%Y")}
+                    db_usuario[nombre_cta] = {"balance": bal_inicial_opcion, "trades": {}, "fecha_inicio": f_creacion.strftime("%d/%m/%Y"), "fecha_cierre": f_cierre.strftime("%d/%m/%Y")}
                     st.session_state.data_source_sel = nombre_cta
                     reescribir_excel_usuario(usuario)
                     st.rerun()
@@ -802,11 +785,14 @@ def contenido_ajustes():
         st.markdown(f"**{_l['sidebar']['acc_details']}**")
         nueva_cuenta_nombre = st.text_input(_l['setup']['acc_name'], key="input_nombre_nueva_cta")
         nueva_cuenta_bal = st.selectbox(_l['sidebar']['sel_bal'], [25000.0, 50000.0, 100000.0], format_func=lambda x: f"${x:,.0f}", key="select_bal_nueva_cta")
-        f_creacion_nueva = st.date_input("📅 Fecha de Inicio", value=hoy, key="f_creacion_sidebar")
+        
+        f_creacion_nueva = st.date_input("📅 Fecha de Inicio", value=hoy, key="f_creacion_sidebar", use_container_width=True)
+        f_cierre_defecto = hoy + pd.Timedelta(days=30)
+        f_cierre_nueva = st.date_input("🛑 Fecha de Cierre / Corte", value=f_cierre_defecto, key="f_cierre_sidebar", use_container_width=True)
         
         if st.button(_l['sidebar']['btn_create_acc'], use_container_width=True, key="btn_crear_cta_sidebar"):
             if nueva_cuenta_nombre and nueva_cuenta_nombre not in db_usuario:
-                db_usuario[nueva_cuenta_nombre] = {"balance": nueva_cuenta_bal, "trades": {}, "fecha_inicio": f_creacion_nueva.strftime("%d/%m/%Y")}
+                db_usuario[nueva_cuenta_nombre] = {"balance": nueva_cuenta_bal, "trades": {}, "fecha_inicio": f_creacion_nueva.strftime("%d/%m/%Y"), "fecha_cierre": f_cierre_nueva.strftime("%d/%m/%Y")}
                 st.session_state.data_source_sel = nueva_cuenta_nombre
                 try: st.query_params["account"] = nueva_cuenta_nombre
                 except: pass
