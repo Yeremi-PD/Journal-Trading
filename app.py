@@ -393,28 +393,23 @@ const sUser = window.parent.localStorage.getItem("yeremi_user");
 const sDevice = window.parent.localStorage.getItem("yeremi_device");
 const sAccount = window.parent.localStorage.getItem("yeremi_account");
 
-let redirect = false;
-
-// 1. Auto-detectar dispositivo de forma silenciosa
-if (!urlParams.has('device')) {
-    const isMobile = window.parent.innerWidth <= 768;
-    urlParams.set('device', sDevice || (isMobile ? 'Móvil' : 'PC'));
-    redirect = true;
-}
-
-// 2. Si hay usuario guardado pero la URL está limpia (Apertura desde iPhone Home)
+// SOLO intervenimos si la URL está completamente vacía de usuario 
+// (es decir, abriste la app fresca desde el inicio del iPhone)
 if (sUser && !urlParams.has("user")) {
     urlParams.set("user", sUser);
-    if (sAccount) urlParams.set("account", sAccount);
-    redirect = true;
-}
-// 3. Forzar última cuenta usada para evitar desincronización
-else if (sUser && sAccount && urlParams.get("account") !== sAccount) {
-    urlParams.set("account", sAccount);
-    redirect = true;
-}
-
-if (redirect) {
+    
+    if (sDevice) {
+        urlParams.set("device", sDevice);
+    } else {
+        const isMobile = window.parent.innerWidth <= 768;
+        urlParams.set("device", isMobile ? 'Móvil' : 'PC');
+    }
+    
+    if (sAccount) {
+        urlParams.set("account", sAccount);
+    }
+    
+    // Redirigimos una ÚNICA vez
     window.parent.location.replace(window.parent.location.pathname + "?" + urlParams.toString());
 }
 </script>
