@@ -1976,13 +1976,13 @@ with col_cal:
                     f_ini_dt = datetime.strptime(f_ini_str, "%d/%m/%Y").date()
                     f_cierre_dt = f_ini_dt + pd.Timedelta(days=30)
 
-                # 1. Calcular días operables (saltando los sábados)
+                # 1. Calcular días operables (SALTANDO los sábados)
                 dias_restantes_totales = (f_cierre_dt - hoy).days
                 dias_operables = 0
                 if dias_restantes_totales > 0:
                     for i in range(1, dias_restantes_totales + 1):
                         dia_eval = hoy + pd.Timedelta(days=i)
-                        if dia_eval.weekday() != 5: # 5 es Sábado en Python
+                        if dia_eval.weekday() != 5: # El 5 es Sábado en Python (Se ignora)
                             dias_operables += 1
                 
                 dias_restantes = max(0, dias_operables)
@@ -1990,7 +1990,7 @@ with col_cal:
                 # 2. Formatear la fecha corta (Mes/Día/Año corto)
                 fecha_corta = f"{f_cierre_dt.month}/{f_cierre_dt.day}/{f_cierre_dt.strftime('%y')}"
 
-                # 3. Lógica de colores (Rojo si faltan 5 días o menos)
+                # 3. Lógica de colores (Rojo si faltan 5 días operables o menos)
                 color_alerta = "#FF4C4C" if dias_restantes <= 5 else "#00C897"
                 bg_alerta = "#ffeded" if dias_restantes <= 5 else "#e6f9f4"
 
