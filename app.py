@@ -333,8 +333,10 @@ def registrar_en_excel(usuario, password, cuenta, fecha_obj, balance, pnl, trade
             safe_pass = str(password).strip() if password else "123"
 
             nota_global_str = settings_pc.get("global_notes_body", "") if settings_pc else ""
+            
             f_ini_val = db_global[usuario]["data"][cuenta].get("fecha_inicio", "")
-nueva_fila = [safe_user, safe_pass, str(cuenta), fecha_texto, float(balance), float(pnl), imgs_texto, set_pc_str, set_mov_str, val_bias, val_confs, val_risk, val_rr, val_tt, val_reason, val_corr, val_emo, val_hora, val_ticker, val_dir, val_lotes, val_pe, val_ps, val_com, val_estado, float(val_retiros), f_ini_val, json.dumps(extra_data), nota_global_str]
+            nueva_fila = [safe_user, safe_pass, str(cuenta), fecha_texto, float(balance), float(pnl), imgs_texto, set_pc_str, set_mov_str, val_bias, val_confs, val_risk, val_rr, val_tt, val_reason, val_corr, val_emo, val_hora, val_ticker, val_dir, val_lotes, val_pe, val_ps, val_com, val_estado, float(val_retiros), f_ini_val, json.dumps(extra_data), nota_global_str]
+            
             hoja_user.append_row(nueva_fila)
         except Exception as e:
             # OPTIMIZACIÓN 2A: Imprimimos el error exacto en la consola para no estar ciegos
