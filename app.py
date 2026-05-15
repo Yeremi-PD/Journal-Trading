@@ -385,59 +385,37 @@ def reescribir_excel_usuario(usuario):
     except Exception as e:
         print(f"Error al reescribir excel: {e}")
 
-# --- AUTO-DETECTAR MÓVIL (Oculto) ---
+# --- OPTIMIZACIÓN: SCRIPT ÚNICO DE ARRANQUE Y MEMORIA ---
 components.html("""
 <script>
 const urlParams = new URLSearchParams(window.parent.location.search);
+const sUser = window.parent.localStorage.getItem("yeremi_user");
+const sDevice = window.parent.localStorage.getItem("yeremi_device");
+const sAccount = window.parent.localStorage.getItem("yeremi_account");
+
+let redirect = false;
+
+// 1. Auto-detectar dispositivo de forma silenciosa
 if (!urlParams.has('device')) {
     const isMobile = window.parent.innerWidth <= 768;
-    urlParams.set('device', isMobile ? 'Móvil' : 'PC');
-    window.parent.location.search = urlParams.toString();
+    urlParams.set('device', sDevice || (isMobile ? 'Móvil' : 'PC'));
+    redirect = true;
 }
-</script>
-""", height=0, width=0)
 
-# --- MEMORIA PERMANENTE PARA IPHONE ---
-components.html("""
-<script>
-    const urlParams = new URLSearchParams(window.parent.location.search);
-    const sUser = window.parent.localStorage.getItem("yeremi_user");
-    const sDevice = window.parent.localStorage.getItem("yeremi_device");
-    const sAccount = window.parent.localStorage.getItem("yeremi_account");
+// 2. Si hay usuario guardado pero la URL está limpia (Apertura desde iPhone Home)
+if (sUser && !urlParams.has("user")) {
+    urlParams.set("user", sUser);
+    if (sAccount) urlParams.set("account", sAccount);
+    redirect = true;
+}
+// 3. Forzar última cuenta usada para evitar desincronización
+else if (sUser && sAccount && urlParams.get("account") !== sAccount) {
+    urlParams.set("account", sAccount);
+    redirect = true;
+}
 
-    let redirect = false;
-
-    // 1. Si abriste la app limpia sin usuario
-    if (sUser && !urlParams.has("user")) {
-        urlParams.set("user", sUser);
-        urlParams.set("device", sDevice || "Móvil");
-        if (sAccount) urlParams.set("account", sAccount);
-        redirect = true;
-    }
-    // 2. LA CLAVE: Si el iPhone forzó una cuenta vieja en la URL, la sobrescribimos con la última que usaste
-    else if (sUser && sAccount && urlParams.get("account") !== sAccount) {
-        urlParams.set("account", sAccount);
-        redirect = true;
-    }
-
-    if (redirect) {
-        window.parent.location.search = urlParams.toString();
-    }
-</script>
-""", height=0, width=0)
-
-# --- MANTENER SESIÓN INICIADA (MEMORIA DEL CELULAR) ---
-components.html("""
-<script>
-const urlParams = new URLSearchParams(window.parent.location.search);
-const savedUser = window.parent.localStorage.getItem("yeremi_user");
-const savedDevice = window.parent.localStorage.getItem("yeremi_device");
-
-// Si el celular recuerda tu sesión pero la URL está vacía (abriste la app de cero)
-if (savedUser && !urlParams.has("user")) {
-    urlParams.set("user", savedUser);
-    if (savedDevice) urlParams.set("device", savedDevice);
-    window.parent.location.search = urlParams.toString(); 
+if (redirect) {
+    window.parent.location.replace(window.parent.location.pathname + "?" + urlParams.toString());
 }
 </script>
 """, height=0, width=0)
@@ -468,10 +446,11 @@ if "usuario_actual" not in st.session_state:
 query_u = st.query_params.get("user")
 query_d = st.query_params.get("device", "PC")
 
+# OPTIMIZACIÓN: Asignamos el usuario directo sin hacer "st.rerun()".
+# Esto elimina una pantalla de carga blanca innecesaria.
 if query_u in db_global and st.session_state.usuario_actual is None:
     st.session_state.usuario_actual = query_u
     st.session_state.dispositivo_actual = query_d
-    st.rerun()
 
 # Paso 2: Si no hay memoria, mostrar la pantalla de Login
 if "idioma" not in st.session_state:
