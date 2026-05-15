@@ -591,6 +591,27 @@ if "form_reset_key" not in st.session_state: st.session_state.form_reset_key = 0
 usuario = st.session_state.usuario_actual
 db_usuario = db_global[usuario]["data"]
 
+@st.dialog("📅 Configurar Inicio de Cuenta")
+def modal_fecha_inicio(nombre, balance):
+    st.markdown(f"### Cuenta: <span style='color:#00C897;'>{nombre}</span>", unsafe_allow_html=True)
+    st.write("Selecciona la fecha exacta en la que comenzaste esta prueba de fondeo.")
+    
+    f_ini = st.date_input("Fecha de Inicio", value=datetime.now().date())
+    f_cie = f_ini + pd.Timedelta(days=30)
+    
+    st.info(f"Tu fecha de cierre será calculada automáticamente para el: **{f_cie.strftime('%d/%m/%Y')}**")
+    
+    if st.button("🚀 FINALIZAR Y EMPEZAR", use_container_width=True):
+        db_usuario[nombre] = {
+            "balance": balance, 
+            "trades": {}, 
+            "fecha_inicio": f_ini.strftime("%d/%m/%Y"),
+            "fecha_cierre": f_cie.strftime("%d/%m/%Y")
+        }
+        st.session_state.data_source_sel = nombre
+        reescribir_excel_usuario(usuario)
+        st.rerun()
+
 # --- BLOQUEO DE SEGURIDAD AL PRINCIPIO ---
 if not db_usuario:
     # 1. Aplicamos el estilo para centrar todo y ocultar la barra lateral
@@ -2533,30 +2554,6 @@ with tab_tabla:
                 tabla_html = f"""<div style="width: 100%; height: auto; overflow-y: auto; overflow-x: auto; background-color: {card_bg}; border: 1px solid {border_color}; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 40px;"><table style="width: 100%; border-collapse: collapse; text-align: left; white-space: nowrap;"><thead style="position: sticky; top: 0; background-color: {card_bg}; z-index: 1;"><tr><th style="{th_style}">{_l['table']['date']}</th><th style="{th_style}">{_l['table']['trade']}</th><th style="{th_style}">{_l['table']['pnl']}</th><th style="{th_style}">{_l['table']['type']}</th><th style="{th_style}">{_l['table']['bias']}</th><th style="{th_style}">{_l['table']['rr']}</th><th style="{th_style}">{_l['table']['conf']}</th><th style="{th_style}">{_l['table']['risk']}</th><th style="{th_style}">{_l['table']['reason']}</th><th style="{th_style}">{_l['table']['emo']}</th><th style="{th_style}">{_l['table']['corr']}</th></tr></thead><tbody>{filas_html}</tbody></table></div><br><br>"""
                 st.markdown(tabla_html, unsafe_allow_html=True)
 
-
-@st.dialog("📅 Configurar Inicio de Cuenta")
-def modal_fecha_inicio(nombre, balance):
-    st.markdown(f"### Cuenta: <span style='color:#00C897;'>{nombre}</span>", unsafe_allow_html=True)
-    st.write("Selecciona la fecha exacta en la que comenzaste esta prueba de fondeo.")
-    
-    # Selector de fecha elegante
-    f_ini = st.date_input("Fecha de Inicio", value=hoy)
-    # Cálculo automático de 30 días calendario
-    f_cie = f_ini + pd.Timedelta(days=30)
-    
-    st.info(f"Tu fecha de cierre será calculada automáticamente para el: **{f_cie.strftime('%d/%m/%Y')}**")
-    
-    if st.button("🚀 FINALIZAR Y EMPEZAR", use_container_width=True):
-        # Guardado final en la base de datos
-        db_usuario[nombre] = {
-            "balance": balance, 
-            "trades": {}, 
-            "fecha_inicio": f_ini.strftime("%d/%m/%Y"),
-            "fecha_cierre": f_cie.strftime("%d/%m/%Y")
-        }
-        st.session_state.data_source_sel = nombre
-        reescribir_excel_usuario(usuario)
-        st.rerun() 
 # ==========================================
 # SCRIPT PARA CERRAR MODALES Y BLOQUEAR TECLADO
 # ==========================================
