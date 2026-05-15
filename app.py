@@ -593,13 +593,26 @@ db_usuario = db_global[usuario]["data"]
 
 @st.dialog("📅 Configurar Inicio de Cuenta")
 def modal_fecha_inicio(nombre, balance):
-    st.markdown(f"### Cuenta: <span style='color:#00C897;'>{nombre}</span>", unsafe_allow_html=True)
-    st.write("Selecciona la fecha exacta en la que comenzaste esta prueba de fondeo.")
+    # CSS para bloquear el diseño global y devolver el selector de fecha a su estado nativo y elegante
+    st.markdown("""
+    <style>
+    div[role="dialog"] div[data-testid="stDateInput"] { width: 100% !important; min-width: 100% !important; height: auto !important; margin-top: 10px !important; }
+    div[role="dialog"] div[data-testid="stDateInput"] > div:first-child { width: 100% !important; height: 45px !important; min-height: 45px !important; background-color: transparent !important; border: 1px solid #4A5568 !important; border-radius: 8px !important; }
+    div[role="dialog"] div[data-testid="stDateInput"] input { color: white !important; -webkit-text-fill-color: white !important; height: 45px !important; font-size: 16px !important; cursor: pointer !important; padding-left: 10px !important; }
+    div[role="dialog"] div[data-testid="stDateInput"]::after { display: none !important; /* Mata el emoji descentralizado */ }
+    div[role="dialog"] div[data-testid="stDateInput"] svg { display: block !important; /* Revive el icono nativo de calendario */ color: #A0AEC0 !important; width: 22px !important; height: 22px !important; margin-right: 15px !important; }
+    </style>
+    """, unsafe_allow_html=True)
+
+    # Textos más limpios y centrados
+    st.markdown(f"<h3 style='text-align: center; margin-top:-10px;'>Cuenta: <span style='color:#00C897;'>{nombre}</span></h3>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center; color: #A0AEC0; margin-bottom: 10px;'>Selecciona la fecha exacta en la que comenzaste esta prueba.</p>", unsafe_allow_html=True)
     
-    f_ini = st.date_input("Fecha de Inicio", value=datetime.now().date())
+    # Selector de fecha limpio y nativo
+    f_ini = st.date_input("Fecha de Inicio", value=datetime.now().date(), label_visibility="collapsed")
     f_cie = f_ini + pd.Timedelta(days=30)
     
-    st.info(f"Tu fecha de cierre será calculada automáticamente para el: **{f_cie.strftime('%d/%m/%Y')}**")
+    st.markdown("<br>", unsafe_allow_html=True)
     
     if st.button("🚀 FINALIZAR Y EMPEZAR", use_container_width=True):
         db_usuario[nombre] = {
@@ -609,6 +622,7 @@ def modal_fecha_inicio(nombre, balance):
             "fecha_cierre": f_cie.strftime("%d/%m/%Y")
         }
         st.session_state.data_source_sel = nombre
+        # Aseguramos que la URL también reconozca la cuenta nueva
         try: st.query_params["account"] = nombre
         except: pass
         reescribir_excel_usuario(usuario)
