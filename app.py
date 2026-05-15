@@ -2534,7 +2534,7 @@ with tab_tabla:
                 st.markdown(tabla_html, unsafe_allow_html=True)
 
 
-               @st.dialog("📅 Configurar Inicio de Cuenta")
+@st.dialog("📅 Configurar Inicio de Cuenta")
 def modal_fecha_inicio(nombre, balance):
     st.markdown(f"### Cuenta: <span style='color:#00C897;'>{nombre}</span>", unsafe_allow_html=True)
     st.write("Selecciona la fecha exacta en la que comenzaste esta prueba de fondeo.")
