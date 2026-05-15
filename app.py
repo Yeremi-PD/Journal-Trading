@@ -609,6 +609,8 @@ def modal_fecha_inicio(nombre, balance):
             "fecha_cierre": f_cie.strftime("%d/%m/%Y")
         }
         st.session_state.data_source_sel = nombre
+        try: st.query_params["account"] = nombre
+        except: pass
         reescribir_excel_usuario(usuario)
         st.rerun()
 
@@ -801,10 +803,7 @@ def contenido_ajustes():
         
         if st.button(_l['sidebar']['btn_create_acc'], use_container_width=True, key="btn_crear_cta_sidebar"):
             if nueva_cuenta_nombre and nueva_cuenta_nombre not in db_usuario:
-                # Abrimos el popup elegante
                 modal_fecha_inicio(nueva_cuenta_nombre, nueva_cuenta_bal)
-            elif nueva_cuenta_nombre in db_usuario:
-                st.warning(_l['sidebar']['exist_name'])
             elif nueva_cuenta_nombre in db_usuario:
                 st.warning(_l['sidebar']['exist_name'])
 
