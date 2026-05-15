@@ -614,19 +614,11 @@ if not db_usuario:
         with st.form("form_primera_cuenta"):
             nombre_cta = st.text_input(_l['setup']['acc_name'], value="Account Real")
             bal_inicial_opcion = st.selectbox(_l['setup']['init_bal'], [25000.0, 50000.0, 100000.0], format_func=lambda x: f"${x:,.0f}")
-            st.markdown("---") # Separador visual
-            f_creacion = st.date_input("📅 Fecha de Inicio de la Cuenta", value=hoy)
-            
-            # Fecha de cierre por defecto (30 días después)
-            f_cierre_defecto = hoy + pd.Timedelta(days=30)
-            f_cierre = st.date_input("🛑 Fecha de Cierre / Corte", value=f_cierre_defecto)
             
             if st.form_submit_button(_l['setup']['btn_start'], use_container_width=True):
                 if nombre_cta:
-                    db_usuario[nombre_cta] = {"balance": bal_inicial_opcion, "trades": {}, "fecha_inicio": f_creacion.strftime("%d/%m/%Y"), "fecha_cierre": f_cierre.strftime("%d/%m/%Y")}
-                    st.session_state.data_source_sel = nombre_cta
-                    reescribir_excel_usuario(usuario)
-                    st.rerun()
+                    # En lugar de guardar, abrimos el popup
+                    modal_fecha_inicio(nombre_cta, bal_inicial_opcion)
     st.stop()
 
 # --- SI LLEGAMOS AQUÍ, EL USUARIO YA TIENE CUENTA ---
@@ -786,19 +778,12 @@ def contenido_ajustes():
         nueva_cuenta_nombre = st.text_input(_l['setup']['acc_name'], key="input_nombre_nueva_cta")
         nueva_cuenta_bal = st.selectbox(_l['sidebar']['sel_bal'], [25000.0, 50000.0, 100000.0], format_func=lambda x: f"${x:,.0f}", key="select_bal_nueva_cta")
         
-        f_creacion_nueva = st.date_input("📅 Fecha de Inicio", value=hoy, key="f_creacion_sidebar")
-        f_cierre_defecto = hoy + pd.Timedelta(days=30)
-        f_cierre_nueva = st.date_input("🛑 Fecha de Cierre / Corte", value=f_cierre_defecto, key="f_cierre_sidebar")
-        
         if st.button(_l['sidebar']['btn_create_acc'], use_container_width=True, key="btn_crear_cta_sidebar"):
             if nueva_cuenta_nombre and nueva_cuenta_nombre not in db_usuario:
-                db_usuario[nueva_cuenta_nombre] = {"balance": nueva_cuenta_bal, "trades": {}, "fecha_inicio": f_creacion_nueva.strftime("%d/%m/%Y"), "fecha_cierre": f_cierre_nueva.strftime("%d/%m/%Y")}
-                st.session_state.data_source_sel = nueva_cuenta_nombre
-                try: st.query_params["account"] = nueva_cuenta_nombre
-                except: pass
-                reescribir_excel_usuario(usuario)
-                st.success(f"Account '{nueva_cuenta_nombre}' created!")
-                st.rerun()
+                # Abrimos el popup elegante
+                modal_fecha_inicio(nueva_cuenta_nombre, nueva_cuenta_bal)
+            elif nueva_cuenta_nombre in db_usuario:
+                st.warning(_l['sidebar']['exist_name'])
             elif nueva_cuenta_nombre in db_usuario:
                 st.warning(_l['sidebar']['exist_name'])
 
@@ -2547,6 +2532,31 @@ with tab_tabla:
                     filas_html += f"""<tr><td style="{td_style}">{row['Date']}</td><td style="{td_style}"><b>{row['Trade']}</b></td><td style="{td_style} font-weight: 800; color: {pnl_color};">{pnl_str}</td><td style="{td_style} font-weight: 600;">{row['Trade Type']}</td><td style="{td_style}">{bias_badge}</td><td style="{td_style} font-weight: 600;">{row['RR']}</td><td style="{td_style} min-width: 200px; white-space: normal;">{row['Confluences']}</td><td style="{td_style}">{row['Risk']}</td><td style="{td_style} min-width: 250px; white-space: normal;">{row['Reason For Trade']}</td><td style="{td_style} min-width: 200px; white-space: normal;">{row['Emotions']}</td><td style="{td_style} min-width: 200px; white-space: normal;">{row['Corrections']}</td></tr>"""
                 tabla_html = f"""<div style="width: 100%; height: auto; overflow-y: auto; overflow-x: auto; background-color: {card_bg}; border: 1px solid {border_color}; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 40px;"><table style="width: 100%; border-collapse: collapse; text-align: left; white-space: nowrap;"><thead style="position: sticky; top: 0; background-color: {card_bg}; z-index: 1;"><tr><th style="{th_style}">{_l['table']['date']}</th><th style="{th_style}">{_l['table']['trade']}</th><th style="{th_style}">{_l['table']['pnl']}</th><th style="{th_style}">{_l['table']['type']}</th><th style="{th_style}">{_l['table']['bias']}</th><th style="{th_style}">{_l['table']['rr']}</th><th style="{th_style}">{_l['table']['conf']}</th><th style="{th_style}">{_l['table']['risk']}</th><th style="{th_style}">{_l['table']['reason']}</th><th style="{th_style}">{_l['table']['emo']}</th><th style="{th_style}">{_l['table']['corr']}</th></tr></thead><tbody>{filas_html}</tbody></table></div><br><br>"""
                 st.markdown(tabla_html, unsafe_allow_html=True)
+
+
+               @st.dialog("📅 Configurar Inicio de Cuenta")
+def modal_fecha_inicio(nombre, balance):
+    st.markdown(f"### Cuenta: <span style='color:#00C897;'>{nombre}</span>", unsafe_allow_html=True)
+    st.write("Selecciona la fecha exacta en la que comenzaste esta prueba de fondeo.")
+    
+    # Selector de fecha elegante
+    f_ini = st.date_input("Fecha de Inicio", value=hoy)
+    # Cálculo automático de 30 días calendario
+    f_cie = f_ini + pd.Timedelta(days=30)
+    
+    st.info(f"Tu fecha de cierre será calculada automáticamente para el: **{f_cie.strftime('%d/%m/%Y')}**")
+    
+    if st.button("🚀 FINALIZAR Y EMPEZAR", use_container_width=True):
+        # Guardado final en la base de datos
+        db_usuario[nombre] = {
+            "balance": balance, 
+            "trades": {}, 
+            "fecha_inicio": f_ini.strftime("%d/%m/%Y"),
+            "fecha_cierre": f_cie.strftime("%d/%m/%Y")
+        }
+        st.session_state.data_source_sel = nombre
+        reescribir_excel_usuario(usuario)
+        st.rerun() 
 # ==========================================
 # SCRIPT PARA CERRAR MODALES Y BLOQUEAR TECLADO
 # ==========================================
