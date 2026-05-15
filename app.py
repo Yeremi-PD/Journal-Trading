@@ -1963,14 +1963,21 @@ with col_cal:
     with c_cen: st.markdown(f'<div style="text-align:center; font-weight:600; font-size:var(--cal-mes-size); color:{c_mes}; margin-top:2px;">{nombre_mes} {anio_sel}</div>', unsafe_allow_html=True)
     with c_der: st.button("▶", on_click=cambiar_mes, args=(1,), use_container_width=True)
     with c_stats:
-        # Lógica de cuenta regresiva
+        # Lógica de cuenta regresiva automática
         countdown_html = ""
         if not paso_cuenta: # Solo si es Eval
-            f_creacion_str = db_usuario[ctx].get("fecha_creacion", hoy.strftime("%d/%m/%Y"))
+            f_cierre_str = db_usuario[ctx].get("fecha_cierre")
             try:
-                f_creacion_dt = datetime.strptime(f_creacion_str, "%d/%m/%Y").date()
-                dias_transcurridos = (hoy - f_creacion_dt).days
-                dias_restantes = max(0, 30 - dias_transcurridos)
+                if f_cierre_str:
+                    f_cierre_dt = datetime.strptime(f_cierre_str, "%d/%m/%Y").date()
+                    dias_restantes = (f_cierre_dt - hoy).days
+                    dias_restantes = max(0, dias_restantes) # Evitar números negativos
+                else:
+                    # Fallback a fecha_inicio por si es una cuenta vieja
+                    f_ini_str = db_usuario[ctx].get("fecha_inicio", hoy.strftime("%d/%m/%Y"))
+                    f_ini_dt = datetime.strptime(f_ini_str, "%d/%m/%Y").date()
+                    dias_restantes = max(0, 30 - (hoy - f_ini_dt).days)
+                
                 color_dias = "#00C897" if dias_restantes > 5 else "#FF4C4C"
                 countdown_html = f'<div style="font-weight:700; font-size:var(--size-top-stats); color:{c_mes}; display:flex; align-items:center; gap:8px;"> Días: <span style="background-color:{bg_pnl_top}; color:{color_dias}; padding:4px 12px; border-radius:12px; font-weight:800;">{dias_restantes}</span></div>'
             except: pass
