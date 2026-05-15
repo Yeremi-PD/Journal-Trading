@@ -615,11 +615,11 @@ if not db_usuario:
             nombre_cta = st.text_input(_l['setup']['acc_name'], value="Account Real")
             bal_inicial_opcion = st.selectbox(_l['setup']['init_bal'], [25000.0, 50000.0, 100000.0], format_func=lambda x: f"${x:,.0f}")
             st.markdown("---") # Separador visual
-            f_creacion = st.date_input("📅 Fecha de Inicio de la Cuenta", value=hoy, use_container_width=True)
+            f_creacion = st.date_input("📅 Fecha de Inicio de la Cuenta", value=hoy)
             
             # Fecha de cierre por defecto (30 días después)
             f_cierre_defecto = hoy + pd.Timedelta(days=30)
-            f_cierre = st.date_input("🛑 Fecha de Cierre / Corte", value=f_cierre_defecto, use_container_width=True)
+            f_cierre = st.date_input("🛑 Fecha de Cierre / Corte", value=f_cierre_defecto)
             
             if st.form_submit_button(_l['setup']['btn_start'], use_container_width=True):
                 if nombre_cta:
@@ -786,9 +786,9 @@ def contenido_ajustes():
         nueva_cuenta_nombre = st.text_input(_l['setup']['acc_name'], key="input_nombre_nueva_cta")
         nueva_cuenta_bal = st.selectbox(_l['sidebar']['sel_bal'], [25000.0, 50000.0, 100000.0], format_func=lambda x: f"${x:,.0f}", key="select_bal_nueva_cta")
         
-        f_creacion_nueva = st.date_input("📅 Fecha de Inicio", value=hoy, key="f_creacion_sidebar", use_container_width=True)
+        f_creacion_nueva = st.date_input("📅 Fecha de Inicio", value=hoy, key="f_creacion_sidebar")
         f_cierre_defecto = hoy + pd.Timedelta(days=30)
-        f_cierre_nueva = st.date_input("🛑 Fecha de Cierre / Corte", value=f_cierre_defecto, key="f_cierre_sidebar", use_container_width=True)
+        f_cierre_nueva = st.date_input("🛑 Fecha de Cierre / Corte", value=f_cierre_defecto, key="f_cierre_sidebar")
         
         if st.button(_l['sidebar']['btn_create_acc'], use_container_width=True, key="btn_crear_cta_sidebar"):
             if nueva_cuenta_nombre and nueva_cuenta_nombre not in db_usuario:
