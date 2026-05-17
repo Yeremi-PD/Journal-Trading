@@ -2604,7 +2604,8 @@ def area_exportacion():
         st.markdown("<div style='margin-top: 28px;'></div>", unsafe_allow_html=True) 
         if datos_exportar:
             df_export = pd.DataFrame(datos_exportar)
-            csv_export = df_export.to_csv(index=False).encode('utf-8-sig')
+            # Agregamos sep=';' para obligar a Excel a separar cada columna perfectamente
+            csv_export = df_export.to_csv(index=False, sep=';', decimal='.').encode('utf-8-sig')
             nombre_archivo = f"Trades_{usuario}_{periodo_seleccionado.replace(' ', '_')}.csv"
             
             st.download_button(label="📥 DESCARGAR EXCEL", data=csv_export, file_name=nombre_archivo, mime="text/csv", use_container_width=True)
