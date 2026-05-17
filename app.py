@@ -1961,8 +1961,17 @@ with col_cal:
             st.markdown("<p style='text-align:center; font-weight:bold; margin-bottom:5px;'>Extraer para IA</p>", unsafe_allow_html=True)
             rango_descarga = st.selectbox("Periodo", ["1 Semana", "2 Semanas", "3 Semanas", "1 Mes", "2 Meses"], label_visibility="collapsed")
             
+            # Recopilamos los trades aquí mismo para evitar el error de variable no definida
+            _trades_para_exportar = []
+            if ctx in db_usuario and "trades" in db_usuario[ctx]:
+                from datetime import datetime
+                for c_k, lt in sorted(db_usuario[ctx]["trades"].items(), key=lambda x: datetime(x[0][0], x[0][1], x[0][2])):
+                    for t_item in lt:
+                        if modo_funded_activo and t_item.get("is_pre_funded", False): continue
+                        _trades_para_exportar.append(t_item)
+            
             # Generar el CSV basado en el rango para alimentar la IA
-            df_export = pd.DataFrame(trades_cronologicos)
+            df_export = pd.DataFrame(_trades_para_exportar)
             if not df_export.empty:
                 df_export['Fecha_DT'] = pd.to_datetime(df_export['fecha_str'], format="%d/%m/%Y")
                 fecha_max = df_export['Fecha_DT'].max()
