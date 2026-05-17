@@ -2541,98 +2541,85 @@ with tab_tabla:
                 tabla_html = f"""<div style="width: 100%; height: auto; overflow-y: auto; overflow-x: auto; background-color: {card_bg}; border: 1px solid {border_color}; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 40px;"><table style="width: 100%; border-collapse: collapse; text-align: left; white-space: nowrap;"><thead style="position: sticky; top: 0; background-color: {card_bg}; z-index: 1;"><tr><th style="{th_style}">{_l['table']['date']}</th><th style="{th_style}">{_l['table']['trade']}</th><th style="{th_style}">{_l['table']['pnl']}</th><th style="{th_style}">{_l['table']['type']}</th><th style="{th_style}">{_l['table']['bias']}</th><th style="{th_style}">{_l['table']['rr']}</th><th style="{th_style}">{_l['table']['conf']}</th><th style="{th_style}">{_l['table']['risk']}</th><th style="{th_style}">{_l['table']['reason']}</th><th style="{th_style}">{_l['table']['emo']}</th><th style="{th_style}">{_l['table']['corr']}</th></tr></thead><tbody>{filas_html}</tbody></table></div><br><br>"""
                 st.markdown(tabla_html, unsafe_allow_html=True)
 
+@st.fragment
+def area_exportacion():
+    st.markdown("<br><h4 style='text-align:center; color:gray;'>💾 Exportación a Excel</h4>", unsafe_allow_html=True)
+    
+    # 1. Definir opciones de tiempo en días
+    opciones_tiempo = {
+        "Última 1 Semana": 7,
+        "Últimas 2 Semanas": 14,
+        "Últimas 3 Semanas": 21,
+        "Último 1 Mes": 30,
+        "Últimos 2 Meses": 60,
+        "Últimos 3 Meses": 90,
+        "Últimos 4 Meses": 120,
+        "Últimos 5 Meses": 150,
+        "Últimos 6 Meses": 180,
+        "Últimos 7 Meses": 210,
+        "Últimos 8 Meses": 240,
+        "Últimos 9 Meses": 270,
+        "Último 1 Año": 365,
+        "Últimos 2 Años": 730,
+        "Todo el Historial": 99999
+    }
+    
+    c_exp1, c_exp2 = st.columns([2, 1])
+    with c_exp1:
+        periodo_seleccionado = st.selectbox("📅 Selecciona el rango de tiempo:", list(opciones_tiempo.keys()))
+    
+    dias_a_restar = opciones_tiempo[periodo_seleccionado]
+    fecha_limite = datetime.now().date() - pd.Timedelta(days=dias_a_restar)
+    
+    # 2. Recopilar y filtrar datos
+    datos_exportar = []
+    for key, list_t in sorted(db_usuario[ctx]["trades"].items(), key=lambda x: date(x[0][0], x[0][1], x[0][2]), reverse=True):
+        fecha_trade = date(key[0], key[1], key[2])
+        
+        if fecha_trade >= fecha_limite:
+            for i, trade in enumerate(list_t):
+                if st.session_state.get("toggle_funded_state", False) and trade.get("is_pre_funded", False): 
+                    continue
+                    
+                pnl = trade.get('pnl', 0)
+                confluences_list = trade.get('Confluences', [])
+                confluences_resumen = ", ".join([c.split(". ")[-1] for c in confluences_list])
+                
+                row = {
+                    "Fecha": fecha_trade.strftime("%d/%m/%Y"),
+                    "Trade": f"#{i+1}",
+                    "P&L ($)": pnl,
+                    "Tipo de Trade": trade.get('trade_type', ''),
+                    "Bias": trade.get('bias', ''),
+                    "RR": trade.get('RR', ''),
+                    "Confluencias": confluences_resumen,
+                    "Riesgo": trade.get('risk', ''),
+                    "Razón del Trade": trade.get('razon_trade', ''),
+                    "Emociones": trade.get('Emotions', ''),
+                    "Correcciones": trade.get('Corrections', '')
+                }
+                datos_exportar.append(row)
+    
+    with c_exp2:
+        st.markdown("<div style='margin-top: 28px;'></div>", unsafe_allow_html=True) 
+        if datos_exportar:
+            df_export = pd.DataFrame(datos_exportar)
+            csv_export = df_export.to_csv(index=False).encode('utf-8-sig')
+            nombre_archivo = f"Trades_{usuario}_{periodo_seleccionado.replace(' ', '_')}.csv"
+            
+            st.download_button(label="📥 DESCARGAR EXCEL", data=csv_export, file_name=nombre_archivo, mime="text/csv", use_container_width=True)
+        else:
+            st.button("📥 SIN DATOS", disabled=True, use_container_width=True)
+    
+    if not datos_exportar:
+        st.info(f"No hay trades registrados en '{periodo_seleccionado}'.")
+    else:
+        st.success(f"✅ ¡Listo! Se encontraron **{len(datos_exportar)} trades** en este periodo.")
+
+# Aquí es donde llamamos a la burbuja aislada dentro de la pestaña
 with tab_exportar:
     with st.container():
-        st.markdown("<br><h4 style='text-align:center; color:gray;'>💾 Exportación a Excel</h4>", unsafe_allow_html=True)
-        
-        # 1. Definir opciones de tiempo en días (desde 1 semana hasta 2 años)
-        opciones_tiempo = {
-            "Última 1 Semana": 7,
-            "Últimas 2 Semanas": 14,
-            "Últimas 3 Semanas": 21,
-            "Último 1 Mes": 30,
-            "Últimos 2 Meses": 60,
-            "Últimos 3 Meses": 90,
-            "Últimos 4 Meses": 120,
-            "Últimos 5 Meses": 150,
-            "Últimos 6 Meses": 180,
-            "Últimos 7 Meses": 210,
-            "Últimos 8 Meses": 240,
-            "Últimos 9 Meses": 270,
-            "Último 1 Año": 365,
-            "Últimos 2 Años": 730,
-            "Todo el Historial": 99999
-        }
-        
-        c_exp1, c_exp2 = st.columns([2, 1])
-        with c_exp1:
-            periodo_seleccionado = st.selectbox("📅 Selecciona el rango de tiempo:", list(opciones_tiempo.keys()))
-        
-        # Calcular la fecha límite hacia atrás
-        dias_a_restar = opciones_tiempo[periodo_seleccionado]
-        fecha_limite = datetime.now().date() - pd.Timedelta(days=dias_a_restar)
-        
-        # 2. Recopilar y filtrar los datos exactos
-        datos_exportar = []
-        # Ordenar desde el más reciente al más antiguo
-        for key, list_t in sorted(db_usuario[ctx]["trades"].items(), key=lambda x: date(x[0][0], x[0][1], x[0][2]), reverse=True):
-            fecha_trade = date(key[0], key[1], key[2])
-            
-            # Filtro de tiempo: Si el trade está dentro del rango seleccionado
-            if fecha_trade >= fecha_limite:
-                for i, trade in enumerate(list_t):
-                    # Respetar el filtro de PA (Cuenta Fondeada) igual que en tu tabla visual
-                    if st.session_state.get("toggle_funded_state", False) and trade.get("is_pre_funded", False): 
-                        continue
-                        
-                    pnl = trade.get('pnl', 0)
-                    confluences_list = trade.get('Confluences', [])
-                    confluences_resumen = ", ".join([c.split(". ")[-1] for c in confluences_list])
-                    
-                    # Estructura limpia de columnas para Excel
-                    row = {
-                        "Fecha": fecha_trade.strftime("%d/%m/%Y"),
-                        "Trade": f"#{i+1}",
-                        "P&L ($)": pnl,  # Lo enviamos como número real para que Excel te deje sumarlo
-                        "Tipo de Trade": trade.get('trade_type', ''),
-                        "Bias": trade.get('bias', ''),
-                        "RR": trade.get('RR', ''),
-                        "Confluencias": confluences_resumen,
-                        "Riesgo": trade.get('risk', ''),
-                        "Razón del Trade": trade.get('razon_trade', ''),
-                        "Emociones": trade.get('Emotions', ''),
-                        "Correcciones": trade.get('Corrections', '')
-                    }
-                    datos_exportar.append(row)
-        
-        with c_exp2:
-            # Empujar el botón un poquito hacia abajo para que se alinee con el selector
-            st.markdown("<div style='margin-top: 28px;'></div>", unsafe_allow_html=True) 
-            if datos_exportar:
-                # Convertir a DataFrame de Pandas
-                df_export = pd.DataFrame(datos_exportar)
-                
-                # Generar CSV compatible nativamente con Excel (UTF-8-SIG ayuda con las tildes)
-                csv_export = df_export.to_csv(index=False).encode('utf-8-sig')
-                
-                nombre_archivo = f"Trades_{usuario}_{periodo_seleccionado.replace(' ', '_')}.csv"
-                
-                # Botón nativo de Streamlit para descargar
-                st.download_button(
-                    label="📥 DESCARGAR EXCEL",
-                    data=csv_export,
-                    file_name=nombre_archivo,
-                    mime="text/csv",
-                    use_container_width=True
-                )
-            else:
-                st.button("📥 SIN DATOS", disabled=True, use_container_width=True)
-        
-        # 3. Mostrar resumen visual bajo el botón
-        if not datos_exportar:
-            st.info(f"No hay trades registrados en '{periodo_seleccionado}'.")
-        else:
-            st.success(f"✅ ¡Listo! Se encontraron **{len(datos_exportar)} trades** en este periodo.")
+        area_exportacion()
 
 # ==========================================
 # SCRIPT PARA CERRAR MODALES Y BLOQUEAR TECLADO
