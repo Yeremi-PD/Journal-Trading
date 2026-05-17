@@ -2374,7 +2374,7 @@ st.markdown("<br>", unsafe_allow_html=True)
 st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
 
 # 🚀 AQUI CREAMOS LAS PESTAÑAS AL ESTILO FINANCE CENTER 🚀
-tab_hist, tab_tabla = st.tabs(["🕒 HISTORIAL DE ÓRDENES", "📊 TABLA DE RESULTADOS"])
+tab_hist, tab_tabla, tab_exportar = st.tabs(["🕒 HISTORIAL DE ÓRDENES", "📊 TABLA DE RESULTADOS", "💾 EXPORTAR DATOS"])
 
 def borrar_imagen_historial(contexto, clave, idx_trade, idx_img):
     if len(db_usuario[contexto]["trades"][clave][idx_trade]["imagenes"]) > idx_img: db_usuario[contexto]["trades"][clave][idx_trade]["imagenes"].pop(idx_img)
@@ -2540,6 +2540,11 @@ with tab_tabla:
                     filas_html += f"""<tr><td style="{td_style}">{row['Date']}</td><td style="{td_style}"><b>{row['Trade']}</b></td><td style="{td_style} font-weight: 800; color: {pnl_color};">{pnl_str}</td><td style="{td_style} font-weight: 600;">{row['Trade Type']}</td><td style="{td_style}">{bias_badge}</td><td style="{td_style} font-weight: 600;">{row['RR']}</td><td style="{td_style} min-width: 200px; white-space: normal;">{row['Confluences']}</td><td style="{td_style}">{row['Risk']}</td><td style="{td_style} min-width: 250px; white-space: normal;">{row['Reason For Trade']}</td><td style="{td_style} min-width: 200px; white-space: normal;">{row['Emotions']}</td><td style="{td_style} min-width: 200px; white-space: normal;">{row['Corrections']}</td></tr>"""
                 tabla_html = f"""<div style="width: 100%; height: auto; overflow-y: auto; overflow-x: auto; background-color: {card_bg}; border: 1px solid {border_color}; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 40px;"><table style="width: 100%; border-collapse: collapse; text-align: left; white-space: nowrap;"><thead style="position: sticky; top: 0; background-color: {card_bg}; z-index: 1;"><tr><th style="{th_style}">{_l['table']['date']}</th><th style="{th_style}">{_l['table']['trade']}</th><th style="{th_style}">{_l['table']['pnl']}</th><th style="{th_style}">{_l['table']['type']}</th><th style="{th_style}">{_l['table']['bias']}</th><th style="{th_style}">{_l['table']['rr']}</th><th style="{th_style}">{_l['table']['conf']}</th><th style="{th_style}">{_l['table']['risk']}</th><th style="{th_style}">{_l['table']['reason']}</th><th style="{th_style}">{_l['table']['emo']}</th><th style="{th_style}">{_l['table']['corr']}</th></tr></thead><tbody>{filas_html}</tbody></table></div><br><br>"""
                 st.markdown(tabla_html, unsafe_allow_html=True)
+
+with tab_exportar:
+    with st.container():
+        st.markdown("<br><h4 style='text-align:center; color:gray;'>💾 Área de Exportación de Datos</h4>", unsafe_allow_html=True)
+        st.info("Aquí irá el botón para exportar.")
 
 # ==========================================
 # SCRIPT PARA CERRAR MODALES Y BLOQUEAR TECLADO
