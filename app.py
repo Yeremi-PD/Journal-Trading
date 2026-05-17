@@ -2495,12 +2495,67 @@ with tab_hist:
             if trades_en_mes == 0: st.info(_l['hist']['no_tr_mo'])
 
 with tab_tabla:
+    # 1. El botón de descarga ahora está aislado arriba, independiente del calendario
+    c_espacio, c_boton_descarga = st.columns([3.8, 1.2])
+    with c_boton_descarga:
+        with st.popover("📥 Exportar Datos IA", use_container_width=True):
+            st.markdown("<p style='text-align:center; font-weight:bold; margin-bottom:5px;'>Extraer para IA</p>", unsafe_allow_html=True)
+            rango_descarga = st.selectbox("Periodo", ["1 Semana", "2 Semanas", "3 Semanas", "1 Mes", "2 Meses"], label_visibility="collapsed", key="rango_tabla_ia")
+            
+            _trades_para_exportar = []
+            if ctx in db_usuario and "trades" in db_usuario[ctx]:
+                from datetime import datetime
+                for c_k, lt in sorted(db_usuario[ctx]["trades"].items(), key=lambda x: datetime(x[0][0], x[0][1], x[0][2])):
+                    for t_item in lt:
+                        if modo_funded_activo and t_item.get("is_pre_funded", False): continue
+                        _trades_para_exportar.append(t_item)
+            
+            df_export = pd.DataFrame(_trades_para_exportar)
+            if not df_export.empty:
+                df_export['Fecha_DT'] = pd.to_datetime(df_export['fecha_str'], format="%d/%m/%Y")
+                fecha_max = df_export['Fecha_DT'].max()
+                
+                if rango_descarga == "1 Semana": delta = pd.Timedelta(weeks=1)
+                elif rango_descarga == "2 Semanas": delta = pd.Timedelta(weeks=2)
+                elif rango_descarga == "3 Semanas": delta = pd.Timedelta(weeks=3)
+                elif rango_descarga == "1 Mes": delta = pd.Timedelta(days=30)
+                else: delta = pd.Timedelta(days=60)
+                
+                df_filtrado = df_export[df_export['Fecha_DT'] >= (fecha_max - delta)].copy()
+                
+                if not df_filtrado.empty:
+                    df_filtrado["Confluencias"] = df_filtrado["Confluences"].apply(lambda x: ", ".join(x) if isinstance(x, list) else x)
+                    cols_ia = ["fecha_str", "trade_type", "bias", "RR", "risk", "pnl", "razon_trade", "Emotions", "Corrections", "Confluencias"]
+                    
+                    df_csv = df_filtrado[[c for c in cols_ia if c in df_filtrado.columns]].copy()
+                    df_csv.rename(columns={
+                        "fecha_str": "Fecha", "trade_type": "Tipo_Setup", "bias": "Bias", 
+                        "risk": "Riesgo", "pnl": "PnL_Neto", "razon_trade": "Razon_del_Trade", 
+                        "Emotions": "Emociones", "Corrections": "Correcciones"
+                    }, inplace=True)
+                    
+                    # MAGIA AQUÍ: sep=';' y utf-8-sig para que Excel en Español lo divida en columnas perfectas
+                    csv_data = df_csv.to_csv(index=False, sep=';').encode('utf-8-sig')
+                    
+                    st.download_button(
+                        label="⬇️ Descargar Excel (CSV)", 
+                        data=csv_data, 
+                        file_name=f"Analisis_IA_{rango_descarga.replace(' ', '_')}.csv", 
+                        mime="text/csv", 
+                        use_container_width=True,
+                        key="btn_download_csv_tab"
+                    )
+                else:
+                    st.caption("No hay datos en este rango.")
+            else:
+                st.caption("No hay trades registrados.")
+
+    # 2. Restauramos el calendario de la tabla a su diseño original de 3 columnas
     with st.container():
         all_trades = db_usuario[ctx]["trades"]
         if not all_trades: st.info(_l['table']['no_tr_tbl'])
         else:
-            # Reajustamos las columnas internas de la pestaña para colocar el botón de descargar a la derecha de las flechas
-            c_t1, c_t2, c_t3, c_t4 = st.columns([0.6, 2, 0.6, 1.2])
+            c_t1, c_t2, c_t3 = st.columns([1, 2, 1])
             with c_t1: st.button("◀", on_click=cambiar_mes, args=(-1,), key="btn_t_prev", use_container_width=True)
             if st.session_state.idioma == "ES":
                 meses_es = ["", "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
@@ -2508,57 +2563,6 @@ with tab_tabla:
             else: nom_mes = calendar.month_name[st.session_state.cal_month]
             with c_t2: st.markdown(f"<h4 style='text-align:center; color:{c_dash}; margin-top:5px;'>🗓️ {nom_mes} {st.session_state.cal_year}</h4>", unsafe_allow_html=True)
             with c_t3: st.button("▶", on_click=cambiar_mes, args=(1,), key="btn_t_next", use_container_width=True)
-            with c_t4:
-                with st.popover("📥 Descargar", use_container_width=True):
-                    st.markdown("<p style='text-align:center; font-weight:bold; margin-bottom:5px;'>Extraer para IA</p>", unsafe_allow_html=True)
-                    rango_descarga = st.selectbox("Periodo", ["1 Semana", "2 Semanas", "3 Semanas", "1 Mes", "2 Meses"], label_visibility="collapsed", key="rango_tabla_ia")
-                    
-                    # Recopilación de trades limpia
-                    _trades_para_exportar = []
-                    if ctx in db_usuario and "trades" in db_usuario[ctx]:
-                        from datetime import datetime
-                        for c_k, lt in sorted(db_usuario[ctx]["trades"].items(), key=lambda x: datetime(x[0][0], x[0][1], x[0][2])):
-                            for t_item in lt:
-                                if modo_funded_activo and t_item.get("is_pre_funded", False): continue
-                                _trades_para_exportar.append(t_item)
-                    
-                    df_export = pd.DataFrame(_trades_para_exportar)
-                    if not df_export.empty:
-                        df_export['Fecha_DT'] = pd.to_datetime(df_export['fecha_str'], format="%d/%m/%Y")
-                        fecha_max = df_export['Fecha_DT'].max()
-                        
-                        if rango_descarga == "1 Semana": delta = pd.Timedelta(weeks=1)
-                        elif rango_descarga == "2 Semanas": delta = pd.Timedelta(weeks=2)
-                        elif rango_descarga == "3 Semanas": delta = pd.Timedelta(weeks=3)
-                        elif rango_descarga == "1 Mes": delta = pd.Timedelta(days=30)
-                        else: delta = pd.Timedelta(days=60)
-                        
-                        df_filtrado = df_export[df_export['Fecha_DT'] >= (fecha_max - delta)].copy()
-                        
-                        if not df_filtrado.empty:
-                            df_filtrado["Confluencias"] = df_filtrado["Confluences"].apply(lambda x: ", ".join(x) if isinstance(x, list) else x)
-                            cols_ia = ["fecha_str", "trade_type", "bias", "RR", "risk", "pnl", "razon_trade", "Emotions", "Corrections", "Confluencias"]
-                            
-                            df_csv = df_filtrado[[c for c in cols_ia if c in df_filtrado.columns]].copy()
-                            df_csv.rename(columns={
-                                "fecha_str": "Fecha", "trade_type": "Tipo_Setup", "bias": "Bias", 
-                                "risk": "Riesgo", "pnl": "PnL_Neto", "razon_trade": "Razon_del_Trade", 
-                                "Emotions": "Emociones", "Corrections": "Correcciones"
-                            }, inplace=True)
-                            
-                            csv_data = df_csv.to_csv(index=False).encode('utf-8')
-                            st.download_button(
-                                label="⬇️ Descargar CSV", 
-                                data=csv_data, 
-                                file_name=f"Analisis_IA_{rango_descarga.replace(' ', '_')}.csv", 
-                                mime="text/csv", 
-                                use_container_width=True,
-                                key="btn_download_csv_tab"
-                            )
-                        else:
-                            st.caption("No hay datos en este rango.")
-                    else:
-                        st.caption("No hay trades registrados.")
             st.markdown("---")
             table_data = []
             for key, list_t in sorted(all_trades.items(), key=lambda x: date(x[0][0], x[0][1], x[0][2]), reverse=True):
