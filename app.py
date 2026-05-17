@@ -2575,7 +2575,7 @@ with tab_exportar:
         # 2. Recopilar y filtrar los datos exactos
         datos_exportar = []
         # Ordenar desde el más reciente al más antiguo
-        for key, list_t in sorted(db_usuario[ctx]["trades"].items(), key=lambda x: date(x[0], x[1], x[2]), reverse=True):
+        for key, list_t in sorted(db_usuario[ctx]["trades"].items(), key=lambda x: date(x[0][0], x[0][1], x[0][2]), reverse=True):
             fecha_trade = date(key[0], key[1], key[2])
             
             # Filtro de tiempo: Si el trade está dentro del rango seleccionado
