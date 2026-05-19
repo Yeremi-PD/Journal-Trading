@@ -1316,8 +1316,10 @@ paso_cuenta, idx_pase = False, -1
 
 # 🚫 Bloqueamos la conversión a cuenta fondeada (PA) si estamos en Backtesting
 if not db_usuario[ctx].get("backtesting_mode", False):
+    balance_acumulado = bal_inicial_abs
     for idx, tr in enumerate(_tc):
-        if (tr["balance_final"] - bal_inicial_abs) >= meta_global:
+        balance_acumulado += float(tr.get("pnl", 0.0))
+        if (balance_acumulado - bal_inicial_abs) >= meta_global:
             paso_cuenta, idx_pase = True, idx
             break
 
@@ -1326,7 +1328,7 @@ for idx, tr in enumerate(_tc): tr["is_pre_funded"] = (idx <= idx_pase)
 # El estatus PA/Eval se calcula siempre para que veas si la cuenta es fondeada o no
 if paso_cuenta:
     if "toggle_funded_state" not in st.session_state: st.session_state.toggle_funded_state = True
-    clave_celeb_db = "pa_celeb_NUEVA_3_" + str(ctx)
+    clave_celeb_db = "pa_celeb_NUEVA_4_" + str(ctx)
     
     # Solo disparamos la celebración (globos y pantalla) si NO estamos en modo Backtesting
     if not db_global[usuario]["settings"]["PC"].get(clave_celeb_db, False) and not db_usuario[ctx].get("backtesting_mode", False):
