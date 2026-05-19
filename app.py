@@ -1815,7 +1815,7 @@ with col_form_area:
                 nuevo_bias = ", ".join(nuevo_bias_list) if nuevo_bias_list else "NONE"
                 
                 st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 15px; margin-bottom: 0px;'>Sesión</div>", unsafe_allow_html=True)
-                sesion_opts = ['Nueva York', 'Asia', 'Londres']
+                sesion_opts = ['New York', 'Asia', 'Londres']
                 nueva_sesion_list = []
                 cols_sesion = st.columns([1, 1, 1, 3])
                 for s_idx, s_op in enumerate(sesion_opts):
@@ -2452,8 +2452,8 @@ with tab_hist:
                                     e_bias = st.selectbox(_l['dash']['bias'], ['LONG', 'SHORT', 'NONE', 'NEUTRO'], index=['LONG', 'SHORT', 'NONE', 'NEUTRO'].index(def_bias), key=f"e_bias_{clave}_{i}")
                                     
                                     def_ses = data.get('sesion', 'NONE')
-                                    if def_ses not in ['Nueva York', 'Asia', 'Londres', 'NONE']: def_ses = 'NONE'
-                                    e_sesion = st.selectbox("Sesión", ['Nueva York', 'Asia', 'Londres', 'NONE'], index=['Nueva York', 'Asia', 'Londres', 'NONE'].index(def_ses), key=f"e_sesion_{clave}_{i}")
+                                    if def_ses not in ['New York', 'Asia', 'Londres', 'NONE']: def_ses = 'NONE'
+                                    e_sesion = st.selectbox("Sesión", ['New York', 'Asia', 'Londres', 'NONE'], index=['New York', 'Asia', 'Londres', 'NONE'].index(def_ses), key=f"e_sesion_{clave}_{i}")
                                     st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 15px; margin-bottom: 10px;'>{_l['dash']['conf']}</div>", unsafe_allow_html=True)
                                     all_confs = ['BIAS WELL', 'LIQ SWEEP', 'IFVG', 'FVG', 'EQH / EQL', 'BSL / SSL', 'POI', 'SMT', 'Order Block', 'Continuation', 'Data High / Data Low', 'CISD']
                                     curr_confs = data.get('Confluences', [])
