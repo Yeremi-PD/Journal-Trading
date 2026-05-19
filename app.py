@@ -1808,18 +1808,7 @@ with col_form_area:
                     if cols_bias[idx].checkbox(op, key=f"new_bias_{idx}"): nuevo_bias_list.append(op)
                 
                 nuevo_bias = ", ".join(nuevo_bias_list) if nuevo_bias_list else "NONE"
-
-# --- NUEVA SECCIÓN: SESIÓN DE TRADING ---
-st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 15px; margin-bottom: 0px;'>Sesión</div>", unsafe_allow_html=True)
-sesion_opts = ['Nueva York', 'Asia', 'Londres']
-nueva_sesion_list = []
-cols_sesion = st.columns([1.5, 1, 1, 2.5])
-for s_idx, s_op in enumerate(sesion_opts):
-    if cols_sesion[s_idx].checkbox(s_op, key=f"new_sesion_{s_idx}"): 
-        nueva_sesion_list.append(s_op)
-nueva_sesion = ", ".join(nueva_sesion_list) if nueva_sesion_list else "NONE"
-
-st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 15px; margin-bottom: 0px;'>{_l['dash']['conf']}</div>", unsafe_allow_html=True)
+                st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 15px; margin-bottom: 0px;'>{_l['dash']['conf']}</div>", unsafe_allow_html=True)
                 all_confs_list = ['BIAS WELL', 'LIQ SWEEP', 'IFVG', 'FVG', 'EQH / EQL', 'BSL / SSL', 'POI', 'SMT', 'Order Block', 'Continuation', 'Data High / Data Low', 'CISD']
                 nuevo_conf = []
                 cols_conf = st.columns(3)
