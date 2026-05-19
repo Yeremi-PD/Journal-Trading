@@ -140,6 +140,7 @@ def get_global_db():
 
 # Extraemos de las columnas si ya existen en el Excel
                             bias_leido = str(row_data.get('Bias', '')).strip()
+                            sesion_leida = str(row_data.get('Sesion', '')).strip()
                             conf_leidas_str = str(row_data.get('Confluences', '')).strip()
                             conf_leidas = [c.strip() for c in conf_leidas_str.split(',')] if conf_leidas_str else []
                             risk_leido = str(row_data.get('Risk', '')).strip()
@@ -158,6 +159,7 @@ def get_global_db():
                                 "fecha_str": f_str,
                                 "imagenes": [], 
                                 "bias": bias_leido if bias_leido else "NEUTRO", 
+                                "sesion": sesion_leida if sesion_leida else "NONE", 
                                 "Confluences": conf_leidas, 
                                 "razon_trade": reason_leido, 
                                 "Corrections": corr_leido, 
@@ -183,6 +185,7 @@ def get_global_db():
                                         trade_info["imagenes"].extend(parsed_extra["imagenes_b64"])
                                     # MIGRACIÓN: Si las columnas de Excel estaban vacías, rescatamos los datos del JSON viejo
                                     if not bias_leido and "bias" in parsed_extra: trade_info["bias"] = parsed_extra["bias"]
+                                    if not sesion_leida and "sesion" in parsed_extra: trade_info["sesion"] = parsed_extra["sesion"]
                                     if not conf_leidas and "Confluences" in parsed_extra: trade_info["Confluences"] = parsed_extra["Confluences"]
                                     if not risk_leido and "risk" in parsed_extra: trade_info["risk"] = parsed_extra["risk"]
                                     if not rr_leido and "RR" in parsed_extra: trade_info["RR"] = parsed_extra["RR"]
@@ -264,7 +267,7 @@ def registrar_en_excel(usuario, password, cuenta, fecha_obj, balance, pnl, trade
             try: hoja_user = db_spreadsheet.worksheet(usuario)
             except gspread.exceptions.WorksheetNotFound:
                 hoja_user = db_spreadsheet.add_worksheet(title=usuario, rows="1000", cols="30")
-                headers = ["Usuario", "Password", "Cuenta", "Fecha", "Balance", "PnL", "Imagenes", "Settings_PC", "Settings_Movil", "Bias", "Confluences", "Risk", "RR", "Trade Type", "Reason", "Corrections", "Emotions", "Estado_Cuenta", "Retiros_Acumulados", "Fecha_Inicio", "Fecha_Cierre", "ExtraData", "Notas_Globales"]
+                headers = ["Usuario", "Password", "Cuenta", "Fecha", "Balance", "PnL", "Imagenes", "Settings_PC", "Settings_Movil", "Bias", "Sesion", "Confluences", "Risk", "RR", "Trade Type", "Reason", "Corrections", "Emotions", "Estado_Cuenta", "Retiros_Acumulados", "Fecha_Inicio", "Fecha_Cierre", "ExtraData", "Notas_Globales"]
                 hoja_user.append_row(headers)
                 
                 # FIJAR EL ALTO DE TODAS LAS FILAS A 25px PARA QUE NINGUNA SE ESTIRE HACIA ABAJO
@@ -290,6 +293,7 @@ def registrar_en_excel(usuario, password, cuenta, fecha_obj, balance, pnl, trade
             
             # Extraemos los datos originales
             val_bias = trade_data.get("bias", "NONE")
+            val_sesion = trade_data.get("sesion", "NONE")
             val_confs = ", ".join(trade_data.get("Confluences", []))
             val_risk = trade_data.get("risk", "")
             val_rr = trade_data.get("RR", "")
@@ -303,7 +307,7 @@ def registrar_en_excel(usuario, password, cuenta, fecha_obj, balance, pnl, trade
             val_retiros = trade_data.get("retiros_acumulados", 0.0)
             
             # Removemos estos datos de ExtraData para no duplicarlos
-            keys_to_remove = ['pnl', 'balance_final', 'fecha_str', 'imagenes', 'bias', 'Confluences', 'risk', 'RR', 'trade_type', 'razon_trade', 'Corrections', 'Emotions', 'estado_cuenta', 'retiros_acumulados']
+            keys_to_remove = ['pnl', 'balance_final', 'fecha_str', 'imagenes', 'bias', 'sesion', 'Confluences', 'risk', 'RR', 'trade_type', 'razon_trade', 'Corrections', 'Emotions', 'estado_cuenta', 'retiros_acumulados']
             extra_data = {k:v for k,v in trade_data.items() if k not in keys_to_remove}
             
             # INYECTAMOS EL MODO BACKTESTING DESDE LA CUENTA
@@ -317,7 +321,7 @@ def registrar_en_excel(usuario, password, cuenta, fecha_obj, balance, pnl, trade
             f_ini_val = db_global[usuario]["data"][cuenta].get("fecha_inicio", "")
             f_cie_val = db_global[usuario]["data"][cuenta].get("fecha_cierre", "")
             
-            nueva_fila = [safe_user, safe_pass, str(cuenta), fecha_texto, float(balance), float(pnl), imgs_texto, set_pc_str, set_mov_str, val_bias, val_confs, val_risk, val_rr, val_tt, val_reason, val_corr, val_emo, val_estado, float(val_retiros), f_ini_val, f_cie_val, json.dumps(extra_data), nota_global_str]
+            nueva_fila = [safe_user, safe_pass, str(cuenta), fecha_texto, float(balance), float(pnl), imgs_texto, set_pc_str, set_mov_str, val_bias, val_sesion, val_confs, val_risk, val_rr, val_tt, val_reason, val_corr, val_emo, val_estado, float(val_retiros), f_ini_val, f_cie_val, json.dumps(extra_data), nota_global_str]
             
             hoja_user.append_row(nueva_fila)
         except Exception as e:
@@ -341,6 +345,7 @@ def reescribir_excel_usuario(usuario):
                     imgs_texto = ", ".join(links) if links else (f"📸 Tiene {num_fotos} foto(s)" if num_fotos > 0 else "")
                     
                     val_bias = t.get("bias", "NONE")
+                    val_sesion = t.get("sesion", "NONE")
                     val_confs = ", ".join(t.get("Confluences", []))
                     val_risk = t.get("risk", "")
                     val_rr = t.get("RR", "")
@@ -1808,6 +1813,14 @@ with col_form_area:
                     if cols_bias[idx].checkbox(op, key=f"new_bias_{idx}"): nuevo_bias_list.append(op)
                 
                 nuevo_bias = ", ".join(nuevo_bias_list) if nuevo_bias_list else "NONE"
+                
+                st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 15px; margin-bottom: 0px;'>Sesión</div>", unsafe_allow_html=True)
+                sesion_opts = ['Nueva York', 'Asia', 'Londres']
+                nueva_sesion_list = []
+                cols_sesion = st.columns([1, 1, 1, 3])
+                for s_idx, s_op in enumerate(sesion_opts):
+                    if cols_sesion[s_idx].checkbox(s_op, key=f"new_sesion_{s_idx}"): nueva_sesion_list.append(s_op)
+                nueva_sesion = ", ".join(nueva_sesion_list) if nueva_sesion_list else "NONE"
                 st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 15px; margin-bottom: 0px;'>{_l['dash']['conf']}</div>", unsafe_allow_html=True)
                 all_confs_list = ['BIAS WELL', 'LIQ SWEEP', 'IFVG', 'FVG', 'EQH / EQL', 'BSL / SSL', 'POI', 'SMT', 'Order Block', 'Continuation', 'Data High / Data Low', 'CISD']
                 nuevo_conf = []
@@ -1888,6 +1901,7 @@ with col_form_area:
                 "imagenes": imgs_finales, 
                 "imagenes_b64": imagenes_base64_extra, # Se aisla aquí para que guarde en ExtraData
                 "bias": nuevo_bias, 
+                "sesion": nueva_sesion,
                 "Confluences": nuevo_conf, 
                 "razon_trade": nuevo_razon, 
                 "Corrections": nuevo_corr, 
@@ -2436,6 +2450,10 @@ with tab_hist:
                                     def_bias = data.get('bias', 'NEUTRO')
                                     if def_bias not in ['LONG', 'SHORT', 'NONE', 'NEUTRO']: def_bias = 'NEUTRO'
                                     e_bias = st.selectbox(_l['dash']['bias'], ['LONG', 'SHORT', 'NONE', 'NEUTRO'], index=['LONG', 'SHORT', 'NONE', 'NEUTRO'].index(def_bias), key=f"e_bias_{clave}_{i}")
+                                    
+                                    def_ses = data.get('sesion', 'NONE')
+                                    if def_ses not in ['Nueva York', 'Asia', 'Londres', 'NONE']: def_ses = 'NONE'
+                                    e_sesion = st.selectbox("Sesión", ['Nueva York', 'Asia', 'Londres', 'NONE'], index=['Nueva York', 'Asia', 'Londres', 'NONE'].index(def_ses), key=f"e_sesion_{clave}_{i}")
                                     st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 15px; margin-bottom: 10px;'>{_l['dash']['conf']}</div>", unsafe_allow_html=True)
                                     all_confs = ['BIAS WELL', 'LIQ SWEEP', 'IFVG', 'FVG', 'EQH / EQL', 'BSL / SSL', 'POI', 'SMT', 'Order Block', 'Continuation', 'Data High / Data Low', 'CISD']
                                     curr_confs = data.get('Confluences', [])
@@ -2485,7 +2503,7 @@ with tab_hist:
                                 data["pnl"] = nuevo_pnl
                                 data["balance_final"] = nuevo_bal
                                 data["fecha_str"] = nueva_fecha.strftime("%d/%m/%Y")
-                                data["bias"] = e_bias; data["Confluences"] = e_conf; data["risk"] = e_risk; data["RR"] = e_rr; data["trade_type"] = e_tt; data["razon_trade"] = e_razon; data["Corrections"] = e_corr; data["Emotions"] = e_emo
+                                data["bias"] = e_bias; data["sesion"] = e_sesion; data["Confluences"] = e_conf; data["risk"] = e_risk; data["RR"] = e_rr; data["trade_type"] = e_tt; data["razon_trade"] = e_razon; data["Corrections"] = e_corr; data["Emotions"] = e_emo
                                 if nueva_clave != clave:
                                     trade_movido = db_usuario[ctx]["trades"][clave].pop(i)
                                     if not db_usuario[ctx]["trades"][clave]: del db_usuario[ctx]["trades"][clave]
@@ -2522,7 +2540,7 @@ with tab_tabla:
                     Confluences_list = trade.get('Confluences', [])
                     Confluences_resumen = ", ".join([c.split(". ")[-1] for c in Confluences_list])
                     row = {
-                        "Date": fecha.strftime("%d/%m/%Y"), "Trade": f"#{i+1}", "P&L": f"{pnl_simbol}${pnl:,.2f}", "Trade Type": trade.get('trade_type', ''), "Bias": trade.get('bias', ''), "RR": trade.get('RR', ''), "Confluences": Confluences_resumen, "Risk": trade.get('risk', ''), "Reason For Trade": trade.get('razon_trade', ''), "Corrections": trade.get('Corrections', ''), "Emotions": trade.get('Emotions', '')
+                        "Date": fecha.strftime("%d/%m/%Y"), "Trade": f"#{i+1}", "P&L": f"{pnl_simbol}${pnl:,.2f}", "Trade Type": trade.get('trade_type', ''), "Bias": trade.get('bias', ''), "Sesión": trade.get('sesion', ''), "RR": trade.get('RR', ''), "Confluences": Confluences_resumen, "Risk": trade.get('risk', ''), "Reason For Trade": trade.get('razon_trade', ''), "Corrections": trade.get('Corrections', ''), "Emotions": trade.get('Emotions', '')
                     }
                     table_data.append(row)
             if not table_data: st.info(_l['table']['no_tr_mo_tbl'])
@@ -2540,8 +2558,8 @@ with tab_tabla:
                     elif bias == "SHORT": bias_badge = f'<span style="background: rgba(255,76,76,0.15); color: #FF4C4C; padding: 4px 8px; border-radius: 6px; font-weight: bold; font-size: 12px;">{bias}</span>'
                     else: bias_badge = f'<span style="background: rgba(128,128,128,0.15); color: gray; padding: 4px 8px; border-radius: 6px; font-weight: bold; font-size: 12px;">{bias}</span>'
                     # Eliminamos los 'div' que cortan el texto y le damos un ancho mínimo para que se lea perfecto
-                    filas_html += f"""<tr><td style="{td_style}">{row['Date']}</td><td style="{td_style}"><b>{row['Trade']}</b></td><td style="{td_style} font-weight: 800; color: {pnl_color};">{pnl_str}</td><td style="{td_style} font-weight: 600;">{row['Trade Type']}</td><td style="{td_style}">{bias_badge}</td><td style="{td_style} font-weight: 600;">{row['RR']}</td><td style="{td_style} min-width: 200px; white-space: normal;">{row['Confluences']}</td><td style="{td_style}">{row['Risk']}</td><td style="{td_style} min-width: 250px; white-space: normal;">{row['Reason For Trade']}</td><td style="{td_style} min-width: 200px; white-space: normal;">{row['Emotions']}</td><td style="{td_style} min-width: 200px; white-space: normal;">{row['Corrections']}</td></tr>"""
-                tabla_html = f"""<div style="width: 100%; height: auto; overflow-y: auto; overflow-x: auto; background-color: {card_bg}; border: 1px solid {border_color}; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 40px;"><table style="width: 100%; border-collapse: collapse; text-align: left; white-space: nowrap;"><thead style="position: sticky; top: 0; background-color: {card_bg}; z-index: 1;"><tr><th style="{th_style}">{_l['table']['date']}</th><th style="{th_style}">{_l['table']['trade']}</th><th style="{th_style}">{_l['table']['pnl']}</th><th style="{th_style}">{_l['table']['type']}</th><th style="{th_style}">{_l['table']['bias']}</th><th style="{th_style}">{_l['table']['rr']}</th><th style="{th_style}">{_l['table']['conf']}</th><th style="{th_style}">{_l['table']['risk']}</th><th style="{th_style}">{_l['table']['reason']}</th><th style="{th_style}">{_l['table']['emo']}</th><th style="{th_style}">{_l['table']['corr']}</th></tr></thead><tbody>{filas_html}</tbody></table></div><br><br>"""
+                    filas_html += f"""<tr><td style="{td_style}">{row['Date']}</td><td style="{td_style}"><b>{row['Trade']}</b></td><td style="{td_style} font-weight: 800; color: {pnl_color};">{pnl_str}</td><td style="{td_style} font-weight: 600;">{row['Trade Type']}</td><td style="{td_style}">{bias_badge}</td><td style="{td_style} font-weight: 600;">{row['Sesión']}</td><td style="{td_style} font-weight: 600;">{row['RR']}</td><td style="{td_style} min-width: 200px; white-space: normal;">{row['Confluences']}</td><td style="{td_style}">{row['Risk']}</td><td style="{td_style} min-width: 250px; white-space: normal;">{row['Reason For Trade']}</td><td style="{td_style} min-width: 200px; white-space: normal;">{row['Emotions']}</td><td style="{td_style} min-width: 200px; white-space: normal;">{row['Corrections']}</td></tr>"""
+                tabla_html = f"""<div style="width: 100%; height: auto; overflow-y: auto; overflow-x: auto; background-color: {card_bg}; border: 1px solid {border_color}; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 40px;"><table style="width: 100%; border-collapse: collapse; text-align: left; white-space: nowrap;"><thead style="position: sticky; top: 0; background-color: {card_bg}; z-index: 1;"><tr><th style="{th_style}">{_l['table']['date']}</th><th style="{th_style}">{_l['table']['trade']}</th><th style="{th_style}">{_l['table']['pnl']}</th><th style="{th_style}">{_l['table']['type']}</th><th style="{th_style}">{_l['table']['bias']}</th><th style="{th_style}">Sesión</th><th style="{th_style}">{_l['table']['rr']}</th><th style="{th_style}">{_l['table']['conf']}</th><th style="{th_style}">{_l['table']['risk']}</th><th style="{th_style}">{_l['table']['reason']}</th><th style="{th_style}">{_l['table']['emo']}</th><th style="{th_style}">{_l['table']['corr']}</th></tr></thead><tbody>{filas_html}</tbody></table></div><br><br>"""
                 st.markdown(tabla_html, unsafe_allow_html=True)
 
 @st.fragment
@@ -2594,6 +2612,7 @@ def area_exportacion():
                     "P&L ($)": pnl,
                     "Tipo de Trade": trade.get('trade_type', ''),
                     "Bias": trade.get('bias', ''),
+                    "Sesión": trade.get('sesion', ''),
                     "RR": trade.get('RR', ''),
                     "Confluencias": confluences_resumen,
                     "Riesgo": trade.get('risk', ''),
