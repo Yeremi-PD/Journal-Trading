@@ -1320,10 +1320,6 @@ if not db_usuario[ctx].get("backtesting_mode", False):
         if (tr["balance_final"] - bal_inicial_abs) >= meta_global:
             paso_cuenta, idx_pase = True, idx
             break
-    
-    # 🟢 LÍNEAS NUEVAS: FORZAR PA SIEMPRE (Obliga a la cuenta a ser Fondeada)
-    paso_cuenta = True
-    idx_pase = len(_tc) - 1 if _tc else 0
 
 for idx, tr in enumerate(_tc): tr["is_pre_funded"] = (idx <= idx_pase)
 
