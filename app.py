@@ -1329,8 +1329,8 @@ for idx, tr in enumerate(_tc): tr["is_pre_funded"] = (idx <= idx_pase)
 
 # El estatus PA/Eval se calcula siempre para que veas si la cuenta es fondeada o no
 if paso_cuenta:
-    if "toggle_funded_state" not in st.session_state: st.session_state.toggle_funded_state = True
-    clave_celeb_db = "pa_celeb_NUEVA_2_" + str(ctx)
+        if "toggle_funded_state" not in st.session_state: st.session_state.toggle_funded_state = True
+        clave_celeb_db = "pa_celeb_NUEVA_3_" + str(ctx)
   
     # Solo disparamos la celebración (globos y pantalla) si NO estamos en modo Backtesting
     if not db_global[usuario]["settings"]["PC"].get(clave_celeb_db, False) and not db_usuario[ctx].get("backtesting_mode", False):
