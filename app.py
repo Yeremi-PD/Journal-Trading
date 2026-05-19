@@ -1326,7 +1326,7 @@ for idx, tr in enumerate(_tc): tr["is_pre_funded"] = (idx <= idx_pase)
 # El estatus PA/Eval se calcula siempre para que veas si la cuenta es fondeada o no
 if paso_cuenta:
     if "toggle_funded_state" not in st.session_state: st.session_state.toggle_funded_state = True
-    clave_celeb_db = "pa_celeb_FINAL_1_" + str(ctx)
+    clave_celeb_db = "pa_celeb_NUEVA_2_" + str(ctx)
   
     # Solo disparamos la celebración (globos y pantalla) si NO estamos en modo Backtesting
     if not db_global[usuario]["settings"]["PC"].get(clave_celeb_db, False) and not db_usuario[ctx].get("backtesting_mode", False):
@@ -2332,7 +2332,8 @@ with col_cal:
             f_str = tr['fecha_str']
             trades_por_dia[f_str] = trades_por_dia.get(f_str, 0) + tr['pnl']
         for fecha, pnl_total_dia in trades_por_dia.items():
-            if pnl_total_dia >= umbral_pago: dias_ganadores_count += 1
+            # Cambiado para que cualquier día en verde (mayor a $0) cuente como día operado
+            if pnl_total_dia > 0: dias_ganadores_count += 1
         e_caja_p = f"padding: 15px; min-height: 110px; display: flex; flex-direction: column; justify-content: center; background-color: {card_bg}; border: 1px solid {border_color}; border-radius: 15px;"
         st.markdown("""<style>div[data-testid="stForm"]:has(input[aria-label="Amount"]) div[data-testid="stNumberInput"] { width: 100% !important; min-width: 100% !important; max-width: 100% !important; margin: 0 !important; } div[data-testid="stForm"]:has(input[aria-label="Amount"]) [data-testid="stFormSubmitButton"] button { width: 100% !important; margin: 5px 0 0 0 !important; background-color: #FF4C4C !important; color: white !important;}</style>""", unsafe_allow_html=True)
         c_p1, c_p2, c_p3, c_p4 = st.columns(4)
