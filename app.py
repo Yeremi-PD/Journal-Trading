@@ -2357,26 +2357,20 @@ with col_cal:
         div[data-testid="stForm"]:has(input[aria-label="Amount"]) div[data-testid="stNumberInput"] { width: 100% !important; min-width: 100% !important; max-width: 100% !important; margin: 0 !important; } 
         div[data-testid="stForm"]:has(input[aria-label="Amount"]) [data-testid="stFormSubmitButton"] button { width: 100% !important; margin: 5px 0 0 0 !important; background-color: #FF4C4C !important; color: white !important;}
         
-        /* 🔴 FIX: ELIMINAR LA CAJA DOBLE (INNER BOX) AL HACER CLICK 🔴 */
+        /* 🔴 FIX: MATAR LA DOBLE CAJA (DEJAR SOLO LA EXTERNA VISIBLE) 🔴 */
         div[data-testid="stForm"]:has(input[aria-label="Amount"]) div[data-baseweb="input"] {
-            background-color: #1A202C !important;
             border: 1px solid #4A5568 !important;
-            box-shadow: none !important;
             border-radius: 8px !important;
+            background-color: #1A202C !important; /* El fondo real oscuro de la caja */
         }
-        /* Hacemos la caja interna completamente transparente */
-        div[data-testid="stForm"]:has(input[aria-label="Amount"]) div[data-baseweb="base-input"] {
+        
+        /* Hacemos invisibles/transparentes la caja interna y el área de texto */
+        div[data-testid="stForm"]:has(input[aria-label="Amount"]) div[data-baseweb="base-input"],
+        div[data-testid="stForm"]:has(input[aria-label="Amount"]) input,
+        div[data-testid="stForm"]:has(input[aria-label="Amount"]) > div:last-child {
             background-color: transparent !important;
             border: none !important;
             box-shadow: none !important;
-        }
-        /* Matamos el contorno de selección al escribir */
-        div[data-testid="stForm"]:has(input[aria-label="Amount"]) input:focus,
-        div[data-testid="stForm"]:has(input[aria-label="Amount"]) input:active {
-            box-shadow: none !important;
-            outline: none !important;
-            border: none !important;
-            background-color: transparent !important;
         }
         </style>""", unsafe_allow_html=True)
         c_p1, c_p2, c_p3, c_p4 = st.columns(4)
