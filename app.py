@@ -2353,7 +2353,32 @@ with col_cal:
             if pnl_total_dia >= umbral_pago: 
                 dias_ganadores_count += 1
         e_caja_p = f"padding: 15px; min-height: 110px; display: flex; flex-direction: column; justify-content: center; background-color: {card_bg}; border: 1px solid {border_color}; border-radius: 15px;"
-        st.markdown("""<style>div[data-testid="stForm"]:has(input[aria-label="Amount"]) div[data-testid="stNumberInput"] { width: 100% !important; min-width: 100% !important; max-width: 100% !important; margin: 0 !important; } div[data-testid="stForm"]:has(input[aria-label="Amount"]) [data-testid="stFormSubmitButton"] button { width: 100% !important; margin: 5px 0 0 0 !important; background-color: #FF4C4C !important; color: white !important;}</style>""", unsafe_allow_html=True)
+        st.markdown("""<style>
+        div[data-testid="stForm"]:has(input[aria-label="Amount"]) div[data-testid="stNumberInput"] { width: 100% !important; min-width: 100% !important; max-width: 100% !important; margin: 0 !important; } 
+        div[data-testid="stForm"]:has(input[aria-label="Amount"]) [data-testid="stFormSubmitButton"] button { width: 100% !important; margin: 5px 0 0 0 !important; background-color: #FF4C4C !important; color: white !important;}
+        
+        /* 🔴 FIX: ELIMINAR LA CAJA DOBLE (INNER BOX) AL HACER CLICK 🔴 */
+        div[data-testid="stForm"]:has(input[aria-label="Amount"]) div[data-baseweb="input"] {
+            background-color: #1A202C !important;
+            border: 1px solid #4A5568 !important;
+            box-shadow: none !important;
+            border-radius: 8px !important;
+        }
+        /* Hacemos la caja interna completamente transparente */
+        div[data-testid="stForm"]:has(input[aria-label="Amount"]) div[data-baseweb="base-input"] {
+            background-color: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+        }
+        /* Matamos el contorno de selección al escribir */
+        div[data-testid="stForm"]:has(input[aria-label="Amount"]) input:focus,
+        div[data-testid="stForm"]:has(input[aria-label="Amount"]) input:active {
+            box-shadow: none !important;
+            outline: none !important;
+            border: none !important;
+            background-color: transparent !important;
+        }
+        </style>""", unsafe_allow_html=True)
         c_p1, c_p2, c_p3, c_p4 = st.columns(4)
         with c_p1:
             st.markdown(f'<div style="font-size: 20px; font-weight: 700; color: #FFFFFF; margin-bottom: 5px;">{_l["wd"]["amt_wd"]}</div>', unsafe_allow_html=True)
