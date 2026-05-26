@@ -677,11 +677,6 @@ for dev in ["PC", "Móvil"]:
 user_settings = db_global[usuario]["settings"][st.session_state.dispositivo_actual]
 
 hoy = datetime.now().date()
-# El modo backtesting ahora vive dentro de la data de cada cuenta para ser permanente
-if "backtesting_mode" not in db_usuario[st.session_state.data_source_sel]:
-    db_usuario[st.session_state.data_source_sel]["backtesting_mode"] = False
-
-if "fecha_backtesting" not in st.session_state: st.session_state.fecha_backtesting = hoy
 
 # --- LÓGICA DE AUTO-TRANSPORTE AL ÚLTIMO MES TRADEADO ---
 # Se activa cuando entras o cuando cambias de cuenta en el selectbox (refresco instantáneo)
@@ -765,26 +760,6 @@ def contenido_ajustes():
     if st.button(_l['sidebar']['save_design'], use_container_width=True):
         reescribir_excel_usuario(usuario)
         st.success(_l['sidebar']['saved_design'])
-
-    st.markdown("---")
-    st.markdown(f"### {_l['sidebar']['sec_backtest']}")
-    
-    # Buscamos la cuenta activa de forma segura antes de pedir datos
-    cuenta_bt_segura = st.session_state.get("data_source_sel", "Account Real")
-    if cuenta_bt_segura not in db_usuario and db_usuario:
-        cuenta_bt_segura = list(db_usuario.keys())[0]
-        
-    # Toggle vinculado a la cuenta actual
-    modo_bt_actual = False
-    if cuenta_bt_segura in db_usuario:
-        modo_bt_actual = db_usuario[cuenta_bt_segura].get("backtesting_mode", False)
-        
-    nuevo_bt = st.toggle(_l['sidebar']['bt_mode'], value=modo_bt_actual)
-    
-    if nuevo_bt != modo_bt_actual and cuenta_bt_segura in db_usuario:
-        db_usuario[cuenta_bt_segura]["backtesting_mode"] = nuevo_bt
-        reescribir_excel_usuario(usuario)
-        st.rerun()
 
     st.markdown("---")
     st.markdown(f"### {_l['sidebar']['manage_acc']}")
@@ -1777,23 +1752,8 @@ with col_form_area:
         
         with c_date:
             st.markdown('<div class="lbl-header">Date:</div>', unsafe_allow_html=True)
-            # Lógica original de la fecha
-            trades_de_esta_cta = db_usuario[ctx].get("trades", {})
-            if trades_de_esta_cta:
-                ult_f = max(trades_de_esta_cta.keys())
-                fecha_ultimo_trade_cta = date(ult_f[0], ult_f[1], ult_f[2])
-            else:
-                fecha_ultimo_trade_cta = hoy
-
-            if db_usuario[ctx].get("backtesting_mode", False):
-                if st.session_state.fecha_backtesting.month != st.session_state.cal_month or st.session_state.fecha_backtesting.year != st.session_state.cal_year: 
-                    fecha_defecto = date(st.session_state.cal_year, st.session_state.cal_month, 1)
-                else: 
-                    fecha_defecto = st.session_state.fecha_backtesting
-            else: 
-                fecha_defecto = fecha_ultimo_trade_cta
-                
-            fecha_sel = st.date_input("Fecha", value=fecha_defecto, label_visibility="collapsed", key="btn_fecha_directa")
+            # Forzamos a que por defecto SIEMPRE cargue el día actual (hoy)
+            fecha_sel = st.date_input("Fecha", value=hoy, label_visibility="collapsed", key="btn_fecha_directa")
             
         with c_cant:
             st.markdown('<div class="lbl-header">Cantidad:</div>', unsafe_allow_html=True)
@@ -1923,11 +1883,6 @@ with col_form_area:
             db_usuario[ctx]["trades"][clave_final].append(trade_nuevo)
             import time
             db_usuario[ctx]["balance"] = nuevo_bal_absoluto
-            if db_usuario[ctx].get("backtesting_mode", False):
-                st.session_state.fecha_backtesting = fecha_sel
-                st.session_state.cal_month = fecha_sel.month
-                st.session_state.cal_year = fecha_sel.year
-                st.session_state.forzar_sync_mes = True 
             registrar_en_excel(usuario, db_global[usuario]["password"], ctx, fecha_sel, nuevo_bal_absoluto, pnl, trade_nuevo, db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
             st.success(_l['dash']['trade_saved'])
             time.sleep(1)
@@ -2144,8 +2099,8 @@ with col_det:
     titulo_target_dinamico = _l['cal']['target']
     c_hex_tg = "#FFFFFF" 
 
-    # Lógica de cuenta quemada: Solo bloquea si NO estamos en modo Backtesting
-    if distancia_dd <= 0 and not db_usuario[ctx].get("backtesting_mode", False):
+    # Lógica de cuenta quemada activa permanentemente
+    if distancia_dd <= 0:
         texto_lose = _l['cal']['lost']; texto_dd = _l['cal']['lost'];
         texto_tg = _l['cal']['lost']
         c_hex_tg = "#FF4C4C"
