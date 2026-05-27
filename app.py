@@ -1832,7 +1832,7 @@ with tab_calendario:
                     nuevo_bal_input_str = st.text_input("Balance Input", value="", placeholder=f"{bal_mostrar:.2f}", label_visibility="collapsed")
                     
                 with c_det:
-                    st.markdown('<div class="lbl-header">Trade Details:</div>', unsafe_allow_html=True)
+                    st.markdown('<div class="lbl-header">Detalles:</div>', unsafe_allow_html=True)
                     # AQUÍ CAMBIAS EL TEXTO DEL BOTÓN ("📝 Abrir Detalles", etc.)
                     with st.popover("Abrir Detalles", use_container_width=True):
                         # Lógica original de los detalles del trade
