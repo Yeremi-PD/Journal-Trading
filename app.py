@@ -1395,17 +1395,11 @@ div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) {
 </style>
 """, unsafe_allow_html=True)
 
-# 🚀 1. SALUDO GIGANTE EN EL TOPE ABSOLUTO (Visible en todas partes)
-if paso_cuenta: badge_html = f'<span style="font-size: 20px; background-color: #00C897; color: white; padding: 4px 12px; border-radius: 8px; margin-left: 15px; font-weight: 800; letter-spacing: 0px;">{_l["dash"]["pa"]}</span>'
-else: badge_html = f'<span style="font-size: 20px; background-color: #4A5568; color: white; padding: 4px 12px; border-radius: 8px; margin-left: 15px; font-weight: 800; letter-spacing: 0px;">{_l["dash"]["eval"]}</span>'
-st.markdown(f'<div class="dashboard-title" style="display: flex; align-items: center; justify-content: flex-start; margin-bottom: 5px;">{TXT_DASHBOARD}, {usuario} {badge_html}</div>', unsafe_allow_html=True)
+# 🚀 PESTAÑAS EN EL TOPE ABSOLUTO DE LA PÁGINA
+tab_calendario, tab_estadisticas = st.tabs(["📅 CALENDARIO", "📊 ESTADÍSTICAS"])
 
-# 🚀 2. FILTROS Y CUENTAS AL TOPE IZQUIERDO 
-# Cambiamos el orden: Filtros y Cuentas ahora van de primero en la izquierda [1.5, 1.5]
-col_fil, col_data, col_vacia, col_bal, col_not, col_set = st.columns([1.5, 1.5, 2.5, 2, 0.35, 0.35])
-
-# Contenedor puente para que no tengas que arreglar ni un solo espacio de indentación en tu VS Code
-with st.container():
+with tab_calendario:
+    col_t, col_fil, col_data, col_bal, col_not, col_set = st.columns([2.5, 1.5, 1.5, 2, 0.35, 0.35])
 
     with col_not:
         with st.popover("📝", use_container_width=True):
