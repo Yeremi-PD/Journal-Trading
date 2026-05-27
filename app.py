@@ -1798,7 +1798,7 @@ with tab_calendario:
         /* ========================================= */
         div[data-testid="stForm"] div[data-testid="stTextInput"]:has(input[aria-label="Link"]) {
             width: 100% !important;
-            margin-top: 25px !important;  /* <-- Aumenta a 5px o 10px si quieres separarlo del título */
+            margin-top: 30px !important;  /* <-- Aumenta a 5px o 10px si quieres separarlo del título */
             margin-left: 0px !important;
         }
 
