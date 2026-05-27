@@ -338,6 +338,7 @@ def reescribir_excel_usuario(usuario):
         set_mov_str = json.dumps(db_global[usuario]["settings"]["Móvil"])
 
         for cuenta, d_cuenta in db_global[usuario]["data"].items():
+            if cuenta == "Todas las Cuentas": continue
             for clave, lista_t in sorted(d_cuenta["trades"].items()):
                 for t in lista_t:
                     links = [img for img in t.get("imagenes", []) if img.startswith("http")]
@@ -569,6 +570,24 @@ if "form_reset_key" not in st.session_state: st.session_state.form_reset_key = 0
 
 usuario = st.session_state.usuario_actual
 db_usuario = db_global[usuario]["data"]
+
+if "Todas las Cuentas" in db_usuario:
+    del db_usuario["Todas las Cuentas"]
+
+trades_todas = {}
+balance_total = 0.0
+
+for cta, d_cta in db_usuario.items():
+    if cta == "Todas las Cuentas": continue
+    balance_total += float(d_cta.get("balance", 0.0))
+    for fecha_tuple, lista_trades in d_cta.get("trades", {}).items():
+        if fecha_tuple not in trades_todas: trades_todas[fecha_tuple] = []
+        for t in lista_trades:
+            t_copy = t.copy()
+            t_copy["cuenta_origen"] = cta
+            trades_todas[fecha_tuple].append(t_copy)
+
+db_usuario["Todas las Cuentas"] = {"balance": balance_total, "trades": trades_todas, "backtesting_mode": False}
 
 @st.dialog("📅 Configurar Inicio de Cuenta")
 def modal_fecha_inicio(nombre, balance):
@@ -1519,7 +1538,8 @@ with col_fil:
 
 with col_data: 
     st.markdown(f'<div class="lbl-data">{LBL_DATA}</div>', unsafe_allow_html=True)
-    st.selectbox("Data Source", list(db_usuario.keys()), key="data_source_sel", label_visibility="collapsed")
+    opciones_cta = ["Todas las Cuentas"] + [c for c in db_usuario.keys() if c != "Todas las Cuentas"]
+    st.selectbox("Data Source", opciones_cta, key="data_source_sel", label_visibility="collapsed")
     try: st.query_params["account"] = st.session_state.data_source_sel; db_global[usuario]["last_account"] = st.session_state.data_source_sel
     except: pass
 
@@ -1828,7 +1848,9 @@ with col_form_area:
 
     if btn_save:
         entrada_limpia = str(nuevo_bal_input_str).strip()
-        if entrada_limpia == "":
+        if ctx == "Todas las Cuentas":
+            st.error("⚠️ No puedes registrar un trade en la vista 'Todas las Cuentas'. Selecciona una cuenta específica arriba.")
+        elif entrada_limpia == "":
             st.error(_l['dash']['err_empty'])
         else:
             viejo_real = db_usuario[ctx]["balance"]
