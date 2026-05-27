@@ -1796,13 +1796,14 @@ with tab_calendario:
         }
         div[data-testid="stForm"] div[data-testid="stTextInput"]:has(input[aria-label="Link"]) {
             width: 100% !important;
-            margin-top: 10px !important;
+            margin-top: 0px !important;  /* <-- Aumenta a 5px o 10px si quieres bajarlo aún más de su título */
             margin-left: 0px !important;
         }
         div[data-testid="stForm"] div[data-testid="stPopover"] > button,
         div[data-testid="stForm"] div[data-testid="stPopover"] > div:first-child > button {
-            width: 100% !important;
-            margin-top: 10px !important;
+            width: 80% !important;       /* <-- Mantenemos el botón al 80% para que no se vea gigante en móvil */
+            margin: 0 auto !important;   /* <-- Lo centramos horizontalmente */
+            margin-top: -10px !important;/* <-- Valor negativo para SUBIR el botón y acercarlo a su título */
         }
         div[data-testid="stForm"] div[data-testid="stDateInput"] {
             width: 100% !important;
