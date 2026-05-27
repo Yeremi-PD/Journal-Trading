@@ -1395,19 +1395,11 @@ div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) {
 </style>
 """, unsafe_allow_html=True)
 
-# 🚀 PESTAÑAS HASTA EL TOPE DE ARRIBA (Menú Principal)
+# 🚀 PESTAÑAS EN EL TOPE ABSOLUTO DE LA PÁGINA
 tab_calendario, tab_estadisticas = st.tabs(["📅 CALENDARIO", "📊 ESTADÍSTICAS"])
 
-# 🚀 1. SALUDO GIGANTE (Visible en todas partes, debajo de las pestañas)
-if paso_cuenta: badge_html = f'<span style="font-size: 20px; background-color: #00C897; color: white; padding: 4px 12px; border-radius: 8px; margin-left: 15px; font-weight: 800; letter-spacing: 0px;">{_l["dash"]["pa"]}</span>'
-else: badge_html = f'<span style="font-size: 20px; background-color: #4A5568; color: white; padding: 4px 12px; border-radius: 8px; margin-left: 15px; font-weight: 800; letter-spacing: 0px;">{_l["dash"]["eval"]}</span>'
-st.markdown(f'<div class="dashboard-title" style="display: flex; align-items: center; justify-content: flex-start; margin-bottom: 5px;">{TXT_DASHBOARD}, {usuario} {badge_html}</div>', unsafe_allow_html=True)
-
-# 🚀 2. BARRA SUPERIOR (Balance, Notas, Ajustes)
-col_vacia, col_bal, col_not, col_set = st.columns([5.5, 2, 0.35, 0.35])
-
-# Contenedor puente para que no tengas que arreglar ni un solo espacio de indentación en tu VS Code
-with st.container():
+with tab_calendario:
+    col_t, col_fil, col_data, col_bal, col_not, col_set = st.columns([2.5, 1.5, 1.5, 2, 0.35, 0.35])
 
     with col_not:
         with st.popover("📝", use_container_width=True):
@@ -1537,16 +1529,13 @@ with st.container():
     with col_set:
         with st.popover("⚙️", use_container_width=True):
             contenido_ajustes()
-    # ==============================================================
+        # ==============================================================
 
-    with col_bal:
-        st.markdown(f'<div style="text-align:center; margin-bottom:5px;"><span class="lbl-total-bal">{LBL_BAL_TOTAL}</span></div>', unsafe_allow_html=True)
-        st.markdown(f'<div class="balance-box">${bal_mostrar:,.2f}</div>', unsafe_allow_html=True)
+    with col_t:
+        if paso_cuenta: badge_html = f'<span style="font-size: 20px; background-color: #00C897; color: white; padding: 4px 12px; border-radius: 8px; margin-left: 15px; font-weight: 800; letter-spacing: 0px;">{_l["dash"]["pa"]}</span>'
+        else: badge_html = f'<span style="font-size: 20px; background-color: #4A5568; color: white; padding: 4px 12px; border-radius: 8px; margin-left: 15px; font-weight: 800; letter-spacing: 0px;">{_l["dash"]["eval"]}</span>'
+        st.markdown(f'<div class="dashboard-title" style="display: flex; align-items: center;">{TXT_DASHBOARD}, {usuario} {badge_html}</div>', unsafe_allow_html=True)
 
-with tab_calendario:
-    # 🚀 FILTROS Y CUENTAS MOVIDOS AQUÍ ABAJO (Adentro del Calendario)
-    col_fil, col_data, _ = st.columns([1.5, 1.5, 7])
-    
     with col_fil: 
         st.markdown(f'<div class="lbl-filtros">{LBL_FILTROS}</div>', unsafe_allow_html=True)
         filtro = st.selectbox("Filtros", [OPT_FILTRO_1, OPT_FILTRO_2, OPT_FILTRO_3], label_visibility="collapsed")
@@ -1557,6 +1546,12 @@ with tab_calendario:
         st.selectbox("Data Source", opciones_cta, key="data_source_sel", label_visibility="collapsed")
         try: st.query_params["account"] = st.session_state.data_source_sel; db_global[usuario]["last_account"] = st.session_state.data_source_sel
         except: pass
+
+    with col_bal:
+        st.markdown(f'<div style="text-align:center; margin-bottom:5px;"><span class="lbl-total-bal">{LBL_BAL_TOTAL}</span></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="balance-box">${bal_mostrar:,.2f}</div>', unsafe_allow_html=True)
+
+    st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
 
     # === CSS EXCLUSIVO PARA LA BARRA DE ENTRADA (Estilo Finance Center) ===
     st.markdown("""
@@ -1896,7 +1891,7 @@ with tab_calendario:
                         nuevo_corr = st.text_area(_l['dash']['corr'], value='', height=45)
                         
                 with c_link:
-                    st.markdown('<div class="lbl-header">Imagen Link:</div>', unsafe_allow_html=True)
+                    st.markdown('<div class="lbl-header">Image Link:</div>', unsafe_allow_html=True)
                     link_imagen = st.text_input("Link", value="", label_visibility="collapsed", placeholder="🔗 Pega el Enlace de la Imagen")
                     # Botón upload eliminado a petición, solo usamos el Link de arriba.
                     
