@@ -2454,20 +2454,77 @@ with tab_asistente:
     st.markdown("<br><h3 style='text-align:center; color:gray;'>🤖 Tu Asistente de Trading con IA</h3>", unsafe_allow_html=True)
     st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
     
-    st.info("¡Hola! Soy tu Asistente Virtual impulsado por Gemini. Pronto podré leer tu historial de trades, darte consejos de psicología y ayudarte a mejorar tus estadísticas. ¿En qué te ayudo hoy?")
+    # 1. Inicializar el historial de chat si no existe en la sesión
+    if "historial_gemini" not in st.session_state:
+        st.session_state.historial_gemini = [
+            {
+                "role": "assistant", 
+                "content": f"¡Hola **{usuario}**! Soy tu asistente de trading impulsado por Gemini. Veo que tu balance actual es de **${bal_mostrar:,.2f}**. Puedo ayudarte a analizar tu gestión de riesgo, darte consejos de psicología de trading o revisar tus dudas. ¿En qué te puedo colaborar hoy?"
+            }
+        ]
     
-    with st.chat_message("assistant", avatar="🤖"):
-        st.write(f"Hola **{usuario}**, veo que tu balance actual es de **${bal_mostrar:,.2f}**. ¡Vamos a seguir el plan de trading hoy!")
+    # 2. Renderizar todos los mensajes guardados en el historial
+    for msg in st.session_state.historial_gemini:
+        avatar_sel = "🤖" if msg["role"] == "assistant" else "👤"
+        with st.chat_message(msg["role"], avatar=avatar_sel):
+            st.write(msg["content"])
+    
+    # 3. Capturar la entrada de texto del usuario
+    if mensaje_usuario := st.chat_input("Pregúntame sobre tu gestión de riesgo, psicología o análisis de trades..."):
+        # Mostrar el mensaje del usuario inmediatamente en la pantalla
+        with st.chat_message("user", avatar="👤"):
+            st.write(mensaje_usuario)
         
-    with st.chat_message("user", avatar="👤"):
-        st.write("¿Cómo me fue esta semana en mis trades?")
+        # Guardar la pregunta en el historial de la sesión
+        st.session_state.historial_gemini.append({"role": "user", "content": mensaje_usuario})
         
-    with st.chat_message("assistant", avatar="🤖"):
-        st.write("Aún estoy configurando mis circuitos para leer tu Excel, ¡pero visualmente me veo genial!")
-
-    mensaje_usuario = st.chat_input("Pregúntame sobre tu gestión de riesgo, psicología o análisis de trades...")
-    if mensaje_usuario:
-        st.toast(f"Has enviado: {mensaje_usuario}", icon="🚀")
+        # Respuesta del asistente virtual
+        with st.chat_message("assistant", avatar="🤖"):
+            caja_pensando = st.empty()
+            caja_pensando.markdown("*Pensando...*")
+            
+            try:
+                # Importación e integración oficial con la API de Gemini
+                import google.generativeai as genai
+                
+                # Verificamos si configuraste tu clave API en st.secrets
+                if "gemini_api_key" in st.secrets:
+                    genai.configure(api_key=st.secrets["gemini_api_key"])
+                    model = genai.GenerativeModel('gemini-1.5-flash') # Modelo rápido y eficiente
+                    
+                    # Le inyectamos contexto inicial (System Prompt) para que Gemini sepa quién es el usuario y su balance
+                    contexto_sistema = (
+                        f"Eres un asistente virtual experto en trading, psicología de mercados y gestión de riesgo. "
+                        f"Estás integrado dentro de la aplicación 'Yeremi Journal Pro'. El usuario actual se llama {usuario} "
+                        f"y su balance actual en la cuenta seleccionada es de ${bal_mostrar:,.2f}. Responde de manera profesional, "
+                        f"motivadora, clara y concisa en español."
+                    )
+                    
+                    # Formateamos los últimos mensajes para darle memoria a corto plazo a la API
+                    mensajes_api = []
+                    for m in st.session_state.historial_gemini[-6:]:  # Recordar los últimos 6 mensajes
+                        rol_api = "user" if m["role"] == "user" else "model"
+                        mensajes_api.append({"role": rol_api, "parts": [m["content"]]})
+                    
+                    # Generamos el contenido enviando el contexto y el historial
+                    response = model.generate_content([contexto_sistema] + [str(m) for m in mensajes_api])
+                    respuesta_ai = response.text
+                else:
+                    respuesta_ai = (
+                        "¡Hola! El chat ya es completamente interactivo. Para recibir respuestas reales de la Inteligencia "
+                        "Artificial de Gemini, por favor agrega tu API Key en los secretos de tu entorno como `gemini_api_key`."
+                    )
+            except Exception as e:
+                respuesta_ai = f"Disculpa, hubo un problema al conectar con mis circuitos de IA. Error técnico: {str(e)}"
+            
+            # Reemplazar el "Pensando..." con la respuesta real de la IA
+            caja_pensando.markdown(respuesta_ai)
+            
+            # Guardar la respuesta de la IA en el historial de la sesión
+            st.session_state.historial_gemini.append({"role": "assistant", "content": respuesta_ai})
+        
+        # Forzar recarga limpia para asentar el historial
+        st.rerun()
 
 # 👇 REABRIMOS LA PESTAÑA CALENDARIO PARA ANIDAR LAS SUB-PESTAÑAS AQUÍ 👇
 with tab_calendario:
