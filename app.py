@@ -1752,10 +1752,12 @@ with tab_calendario:
     div[data-testid="stFileUploader"] [data-testid="stFileUploadDropzone"] button,
     div[data-testid="stFileUploader"] [data-testid="stFileUploadDropzone"] div > span,
     div[data-testid="stFileUploader"] [data-testid="stFileUploadDropzone"] small {
-        display: none !important; 
+        display: none !important;
     }
+    </style>
+    """, unsafe_allow_html=True)
 
-    # MAGIA PARA MOVIL: Solo se activa en telefono
+    # 📱 MAGIA PARA MÓVIL: Esto SOLO se activa en el teléfono, dejando la PC 100% intacta
     if st.session_state.dispositivo_actual == "Móvil":
         st.markdown("""
         <style>
