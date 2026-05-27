@@ -992,8 +992,8 @@ st.markdown(f"""
     [data-testid="stStatusWidget"] {{ visibility: hidden !important; display: none !important; }}
     
     /* 🌟 MAGIA DE LAS PESTAÑAS (TABS) PREMIUM ESTILO FINANCE CENTER 🌟 */
-    div[data-testid="stTabs"] { padding: 0px 0px 15px 0px !important;
-margin-top: -15px !important; overflow: visible !important; }
+    div[data-testid="stTabs"] {{ padding: 0px 0px 15px 0px !important;
+    margin-top: -15px !important; overflow: visible !important; }}
     div[data-testid="stTabs"] button {{
         font-size: 21px !important;
 font-weight: 800 !important;
