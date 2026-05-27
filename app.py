@@ -1790,7 +1790,7 @@ with tab_calendario:
         div[data-testid="stForm"] [data-testid="stFormSubmitButton"] button {
             width: 100% !important;
             margin-left: 0px !important;
-            margin-top: 15px !important;
+            margin-top: 45px !important;
         }
 
         /* ========================================= */
