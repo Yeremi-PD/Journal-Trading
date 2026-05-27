@@ -2451,6 +2451,10 @@ with tab_calendario:
                 st.session_state.retiro_exitoso = False
 
 # 🚀 Eliminamos el bloque duplicado de estadísticas generales y dejamos directamente el historial
+    
+    # 👇 ESTE ESPACIADOR EMPUJA LAS PESTAÑAS DE ABAJO PARA QUE NO CHOQUEN 👇
+    st.markdown("<div style='margin-top: 60px;'></div>", unsafe_allow_html=True)
+
     # 🚀 AQUI CREAMOS LAS PESTAÑAS AL ESTILO FINANCE CENTER 🚀
     tab_hist, tab_tabla, tab_exportar = st.tabs(["🕒 HISTORIAL DE ÓRDENES", "📊 TABLA DE RESULTADOS", "💾 EXPORTAR DATOS"])
 
