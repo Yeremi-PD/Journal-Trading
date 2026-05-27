@@ -1755,11 +1755,11 @@ with tab_calendario:
         display: none !important; 
     }
 
-    # 📱 MAGIA PARA MÓVIL: Esto SOLO se activa en el teléfono, dejando la PC 100% intacta
+    # MAGIA PARA MÓVIL: Esto SOLO se activa en el teléfono, dejando la PC 100% intacta
     if st.session_state.dispositivo_actual == "Móvil":
         st.markdown("""
         <style>
-        /* 📱 REPARACIÓN HEADER (Arriba) */
+        /* REPARACION HEADER ARRIBA */
         .dashboard-title {
             margin-left: 0px !important;
             margin-top: 0px !important;
@@ -1771,7 +1771,7 @@ with tab_calendario:
             gap: 10px !important;
         }
         .dashboard-title span {
-            margin-left: 0px !important; /* Centra el letrero verde de PA o Eval */
+            margin-left: 0px !important;
         }
         .lbl-total-bal, .lbl-filtros, .lbl-data, .lbl-input, .lbl-link, .lbl-header {
             transform: none !important;
@@ -1785,16 +1785,16 @@ with tab_calendario:
             margin-top: 5px !important;
         }
         
-        /* 📱 REPARACIÓN BOTONES DE NOTAS Y AJUSTES */
+        /* REPARACION BOTONES DE NOTAS Y AJUSTES */
         div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > button,
         div[data-testid="column"]:nth-child(6) div[data-testid="stPopover"] > button {
             margin-top: 10px !important;
             height: 45px !important;
         }
 
-        /* 📱 REPARACIÓN FORMULARIO DE TRADES (Cajas y Botón Guardar) */
+        /* REPARACION FORMULARIO DE TRADES */
         div[data-testid="stForm"] [data-testid="stFormSubmitButton"] button {
-            width: 100% !important; /* Quita el 170% que rompía el celular */
+            width: 100% !important;
             margin-left: 0px !important;
             margin-top: 15px !important;
         }
