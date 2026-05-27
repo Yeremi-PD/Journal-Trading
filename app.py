@@ -992,8 +992,8 @@ st.markdown(f"""
     [data-testid="stStatusWidget"] {{ visibility: hidden !important; display: none !important; }}
     
     /* 🌟 MAGIA DE LAS PESTAÑAS (TABS) PREMIUM ESTILO FINANCE CENTER 🌟 */
-    div[data-testid="stTabs"] {{ padding: 25px 0px 35px 0px !important;
-margin-top: 20px !important; overflow: visible !important; }}
+    div[data-testid="stTabs"] { padding: 0px 0px 15px 0px !important;
+margin-top: -15px !important; overflow: visible !important; }
     div[data-testid="stTabs"] button {{
         font-size: 21px !important;
 font-weight: 800 !important;
@@ -1766,12 +1766,10 @@ with tab_calendario:
     </style>
     """, unsafe_allow_html=True)
 
-    # 🚀 CREAMOS LAS PESTAÑAS (Esto hace que el cambio sea INSTANTÁNEO sin redibujar)
-    tab_calendario, tab_estadisticas = st.tabs(["📅 CALENDARIO", "📊 ESTADÍSTICAS"])
-
+    # 🚀 Nos anclamos a la pestaña superior (sin crear unas nuevas repetidas)
     with tab_calendario:
-        # 🚀 Envolvemos el form en la misma proporción del calendario [2, 1] para que midan EXACTAMENTE lo mismo
-        col_form_area, col_form_vacia = st.columns([2, 1])
+        # 🚀 El formulario ahora toma el 100% del ancho igual que el calendario
+        col_form_area = st.container()
 
         with col_form_area:
             with st.form(key="form_main_entry", clear_on_submit=True, border=False):
