@@ -1823,7 +1823,7 @@ with tab_calendario:
                 c_date, c_cant, c_det, c_link, c_btn = st.columns([0.8, 1.2, 1.1, 2.5, 1])
                 
                 with c_date:
-                    st.markdown('<div class="lbl-header">Date:</div>', unsafe_allow_html=True)
+                    st.markdown('<div class="lbl-header">Fecha:</div>', unsafe_allow_html=True)
                     # Forzamos a que por defecto SIEMPRE cargue el día actual (hoy)
                     fecha_sel = st.date_input("Fecha", value=hoy, label_visibility="collapsed", key="btn_fecha_directa")
                     
