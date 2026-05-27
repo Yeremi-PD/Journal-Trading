@@ -1839,7 +1839,7 @@ with tab_calendario:
                         st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 5px; margin-bottom: 0px;'>{_l['dash']['bias']}</div>", unsafe_allow_html=True)
                         bias_opts = ['LONG', 'SHORT', 'NONE']
                         nuevo_bias_list = []
-                        cols_bias = st.columns([1, 5, 1, 3])
+                        cols_bias = st.columns([1, 1, 1, 3])
                         for idx, op in enumerate(bias_opts):
                             if cols_bias[idx].checkbox(op, key=f"new_bias_{idx}"): nuevo_bias_list.append(op)
                         
