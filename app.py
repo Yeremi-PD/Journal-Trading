@@ -1755,11 +1755,10 @@ with tab_calendario:
         display: none !important; 
     }
 
-    # MAGIA PARA MÓVIL: Esto SOLO se activa en el teléfono, dejando la PC 100% intacta
+    # MAGIA PARA MOVIL: Solo se activa en telefono
     if st.session_state.dispositivo_actual == "Móvil":
         st.markdown("""
         <style>
-        /* REPARACION HEADER ARRIBA */
         .dashboard-title {
             margin-left: 0px !important;
             margin-top: 0px !important;
@@ -1784,15 +1783,11 @@ with tab_calendario:
             width: 100% !important;
             margin-top: 5px !important;
         }
-        
-        /* REPARACION BOTONES DE NOTAS Y AJUSTES */
         div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > button,
         div[data-testid="column"]:nth-child(6) div[data-testid="stPopover"] > button {
             margin-top: 10px !important;
             height: 45px !important;
         }
-
-        /* REPARACION FORMULARIO DE TRADES */
         div[data-testid="stForm"] [data-testid="stFormSubmitButton"] button {
             width: 100% !important;
             margin-left: 0px !important;
