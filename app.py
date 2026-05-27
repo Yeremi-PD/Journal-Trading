@@ -1784,27 +1784,37 @@ with tab_calendario:
             width: 100% !important;
             margin-top: 5px !important;
         }
-        div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > button,
-        div[data-testid="column"]:nth-child(6) div[data-testid="stPopover"] > button {
-            margin-top: 10px !important;
-            height: 45px !important;
-        }
+        /* ========================================= */
+        /* 1. BOTÓN PRINCIPAL "GUARDAR"              */
+        /* ========================================= */
         div[data-testid="stForm"] [data-testid="stFormSubmitButton"] button {
             width: 100% !important;
             margin-left: 0px !important;
             margin-top: 15px !important;
         }
+
+        /* ========================================= */
+        /* 2. CUADRO DE TEXTO "IMAGE LINK"           */
+        /* ========================================= */
         div[data-testid="stForm"] div[data-testid="stTextInput"]:has(input[aria-label="Link"]) {
             width: 100% !important;
-            margin-top: 0px !important;  /* <-- Aumenta a 5px o 10px si quieres bajarlo aún más de su título */
+            margin-top: 0px !important;  /* <-- Aumenta a 5px o 10px si quieres separarlo del título */
             margin-left: 0px !important;
         }
+
+        /* ========================================= */
+        /* 3. BOTÓN DE "ABRIR DETALLES" (POPOVER)    */
+        /* ========================================= */
         div[data-testid="stForm"] div[data-testid="stPopover"] > button,
         div[data-testid="stForm"] div[data-testid="stPopover"] > div:first-child > button {
-            width: 80% !important;       /* <-- Mantenemos el botón al 80% para que no se vea gigante en móvil */
-            margin: 0 auto !important;   /* <-- Lo centramos horizontalmente */
-            margin-top: -10px !important;/* <-- Valor negativo para SUBIR el botón y acercarlo a su título */
+            width: 80% !important;       /* <-- Ancho del botón en celular */
+            margin: 0 auto !important;   /* <-- Lo mantiene perfectamente centrado */
+            margin-top: -10px !important;/* <-- Valor negativo para subirlo y acercarlo a su título */
         }
+
+        /* ========================================= */
+        /* 4. CUADRO DE LA "FECHA" (DATE INPUT)      */
+        /* ========================================= */
         div[data-testid="stForm"] div[data-testid="stDateInput"] {
             width: 100% !important;
             margin-left: 0px !important;
