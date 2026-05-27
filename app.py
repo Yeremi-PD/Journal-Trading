@@ -1796,7 +1796,7 @@ with tab_calendario:
         }
         div[data-testid="stForm"] div[data-testid="stTextInput"]:has(input[aria-label="Link"]) {
             width: 100% !important;
-            margin-top: 5px !important;  /* <-- Aumenta a 5px o 10px si quieres bajarlo aún más de su título */
+            margin-top: 0px !important;  /* <-- Aumenta a 5px o 10px si quieres bajarlo aún más de su título */
             margin-left: 0px !important;
         }
         div[data-testid="stForm"] div[data-testid="stPopover"] > button,
