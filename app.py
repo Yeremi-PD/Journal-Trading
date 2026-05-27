@@ -1395,7 +1395,10 @@ div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) {
 </style>
 """, unsafe_allow_html=True)
 
-# 🚀 1. SALUDO GIGANTE EN EL TOPE ABSOLUTO (Visible en todas partes)
+# 🚀 PESTAÑAS HASTA EL TOPE DE ARRIBA (Menú Principal)
+tab_calendario, tab_estadisticas = st.tabs(["📅 CALENDARIO", "📊 ESTADÍSTICAS"])
+
+# 🚀 1. SALUDO GIGANTE (Visible en todas partes, debajo de las pestañas)
 if paso_cuenta: badge_html = f'<span style="font-size: 20px; background-color: #00C897; color: white; padding: 4px 12px; border-radius: 8px; margin-left: 15px; font-weight: 800; letter-spacing: 0px;">{_l["dash"]["pa"]}</span>'
 else: badge_html = f'<span style="font-size: 20px; background-color: #4A5568; color: white; padding: 4px 12px; border-radius: 8px; margin-left: 15px; font-weight: 800; letter-spacing: 0px;">{_l["dash"]["eval"]}</span>'
 st.markdown(f'<div class="dashboard-title" style="display: flex; align-items: center; justify-content: flex-start; margin-bottom: 5px;">{TXT_DASHBOARD}, {usuario} {badge_html}</div>', unsafe_allow_html=True)
@@ -1539,10 +1542,6 @@ with st.container():
     with col_bal:
         st.markdown(f'<div style="text-align:center; margin-bottom:5px;"><span class="lbl-total-bal">{LBL_BAL_TOTAL}</span></div>', unsafe_allow_html=True)
         st.markdown(f'<div class="balance-box">${bal_mostrar:,.2f}</div>', unsafe_allow_html=True)
-
-# 🚀 3. LÍNEA DIVISORIA Y PESTAÑAS (Quedan arriba junto al Saludo)
-st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
-tab_calendario, tab_estadisticas = st.tabs(["📅 CALENDARIO", "📊 ESTADÍSTICAS"])
 
 with tab_calendario:
     # 🚀 FILTROS Y CUENTAS MOVIDOS AQUÍ ABAJO (Adentro del Calendario)
