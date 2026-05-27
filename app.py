@@ -2161,7 +2161,9 @@ with tab_calendario:
                 texto_tg = f"${falta_tg:,.2f}"
                 c_hex_tg = "#FF4C4C" if falta_tg > meta_t else "#FFFFFF"
 
-        st.markdown("""<style>div[data-testid="stElementContainer"]:has(.ancla-subir-todo) { margin-top: -215px !important; margin-bottom: 0px !important; }</style><div class="ancla-subir-todo"></div>""", unsafe_allow_html=True)
+        # 🚀 Removimos el ancla que subía todo al tope y agregamos un título limpio con línea divisoria
+        st.markdown("<br><h3 style='text-align:center; color:gray;'>📊 Estadísticas Generales</h3>", unsafe_allow_html=True)
+        st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
 
         if ctx != "Todas las Cuentas":
             if paso_cuenta: st.toggle(_l['cal']['funded'], key="toggle_funded_state")
@@ -2392,28 +2394,6 @@ with tab_calendario:
                 components.html(html_script_payout, height=1, width=1)
                 st.session_state.retiro_exitoso = False
 
-    with tab_estadisticas:
-        st.markdown("<br><h3 style='text-align:center; color:gray;'>📊 Estadísticas Generales</h3>", unsafe_allow_html=True)
-        
-        # 🚀 CLONAMOS LAS MÉTRICAS YA CALCULADAS (Instantáneo)
-        c_met1_e, c_met2_e, c_met3_e = st.columns(3)
-        with c_met1_e: st.markdown(f"""<div class="metric-card card-pnl"><div class="metric-header"><span class="title-net-pnl" style="font-size: var(--size-card-titles);">{titulo_pnl}</span></div><div style="color: {c_hex_pnl}; font-size: var(--size-box-vals); font-weight: 800;">{simbolo_pnl}${net_pnl:,.2f}</div></div>""", unsafe_allow_html=True)
-        with c_met2_e: st.markdown(f"""<div class="metric-card card-win"><div class="metric-header"><span class="title-trade-win" style="font-size: var(--size-card-titles);">{_l['cal']['tot_tr']}</span></div><div class="rr-value" style="color: white; font-size: var(--size-box-vals) !important;">{total_trades}</div></div>""", unsafe_allow_html=True)
-        with c_met3_e: st.markdown(f"""<div class="metric-card card-rr"><div class="metric-header"><span class="title-trade-win" style="font-size: var(--size-card-titles);">{_l['cal']['avg_rr']}</span></div><div class="rr-value" style="color: #FFFFFF; font-size: var(--size-box-vals) !important;">1 / {rr_promedio:.2f}</div></div>""", unsafe_allow_html=True)
-
-        st.markdown("<br>", unsafe_allow_html=True)
-        st.markdown(f"""<div class="metric-card card-win"><div style="display:flex; justify-content:space-between; align-items:flex-start;"><div><div class="metric-header"><span class="title-trade-win">{titulo_win}</span></div><div class="win-value" style="color: {c_win_card};">{win_pct:.2f}%</div></div></div><div style="display:flex; flex-direction:row; align-items:center; justify-content:center; gap:20px; margin-top:0px; padding:0px;"><div style="width: var(--pie-size); height: var(--pie-size); transform: translateY(var(--pie-y-offset)); flex-shrink: 0; display:flex; margin: -15px 0;">{bar_html}</div><div style="font-size: calc(var(--size-box-wl) * 1.5); font-weight: 800; text-align:center; white-space:nowrap; transform: translateY(var(--pie-y-offset));">{wl_text_pie}</div></div></div>""", unsafe_allow_html=True)
-        
-        if not ver_todo:
-            st.markdown(f'<div class="weeks-container">{semanas_html}<div class="mo-box"><div class="mo-title" style="font-size:var(--size-box-titles) !important;">{TXT_MO}</div><div class="mo-val {cM}" style="font-size:var(--size-box-vals) !important;">{sM}${m_total:,.2f}<br><span style="font-size:var(--size-box-pct);">{sM}{pct_m:.2f}%</span><br><span style="font-size: var(--size-box-wl); font-weight: 500;">{wl_text_mo}</span></div></div></div>', unsafe_allow_html=True)
-        else:
-            if 'meses_html' in locals() and meses_html: st.markdown(f'<div class="weeks-container">{meses_html}</div>', unsafe_allow_html=True)
-
-    st.markdown("<br>", unsafe_allow_html=True)
-    st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
-
-    # 🚀 AQUI CREAMOS LAS PESTAÑAS AL ESTILO FINANCE CENTER 🚀
-tab_hist, tab_tabla, tab_exportar = st.tabs(["🕒 HISTORIAL DE ÓRDENES", "📊 TABLA DE RESULTADOS", "💾 EXPORTAR DATOS"])
 
 def borrar_imagen_historial(contexto, clave, idx_trade, idx_img):
     if len(db_usuario[contexto]["trades"][clave][idx_trade]["imagenes"]) > idx_img: db_usuario[contexto]["trades"][clave][idx_trade]["imagenes"].pop(idx_img)
