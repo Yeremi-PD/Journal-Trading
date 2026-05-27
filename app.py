@@ -1833,7 +1833,7 @@ with tab_calendario:
                 with c_det:
                     st.markdown('<div class="lbl-header">Detalles:</div>', unsafe_allow_html=True)
                     # AQUÍ CAMBIAS EL TEXTO DEL BOTÓN ("📝 Abrir Detalles", etc.)
-                    with st.popover("Abrir Detalles", use_container_width=True):
+                    with st.popover("Abrir", use_container_width=True):
                         # Lógica original de los detalles del trade
                         st.markdown(f"<div class='titulo-trade-details'>{_l['dash']['trade_det']}</div>", unsafe_allow_html=True)
                         st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 5px; margin-bottom: 0px;'>{_l['dash']['bias']}</div>", unsafe_allow_html=True)
