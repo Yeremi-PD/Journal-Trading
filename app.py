@@ -2469,12 +2469,12 @@ with tab_asistente:
     if mensaje_usuario:
         st.toast(f"Has enviado: {mensaje_usuario}", icon="🚀")
 
-# 👇 ESTE ESPACIADOR EMPUJA LAS PESTAÑAS DE ABAJO PARA QUE NO CHOQUEN 👇
-# NOTA: Esta línea DEBE estar a la misma altura (alineación) que el "with tab_asistente:" de arriba.
-st.markdown("<div style='margin-top: 60px;'></div>", unsafe_allow_html=True)
+# 👇 REABRIMOS LA PESTAÑA CALENDARIO PARA ANIDAR LAS SUB-PESTAÑAS AQUÍ 👇
+with tab_calendario:
+    st.markdown("<div style='margin-top: 60px;'></div>", unsafe_allow_html=True)
 
-# 🚀 AQUI CREAMOS LAS PESTAÑAS AL ESTILO FINANCE CENTER 🚀
-tab_hist, tab_tabla, tab_exportar = st.tabs(["🕒 HISTORIAL DE ÓRDENES", "📊 TABLA DE RESULTADOS", "💾 EXPORTAR DATOS"])
+    # 🚀 AQUI CREAMOS LAS PESTAÑAS AL ESTILO FINANCE CENTER 🚀
+    tab_hist, tab_tabla, tab_exportar = st.tabs(["🕒 HISTORIAL DE ÓRDENES", "📊 TABLA DE RESULTADOS", "💾 EXPORTAR DATOS"])
 
 def borrar_imagen_historial(contexto, clave, idx_trade, idx_img):
     if len(db_usuario[contexto]["trades"][clave][idx_trade]["imagenes"]) > idx_img: db_usuario[contexto]["trades"][clave][idx_trade]["imagenes"].pop(idx_img)
