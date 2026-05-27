@@ -2454,10 +2454,8 @@ with tab_asistente:
         st.markdown("<br><h3 style='text-align:center; color:gray;'>🤖 Tu Asistente de Trading con IA</h3>", unsafe_allow_html=True)
         st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
         
-        # 1. Creamos un diseño de chat moderno y limpio
         st.info("¡Hola! Soy tu Asistente Virtual impulsado por Gemini. Pronto podré leer tu historial de trades, darte consejos de psicología y ayudarte a mejorar tus estadísticas. ¿En qué te ayudo hoy?")
         
-        # 2. Historial de mensajes (Falso por ahora para visualizar el diseño)
         with st.chat_message("assistant", avatar="🤖"):
             st.write(f"Hola **{usuario}**, veo que tu balance actual es de **${bal_mostrar:,.2f}**. ¡Vamos a seguir el plan de trading hoy!")
             
@@ -2467,15 +2465,15 @@ with tab_asistente:
         with st.chat_message("assistant", avatar="🤖"):
             st.write("Aún estoy configurando mis circuitos para leer tu Excel, ¡pero visualmente me veo genial!")
 
-        # 3. La caja donde el usuario escribirá
         mensaje_usuario = st.chat_input("Pregúntame sobre tu gestión de riesgo, psicología o análisis de trades...")
         if mensaje_usuario:
             st.toast(f"Has enviado: {mensaje_usuario}", icon="🚀")
 
-# 🚀 Eliminamos el bloque duplicado de estadísticas generales y dejamos directamente el historial
-    
     # 👇 ESTE ESPACIADOR EMPUJA LAS PESTAÑAS DE ABAJO PARA QUE NO CHOQUEN 👇
     st.markdown("<div style='margin-top: 60px;'></div>", unsafe_allow_html=True)
+
+    # 🚀 AQUI CREAMOS LAS PESTAÑAS AL ESTILO FINANCE CENTER 🚀
+    tab_hist, tab_tabla, tab_exportar = st.tabs(["🕒 HISTORIAL DE ÓRDENES", "📊 TABLA DE RESULTADOS", "💾 EXPORTAR DATOS"])
 
     # 🚀 AQUI CREAMOS LAS PESTAÑAS AL ESTILO FINANCE CENTER 🚀
     tab_hist, tab_tabla, tab_exportar = st.tabs(["🕒 HISTORIAL DE ÓRDENES", "📊 TABLA DE RESULTADOS", "💾 EXPORTAR DATOS"])
