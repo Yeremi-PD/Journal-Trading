@@ -1891,7 +1891,7 @@ with tab_calendario:
                         nuevo_corr = st.text_area(_l['dash']['corr'], value='', height=45)
                         
                 with c_link:
-                    st.markdown('<div class="lbl-header">🔗 Image Link:</div>', unsafe_allow_html=True)
+                    st.markdown('<div class="lbl-header">Imagen Link:</div>', unsafe_allow_html=True)
                     link_imagen = st.text_input("Link", value="", label_visibility="collapsed", placeholder="🔗 Pega el Enlace de la Imagen")
                     # Botón upload eliminado a petición, solo usamos el Link de arriba.
                     
