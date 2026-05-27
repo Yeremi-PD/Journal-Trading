@@ -1395,671 +1395,675 @@ div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) {
 </style>
 """, unsafe_allow_html=True)
 
-col_t, col_fil, col_data, col_bal, col_not, col_set = st.columns([2.5, 1.5, 1.5, 2, 0.35, 0.35])
-
-with col_not:
-    with st.popover("📝", use_container_width=True):
-        # Esta clase invisible le avisa al CSS "¡Oye, este es el Bloc de Notas, mándalo al centro!"
-        st.markdown("<div class='identificador-bloc-notas'></div>", unsafe_allow_html=True)
-        
-        # Cargar estado guardado de la base de datos
-        pc_set = db_global[usuario]["settings"]["PC"]
-        
-        if "global_notes_title" not in pc_set: pc_set["global_notes_title"] = "MIS REGLAS DE TRADING"
-        if "notes_title_color" not in pc_set: pc_set["notes_title_color"] = "#00C897"
-        if "notes_title_size" not in pc_set: pc_set["notes_title_size"] = 35
-        if "global_notes_body" not in pc_set: pc_set["global_notes_body"] = ""
-        if "notes_body_color" not in pc_set: pc_set["notes_body_color"] = "#E2E8F0"
-        if "notes_body_size" not in pc_set: pc_set["notes_body_size"] = 18
-
-        # 1. EL FORMULARIO (Donde escribes, con el botón centrado)
-        with st.form("form_notas_globales", border=False):
-            nota_titulo = st.text_input("Título", value=pc_set["global_notes_title"], label_visibility="collapsed")
-            nota_cuerpo = st.text_area("Cuerpo", value=pc_set["global_notes_body"], label_visibility="collapsed", height=600)
-            
-            # Columnas para centrar el botón perfectamente
-            _, col_centro_btn, _ = st.columns([1, 2, 1])
-            with col_centro_btn:
-                btn_guardado = st.form_submit_button("💾 GUARDAR DOCUMENTO EN LA NUBE", use_container_width=True)
-
-        # 2. LOS AJUSTES DE DISEÑO (Una sola vez y ABAJO)
-        with st.expander("🎨 Ajustes de Diseño y Estilo"):
-            c_aj_t1, c_aj_t2 = st.columns(2)
-            with c_aj_t1: new_tit_color = st.color_picker("Color del Título", value=pc_set["notes_title_color"], key="cp_tit_color_notas_unico")
-            with c_aj_t2: new_tit_size = st.slider("Tamaño del Título", 15, 60, value=pc_set["notes_title_size"], key="sl_tit_size_notas_unico")
-            
-            st.markdown("---")
-            c_aj_b1, c_aj_b2 = st.columns(2)
-            with c_aj_b1: new_bod_color = st.color_picker("Color del Texto", value=pc_set["notes_body_color"], key="cp_bod_color_notas_unico")
-            with c_aj_b2: new_bod_size = st.slider("Tamaño del Texto", 10, 40, value=pc_set["notes_body_size"], key="sl_bod_size_notas_unico")
-
-        # 3. LÓGICA DE GUARDADO (Se ejecuta al presionar el botón)
-        if btn_guardado:
-            for dev in ["PC", "Móvil"]:
-                db_global[usuario]["settings"][dev]["global_notes_title"] = nota_titulo
-                db_global[usuario]["settings"][dev]["notes_title_color"] = new_tit_color
-                db_global[usuario]["settings"][dev]["notes_title_size"] = new_tit_size
-                db_global[usuario]["settings"][dev]["global_notes_body"] = nota_cuerpo
-                db_global[usuario]["settings"][dev]["notes_body_color"] = new_bod_color
-                db_global[usuario]["settings"][dev]["notes_body_size"] = new_bod_size
-            
-            reescribir_excel_usuario(usuario)
-            st.success("¡Documento guardado con éxito!")
-            import time
-            time.sleep(1)
-            st.rerun()
-
-        # 4. EL CSS LIMPIO Y PROTEGIDO CONTRA TUS ESTILOS GLOBALES
-        st.markdown(f"""
-        <style>
-        /* Ocultar el molesto texto de "Press Enter to submit form" */
-        div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) div[data-testid="InputInstructions"] {{
-            display: none !important;
-        }}
-
-        /* Destruir las cajas grises de fondo y bordes del Título */
-        div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) div[data-testid="stTextInput"] div[data-baseweb="base-input"],
-        div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) div[data-testid="stTextInput"] div[data-baseweb="input"] {{
-            background-color: transparent !important;
-            border: none !important;
-            box-shadow: none !important;
-        }}
-
-        /* Estilos limpios del texto del Título */
-        div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) div[data-testid="stTextInput"] input {{
-            color: {new_tit_color} !important;
-            font-size: {new_tit_size}px !important;
-            font-weight: 900 !important;
-            text-align: center !important;
-            background-color: transparent !important;
-            border: none !important;
-            padding: 20px !important;
-            height: auto !important;
-        }}
-        
-        /* Destruir las cajas grises y bordes del Cuerpo (TextArea) */
-        div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) div[data-testid="stTextArea"] > div,
-        div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) div[data-testid="stTextArea"] div[data-baseweb="base-input"],
-        div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) div[data-testid="stTextArea"] div[data-baseweb="input"] {{
-            background-color: transparent !important;
-            border: none !important;
-            box-shadow: none !important;
-            height: 600px !important;
-        }}
-
-        /* Estilos limpios del texto del Cuerpo */
-        div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) div[data-testid="stTextArea"] textarea {{
-            color: {new_bod_color} !important;
-            font-size: {new_bod_size}px !important;
-            font-weight: 500 !important;
-            height: 600px !important;
-            line-height: 1.6 !important;
-            background-color: transparent !important;
-            border: none !important;
-            padding: 10px 20px !important;
-        }}
-        
-        /* Eliminar cualquier margen o padding rebelde del formulario interno */
-        div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) [data-testid="stForm"] {{
-            padding: 0 !important;
-            border: none !important;
-            background-color: transparent !important;
-        }}
-        
-        /* ✅ REGLA MAESTRA: Aislar el botón Guardar para que TU css global no lo desvíe */
-        div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) [data-testid="stFormSubmitButton"] button {{
-            width: 100% !important;
-            margin: 0 auto !important;
-            margin-left: 0 !important; /* Anula el margin-left de tu app principal */
-            height: 45px !important;
-            min-height: 45px !important;
-            font-size: 16px !important;
-            border-radius: 8px !important;
-            display: flex !important;
-            justify-content: center !important;
-            align-items: center !important;
-        }}
-        </style>
-        """, unsafe_allow_html=True)
-        
-with col_set:
-    with st.popover("⚙️", use_container_width=True):
-        contenido_ajustes()
-    # ==============================================================
-
-with col_t:
-    if paso_cuenta: badge_html = f'<span style="font-size: 20px; background-color: #00C897; color: white; padding: 4px 12px; border-radius: 8px; margin-left: 15px; font-weight: 800; letter-spacing: 0px;">{_l["dash"]["pa"]}</span>'
-    else: badge_html = f'<span style="font-size: 20px; background-color: #4A5568; color: white; padding: 4px 12px; border-radius: 8px; margin-left: 15px; font-weight: 800; letter-spacing: 0px;">{_l["dash"]["eval"]}</span>'
-    st.markdown(f'<div class="dashboard-title" style="display: flex; align-items: center;">{TXT_DASHBOARD}, {usuario} {badge_html}</div>', unsafe_allow_html=True)
-
-with col_fil: 
-    st.markdown(f'<div class="lbl-filtros">{LBL_FILTROS}</div>', unsafe_allow_html=True)
-    filtro = st.selectbox("Filtros", [OPT_FILTRO_1, OPT_FILTRO_2, OPT_FILTRO_3], label_visibility="collapsed")
-
-with col_data: 
-    st.markdown(f'<div class="lbl-data">{LBL_DATA}</div>', unsafe_allow_html=True)
-    opciones_cta = ["Todas las Cuentas"] + [c for c in db_usuario.keys() if c != "Todas las Cuentas"]
-    st.selectbox("Data Source", opciones_cta, key="data_source_sel", label_visibility="collapsed")
-    try: st.query_params["account"] = st.session_state.data_source_sel; db_global[usuario]["last_account"] = st.session_state.data_source_sel
-    except: pass
-
-with col_bal:
-    st.markdown(f'<div style="text-align:center; margin-bottom:5px;"><span class="lbl-total-bal">{LBL_BAL_TOTAL}</span></div>', unsafe_allow_html=True)
-    st.markdown(f'<div class="balance-box">${bal_mostrar:,.2f}</div>', unsafe_allow_html=True)
-
-st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
-
-# === CSS EXCLUSIVO PARA LA BARRA DE ENTRADA (Estilo Finance Center) ===
-st.markdown("""
-<style>
-/* Contenedor principal de la caja */
-div[data-testid="stForm"] {
-    background-color: #1A202C !important;
-    border: 1px solid #4A5568 !important;
-    border-radius: 12px !important;
-    padding: 15px 20px 20px 20px !important;
-    margin-bottom: 25px !important;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.2) !important;
-}
-
-/* Títulos pequeños de arriba (Date:, Cantidad:, etc.) */
-.lbl-header {
-    font-size: 20px !important;
-    font-weight: 700 !important;
-    color: #E2E8F0 !important;
-    margin-bottom: 6px !important;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-
-/* Inputs de texto y números */
-div[data-testid="stForm"] div[data-baseweb="input"], 
-div[data-testid="stForm"] div[data-baseweb="base-input"] {
-    background-color: #2D3748 !important;
-    border: 1px solid #4A5568 !important;
-    border-radius: 8px !important;
-    height: 40px !important;
-    min-height: 50px !important;
-}
-
-div[data-testid="stForm"] input {
-    color: white !important;
-    font-size: 14px !important;
-    padding: 0 10px !important;
-    height: 40px !important;
-    line-height: 40px !important;
-}
-
-/* 🟢 1. CANTIDAD BLANCA Y TEXTO A 18PT (Apunta a la 2da columna) */
-div[data-testid="stForm"] div[data-testid="column"]:nth-child(2) input {
-    font-size: 18pt !important;       /* <-- AQUÍ CAMBIAS EL TAMAÑO EXACTO */
-    font-weight: 900 !important;
-    color: #FFFFFF !important;        /* <-- COLOR BLANCO */
-    -webkit-text-fill-color: #FFFFFF !important; /* <-- FUERZA EL COLOR BLANCO EN TODOS LOS NAVEGADORES */
-    text-align: center !important;
-}
-
-/* 🟢 2. FECHA EXACTAMENTE CENTRADA */
-div[data-testid="stForm"] div[data-testid="stDateInput"] input {
-    color: white !important;
-    -webkit-text-fill-color: white !important;
-    text-align: center !important;
-    cursor: pointer !important;
-}
-
-/* 🟢 3. OCULTAR EL BOTÓN UPLOAD DEFINITIVAMENTE */
-div[data-testid="stFileUploader"] {
-    display: none !important;
-}
-div[data-testid="stForm"] div[data-testid="stDateInput"]::after {
-    display: none !important; 
-}
-
-/* ==========================================
-   AJUSTES DEL BOTÓN "GUARDAR"
-========================================== */
-div[data-testid="stForm"] [data-testid="stFormSubmitButton"] button {
-    background-color: #00C897 !important; /* Color de fondo (Verde) */
-    color: white !important;              /* Color del texto */
-    font-size: 30pt !important;           /* <-- TAMAÑO DEL TEXTO DEL BOTÓN */
-    font-weight: bold !important;         /* Negrita */
-    
-    height: 50px !important;              /* Altura del botón */
-    min-height: 60px !important;          
-    width: 170% !important;               /* Ancho del botón */
-    
-    border-radius: 8px !important;        /* Bordes redondeados */
-    border: none !important;              /* Sin borde extra */
-    
-    margin-top: 35px !important;           /* <-- SÚBELO O BÁJALO para alinearlo con las otras cajas */
-    
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    transition: all 0.2s ease !important; /* Suaviza las animaciones */
-}
-
-/* Efecto al pasar el mouse por encima del botón GUARDAR (Para que se vea más profesional) */
-div[data-testid="stForm"] [data-testid="stFormSubmitButton"] button:hover {
-    background-color: #00A67D !important; /* Verde un poco más oscuro al pasar el mouse */
-    transform: translateY(-2px) !important; /* Se levanta un poquito */
-    box-shadow: 0px 4px 10px rgba(0, 200, 151, 0.4) !important; /* Sombra verde */
-}
-
-/* ==========================================
-   AJUSTES DEL CUADRO "DATE" (FECHA)
-========================================== */
-div[data-testid="stForm"] div[data-testid="stDateInput"] {
-    width: 90% !important;         /* Qué tanto llena su espacio */
-    margin-top: 0px !important;     /* Mueve el cuadro hacia arriba o abajo */
-    margin-left: -px !important;    /* Muévelo hacia los lados */
-}
-
-/* Para cambiar la altura específica del cuadro de la fecha */
-div[data-testid="stForm"] div[data-testid="stDateInput"] div[data-baseweb="input"], 
-div[data-testid="stForm"] div[data-testid="stDateInput"] div[data-baseweb="base-input"] {
-    min-height: 50px !important;    /* Altura del cuadro */
-    height: 40px !important;        /* Altura del cuadro */
-}
-
-/* ==========================================
-   AJUSTES DEL BOTÓN "TRADE DETAILS" (LIBERADO)
-========================================== */
-/* 1. Liberar la caja contenedora de las ataduras del calendario */
-div[data-testid="stForm"] div[data-testid="stPopover"],
-div[data-testid="stForm"] div[data-testid="stPopover"] > div:first-child {
-    width: 100% !important;
-    min-width: 100% !important;
-    height: 40px !important;        /* <-- Cambia la altura aquí */
-    min-height: 40px !important;    /* <-- Y aquí también */
-    position: relative !important;  /* Rompe el amarre del contenedor */
-    display: block !important;
-    margin: 0 !important;
-    padding: 0 !important;
-}
-
-/* 2. Liberar el botón real (Romper el absolute) */
-div[data-testid="stForm"] div[data-testid="stPopover"] > button,
-div[data-testid="stForm"] div[data-testid="stPopover"] > div:first-child > button {
-    position: relative !important;  /* <-- ESTO ROMPE LAS CADENAS VISUALES */
-    top: auto !important;
-    left: auto !important;
-    
-    width: 100% !important;
-    height: 50px !important;        /* <-- Cambia la altura aquí (igual a las de arriba) */
-    min-height: 40px !important;    /* <-- Y aquí también */
-    margin-top: 0px !important;     /* <-- Súbelo o bájalo para alinearlo */
-    
-    background-color: #2D3748 !important; 
-    border: 1px solid #4A5568 !important;
-    border-radius: 8px !important;        
-    
-    color: white !important;              
-    display: flex !important;
-    justify-content: center !important;   
-    align-items: center !important;
-    padding: 0 10px !important;
-    z-index: 10 !important;
-}
-
-/* 3. Control del TEXTO dentro del botón */
-div[data-testid="stForm"] div[data-testid="stPopover"] > button p,
-div[data-testid="stForm"] div[data-testid="stPopover"] > div:first-child > button p {
-    font-size: 16px !important;           /* Tamaño del texto */
-    font-weight: bold !important;         
-    margin: 0 !important;
-    line-height: 1 !important;
-    color: white !important;
-}
-
-/* ==========================================
-   AJUSTES DEL CUADRO "PEGAR ENLACE"
-========================================== */
-div[data-testid="stForm"] div[data-testid="stTextInput"]:has(input[aria-label="Link"]) {
-    width: 100% !important;         /* Cambia a 80%, 200px, etc. */
-    margin-top: 30px !important;     /* Mueve el input hacia arriba o abajo */
-    margin-left: 0px !important;    /* Mueve el input hacia los lados */
-}
-
-/* ==========================================
-   AJUSTES DEL BOTÓN "UPLOAD" (Subir Archivo)
-========================================== */
-div[data-testid="stFileUploader"] {
-    display: block !important;      /* Revive el botón */
-    width: 100% !important;         /* Ajusta el ancho total del botón */
-    margin-top: -40px !important;    /* Separación desde el cuadro del Link */
-    margin-left: 0px !important;    /* Posición lateral */
-}
-
-/* Diseño interno del cajón de subida */
-div[data-testid="stFileUploader"] [data-testid="stFileUploadDropzone"] {
-    padding: 8px !important;
-    min-height: 40px !important;    /* Altura exacta del botón */
-    background-color: transparent !important; /* <--- FONDO GRIS ELIMINADO */
-    border: 1px dashed #4A5568 !important; /* Si quieres quitarle el borde de rayitas, cambia esto a 'none !important;' */
-    border-radius: 6px !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-}
-
-/* Ocultar los textos feos por defecto de Streamlit */
-div[data-testid="stFileUploader"] [data-testid="stFileUploadDropzone"] button,
-div[data-testid="stFileUploader"] [data-testid="stFileUploadDropzone"] div > span,
-div[data-testid="stFileUploader"] [data-testid="stFileUploadDropzone"] small {
-    display: none !important; 
-}
-
-/* El texto que verás en tu botón */
-div[data-testid="stFileUploader"] [data-testid="stFileUploadDropzone"]::after {
-    content: "📤 Seleccionar Imagen de la PC";
-    color: #A0AEC0 !important;
-    font-size: 14px !important;
-    font-weight: bold !important;
-    cursor: pointer;
-}
-</style>
-""", unsafe_allow_html=True)
-
-# 🚀 CREAMOS LAS PESTAÑAS (Esto hace que el cambio sea INSTANTÁNEO sin redibujar)
+# 🚀 PESTAÑAS EN EL TOPE ABSOLUTO DE LA PÁGINA
 tab_calendario, tab_estadisticas = st.tabs(["📅 CALENDARIO", "📊 ESTADÍSTICAS"])
 
 with tab_calendario:
-    # 🚀 Envolvemos el form en la misma proporción del calendario [2, 1] para que midan EXACTAMENTE lo mismo
-    col_form_area, col_form_vacia = st.columns([2, 1])
+    col_t, col_fil, col_data, col_bal, col_not, col_set = st.columns([2.5, 1.5, 1.5, 2, 0.35, 0.35])
 
-    with col_form_area:
-        with st.form(key="form_main_entry", clear_on_submit=True, border=False):
-            # Le damos mucho más espacio a Date (1.8) y reducimos un poco Cantidad (0.9)
-            c_date, c_cant, c_det, c_link, c_btn = st.columns([0.8, 1.2, 1.1, 2.5, 1])
+    with col_not:
+        with st.popover("📝", use_container_width=True):
+            # Esta clase invisible le avisa al CSS "¡Oye, este es el Bloc de Notas, mándalo al centro!"
+            st.markdown("<div class='identificador-bloc-notas'></div>", unsafe_allow_html=True)
             
-            with c_date:
-                st.markdown('<div class="lbl-header">Date:</div>', unsafe_allow_html=True)
-                # Forzamos a que por defecto SIEMPRE cargue el día actual (hoy)
-                fecha_sel = st.date_input("Fecha", value=hoy, label_visibility="collapsed", key="btn_fecha_directa")
-                
-            with c_cant:
-                st.markdown('<div class="lbl-header">Cantidad:</div>', unsafe_allow_html=True)
-                nuevo_bal_input_str = st.text_input("Balance Input", value="", placeholder=f"{bal_mostrar:.2f}", label_visibility="collapsed")
-                
-            with c_det:
-                st.markdown('<div class="lbl-header">📝 Trade Details:</div>', unsafe_allow_html=True)
-                # AQUÍ CAMBIAS EL TEXTO DEL BOTÓN ("📝 Abrir Detalles", etc.)
-                with st.popover("Abrir Detalles", use_container_width=True):
-                    # Lógica original de los detalles del trade
-                    st.markdown(f"<div class='titulo-trade-details'>{_l['dash']['trade_det']}</div>", unsafe_allow_html=True)
-                    st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 5px; margin-bottom: 0px;'>{_l['dash']['bias']}</div>", unsafe_allow_html=True)
-                    bias_opts = ['LONG', 'SHORT', 'NONE']
-                    nuevo_bias_list = []
-                    cols_bias = st.columns([1, 1, 1, 3])
-                    for idx, op in enumerate(bias_opts):
-                        if cols_bias[idx].checkbox(op, key=f"new_bias_{idx}"): nuevo_bias_list.append(op)
-                    
-                    nuevo_bias = ", ".join(nuevo_bias_list) if nuevo_bias_list else "NONE"
-                    
-                    st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 15px; margin-bottom: 0px;'>Sesión</div>", unsafe_allow_html=True)
-                    sesion_opts = ['New York', 'Asia', 'Londres']
-                    nueva_sesion_list = []
-                    cols_sesion = st.columns([1, 1, 1, 3])
-                    for s_idx, s_op in enumerate(sesion_opts):
-                        if cols_sesion[s_idx].checkbox(s_op, key=f"new_sesion_{s_idx}"): nueva_sesion_list.append(s_op)
-                    nueva_sesion = ", ".join(nueva_sesion_list) if nueva_sesion_list else "NONE"
-                    st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 15px; margin-bottom: 0px;'>{_l['dash']['conf']}</div>", unsafe_allow_html=True)
-                    all_confs_list = ['BIAS WELL', 'LIQ SWEEP', 'IFVG', 'FVG', 'EQH / EQL', 'BSL / SSL', 'POI', 'SMT', 'Order Block', 'Continuation', 'Data High / Data Low', 'CISD']
-                    nuevo_conf = []
-                    cols_conf = st.columns(3)
-                
-                    for idx, c_name in enumerate(all_confs_list):
-                        if cols_conf[idx % 3].checkbox(c_name, key=f"new_conf_{idx}"): nuevo_conf.append(c_name)
-                    st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
-                    nuevo_razon = st.text_area(_l['dash']['reason'], value='', height=45)
-                    st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 5px; margin-bottom: 0px;'>{_l['dash']['risk']}</div>", unsafe_allow_html=True)
-                    risk_opts = ['1%', '0.9%', '0.8%', '0.7%', '0.6%', '0.5%', '0.4%']
-                    nuevo_risk_list = []
-                    cols_risk = st.columns([1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 0.2])
-                    for idx, op in enumerate(risk_opts):
-                        if cols_risk[idx].checkbox(op, key=f"new_risk_{idx}"): nuevo_risk_list.append(op)
+            # Cargar estado guardado de la base de datos
+            pc_set = db_global[usuario]["settings"]["PC"]
             
-                    nuevo_risk = ", ".join(nuevo_risk_list) if nuevo_risk_list else ""
-                    st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 5px; margin-bottom: 0px;'>{_l['dash']['rr']}</div>", unsafe_allow_html=True)
-                    rr_opts = ['1:1', '1:1.5', '1:2', '1:3', '1:4']
-                    nuevo_rr_list = []
-                    cols_rr = st.columns([1.5, 1.5, 1.5, 1.5, 1.5, 1.5]) 
-                    
-                    for idx, op in enumerate(rr_opts):
-                        if cols_rr[idx].checkbox(op, key=f"new_rr_{idx}"): nuevo_rr_list.append(op)
-                    nuevo_rr = ", ".join(nuevo_rr_list) if nuevo_rr_list else ""
-                    st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 5px; margin-bottom: 0px;'>{_l['dash']['tt']}</div>", unsafe_allow_html=True)
-                    tt_opts = ['A+', 'A', 'B', 'C']
-                    nuevo_tt_list = []
-                    cols_tt = st.columns([1, 1, 1, 1, 4])
-                    for idx, op in enumerate(tt_opts):
-                        if cols_tt[idx].checkbox(op, key=f"new_tt_{idx}"): nuevo_tt_list.append(op)
-                
-                    nuevo_tt = ", ".join(nuevo_tt_list) if nuevo_tt_list else ""
-                    st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
-                    nuevo_emo = st.text_area(_l['dash']['emo'], value='', height=45)
-                    nuevo_corr = st.text_area(_l['dash']['corr'], value='', height=45)
-                    
-            with c_link:
-                st.markdown('<div class="lbl-header">🔗 Image Link:</div>', unsafe_allow_html=True)
-                link_imagen = st.text_input("Link", value="", label_visibility="collapsed", placeholder="🔗 Pega el Enlace de la Imagen")
-                # Botón upload eliminado a petición, solo usamos el Link de arriba.
-                
-            with c_btn:
-                btn_save = st.form_submit_button("GUARDAR", key="btn_save_main")
+            if "global_notes_title" not in pc_set: pc_set["global_notes_title"] = "MIS REGLAS DE TRADING"
+            if "notes_title_color" not in pc_set: pc_set["notes_title_color"] = "#00C897"
+            if "notes_title_size" not in pc_set: pc_set["notes_title_size"] = 35
+            if "global_notes_body" not in pc_set: pc_set["global_notes_body"] = ""
+            if "notes_body_color" not in pc_set: pc_set["notes_body_color"] = "#E2E8F0"
+            if "notes_body_size" not in pc_set: pc_set["notes_body_size"] = 18
 
-        if btn_save:
-            entrada_limpia = str(nuevo_bal_input_str).strip()
-            if ctx == "Todas las Cuentas":
-                st.error("⚠️ No puedes registrar un trade en la vista 'Todas las Cuentas'. Selecciona una cuenta específica arriba.")
-            elif entrada_limpia == "":
-                st.error(_l['dash']['err_empty'])
-            else:
-                viejo_real = db_usuario[ctx]["balance"]
-                try:
-                    if entrada_limpia.startswith('+') or entrada_limpia.startswith('-'): pnl = float(entrada_limpia)
-                    else:
-                        valor_float = float(entrada_limpia.replace(',', ''))
-                        if abs(valor_float) < 20000: pnl = valor_float
-                        else: pnl = valor_float - bal_mostrar if valor_float != bal_mostrar else 0.0
-                except ValueError: pnl = 0.0
-                nuevo_bal_absoluto = viejo_real + pnl
-                clave_final = (fecha_sel.year, fecha_sel.month, fecha_sel.day)
-                imgs_finales = []
-                if link_imagen.strip().startswith("http"): 
-                    imgs_finales.append(link_imagen.strip())
+            # 1. EL FORMULARIO (Donde escribes, con el botón centrado)
+            with st.form("form_notas_globales", border=False):
+                nota_titulo = st.text_input("Título", value=pc_set["global_notes_title"], label_visibility="collapsed")
+                nota_cuerpo = st.text_area("Cuerpo", value=pc_set["global_notes_body"], label_visibility="collapsed", height=600)
                 
-                # Botón upload eliminado, mantenemos la lista de Base64 vacía por si hay imágenes viejas en el historial
-                imagenes_base64_extra = []
+                # Columnas para centrar el botón perfectamente
+                _, col_centro_btn, _ = st.columns([1, 2, 1])
+                with col_centro_btn:
+                    btn_guardado = st.form_submit_button("💾 GUARDAR DOCUMENTO EN LA NUBE", use_container_width=True)
 
-                estado_actual = "PA" if st.session_state.get("toggle_funded_state", False) else "Eval"
-                if "payouts" in db_global[usuario]["settings"]["PC"]:
-                    retiros_ac = sum(db_global[usuario]["settings"]["PC"]["payouts"].get(ctx, []))
-                else:
-                    retiros_ac = 0.0
+            # 2. LOS AJUSTES DE DISEÑO (Una sola vez y ABAJO)
+            with st.expander("🎨 Ajustes de Diseño y Estilo"):
+                c_aj_t1, c_aj_t2 = st.columns(2)
+                with c_aj_t1: new_tit_color = st.color_picker("Color del Título", value=pc_set["notes_title_color"], key="cp_tit_color_notas_unico")
+                with c_aj_t2: new_tit_size = st.slider("Tamaño del Título", 15, 60, value=pc_set["notes_title_size"], key="sl_tit_size_notas_unico")
+                
+                st.markdown("---")
+                c_aj_b1, c_aj_b2 = st.columns(2)
+                with c_aj_b1: new_bod_color = st.color_picker("Color del Texto", value=pc_set["notes_body_color"], key="cp_bod_color_notas_unico")
+                with c_aj_b2: new_bod_size = st.slider("Tamaño del Texto", 10, 40, value=pc_set["notes_body_size"], key="sl_bod_size_notas_unico")
 
-                trade_nuevo = {
-                    "pnl": pnl, 
-                    "balance_final": nuevo_bal_absoluto, 
-                    "fecha_str": fecha_sel.strftime("%d/%m/%Y"), 
-                    "imagenes": imgs_finales, 
-                    "imagenes_b64": imagenes_base64_extra, # Se aisla aquí para que guarde en ExtraData
-                    "bias": nuevo_bias, 
-                    "sesion": nueva_sesion,
-                    "Confluences": nuevo_conf, 
-                    "razon_trade": nuevo_razon, 
-                    "Corrections": nuevo_corr, 
-                    "risk": nuevo_risk, 
-                    "RR": nuevo_rr, 
-                    "trade_type": nuevo_tt, 
-                    "Emotions": nuevo_emo,
-                    "hora": "",              
-                    "ticker": "",            
-                    "direccion": "",         
-                    "lotes": "",             
-                    "precio_entrada": "",    
-                    "precio_salida": "",     
-                    "comisiones": "",        
-                    "estado_cuenta": estado_actual,
-                    "retiros_acumulados": retiros_ac
-                }
-                if clave_final not in db_usuario[ctx]["trades"]: db_usuario[ctx]["trades"][clave_final] = []
-                db_usuario[ctx]["trades"][clave_final].append(trade_nuevo)
+            # 3. LÓGICA DE GUARDADO (Se ejecuta al presionar el botón)
+            if btn_guardado:
+                for dev in ["PC", "Móvil"]:
+                    db_global[usuario]["settings"][dev]["global_notes_title"] = nota_titulo
+                    db_global[usuario]["settings"][dev]["notes_title_color"] = new_tit_color
+                    db_global[usuario]["settings"][dev]["notes_title_size"] = new_tit_size
+                    db_global[usuario]["settings"][dev]["global_notes_body"] = nota_cuerpo
+                    db_global[usuario]["settings"][dev]["notes_body_color"] = new_bod_color
+                    db_global[usuario]["settings"][dev]["notes_body_size"] = new_bod_size
+                
+                reescribir_excel_usuario(usuario)
+                st.success("¡Documento guardado con éxito!")
                 import time
-                db_usuario[ctx]["balance"] = nuevo_bal_absoluto
-                registrar_en_excel(usuario, db_global[usuario]["password"], ctx, fecha_sel, nuevo_bal_absoluto, pnl, trade_nuevo, db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
-                st.success(_l['dash']['trade_saved'])
                 time.sleep(1)
                 st.rerun()
 
-    if paso_cuenta and "toggle_funded_state" not in st.session_state: st.session_state.toggle_funded_state = True
-    modo_funded_activo = st.session_state.get("toggle_funded_state", False) and paso_cuenta
+            # 4. EL CSS LIMPIO Y PROTEGIDO CONTRA TUS ESTILOS GLOBALES
+            st.markdown(f"""
+            <style>
+            /* Ocultar el molesto texto de "Press Enter to submit form" */
+            div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) div[data-testid="InputInstructions"] {{
+                display: none !important;
+            }}
 
-    col_cal, col_det = st.columns([2, 1]) 
-    if db_usuario[ctx].get("backtesting_mode", False) and st.session_state.get("forzar_sync_mes", False):
-        st.session_state.cal_month = st.session_state.fecha_backtesting.month
-        st.session_state.cal_year = st.session_state.fecha_backtesting.year
-        st.session_state.forzar_sync_mes = False
+            /* Destruir las cajas grises de fondo y bordes del Título */
+            div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) div[data-testid="stTextInput"] div[data-baseweb="base-input"],
+            div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) div[data-testid="stTextInput"] div[data-baseweb="input"] {{
+                background-color: transparent !important;
+                border: none !important;
+                box-shadow: none !important;
+            }}
 
-    anio_sel = st.session_state.cal_year
-    mes_sel = st.session_state.cal_month
-    nombre_mes = calendar.month_name[mes_sel]
-
-    trades_mes_top = []
-    for k, lista_t in db_usuario[ctx]["trades"].items():
-        if k[0] == anio_sel and k[1] == mes_sel:
-            for t in lista_t:
-                if modo_funded_activo and t.get("is_pre_funded", False): continue
-                trades_mes_top.append(t["pnl"])
-
-    with col_cal:
-        total_trades_top = len(trades_mes_top)
-        net_pnl_top = sum(trades_mes_top) if total_trades_top > 0 else 0.0
-        wins_top = len([t for t in trades_mes_top if t >= 30])
-        losses_top = len([t for t in trades_mes_top if t <= -30])
-        total_validos_top = wins_top + losses_top
-        win_pct_top = (wins_top / total_validos_top * 100) if total_validos_top > 0 else 0.0
-        color_pnl_top = "#00C897" if net_pnl_top >= 0 else "#FF4C4C"
-        bg_pnl_top = "#e6f9f4" if net_pnl_top >= 0 else "#ffeded"
-        simb_pnl_top = "+" if net_pnl_top > 0 else ""
-        color_win_top = "#00C897" if win_pct_top >= 50 else "#FF4C4C"
-        bg_win_top = "#e6f9f4" if win_pct_top >= 50 else "#ffeded"
-
-    # === MODAL INSTANTÁNEO DEL SELECTOR DE FECHAS ELIMINADO ===
-        c_izq, c_cen, c_der, c_stats = st.columns([0.6, 2, 0.6, 3.8])
-        with c_izq: st.button("◀", on_click=cambiar_mes, args=(-1,), use_container_width=True)
-        with c_cen: st.markdown(f'<div style="text-align:center; font-weight:600; font-size:var(--cal-mes-size); color:{c_mes}; margin-top:2px;">{nombre_mes} {anio_sel}</div>', unsafe_allow_html=True)
-        with c_der: st.button("▶", on_click=cambiar_mes, args=(1,), use_container_width=True)
-        with c_stats:
-            # Lógica de cuenta regresiva (Días operables y Fecha de cierre)
-            countdown_html = ""
-            if not paso_cuenta and ctx != "Todas las Cuentas": # Solo si es Eval y no es Todas las Cuentas
-                f_cierre_str = db_usuario[ctx].get("fecha_cierre")
-                try:
-                    if f_cierre_str:
-                        f_cierre_dt = datetime.strptime(f_cierre_str, "%d/%m/%Y").date()
-                    else:
-                        # Fallback si no hay fecha de cierre guardada
-                        f_ini_str = db_usuario[ctx].get("fecha_inicio", hoy.strftime("%d/%m/%Y"))
-                        f_ini_dt = datetime.strptime(f_ini_str, "%d/%m/%Y").date()
-                        f_cierre_dt = f_ini_dt + pd.Timedelta(days=30)
-
-                    # 1. Calcular días operables (SALTANDO los sábados)
-                    dias_restantes_totales = (f_cierre_dt - hoy).days
-                    dias_operables = 0
-                    if dias_restantes_totales > 0:
-                        for i in range(1, dias_restantes_totales + 1):
-                            dia_eval = hoy + pd.Timedelta(days=i)
-                            if dia_eval.weekday() != 5: # El 5 es Sábado en Python (Se ignora)
-                                dias_operables += 1
-                    
-                    dias_restantes = max(0, dias_operables)
-                    
-                    # 2. Formatear la fecha corta (Mes/Día/Año corto)
-                    fecha_corta = f"{f_cierre_dt.month}/{f_cierre_dt.day}/{f_cierre_dt.strftime('%y')}"
-
-                    # 3. Lógica de colores (Rojo si faltan 5 días operables o menos)
-                    color_alerta = "#FF4C4C" if dias_restantes <= 5 else "#00C897"
-                    bg_alerta = "#ffeded" if dias_restantes <= 5 else "#e6f9f4"
-
-                    countdown_html = f'''
-                    <div style="font-weight:700; font-size:var(--size-top-stats); color:{c_mes}; display:flex; align-items:center; gap:8px;"> Cierre: <span style="background-color:{bg_alerta}; color:{color_alerta}; padding:4px 12px; border-radius:12px; font-weight:800;">{fecha_corta}</span></div>
-                    <div style="font-weight:700; font-size:var(--size-top-stats); color:{c_mes}; display:flex; align-items:center; gap:8px;"> Días: <span style="background-color:{bg_alerta}; color:{color_alerta}; padding:4px 12px; border-radius:12px; font-weight:800;">{dias_restantes}</span></div>
-                    '''
-                except: pass
+            /* Estilos limpios del texto del Título */
+            div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) div[data-testid="stTextInput"] input {{
+                color: {new_tit_color} !important;
+                font-size: {new_tit_size}px !important;
+                font-weight: 900 !important;
+                text-align: center !important;
+                background-color: transparent !important;
+                border: none !important;
+                padding: 20px !important;
+                height: auto !important;
+            }}
             
-            st.markdown(f'''<div style="display:flex; justify-content:flex-end; align-items:center; gap:20px; margin-top:8px;">{countdown_html}<div style="font-weight:700; font-size:var(--size-top-stats); color:{c_mes}; display:flex; align-items:center; gap:8px;"> P&L: <span style="background-color:{bg_pnl_top}; color:{color_pnl_top}; padding:4px 12px; border-radius:12px; font-weight:800;">{simb_pnl_top}${net_pnl_top:,.2f}</span></div><div style="font-weight:700; font-size:var(--size-top-stats); color:{c_mes}; display:flex; align-items:center; gap:8px;">Win Rate: <span style="background-color:{bg_win_top}; color:{color_win_top}; padding:4px 12px; border-radius:12px; font-weight:800;">{win_pct_top:.1f}%</span></div></div>''', unsafe_allow_html=True)
+            /* Destruir las cajas grises y bordes del Cuerpo (TextArea) */
+            div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) div[data-testid="stTextArea"] > div,
+            div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) div[data-testid="stTextArea"] div[data-baseweb="base-input"],
+            div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) div[data-testid="stTextArea"] div[data-baseweb="input"] {{
+                background-color: transparent !important;
+                border: none !important;
+                box-shadow: none !important;
+                height: 600px !important;
+            }}
+
+            /* Estilos limpios del texto del Cuerpo */
+            div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) div[data-testid="stTextArea"] textarea {{
+                color: {new_bod_color} !important;
+                font-size: {new_bod_size}px !important;
+                font-weight: 500 !important;
+                height: 600px !important;
+                line-height: 1.6 !important;
+                background-color: transparent !important;
+                border: none !important;
+                padding: 10px 20px !important;
+            }}
+            
+            /* Eliminar cualquier margen o padding rebelde del formulario interno */
+            div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) [data-testid="stForm"] {{
+                padding: 0 !important;
+                border: none !important;
+                background-color: transparent !important;
+            }}
+            
+            /* ✅ REGLA MAESTRA: Aislar el botón Guardar para que TU css global no lo desvíe */
+            div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) [data-testid="stFormSubmitButton"] button {{
+                width: 100% !important;
+                margin: 0 auto !important;
+                margin-left: 0 !important; /* Anula el margin-left de tu app principal */
+                height: 45px !important;
+                min-height: 45px !important;
+                font-size: 16px !important;
+                border-radius: 8px !important;
+                display: flex !important;
+                justify-content: center !important;
+                align-items: center !important;
+            }}
+            </style>
+            """, unsafe_allow_html=True)
+            
+    with col_set:
+        with st.popover("⚙️", use_container_width=True):
+            contenido_ajustes()
+        # ==============================================================
+
+    with col_t:
+        if paso_cuenta: badge_html = f'<span style="font-size: 20px; background-color: #00C897; color: white; padding: 4px 12px; border-radius: 8px; margin-left: 15px; font-weight: 800; letter-spacing: 0px;">{_l["dash"]["pa"]}</span>'
+        else: badge_html = f'<span style="font-size: 20px; background-color: #4A5568; color: white; padding: 4px 12px; border-radius: 8px; margin-left: 15px; font-weight: 800; letter-spacing: 0px;">{_l["dash"]["eval"]}</span>'
+        st.markdown(f'<div class="dashboard-title" style="display: flex; align-items: center;">{TXT_DASHBOARD}, {usuario} {badge_html}</div>', unsafe_allow_html=True)
+
+    with col_fil: 
+        st.markdown(f'<div class="lbl-filtros">{LBL_FILTROS}</div>', unsafe_allow_html=True)
+        filtro = st.selectbox("Filtros", [OPT_FILTRO_1, OPT_FILTRO_2, OPT_FILTRO_3], label_visibility="collapsed")
+
+    with col_data: 
+        st.markdown(f'<div class="lbl-data">{LBL_DATA}</div>', unsafe_allow_html=True)
+        opciones_cta = ["Todas las Cuentas"] + [c for c in db_usuario.keys() if c != "Todas las Cuentas"]
+        st.selectbox("Data Source", opciones_cta, key="data_source_sel", label_visibility="collapsed")
+        try: st.query_params["account"] = st.session_state.data_source_sel; db_global[usuario]["last_account"] = st.session_state.data_source_sel
+        except: pass
+
+    with col_bal:
+        st.markdown(f'<div style="text-align:center; margin-bottom:5px;"><span class="lbl-total-bal">{LBL_BAL_TOTAL}</span></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="balance-box">${bal_mostrar:,.2f}</div>', unsafe_allow_html=True)
+
+    st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
+
+    # === CSS EXCLUSIVO PARA LA BARRA DE ENTRADA (Estilo Finance Center) ===
+    st.markdown("""
+    <style>
+    /* Contenedor principal de la caja */
+    div[data-testid="stForm"] {
+        background-color: #1A202C !important;
+        border: 1px solid #4A5568 !important;
+        border-radius: 12px !important;
+        padding: 15px 20px 20px 20px !important;
+        margin-bottom: 25px !important;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.2) !important;
+    }
+
+    /* Títulos pequeños de arriba (Date:, Cantidad:, etc.) */
+    .lbl-header {
+        font-size: 20px !important;
+        font-weight: 700 !important;
+        color: #E2E8F0 !important;
+        margin-bottom: 6px !important;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    /* Inputs de texto y números */
+    div[data-testid="stForm"] div[data-baseweb="input"], 
+    div[data-testid="stForm"] div[data-baseweb="base-input"] {
+        background-color: #2D3748 !important;
+        border: 1px solid #4A5568 !important;
+        border-radius: 8px !important;
+        height: 40px !important;
+        min-height: 50px !important;
+    }
+
+    div[data-testid="stForm"] input {
+        color: white !important;
+        font-size: 14px !important;
+        padding: 0 10px !important;
+        height: 40px !important;
+        line-height: 40px !important;
+    }
+
+    /* 🟢 1. CANTIDAD BLANCA Y TEXTO A 18PT (Apunta a la 2da columna) */
+    div[data-testid="stForm"] div[data-testid="column"]:nth-child(2) input {
+        font-size: 18pt !important;       /* <-- AQUÍ CAMBIAS EL TAMAÑO EXACTO */
+        font-weight: 900 !important;
+        color: #FFFFFF !important;        /* <-- COLOR BLANCO */
+        -webkit-text-fill-color: #FFFFFF !important; /* <-- FUERZA EL COLOR BLANCO EN TODOS LOS NAVEGADORES */
+        text-align: center !important;
+    }
+
+    /* 🟢 2. FECHA EXACTAMENTE CENTRADA */
+    div[data-testid="stForm"] div[data-testid="stDateInput"] input {
+        color: white !important;
+        -webkit-text-fill-color: white !important;
+        text-align: center !important;
+        cursor: pointer !important;
+    }
+
+    /* 🟢 3. OCULTAR EL BOTÓN UPLOAD DEFINITIVAMENTE */
+    div[data-testid="stFileUploader"] {
+        display: none !important;
+    }
+    div[data-testid="stForm"] div[data-testid="stDateInput"]::after {
+        display: none !important; 
+    }
+
+    /* ==========================================
+    AJUSTES DEL BOTÓN "GUARDAR"
+    ========================================== */
+    div[data-testid="stForm"] [data-testid="stFormSubmitButton"] button {
+        background-color: #00C897 !important; /* Color de fondo (Verde) */
+        color: white !important;              /* Color del texto */
+        font-size: 30pt !important;           /* <-- TAMAÑO DEL TEXTO DEL BOTÓN */
+        font-weight: bold !important;         /* Negrita */
         
-        st.markdown("<br>", unsafe_allow_html=True)
-        if st.session_state.idioma == "ES": dias_semana = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"]
-        else: dias_semana = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
-        calendar.setfirstweekday(calendar.SUNDAY)
-        mes_matriz = calendar.monthcalendar(anio_sel, mes_sel)
+        height: 50px !important;              /* Altura del botón */
+        min-height: 60px !important;          
+        width: 170% !important;               /* Ancho del botón */
         
-        h_cols = st.columns(7)
-        for i, d in enumerate(dias_semana): h_cols[i].markdown(f"<div class='txt-dias-sem'>{d}</div>", unsafe_allow_html=True)
+        border-radius: 8px !important;        /* Bordes redondeados */
+        border: none !important;              /* Sin borde extra */
         
-        for semana_dias in mes_matriz:
-            d_cols = st.columns(7)
-            for i, dia in enumerate(semana_dias):
-                with d_cols[i]:
-                    if dia == 0: st.markdown('<div class="card cell-empty"></div>', unsafe_allow_html=True)
-                    else:
-                        dia_trades = db_usuario[ctx]["trades"].get((anio_sel, mes_sel, dia), [])
-                        trades_visibles = []
-                        for t in dia_trades:
-                            if st.session_state.get("toggle_funded_state", False) and t.get("is_pre_funded", False): continue
-                            if filtro == OPT_FILTRO_2 and t["pnl"] <= 0: continue
-                            if filtro == OPT_FILTRO_3 and t["pnl"] >= 0: continue
-                            trades_visibles.append(t)
-                        if trades_visibles:
-                            pnl_dia = sum(t["pnl"] for t in trades_visibles)
-                            if pnl_dia >= 30:
-                                c_cls = "cell-win"
-                                c_sim = "+"
-                            elif pnl_dia <= -30:
-                                c_cls = "cell-loss"
-                                c_sim = ""
-                            else:
-                                c_cls = "cell-be-win" if pnl_dia >= 0 else "cell-be-loss"
-                                c_sim = "+" if pnl_dia > 0 else ""
-                            bal_ini = trades_visibles[-1]["balance_final"] - pnl_dia
-                            pct = (pnl_dia / bal_ini * 100) if bal_ini != 0 else 0
-                            pct_str = f"{c_sim}{pct:.2f}%"
-                            todas_imagenes = []
-                            for t in trades_visibles: todas_imagenes.extend(t.get("imagenes", []))
-                            if todas_imagenes:
-                                id_modal = f"mod_{anio_sel}_{mes_sel}_{dia}"
-                                img_tags = ""
-                                for idx_img_gal, img_url in enumerate(todas_imagenes):
-                                    disp = "block" if idx_img_gal == 0 else "none"
-                                    img_tags += f'<img src="{img_url}" class="gallery-img" data-idx="{idx_img_gal}" style="display: {disp};">'
-                                nav_html = ""
-                                if len(todas_imagenes) > 1: nav_html = f'<div class="gallery-nav"><div class="prev-img-btn">◀</div><div class="img-counter">1 / {len(todas_imagenes)}</div><div class="next-img-btn">▶</div></div>'
-                                cam_html = f'<div><input type="checkbox" id="{id_modal}" class="modal-toggle" style="display:none;"><label for="{id_modal}"><div class="cam-icon">{BTN_CAM_EMOJI}</div></label><div class="fs-modal" data-current="0" data-total="{len(todas_imagenes)}"><div class="modal-controls">{nav_html}<div class="zoom-out-btn">➖</div><div class="zoom-in-btn">➕</div><label for="{id_modal}" class="close-btn">{TXT_CERRAR_MODAL}</label></div>{img_tags}</div></div>'
-                            else: cam_html = ""
-                            notas_html_contenido = ""
-                            has_notes = False
-                            for idx_t, t in enumerate(trades_visibles):
-                                if bool(t.get("razon_trade", "").strip() or t.get("Corrections", "").strip() or t.get("Emotions", "").strip() or t.get("Confluences", [])):
-                                    has_notes = True
-                                    confluences_str = ", ".join(t.get("Confluences", []))
-                                    pnl_val_nota = t["pnl"]
-                                    pnl_color_nota = "#00C897" if pnl_val_nota >= 0 else "#FF4C4C"
-                                    simbolo_nota = "+" if pnl_val_nota > 0 else ("-" if pnl_val_nota < 0 else "")
-                                    pnl_formateado_nota = f"{simbolo_nota}${abs(pnl_val_nota):,.2f}"
-                                    notas_html_contenido += f'<div style="margin-bottom: 15px;"><h4 style="color:{pnl_color_nota}; margin:0;">Trade {idx_t+1} = {pnl_formateado_nota}</h4><b>{_l["dash"]["bias"]}:</b> <span class="note-val">{t.get("bias", "NONE")}</span><br><b>{_l["dash"]["conf"]}:</b> <span class="note-val">{confluences_str}</span><br><b>{_l["dash"]["reason"]}:</b> <span class="note-val">{t.get("razon_trade", "")}</span><br><b>{_l["dash"]["corr"]}:</b> <span class="note-val">{t.get("Corrections", "")}</span><br><b>{_l["dash"]["risk"]}:</b> <span class="note-val">{t.get("risk", "")}</span><br><b>{_l["dash"]["rr"]}:</b> <span class="note-val">{t.get("RR", "")}</span><br><b>{_l["dash"]["tt"]}:</b> <span class="note-val">{t.get("trade_type", "")}</span><br><b>{_l["dash"]["emo"]}:</b> <span class="note-val">{t.get("Emotions", "")}</span></div>'
-                            if has_notes:
-                                id_note_modal = f"mod_note_{anio_sel}_{mes_sel}_{dia}"
-                                note_html = f'<div><input type="checkbox" id="{id_note_modal}" class="modal-toggle" style="display:none;"><label for="{id_note_modal}"><div class="note-icon">💭</div></label><div class="fs-modal"><label for="{id_note_modal}" class="close-btn">{TXT_CERRAR_MODAL}</label><div class="note-modal-content"><h3 style="text-align:center; margin-top:0; font-size: var(--note-lbl-size);">💭 Trades - {dia}/{mes_sel}/{anio_sel}</h3><hr>{notas_html_contenido}</div></div></div>'
-                            else: note_html = ""
-                            cnt_str = f" ({len(trades_visibles)})" if len(trades_visibles) > 1 else ""
-                            st.markdown(f'<div class="card {c_cls}"><div class="day-number">{dia}</div><div class="day-content"><span class="day-pnl">{c_sim}${pnl_dia:,.2f}</span><br><span class="day-pct">{pct_str}{cnt_str}</span></div>{cam_html}{note_html}</div>', unsafe_allow_html=True)
+        margin-top: 35px !important;           /* <-- SÚBELO O BÁJALO para alinearlo con las otras cajas */
+        
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        transition: all 0.2s ease !important; /* Suaviza las animaciones */
+    }
+
+    /* Efecto al pasar el mouse por encima del botón GUARDAR (Para que se vea más profesional) */
+    div[data-testid="stForm"] [data-testid="stFormSubmitButton"] button:hover {
+        background-color: #00A67D !important; /* Verde un poco más oscuro al pasar el mouse */
+        transform: translateY(-2px) !important; /* Se levanta un poquito */
+        box-shadow: 0px 4px 10px rgba(0, 200, 151, 0.4) !important; /* Sombra verde */
+    }
+
+    /* ==========================================
+    AJUSTES DEL CUADRO "DATE" (FECHA)
+    ========================================== */
+    div[data-testid="stForm"] div[data-testid="stDateInput"] {
+        width: 90% !important;         /* Qué tanto llena su espacio */
+        margin-top: 0px !important;     /* Mueve el cuadro hacia arriba o abajo */
+        margin-left: -px !important;    /* Muévelo hacia los lados */
+    }
+
+    /* Para cambiar la altura específica del cuadro de la fecha */
+    div[data-testid="stForm"] div[data-testid="stDateInput"] div[data-baseweb="input"], 
+    div[data-testid="stForm"] div[data-testid="stDateInput"] div[data-baseweb="base-input"] {
+        min-height: 50px !important;    /* Altura del cuadro */
+        height: 40px !important;        /* Altura del cuadro */
+    }
+
+    /* ==========================================
+    AJUSTES DEL BOTÓN "TRADE DETAILS" (LIBERADO)
+    ========================================== */
+    /* 1. Liberar la caja contenedora de las ataduras del calendario */
+    div[data-testid="stForm"] div[data-testid="stPopover"],
+    div[data-testid="stForm"] div[data-testid="stPopover"] > div:first-child {
+        width: 100% !important;
+        min-width: 100% !important;
+        height: 40px !important;        /* <-- Cambia la altura aquí */
+        min-height: 40px !important;    /* <-- Y aquí también */
+        position: relative !important;  /* Rompe el amarre del contenedor */
+        display: block !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    /* 2. Liberar el botón real (Romper el absolute) */
+    div[data-testid="stForm"] div[data-testid="stPopover"] > button,
+    div[data-testid="stForm"] div[data-testid="stPopover"] > div:first-child > button {
+        position: relative !important;  /* <-- ESTO ROMPE LAS CADENAS VISUALES */
+        top: auto !important;
+        left: auto !important;
+        
+        width: 100% !important;
+        height: 50px !important;        /* <-- Cambia la altura aquí (igual a las de arriba) */
+        min-height: 40px !important;    /* <-- Y aquí también */
+        margin-top: 0px !important;     /* <-- Súbelo o bájalo para alinearlo */
+        
+        background-color: #2D3748 !important; 
+        border: 1px solid #4A5568 !important;
+        border-radius: 8px !important;        
+        
+        color: white !important;              
+        display: flex !important;
+        justify-content: center !important;   
+        align-items: center !important;
+        padding: 0 10px !important;
+        z-index: 10 !important;
+    }
+
+    /* 3. Control del TEXTO dentro del botón */
+    div[data-testid="stForm"] div[data-testid="stPopover"] > button p,
+    div[data-testid="stForm"] div[data-testid="stPopover"] > div:first-child > button p {
+        font-size: 16px !important;           /* Tamaño del texto */
+        font-weight: bold !important;         
+        margin: 0 !important;
+        line-height: 1 !important;
+        color: white !important;
+    }
+
+    /* ==========================================
+    AJUSTES DEL CUADRO "PEGAR ENLACE"
+    ========================================== */
+    div[data-testid="stForm"] div[data-testid="stTextInput"]:has(input[aria-label="Link"]) {
+        width: 100% !important;         /* Cambia a 80%, 200px, etc. */
+        margin-top: 30px !important;     /* Mueve el input hacia arriba o abajo */
+        margin-left: 0px !important;    /* Mueve el input hacia los lados */
+    }
+
+    /* ==========================================
+    AJUSTES DEL BOTÓN "UPLOAD" (Subir Archivo)
+    ========================================== */
+    div[data-testid="stFileUploader"] {
+        display: block !important;      /* Revive el botón */
+        width: 100% !important;         /* Ajusta el ancho total del botón */
+        margin-top: -40px !important;    /* Separación desde el cuadro del Link */
+        margin-left: 0px !important;    /* Posición lateral */
+    }
+
+    /* Diseño interno del cajón de subida */
+    div[data-testid="stFileUploader"] [data-testid="stFileUploadDropzone"] {
+        padding: 8px !important;
+        min-height: 40px !important;    /* Altura exacta del botón */
+        background-color: transparent !important; /* <--- FONDO GRIS ELIMINADO */
+        border: 1px dashed #4A5568 !important; /* Si quieres quitarle el borde de rayitas, cambia esto a 'none !important;' */
+        border-radius: 6px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+
+    /* Ocultar los textos feos por defecto de Streamlit */
+    div[data-testid="stFileUploader"] [data-testid="stFileUploadDropzone"] button,
+    div[data-testid="stFileUploader"] [data-testid="stFileUploadDropzone"] div > span,
+    div[data-testid="stFileUploader"] [data-testid="stFileUploadDropzone"] small {
+        display: none !important; 
+    }
+
+    /* El texto que verás en tu botón */
+    div[data-testid="stFileUploader"] [data-testid="stFileUploadDropzone"]::after {
+        content: "📤 Seleccionar Imagen de la PC";
+        color: #A0AEC0 !important;
+        font-size: 14px !important;
+        font-weight: bold !important;
+        cursor: pointer;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+    # 🚀 CREAMOS LAS PESTAÑAS (Esto hace que el cambio sea INSTANTÁNEO sin redibujar)
+    tab_calendario, tab_estadisticas = st.tabs(["📅 CALENDARIO", "📊 ESTADÍSTICAS"])
+
+    with tab_calendario:
+        # 🚀 Envolvemos el form en la misma proporción del calendario [2, 1] para que midan EXACTAMENTE lo mismo
+        col_form_area, col_form_vacia = st.columns([2, 1])
+
+        with col_form_area:
+            with st.form(key="form_main_entry", clear_on_submit=True, border=False):
+                # Le damos mucho más espacio a Date (1.8) y reducimos un poco Cantidad (0.9)
+                c_date, c_cant, c_det, c_link, c_btn = st.columns([0.8, 1.2, 1.1, 2.5, 1])
+                
+                with c_date:
+                    st.markdown('<div class="lbl-header">Date:</div>', unsafe_allow_html=True)
+                    # Forzamos a que por defecto SIEMPRE cargue el día actual (hoy)
+                    fecha_sel = st.date_input("Fecha", value=hoy, label_visibility="collapsed", key="btn_fecha_directa")
+                    
+                with c_cant:
+                    st.markdown('<div class="lbl-header">Cantidad:</div>', unsafe_allow_html=True)
+                    nuevo_bal_input_str = st.text_input("Balance Input", value="", placeholder=f"{bal_mostrar:.2f}", label_visibility="collapsed")
+                    
+                with c_det:
+                    st.markdown('<div class="lbl-header">📝 Trade Details:</div>', unsafe_allow_html=True)
+                    # AQUÍ CAMBIAS EL TEXTO DEL BOTÓN ("📝 Abrir Detalles", etc.)
+                    with st.popover("Abrir Detalles", use_container_width=True):
+                        # Lógica original de los detalles del trade
+                        st.markdown(f"<div class='titulo-trade-details'>{_l['dash']['trade_det']}</div>", unsafe_allow_html=True)
+                        st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 5px; margin-bottom: 0px;'>{_l['dash']['bias']}</div>", unsafe_allow_html=True)
+                        bias_opts = ['LONG', 'SHORT', 'NONE']
+                        nuevo_bias_list = []
+                        cols_bias = st.columns([1, 1, 1, 3])
+                        for idx, op in enumerate(bias_opts):
+                            if cols_bias[idx].checkbox(op, key=f"new_bias_{idx}"): nuevo_bias_list.append(op)
+                        
+                        nuevo_bias = ", ".join(nuevo_bias_list) if nuevo_bias_list else "NONE"
+                        
+                        st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 15px; margin-bottom: 0px;'>Sesión</div>", unsafe_allow_html=True)
+                        sesion_opts = ['New York', 'Asia', 'Londres']
+                        nueva_sesion_list = []
+                        cols_sesion = st.columns([1, 1, 1, 3])
+                        for s_idx, s_op in enumerate(sesion_opts):
+                            if cols_sesion[s_idx].checkbox(s_op, key=f"new_sesion_{s_idx}"): nueva_sesion_list.append(s_op)
+                        nueva_sesion = ", ".join(nueva_sesion_list) if nueva_sesion_list else "NONE"
+                        st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 15px; margin-bottom: 0px;'>{_l['dash']['conf']}</div>", unsafe_allow_html=True)
+                        all_confs_list = ['BIAS WELL', 'LIQ SWEEP', 'IFVG', 'FVG', 'EQH / EQL', 'BSL / SSL', 'POI', 'SMT', 'Order Block', 'Continuation', 'Data High / Data Low', 'CISD']
+                        nuevo_conf = []
+                        cols_conf = st.columns(3)
+                    
+                        for idx, c_name in enumerate(all_confs_list):
+                            if cols_conf[idx % 3].checkbox(c_name, key=f"new_conf_{idx}"): nuevo_conf.append(c_name)
+                        st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
+                        nuevo_razon = st.text_area(_l['dash']['reason'], value='', height=45)
+                        st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 5px; margin-bottom: 0px;'>{_l['dash']['risk']}</div>", unsafe_allow_html=True)
+                        risk_opts = ['1%', '0.9%', '0.8%', '0.7%', '0.6%', '0.5%', '0.4%']
+                        nuevo_risk_list = []
+                        cols_risk = st.columns([1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 0.2])
+                        for idx, op in enumerate(risk_opts):
+                            if cols_risk[idx].checkbox(op, key=f"new_risk_{idx}"): nuevo_risk_list.append(op)
+                
+                        nuevo_risk = ", ".join(nuevo_risk_list) if nuevo_risk_list else ""
+                        st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 5px; margin-bottom: 0px;'>{_l['dash']['rr']}</div>", unsafe_allow_html=True)
+                        rr_opts = ['1:1', '1:1.5', '1:2', '1:3', '1:4']
+                        nuevo_rr_list = []
+                        cols_rr = st.columns([1.5, 1.5, 1.5, 1.5, 1.5, 1.5]) 
+                        
+                        for idx, op in enumerate(rr_opts):
+                            if cols_rr[idx].checkbox(op, key=f"new_rr_{idx}"): nuevo_rr_list.append(op)
+                        nuevo_rr = ", ".join(nuevo_rr_list) if nuevo_rr_list else ""
+                        st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 5px; margin-bottom: 0px;'>{_l['dash']['tt']}</div>", unsafe_allow_html=True)
+                        tt_opts = ['A+', 'A', 'B', 'C']
+                        nuevo_tt_list = []
+                        cols_tt = st.columns([1, 1, 1, 1, 4])
+                        for idx, op in enumerate(tt_opts):
+                            if cols_tt[idx].checkbox(op, key=f"new_tt_{idx}"): nuevo_tt_list.append(op)
+                    
+                        nuevo_tt = ", ".join(nuevo_tt_list) if nuevo_tt_list else ""
+                        st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
+                        nuevo_emo = st.text_area(_l['dash']['emo'], value='', height=45)
+                        nuevo_corr = st.text_area(_l['dash']['corr'], value='', height=45)
+                        
+                with c_link:
+                    st.markdown('<div class="lbl-header">🔗 Image Link:</div>', unsafe_allow_html=True)
+                    link_imagen = st.text_input("Link", value="", label_visibility="collapsed", placeholder="🔗 Pega el Enlace de la Imagen")
+                    # Botón upload eliminado a petición, solo usamos el Link de arriba.
+                    
+                with c_btn:
+                    btn_save = st.form_submit_button("GUARDAR", key="btn_save_main")
+
+            if btn_save:
+                entrada_limpia = str(nuevo_bal_input_str).strip()
+                if ctx == "Todas las Cuentas":
+                    st.error("⚠️ No puedes registrar un trade en la vista 'Todas las Cuentas'. Selecciona una cuenta específica arriba.")
+                elif entrada_limpia == "":
+                    st.error(_l['dash']['err_empty'])
+                else:
+                    viejo_real = db_usuario[ctx]["balance"]
+                    try:
+                        if entrada_limpia.startswith('+') or entrada_limpia.startswith('-'): pnl = float(entrada_limpia)
                         else:
-                            op = "0.2" if len(dia_trades) > 0 else "1"
-                            st.markdown(f'<div class="card cell-empty" style="opacity:{op}"><div class="day-number">{dia}</div></div>', unsafe_allow_html=True)
+                            valor_float = float(entrada_limpia.replace(',', ''))
+                            if abs(valor_float) < 20000: pnl = valor_float
+                            else: pnl = valor_float - bal_mostrar if valor_float != bal_mostrar else 0.0
+                    except ValueError: pnl = 0.0
+                    nuevo_bal_absoluto = viejo_real + pnl
+                    clave_final = (fecha_sel.year, fecha_sel.month, fecha_sel.day)
+                    imgs_finales = []
+                    if link_imagen.strip().startswith("http"): 
+                        imgs_finales.append(link_imagen.strip())
+                    
+                    # Botón upload eliminado, mantenemos la lista de Base64 vacía por si hay imágenes viejas en el historial
+                    imagenes_base64_extra = []
+
+                    estado_actual = "PA" if st.session_state.get("toggle_funded_state", False) else "Eval"
+                    if "payouts" in db_global[usuario]["settings"]["PC"]:
+                        retiros_ac = sum(db_global[usuario]["settings"]["PC"]["payouts"].get(ctx, []))
+                    else:
+                        retiros_ac = 0.0
+
+                    trade_nuevo = {
+                        "pnl": pnl, 
+                        "balance_final": nuevo_bal_absoluto, 
+                        "fecha_str": fecha_sel.strftime("%d/%m/%Y"), 
+                        "imagenes": imgs_finales, 
+                        "imagenes_b64": imagenes_base64_extra, # Se aisla aquí para que guarde en ExtraData
+                        "bias": nuevo_bias, 
+                        "sesion": nueva_sesion,
+                        "Confluences": nuevo_conf, 
+                        "razon_trade": nuevo_razon, 
+                        "Corrections": nuevo_corr, 
+                        "risk": nuevo_risk, 
+                        "RR": nuevo_rr, 
+                        "trade_type": nuevo_tt, 
+                        "Emotions": nuevo_emo,
+                        "hora": "",              
+                        "ticker": "",            
+                        "direccion": "",         
+                        "lotes": "",             
+                        "precio_entrada": "",    
+                        "precio_salida": "",     
+                        "comisiones": "",        
+                        "estado_cuenta": estado_actual,
+                        "retiros_acumulados": retiros_ac
+                    }
+                    if clave_final not in db_usuario[ctx]["trades"]: db_usuario[ctx]["trades"][clave_final] = []
+                    db_usuario[ctx]["trades"][clave_final].append(trade_nuevo)
+                    import time
+                    db_usuario[ctx]["balance"] = nuevo_bal_absoluto
+                    registrar_en_excel(usuario, db_global[usuario]["password"], ctx, fecha_sel, nuevo_bal_absoluto, pnl, trade_nuevo, db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
+                    st.success(_l['dash']['trade_saved'])
+                    time.sleep(1)
+                    st.rerun()
+
+        if paso_cuenta and "toggle_funded_state" not in st.session_state: st.session_state.toggle_funded_state = True
+        modo_funded_activo = st.session_state.get("toggle_funded_state", False) and paso_cuenta
+
+        col_cal = st.container() 
+        if db_usuario[ctx].get("backtesting_mode", False) and st.session_state.get("forzar_sync_mes", False):
+            st.session_state.cal_month = st.session_state.fecha_backtesting.month
+            st.session_state.cal_year = st.session_state.fecha_backtesting.year
+            st.session_state.forzar_sync_mes = False
+
+        anio_sel = st.session_state.cal_year
+        mes_sel = st.session_state.cal_month
+        nombre_mes = calendar.month_name[mes_sel]
+
+        trades_mes_top = []
+        for k, lista_t in db_usuario[ctx]["trades"].items():
+            if k[0] == anio_sel and k[1] == mes_sel:
+                for t in lista_t:
+                    if modo_funded_activo and t.get("is_pre_funded", False): continue
+                    trades_mes_top.append(t["pnl"])
+
+        with col_cal:
+            total_trades_top = len(trades_mes_top)
+            net_pnl_top = sum(trades_mes_top) if total_trades_top > 0 else 0.0
+            wins_top = len([t for t in trades_mes_top if t >= 30])
+            losses_top = len([t for t in trades_mes_top if t <= -30])
+            total_validos_top = wins_top + losses_top
+            win_pct_top = (wins_top / total_validos_top * 100) if total_validos_top > 0 else 0.0
+            color_pnl_top = "#00C897" if net_pnl_top >= 0 else "#FF4C4C"
+            bg_pnl_top = "#e6f9f4" if net_pnl_top >= 0 else "#ffeded"
+            simb_pnl_top = "+" if net_pnl_top > 0 else ""
+            color_win_top = "#00C897" if win_pct_top >= 50 else "#FF4C4C"
+            bg_win_top = "#e6f9f4" if win_pct_top >= 50 else "#ffeded"
+
+        # === MODAL INSTANTÁNEO DEL SELECTOR DE FECHAS ELIMINADO ===
+            c_izq, c_cen, c_der, c_stats = st.columns([0.6, 2, 0.6, 3.8])
+            with c_izq: st.button("◀", on_click=cambiar_mes, args=(-1,), use_container_width=True)
+            with c_cen: st.markdown(f'<div style="text-align:center; font-weight:600; font-size:var(--cal-mes-size); color:{c_mes}; margin-top:2px;">{nombre_mes} {anio_sel}</div>', unsafe_allow_html=True)
+            with c_der: st.button("▶", on_click=cambiar_mes, args=(1,), use_container_width=True)
+            with c_stats:
+                # Lógica de cuenta regresiva (Días operables y Fecha de cierre)
+                countdown_html = ""
+                if not paso_cuenta and ctx != "Todas las Cuentas": # Solo si es Eval y no es Todas las Cuentas
+                    f_cierre_str = db_usuario[ctx].get("fecha_cierre")
+                    try:
+                        if f_cierre_str:
+                            f_cierre_dt = datetime.strptime(f_cierre_str, "%d/%m/%Y").date()
+                        else:
+                            # Fallback si no hay fecha de cierre guardada
+                            f_ini_str = db_usuario[ctx].get("fecha_inicio", hoy.strftime("%d/%m/%Y"))
+                            f_ini_dt = datetime.strptime(f_ini_str, "%d/%m/%Y").date()
+                            f_cierre_dt = f_ini_dt + pd.Timedelta(days=30)
+
+                        # 1. Calcular días operables (SALTANDO los sábados)
+                        dias_restantes_totales = (f_cierre_dt - hoy).days
+                        dias_operables = 0
+                        if dias_restantes_totales > 0:
+                            for i in range(1, dias_restantes_totales + 1):
+                                dia_eval = hoy + pd.Timedelta(days=i)
+                                if dia_eval.weekday() != 5: # El 5 es Sábado en Python (Se ignora)
+                                    dias_operables += 1
+                        
+                        dias_restantes = max(0, dias_operables)
+                        
+                        # 2. Formatear la fecha corta (Mes/Día/Año corto)
+                        fecha_corta = f"{f_cierre_dt.month}/{f_cierre_dt.day}/{f_cierre_dt.strftime('%y')}"
+
+                        # 3. Lógica de colores (Rojo si faltan 5 días operables o menos)
+                        color_alerta = "#FF4C4C" if dias_restantes <= 5 else "#00C897"
+                        bg_alerta = "#ffeded" if dias_restantes <= 5 else "#e6f9f4"
+
+                        countdown_html = f'''
+                        <div style="font-weight:700; font-size:var(--size-top-stats); color:{c_mes}; display:flex; align-items:center; gap:8px;"> Cierre: <span style="background-color:{bg_alerta}; color:{color_alerta}; padding:4px 12px; border-radius:12px; font-weight:800;">{fecha_corta}</span></div>
+                        <div style="font-weight:700; font-size:var(--size-top-stats); color:{c_mes}; display:flex; align-items:center; gap:8px;"> Días: <span style="background-color:{bg_alerta}; color:{color_alerta}; padding:4px 12px; border-radius:12px; font-weight:800;">{dias_restantes}</span></div>
+                        '''
+                    except: pass
+                
+                st.markdown(f'''<div style="display:flex; justify-content:flex-end; align-items:center; gap:20px; margin-top:8px;">{countdown_html}<div style="font-weight:700; font-size:var(--size-top-stats); color:{c_mes}; display:flex; align-items:center; gap:8px;"> P&L: <span style="background-color:{bg_pnl_top}; color:{color_pnl_top}; padding:4px 12px; border-radius:12px; font-weight:800;">{simb_pnl_top}${net_pnl_top:,.2f}</span></div><div style="font-weight:700; font-size:var(--size-top-stats); color:{c_mes}; display:flex; align-items:center; gap:8px;">Win Rate: <span style="background-color:{bg_win_top}; color:{color_win_top}; padding:4px 12px; border-radius:12px; font-weight:800;">{win_pct_top:.1f}%</span></div></div>''', unsafe_allow_html=True)
+            
+            st.markdown("<br>", unsafe_allow_html=True)
+            if st.session_state.idioma == "ES": dias_semana = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"]
+            else: dias_semana = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+            calendar.setfirstweekday(calendar.SUNDAY)
+            mes_matriz = calendar.monthcalendar(anio_sel, mes_sel)
+            
+            h_cols = st.columns(7)
+            for i, d in enumerate(dias_semana): h_cols[i].markdown(f"<div class='txt-dias-sem'>{d}</div>", unsafe_allow_html=True)
+            
+            for semana_dias in mes_matriz:
+                d_cols = st.columns(7)
+                for i, dia in enumerate(semana_dias):
+                    with d_cols[i]:
+                        if dia == 0: st.markdown('<div class="card cell-empty"></div>', unsafe_allow_html=True)
+                        else:
+                            dia_trades = db_usuario[ctx]["trades"].get((anio_sel, mes_sel, dia), [])
+                            trades_visibles = []
+                            for t in dia_trades:
+                                if st.session_state.get("toggle_funded_state", False) and t.get("is_pre_funded", False): continue
+                                if filtro == OPT_FILTRO_2 and t["pnl"] <= 0: continue
+                                if filtro == OPT_FILTRO_3 and t["pnl"] >= 0: continue
+                                trades_visibles.append(t)
+                            if trades_visibles:
+                                pnl_dia = sum(t["pnl"] for t in trades_visibles)
+                                if pnl_dia >= 30:
+                                    c_cls = "cell-win"
+                                    c_sim = "+"
+                                elif pnl_dia <= -30:
+                                    c_cls = "cell-loss"
+                                    c_sim = ""
+                                else:
+                                    c_cls = "cell-be-win" if pnl_dia >= 0 else "cell-be-loss"
+                                    c_sim = "+" if pnl_dia > 0 else ""
+                                bal_ini = trades_visibles[-1]["balance_final"] - pnl_dia
+                                pct = (pnl_dia / bal_ini * 100) if bal_ini != 0 else 0
+                                pct_str = f"{c_sim}{pct:.2f}%"
+                                todas_imagenes = []
+                                for t in trades_visibles: todas_imagenes.extend(t.get("imagenes", []))
+                                if todas_imagenes:
+                                    id_modal = f"mod_{anio_sel}_{mes_sel}_{dia}"
+                                    img_tags = ""
+                                    for idx_img_gal, img_url in enumerate(todas_imagenes):
+                                        disp = "block" if idx_img_gal == 0 else "none"
+                                        img_tags += f'<img src="{img_url}" class="gallery-img" data-idx="{idx_img_gal}" style="display: {disp};">'
+                                    nav_html = ""
+                                    if len(todas_imagenes) > 1: nav_html = f'<div class="gallery-nav"><div class="prev-img-btn">◀</div><div class="img-counter">1 / {len(todas_imagenes)}</div><div class="next-img-btn">▶</div></div>'
+                                    cam_html = f'<div><input type="checkbox" id="{id_modal}" class="modal-toggle" style="display:none;"><label for="{id_modal}"><div class="cam-icon">{BTN_CAM_EMOJI}</div></label><div class="fs-modal" data-current="0" data-total="{len(todas_imagenes)}"><div class="modal-controls">{nav_html}<div class="zoom-out-btn">➖</div><div class="zoom-in-btn">➕</div><label for="{id_modal}" class="close-btn">{TXT_CERRAR_MODAL}</label></div>{img_tags}</div></div>'
+                                else: cam_html = ""
+                                notas_html_contenido = ""
+                                has_notes = False
+                                for idx_t, t in enumerate(trades_visibles):
+                                    if bool(t.get("razon_trade", "").strip() or t.get("Corrections", "").strip() or t.get("Emotions", "").strip() or t.get("Confluences", [])):
+                                        has_notes = True
+                                        confluences_str = ", ".join(t.get("Confluences", []))
+                                        pnl_val_nota = t["pnl"]
+                                        pnl_color_nota = "#00C897" if pnl_val_nota >= 0 else "#FF4C4C"
+                                        simbolo_nota = "+" if pnl_val_nota > 0 else ("-" if pnl_val_nota < 0 else "")
+                                        pnl_formateado_nota = f"{simbolo_nota}${abs(pnl_val_nota):,.2f}"
+                                        notas_html_contenido += f'<div style="margin-bottom: 15px;"><h4 style="color:{pnl_color_nota}; margin:0;">Trade {idx_t+1} = {pnl_formateado_nota}</h4><b>{_l["dash"]["bias"]}:</b> <span class="note-val">{t.get("bias", "NONE")}</span><br><b>{_l["dash"]["conf"]}:</b> <span class="note-val">{confluences_str}</span><br><b>{_l["dash"]["reason"]}:</b> <span class="note-val">{t.get("razon_trade", "")}</span><br><b>{_l["dash"]["corr"]}:</b> <span class="note-val">{t.get("Corrections", "")}</span><br><b>{_l["dash"]["risk"]}:</b> <span class="note-val">{t.get("risk", "")}</span><br><b>{_l["dash"]["rr"]}:</b> <span class="note-val">{t.get("RR", "")}</span><br><b>{_l["dash"]["tt"]}:</b> <span class="note-val">{t.get("trade_type", "")}</span><br><b>{_l["dash"]["emo"]}:</b> <span class="note-val">{t.get("Emotions", "")}</span></div>'
+                                if has_notes:
+                                    id_note_modal = f"mod_note_{anio_sel}_{mes_sel}_{dia}"
+                                    note_html = f'<div><input type="checkbox" id="{id_note_modal}" class="modal-toggle" style="display:none;"><label for="{id_note_modal}"><div class="note-icon">💭</div></label><div class="fs-modal"><label for="{id_note_modal}" class="close-btn">{TXT_CERRAR_MODAL}</label><div class="note-modal-content"><h3 style="text-align:center; margin-top:0; font-size: var(--note-lbl-size);">💭 Trades - {dia}/{mes_sel}/{anio_sel}</h3><hr>{notas_html_contenido}</div></div></div>'
+                                else: note_html = ""
+                                cnt_str = f" ({len(trades_visibles)})" if len(trades_visibles) > 1 else ""
+                                st.markdown(f'<div class="card {c_cls}"><div class="day-number">{dia}</div><div class="day-content"><span class="day-pnl">{c_sim}${pnl_dia:,.2f}</span><br><span class="day-pct">{pct_str}{cnt_str}</span></div>{cam_html}{note_html}</div>', unsafe_allow_html=True)
+                            else:
+                                op = "0.2" if len(dia_trades) > 0 else "1"
+                                st.markdown(f'<div class="card cell-empty" style="opacity:{op}"><div class="day-number">{dia}</div></div>', unsafe_allow_html=True)
 
     def get_bar_svg(w, l, t):
         tot = w + l + t
@@ -2087,7 +2091,7 @@ with tab_calendario:
         svg += '</svg>'
         return svg
 
-    with col_det:
+    with tab_estadisticas:
         trades_cronologicos = []
         for c, lt in sorted(db_usuario[ctx]["trades"].items(), key=lambda x: datetime(x[0][0], x[0][1], x[0][2])):
             for t in lt:
