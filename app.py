@@ -1313,8 +1313,8 @@ else: bal_inicial_abs = 25000.0
 meta_global = 1500 if bal_inicial_abs <= 35000 else (3000 if bal_inicial_abs <= 75000 else 6000)
 paso_cuenta, idx_pase = False, -1
 
-# 🚫 Bloqueamos la conversión a cuenta fondeada (PA) si estamos en Backtesting
-if not db_usuario[ctx].get("backtesting_mode", False):
+# 🚫 Bloqueamos la conversión a cuenta fondeada (PA) si estamos en Backtesting o en Todas las Cuentas
+if not db_usuario[ctx].get("backtesting_mode", False) and ctx != "Todas las Cuentas":
     balance_acumulado = bal_inicial_abs
     for idx, tr in enumerate(_tc):
         balance_acumulado += float(tr.get("pnl", 0.0))
@@ -1951,7 +1951,7 @@ with col_cal:
     with c_stats:
         # Lógica de cuenta regresiva (Días operables y Fecha de cierre)
         countdown_html = ""
-        if not paso_cuenta: # Solo si es Eval
+        if not paso_cuenta and ctx != "Todas las Cuentas": # Solo si es Eval y no es Todas las Cuentas
             f_cierre_str = db_usuario[ctx].get("fecha_cierre")
             try:
                 if f_cierre_str:
@@ -2157,15 +2157,16 @@ with col_det:
 
     st.markdown("""<style>div[data-testid="stElementContainer"]:has(.ancla-subir-todo) { margin-top: -215px !important; margin-bottom: 0px !important; }</style><div class="ancla-subir-todo"></div>""", unsafe_allow_html=True)
 
-    if paso_cuenta: st.toggle(_l['cal']['funded'], key="toggle_funded_state")
-    else: st.markdown("<div style='height: 42px;'></div>", unsafe_allow_html=True)
-    
-    c_tg_col, c_dd_col, c_lose_col = st.columns(3)
-    e_caja = "margin-top: -10px; margin-bottom: 10px; padding: 10px !important; min-height: 85px !important; display: flex; flex-direction: column; justify-content: center;"
-    
-    with c_tg_col: st.markdown(f'<div class="metric-card card-pnl" style="{e_caja}"><div class="metric-header"><span class="title-net-pnl" style="font-size: var(--size-card-titles);">{titulo_target_dinamico}</span></div><div style="color: {c_hex_dd}; font-size: var(--size-box-vals); font-weight: 800;">{texto_tg}</div></div>', unsafe_allow_html=True)
-    with c_dd_col: st.markdown(f'<div class="metric-card card-pnl" style="{e_caja}"><div class="metric-header"><span class="title-net-pnl" style="font-size: var(--size-card-titles);">{_l["cal"]["dd"]}</span></div><div style="color: {c_hex_dd}; font-size: var(--size-box-vals); font-weight: 800;">{texto_dd}</div></div>', unsafe_allow_html=True)
-    with c_lose_col: st.markdown(f'<div class="metric-card card-pnl" style="{e_caja}"><div class="metric-header"><span class="title-net-pnl" style="font-size: var(--size-card-titles);">{_l["cal"]["lose_acc"]}</span></div><div style="color: {c_hex_dd}; font-size: var(--size-box-vals); font-weight: 800;">{texto_lose}</div></div>', unsafe_allow_html=True)
+    if ctx != "Todas las Cuentas":
+        if paso_cuenta: st.toggle(_l['cal']['funded'], key="toggle_funded_state")
+        else: st.markdown("<div style='height: 42px;'></div>", unsafe_allow_html=True)
+        
+        c_tg_col, c_dd_col, c_lose_col = st.columns(3)
+        e_caja = "margin-top: -10px;\nmargin-bottom: 10px; padding: 10px !important; min-height: 85px !important; display: flex; flex-direction: column;\njustify-content: center;"
+        
+        with c_tg_col: st.markdown(f'<div class="metric-card card-pnl" style="{e_caja}"><div class="metric-header"><span class="title-net-pnl" style="font-size: var(--size-card-titles);">{titulo_target_dinamico}</span></div><div style="color: {c_hex_dd}; font-size: var(--size-box-vals); font-weight: 800;">{texto_tg}</div></div>', unsafe_allow_html=True)
+        with c_dd_col: st.markdown(f'<div class="metric-card card-pnl" style="{e_caja}"><div class="metric-header"><span class="title-net-pnl" style="font-size: var(--size-card-titles);">{_l["cal"]["dd"]}</span></div><div style="color: {c_hex_dd}; font-size: var(--size-box-vals); font-weight: 800;">{texto_dd}</div></div>', unsafe_allow_html=True)
+        with c_lose_col: st.markdown(f'<div class="metric-card card-pnl" style="{e_caja}"><div class="metric-header"><span class="title-net-pnl" style="font-size: var(--size-card-titles);">{_l["cal"]["lose_acc"]}</span></div><div style="color: {c_hex_dd}; font-size: var(--size-box-vals);\nfont-weight: 800;">{texto_lose}</div></div>', unsafe_allow_html=True)
     
     # El botón filtra por mes, y SIEMPRE arranca apagado (viendo todo), sin importar el backtesting
     ver_solo_mes = st.toggle("📅 Ver Solo Este Mes", value=False)
