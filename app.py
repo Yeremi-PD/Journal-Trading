@@ -993,7 +993,7 @@ st.markdown(f"""
     
     /* 🌟 MAGIA DE LAS PESTAÑAS (TABS) PREMIUM ESTILO FINANCE CENTER 🌟 */
     div[data-testid="stTabs"] {{ padding: 0px 0px 15px 0px !important;
-margin-top: -15px !important; overflow: visible !important; position: relative !important; }
+    margin-top: -15px !important; overflow: visible !important; }}
     div[data-testid="stTabs"] button {{
         font-size: 21px !important;
 font-weight: 800 !important;
@@ -1013,10 +1013,8 @@ color: white !important; border: none !important;
         transform: scale(1.05) translateY(-2px) !important; box-shadow: 0px 0px 25px rgba(0, 200, 151, 0.5) !important;
 }}
     div[data-testid="stTabs"] [data-baseweb="tab-highlight-point"] {{ display: none !important; }}
-    div[data-baseweb="tab-list"] {{ justify-content: flex-end !important;
-    position: absolute !important; top: -135px !important; right: 0px !important;
-    gap: 25px !important; border-bottom: none !important; overflow: visible !important; padding-bottom: 15px !important;
-    }}
+    div[data-baseweb="tab-list"] {{ justify-content: center !important;
+gap: 25px !important; border-bottom: none !important; overflow: visible !important; padding-bottom: 15px !important; }}
 
 /* 🔴 OPCIÓN NUCLEAR: ELIMINAR ESPACIO SUPERIOR EN CUALQUIER VERSIÓN DE STREAMLIT 🔴 */
     header, [data-testid="stHeader"], .stApp > header {{ 
