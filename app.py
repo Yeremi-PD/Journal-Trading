@@ -1532,13 +1532,13 @@ with st.container():
             """, unsafe_allow_html=True)
             
     with col_set:
-            with st.popover("⚙️", use_container_width=True):
-                contenido_ajustes()
-        # ==============================================================
+        with st.popover("⚙️", use_container_width=True):
+            contenido_ajustes()
+    # ==============================================================
 
-        with col_bal:
-            st.markdown(f'<div style="text-align:center; margin-bottom:5px;"><span class="lbl-total-bal">{LBL_BAL_TOTAL}</span></div>', unsafe_allow_html=True)
-            st.markdown(f'<div class="balance-box">${bal_mostrar:,.2f}</div>', unsafe_allow_html=True)
+    with col_bal:
+        st.markdown(f'<div style="text-align:center; margin-bottom:5px;"><span class="lbl-total-bal">{LBL_BAL_TOTAL}</span></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="balance-box">${bal_mostrar:,.2f}</div>', unsafe_allow_html=True)
 
 # 🚀 3. LÍNEA DIVISORIA Y PESTAÑAS (Quedan arriba junto al Saludo)
 st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
