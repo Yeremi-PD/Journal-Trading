@@ -1762,634 +1762,655 @@ div[data-testid="stFileUploader"] [data-testid="stFileUploadDropzone"]::after {
 </style>
 """, unsafe_allow_html=True)
 
-# 🚀 Envolvemos el form en la misma proporción del calendario [2, 1] para que midan EXACTAMENTE lo mismo
-col_form_area, col_form_vacia = st.columns([2, 1])
+# 🚀 CREAMOS LAS PESTAÑAS (Esto hace que el cambio sea INSTANTÁNEO sin redibujar)
+tab_calendario, tab_estadisticas = st.tabs(["📅 CALENDARIO", "📊 ESTADÍSTICAS"])
 
-with col_form_area:
-    with st.form(key="form_main_entry", clear_on_submit=True, border=False):
-        # Le damos mucho más espacio a Date (1.8) y reducimos un poco Cantidad (0.9)
-        c_date, c_cant, c_det, c_link, c_btn = st.columns([0.8, 1.2, 1.1, 2.5, 1])
-        
-        with c_date:
-            st.markdown('<div class="lbl-header">Date:</div>', unsafe_allow_html=True)
-            # Forzamos a que por defecto SIEMPRE cargue el día actual (hoy)
-            fecha_sel = st.date_input("Fecha", value=hoy, label_visibility="collapsed", key="btn_fecha_directa")
-            
-        with c_cant:
-            st.markdown('<div class="lbl-header">Cantidad:</div>', unsafe_allow_html=True)
-            nuevo_bal_input_str = st.text_input("Balance Input", value="", placeholder=f"{bal_mostrar:.2f}", label_visibility="collapsed")
-            
-        with c_det:
-            st.markdown('<div class="lbl-header">📝 Trade Details:</div>', unsafe_allow_html=True)
-            # AQUÍ CAMBIAS EL TEXTO DEL BOTÓN ("📝 Abrir Detalles", etc.)
-            with st.popover("Abrir Detalles", use_container_width=True):
-                # Lógica original de los detalles del trade
-                st.markdown(f"<div class='titulo-trade-details'>{_l['dash']['trade_det']}</div>", unsafe_allow_html=True)
-                st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 5px; margin-bottom: 0px;'>{_l['dash']['bias']}</div>", unsafe_allow_html=True)
-                bias_opts = ['LONG', 'SHORT', 'NONE']
-                nuevo_bias_list = []
-                cols_bias = st.columns([1, 1, 1, 3])
-                for idx, op in enumerate(bias_opts):
-                    if cols_bias[idx].checkbox(op, key=f"new_bias_{idx}"): nuevo_bias_list.append(op)
-                
-                nuevo_bias = ", ".join(nuevo_bias_list) if nuevo_bias_list else "NONE"
-                
-                st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 15px; margin-bottom: 0px;'>Sesión</div>", unsafe_allow_html=True)
-                sesion_opts = ['New York', 'Asia', 'Londres']
-                nueva_sesion_list = []
-                cols_sesion = st.columns([1, 1, 1, 3])
-                for s_idx, s_op in enumerate(sesion_opts):
-                    if cols_sesion[s_idx].checkbox(s_op, key=f"new_sesion_{s_idx}"): nueva_sesion_list.append(s_op)
-                nueva_sesion = ", ".join(nueva_sesion_list) if nueva_sesion_list else "NONE"
-                st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 15px; margin-bottom: 0px;'>{_l['dash']['conf']}</div>", unsafe_allow_html=True)
-                all_confs_list = ['BIAS WELL', 'LIQ SWEEP', 'IFVG', 'FVG', 'EQH / EQL', 'BSL / SSL', 'POI', 'SMT', 'Order Block', 'Continuation', 'Data High / Data Low', 'CISD']
-                nuevo_conf = []
-                cols_conf = st.columns(3)
-            
-                for idx, c_name in enumerate(all_confs_list):
-                    if cols_conf[idx % 3].checkbox(c_name, key=f"new_conf_{idx}"): nuevo_conf.append(c_name)
-                st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
-                nuevo_razon = st.text_area(_l['dash']['reason'], value='', height=45)
-                st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 5px; margin-bottom: 0px;'>{_l['dash']['risk']}</div>", unsafe_allow_html=True)
-                risk_opts = ['1%', '0.9%', '0.8%', '0.7%', '0.6%', '0.5%', '0.4%']
-                nuevo_risk_list = []
-                cols_risk = st.columns([1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 0.2])
-                for idx, op in enumerate(risk_opts):
-                    if cols_risk[idx].checkbox(op, key=f"new_risk_{idx}"): nuevo_risk_list.append(op)
-        
-                nuevo_risk = ", ".join(nuevo_risk_list) if nuevo_risk_list else ""
-                st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 5px; margin-bottom: 0px;'>{_l['dash']['rr']}</div>", unsafe_allow_html=True)
-                rr_opts = ['1:1', '1:1.5', '1:2', '1:3', '1:4']
-                nuevo_rr_list = []
-                cols_rr = st.columns([1.5, 1.5, 1.5, 1.5, 1.5, 1.5]) 
-                
-                for idx, op in enumerate(rr_opts):
-                    if cols_rr[idx].checkbox(op, key=f"new_rr_{idx}"): nuevo_rr_list.append(op)
-                nuevo_rr = ", ".join(nuevo_rr_list) if nuevo_rr_list else ""
-                st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 5px; margin-bottom: 0px;'>{_l['dash']['tt']}</div>", unsafe_allow_html=True)
-                tt_opts = ['A+', 'A', 'B', 'C']
-                nuevo_tt_list = []
-                cols_tt = st.columns([1, 1, 1, 1, 4])
-                for idx, op in enumerate(tt_opts):
-                    if cols_tt[idx].checkbox(op, key=f"new_tt_{idx}"): nuevo_tt_list.append(op)
-              
-                nuevo_tt = ", ".join(nuevo_tt_list) if nuevo_tt_list else ""
-                st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
-                nuevo_emo = st.text_area(_l['dash']['emo'], value='', height=45)
-                nuevo_corr = st.text_area(_l['dash']['corr'], value='', height=45)
-                
-        with c_link:
-            st.markdown('<div class="lbl-header">🔗 Image Link:</div>', unsafe_allow_html=True)
-            link_imagen = st.text_input("Link", value="", label_visibility="collapsed", placeholder="🔗 Pega el Enlace de la Imagen")
-            # Botón upload eliminado a petición, solo usamos el Link de arriba.
-            
-        with c_btn:
-            btn_save = st.form_submit_button("GUARDAR", key="btn_save_main")
+with tab_calendario:
+    # 🚀 Envolvemos el form en la misma proporción del calendario [2, 1] para que midan EXACTAMENTE lo mismo
+    col_form_area, col_form_vacia = st.columns([2, 1])
 
-    if btn_save:
-        entrada_limpia = str(nuevo_bal_input_str).strip()
-        if ctx == "Todas las Cuentas":
-            st.error("⚠️ No puedes registrar un trade en la vista 'Todas las Cuentas'. Selecciona una cuenta específica arriba.")
-        elif entrada_limpia == "":
-            st.error(_l['dash']['err_empty'])
-        else:
-            viejo_real = db_usuario[ctx]["balance"]
-            try:
-                if entrada_limpia.startswith('+') or entrada_limpia.startswith('-'): pnl = float(entrada_limpia)
-                else:
-                    valor_float = float(entrada_limpia.replace(',', ''))
-                    if abs(valor_float) < 20000: pnl = valor_float
-                    else: pnl = valor_float - bal_mostrar if valor_float != bal_mostrar else 0.0
-            except ValueError: pnl = 0.0
-            nuevo_bal_absoluto = viejo_real + pnl
-            clave_final = (fecha_sel.year, fecha_sel.month, fecha_sel.day)
-            imgs_finales = []
-            if link_imagen.strip().startswith("http"): 
-                imgs_finales.append(link_imagen.strip())
+    with col_form_area:
+        with st.form(key="form_main_entry", clear_on_submit=True, border=False):
+            # Le damos mucho más espacio a Date (1.8) y reducimos un poco Cantidad (0.9)
+            c_date, c_cant, c_det, c_link, c_btn = st.columns([0.8, 1.2, 1.1, 2.5, 1])
             
-            # Botón upload eliminado, mantenemos la lista de Base64 vacía por si hay imágenes viejas en el historial
-            imagenes_base64_extra = []
+            with c_date:
+                st.markdown('<div class="lbl-header">Date:</div>', unsafe_allow_html=True)
+                # Forzamos a que por defecto SIEMPRE cargue el día actual (hoy)
+                fecha_sel = st.date_input("Fecha", value=hoy, label_visibility="collapsed", key="btn_fecha_directa")
+                
+            with c_cant:
+                st.markdown('<div class="lbl-header">Cantidad:</div>', unsafe_allow_html=True)
+                nuevo_bal_input_str = st.text_input("Balance Input", value="", placeholder=f"{bal_mostrar:.2f}", label_visibility="collapsed")
+                
+            with c_det:
+                st.markdown('<div class="lbl-header">📝 Trade Details:</div>', unsafe_allow_html=True)
+                # AQUÍ CAMBIAS EL TEXTO DEL BOTÓN ("📝 Abrir Detalles", etc.)
+                with st.popover("Abrir Detalles", use_container_width=True):
+                    # Lógica original de los detalles del trade
+                    st.markdown(f"<div class='titulo-trade-details'>{_l['dash']['trade_det']}</div>", unsafe_allow_html=True)
+                    st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 5px; margin-bottom: 0px;'>{_l['dash']['bias']}</div>", unsafe_allow_html=True)
+                    bias_opts = ['LONG', 'SHORT', 'NONE']
+                    nuevo_bias_list = []
+                    cols_bias = st.columns([1, 1, 1, 3])
+                    for idx, op in enumerate(bias_opts):
+                        if cols_bias[idx].checkbox(op, key=f"new_bias_{idx}"): nuevo_bias_list.append(op)
+                    
+                    nuevo_bias = ", ".join(nuevo_bias_list) if nuevo_bias_list else "NONE"
+                    
+                    st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 15px; margin-bottom: 0px;'>Sesión</div>", unsafe_allow_html=True)
+                    sesion_opts = ['New York', 'Asia', 'Londres']
+                    nueva_sesion_list = []
+                    cols_sesion = st.columns([1, 1, 1, 3])
+                    for s_idx, s_op in enumerate(sesion_opts):
+                        if cols_sesion[s_idx].checkbox(s_op, key=f"new_sesion_{s_idx}"): nueva_sesion_list.append(s_op)
+                    nueva_sesion = ", ".join(nueva_sesion_list) if nueva_sesion_list else "NONE"
+                    st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 15px; margin-bottom: 0px;'>{_l['dash']['conf']}</div>", unsafe_allow_html=True)
+                    all_confs_list = ['BIAS WELL', 'LIQ SWEEP', 'IFVG', 'FVG', 'EQH / EQL', 'BSL / SSL', 'POI', 'SMT', 'Order Block', 'Continuation', 'Data High / Data Low', 'CISD']
+                    nuevo_conf = []
+                    cols_conf = st.columns(3)
+                
+                    for idx, c_name in enumerate(all_confs_list):
+                        if cols_conf[idx % 3].checkbox(c_name, key=f"new_conf_{idx}"): nuevo_conf.append(c_name)
+                    st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
+                    nuevo_razon = st.text_area(_l['dash']['reason'], value='', height=45)
+                    st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 5px; margin-bottom: 0px;'>{_l['dash']['risk']}</div>", unsafe_allow_html=True)
+                    risk_opts = ['1%', '0.9%', '0.8%', '0.7%', '0.6%', '0.5%', '0.4%']
+                    nuevo_risk_list = []
+                    cols_risk = st.columns([1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 0.2])
+                    for idx, op in enumerate(risk_opts):
+                        if cols_risk[idx].checkbox(op, key=f"new_risk_{idx}"): nuevo_risk_list.append(op)
+            
+                    nuevo_risk = ", ".join(nuevo_risk_list) if nuevo_risk_list else ""
+                    st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 5px; margin-bottom: 0px;'>{_l['dash']['rr']}</div>", unsafe_allow_html=True)
+                    rr_opts = ['1:1', '1:1.5', '1:2', '1:3', '1:4']
+                    nuevo_rr_list = []
+                    cols_rr = st.columns([1.5, 1.5, 1.5, 1.5, 1.5, 1.5]) 
+                    
+                    for idx, op in enumerate(rr_opts):
+                        if cols_rr[idx].checkbox(op, key=f"new_rr_{idx}"): nuevo_rr_list.append(op)
+                    nuevo_rr = ", ".join(nuevo_rr_list) if nuevo_rr_list else ""
+                    st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 5px; margin-bottom: 0px;'>{_l['dash']['tt']}</div>", unsafe_allow_html=True)
+                    tt_opts = ['A+', 'A', 'B', 'C']
+                    nuevo_tt_list = []
+                    cols_tt = st.columns([1, 1, 1, 1, 4])
+                    for idx, op in enumerate(tt_opts):
+                        if cols_tt[idx].checkbox(op, key=f"new_tt_{idx}"): nuevo_tt_list.append(op)
+                
+                    nuevo_tt = ", ".join(nuevo_tt_list) if nuevo_tt_list else ""
+                    st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
+                    nuevo_emo = st.text_area(_l['dash']['emo'], value='', height=45)
+                    nuevo_corr = st.text_area(_l['dash']['corr'], value='', height=45)
+                    
+            with c_link:
+                st.markdown('<div class="lbl-header">🔗 Image Link:</div>', unsafe_allow_html=True)
+                link_imagen = st.text_input("Link", value="", label_visibility="collapsed", placeholder="🔗 Pega el Enlace de la Imagen")
+                # Botón upload eliminado a petición, solo usamos el Link de arriba.
+                
+            with c_btn:
+                btn_save = st.form_submit_button("GUARDAR", key="btn_save_main")
 
-            estado_actual = "PA" if st.session_state.get("toggle_funded_state", False) else "Eval"
-            if "payouts" in db_global[usuario]["settings"]["PC"]:
-                retiros_ac = sum(db_global[usuario]["settings"]["PC"]["payouts"].get(ctx, []))
+        if btn_save:
+            entrada_limpia = str(nuevo_bal_input_str).strip()
+            if ctx == "Todas las Cuentas":
+                st.error("⚠️ No puedes registrar un trade en la vista 'Todas las Cuentas'. Selecciona una cuenta específica arriba.")
+            elif entrada_limpia == "":
+                st.error(_l['dash']['err_empty'])
             else:
-                retiros_ac = 0.0
-
-            trade_nuevo = {
-                "pnl": pnl, 
-                "balance_final": nuevo_bal_absoluto, 
-                "fecha_str": fecha_sel.strftime("%d/%m/%Y"), 
-                "imagenes": imgs_finales, 
-                "imagenes_b64": imagenes_base64_extra, # Se aisla aquí para que guarde en ExtraData
-                "bias": nuevo_bias, 
-                "sesion": nueva_sesion,
-                "Confluences": nuevo_conf, 
-                "razon_trade": nuevo_razon, 
-                "Corrections": nuevo_corr, 
-                "risk": nuevo_risk, 
-                "RR": nuevo_rr, 
-                "trade_type": nuevo_tt, 
-                "Emotions": nuevo_emo,
-                "hora": "",              
-                "ticker": "",            
-                "direccion": "",         
-                "lotes": "",             
-                "precio_entrada": "",    
-                "precio_salida": "",     
-                "comisiones": "",        
-                "estado_cuenta": estado_actual,
-                "retiros_acumulados": retiros_ac
-            }
-            if clave_final not in db_usuario[ctx]["trades"]: db_usuario[ctx]["trades"][clave_final] = []
-            db_usuario[ctx]["trades"][clave_final].append(trade_nuevo)
-            import time
-            db_usuario[ctx]["balance"] = nuevo_bal_absoluto
-            registrar_en_excel(usuario, db_global[usuario]["password"], ctx, fecha_sel, nuevo_bal_absoluto, pnl, trade_nuevo, db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
-            st.success(_l['dash']['trade_saved'])
-            time.sleep(1)
-            st.rerun()
-
-if paso_cuenta and "toggle_funded_state" not in st.session_state: st.session_state.toggle_funded_state = True
-modo_funded_activo = st.session_state.get("toggle_funded_state", False) and paso_cuenta
-
-col_cal, col_det = st.columns([2, 1]) 
-if db_usuario[ctx].get("backtesting_mode", False) and st.session_state.get("forzar_sync_mes", False):
-    st.session_state.cal_month = st.session_state.fecha_backtesting.month
-    st.session_state.cal_year = st.session_state.fecha_backtesting.year
-    st.session_state.forzar_sync_mes = False
-
-anio_sel = st.session_state.cal_year
-mes_sel = st.session_state.cal_month
-nombre_mes = calendar.month_name[mes_sel]
-
-trades_mes_top = []
-for k, lista_t in db_usuario[ctx]["trades"].items():
-    if k[0] == anio_sel and k[1] == mes_sel:
-        for t in lista_t:
-            if modo_funded_activo and t.get("is_pre_funded", False): continue
-            trades_mes_top.append(t["pnl"])
-
-with col_cal:
-    total_trades_top = len(trades_mes_top)
-    net_pnl_top = sum(trades_mes_top) if total_trades_top > 0 else 0.0
-    wins_top = len([t for t in trades_mes_top if t >= 30])
-    losses_top = len([t for t in trades_mes_top if t <= -30])
-    total_validos_top = wins_top + losses_top
-    win_pct_top = (wins_top / total_validos_top * 100) if total_validos_top > 0 else 0.0
-    color_pnl_top = "#00C897" if net_pnl_top >= 0 else "#FF4C4C"
-    bg_pnl_top = "#e6f9f4" if net_pnl_top >= 0 else "#ffeded"
-    simb_pnl_top = "+" if net_pnl_top > 0 else ""
-    color_win_top = "#00C897" if win_pct_top >= 50 else "#FF4C4C"
-    bg_win_top = "#e6f9f4" if win_pct_top >= 50 else "#ffeded"
-
-# === MODAL INSTANTÁNEO DEL SELECTOR DE FECHAS ELIMINADO ===
-    c_izq, c_cen, c_der, c_stats = st.columns([0.6, 2, 0.6, 3.8])
-    with c_izq: st.button("◀", on_click=cambiar_mes, args=(-1,), use_container_width=True)
-    with c_cen: st.markdown(f'<div style="text-align:center; font-weight:600; font-size:var(--cal-mes-size); color:{c_mes}; margin-top:2px;">{nombre_mes} {anio_sel}</div>', unsafe_allow_html=True)
-    with c_der: st.button("▶", on_click=cambiar_mes, args=(1,), use_container_width=True)
-    with c_stats:
-        # Lógica de cuenta regresiva (Días operables y Fecha de cierre)
-        countdown_html = ""
-        if not paso_cuenta and ctx != "Todas las Cuentas": # Solo si es Eval y no es Todas las Cuentas
-            f_cierre_str = db_usuario[ctx].get("fecha_cierre")
-            try:
-                if f_cierre_str:
-                    f_cierre_dt = datetime.strptime(f_cierre_str, "%d/%m/%Y").date()
-                else:
-                    # Fallback si no hay fecha de cierre guardada
-                    f_ini_str = db_usuario[ctx].get("fecha_inicio", hoy.strftime("%d/%m/%Y"))
-                    f_ini_dt = datetime.strptime(f_ini_str, "%d/%m/%Y").date()
-                    f_cierre_dt = f_ini_dt + pd.Timedelta(days=30)
-
-                # 1. Calcular días operables (SALTANDO los sábados)
-                dias_restantes_totales = (f_cierre_dt - hoy).days
-                dias_operables = 0
-                if dias_restantes_totales > 0:
-                    for i in range(1, dias_restantes_totales + 1):
-                        dia_eval = hoy + pd.Timedelta(days=i)
-                        if dia_eval.weekday() != 5: # El 5 es Sábado en Python (Se ignora)
-                            dias_operables += 1
-                
-                dias_restantes = max(0, dias_operables)
-                
-                # 2. Formatear la fecha corta (Mes/Día/Año corto)
-                fecha_corta = f"{f_cierre_dt.month}/{f_cierre_dt.day}/{f_cierre_dt.strftime('%y')}"
-
-                # 3. Lógica de colores (Rojo si faltan 5 días operables o menos)
-                color_alerta = "#FF4C4C" if dias_restantes <= 5 else "#00C897"
-                bg_alerta = "#ffeded" if dias_restantes <= 5 else "#e6f9f4"
-
-                countdown_html = f'''
-                <div style="font-weight:700; font-size:var(--size-top-stats); color:{c_mes}; display:flex; align-items:center; gap:8px;"> Cierre: <span style="background-color:{bg_alerta}; color:{color_alerta}; padding:4px 12px; border-radius:12px; font-weight:800;">{fecha_corta}</span></div>
-                <div style="font-weight:700; font-size:var(--size-top-stats); color:{c_mes}; display:flex; align-items:center; gap:8px;"> Días: <span style="background-color:{bg_alerta}; color:{color_alerta}; padding:4px 12px; border-radius:12px; font-weight:800;">{dias_restantes}</span></div>
-                '''
-            except: pass
-        
-        st.markdown(f'''<div style="display:flex; justify-content:flex-end; align-items:center; gap:20px; margin-top:8px;">{countdown_html}<div style="font-weight:700; font-size:var(--size-top-stats); color:{c_mes}; display:flex; align-items:center; gap:8px;"> P&L: <span style="background-color:{bg_pnl_top}; color:{color_pnl_top}; padding:4px 12px; border-radius:12px; font-weight:800;">{simb_pnl_top}${net_pnl_top:,.2f}</span></div><div style="font-weight:700; font-size:var(--size-top-stats); color:{c_mes}; display:flex; align-items:center; gap:8px;">Win Rate: <span style="background-color:{bg_win_top}; color:{color_win_top}; padding:4px 12px; border-radius:12px; font-weight:800;">{win_pct_top:.1f}%</span></div></div>''', unsafe_allow_html=True)
-    
-    st.markdown("<br>", unsafe_allow_html=True)
-    if st.session_state.idioma == "ES": dias_semana = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"]
-    else: dias_semana = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
-    calendar.setfirstweekday(calendar.SUNDAY)
-    mes_matriz = calendar.monthcalendar(anio_sel, mes_sel)
-    
-    h_cols = st.columns(7)
-    for i, d in enumerate(dias_semana): h_cols[i].markdown(f"<div class='txt-dias-sem'>{d}</div>", unsafe_allow_html=True)
-    
-    for semana_dias in mes_matriz:
-        d_cols = st.columns(7)
-        for i, dia in enumerate(semana_dias):
-            with d_cols[i]:
-                if dia == 0: st.markdown('<div class="card cell-empty"></div>', unsafe_allow_html=True)
-                else:
-                    dia_trades = db_usuario[ctx]["trades"].get((anio_sel, mes_sel, dia), [])
-                    trades_visibles = []
-                    for t in dia_trades:
-                        if st.session_state.get("toggle_funded_state", False) and t.get("is_pre_funded", False): continue
-                        if filtro == OPT_FILTRO_2 and t["pnl"] <= 0: continue
-                        if filtro == OPT_FILTRO_3 and t["pnl"] >= 0: continue
-                        trades_visibles.append(t)
-                    if trades_visibles:
-                        pnl_dia = sum(t["pnl"] for t in trades_visibles)
-                        if pnl_dia >= 30:
-                            c_cls = "cell-win"
-                            c_sim = "+"
-                        elif pnl_dia <= -30:
-                            c_cls = "cell-loss"
-                            c_sim = ""
-                        else:
-                            c_cls = "cell-be-win" if pnl_dia >= 0 else "cell-be-loss"
-                            c_sim = "+" if pnl_dia > 0 else ""
-                        bal_ini = trades_visibles[-1]["balance_final"] - pnl_dia
-                        pct = (pnl_dia / bal_ini * 100) if bal_ini != 0 else 0
-                        pct_str = f"{c_sim}{pct:.2f}%"
-                        todas_imagenes = []
-                        for t in trades_visibles: todas_imagenes.extend(t.get("imagenes", []))
-                        if todas_imagenes:
-                            id_modal = f"mod_{anio_sel}_{mes_sel}_{dia}"
-                            img_tags = ""
-                            for idx_img_gal, img_url in enumerate(todas_imagenes):
-                                disp = "block" if idx_img_gal == 0 else "none"
-                                img_tags += f'<img src="{img_url}" class="gallery-img" data-idx="{idx_img_gal}" style="display: {disp};">'
-                            nav_html = ""
-                            if len(todas_imagenes) > 1: nav_html = f'<div class="gallery-nav"><div class="prev-img-btn">◀</div><div class="img-counter">1 / {len(todas_imagenes)}</div><div class="next-img-btn">▶</div></div>'
-                            cam_html = f'<div><input type="checkbox" id="{id_modal}" class="modal-toggle" style="display:none;"><label for="{id_modal}"><div class="cam-icon">{BTN_CAM_EMOJI}</div></label><div class="fs-modal" data-current="0" data-total="{len(todas_imagenes)}"><div class="modal-controls">{nav_html}<div class="zoom-out-btn">➖</div><div class="zoom-in-btn">➕</div><label for="{id_modal}" class="close-btn">{TXT_CERRAR_MODAL}</label></div>{img_tags}</div></div>'
-                        else: cam_html = ""
-                        notas_html_contenido = ""
-                        has_notes = False
-                        for idx_t, t in enumerate(trades_visibles):
-                            if bool(t.get("razon_trade", "").strip() or t.get("Corrections", "").strip() or t.get("Emotions", "").strip() or t.get("Confluences", [])):
-                                has_notes = True
-                                confluences_str = ", ".join(t.get("Confluences", []))
-                                pnl_val_nota = t["pnl"]
-                                pnl_color_nota = "#00C897" if pnl_val_nota >= 0 else "#FF4C4C"
-                                simbolo_nota = "+" if pnl_val_nota > 0 else ("-" if pnl_val_nota < 0 else "")
-                                pnl_formateado_nota = f"{simbolo_nota}${abs(pnl_val_nota):,.2f}"
-                                notas_html_contenido += f'<div style="margin-bottom: 15px;"><h4 style="color:{pnl_color_nota}; margin:0;">Trade {idx_t+1} = {pnl_formateado_nota}</h4><b>{_l["dash"]["bias"]}:</b> <span class="note-val">{t.get("bias", "NONE")}</span><br><b>{_l["dash"]["conf"]}:</b> <span class="note-val">{confluences_str}</span><br><b>{_l["dash"]["reason"]}:</b> <span class="note-val">{t.get("razon_trade", "")}</span><br><b>{_l["dash"]["corr"]}:</b> <span class="note-val">{t.get("Corrections", "")}</span><br><b>{_l["dash"]["risk"]}:</b> <span class="note-val">{t.get("risk", "")}</span><br><b>{_l["dash"]["rr"]}:</b> <span class="note-val">{t.get("RR", "")}</span><br><b>{_l["dash"]["tt"]}:</b> <span class="note-val">{t.get("trade_type", "")}</span><br><b>{_l["dash"]["emo"]}:</b> <span class="note-val">{t.get("Emotions", "")}</span></div>'
-                        if has_notes:
-                            id_note_modal = f"mod_note_{anio_sel}_{mes_sel}_{dia}"
-                            note_html = f'<div><input type="checkbox" id="{id_note_modal}" class="modal-toggle" style="display:none;"><label for="{id_note_modal}"><div class="note-icon">💭</div></label><div class="fs-modal"><label for="{id_note_modal}" class="close-btn">{TXT_CERRAR_MODAL}</label><div class="note-modal-content"><h3 style="text-align:center; margin-top:0; font-size: var(--note-lbl-size);">💭 Trades - {dia}/{mes_sel}/{anio_sel}</h3><hr>{notas_html_contenido}</div></div></div>'
-                        else: note_html = ""
-                        cnt_str = f" ({len(trades_visibles)})" if len(trades_visibles) > 1 else ""
-                        st.markdown(f'<div class="card {c_cls}"><div class="day-number">{dia}</div><div class="day-content"><span class="day-pnl">{c_sim}${pnl_dia:,.2f}</span><br><span class="day-pct">{pct_str}{cnt_str}</span></div>{cam_html}{note_html}</div>', unsafe_allow_html=True)
+                viejo_real = db_usuario[ctx]["balance"]
+                try:
+                    if entrada_limpia.startswith('+') or entrada_limpia.startswith('-'): pnl = float(entrada_limpia)
                     else:
-                        op = "0.2" if len(dia_trades) > 0 else "1"
-                        st.markdown(f'<div class="card cell-empty" style="opacity:{op}"><div class="day-number">{dia}</div></div>', unsafe_allow_html=True)
+                        valor_float = float(entrada_limpia.replace(',', ''))
+                        if abs(valor_float) < 20000: pnl = valor_float
+                        else: pnl = valor_float - bal_mostrar if valor_float != bal_mostrar else 0.0
+                except ValueError: pnl = 0.0
+                nuevo_bal_absoluto = viejo_real + pnl
+                clave_final = (fecha_sel.year, fecha_sel.month, fecha_sel.day)
+                imgs_finales = []
+                if link_imagen.strip().startswith("http"): 
+                    imgs_finales.append(link_imagen.strip())
+                
+                # Botón upload eliminado, mantenemos la lista de Base64 vacía por si hay imágenes viejas en el historial
+                imagenes_base64_extra = []
 
-def get_bar_svg(w, l, t):
-    tot = w + l + t
-    if tot == 0:
-        return f'''<svg width="100%" height="100%" viewBox="0 0 100 100"><line x1="5" y1="85" x2="95" y2="85" stroke="#4A5568" stroke-width="2" stroke-linecap="round" /><text x="50" y="50" fill="gray" font-size="14" font-family="sans-serif" font-weight="bold" text-anchor="middle">{_l['cal']['no_data']}</text></svg>'''
-    max_v = max(w, l, t)
-    if max_v == 0: max_v = 1
-    hw = (w / max_v) * 65  
-    hl = (l / max_v) * 65
-    ht = (t / max_v) * 65
-    svg = '<svg width="100%" height="100%" viewBox="0 0 100 100">'
-    svg += '<line x1="5" y1="85" x2="95" y2="85" stroke="#4A5568" stroke-width="2" stroke-linecap="round" />'
-    if w > 0:
-        svg += f'<rect x="12" y="{85 - hw}" width="22" height="{hw}" fill="#00C897" rx="3" />'
-        svg += f'<text x="23" y="{80 - hw}" fill="#00C897" font-size="14" font-family="sans-serif" font-weight="bold" text-anchor="middle">{w}</text>'
-        svg += f'<text x="23" y="98" fill="#00C897" font-size="12" font-family="sans-serif" font-weight="bold" text-anchor="middle">W</text>'
-    if l > 0:
-        svg += f'<rect x="39" y="{85 - hl}" width="22" height="{hl}" fill="#FF4C4C" rx="3" />'
-        svg += f'<text x="50" y="{80 - hl}" fill="#FF4C4C" font-size="14" font-family="sans-serif" font-weight="bold" text-anchor="middle">{l}</text>'
-        svg += f'<text x="50" y="98" fill="#FF4C4C" font-size="12" font-family="sans-serif" font-weight="bold" text-anchor="middle">L</text>'
-    if t > 0:
-        svg += f'<rect x="66" y="{85 - ht}" width="22" height="{ht}" fill="gray" rx="3" />'
-        svg += f'<text x="77" y="{80 - ht}" fill="gray" font-size="14" font-family="sans-serif" font-weight="bold" text-anchor="middle">{t}</text>'
-        svg += f'<text x="77" y="98" fill="gray" font-size="12" font-family="sans-serif" font-weight="bold" text-anchor="middle">BE</text>'
-    svg += '</svg>'
-    return svg
+                estado_actual = "PA" if st.session_state.get("toggle_funded_state", False) else "Eval"
+                if "payouts" in db_global[usuario]["settings"]["PC"]:
+                    retiros_ac = sum(db_global[usuario]["settings"]["PC"]["payouts"].get(ctx, []))
+                else:
+                    retiros_ac = 0.0
 
-with col_det:
-    trades_cronologicos = []
-    for c, lt in sorted(db_usuario[ctx]["trades"].items(), key=lambda x: datetime(x[0][0], x[0][1], x[0][2])):
-        for t in lt:
-            if st.session_state.get("toggle_funded_state", False) and t.get("is_pre_funded", False): continue
-            trades_cronologicos.append(t)
-    
-    bal_inicial = bal_inicial_abs
-    
-    # OPTIMIZACIÓN 4: Pandas hace el cálculo acumulado (cumsum) y saca el máximo al instante
-    if trades_cronologicos:
-        df_trades = pd.DataFrame(trades_cronologicos)
-        # Suma acumulada de todos los PnL + Balance Inicial
-        df_trades['running_bal'] = bal_inicial + df_trades['pnl'].cumsum()
-        max_bal = max(bal_inicial, df_trades['running_bal'].max())
-        _current_sim_bal = df_trades['running_bal'].iloc[-1]
-    else:
-        max_bal = bal_inicial
-        _current_sim_bal = bal_inicial
+                trade_nuevo = {
+                    "pnl": pnl, 
+                    "balance_final": nuevo_bal_absoluto, 
+                    "fecha_str": fecha_sel.strftime("%d/%m/%Y"), 
+                    "imagenes": imgs_finales, 
+                    "imagenes_b64": imagenes_base64_extra, # Se aisla aquí para que guarde en ExtraData
+                    "bias": nuevo_bias, 
+                    "sesion": nueva_sesion,
+                    "Confluences": nuevo_conf, 
+                    "razon_trade": nuevo_razon, 
+                    "Corrections": nuevo_corr, 
+                    "risk": nuevo_risk, 
+                    "RR": nuevo_rr, 
+                    "trade_type": nuevo_tt, 
+                    "Emotions": nuevo_emo,
+                    "hora": "",              
+                    "ticker": "",            
+                    "direccion": "",         
+                    "lotes": "",             
+                    "precio_entrada": "",    
+                    "precio_salida": "",     
+                    "comisiones": "",        
+                    "estado_cuenta": estado_actual,
+                    "retiros_acumulados": retiros_ac
+                }
+                if clave_final not in db_usuario[ctx]["trades"]: db_usuario[ctx]["trades"][clave_final] = []
+                db_usuario[ctx]["trades"][clave_final].append(trade_nuevo)
+                import time
+                db_usuario[ctx]["balance"] = nuevo_bal_absoluto
+                registrar_en_excel(usuario, db_global[usuario]["password"], ctx, fecha_sel, nuevo_bal_absoluto, pnl, trade_nuevo, db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
+                st.success(_l['dash']['trade_saved'])
+                time.sleep(1)
+                st.rerun()
+
+    if paso_cuenta and "toggle_funded_state" not in st.session_state: st.session_state.toggle_funded_state = True
+    modo_funded_activo = st.session_state.get("toggle_funded_state", False) and paso_cuenta
+
+    col_cal, col_det = st.columns([2, 1]) 
+    if db_usuario[ctx].get("backtesting_mode", False) and st.session_state.get("forzar_sync_mes", False):
+        st.session_state.cal_month = st.session_state.fecha_backtesting.month
+        st.session_state.cal_year = st.session_state.fecha_backtesting.year
+        st.session_state.forzar_sync_mes = False
+
+    anio_sel = st.session_state.cal_year
+    mes_sel = st.session_state.cal_month
+    nombre_mes = calendar.month_name[mes_sel]
+
+    trades_mes_top = []
+    for k, lista_t in db_usuario[ctx]["trades"].items():
+        if k[0] == anio_sel and k[1] == mes_sel:
+            for t in lista_t:
+                if modo_funded_activo and t.get("is_pre_funded", False): continue
+                trades_mes_top.append(t["pnl"])
+
+    with col_cal:
+        total_trades_top = len(trades_mes_top)
+        net_pnl_top = sum(trades_mes_top) if total_trades_top > 0 else 0.0
+        wins_top = len([t for t in trades_mes_top if t >= 30])
+        losses_top = len([t for t in trades_mes_top if t <= -30])
+        total_validos_top = wins_top + losses_top
+        win_pct_top = (wins_top / total_validos_top * 100) if total_validos_top > 0 else 0.0
+        color_pnl_top = "#00C897" if net_pnl_top >= 0 else "#FF4C4C"
+        bg_pnl_top = "#e6f9f4" if net_pnl_top >= 0 else "#ffeded"
+        simb_pnl_top = "+" if net_pnl_top > 0 else ""
+        color_win_top = "#00C897" if win_pct_top >= 50 else "#FF4C4C"
+        bg_win_top = "#e6f9f4" if win_pct_top >= 50 else "#ffeded"
+
+    # === MODAL INSTANTÁNEO DEL SELECTOR DE FECHAS ELIMINADO ===
+        c_izq, c_cen, c_der, c_stats = st.columns([0.6, 2, 0.6, 3.8])
+        with c_izq: st.button("◀", on_click=cambiar_mes, args=(-1,), use_container_width=True)
+        with c_cen: st.markdown(f'<div style="text-align:center; font-weight:600; font-size:var(--cal-mes-size); color:{c_mes}; margin-top:2px;">{nombre_mes} {anio_sel}</div>', unsafe_allow_html=True)
+        with c_der: st.button("▶", on_click=cambiar_mes, args=(1,), use_container_width=True)
+        with c_stats:
+            # Lógica de cuenta regresiva (Días operables y Fecha de cierre)
+            countdown_html = ""
+            if not paso_cuenta and ctx != "Todas las Cuentas": # Solo si es Eval y no es Todas las Cuentas
+                f_cierre_str = db_usuario[ctx].get("fecha_cierre")
+                try:
+                    if f_cierre_str:
+                        f_cierre_dt = datetime.strptime(f_cierre_str, "%d/%m/%Y").date()
+                    else:
+                        # Fallback si no hay fecha de cierre guardada
+                        f_ini_str = db_usuario[ctx].get("fecha_inicio", hoy.strftime("%d/%m/%Y"))
+                        f_ini_dt = datetime.strptime(f_ini_str, "%d/%m/%Y").date()
+                        f_cierre_dt = f_ini_dt + pd.Timedelta(days=30)
+
+                    # 1. Calcular días operables (SALTANDO los sábados)
+                    dias_restantes_totales = (f_cierre_dt - hoy).days
+                    dias_operables = 0
+                    if dias_restantes_totales > 0:
+                        for i in range(1, dias_restantes_totales + 1):
+                            dia_eval = hoy + pd.Timedelta(days=i)
+                            if dia_eval.weekday() != 5: # El 5 es Sábado en Python (Se ignora)
+                                dias_operables += 1
+                    
+                    dias_restantes = max(0, dias_operables)
+                    
+                    # 2. Formatear la fecha corta (Mes/Día/Año corto)
+                    fecha_corta = f"{f_cierre_dt.month}/{f_cierre_dt.day}/{f_cierre_dt.strftime('%y')}"
+
+                    # 3. Lógica de colores (Rojo si faltan 5 días operables o menos)
+                    color_alerta = "#FF4C4C" if dias_restantes <= 5 else "#00C897"
+                    bg_alerta = "#ffeded" if dias_restantes <= 5 else "#e6f9f4"
+
+                    countdown_html = f'''
+                    <div style="font-weight:700; font-size:var(--size-top-stats); color:{c_mes}; display:flex; align-items:center; gap:8px;"> Cierre: <span style="background-color:{bg_alerta}; color:{color_alerta}; padding:4px 12px; border-radius:12px; font-weight:800;">{fecha_corta}</span></div>
+                    <div style="font-weight:700; font-size:var(--size-top-stats); color:{c_mes}; display:flex; align-items:center; gap:8px;"> Días: <span style="background-color:{bg_alerta}; color:{color_alerta}; padding:4px 12px; border-radius:12px; font-weight:800;">{dias_restantes}</span></div>
+                    '''
+                except: pass
             
-# Usamos el diccionario para obtener las reglas según el balance inicial
-    regla = REGLAS_CUENTAS.get(bal_inicial, REGLAS_CUENTAS[50000.0]) # 50k por defecto si no existe
-    meta_t = regla["meta"]
-    lim_dd = regla["lim_dd"]
-    alerta_dd = regla["alerta_dd"]
-    tope_dd = regla["tope_payout"]
+            st.markdown(f'''<div style="display:flex; justify-content:flex-end; align-items:center; gap:20px; margin-top:8px;">{countdown_html}<div style="font-weight:700; font-size:var(--size-top-stats); color:{c_mes}; display:flex; align-items:center; gap:8px;"> P&L: <span style="background-color:{bg_pnl_top}; color:{color_pnl_top}; padding:4px 12px; border-radius:12px; font-weight:800;">{simb_pnl_top}${net_pnl_top:,.2f}</span></div><div style="font-weight:700; font-size:var(--size-top-stats); color:{c_mes}; display:flex; align-items:center; gap:8px;">Win Rate: <span style="background-color:{bg_win_top}; color:{color_win_top}; padding:4px 12px; border-radius:12px; font-weight:800;">{win_pct_top:.1f}%</span></div></div>''', unsafe_allow_html=True)
         
-    nivel_perdida = max_bal - lim_dd
-    if nivel_perdida > tope_dd: nivel_perdida = tope_dd
+        st.markdown("<br>", unsafe_allow_html=True)
+        if st.session_state.idioma == "ES": dias_semana = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"]
+        else: dias_semana = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+        calendar.setfirstweekday(calendar.SUNDAY)
+        mes_matriz = calendar.monthcalendar(anio_sel, mes_sel)
         
-    progreso = bal_mostrar - bal_inicial
-    falta_tg = meta_t - progreso
-    distancia_dd = bal_mostrar - nivel_perdida
-    
-    c_hex_dd = "#FF4C4C" if distancia_dd < alerta_dd else "#00C897"
-    titulo_target_dinamico = _l['cal']['target']
-    c_hex_tg = "#FFFFFF" 
+        h_cols = st.columns(7)
+        for i, d in enumerate(dias_semana): h_cols[i].markdown(f"<div class='txt-dias-sem'>{d}</div>", unsafe_allow_html=True)
+        
+        for semana_dias in mes_matriz:
+            d_cols = st.columns(7)
+            for i, dia in enumerate(semana_dias):
+                with d_cols[i]:
+                    if dia == 0: st.markdown('<div class="card cell-empty"></div>', unsafe_allow_html=True)
+                    else:
+                        dia_trades = db_usuario[ctx]["trades"].get((anio_sel, mes_sel, dia), [])
+                        trades_visibles = []
+                        for t in dia_trades:
+                            if st.session_state.get("toggle_funded_state", False) and t.get("is_pre_funded", False): continue
+                            if filtro == OPT_FILTRO_2 and t["pnl"] <= 0: continue
+                            if filtro == OPT_FILTRO_3 and t["pnl"] >= 0: continue
+                            trades_visibles.append(t)
+                        if trades_visibles:
+                            pnl_dia = sum(t["pnl"] for t in trades_visibles)
+                            if pnl_dia >= 30:
+                                c_cls = "cell-win"
+                                c_sim = "+"
+                            elif pnl_dia <= -30:
+                                c_cls = "cell-loss"
+                                c_sim = ""
+                            else:
+                                c_cls = "cell-be-win" if pnl_dia >= 0 else "cell-be-loss"
+                                c_sim = "+" if pnl_dia > 0 else ""
+                            bal_ini = trades_visibles[-1]["balance_final"] - pnl_dia
+                            pct = (pnl_dia / bal_ini * 100) if bal_ini != 0 else 0
+                            pct_str = f"{c_sim}{pct:.2f}%"
+                            todas_imagenes = []
+                            for t in trades_visibles: todas_imagenes.extend(t.get("imagenes", []))
+                            if todas_imagenes:
+                                id_modal = f"mod_{anio_sel}_{mes_sel}_{dia}"
+                                img_tags = ""
+                                for idx_img_gal, img_url in enumerate(todas_imagenes):
+                                    disp = "block" if idx_img_gal == 0 else "none"
+                                    img_tags += f'<img src="{img_url}" class="gallery-img" data-idx="{idx_img_gal}" style="display: {disp};">'
+                                nav_html = ""
+                                if len(todas_imagenes) > 1: nav_html = f'<div class="gallery-nav"><div class="prev-img-btn">◀</div><div class="img-counter">1 / {len(todas_imagenes)}</div><div class="next-img-btn">▶</div></div>'
+                                cam_html = f'<div><input type="checkbox" id="{id_modal}" class="modal-toggle" style="display:none;"><label for="{id_modal}"><div class="cam-icon">{BTN_CAM_EMOJI}</div></label><div class="fs-modal" data-current="0" data-total="{len(todas_imagenes)}"><div class="modal-controls">{nav_html}<div class="zoom-out-btn">➖</div><div class="zoom-in-btn">➕</div><label for="{id_modal}" class="close-btn">{TXT_CERRAR_MODAL}</label></div>{img_tags}</div></div>'
+                            else: cam_html = ""
+                            notas_html_contenido = ""
+                            has_notes = False
+                            for idx_t, t in enumerate(trades_visibles):
+                                if bool(t.get("razon_trade", "").strip() or t.get("Corrections", "").strip() or t.get("Emotions", "").strip() or t.get("Confluences", [])):
+                                    has_notes = True
+                                    confluences_str = ", ".join(t.get("Confluences", []))
+                                    pnl_val_nota = t["pnl"]
+                                    pnl_color_nota = "#00C897" if pnl_val_nota >= 0 else "#FF4C4C"
+                                    simbolo_nota = "+" if pnl_val_nota > 0 else ("-" if pnl_val_nota < 0 else "")
+                                    pnl_formateado_nota = f"{simbolo_nota}${abs(pnl_val_nota):,.2f}"
+                                    notas_html_contenido += f'<div style="margin-bottom: 15px;"><h4 style="color:{pnl_color_nota}; margin:0;">Trade {idx_t+1} = {pnl_formateado_nota}</h4><b>{_l["dash"]["bias"]}:</b> <span class="note-val">{t.get("bias", "NONE")}</span><br><b>{_l["dash"]["conf"]}:</b> <span class="note-val">{confluences_str}</span><br><b>{_l["dash"]["reason"]}:</b> <span class="note-val">{t.get("razon_trade", "")}</span><br><b>{_l["dash"]["corr"]}:</b> <span class="note-val">{t.get("Corrections", "")}</span><br><b>{_l["dash"]["risk"]}:</b> <span class="note-val">{t.get("risk", "")}</span><br><b>{_l["dash"]["rr"]}:</b> <span class="note-val">{t.get("RR", "")}</span><br><b>{_l["dash"]["tt"]}:</b> <span class="note-val">{t.get("trade_type", "")}</span><br><b>{_l["dash"]["emo"]}:</b> <span class="note-val">{t.get("Emotions", "")}</span></div>'
+                            if has_notes:
+                                id_note_modal = f"mod_note_{anio_sel}_{mes_sel}_{dia}"
+                                note_html = f'<div><input type="checkbox" id="{id_note_modal}" class="modal-toggle" style="display:none;"><label for="{id_note_modal}"><div class="note-icon">💭</div></label><div class="fs-modal"><label for="{id_note_modal}" class="close-btn">{TXT_CERRAR_MODAL}</label><div class="note-modal-content"><h3 style="text-align:center; margin-top:0; font-size: var(--note-lbl-size);">💭 Trades - {dia}/{mes_sel}/{anio_sel}</h3><hr>{notas_html_contenido}</div></div></div>'
+                            else: note_html = ""
+                            cnt_str = f" ({len(trades_visibles)})" if len(trades_visibles) > 1 else ""
+                            st.markdown(f'<div class="card {c_cls}"><div class="day-number">{dia}</div><div class="day-content"><span class="day-pnl">{c_sim}${pnl_dia:,.2f}</span><br><span class="day-pct">{pct_str}{cnt_str}</span></div>{cam_html}{note_html}</div>', unsafe_allow_html=True)
+                        else:
+                            op = "0.2" if len(dia_trades) > 0 else "1"
+                            st.markdown(f'<div class="card cell-empty" style="opacity:{op}"><div class="day-number">{dia}</div></div>', unsafe_allow_html=True)
 
-    # Lógica de cuenta quemada activa permanentemente
-    if distancia_dd <= 0:
-        texto_lose = _l['cal']['lost']; texto_dd = _l['cal']['lost'];
-        texto_tg = _l['cal']['lost']
-        c_hex_tg = "#FF4C4C"
-        clave_perdida_db = "cuenta_quemada_v1_" + str(ctx)
-        if not db_global[usuario]["settings"]["PC"].get(clave_perdida_db, False):
-            db_global[usuario]["settings"]["PC"][clave_perdida_db] = True
-            db_global[usuario]["settings"]["Móvil"][clave_perdida_db] = True
-            reescribir_excel_usuario(usuario)
-            html_script_perdida = """<script>function iniciarPantallaPerdida() { const doc = window.parent.document; if (!doc.getElementById('lost-style')) { const style = doc.createElement('style'); style.id = 'lost-style'; style.innerHTML = `@import url('https://fonts.googleapis.com/css2?family=Inter:wght@800;900&display=swap'); #lost-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(20,0,0,0.95); backdrop-filter: blur(12px); z-index: 9999998; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; font-family: 'Inter', sans-serif; text-align: center; opacity: 0; animation: fadeInLost 1s forwards; pointer-events: none; overflow: hidden; } .lost-content { transform: scale(1.2); animation: dropInLost 0.5s forwards cubic-bezier(0.25, 0.46, 0.45, 0.94); z-index: 2; } .lost-title { font-size: 90px; font-weight: 900; margin-bottom: 20px; letter-spacing: -3px; line-height: 1; color: #FF4C4C; text-shadow: 0 0 40px rgba(255,76,76,0.6); } .lost-sub { font-size: 25px; font-weight: 800; color: #A0AEC0; text-transform: uppercase; letter-spacing: 2px; line-height: 1.4; } .skull-particle { position: absolute; top: -100px; z-index: 1; user-select: none; filter: drop-shadow(0 0 5px rgba(255,0,0,0.3)); } @keyframes fadeInLost { to { opacity: 1; } } @keyframes fadeOutLost { from { opacity: 1; } to { opacity: 0; } } @keyframes dropInLost { to { transform: scale(1); } } @keyframes shakeScreen { 0%, 100% { transform: translate(0, 0); } 10%, 30%, 50%, 70%, 90% { transform: translate(-8px, 0); } 20%, 40%, 60%, 80% { transform: translate(8px, 0); } } @keyframes fallSkull { 0% { transform: translateY(-100px) rotate(0deg); opacity: 1; } 100% { transform: translateY(110vh) rotate(360deg); opacity: 0; } }`; doc.head.appendChild(style); } const overlay = doc.createElement('div'); overlay.id = 'lost-overlay'; let skullsHtml = ''; for (let i = 0; i < 40; i++) { let left = Math.random() * 100; let size = Math.random() * 40 + 20; let duration = Math.random() * 2.5 + 2; let delay = Math.random() * 1.5; skullsHtml += `<div class="skull-particle" style="left: ${left}vw; font-size: ${size}px; animation: fallSkull ${duration}s linear ${delay}s forwards;">💀</div>`; } overlay.innerHTML = `${skullsHtml}<div class="lost-content"><div class="lost-title">"""+_l['cal']['acc_lost']+"""</div><div class="lost-sub">"""+_l['cal']['fail_info']+""" """ + usuario.upper() + """!</div></div>`; doc.body.appendChild(overlay); doc.body.style.animation = 'shakeScreen 0.4s ease-in-out'; setTimeout(() => { doc.body.style.animation = ''; }, 400); setTimeout(() => { overlay.style.animation = 'fadeOutLost 1.5s forwards'; setTimeout(() => { if(doc.body.contains(overlay)) { doc.body.removeChild(overlay); } }, 1500); }, 6500); } setTimeout(iniciarPantallaPerdida, 500); </script>"""
-            components.html(html_script_perdida, height=1, width=1)
-    else:
-        # Si es Backtesting y está quemada, mostramos los números en lugar de "LOST"
-        texto_lose = f"${distancia_dd:,.2f}"; texto_dd = f"${nivel_perdida:,.2f}"
+    def get_bar_svg(w, l, t):
+        tot = w + l + t
+        if tot == 0:
+            return f'''<svg width="100%" height="100%" viewBox="0 0 100 100"><line x1="5" y1="85" x2="95" y2="85" stroke="#4A5568" stroke-width="2" stroke-linecap="round" /><text x="50" y="50" fill="gray" font-size="14" font-family="sans-serif" font-weight="bold" text-anchor="middle">{_l['cal']['no_data']}</text></svg>'''
+        max_v = max(w, l, t)
+        if max_v == 0: max_v = 1
+        hw = (w / max_v) * 65  
+        hl = (l / max_v) * 65
+        ht = (t / max_v) * 65
+        svg = '<svg width="100%" height="100%" viewBox="0 0 100 100">'
+        svg += '<line x1="5" y1="85" x2="95" y2="85" stroke="#4A5568" stroke-width="2" stroke-linecap="round" />'
+        if w > 0:
+            svg += f'<rect x="12" y="{85 - hw}" width="22" height="{hw}" fill="#00C897" rx="3" />'
+            svg += f'<text x="23" y="{80 - hw}" fill="#00C897" font-size="14" font-family="sans-serif" font-weight="bold" text-anchor="middle">{w}</text>'
+            svg += f'<text x="23" y="98" fill="#00C897" font-size="12" font-family="sans-serif" font-weight="bold" text-anchor="middle">W</text>'
+        if l > 0:
+            svg += f'<rect x="39" y="{85 - hl}" width="22" height="{hl}" fill="#FF4C4C" rx="3" />'
+            svg += f'<text x="50" y="{80 - hl}" fill="#FF4C4C" font-size="14" font-family="sans-serif" font-weight="bold" text-anchor="middle">{l}</text>'
+            svg += f'<text x="50" y="98" fill="#FF4C4C" font-size="12" font-family="sans-serif" font-weight="bold" text-anchor="middle">L</text>'
+        if t > 0:
+            svg += f'<rect x="66" y="{85 - ht}" width="22" height="{ht}" fill="gray" rx="3" />'
+            svg += f'<text x="77" y="{80 - ht}" fill="gray" font-size="14" font-family="sans-serif" font-weight="bold" text-anchor="middle">{t}</text>'
+            svg += f'<text x="77" y="98" fill="gray" font-size="12" font-family="sans-serif" font-weight="bold" text-anchor="middle">BE</text>'
+        svg += '</svg>'
+        return svg
+
+    with col_det:
+        trades_cronologicos = []
+        for c, lt in sorted(db_usuario[ctx]["trades"].items(), key=lambda x: datetime(x[0][0], x[0][1], x[0][2])):
+            for t in lt:
+                if st.session_state.get("toggle_funded_state", False) and t.get("is_pre_funded", False): continue
+                trades_cronologicos.append(t)
         
-        if paso_cuenta:
-            falta_para_tope = tope_dd - bal_mostrar
-            if falta_para_tope <= 0:
-                titulo_target_dinamico = _l['cal']['avail_payout']
-                payout_disponible = abs(falta_para_tope)
-                texto_tg = f"${payout_disponible:,.2f}"
+        bal_inicial = bal_inicial_abs
+        
+        # OPTIMIZACIÓN 4: Pandas hace el cálculo acumulado (cumsum) y saca el máximo al instante
+        if trades_cronologicos:
+            df_trades = pd.DataFrame(trades_cronologicos)
+            # Suma acumulada de todos los PnL + Balance Inicial
+            df_trades['running_bal'] = bal_inicial + df_trades['pnl'].cumsum()
+            max_bal = max(bal_inicial, df_trades['running_bal'].max())
+            _current_sim_bal = df_trades['running_bal'].iloc[-1]
+        else:
+            max_bal = bal_inicial
+            _current_sim_bal = bal_inicial
+                
+    # Usamos el diccionario para obtener las reglas según el balance inicial
+        regla = REGLAS_CUENTAS.get(bal_inicial, REGLAS_CUENTAS[50000.0]) # 50k por defecto si no existe
+        meta_t = regla["meta"]
+        lim_dd = regla["lim_dd"]
+        alerta_dd = regla["alerta_dd"]
+        tope_dd = regla["tope_payout"]
+            
+        nivel_perdida = max_bal - lim_dd
+        if nivel_perdida > tope_dd: nivel_perdida = tope_dd
+            
+        progreso = bal_mostrar - bal_inicial
+        falta_tg = meta_t - progreso
+        distancia_dd = bal_mostrar - nivel_perdida
+        
+        c_hex_dd = "#FF4C4C" if distancia_dd < alerta_dd else "#00C897"
+        titulo_target_dinamico = _l['cal']['target']
+        c_hex_tg = "#FFFFFF" 
+
+        # Lógica de cuenta quemada activa permanentemente
+        if distancia_dd <= 0:
+            texto_lose = _l['cal']['lost']; texto_dd = _l['cal']['lost'];
+            texto_tg = _l['cal']['lost']
+            c_hex_tg = "#FF4C4C"
+            clave_perdida_db = "cuenta_quemada_v1_" + str(ctx)
+            if not db_global[usuario]["settings"]["PC"].get(clave_perdida_db, False):
+                db_global[usuario]["settings"]["PC"][clave_perdida_db] = True
+                db_global[usuario]["settings"]["Móvil"][clave_perdida_db] = True
+                reescribir_excel_usuario(usuario)
+                html_script_perdida = """<script>function iniciarPantallaPerdida() { const doc = window.parent.document; if (!doc.getElementById('lost-style')) { const style = doc.createElement('style'); style.id = 'lost-style'; style.innerHTML = `@import url('https://fonts.googleapis.com/css2?family=Inter:wght@800;900&display=swap'); #lost-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(20,0,0,0.95); backdrop-filter: blur(12px); z-index: 9999998; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; font-family: 'Inter', sans-serif; text-align: center; opacity: 0; animation: fadeInLost 1s forwards; pointer-events: none; overflow: hidden; } .lost-content { transform: scale(1.2); animation: dropInLost 0.5s forwards cubic-bezier(0.25, 0.46, 0.45, 0.94); z-index: 2; } .lost-title { font-size: 90px; font-weight: 900; margin-bottom: 20px; letter-spacing: -3px; line-height: 1; color: #FF4C4C; text-shadow: 0 0 40px rgba(255,76,76,0.6); } .lost-sub { font-size: 25px; font-weight: 800; color: #A0AEC0; text-transform: uppercase; letter-spacing: 2px; line-height: 1.4; } .skull-particle { position: absolute; top: -100px; z-index: 1; user-select: none; filter: drop-shadow(0 0 5px rgba(255,0,0,0.3)); } @keyframes fadeInLost { to { opacity: 1; } } @keyframes fadeOutLost { from { opacity: 1; } to { opacity: 0; } } @keyframes dropInLost { to { transform: scale(1); } } @keyframes shakeScreen { 0%, 100% { transform: translate(0, 0); } 10%, 30%, 50%, 70%, 90% { transform: translate(-8px, 0); } 20%, 40%, 60%, 80% { transform: translate(8px, 0); } } @keyframes fallSkull { 0% { transform: translateY(-100px) rotate(0deg); opacity: 1; } 100% { transform: translateY(110vh) rotate(360deg); opacity: 0; } }`; doc.head.appendChild(style); } const overlay = doc.createElement('div'); overlay.id = 'lost-overlay'; let skullsHtml = ''; for (let i = 0; i < 40; i++) { let left = Math.random() * 100; let size = Math.random() * 40 + 20; let duration = Math.random() * 2.5 + 2; let delay = Math.random() * 1.5; skullsHtml += `<div class="skull-particle" style="left: ${left}vw; font-size: ${size}px; animation: fallSkull ${duration}s linear ${delay}s forwards;">💀</div>`; } overlay.innerHTML = `${skullsHtml}<div class="lost-content"><div class="lost-title">"""+_l['cal']['acc_lost']+"""</div><div class="lost-sub">"""+_l['cal']['fail_info']+""" """ + usuario.upper() + """!</div></div>`; doc.body.appendChild(overlay); doc.body.style.animation = 'shakeScreen 0.4s ease-in-out'; setTimeout(() => { doc.body.style.animation = ''; }, 400); setTimeout(() => { overlay.style.animation = 'fadeOutLost 1.5s forwards'; setTimeout(() => { if(doc.body.contains(overlay)) { doc.body.removeChild(overlay); } }, 1500); }, 6500); } setTimeout(iniciarPantallaPerdida, 500); </script>"""
+                components.html(html_script_perdida, height=1, width=1)
+        else:
+            # Si es Backtesting y está quemada, mostramos los números en lugar de "LOST"
+            texto_lose = f"${distancia_dd:,.2f}"; texto_dd = f"${nivel_perdida:,.2f}"
+            
+            if paso_cuenta:
+                falta_para_tope = tope_dd - bal_mostrar
+                if falta_para_tope <= 0:
+                    titulo_target_dinamico = _l['cal']['avail_payout']
+                    payout_disponible = abs(falta_para_tope)
+                    texto_tg = f"${payout_disponible:,.2f}"
+                    c_hex_tg = "#00C897"
+                else:
+                    titulo_target_dinamico = _l['cal']['target']
+                    texto_tg = f"${falta_para_tope:,.2f}"
+                    c_hex_tg = "#FFFFFF"
+            elif falta_tg <= 0:
+                texto_tg = "PASSED 🎉"
                 c_hex_tg = "#00C897"
             else:
-                titulo_target_dinamico = _l['cal']['target']
-                texto_tg = f"${falta_para_tope:,.2f}"
-                c_hex_tg = "#FFFFFF"
-        elif falta_tg <= 0:
-            texto_tg = "PASSED 🎉"
-            c_hex_tg = "#00C897"
-        else:
-            texto_tg = f"${falta_tg:,.2f}"
-            c_hex_tg = "#FF4C4C" if falta_tg > meta_t else "#FFFFFF"
+                texto_tg = f"${falta_tg:,.2f}"
+                c_hex_tg = "#FF4C4C" if falta_tg > meta_t else "#FFFFFF"
 
-    st.markdown("""<style>div[data-testid="stElementContainer"]:has(.ancla-subir-todo) { margin-top: -215px !important; margin-bottom: 0px !important; }</style><div class="ancla-subir-todo"></div>""", unsafe_allow_html=True)
+        st.markdown("""<style>div[data-testid="stElementContainer"]:has(.ancla-subir-todo) { margin-top: -215px !important; margin-bottom: 0px !important; }</style><div class="ancla-subir-todo"></div>""", unsafe_allow_html=True)
 
-    if ctx != "Todas las Cuentas":
-        if paso_cuenta: st.toggle(_l['cal']['funded'], key="toggle_funded_state")
-        else: st.markdown("<div style='height: 42px;'></div>", unsafe_allow_html=True)
-        
-        c_tg_col, c_dd_col, c_lose_col = st.columns(3)
-        e_caja = "margin-top: -10px;\nmargin-bottom: 10px; padding: 10px !important; min-height: 85px !important; display: flex; flex-direction: column;\njustify-content: center;"
-        
-        with c_tg_col: st.markdown(f'<div class="metric-card card-pnl" style="{e_caja}"><div class="metric-header"><span class="title-net-pnl" style="font-size: var(--size-card-titles);">{titulo_target_dinamico}</span></div><div style="color: {c_hex_dd}; font-size: var(--size-box-vals); font-weight: 800;">{texto_tg}</div></div>', unsafe_allow_html=True)
-        with c_dd_col: st.markdown(f'<div class="metric-card card-pnl" style="{e_caja}"><div class="metric-header"><span class="title-net-pnl" style="font-size: var(--size-card-titles);">{_l["cal"]["dd"]}</span></div><div style="color: {c_hex_dd}; font-size: var(--size-box-vals); font-weight: 800;">{texto_dd}</div></div>', unsafe_allow_html=True)
-        with c_lose_col: st.markdown(f'<div class="metric-card card-pnl" style="{e_caja}"><div class="metric-header"><span class="title-net-pnl" style="font-size: var(--size-card-titles);">{_l["cal"]["lose_acc"]}</span></div><div style="color: {c_hex_dd}; font-size: var(--size-box-vals);\nfont-weight: 800;">{texto_lose}</div></div>', unsafe_allow_html=True)
-    
-    # El botón filtra por mes, y SIEMPRE arranca apagado (viendo todo), sin importar el backtesting
-    ver_solo_mes = st.toggle("📅 Ver Solo Este Mes", value=False)
-    ver_todo = not ver_solo_mes
-    
-    if st.session_state.get("toggle_funded_state", False) and paso_cuenta: todos_los_trades_planos = trades_cronologicos
-    else:
-        todos_los_trades_planos = []
-        for k, lista in db_usuario[ctx]["trades"].items(): todos_los_trades_planos.extend(lista)
+        if ctx != "Todas las Cuentas":
+            if paso_cuenta: st.toggle(_l['cal']['funded'], key="toggle_funded_state")
+            else: st.markdown("<div style='height: 42px;'></div>", unsafe_allow_html=True)
             
-    if ver_todo:
-        trades_lista = [t["pnl"] for t in todos_los_trades_planos]
-        titulo_pnl = _l['cal']['net_pnl']
-        titulo_win = _l['cal']['win_rate']
-    else:
-        trades_lista = trades_mes_top
-        titulo_pnl = CARD_PNL_TITULO
-        titulo_win = CARD_WIN_TITULO
+            c_tg_col, c_dd_col, c_lose_col = st.columns(3)
+            e_caja = "margin-top: -10px;\nmargin-bottom: 10px; padding: 10px !important; min-height: 85px !important; display: flex; flex-direction: column;\njustify-content: center;"
+            
+            with c_tg_col: st.markdown(f'<div class="metric-card card-pnl" style="{e_caja}"><div class="metric-header"><span class="title-net-pnl" style="font-size: var(--size-card-titles);">{titulo_target_dinamico}</span></div><div style="color: {c_hex_dd}; font-size: var(--size-box-vals); font-weight: 800;">{texto_tg}</div></div>', unsafe_allow_html=True)
+            with c_dd_col: st.markdown(f'<div class="metric-card card-pnl" style="{e_caja}"><div class="metric-header"><span class="title-net-pnl" style="font-size: var(--size-card-titles);">{_l["cal"]["dd"]}</span></div><div style="color: {c_hex_dd}; font-size: var(--size-box-vals); font-weight: 800;">{texto_dd}</div></div>', unsafe_allow_html=True)
+            with c_lose_col: st.markdown(f'<div class="metric-card card-pnl" style="{e_caja}"><div class="metric-header"><span class="title-net-pnl" style="font-size: var(--size-card-titles);">{_l["cal"]["lose_acc"]}</span></div><div style="color: {c_hex_dd}; font-size: var(--size-box-vals);\nfont-weight: 800;">{texto_lose}</div></div>', unsafe_allow_html=True)
         
-    # CALCULOS OPTIMIZADOS CON PANDAS
-    df_stats = pd.DataFrame(trades_lista, columns=['pnl'])
-    total_trades = len(df_stats)
-    net_pnl = float(df_stats['pnl'].sum()) if total_trades > 0 else 0.0
-    wins = int((df_stats['pnl'] >= 30).sum()) if total_trades > 0 else 0
-    losses = int((df_stats['pnl'] <= -30).sum()) if total_trades > 0 else 0
-    ties = int(((df_stats['pnl'] > -30) & (df_stats['pnl'] < 30)).sum()) if total_trades > 0 else 0
-    total_validos = wins + losses
-    win_pct = (wins / total_validos * 100) if total_validos > 0 else 0.0
-    simbolo_pnl = "+" if net_pnl > 0 else ""
-    c_win_card = "#00C897" if win_pct >= 50 else "#FF4C4C"
-    
-    rr_valores = []
-    trades_para_rr = todos_los_trades_planos if ver_todo else [tr for k, v in db_usuario[ctx]["trades"].items() if k[0] == anio_sel and k[1] == mes_sel for tr in v if not (modo_funded_activo and tr.get("is_pre_funded", False))]
-    for t in trades_para_rr:
-        rr_str = str(t.get('RR', '1:0'))
-        if ":" in rr_str:
-            try:
-                val = float(rr_str.split(":")[1])
-                if val > 0: rr_valores.append(val)
-            except: pass
-    rr_promedio = sum(rr_valores) / len(rr_valores) if rr_valores else 0.0
+        # El botón filtra por mes, y SIEMPRE arranca apagado (viendo todo), sin importar el backtesting
+        ver_solo_mes = st.toggle("📅 Ver Solo Este Mes", value=False)
+        ver_todo = not ver_solo_mes
+        
+        if st.session_state.get("toggle_funded_state", False) and paso_cuenta: todos_los_trades_planos = trades_cronologicos
+        else:
+            todos_los_trades_planos = []
+            for k, lista in db_usuario[ctx]["trades"].items(): todos_los_trades_planos.extend(lista)
+                
+        if ver_todo:
+            trades_lista = [t["pnl"] for t in todos_los_trades_planos]
+            titulo_pnl = _l['cal']['net_pnl']
+            titulo_win = _l['cal']['win_rate']
+        else:
+            trades_lista = trades_mes_top
+            titulo_pnl = CARD_PNL_TITULO
+            titulo_win = CARD_WIN_TITULO
+            
+        # CALCULOS OPTIMIZADOS CON PANDAS
+        df_stats = pd.DataFrame(trades_lista, columns=['pnl'])
+        total_trades = len(df_stats)
+        net_pnl = float(df_stats['pnl'].sum()) if total_trades > 0 else 0.0
+        wins = int((df_stats['pnl'] >= 30).sum()) if total_trades > 0 else 0
+        losses = int((df_stats['pnl'] <= -30).sum()) if total_trades > 0 else 0
+        ties = int(((df_stats['pnl'] > -30) & (df_stats['pnl'] < 30)).sum()) if total_trades > 0 else 0
+        total_validos = wins + losses
+        win_pct = (wins / total_validos * 100) if total_validos > 0 else 0.0
+        simbolo_pnl = "+" if net_pnl > 0 else ""
+        c_win_card = "#00C897" if win_pct >= 50 else "#FF4C4C"
+        
+        rr_valores = []
+        trades_para_rr = todos_los_trades_planos if ver_todo else [tr for k, v in db_usuario[ctx]["trades"].items() if k[0] == anio_sel and k[1] == mes_sel for tr in v if not (modo_funded_activo and tr.get("is_pre_funded", False))]
+        for t in trades_para_rr:
+            rr_str = str(t.get('RR', '1:0'))
+            if ":" in rr_str:
+                try:
+                    val = float(rr_str.split(":")[1])
+                    if val > 0: rr_valores.append(val)
+                except: pass
+        rr_promedio = sum(rr_valores) / len(rr_valores) if rr_valores else 0.0
 
-    c_met1, c_met2, c_met3 = st.columns(3)
-    c_hex_pnl = "#00C897" if net_pnl >= 0 else "#FF4C4C"
-    with c_met1: st.markdown(f"""<div class="metric-card card-pnl"><div class="metric-header"><span class="title-net-pnl" style="font-size: var(--size-card-titles);">{titulo_pnl}</span></div><div style="color: {c_hex_pnl}; font-size: var(--size-box-vals); font-weight: 800;">{simbolo_pnl}${net_pnl:,.2f}</div></div>""", unsafe_allow_html=True)
-    with c_met2: st.markdown(f"""<div class="metric-card card-win"><div class="metric-header"><span class="title-trade-win" style="font-size: var(--size-card-titles);">{_l['cal']['tot_tr']}</span></div><div class="rr-value" style="color: white; font-size: var(--size-box-vals) !important;">{total_trades}</div></div>""", unsafe_allow_html=True)
-    with c_met3: st.markdown(f"""<div class="metric-card card-rr"><div class="metric-header"><span class="title-trade-win" style="font-size: var(--size-card-titles);">{_l['cal']['avg_rr']}</span></div><div class="rr-value" style="color: #FFFFFF; font-size: var(--size-box-vals) !important;">1 / {rr_promedio:.2f}</div></div>""", unsafe_allow_html=True)
+        c_met1, c_met2, c_met3 = st.columns(3)
+        c_hex_pnl = "#00C897" if net_pnl >= 0 else "#FF4C4C"
+        with c_met1: st.markdown(f"""<div class="metric-card card-pnl"><div class="metric-header"><span class="title-net-pnl" style="font-size: var(--size-card-titles);">{titulo_pnl}</span></div><div style="color: {c_hex_pnl}; font-size: var(--size-box-vals); font-weight: 800;">{simbolo_pnl}${net_pnl:,.2f}</div></div>""", unsafe_allow_html=True)
+        with c_met2: st.markdown(f"""<div class="metric-card card-win"><div class="metric-header"><span class="title-trade-win" style="font-size: var(--size-card-titles);">{_l['cal']['tot_tr']}</span></div><div class="rr-value" style="color: white; font-size: var(--size-box-vals) !important;">{total_trades}</div></div>""", unsafe_allow_html=True)
+        with c_met3: st.markdown(f"""<div class="metric-card card-rr"><div class="metric-header"><span class="title-trade-win" style="font-size: var(--size-card-titles);">{_l['cal']['avg_rr']}</span></div><div class="rr-value" style="color: #FFFFFF; font-size: var(--size-box-vals) !important;">1 / {rr_promedio:.2f}</div></div>""", unsafe_allow_html=True)
+
+        st.markdown("<br>", unsafe_allow_html=True)
+        bar_html = get_bar_svg(wins, losses, ties)
+        wl_parts_pie = []
+        if wins >= 1: wl_parts_pie.append(f'<span style="color:#00C897;">{wins}W</span>')
+        if losses >= 1: wl_parts_pie.append(f'<span style="color:#FF4C4C;">{losses}L</span>')
+        if ties >= 1: wl_parts_pie.append(f'<span style="color:gray;">{ties}BE</span>')
+        wl_text_pie = ' <span style="color:gray;">/</span> '.join(wl_parts_pie) if total_validos > 0 else '<span style="color:gray;">0W / 0L / 0BE</span>'
+        st.markdown(f"""<div class="metric-card card-win"><div style="display:flex; justify-content:space-between; align-items:flex-start;"><div><div class="metric-header"><span class="title-trade-win">{titulo_win}</span></div><div class="win-value" style="color: {c_win_card};">{win_pct:.2f}%</div></div></div><div style="display:flex; flex-direction:row; align-items:center; justify-content:center; gap:20px; margin-top:0px; padding:0px;"><div style="width: var(--pie-size); height: var(--pie-size); transform: translateY(var(--pie-y-offset)); flex-shrink: 0; display:flex; margin: -15px 0;">{bar_html}</div><div style="font-size: calc(var(--size-box-wl) * 1.5); font-weight: 800; text-align:center; white-space:nowrap; transform: translateY(var(--pie-y-offset));">{wl_text_pie}</div></div></div>""", unsafe_allow_html=True)
+        
+        def get_col_simb(valor):
+            if valor > 0: return "txt-green", "+"
+            elif valor < 0: return "txt-red", ""
+            else: return "txt-gray", ""
+        def calc_pct(valor):
+            base = bal_actual - valor
+            return (valor / base * 100) if base != 0 else 0.0
+        
+        if not ver_todo:
+            semanas_stats = {i: {"pnl": 0.0, "w": 0, "l": 0} for i in range(1, len(mes_matriz) + 1)}
+            for key, lista_t in db_usuario[ctx]["trades"].items():
+                if key[0] == anio_sel and key[1] == mes_sel:
+                    dia = key[2]
+                    for idx, semana in enumerate(mes_matriz):
+                        if dia in semana:
+                            for val in lista_t:
+                                if st.session_state.get("toggle_funded_state", False) and val.get("is_pre_funded", False): continue
+                                semanas_stats[idx + 1]["pnl"] += val["pnl"]
+                                if val["pnl"] > 0: semanas_stats[idx + 1]["w"] += 1
+                                elif val["pnl"] < 0: semanas_stats[idx + 1]["l"] += 1
+                            break
+            m_total = sum(s["pnl"] for s in semanas_stats.values())
+            m_w = sum(s["w"] for s in semanas_stats.values())
+            m_l = sum(s["l"] for s in semanas_stats.values())
+            cM, sM = get_col_simb(m_total)
+            pct_m = calc_pct(m_total)
+            titulos_semanas = [TXT_W1, TXT_W2, TXT_W3, TXT_W4, TXT_W5, TXT_W6]
+            semanas_html = ""
+            for idx, (num_sem, stats) in enumerate(semanas_stats.items()):
+                titulo_str = titulos_semanas[idx] if idx < len(titulos_semanas) else f"Week {num_sem}"
+                c_sem, s_sem = get_col_simb(stats["pnl"])
+                pct_sem = calc_pct(stats["pnl"])
+                wl_parts_sem = []
+                if stats["w"] >= 1: wl_parts_sem.append(f'<span style="color:#00C897;">{stats["w"]}W</span>')
+                if stats["l"] >= 1: wl_parts_sem.append(f'<span style="color:#FF4C4C;">{stats["l"]}L</span>')
+                wl_text_sem = ' <span style="color:gray;">/</span> '.join(wl_parts_sem)
+                semanas_html += f'<div class="wk-box"><div class="wk-title" style="font-size:var(--size-box-titles) !important;">{titulo_str}</div><div class="wk-val {c_sem}" style="font-size:var(--size-box-vals) !important;">{s_sem}${stats["pnl"]:,.2f}<br><span style="font-size:var(--size-box-pct);">{s_sem}{pct_sem:.2f}%</span><br><span style="font-size: var(--size-box-wl); font-weight: 500;">{wl_text_sem}</span></div></div>'
+            wl_parts_mo = []
+            if m_w >= 1: wl_parts_mo.append(f'<span style="color:#00C897;">{m_w}W</span>')
+            if m_l >= 1: wl_parts_mo.append(f'<span style="color:#FF4C4C;">{m_l}L</span>')
+            wl_text_mo = ' <span style="color:gray;">/</span> '.join(wl_parts_mo)
+            st.markdown(f'<div class="weeks-container">{semanas_html}<div class="mo-box"><div class="mo-title" style="font-size:var(--size-box-titles) !important;">{TXT_MO}</div><div class="mo-val {cM}" style="font-size:var(--size-box-vals) !important;">{sM}${m_total:,.2f}<br><span style="font-size:var(--size-box-pct);">{sM}{pct_m:.2f}%</span><br><span style="font-size: var(--size-box-wl); font-weight: 500;">{wl_text_mo}</span></div></div></div>', unsafe_allow_html=True)
+        else:
+            meses_stats = {}
+            for key, lista_t in db_usuario[ctx]["trades"].items():
+                y, m = key[0], key[1]
+                if (y, m) not in meses_stats: meses_stats[(y, m)] = {"pnl": 0.0, "w": 0, "l": 0}
+                for val in lista_t:
+                    if st.session_state.get("toggle_funded_state", False) and val.get("is_pre_funded", False): continue
+                    meses_stats[(y, m)]["pnl"] += val["pnl"]
+                    if val["pnl"] > 0: meses_stats[(y, m)]["w"] += 1
+                    elif val["pnl"] < 0: meses_stats[(y, m)]["l"] += 1
+            meses_html = ""
+            for (y, m) in sorted(meses_stats.keys()):
+                val_m = meses_stats[(y, m)]["pnl"]
+                w_m = meses_stats[(y, m)]["w"]
+                l_m = meses_stats[(y, m)]["l"]
+                if st.session_state.idioma == "ES":
+                    meses_es = ["", "Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"]
+                    nombre_m = f"{meses_es[m]} {y}"
+                else: nombre_m = f"{calendar.month_abbr[m]} {y}"
+                c_m, s_m = get_col_simb(val_m)
+                pct_m_box = calc_pct(val_m)
+                wl_parts_all = []
+                if w_m >= 1: wl_parts_all.append(f'<span style="color:#00C897;">{w_m}W</span>')
+                if l_m >= 1: wl_parts_all.append(f'<span style="color:#FF4C4C;">{l_m}L</span>')
+                wl_text_all = ' <span style="color:gray;">/</span> '.join(wl_parts_all)
+                meses_html += f'<div class="wk-box"><div class="wk-title" style="font-size:var(--size-box-titles) !important;">{nombre_m}</div><div class="wk-val {c_m}" style="font-size:var(--size-box-vals) !important;">{s_m}${val_m:,.2f}<br><span style="font-size:var(--size-box-pct);">{s_m}{pct_m_box:.2f}%</span><br><span style="font-size: var(--size-box-wl); font-weight: 500;">{wl_text_all}</span></div></div>'
+            if meses_html: st.markdown(f'<div class="weeks-container">{meses_html}</div>', unsafe_allow_html=True)
+            else: st.info("No hay meses con trades registrados aún.")
+
+    with col_cal:
+        if paso_cuenta:
+            st.markdown("<br>", unsafe_allow_html=True)
+            st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
+            if "payouts" not in db_global[usuario]["settings"]["PC"]: db_global[usuario]["settings"]["PC"]["payouts"] = {}
+            if "payouts" not in db_global[usuario]["settings"]["Móvil"]: db_global[usuario]["settings"]["Móvil"]["payouts"] = {}
+            payouts_dict = db_global[usuario]["settings"]["PC"]["payouts"]
+            payouts_cta = payouts_dict.get(ctx, [])
+            total_retirado = sum(payouts_cta)
+            retiros_realizados = len(payouts_cta)
+    # Usamos las reglas centralizadas
+            regla_wd = REGLAS_CUENTAS.get(bal_inicial_abs, REGLAS_CUENTAS[50000.0])
+            umbral_pago = regla_wd["umbral_dia"]
+            tope_payout = regla_wd["tope_payout"]
+            payout_dates = db_global[usuario]["settings"]["PC"].get("payout_dates", {})
+            fecha_corte_str = payout_dates.get(ctx, None)
+            fecha_corte_dt = None
+            if fecha_corte_str:
+                try: fecha_corte_dt = datetime.strptime(fecha_corte_str, "%d/%m/%Y")
+                except: pass
+            dias_ganadores_count = 0
+            trades_por_dia = {}
+            for tr in trades_cronologicos:
+                if fecha_corte_dt:
+                    try:
+                        dt_tr = datetime.strptime(tr['fecha_str'], "%d/%m/%Y")
+                        if dt_tr <= fecha_corte_dt: continue
+                    except: pass
+                f_str = tr['fecha_str']
+                trades_por_dia[f_str] = trades_por_dia.get(f_str, 0) + tr['pnl']
+                
+            for fecha, pnl_total_dia in trades_por_dia.items():
+                # Aplicamos el umbral real de la cuenta (ej: $100, $250 o $300) en lugar de $0
+                if pnl_total_dia >= umbral_pago: 
+                    dias_ganadores_count += 1
+            e_caja_p = f"padding: 15px; min-height: 110px; display: flex; flex-direction: column; justify-content: center; background-color: {card_bg}; border: 1px solid {border_color}; border-radius: 15px;"
+            st.markdown("""<style>
+            div[data-testid="stForm"]:has(input[aria-label="Amount"]) div[data-testid="stNumberInput"] { width: 100% !important; min-width: 100% !important; max-width: 100% !important; margin: 0 !important; } 
+            div[data-testid="stForm"]:has(input[aria-label="Amount"]) [data-testid="stFormSubmitButton"] button { width: 100% !important; margin: 5px 0 0 0 !important; background-color: #FF4C4C !important; color: white !important;}
+            
+            /* 🔴 FIX: MATAR LA DOBLE CAJA (DEJAR SOLO LA EXTERNA VISIBLE) 🔴 */
+            div[data-testid="stForm"]:has(input[aria-label="Amount"]) div[data-baseweb="input"] {
+                border: 1px solid #4A5568 !important;
+                border-radius: 8px !important;
+                background-color: #1A202C !important; /* El fondo real oscuro de la caja */
+            }
+            
+            /* Hacemos invisibles/transparentes la caja interna y el área de texto */
+            div[data-testid="stForm"]:has(input[aria-label="Amount"]) div[data-baseweb="base-input"],
+            div[data-testid="stForm"]:has(input[aria-label="Amount"]) input,
+            div[data-testid="stForm"]:has(input[aria-label="Amount"]) > div:last-child {
+                background-color: transparent !important;
+                border: none !important;
+                box-shadow: none !important;
+            }
+            </style>""", unsafe_allow_html=True)
+            c_p1, c_p2, c_p3, c_p4 = st.columns(4)
+            with c_p1:
+                st.markdown(f'<div style="font-size: 20px; font-weight: 700; color: #FFFFFF; margin-bottom: 5px;">{_l["wd"]["amt_wd"]}</div>', unsafe_allow_html=True)
+                with st.form(key="form_payout", clear_on_submit=True, border=False):
+                    retiro_val = st.number_input("Amount", min_value=0.0, format="%.2f", label_visibility="collapsed")
+                    if bal_inicial_abs <= 35000: tope_payout = 26100
+                    elif bal_inicial_abs <= 75000: tope_payout = 52100
+                    else: tope_payout = 103100
+                    payout_disp_local = bal_mostrar - tope_payout
+                    if st.form_submit_button(_l['wd']['btn_wd'], use_container_width=True):
+                        if payout_disp_local < 500 or dias_ganadores_count < 5: st.error(f"{_l['wd']['req_500']} (You have ${max(0, payout_disp_local):.2f})\n  {_l['wd']['req_days']} (You have {dias_ganadores_count}).")
+                        elif retiro_val > 0:
+                            if retiro_val < 500: st.error(_l['wd']['min_wd'])
+                            elif retiro_val > payout_disp_local: st.error(f"{_l['wd']['max_wd']} (${payout_disp_local:,.2f})")
+                            else:
+                                payouts_dict.setdefault(ctx, []).append(retiro_val)
+                                db_global[usuario]["settings"]["Móvil"]["payouts"] = payouts_dict
+                                db_usuario[ctx]["balance"] -= retiro_val
+                                payout_dates_save = db_global[usuario]["settings"]["PC"].get("payout_dates", {})
+                                if trades_cronologicos: payout_dates_save[ctx] = trades_cronologicos[-1]['fecha_str']
+                                db_global[usuario]["settings"]["PC"]["payout_dates"] = payout_dates_save
+                                db_global[usuario]["settings"]["Móvil"]["payout_dates"] = payout_dates_save
+                                reescribir_excel_usuario(usuario)
+                                st.session_state.retiro_exitoso = True
+                                st.rerun()
+            with c_p2: st.markdown(f'<div style="{e_caja_p}"><div style="font-size: 20px; font-weight: 700; color: #FFFFFF; text-transform: none;">{_l["wd"]["tot_wdn"]}</div><div style="color: #00C897; font-size: 26px; font-weight: 800;">${total_retirado:,.2f}</div></div>', unsafe_allow_html=True)
+            with c_p3: st.markdown(f'<div style="{e_caja_p}"><div style="font-size: 20px; font-weight: 700; color: #FFFFFF; text-transform: none;">{_l["wd"]["tot_wds"]}</div><div style="color: {c_dash}; font-size: 26px; font-weight: 800;">{retiros_realizados}</div></div>', unsafe_allow_html=True)
+            with c_p4: st.markdown(f'<div style="{e_caja_p}"><div style="font-size: 20px; font-weight: 700; color: #FFFFFF; text-transform: none;">{_l["wd"]["days_done"]}</div><div style="color: #00C897; font-size: 26px; font-weight: 800;">{dias_ganadores_count}</div></div>', unsafe_allow_html=True)
+            if st.session_state.get("retiro_exitoso", False):
+                st.toast(_l['wd']['succ_toast'], icon="💸")
+                st.balloons()
+                html_script_payout = """<script>setTimeout(function() { if (!window.parent.document.getElementById('confetti-script')) { const script = window.parent.document.createElement('script'); script.id = 'confetti-script'; script.src = 'https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js'; script.onload = function() { iniciarCelebracionRetiro(); }; window.parent.document.head.appendChild(script); } else { iniciarCelebracionRetiro(); } }, 500); function iniciarCelebracionRetiro() { const doc = window.parent.document; if (!doc.getElementById('celebration-style')) { const style = doc.createElement('style'); style.id = 'celebration-style'; style.innerHTML = `@import url('https://fonts.googleapis.com/css2?family=Inter:wght@800;900&display=swap'); #celebration-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(0,0,0,0.9); backdrop-filter: blur(10px); z-index: 9999998; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; font-family: 'Inter', sans-serif; text-align: center; opacity: 0; animation: fadeInCelebration 0.8s forwards; pointer-events: none; } .cel-content { transform: scale(0.5); animation: scaleInCelebration 0.8s 0.2s forwards cubic-bezier(0.17, 0.89, 0.32, 1.49); } .cel-title { font-size: 80px; font-weight: 900; margin-bottom: 20px; letter-spacing: -4px; line-height: 1; text-shadow: 0 10px 20px rgba(0,0,0,0.5); } .cel-sub { font-size: 30px; font-weight: 800; color: #00C897; text-transform: uppercase; letter-spacing: 2px; } @keyframes fadeInCelebration { to { opacity: 1; } } @keyframes fadeOutCelebration { from { opacity: 1; } to { opacity: 0; } } @keyframes scaleInCelebration { to { transform: scale(1); } }`; doc.head.appendChild(style); } const overlay = doc.createElement('div'); overlay.id = 'celebration-overlay'; overlay.innerHTML = `<div class="cel-content"><div class="cel-title">"""+_l['wd']['wd_succ']+"""<br>""" + usuario.upper() + """</div><div class="cel-sub">"""+_l['wd']['beers']+"""</div></div>`; doc.body.appendChild(overlay); var duration = 5 * 1000; var end = window.parent.Date.now() + duration; var colors = ['#00C897', '#FFFFFF', '#FFD700', '#FF4C4C']; (function frame() { if (window.parent.confetti) { window.parent.confetti({ particleCount: 7, angle: 60, spread: 60, origin: { x: 0, y: 0.6 }, colors: colors, zIndex: 9999999 }); window.parent.confetti({ particleCount: 7, angle: 120, spread: 60, origin: { x: 1, y: 0.6 }, colors: colors, zIndex: 9999999 }); } if (window.parent.Date.now() < end) { window.parent.requestAnimationFrame(frame); } }()); setTimeout(() => { overlay.style.animation = 'fadeOutCelebration 1s forwards'; setTimeout(() => { if(doc.body.contains(overlay)) { doc.body.removeChild(overlay); } }, 1000); }, 6500); } </script>"""
+                components.html(html_script_payout, height=1, width=1)
+                st.session_state.retiro_exitoso = False
+
+    with tab_estadisticas:
+        st.markdown("<br><h3 style='text-align:center; color:gray;'>📊 Estadísticas Generales</h3>", unsafe_allow_html=True)
+        
+        # 🚀 CLONAMOS LAS MÉTRICAS YA CALCULADAS (Instantáneo)
+        c_met1_e, c_met2_e, c_met3_e = st.columns(3)
+        with c_met1_e: st.markdown(f"""<div class="metric-card card-pnl"><div class="metric-header"><span class="title-net-pnl" style="font-size: var(--size-card-titles);">{titulo_pnl}</span></div><div style="color: {c_hex_pnl}; font-size: var(--size-box-vals); font-weight: 800;">{simbolo_pnl}${net_pnl:,.2f}</div></div>""", unsafe_allow_html=True)
+        with c_met2_e: st.markdown(f"""<div class="metric-card card-win"><div class="metric-header"><span class="title-trade-win" style="font-size: var(--size-card-titles);">{_l['cal']['tot_tr']}</span></div><div class="rr-value" style="color: white; font-size: var(--size-box-vals) !important;">{total_trades}</div></div>""", unsafe_allow_html=True)
+        with c_met3_e: st.markdown(f"""<div class="metric-card card-rr"><div class="metric-header"><span class="title-trade-win" style="font-size: var(--size-card-titles);">{_l['cal']['avg_rr']}</span></div><div class="rr-value" style="color: #FFFFFF; font-size: var(--size-box-vals) !important;">1 / {rr_promedio:.2f}</div></div>""", unsafe_allow_html=True)
+
+        st.markdown("<br>", unsafe_allow_html=True)
+        st.markdown(f"""<div class="metric-card card-win"><div style="display:flex; justify-content:space-between; align-items:flex-start;"><div><div class="metric-header"><span class="title-trade-win">{titulo_win}</span></div><div class="win-value" style="color: {c_win_card};">{win_pct:.2f}%</div></div></div><div style="display:flex; flex-direction:row; align-items:center; justify-content:center; gap:20px; margin-top:0px; padding:0px;"><div style="width: var(--pie-size); height: var(--pie-size); transform: translateY(var(--pie-y-offset)); flex-shrink: 0; display:flex; margin: -15px 0;">{bar_html}</div><div style="font-size: calc(var(--size-box-wl) * 1.5); font-weight: 800; text-align:center; white-space:nowrap; transform: translateY(var(--pie-y-offset));">{wl_text_pie}</div></div></div>""", unsafe_allow_html=True)
+        
+        if not ver_todo:
+            st.markdown(f'<div class="weeks-container">{semanas_html}<div class="mo-box"><div class="mo-title" style="font-size:var(--size-box-titles) !important;">{TXT_MO}</div><div class="mo-val {cM}" style="font-size:var(--size-box-vals) !important;">{sM}${m_total:,.2f}<br><span style="font-size:var(--size-box-pct);">{sM}{pct_m:.2f}%</span><br><span style="font-size: var(--size-box-wl); font-weight: 500;">{wl_text_mo}</span></div></div></div>', unsafe_allow_html=True)
+        else:
+            if 'meses_html' in locals() and meses_html: st.markdown(f'<div class="weeks-container">{meses_html}</div>', unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
-    bar_html = get_bar_svg(wins, losses, ties)
-    wl_parts_pie = []
-    if wins >= 1: wl_parts_pie.append(f'<span style="color:#00C897;">{wins}W</span>')
-    if losses >= 1: wl_parts_pie.append(f'<span style="color:#FF4C4C;">{losses}L</span>')
-    if ties >= 1: wl_parts_pie.append(f'<span style="color:gray;">{ties}BE</span>')
-    wl_text_pie = ' <span style="color:gray;">/</span> '.join(wl_parts_pie) if total_validos > 0 else '<span style="color:gray;">0W / 0L / 0BE</span>'
-    st.markdown(f"""<div class="metric-card card-win"><div style="display:flex; justify-content:space-between; align-items:flex-start;"><div><div class="metric-header"><span class="title-trade-win">{titulo_win}</span></div><div class="win-value" style="color: {c_win_card};">{win_pct:.2f}%</div></div></div><div style="display:flex; flex-direction:row; align-items:center; justify-content:center; gap:20px; margin-top:0px; padding:0px;"><div style="width: var(--pie-size); height: var(--pie-size); transform: translateY(var(--pie-y-offset)); flex-shrink: 0; display:flex; margin: -15px 0;">{bar_html}</div><div style="font-size: calc(var(--size-box-wl) * 1.5); font-weight: 800; text-align:center; white-space:nowrap; transform: translateY(var(--pie-y-offset));">{wl_text_pie}</div></div></div>""", unsafe_allow_html=True)
-    
-    def get_col_simb(valor):
-        if valor > 0: return "txt-green", "+"
-        elif valor < 0: return "txt-red", ""
-        else: return "txt-gray", ""
-    def calc_pct(valor):
-        base = bal_actual - valor
-        return (valor / base * 100) if base != 0 else 0.0
-    
-    if not ver_todo:
-        semanas_stats = {i: {"pnl": 0.0, "w": 0, "l": 0} for i in range(1, len(mes_matriz) + 1)}
-        for key, lista_t in db_usuario[ctx]["trades"].items():
-            if key[0] == anio_sel and key[1] == mes_sel:
-                dia = key[2]
-                for idx, semana in enumerate(mes_matriz):
-                    if dia in semana:
-                        for val in lista_t:
-                            if st.session_state.get("toggle_funded_state", False) and val.get("is_pre_funded", False): continue
-                            semanas_stats[idx + 1]["pnl"] += val["pnl"]
-                            if val["pnl"] > 0: semanas_stats[idx + 1]["w"] += 1
-                            elif val["pnl"] < 0: semanas_stats[idx + 1]["l"] += 1
-                        break
-        m_total = sum(s["pnl"] for s in semanas_stats.values())
-        m_w = sum(s["w"] for s in semanas_stats.values())
-        m_l = sum(s["l"] for s in semanas_stats.values())
-        cM, sM = get_col_simb(m_total)
-        pct_m = calc_pct(m_total)
-        titulos_semanas = [TXT_W1, TXT_W2, TXT_W3, TXT_W4, TXT_W5, TXT_W6]
-        semanas_html = ""
-        for idx, (num_sem, stats) in enumerate(semanas_stats.items()):
-            titulo_str = titulos_semanas[idx] if idx < len(titulos_semanas) else f"Week {num_sem}"
-            c_sem, s_sem = get_col_simb(stats["pnl"])
-            pct_sem = calc_pct(stats["pnl"])
-            wl_parts_sem = []
-            if stats["w"] >= 1: wl_parts_sem.append(f'<span style="color:#00C897;">{stats["w"]}W</span>')
-            if stats["l"] >= 1: wl_parts_sem.append(f'<span style="color:#FF4C4C;">{stats["l"]}L</span>')
-            wl_text_sem = ' <span style="color:gray;">/</span> '.join(wl_parts_sem)
-            semanas_html += f'<div class="wk-box"><div class="wk-title" style="font-size:var(--size-box-titles) !important;">{titulo_str}</div><div class="wk-val {c_sem}" style="font-size:var(--size-box-vals) !important;">{s_sem}${stats["pnl"]:,.2f}<br><span style="font-size:var(--size-box-pct);">{s_sem}{pct_sem:.2f}%</span><br><span style="font-size: var(--size-box-wl); font-weight: 500;">{wl_text_sem}</span></div></div>'
-        wl_parts_mo = []
-        if m_w >= 1: wl_parts_mo.append(f'<span style="color:#00C897;">{m_w}W</span>')
-        if m_l >= 1: wl_parts_mo.append(f'<span style="color:#FF4C4C;">{m_l}L</span>')
-        wl_text_mo = ' <span style="color:gray;">/</span> '.join(wl_parts_mo)
-        st.markdown(f'<div class="weeks-container">{semanas_html}<div class="mo-box"><div class="mo-title" style="font-size:var(--size-box-titles) !important;">{TXT_MO}</div><div class="mo-val {cM}" style="font-size:var(--size-box-vals) !important;">{sM}${m_total:,.2f}<br><span style="font-size:var(--size-box-pct);">{sM}{pct_m:.2f}%</span><br><span style="font-size: var(--size-box-wl); font-weight: 500;">{wl_text_mo}</span></div></div></div>', unsafe_allow_html=True)
-    else:
-        meses_stats = {}
-        for key, lista_t in db_usuario[ctx]["trades"].items():
-            y, m = key[0], key[1]
-            if (y, m) not in meses_stats: meses_stats[(y, m)] = {"pnl": 0.0, "w": 0, "l": 0}
-            for val in lista_t:
-                if st.session_state.get("toggle_funded_state", False) and val.get("is_pre_funded", False): continue
-                meses_stats[(y, m)]["pnl"] += val["pnl"]
-                if val["pnl"] > 0: meses_stats[(y, m)]["w"] += 1
-                elif val["pnl"] < 0: meses_stats[(y, m)]["l"] += 1
-        meses_html = ""
-        for (y, m) in sorted(meses_stats.keys()):
-            val_m = meses_stats[(y, m)]["pnl"]
-            w_m = meses_stats[(y, m)]["w"]
-            l_m = meses_stats[(y, m)]["l"]
-            if st.session_state.idioma == "ES":
-                meses_es = ["", "Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"]
-                nombre_m = f"{meses_es[m]} {y}"
-            else: nombre_m = f"{calendar.month_abbr[m]} {y}"
-            c_m, s_m = get_col_simb(val_m)
-            pct_m_box = calc_pct(val_m)
-            wl_parts_all = []
-            if w_m >= 1: wl_parts_all.append(f'<span style="color:#00C897;">{w_m}W</span>')
-            if l_m >= 1: wl_parts_all.append(f'<span style="color:#FF4C4C;">{l_m}L</span>')
-            wl_text_all = ' <span style="color:gray;">/</span> '.join(wl_parts_all)
-            meses_html += f'<div class="wk-box"><div class="wk-title" style="font-size:var(--size-box-titles) !important;">{nombre_m}</div><div class="wk-val {c_m}" style="font-size:var(--size-box-vals) !important;">{s_m}${val_m:,.2f}<br><span style="font-size:var(--size-box-pct);">{s_m}{pct_m_box:.2f}%</span><br><span style="font-size: var(--size-box-wl); font-weight: 500;">{wl_text_all}</span></div></div>'
-        if meses_html: st.markdown(f'<div class="weeks-container">{meses_html}</div>', unsafe_allow_html=True)
-        else: st.info("No hay meses con trades registrados aún.")
+    st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
 
-with col_cal:
-    if paso_cuenta:
-        st.markdown("<br>", unsafe_allow_html=True)
-        st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
-        if "payouts" not in db_global[usuario]["settings"]["PC"]: db_global[usuario]["settings"]["PC"]["payouts"] = {}
-        if "payouts" not in db_global[usuario]["settings"]["Móvil"]: db_global[usuario]["settings"]["Móvil"]["payouts"] = {}
-        payouts_dict = db_global[usuario]["settings"]["PC"]["payouts"]
-        payouts_cta = payouts_dict.get(ctx, [])
-        total_retirado = sum(payouts_cta)
-        retiros_realizados = len(payouts_cta)
-# Usamos las reglas centralizadas
-        regla_wd = REGLAS_CUENTAS.get(bal_inicial_abs, REGLAS_CUENTAS[50000.0])
-        umbral_pago = regla_wd["umbral_dia"]
-        tope_payout = regla_wd["tope_payout"]
-        payout_dates = db_global[usuario]["settings"]["PC"].get("payout_dates", {})
-        fecha_corte_str = payout_dates.get(ctx, None)
-        fecha_corte_dt = None
-        if fecha_corte_str:
-            try: fecha_corte_dt = datetime.strptime(fecha_corte_str, "%d/%m/%Y")
-            except: pass
-        dias_ganadores_count = 0
-        trades_por_dia = {}
-        for tr in trades_cronologicos:
-            if fecha_corte_dt:
-                try:
-                    dt_tr = datetime.strptime(tr['fecha_str'], "%d/%m/%Y")
-                    if dt_tr <= fecha_corte_dt: continue
-                except: pass
-            f_str = tr['fecha_str']
-            trades_por_dia[f_str] = trades_por_dia.get(f_str, 0) + tr['pnl']
-            
-        for fecha, pnl_total_dia in trades_por_dia.items():
-            # Aplicamos el umbral real de la cuenta (ej: $100, $250 o $300) en lugar de $0
-            if pnl_total_dia >= umbral_pago: 
-                dias_ganadores_count += 1
-        e_caja_p = f"padding: 15px; min-height: 110px; display: flex; flex-direction: column; justify-content: center; background-color: {card_bg}; border: 1px solid {border_color}; border-radius: 15px;"
-        st.markdown("""<style>
-        div[data-testid="stForm"]:has(input[aria-label="Amount"]) div[data-testid="stNumberInput"] { width: 100% !important; min-width: 100% !important; max-width: 100% !important; margin: 0 !important; } 
-        div[data-testid="stForm"]:has(input[aria-label="Amount"]) [data-testid="stFormSubmitButton"] button { width: 100% !important; margin: 5px 0 0 0 !important; background-color: #FF4C4C !important; color: white !important;}
-        
-        /* 🔴 FIX: MATAR LA DOBLE CAJA (DEJAR SOLO LA EXTERNA VISIBLE) 🔴 */
-        div[data-testid="stForm"]:has(input[aria-label="Amount"]) div[data-baseweb="input"] {
-            border: 1px solid #4A5568 !important;
-            border-radius: 8px !important;
-            background-color: #1A202C !important; /* El fondo real oscuro de la caja */
-        }
-        
-        /* Hacemos invisibles/transparentes la caja interna y el área de texto */
-        div[data-testid="stForm"]:has(input[aria-label="Amount"]) div[data-baseweb="base-input"],
-        div[data-testid="stForm"]:has(input[aria-label="Amount"]) input,
-        div[data-testid="stForm"]:has(input[aria-label="Amount"]) > div:last-child {
-            background-color: transparent !important;
-            border: none !important;
-            box-shadow: none !important;
-        }
-        </style>""", unsafe_allow_html=True)
-        c_p1, c_p2, c_p3, c_p4 = st.columns(4)
-        with c_p1:
-            st.markdown(f'<div style="font-size: 20px; font-weight: 700; color: #FFFFFF; margin-bottom: 5px;">{_l["wd"]["amt_wd"]}</div>', unsafe_allow_html=True)
-            with st.form(key="form_payout", clear_on_submit=True, border=False):
-                retiro_val = st.number_input("Amount", min_value=0.0, format="%.2f", label_visibility="collapsed")
-                if bal_inicial_abs <= 35000: tope_payout = 26100
-                elif bal_inicial_abs <= 75000: tope_payout = 52100
-                else: tope_payout = 103100
-                payout_disp_local = bal_mostrar - tope_payout
-                if st.form_submit_button(_l['wd']['btn_wd'], use_container_width=True):
-                    if payout_disp_local < 500 or dias_ganadores_count < 5: st.error(f"{_l['wd']['req_500']} (You have ${max(0, payout_disp_local):.2f})\n  {_l['wd']['req_days']} (You have {dias_ganadores_count}).")
-                    elif retiro_val > 0:
-                        if retiro_val < 500: st.error(_l['wd']['min_wd'])
-                        elif retiro_val > payout_disp_local: st.error(f"{_l['wd']['max_wd']} (${payout_disp_local:,.2f})")
-                        else:
-                            payouts_dict.setdefault(ctx, []).append(retiro_val)
-                            db_global[usuario]["settings"]["Móvil"]["payouts"] = payouts_dict
-                            db_usuario[ctx]["balance"] -= retiro_val
-                            payout_dates_save = db_global[usuario]["settings"]["PC"].get("payout_dates", {})
-                            if trades_cronologicos: payout_dates_save[ctx] = trades_cronologicos[-1]['fecha_str']
-                            db_global[usuario]["settings"]["PC"]["payout_dates"] = payout_dates_save
-                            db_global[usuario]["settings"]["Móvil"]["payout_dates"] = payout_dates_save
-                            reescribir_excel_usuario(usuario)
-                            st.session_state.retiro_exitoso = True
-                            st.rerun()
-        with c_p2: st.markdown(f'<div style="{e_caja_p}"><div style="font-size: 20px; font-weight: 700; color: #FFFFFF; text-transform: none;">{_l["wd"]["tot_wdn"]}</div><div style="color: #00C897; font-size: 26px; font-weight: 800;">${total_retirado:,.2f}</div></div>', unsafe_allow_html=True)
-        with c_p3: st.markdown(f'<div style="{e_caja_p}"><div style="font-size: 20px; font-weight: 700; color: #FFFFFF; text-transform: none;">{_l["wd"]["tot_wds"]}</div><div style="color: {c_dash}; font-size: 26px; font-weight: 800;">{retiros_realizados}</div></div>', unsafe_allow_html=True)
-        with c_p4: st.markdown(f'<div style="{e_caja_p}"><div style="font-size: 20px; font-weight: 700; color: #FFFFFF; text-transform: none;">{_l["wd"]["days_done"]}</div><div style="color: #00C897; font-size: 26px; font-weight: 800;">{dias_ganadores_count}</div></div>', unsafe_allow_html=True)
-        if st.session_state.get("retiro_exitoso", False):
-            st.toast(_l['wd']['succ_toast'], icon="💸")
-            st.balloons()
-            html_script_payout = """<script>setTimeout(function() { if (!window.parent.document.getElementById('confetti-script')) { const script = window.parent.document.createElement('script'); script.id = 'confetti-script'; script.src = 'https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js'; script.onload = function() { iniciarCelebracionRetiro(); }; window.parent.document.head.appendChild(script); } else { iniciarCelebracionRetiro(); } }, 500); function iniciarCelebracionRetiro() { const doc = window.parent.document; if (!doc.getElementById('celebration-style')) { const style = doc.createElement('style'); style.id = 'celebration-style'; style.innerHTML = `@import url('https://fonts.googleapis.com/css2?family=Inter:wght@800;900&display=swap'); #celebration-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(0,0,0,0.9); backdrop-filter: blur(10px); z-index: 9999998; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; font-family: 'Inter', sans-serif; text-align: center; opacity: 0; animation: fadeInCelebration 0.8s forwards; pointer-events: none; } .cel-content { transform: scale(0.5); animation: scaleInCelebration 0.8s 0.2s forwards cubic-bezier(0.17, 0.89, 0.32, 1.49); } .cel-title { font-size: 80px; font-weight: 900; margin-bottom: 20px; letter-spacing: -4px; line-height: 1; text-shadow: 0 10px 20px rgba(0,0,0,0.5); } .cel-sub { font-size: 30px; font-weight: 800; color: #00C897; text-transform: uppercase; letter-spacing: 2px; } @keyframes fadeInCelebration { to { opacity: 1; } } @keyframes fadeOutCelebration { from { opacity: 1; } to { opacity: 0; } } @keyframes scaleInCelebration { to { transform: scale(1); } }`; doc.head.appendChild(style); } const overlay = doc.createElement('div'); overlay.id = 'celebration-overlay'; overlay.innerHTML = `<div class="cel-content"><div class="cel-title">"""+_l['wd']['wd_succ']+"""<br>""" + usuario.upper() + """</div><div class="cel-sub">"""+_l['wd']['beers']+"""</div></div>`; doc.body.appendChild(overlay); var duration = 5 * 1000; var end = window.parent.Date.now() + duration; var colors = ['#00C897', '#FFFFFF', '#FFD700', '#FF4C4C']; (function frame() { if (window.parent.confetti) { window.parent.confetti({ particleCount: 7, angle: 60, spread: 60, origin: { x: 0, y: 0.6 }, colors: colors, zIndex: 9999999 }); window.parent.confetti({ particleCount: 7, angle: 120, spread: 60, origin: { x: 1, y: 0.6 }, colors: colors, zIndex: 9999999 }); } if (window.parent.Date.now() < end) { window.parent.requestAnimationFrame(frame); } }()); setTimeout(() => { overlay.style.animation = 'fadeOutCelebration 1s forwards'; setTimeout(() => { if(doc.body.contains(overlay)) { doc.body.removeChild(overlay); } }, 1000); }, 6500); } </script>"""
-            components.html(html_script_payout, height=1, width=1)
-            st.session_state.retiro_exitoso = False
-
-st.markdown("<br>", unsafe_allow_html=True)
-st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
-
-# 🚀 AQUI CREAMOS LAS PESTAÑAS AL ESTILO FINANCE CENTER 🚀
+    # 🚀 AQUI CREAMOS LAS PESTAÑAS AL ESTILO FINANCE CENTER 🚀
 tab_hist, tab_tabla, tab_exportar = st.tabs(["🕒 HISTORIAL DE ÓRDENES", "📊 TABLA DE RESULTADOS", "💾 EXPORTAR DATOS"])
 
 def borrar_imagen_historial(contexto, clave, idx_trade, idx_img):
