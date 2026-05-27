@@ -1798,7 +1798,7 @@ with tab_calendario:
         /* ========================================= */
         div[data-testid="stForm"] div[data-testid="stTextInput"]:has(input[aria-label="Link"]) {
             width: 100% !important;
-            margin-top: 15px !important;  /* <-- Aumenta a 5px o 10px si quieres separarlo del título */
+            margin-top: 25px !important;  /* <-- Aumenta a 5px o 10px si quieres separarlo del título */
             margin-left: 0px !important;
         }
 
@@ -1809,7 +1809,7 @@ with tab_calendario:
         div[data-testid="stForm"] div[data-testid="stPopover"] > div:first-child > button {
             width: 80% !important;       /* <-- Ancho del botón en celular */
             margin: 0 auto !important;   /* <-- Lo mantiene perfectamente centrado */
-            margin-top: -10px !important;/* <-- Valor negativo para subirlo y acercarlo a su título */
+            margin-top: -0px !important;/* <-- Valor negativo para subirlo y acercarlo a su título */
         }
 
         /* ========================================= */
