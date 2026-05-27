@@ -1689,7 +1689,7 @@ with tab_calendario:
         top: auto !important;
         left: auto !important;
         
-        width: 100% !important;
+        width: 10% !important;
         height: 50px !important;        /* <-- Cambia la altura aquí (igual a las de arriba) */
         min-height: 40px !important;    /* <-- Y aquí también */
         margin-top: 0px !important;     /* <-- Súbelo o bájalo para alinearlo */
