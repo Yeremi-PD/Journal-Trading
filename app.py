@@ -2394,6 +2394,9 @@ with tab_calendario:
                 components.html(html_script_payout, height=1, width=1)
                 st.session_state.retiro_exitoso = False
 
+# 🚀 Eliminamos el bloque duplicado de estadísticas generales y dejamos directamente el historial
+    # 🚀 AQUI CREAMOS LAS PESTAÑAS AL ESTILO FINANCE CENTER 🚀
+    tab_hist, tab_tabla, tab_exportar = st.tabs(["🕒 HISTORIAL DE ÓRDENES", "📊 TABLA DE RESULTADOS", "💾 EXPORTAR DATOS"])
 
 def borrar_imagen_historial(contexto, clave, idx_trade, idx_img):
     if len(db_usuario[contexto]["trades"][clave][idx_trade]["imagenes"]) > idx_img: db_usuario[contexto]["trades"][clave][idx_trade]["imagenes"].pop(idx_img)
