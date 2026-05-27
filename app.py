@@ -2451,29 +2451,30 @@ with tab_calendario:
                 st.session_state.retiro_exitoso = False
 
 with tab_asistente:
-        st.markdown("<br><h3 style='text-align:center; color:gray;'>🤖 Tu Asistente de Trading con IA</h3>", unsafe_allow_html=True)
-        st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
+    st.markdown("<br><h3 style='text-align:center; color:gray;'>🤖 Tu Asistente de Trading con IA</h3>", unsafe_allow_html=True)
+    st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
+    
+    st.info("¡Hola! Soy tu Asistente Virtual impulsado por Gemini. Pronto podré leer tu historial de trades, darte consejos de psicología y ayudarte a mejorar tus estadísticas. ¿En qué te ayudo hoy?")
+    
+    with st.chat_message("assistant", avatar="🤖"):
+        st.write(f"Hola **{usuario}**, veo que tu balance actual es de **${bal_mostrar:,.2f}**. ¡Vamos a seguir el plan de trading hoy!")
         
-        st.info("¡Hola! Soy tu Asistente Virtual impulsado por Gemini. Pronto podré leer tu historial de trades, darte consejos de psicología y ayudarte a mejorar tus estadísticas. ¿En qué te ayudo hoy?")
+    with st.chat_message("user", avatar="👤"):
+        st.write("¿Cómo me fue esta semana en mis trades?")
         
-        with st.chat_message("assistant", avatar="🤖"):
-            st.write(f"Hola **{usuario}**, veo que tu balance actual es de **${bal_mostrar:,.2f}**. ¡Vamos a seguir el plan de trading hoy!")
-            
-        with st.chat_message("user", avatar="👤"):
-            st.write("¿Cómo me fue esta semana en mis trades?")
-            
-        with st.chat_message("assistant", avatar="🤖"):
-            st.write("Aún estoy configurando mis circuitos para leer tu Excel, ¡pero visualmente me veo genial!")
+    with st.chat_message("assistant", avatar="🤖"):
+        st.write("Aún estoy configurando mis circuitos para leer tu Excel, ¡pero visualmente me veo genial!")
 
-        mensaje_usuario = st.chat_input("Pregúntame sobre tu gestión de riesgo, psicología o análisis de trades...")
-        if mensaje_usuario:
-            st.toast(f"Has enviado: {mensaje_usuario}", icon="🚀")
+    mensaje_usuario = st.chat_input("Pregúntame sobre tu gestión de riesgo, psicología o análisis de trades...")
+    if mensaje_usuario:
+        st.toast(f"Has enviado: {mensaje_usuario}", icon="🚀")
 
-    # 👇 ESTE ESPACIADOR EMPUJA LAS PESTAÑAS DE ABAJO PARA QUE NO CHOQUEN 👇
-    st.markdown("<div style='margin-top: 60px;'></div>", unsafe_allow_html=True)
+# 👇 ESTE ESPACIADOR EMPUJA LAS PESTAÑAS DE ABAJO PARA QUE NO CHOQUEN 👇
+# NOTA: Esta línea DEBE estar a la misma altura (alineación) que el "with tab_asistente:" de arriba.
+st.markdown("<div style='margin-top: 60px;'></div>", unsafe_allow_html=True)
 
-    # 🚀 AQUI CREAMOS LAS PESTAÑAS AL ESTILO FINANCE CENTER 🚀
-    tab_hist, tab_tabla, tab_exportar = st.tabs(["🕒 HISTORIAL DE ÓRDENES", "📊 TABLA DE RESULTADOS", "💾 EXPORTAR DATOS"])
+# 🚀 AQUI CREAMOS LAS PESTAÑAS AL ESTILO FINANCE CENTER 🚀
+tab_hist, tab_tabla, tab_exportar = st.tabs(["🕒 HISTORIAL DE ÓRDENES", "📊 TABLA DE RESULTADOS", "💾 EXPORTAR DATOS"])
 
 def borrar_imagen_historial(contexto, clave, idx_trade, idx_img):
     if len(db_usuario[contexto]["trades"][clave][idx_trade]["imagenes"]) > idx_img: db_usuario[contexto]["trades"][clave][idx_trade]["imagenes"].pop(idx_img)
