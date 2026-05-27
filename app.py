@@ -1755,16 +1755,65 @@ with tab_calendario:
         display: none !important; 
     }
 
-    /* El texto que verás en tu botón */
-    div[data-testid="stFileUploader"] [data-testid="stFileUploadDropzone"]::after {
-        content: "📤 Seleccionar Imagen de la PC";
-        color: #A0AEC0 !important;
-        font-size: 14px !important;
-        font-weight: bold !important;
-        cursor: pointer;
-    }
-    </style>
-    """, unsafe_allow_html=True)
+    # 📱 MAGIA PARA MÓVIL: Esto SOLO se activa en el teléfono, dejando la PC 100% intacta
+    if st.session_state.dispositivo_actual == "Móvil":
+        st.markdown("""
+        <style>
+        /* 📱 REPARACIÓN HEADER (Arriba) */
+        .dashboard-title {
+            margin-left: 0px !important;
+            margin-top: 0px !important;
+            text-align: center !important;
+            font-size: 28px !important;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            gap: 10px !important;
+        }
+        .dashboard-title span {
+            margin-left: 0px !important; /* Centra el letrero verde de PA o Eval */
+        }
+        .lbl-total-bal, .lbl-filtros, .lbl-data, .lbl-input, .lbl-link, .lbl-header {
+            transform: none !important;
+            text-align: center !important;
+            justify-content: center !important;
+            width: 100% !important;
+        }
+        .balance-box {
+            transform: none !important;
+            width: 100% !important;
+            margin-top: 5px !important;
+        }
+        
+        /* 📱 REPARACIÓN BOTONES DE NOTAS Y AJUSTES */
+        div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > button,
+        div[data-testid="column"]:nth-child(6) div[data-testid="stPopover"] > button {
+            margin-top: 10px !important;
+            height: 45px !important;
+        }
+
+        /* 📱 REPARACIÓN FORMULARIO DE TRADES (Cajas y Botón Guardar) */
+        div[data-testid="stForm"] [data-testid="stFormSubmitButton"] button {
+            width: 100% !important; /* Quita el 170% que rompía el celular */
+            margin-left: 0px !important;
+            margin-top: 15px !important;
+        }
+        div[data-testid="stForm"] div[data-testid="stTextInput"]:has(input[aria-label="Link"]) {
+            width: 100% !important;
+            margin-top: 10px !important;
+            margin-left: 0px !important;
+        }
+        div[data-testid="stForm"] div[data-testid="stPopover"] > button,
+        div[data-testid="stForm"] div[data-testid="stPopover"] > div:first-child > button {
+            width: 100% !important;
+            margin-top: 10px !important;
+        }
+        div[data-testid="stForm"] div[data-testid="stDateInput"] {
+            width: 100% !important;
+            margin-left: 0px !important;
+        }
+        </style>
+        """, unsafe_allow_html=True)
 
     # 🚀 Nos anclamos a la pestaña superior (sin crear unas nuevas repetidas)
     with tab_calendario:
