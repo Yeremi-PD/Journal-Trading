@@ -1395,7 +1395,7 @@ div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) {
 """, unsafe_allow_html=True)
 
 # 🚀 PESTAÑAS EN EL TOPE ABSOLUTO DE LA PÁGINA
-tab_calendario, tab_estadisticas = st.tabs(["📅 CALENDARIO", "📊 ESTADÍSTICAS"])
+tab_calendario, tab_estadisticas, tab_asistente = st.tabs(["📅 CALENDARIO", "📊 ESTADÍSTICAS", "🤖 ASISTENTE VIRTUAL"])
 
 with tab_calendario:
     col_t, col_fil, col_data, col_bal, col_not, col_set = st.columns([2.5, 1.5, 1.5, 2, 0.35, 0.35])
@@ -2449,6 +2449,28 @@ with tab_calendario:
                 html_script_payout = """<script>setTimeout(function() { if (!window.parent.document.getElementById('confetti-script')) { const script = window.parent.document.createElement('script'); script.id = 'confetti-script'; script.src = 'https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js'; script.onload = function() { iniciarCelebracionRetiro(); }; window.parent.document.head.appendChild(script); } else { iniciarCelebracionRetiro(); } }, 500); function iniciarCelebracionRetiro() { const doc = window.parent.document; if (!doc.getElementById('celebration-style')) { const style = doc.createElement('style'); style.id = 'celebration-style'; style.innerHTML = `@import url('https://fonts.googleapis.com/css2?family=Inter:wght@800;900&display=swap'); #celebration-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(0,0,0,0.9); backdrop-filter: blur(10px); z-index: 9999998; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; font-family: 'Inter', sans-serif; text-align: center; opacity: 0; animation: fadeInCelebration 0.8s forwards; pointer-events: none; } .cel-content { transform: scale(0.5); animation: scaleInCelebration 0.8s 0.2s forwards cubic-bezier(0.17, 0.89, 0.32, 1.49); } .cel-title { font-size: 80px; font-weight: 900; margin-bottom: 20px; letter-spacing: -4px; line-height: 1; text-shadow: 0 10px 20px rgba(0,0,0,0.5); } .cel-sub { font-size: 30px; font-weight: 800; color: #00C897; text-transform: uppercase; letter-spacing: 2px; } @keyframes fadeInCelebration { to { opacity: 1; } } @keyframes fadeOutCelebration { from { opacity: 1; } to { opacity: 0; } } @keyframes scaleInCelebration { to { transform: scale(1); } }`; doc.head.appendChild(style); } const overlay = doc.createElement('div'); overlay.id = 'celebration-overlay'; overlay.innerHTML = `<div class="cel-content"><div class="cel-title">"""+_l['wd']['wd_succ']+"""<br>""" + usuario.upper() + """</div><div class="cel-sub">"""+_l['wd']['beers']+"""</div></div>`; doc.body.appendChild(overlay); var duration = 5 * 1000; var end = window.parent.Date.now() + duration; var colors = ['#00C897', '#FFFFFF', '#FFD700', '#FF4C4C']; (function frame() { if (window.parent.confetti) { window.parent.confetti({ particleCount: 7, angle: 60, spread: 60, origin: { x: 0, y: 0.6 }, colors: colors, zIndex: 9999999 }); window.parent.confetti({ particleCount: 7, angle: 120, spread: 60, origin: { x: 1, y: 0.6 }, colors: colors, zIndex: 9999999 }); } if (window.parent.Date.now() < end) { window.parent.requestAnimationFrame(frame); } }()); setTimeout(() => { overlay.style.animation = 'fadeOutCelebration 1s forwards'; setTimeout(() => { if(doc.body.contains(overlay)) { doc.body.removeChild(overlay); } }, 1000); }, 6500); } </script>"""
                 components.html(html_script_payout, height=1, width=1)
                 st.session_state.retiro_exitoso = False
+
+with tab_asistente:
+        st.markdown("<br><h3 style='text-align:center; color:gray;'>🤖 Tu Asistente de Trading con IA</h3>", unsafe_allow_html=True)
+        st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
+        
+        # 1. Creamos un diseño de chat moderno y limpio
+        st.info("¡Hola! Soy tu Asistente Virtual impulsado por Gemini. Pronto podré leer tu historial de trades, darte consejos de psicología y ayudarte a mejorar tus estadísticas. ¿En qué te ayudo hoy?")
+        
+        # 2. Historial de mensajes (Falso por ahora para visualizar el diseño)
+        with st.chat_message("assistant", avatar="🤖"):
+            st.write(f"Hola **{usuario}**, veo que tu balance actual es de **${bal_mostrar:,.2f}**. ¡Vamos a seguir el plan de trading hoy!")
+            
+        with st.chat_message("user", avatar="👤"):
+            st.write("¿Cómo me fue esta semana en mis trades?")
+            
+        with st.chat_message("assistant", avatar="🤖"):
+            st.write("Aún estoy configurando mis circuitos para leer tu Excel, ¡pero visualmente me veo genial!")
+
+        # 3. La caja donde el usuario escribirá
+        mensaje_usuario = st.chat_input("Pregúntame sobre tu gestión de riesgo, psicología o análisis de trades...")
+        if mensaje_usuario:
+            st.toast(f"Has enviado: {mensaje_usuario}", icon="🚀")
 
 # 🚀 Eliminamos el bloque duplicado de estadísticas generales y dejamos directamente el historial
     
