@@ -2367,8 +2367,8 @@ with tab_calendario:
             df_equity = df_equity.reset_index(drop=True)
             df_equity.index = df_equity.index + 1 # Para que el eje X muestre "Trade 1", "Trade 2"...
             import plotly.express as px
-            fig = px.line(df_equity, x=df_equity.index, y='Equity', markers=True)
-            fig.update_traces(line_color='#00C897', line_width=3, marker=dict(size=7, color='#00C897'))
+            fig = px.bar(df_equity, x=df_equity.index, y='Equity')
+            fig.update_traces(marker_color='#00C897')
             fig.update_layout(
                 paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font=dict(color='gray'),
                 xaxis=dict(showgrid=False, title="Número de Trade"),
