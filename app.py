@@ -111,6 +111,15 @@ def get_global_db():
                                 if nota_global_excel:
                                     db_temp[user]["settings"]["PC"]["global_notes_body"] = nota_global_excel
                                     db_temp[user]["settings"]["Móvil"]["global_notes_body"] = nota_global_excel
+                                
+                                # Leemos la columna dedicada "Chats_IA" para cargar tus conversaciones guardadas
+                                chats_ia_excel = str(row_data.get('Chats_IA', '')).strip()
+                                if chats_ia_excel:
+                                    try:
+                                        chats_cargados = json.loads(chats_ia_excel)
+                                        db_temp[user]["settings"]["PC"]["chats_historial"] = chats_cargados
+                                        db_temp[user]["settings"]["Móvil"]["chats_historial"] = chats_cargados
+                                    except: pass
                             except: pass
                             
                             cuenta = str(row_data.get('Cuenta', 'Account Real')).strip()
@@ -266,8 +275,8 @@ def registrar_en_excel(usuario, password, cuenta, fecha_obj, balance, pnl, trade
         try:
             try: hoja_user = db_spreadsheet.worksheet(usuario)
             except gspread.exceptions.WorksheetNotFound:
-                hoja_user = db_spreadsheet.add_worksheet(title=usuario, rows="1000", cols="30")
-                headers = ["Usuario", "Password", "Cuenta", "Fecha", "Balance", "PnL", "Imagenes", "Settings_PC", "Settings_Movil", "Bias", "Sesion", "Confluences", "Risk", "RR", "Trade Type", "Reason", "Corrections", "Emotions", "Estado_Cuenta", "Retiros_Acumulados", "Fecha_Inicio", "Fecha_Cierre", "ExtraData", "Notas_Globales"]
+                 hoja_user = db_spreadsheet.add_worksheet(title=usuario, rows="1000", cols="30")
+                headers = ["Usuario", "Password", "Cuenta", "Fecha", "Balance", "PnL", "Imagenes", "Settings_PC", "Settings_Movil", "Bias", "Sesion", "Confluences", "Risk", "RR", "Trade Type", "Reason", "Corrections", "Emotions", "Estado_Cuenta", "Retiros_Acumulados", "Fecha_Inicio", "Fecha_Cierre", "ExtraData", "Notas_Globales", "Chats_IA"]
                 hoja_user.append_row(headers)
                 
                 # FIJAR EL ALTO DE TODAS LAS FILAS A 25px PARA QUE NINGUNA SE ESTIRE HACIA ABAJO
@@ -318,10 +327,11 @@ def registrar_en_excel(usuario, password, cuenta, fecha_obj, balance, pnl, trade
 
             nota_global_str = settings_pc.get("global_notes_body", "") if settings_pc else ""
             
-            f_ini_val = db_global[usuario]["data"][cuenta].get("fecha_inicio", "")
+             f_ini_val = db_global[usuario]["data"][cuenta].get("fecha_inicio", "")
             f_cie_val = db_global[usuario]["data"][cuenta].get("fecha_cierre", "")
             
-            nueva_fila = [safe_user, safe_pass, str(cuenta), fecha_texto, float(balance), float(pnl), imgs_texto, set_pc_str, set_mov_str, val_bias, val_sesion, val_confs, val_risk, val_rr, val_tt, val_reason, val_corr, val_emo, val_estado, float(val_retiros), f_ini_val, f_cie_val, json.dumps(extra_data), nota_global_str]
+            val_chats_str = json.dumps(settings_pc.get("chats_historial", {})) if settings_pc else "{}"
+            nueva_fila = [safe_user, safe_pass, str(cuenta), fecha_texto, float(balance), float(pnl), imgs_texto, set_pc_str, set_mov_str, val_bias, val_sesion, val_confs, val_risk, val_rr, val_tt, val_reason, val_corr, val_emo, val_estado, float(val_retiros), f_ini_val, f_cie_val, json.dumps(extra_data), nota_global_str, val_chats_str]
             
             hoja_user.append_row(nueva_fila)
         except Exception as e:
@@ -331,11 +341,12 @@ def registrar_en_excel(usuario, password, cuenta, fecha_obj, balance, pnl, trade
 def reescribir_excel_usuario(usuario):
     if not db_spreadsheet: return
     try:
-        headers = ["Usuario", "Password", "Cuenta", "Fecha", "Balance", "PnL", "Imagenes", "Settings_PC", "Settings_Movil", "Bias", "Sesion", "Confluences", "Risk", "RR", "Trade Type", "Reason", "Corrections", "Emotions", "Estado_Cuenta", "Retiros_Acumulados", "Fecha_Inicio", "Fecha_Cierre", "ExtraData", "Notas_Globales"]
+        headers = ["Usuario", "Password", "Cuenta", "Fecha", "Balance", "PnL", "Imagenes", "Settings_PC", "Settings_Movil", "Bias", "Sesion", "Confluences", "Risk", "RR", "Trade Type", "Reason", "Corrections", "Emotions", "Estado_Cuenta", "Retiros_Acumulados", "Fecha_Inicio", "Fecha_Cierre", "ExtraData", "Notas_Globales", "Chats_IA"]
         filas_a_insertar = [headers]
         pwd = db_global[usuario]["password"]
         set_pc_str = json.dumps(db_global[usuario]["settings"]["PC"])
         set_mov_str = json.dumps(db_global[usuario]["settings"]["Móvil"])
+        val_chats_str = json.dumps(db_global[usuario]["settings"]["PC"].get("chats_historial", {}))
 
         for cuenta, d_cuenta in db_global[usuario]["data"].items():
             if cuenta == "Todas las Cuentas": continue
@@ -371,7 +382,7 @@ def reescribir_excel_usuario(usuario):
                     filas_a_insertar.append([
                         usuario, pwd, cuenta, t["fecha_str"], float(t["balance_final"]), float(t["pnl"]), 
                         imgs_texto, set_pc_str, set_mov_str, val_bias, val_sesion, val_confs, val_risk, 
-                        val_rr, val_tt, val_reason, val_corr, val_emo, val_estado, float(val_retiros), f_ini_val, f_cie_val, json.dumps(extra_data), nota_global_str
+                         val_rr, val_tt, val_reason, val_corr, val_emo, val_estado, float(val_retiros), f_ini_val, f_cie_val, json.dumps(extra_data), nota_global_str, val_chats_str
                     ])
         
         # OPTIMIZACIÓN 1.2: Uso del parámetro 'values' y 'range_name' para evitar deprecaciones 
