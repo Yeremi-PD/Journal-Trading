@@ -96,6 +96,23 @@ def get_global_db():
                             db_temp[user]["password"] = str(r[pass_idx]).strip()
                             break
 
+                    # 🟢 NUEVO: Recuperar el historial desde la HOJA DEDICADA "Chats_TuNombre" (AFUERA DEL BUCLE PARA EVITAR BLOQUEOS)
+                    try:
+                        hoja_chats = db_spreadsheet.worksheet(f"Chats_{user}")
+                        filas_chats = hoja_chats.get_all_values()
+                        if len(filas_chats) > 1:
+                            chats_recuperados = {}
+                            for r in filas_chats[1:]:
+                                if len(r) >= 5:
+                                    nom_chat, preg, resp = r[2], r[3], r[4]
+                                    if nom_chat not in chats_recuperados: chats_recuperados[nom_chat] = []
+                                    if preg: chats_recuperados[nom_chat].append({"role": "user", "content": preg})
+                                    if resp: chats_recuperados[nom_chat].append({"role": "assistant", "content": resp})
+                            
+                            db_temp[user]["settings"]["PC"]["chats_historial"] = chats_recuperados
+                            db_temp[user]["settings"]["Móvil"]["chats_historial"] = chats_recuperados
+                    except: pass
+
                     for row in filas[1:]:
                         try:
                             # Emparejamos los datos asegurando que tengan la misma longitud que los headers
@@ -113,7 +130,7 @@ def get_global_db():
                                 if nota_global_excel:
                                     db_temp[user]["settings"]["PC"]["global_notes_body"] = nota_global_excel
                                     db_temp[user]["settings"]["Móvil"]["global_notes_body"] = nota_global_excel
-                                
+                                 
                                 # Compatibilidad vieja (por si tenías chats en la columna antigua)
                                 chats_ia_excel = str(row_data.get('Chats_IA', '')).strip()
                                 if chats_ia_excel:
@@ -122,23 +139,6 @@ def get_global_db():
                                         db_temp[user]["settings"]["PC"]["chats_historial"] = chats_cargados
                                         db_temp[user]["settings"]["Móvil"]["chats_historial"] = chats_cargados
                                     except: pass
-                            except: pass
-                            
-                            # 🟢 NUEVO: Recuperar el historial desde la HOJA DEDICADA "Chats_TuNombre"
-                            try:
-                                hoja_chats = db_spreadsheet.worksheet(f"Chats_{user}")
-                                filas_chats = hoja_chats.get_all_values()
-                                if len(filas_chats) > 1:
-                                    chats_recuperados = {}
-                                    for r in filas_chats[1:]:
-                                        if len(r) >= 5:
-                                            nom_chat, preg, resp = r[2], r[3], r[4]
-                                            if nom_chat not in chats_recuperados: chats_recuperados[nom_chat] = []
-                                            if preg: chats_recuperados[nom_chat].append({"role": "user", "content": preg})
-                                            if resp: chats_recuperados[nom_chat].append({"role": "assistant", "content": resp})
-                                    
-                                    db_temp[user]["settings"]["PC"]["chats_historial"] = chats_recuperados
-                                    db_temp[user]["settings"]["Móvil"]["chats_historial"] = chats_recuperados
                             except: pass
                             
                             cuenta = str(row_data.get('Cuenta', 'Account Real')).strip()
