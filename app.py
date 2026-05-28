@@ -956,15 +956,23 @@ def contenido_ajustes():
         if admin_pass == "Yfutures.":
             st.success(_l['sidebar']['acc_granted'])
             
-            # 👑 NUEVO: Botón maestro para activar la IA al usuario actual
+            # 👑 NUEVO: Botones de acción directa (Evita el bug de recarga de Streamlit)
             es_admin_actual = db_global[usuario]["settings"]["PC"].get("is_admin", False) or db_global[usuario]["settings"]["Móvil"].get("is_admin", False)
-            nuevo_admin = st.checkbox("👑 Habilitar Asistente IA (Modo Admin)", value=es_admin_actual)
             
-            if nuevo_admin != es_admin_actual:
-                db_global[usuario]["settings"]["PC"]["is_admin"] = nuevo_admin
-                db_global[usuario]["settings"]["Móvil"]["is_admin"] = nuevo_admin
-                reescribir_excel_usuario(usuario)
-                st.rerun()
+            if not es_admin_actual:
+                st.warning("🤖 La IA está oculta para esta cuenta.")
+                if st.button("🟢 Activar Inteligencia Artificial", use_container_width=True):
+                    db_global[usuario]["settings"]["PC"]["is_admin"] = True
+                    db_global[usuario]["settings"]["Móvil"]["is_admin"] = True
+                    reescribir_excel_usuario(usuario) # Guarda directamente en Google Sheets
+                    st.rerun() # Refresca la página para mostrar la pestaña
+            else:
+                st.success("✅ La Inteligencia Artificial está ACTIVADA.")
+                if st.button("🔴 Desactivar IA", use_container_width=True):
+                    db_global[usuario]["settings"]["PC"]["is_admin"] = False
+                    db_global[usuario]["settings"]["Móvil"]["is_admin"] = False
+                    reescribir_excel_usuario(usuario)
+                    st.rerun()
                 
             for u, data in list(db_global.items()):
                 col_u, col_p, col_btn = st.columns([2, 2, 1])
