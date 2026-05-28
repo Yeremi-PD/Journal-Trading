@@ -2395,9 +2395,9 @@ with tab_calendario:
         df_stats = pd.DataFrame(trades_lista, columns=['pnl'])
         total_trades = len(df_stats)
         net_pnl = float(df_stats['pnl'].sum()) if total_trades > 0 else 0.0
-        wins = int((df_stats['pnl'] >= 30).sum()) if total_trades > 0 else 0
+        wins = int((df_stats['pnl'] >= 75).sum()) if total_trades > 0 else 0
         losses = int((df_stats['pnl'] <= -75).sum()) if total_trades > 0 else 0
-        ties = int(((df_stats['pnl'] > -75) & (df_stats['pnl'] < 30)).sum()) if total_trades > 0 else 0
+        ties = int(((df_stats['pnl'] > -75) & (df_stats['pnl'] < 75)).sum()) if total_trades > 0 else 0
         total_validos = wins + losses
         win_pct = (wins / total_validos * 100) if total_validos > 0 else 0.0
         simbolo_pnl = "+" if net_pnl > 0 else ""
