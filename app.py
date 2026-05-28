@@ -328,7 +328,7 @@ def registrar_en_excel(usuario, password, cuenta, fecha_obj, balance, pnl, trade
 
             nota_global_str = settings_pc.get("global_notes_body", "") if settings_pc else ""
             
-             f_ini_val = db_global[usuario]["data"][cuenta].get("fecha_inicio", "")
+            f_ini_val = db_global[usuario]["data"][cuenta].get("fecha_inicio", "")
             f_cie_val = db_global[usuario]["data"][cuenta].get("fecha_cierre", "")
             
             val_chats_str = json.dumps(settings_pc.get("chats_historial", {})) if settings_pc else "{}"
