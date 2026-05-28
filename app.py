@@ -2343,16 +2343,34 @@ with tab_calendario:
 
         st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
         
-        # === CÁLCULO DE WIN RATES DE SESIONES INDIVIDUALES ===
-        wr_ny_str, wr_as_str, wr_lo_str = "N/A", "N/A", "N/A"
-        if not df_full.empty and 'sesion' in df_full.columns:
-            for s in ['New York', 'Asia', 'Londres']:
-                df_s = df_full[df_full['sesion'] == s]
-                if len(df_s) > 0:
-                    wr = (len(df_s[df_s['pnl'] > 0]) / len(df_s)) * 100
-                    if s == 'New York': wr_ny_str = f"{wr:.0f}%"
-                    elif s == 'Asia': wr_as_str = f"{wr:.0f}%"
-                    elif s == 'Londres': wr_lo_str = f"{wr:.0f}%"
+        # === CÁLCULO DE WIN RATES DE SESIONES Y PROFIT DIARIO ===
+        wr_ny_str, wr_as_str = "N/A", "N/A"
+        c_ny, c_as = "gray", "gray" # Colores por defecto si no hay datos
+        
+        if not df_full.empty:
+            if 'sesion' in df_full.columns:
+                for s in ['New York', 'Asia']:
+                    df_s = df_full[df_full['sesion'] == s]
+                    if len(df_s) > 0:
+                        wr = (len(df_s[df_s['pnl'] > 0]) / len(df_s)) * 100
+                        wr_str = f"{wr:.0f}%"
+                        color = "#00C897" if wr >= 50 else "#FF4C4C"
+                        
+                        if s == 'New York': 
+                            wr_ny_str = wr_str
+                            c_ny = color
+                        elif s == 'Asia': 
+                            wr_as_str = wr_str
+                            c_as = color
+
+            # Cálculo estricto del Profit Promedio Diario
+            dias_unicos = df_full['fecha_str'].nunique() if 'fecha_str' in df_full.columns else 0
+            profit_diario_avg = (df_full['pnl'].sum() / dias_unicos) if dias_unicos > 0 else 0.0
+        else:
+            profit_diario_avg = 0.0
+            
+        c_prof_dia = "#00C897" if profit_diario_avg >= 0 else "#FF4C4C"
+        simb_prof_dia = "+" if profit_diario_avg > 0 else ""
 
         # FILA 2 DE TARJETAS (Dividiendo Avg Win / Avg Loss)
         c_m4, c_m5, c_m6 = st.columns(3)
@@ -2371,12 +2389,12 @@ with tab_calendario:
 
         st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
 
-        # FILA 4 DE TARJETAS (Sesiones de Trading - Textos Grandes)
+        # FILA 4 DE TARJETAS (Sesiones de Trading y Profit Promedio Diario)
         c_m11, c_m12, c_m13, c_m14 = st.columns(4)
-        with c_m11: st.markdown(f"""<div class="metric-card card-rr"><div class="metric-header"><span class="title-trade-win" style="font-size: var(--size-card-titles);">Mejor Sesión</span></div><div class="rr-value" style="color: #FFFFFF; font-size: var(--size-box-vals) !important;">{mejor_sesion_str} <span style="color: #00C897;">({winrate_sesion_str})</span></div></div>""", unsafe_allow_html=True)
-        with c_m12: st.markdown(f"""<div class="metric-card card-rr"><div class="metric-header"><span class="title-trade-win" style="font-size: var(--size-card-titles);">Win Rate NY</span></div><div class="rr-value" style="color: #FFFFFF; font-size: var(--size-box-vals) !important;">{wr_ny_str}</div></div>""", unsafe_allow_html=True)
-        with c_m13: st.markdown(f"""<div class="metric-card card-rr"><div class="metric-header"><span class="title-trade-win" style="font-size: var(--size-card-titles);">Win Rate Asia</span></div><div class="rr-value" style="color: #FFFFFF; font-size: var(--size-box-vals) !important;">{wr_as_str}</div></div>""", unsafe_allow_html=True)
-        with c_m14: st.markdown(f"""<div class="metric-card card-rr"><div class="metric-header"><span class="title-trade-win" style="font-size: var(--size-card-titles);">Win Rate London</span></div><div class="rr-value" style="color: #FFFFFF; font-size: var(--size-box-vals) !important;">{wr_lo_str}</div></div>""", unsafe_allow_html=True)
+        with c_m11: st.markdown(f"""<div class="metric-card card-rr"><div class="metric-header"><span class="title-trade-win" style="font-size: var(--size-card-titles);">Mejor Sesión</span></div><div class="rr-value" style="color: #FFFFFF; font-size: var(--size-box-vals) !important;">{mejor_sesion_str}</div></div>""", unsafe_allow_html=True)
+        with c_m12: st.markdown(f"""<div class="metric-card card-rr"><div class="metric-header"><span class="title-trade-win" style="font-size: var(--size-card-titles);">Win Rate NY</span></div><div class="rr-value" style="color: {c_ny}; font-size: var(--size-box-vals) !important;">{wr_ny_str}</div></div>""", unsafe_allow_html=True)
+        with c_m13: st.markdown(f"""<div class="metric-card card-rr"><div class="metric-header"><span class="title-trade-win" style="font-size: var(--size-card-titles);">Win Rate Asia</span></div><div class="rr-value" style="color: {c_as}; font-size: var(--size-box-vals) !important;">{wr_as_str}</div></div>""", unsafe_allow_html=True)
+        with c_m14: st.markdown(f"""<div class="metric-card card-rr"><div class="metric-header"><span class="title-trade-win" style="font-size: var(--size-card-titles);">Profit Prom. Diario</span></div><div class="rr-value" style="color: {c_prof_dia}; font-size: var(--size-box-vals) !important;">{simb_prof_dia}${profit_diario_avg:,.2f}</div></div>""", unsafe_allow_html=True)
 
         st.markdown("<div style='margin-top: 20px;'></div>", unsafe_allow_html=True)
         st.markdown(f"<h4 style='color:gray; font-size:18px;'>📈 Equity Curve (Crecimiento de Cuenta)</h4>", unsafe_allow_html=True)
