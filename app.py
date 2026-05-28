@@ -2352,7 +2352,7 @@ with tab_calendario:
         st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
         
         # FILA 3 DE TARJETAS
-        c_m7, c_m8, c_m9 = st.
+        c_m7, c_m8, c_m9 = st.columns(3)
         wl_parts_pie = []
         if wins >= 1: wl_parts_pie.append(f'<span style="color:#00C897;">{wins}W</span>')
         if losses >= 1: wl_parts_pie.append(f'<span style="color:#FF4C4C;">{losses}L</span>')
