@@ -2366,7 +2366,16 @@ with tab_calendario:
             df_equity['Equity'] = bal_inicial + df_equity['pnl'].cumsum()
             df_equity = df_equity.reset_index(drop=True)
             df_equity.index = df_equity.index + 1 # Para que el eje X muestre "Trade 1", "Trade 2"...
-            st.line_chart(df_equity['Equity'], color="#00C897", height=250)
+            import plotly.express as px
+            fig = px.line(df_equity, x=df_equity.index, y='Equity', markers=True)
+            fig.update_traces(line_color='#00C897', line_width=3, marker=dict(size=7, color='#00C897'))
+            fig.update_layout(
+                paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font=dict(color='gray'),
+                xaxis=dict(showgrid=False, title="Número de Trade"),
+                yaxis=dict(showgrid=True, gridcolor='#4A5568', gridwidth=1, title="Balance ($)", tickformat="$,.2f"),
+                margin=dict(l=10, r=10, t=10, b=10), hovermode="x unified"
+            )
+            st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
         else:
             st.info("Registra algunos trades para visualizar tu Equity Curve.")
             
