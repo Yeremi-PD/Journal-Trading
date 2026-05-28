@@ -2644,7 +2644,7 @@ with tab_asistente:
         with st.chat_message(msg["role"], avatar=avatar_sel):
             st.write(msg["content"])
     
-    # 3. Capturar la entrada de texto del usuario
+# 3. Capturar la entrada de texto del usuario
     if mensaje_usuario := st.chat_input("Pregúntame sobre tu gestión de riesgo, psicología o análisis de trades..."):
         # Mostrar el mensaje del usuario inmediatamente en la pantalla
         with st.chat_message("user", avatar="👤"):
@@ -2659,16 +2659,12 @@ with tab_asistente:
             caja_pensando.markdown("*Pensando...*")
             
             try:
-                # Importación e integración oficial con la API de Gemini
                 import google.generativeai as genai
-                
-                # Verificamos si configuraste tu clave API en st.secrets
                 if "gemini_api_key" in st.secrets:
                     genai.configure(api_key=st.secrets["gemini_api_key"])
+                    model = genai.GenerativeModel('gemini-2.5-flash')
                     
-                    model = genai.GenerativeModel('gemini-2.5-flash') # Modelo actualizado de Google 
-                    
-                    # 1. RECOPILAR ABSOLUTAMENTE TODO EL HISTORIAL DE TRADES
+                    # 1. RECOPILAR ABSOLUTAMENTE TODOS LOS CAMPOS DE LOS TRADES
                     historial_ia = []
                     for i, t in enumerate(trades_cronologicos):
                         f_str = t.get('fecha_str', '')
@@ -2679,60 +2675,61 @@ with tab_asistente:
                         razon = t.get('razon_trade', '').strip()
                         corr = t.get('Corrections', '').strip()
                         conf = ", ".join(t.get('Confluences', []))
+                        risk = t.get('risk', '')
+                        rr = t.get('RR', '')
+                        tt = t.get('trade_type', '')
                         
-                        # Solo agregamos las notas si escribiste algo (para ahorrar memoria de la IA)
-                        notas = f" | Emociones: {emo}" if emo else ""
-                        notas += f" | Razón: {razon}" if razon else ""
-                        notas += f" | Correcciones/Errores: {corr}" if corr else ""
-                        notas += f" | Confluencias: {conf}" if conf else ""
+                        # Construir el string de notas con todo lo disponible
+                        notas = f" | Tipo: {tt} | Riesgo: {risk} | RR: {rr}"
+                        if emo: notas += f" | Emociones: {emo}"
+                        if razon: notas += f" | Razón: {razon}"
+                        if corr: notas += f" | Errores: {corr}"
+                        if conf: notas += f" | Confluencias: {conf}"
                         
                         historial_ia.append(f"Trade {i+1} [{f_str}] ({ses}): P&L ${p:,.2f} | Bias: {bias}{notas}")
                         
-                    historial_completo_str = "\n".join(historial_ia)
-                    if not historial_completo_str: historial_completo_str = "No hay trades registrados aún."
+                    historial_completo_str = "\n".join(historial_ia) if historial_ia else "No hay trades registrados aún."
                     
-                    # 2. INYECTAR EL "CEREBRO" CON TODA LA BASE DE DATOS Y NUEVAS REGLAS
+                    # 2. EXTRAER TAMBIÉN EL BLOC DE NOTAS GLOBAL DEL USUARIO
+                    pc_set = db_global[usuario]["settings"]["PC"]
+                    nota_titulo = pc_set.get("global_notes_title", "")
+                    nota_cuerpo = pc_set.get("global_notes_body", "")
+                    bloc_notas_str = f"TÍTULO: {nota_titulo}\nCONTENIDO:\n{nota_cuerpo}" if nota_cuerpo else "El bloc de notas está vacío."
+                    
+                    # 3. INYECTAR EL CEREBRO FINAL
                     contexto_sistema = (
-                        f"Eres el asistente virtual avanzado, mentor y psicólogo de trading de la app 'Yeremi Journal Pro'. "
-                        f"El usuario con el que hablas es {usuario}. Eres una Inteligencia Artificial, pero actúa de manera extremadamente inteligente, empática, muy humana y directa. "
+                        f"Eres el asistente virtual avanzado de 'Yeremi Journal Pro'. El usuario es {usuario}. "
+                        f"Actúa de forma extremadamente inteligente, empática, humana y directa. "
                         f"Trata a {usuario} como tu amigo y protegido.\n\n"
                         f"=== ESTADÍSTICAS GLOBALES ACTUALES ===\n"
                         f"Balance: ${bal_mostrar:,.2f} | P&L Neto: ${net_pnl:,.2f} | Win Rate: {win_pct:.0f}% | Trades: {total_trades}\n\n"
-                        f"=== HISTORIAL DETALLADO DE TODOS LOS TRADES ===\n"
+                        f"=== BLOC DE NOTAS GLOBAL DEL USUARIO (Sus Reglas de Trading) ===\n"
+                        f"{bloc_notas_str}\n\n"
+                        f"=== HISTORIAL DE TRADES (ACCESO TOTAL) ===\n"
                         f"{historial_completo_str}\n\n"
-                        f"INSTRUCCIONES CRÍTICAS PARA TI:\n"
-                        f"1. Tienes acceso al diario íntimo de {usuario}. Si te pregunta '¿cómo me fue esta semana?' o '¿por qué crees que estoy perdiendo?', "
-                        f"ANALIZA el historial de arriba. Busca patrones ocultos entre líneas (Ejemplo: 'Noté que en los últimos 5 trades perdedores escribiste que estabas ansioso' o 'Te va mejor en la sesión de Asia').\n"
-                        f"2. Da respuestas súper personalizadas, mencionando datos exactos de sus trades para que sepa que lo estás leyendo.\n"
-                        f"3. Eres un genio universal: TIENES PERMITIDO Y DEBES responder sobre CUALQUIER TEMA (arreglar carros, física cuántica, historia, recetas, programación, etc.) sin limitarte jamás al trading. Si te pregunta algo fuera de trading, respóndelo con la misma naturalidad.\n"
-                        f"4. Mantén tus respuestas conversacionales, legibles y en español."
+                        f"INSTRUCCIONES CRÍTICAS:\n"
+                        f"1. Tienes acceso total al diario y reglas del usuario. Si pregunta por su rendimiento, analiza patrones cruzando emociones, errores, sesiones, riesgos y tipos de trade.\n"
+                        f"2. Da respuestas súper personalizadas demostrando que lees sus datos.\n"
+                        f"3. Eres un genio universal: TIENES PERMITIDO Y DEBES responder sobre CUALQUIER TEMA sin limitarte al trading.\n"
+                        f"4. Mantén tus respuestas fluidas, amigables y en español."
                     )
                     
-                    # Formateamos los últimos mensajes para darle memoria a corto plazo a la API
-                    mensajes_api = []
-                    for m in st.session_state.historial_gemini[-4:]:  # Recordar los últimos 4 mensajes
-                        rol_api = "user" if m["role"] == "user" else "model"
-                        mensajes_api.append({"role": rol_api, "parts": [m["content"]]})
+                    # 4. MEMORIA A CORTO PLAZO
+                    mensajes_api = [{"role": "user" if m["role"] == "user" else "model", "parts": [m["content"]]} for m in st.session_state.historial_gemini[-4:]]
                     
-                    # Generamos el contenido enviando el contexto y el historial
+                    # Llamada a la IA
                     response = model.generate_content([contexto_sistema] + [str(m) for m in mensajes_api])
                     respuesta_ai = response.text
                 else:
-                    respuesta_ai = (
-                        "¡Hola! El chat ya es completamente interactivo. Para recibir respuestas reales de la Inteligencia "
-                        "Artificial de Gemini, por favor agrega tu API Key en los secretos de tu entorno como `gemini_api_key`."
-                    )
+                    respuesta_ai = "Falta tu API Key en los secretos."
             except Exception as e:
-                respuesta_ai = f"Disculpa, hubo un problema al conectar con mis circuitos de IA. Error técnico: {str(e)}"
+                respuesta_ai = f"Error técnico de IA: {str(e)}"
             
-            # Reemplazar el "Pensando..." con la respuesta real de la IA
+            # Reemplazar el "Pensando..." INMEDIATAMENTE
             caja_pensando.markdown(respuesta_ai)
-            
-            # Guardar la respuesta de la IA en el historial de la sesión
             st.session_state.historial_gemini.append({"role": "assistant", "content": respuesta_ai})
-        
-        # Forzar recarga limpia para asentar el historial
-        st.rerun()
+            
+        # 🚀 st.rerun() ELIMINADO: La respuesta ahora es instantánea y sin doble parpadeo
 
 # 👇 REABRIMOS LA PESTAÑA CALENDARIO PARA ANIDAR LAS SUB-PESTAÑAS AQUÍ 👇
 with tab_calendario:
