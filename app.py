@@ -537,6 +537,8 @@ if st.session_state.usuario_actual is None:
             log_user = st.text_input(_l['login']['user'])
             log_pass = st.text_input(_l['login']['pass'], type="password")
             if st.button(_l['login']['acceder'], use_container_width=True):
+                log_user = log_user.strip()
+                log_pass = log_pass.strip()
                 if log_user in db_global and db_global[log_user]["password"] == log_pass:
                     st.session_state.usuario_actual = log_user
                     st.session_state.dispositivo_actual = "Móvil" if modo_movil_check else "PC"
