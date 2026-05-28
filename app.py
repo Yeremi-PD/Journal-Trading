@@ -2279,8 +2279,80 @@ with tab_calendario:
         with c_met2: st.markdown(f"""<div class="metric-card card-win"><div class="metric-header"><span class="title-trade-win" style="font-size: var(--size-card-titles);">{_l['cal']['tot_tr']}</span></div><div class="rr-value" style="color: white; font-size: var(--size-box-vals) !important;">{total_trades}</div></div>""", unsafe_allow_html=True)
         with c_met3: st.markdown(f"""<div class="metric-card card-rr"><div class="metric-header"><span class="title-trade-win" style="font-size: var(--size-card-titles);">{_l['cal']['avg_rr']}</span></div><div class="rr-value" style="color: #FFFFFF; font-size: var(--size-box-vals) !important;">1 / {rr_promedio:.2f}</div></div>""", unsafe_allow_html=True)
 
-        st.markdown("<br>", unsafe_allow_html=True)
-        bar_html = get_bar_svg(wins, losses, ties)
+        # ==============================================================
+        # --- INICIO DE NUEVAS ESTADÍSTICAS AVANZADAS ---
+        # ==============================================================
+        df_full = pd.DataFrame(trades_para_rr) if trades_para_rr else pd.DataFrame()
+        
+        # 1. Cálculos de Profit Factor y Averages
+        gross_profit = float(df_stats[df_stats['pnl'] > 0]['pnl'].sum()) if total_trades > 0 else 0.0
+        gross_loss = abs(float(df_stats[df_stats['pnl'] < 0]['pnl'].sum())) if total_trades > 0 else 0.0
+        profit_factor = (gross_profit / gross_loss) if gross_loss > 0 else (gross_profit if gross_profit > 0 else 0.0)
+        
+        avg_win = (gross_profit / wins) if wins > 0 else 0.0
+        avg_loss = (gross_loss / losses) if losses > 0 else 0.0
+        
+        # 2. Mejor / Peor Trade
+        best_trade = float(df_stats['pnl'].max()) if total_trades > 0 else 0.0
+        worst_trade = float(df_stats['pnl'].min()) if total_trades > 0 else 0.0
+        
+        # 3. Racha (Streaks)
+        curr_w = max_w = curr_l = max_l = 0
+        for p in df_stats['pnl']:
+            if p > 0:
+                curr_w += 1; curr_l = 0
+                max_w = max(max_w, curr_w)
+            elif p < 0:
+                curr_l += 1; curr_w = 0
+                max_l = max(max_l, curr_l)
+            else:
+                curr_w = curr_l = 0
+
+        # 4. Sesiones y Fechas
+        mejor_sesion_str = "N/A"
+        winrate_sesion_str = "0%"
+        mejor_dia_str = "N/A"
+        profit_diario_avg = 0.0
+        dias_operados_totales = 0
+        
+        if not df_full.empty:
+            if 'sesion' in df_full.columns:
+                sesion_pnl = df_full.groupby('sesion')['pnl'].sum()
+                if not sesion_pnl.empty:
+                    mejor_sesion = sesion_pnl.idxmax()
+                    if mejor_sesion == 'NONE' and len(sesion_pnl) > 1:
+                        mejor_sesion = sesion_pnl.drop('NONE').idxmax()
+                    mejor_sesion_str = str(mejor_sesion)
+                    df_ses = df_full[df_full['sesion'] == mejor_sesion]
+                    if len(df_ses) > 0:
+                        w_ses = len(df_ses[df_ses['pnl'] > 0])
+                        winrate_sesion_str = f"{(w_ses/len(df_ses)*100):.0f}%"
+            
+            if 'fecha_str' in df_full.columns:
+                df_full['fecha_dt'] = pd.to_datetime(df_full['fecha_str'], format='%d/%m/%Y', errors='coerce')
+                dias_sem_es = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
+                df_full['dia_sem'] = df_full['fecha_dt'].dt.dayofweek
+                dia_pnl = df_full.groupby('dia_sem')['pnl'].sum()
+                if not dia_pnl.empty:
+                    mejor_dia_idx = int(dia_pnl.idxmax())
+                    if 0 <= mejor_dia_idx <= 6:
+                        mejor_dia_str = f"{dias_sem_es[mejor_dia_idx]}"
+                
+                dias_operados_totales = df_full['fecha_str'].nunique()
+                profit_diario_avg = net_pnl / dias_operados_totales if dias_operados_totales > 0 else 0.0
+
+        st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
+        
+        # FILA 2 DE TARJETAS
+        c_m4, c_m5, c_m6 = st.columns(3)
+        with c_m4: st.markdown(f"""<div class="metric-card card-rr"><div class="metric-header"><span class="title-trade-win" style="font-size: var(--size-card-titles);">Profit Factor</span></div><div class="rr-value" style="color: #FFFFFF; font-size: var(--size-box-vals) !important;">{profit_factor:.2f}</div></div>""", unsafe_allow_html=True)
+        with c_m5: st.markdown(f"""<div class="metric-card card-rr"><div class="metric-header"><span class="title-trade-win" style="font-size: var(--size-card-titles);">Avg Win / Loss</span></div><div class="rr-value" style="color: #FFFFFF; font-size: var(--size-box-vals) !important;"><span style="color:#00C897;">${avg_win:,.2f}</span> <span style="font-size: 16px; color: gray;">/</span> <span style="color:#FF4C4C;">${avg_loss:,.2f}</span></div></div>""", unsafe_allow_html=True)
+        with c_m6: st.markdown(f"""<div class="metric-card card-rr"><div class="metric-header"><span class="title-trade-win" style="font-size: var(--size-card-titles);">Racha (W / L)</span></div><div class="rr-value" style="color: #FFFFFF; font-size: var(--size-box-vals) !important;"><span style="color:#00C897;">{max_w}W</span> <span style="font-size: 16px; color: gray;">/</span> <span style="color:#FF4C4C;">{max_l}L</span></div></div>""", unsafe_allow_html=True)
+
+        st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
+        
+        # FILA 3 DE TARJETAS
+        c_m7, c_m8, c_m9 = st.
         wl_parts_pie = []
         if wins >= 1: wl_parts_pie.append(f'<span style="color:#00C897;">{wins}W</span>')
         if losses >= 1: wl_parts_pie.append(f'<span style="color:#FF4C4C;">{losses}L</span>')
