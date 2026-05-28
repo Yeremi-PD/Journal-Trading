@@ -2895,21 +2895,30 @@ with tab_asistente:
                                 f"[HISTORIAL COMPLETO DE TRADES]\n{historial_completo_str}\n"
                             )
                             
-                            # Memoria a corto plazo de este chat específico
-                            mensajes_api = [{"role": "user" if m["role"] == "user" else "model", "parts": [m["content"]]} for m in chats_dict[st.session_state.chat_activo_id][-4:]]
+                            # 1. PRIMERO guardamos la nueva pregunta en la memoria ANTES de llamar a la IA
+                            chats_dict[st.session_state.chat_activo_id].append({"role": "user", "content": mensaje_usuario})
                             
-                            response = model.generate_content([contexto_sistema] + [str(m) for m in mensajes_api])
+                            # 2. Construimos el historial como un guion de película limpio para que Gemini no se confunda
+                            historial_texto = "\n".join([f"{'Usuario' if m['role']=='user' else 'IA'}: {m['content']}" for m in chats_dict[st.session_state.chat_activo_id][-6:]])
+                            
+                            # 3. Unimos el cerebro con la conversación actual
+                            prompt_final = f"{contexto_sistema}\n\n=== CONVERSACIÓN ACTUAL ===\n{historial_texto}\nIA:"
+                            
+                            response = model.generate_content(prompt_final)
                             respuesta_ai = response.text
                         else:
                             respuesta_ai = "Por favor, agrega tu API Key en los secretos."
                     except Exception as e:
-                        respuesta_ai = f"Error de conexión con la IA: {str(e)}"
+                        # Si hay un error de internet, borramos la pregunta que metimos para no romper el chat
+                        if st.session_state.chat_activo_id in chats_dict and len(chats_dict[st.session_state.chat_activo_id]) > 0:
+                            chats_dict[st.session_state.chat_activo_id].pop()
+                        respuesta_ai = f"⚠️ Error de conexión con la IA: {str(e)}"
                     
                     caja_pensando.markdown(respuesta_ai)
                     
-                    # Agregar los mensajes a la memoria visual
-                    chats_dict[st.session_state.chat_activo_id].append({"role": "user", "content": mensaje_usuario})
-                    chats_dict[st.session_state.chat_activo_id].append({"role": "assistant", "content": respuesta_ai})
+                    # 4. Finalmente guardamos la respuesta de la IA en la base de datos
+                    if "⚠️ Error de conexión" not in respuesta_ai:
+                        chats_dict[st.session_state.chat_activo_id].append({"role": "assistant", "content": respuesta_ai})
                     db_global[usuario]["settings"]["Móvil"]["chats_historial"] = chats_dict
                     
                     # 🟢 NUEVO: Escribir SOLO en la hoja nueva de Chats, sin recargar todo
