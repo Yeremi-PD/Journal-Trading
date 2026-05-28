@@ -2136,8 +2136,8 @@ with tab_calendario:
         with col_cal:
             total_trades_top = len(trades_mes_top)
             net_pnl_top = sum(trades_mes_top) if total_trades_top > 0 else 0.0
-            wins_top = len([t for t in trades_mes_top if t >= 30])
-            losses_top = len([t for t in trades_mes_top if t <= -30])
+            wins_top = len([t for t in trades_mes_top if t >= 75])
+            losses_top = len([t for t in trades_mes_top if t <= -75])
             total_validos_top = wins_top + losses_top
             win_pct_top = (wins_top / total_validos_top * 100) if total_validos_top > 0 else 0.0
             color_pnl_top = "#00C897" if net_pnl_top >= 0 else "#FF4C4C"
@@ -2396,8 +2396,8 @@ with tab_calendario:
         total_trades = len(df_stats)
         net_pnl = float(df_stats['pnl'].sum()) if total_trades > 0 else 0.0
         wins = int((df_stats['pnl'] >= 30).sum()) if total_trades > 0 else 0
-        losses = int((df_stats['pnl'] <= -30).sum()) if total_trades > 0 else 0
-        ties = int(((df_stats['pnl'] > -30) & (df_stats['pnl'] < 30)).sum()) if total_trades > 0 else 0
+        losses = int((df_stats['pnl'] <= -75).sum()) if total_trades > 0 else 0
+        ties = int(((df_stats['pnl'] > -75) & (df_stats['pnl'] < 30)).sum()) if total_trades > 0 else 0
         total_validos = wins + losses
         win_pct = (wins / total_validos * 100) if total_validos > 0 else 0.0
         simbolo_pnl = "+" if net_pnl > 0 else ""
