@@ -273,9 +273,10 @@ db_global = st.session_state.db_global_local
 def registrar_en_excel(usuario, password, cuenta, fecha_obj, balance, pnl, trade_data, settings_pc, settings_movil):
     if db_spreadsheet:
         try:
-            try: hoja_user = db_spreadsheet.worksheet(usuario)
+            try: 
+                hoja_user = db_spreadsheet.worksheet(usuario)
             except gspread.exceptions.WorksheetNotFound:
-                 hoja_user = db_spreadsheet.add_worksheet(title=usuario, rows="1000", cols="30")
+                hoja_user = db_spreadsheet.add_worksheet(title=usuario, rows="1000", cols="30")
                 headers = ["Usuario", "Password", "Cuenta", "Fecha", "Balance", "PnL", "Imagenes", "Settings_PC", "Settings_Movil", "Bias", "Sesion", "Confluences", "Risk", "RR", "Trade Type", "Reason", "Corrections", "Emotions", "Estado_Cuenta", "Retiros_Acumulados", "Fecha_Inicio", "Fecha_Cierre", "ExtraData", "Notas_Globales", "Chats_IA"]
                 hoja_user.append_row(headers)
                 
@@ -2804,12 +2805,14 @@ with tab_asistente:
                     
                     caja_pensando.markdown(respuesta_ai)
                     
-                    # Agregar los mensajes a la base de datos (se renderizarán invertidos en la próxima recarga)
+                    # Agregar los mensajes a la base de datos
                     chats_dict[st.session_state.chat_activo_id].append({"role": "user", "content": mensaje_usuario})
                     chats_dict[st.session_state.chat_activo_id].append({"role": "assistant", "content": respuesta_ai})
                     db_global[usuario]["settings"]["Móvil"]["chats_historial"] = chats_dict
                     reescribir_excel_usuario(usuario)
-            st.rerun() # Necesario para reacomodar la lista invertida instantáneamente
+            
+            # 🚀 st.rerun() ELIMINADO para evitar el bug del doble Enter. 
+            # La UI se actualizará al instante en la caja superior de forma natural.
 
 # 👇 REABRIMOS LA PESTAÑA CALENDARIO PARA ANIDAR LAS SUB-PESTAÑAS AQUÍ 👇
 with tab_calendario:
