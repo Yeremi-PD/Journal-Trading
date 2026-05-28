@@ -2366,7 +2366,7 @@ with tab_calendario:
             df_equity['Equity'] = bal_inicial + df_equity['pnl'].cumsum()
             df_equity = df_equity.reset_index(drop=True)
             df_equity.index = df_equity.index + 1 # Para que el eje X muestre "Trade 1", "Trade 2"...
-            st.area_chart(df_equity['Equity'], color="#00C897", height=250)
+            st.line_chart(df_equity['Equity'], color="#00C897", height=250)
         else:
             st.info("Registra algunos trades para visualizar tu Equity Curve.")
             
