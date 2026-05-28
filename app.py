@@ -2918,10 +2918,16 @@ with tab_asistente:
                         else:
                             respuesta_ai = "Por favor, agrega tu API Key en los secretos."
                     except Exception as e:
-                        # Si hay un error de internet, borramos la pregunta que metimos para no romper el chat
+                        error_str = str(e)
+                        # Si hay un error, borramos la pregunta que metimos para no romper el chat
                         if st.session_state.chat_activo_id in chats_dict and len(chats_dict[st.session_state.chat_activo_id]) > 0:
                             chats_dict[st.session_state.chat_activo_id].pop()
-                        respuesta_ai = f"⚠️ Error de conexión con la IA: {str(e)}"
+                            
+                        # 🛡️ INTERCEPTOR DEL LÍMITE DE GOOGLE (Error 429)
+                        if "429" in error_str or "Quota" in error_str:
+                            respuesta_ai = "⏳ ¡Dame un break! Agotamos la velocidad de lectura de la versión gratuita de Google por mandar tantos datos de golpe. Espera unos 60 segundos exactos y repite la pregunta."
+                        else:
+                            respuesta_ai = f"⚠️ Error de conexión: {error_str}"
                     
                     caja_pensando.markdown(respuesta_ai)
                     
