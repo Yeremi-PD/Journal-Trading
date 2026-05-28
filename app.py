@@ -2387,18 +2387,29 @@ with tab_calendario:
             y_max = df_grouped['Equity'].max()
             margen = (y_max - y_min) * 0.15 if y_max != y_min else 500 # Aumentamos un poco el margen para que quepan los números arriba
             
+            # Tomamos el tamaño exacto que tienes configurado en los cuadritos (Settings)
+            tamano_num = user_settings.get("size_box_vals", 25)
+            
             fig = px.bar(df_grouped, x='fecha_format', y='Equity', text='Equity')
             fig.update_traces(
                 marker_color=colores_barras,
-                texttemplate='<b>%{text:$,.2f}</b>',  # Formato de moneda con negrita
-                textposition='outside',             # Coloca el texto arriba de la barra
-                textfont_color=colores_barras       # Usa el mismo Verde o Rojo de la barra
+                texttemplate='<b>%{text:$,.2f}</b>',
+                textposition='outside',
+                textfont=dict(color=colores_barras, size=tamano_num) # <-- Números flotantes (100% del tamaño)
             )
             fig.update_layout(
-                paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font=dict(color='gray'),
-                xaxis=dict(showgrid=False, title="Fecha del Trade"),
-                yaxis=dict(showgrid=True, gridcolor='#4A5568', gridwidth=1, title="Balance ($)", tickformat="$,.2f", range=[y_min - margen, y_max + margen]),
-                margin=dict(l=10, r=10, t=10, b=10), hovermode="x unified"
+                paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', 
+                font=dict(color='gray'),
+                xaxis=dict(
+                    showgrid=False, title="", 
+                    tickfont=dict(size=tamano_num * 0.8) # <-- Fechas de abajo (80% del tamaño)
+                ),
+                yaxis=dict(
+                    showgrid=True, gridcolor='#4A5568', gridwidth=1, title="", 
+                    tickformat="$,.2f", range=[y_min - margen, y_max + margen], 
+                    tickfont=dict(size=tamano_num * 0.8) # <-- Números laterales (80% del tamaño)
+                ),
+                margin=dict(l=10, r=10, t=tamano_num + 15, b=10), hovermode="x unified"
             )
             st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
         else:
