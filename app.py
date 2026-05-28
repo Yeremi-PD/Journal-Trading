@@ -2343,19 +2343,40 @@ with tab_calendario:
 
         st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
         
-        # FILA 2 DE TARJETAS
+        # === CÁLCULO DE WIN RATES DE SESIONES INDIVIDUALES ===
+        wr_ny_str, wr_as_str, wr_lo_str = "N/A", "N/A", "N/A"
+        if not df_full.empty and 'sesion' in df_full.columns:
+            for s in ['New York', 'Asia', 'Londres']:
+                df_s = df_full[df_full['sesion'] == s]
+                if len(df_s) > 0:
+                    wr = (len(df_s[df_s['pnl'] > 0]) / len(df_s)) * 100
+                    if s == 'New York': wr_ny_str = f"{wr:.0f}%"
+                    elif s == 'Asia': wr_as_str = f"{wr:.0f}%"
+                    elif s == 'Londres': wr_lo_str = f"{wr:.0f}%"
+
+        # FILA 2 DE TARJETAS (Dividiendo Avg Win / Avg Loss)
         c_m4, c_m5, c_m6 = st.columns(3)
         with c_m4: st.markdown(f"""<div class="metric-card card-rr"><div class="metric-header"><span class="title-trade-win" style="font-size: var(--size-card-titles);">Profit Factor</span></div><div class="rr-value" style="color: #FFFFFF; font-size: var(--size-box-vals) !important;">{profit_factor:.2f}</div></div>""", unsafe_allow_html=True)
-        with c_m5: st.markdown(f"""<div class="metric-card card-rr"><div class="metric-header"><span class="title-trade-win" style="font-size: var(--size-card-titles);">Avg Win / Loss</span></div><div class="rr-value" style="color: #FFFFFF; font-size: var(--size-box-vals) !important;"><span style="color:#00C897;">${avg_win:,.2f}</span> <span style="font-size: 16px; color: gray;">/</span> <span style="color:#FF4C4C;">${avg_loss:,.2f}</span></div></div>""", unsafe_allow_html=True)
-        with c_m6: st.markdown(f"""<div class="metric-card card-rr"><div class="metric-header"><span class="title-trade-win" style="font-size: var(--size-card-titles);">Racha (W / L)</span></div><div class="rr-value" style="color: #FFFFFF; font-size: var(--size-box-vals) !important;"><span style="color:#00C897;">{max_w}W</span> <span style="font-size: 16px; color: gray;">/</span> <span style="color:#FF4C4C;">{max_l}L</span></div></div>""", unsafe_allow_html=True)
+        with c_m5: st.markdown(f"""<div class="metric-card card-rr"><div class="metric-header"><span class="title-trade-win" style="font-size: var(--size-card-titles);">Average Win</span></div><div class="rr-value" style="color: #00C897; font-size: var(--size-box-vals) !important;">+${avg_win:,.2f}</div></div>""", unsafe_allow_html=True)
+        with c_m6: st.markdown(f"""<div class="metric-card card-rr"><div class="metric-header"><span class="title-trade-win" style="font-size: var(--size-card-titles);">Average Loss</span></div><div class="rr-value" style="color: #FF4C4C; font-size: var(--size-box-vals) !important;">-${avg_loss:,.2f}</div></div>""", unsafe_allow_html=True)
 
         st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
         
-        # FILA 3 DE TARJETAS
-        c_m7, c_m8, c_m9 = st.columns(3)
-        with c_m7: st.markdown(f"""<div class="metric-card card-rr"><div class="metric-header"><span class="title-trade-win" style="font-size: var(--size-card-titles);">Mejor Sesión</span></div><div class="rr-value" style="color: #FFFFFF; font-size: var(--size-box-vals) !important;">{mejor_sesion_str} <span style="font-size: 16px; color: #00C897;">({winrate_sesion_str} WR)</span></div></div>""", unsafe_allow_html=True)
-        with c_m8: st.markdown(f"""<div class="metric-card card-rr"><div class="metric-header"><span class="title-trade-win" style="font-size: var(--size-card-titles);">Mejor Trade</span></div><div class="rr-value" style="color: #00C897; font-size: var(--size-box-vals) !important;">+${best_trade:,.2f}</div></div>""", unsafe_allow_html=True)
-        with c_m9: st.markdown(f"""<div class="metric-card card-rr"><div class="metric-header"><span class="title-trade-win" style="font-size: var(--size-card-titles);">Peor Trade</span></div><div class="rr-value" style="color: #FF4C4C; font-size: var(--size-box-vals) !important;">${worst_trade:,.2f}</div></div>""", unsafe_allow_html=True)
+        # FILA 3 DE TARJETAS (Dividiendo Rachas y agregando Mejor/Peor Trade)
+        c_m7, c_m8, c_m9, c_m10 = st.columns(4)
+        with c_m7: st.markdown(f"""<div class="metric-card card-rr"><div class="metric-header"><span class="title-trade-win" style="font-size: var(--size-card-titles);">Racha Victorias</span></div><div class="rr-value" style="color: #00C897; font-size: var(--size-box-vals) !important;">{max_w}W</div></div>""", unsafe_allow_html=True)
+        with c_m8: st.markdown(f"""<div class="metric-card card-rr"><div class="metric-header"><span class="title-trade-win" style="font-size: var(--size-card-titles);">Racha Pérdidas</span></div><div class="rr-value" style="color: #FF4C4C; font-size: var(--size-box-vals) !important;">{max_l}L</div></div>""", unsafe_allow_html=True)
+        with c_m9: st.markdown(f"""<div class="metric-card card-rr"><div class="metric-header"><span class="title-trade-win" style="font-size: var(--size-card-titles);">Mejor Trade</span></div><div class="rr-value" style="color: #00C897; font-size: var(--size-box-vals) !important;">+${best_trade:,.2f}</div></div>""", unsafe_allow_html=True)
+        with c_m10: st.markdown(f"""<div class="metric-card card-rr"><div class="metric-header"><span class="title-trade-win" style="font-size: var(--size-card-titles);">Peor Trade</span></div><div class="rr-value" style="color: #FF4C4C; font-size: var(--size-box-vals) !important;">${worst_trade:,.2f}</div></div>""", unsafe_allow_html=True)
+
+        st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
+
+        # FILA 4 DE TARJETAS (Sesiones de Trading - Textos Grandes)
+        c_m11, c_m12, c_m13, c_m14 = st.columns(4)
+        with c_m11: st.markdown(f"""<div class="metric-card card-rr"><div class="metric-header"><span class="title-trade-win" style="font-size: var(--size-card-titles);">Mejor Sesión</span></div><div class="rr-value" style="color: #FFFFFF; font-size: var(--size-box-vals) !important;">{mejor_sesion_str} <span style="color: #00C897;">({winrate_sesion_str})</span></div></div>""", unsafe_allow_html=True)
+        with c_m12: st.markdown(f"""<div class="metric-card card-rr"><div class="metric-header"><span class="title-trade-win" style="font-size: var(--size-card-titles);">Win Rate NY</span></div><div class="rr-value" style="color: #FFFFFF; font-size: var(--size-box-vals) !important;">{wr_ny_str}</div></div>""", unsafe_allow_html=True)
+        with c_m13: st.markdown(f"""<div class="metric-card card-rr"><div class="metric-header"><span class="title-trade-win" style="font-size: var(--size-card-titles);">Win Rate Asia</span></div><div class="rr-value" style="color: #FFFFFF; font-size: var(--size-box-vals) !important;">{wr_as_str}</div></div>""", unsafe_allow_html=True)
+        with c_m14: st.markdown(f"""<div class="metric-card card-rr"><div class="metric-header"><span class="title-trade-win" style="font-size: var(--size-card-titles);">Win Rate London</span></div><div class="rr-value" style="color: #FFFFFF; font-size: var(--size-box-vals) !important;">{wr_lo_str}</div></div>""", unsafe_allow_html=True)
 
         st.markdown("<div style='margin-top: 20px;'></div>", unsafe_allow_html=True)
         st.markdown(f"<h4 style='color:gray; font-size:18px;'>📈 Equity Curve (Crecimiento de Cuenta)</h4>", unsafe_allow_html=True)
