@@ -957,7 +957,7 @@ def contenido_ajustes():
             st.success(_l['sidebar']['acc_granted'])
             
             # 👑 NUEVO: Botón maestro para activar la IA al usuario actual
-            es_admin_actual = db_global[usuario]["settings"]["PC"].get("is_admin", False)
+            es_admin_actual = db_global[usuario]["settings"]["PC"].get("is_admin", False) or db_global[usuario]["settings"]["Móvil"].get("is_admin", False)
             nuevo_admin = st.checkbox("👑 Habilitar Asistente IA (Modo Admin)", value=es_admin_actual)
             
             if nuevo_admin != es_admin_actual:
@@ -1500,8 +1500,8 @@ div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) {
 </style>
 """, unsafe_allow_html=True)
 
-# Verificamos si el usuario actual tiene el privilegio de Admin
-es_admin = db_global[usuario]["settings"]["PC"].get("is_admin", False)
+# Verificamos si el usuario actual tiene el privilegio de Admin (Válido para PC y Móvil)
+es_admin = db_global[usuario]["settings"]["PC"].get("is_admin", False) or db_global[usuario]["settings"]["Móvil"].get("is_admin", False)
 
 # 🚀 PESTAÑAS EN EL TOPE ABSOLUTO DE LA PÁGINA (Dinámicas)
 if es_admin:
