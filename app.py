@@ -2358,6 +2358,7 @@ with tab_calendario:
         if losses >= 1: wl_parts_pie.append(f'<span style="color:#FF4C4C;">{losses}L</span>')
         if ties >= 1: wl_parts_pie.append(f'<span style="color:gray;">{ties}BE</span>')
         wl_text_pie = ' <span style="color:gray;">/</span> '.join(wl_parts_pie) if total_validos > 0 else '<span style="color:gray;">0W / 0L / 0BE</span>'
+        bar_html = get_bar_svg(wins, losses, ties)
         st.markdown(f"""<div class="metric-card card-win"><div style="display:flex; justify-content:space-between; align-items:flex-start;"><div><div class="metric-header"><span class="title-trade-win">{titulo_win}</span></div><div class="win-value" style="color: {c_win_card};">{win_pct:.2f}%</div></div></div><div style="display:flex; flex-direction:row; align-items:center; justify-content:center; gap:20px; margin-top:0px; padding:0px;"><div style="width: var(--pie-size); height: var(--pie-size); transform: translateY(var(--pie-y-offset)); flex-shrink: 0; display:flex; margin: -15px 0;">{bar_html}</div><div style="font-size: calc(var(--size-box-wl) * 1.5); font-weight: 800; text-align:center; white-space:nowrap; transform: translateY(var(--pie-y-offset));">{wl_text_pie}</div></div></div>""", unsafe_allow_html=True)
         
         def get_col_simb(valor):
