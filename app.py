@@ -2363,24 +2363,35 @@ with tab_calendario:
         # Generar Equity Curve interactiva
         if not df_full.empty:
             df_equity = df_full.copy()
-            df_equity['Equity'] = bal_inicial + df_equity['pnl'].cumsum()
-            df_equity = df_equity.reset_index(drop=True)
-            df_equity.index = df_equity.index + 1 # Para que el eje X muestre "Trade 1", "Trade 2"...
+            # Asegurar que tenemos las fechas en formato correcto
+            if 'fecha_dt' not in df_equity.columns:
+                df_equity['fecha_dt'] = pd.to_datetime(df_equity['fecha_str'], format='%d/%m/%Y', errors='coerce')
+                
+            # Agrupar el PnL por día para tener una sola barra por fecha (evita el sube y baja de múltiples trades en el mismo día)
+            df_grouped = df_equity.groupby('fecha_dt')['pnl'].sum().reset_index()
+            df_grouped = df_grouped.sort_values('fecha_dt')
+            
+            # Calcular el Equity acumulado diario
+            df_grouped['Equity'] = bal_inicial + df_grouped['pnl'].cumsum()
+            
+            # Formatear la fecha para el eje X
+            df_grouped['fecha_format'] = df_grouped['fecha_dt'].dt.strftime('%d/%m/%Y')
+            
             import plotly.express as px
             
-            # Asignar color dinámico: Verde si se ganó, Rojo si se perdió en ese trade
-            colores_barras = ['#00C897' if p >= 0 else '#FF4C4C' for p in df_equity['pnl']]
+            # Asignar color dinámico: Verde si el DÍA fue positivo, Rojo si el DÍA fue negativo
+            colores_barras = ['#00C897' if p >= 0 else '#FF4C4C' for p in df_grouped['pnl']]
             
             # Calcular el zoom automático para no empezar desde $0
-            y_min = df_equity['Equity'].min()
-            y_max = df_equity['Equity'].max()
+            y_min = df_grouped['Equity'].min()
+            y_max = df_grouped['Equity'].max()
             margen = (y_max - y_min) * 0.1 if y_max != y_min else 500
             
-            fig = px.bar(df_equity, x=df_equity.index, y='Equity')
+            fig = px.bar(df_grouped, x='fecha_format', y='Equity')
             fig.update_traces(marker_color=colores_barras)
             fig.update_layout(
                 paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font=dict(color='gray'),
-                xaxis=dict(showgrid=False, title="Número de Trade"),
+                xaxis=dict(showgrid=False, title="Fecha del Trade"),
                 yaxis=dict(showgrid=True, gridcolor='#4A5568', gridwidth=1, title="Balance ($)", tickformat="$,.2f", range=[y_min - margen, y_max + margen]),
                 margin=dict(l=10, r=10, t=10, b=10), hovermode="x unified"
             )
