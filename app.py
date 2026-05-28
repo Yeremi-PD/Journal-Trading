@@ -2367,12 +2367,18 @@ with tab_calendario:
             df_equity = df_equity.reset_index(drop=True)
             df_equity.index = df_equity.index + 1 # Para que el eje X muestre "Trade 1", "Trade 2"...
             import plotly.express as px
+            
+            # Calcular el zoom automático para no empezar desde $0
+            y_min = df_equity['Equity'].min()
+            y_max = df_equity['Equity'].max()
+            margen = (y_max - y_min) * 0.1 if y_max != y_min else 500
+            
             fig = px.bar(df_equity, x=df_equity.index, y='Equity')
             fig.update_traces(marker_color='#00C897')
             fig.update_layout(
                 paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font=dict(color='gray'),
                 xaxis=dict(showgrid=False, title="Número de Trade"),
-                yaxis=dict(showgrid=True, gridcolor='#4A5568', gridwidth=1, title="Balance ($)", tickformat="$,.2f"),
+                yaxis=dict(showgrid=True, gridcolor='#4A5568', gridwidth=1, title="Balance ($)", tickformat="$,.2f", range=[y_min - margen, y_max + margen]),
                 margin=dict(l=10, r=10, t=10, b=10), hovermode="x unified"
             )
             st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
