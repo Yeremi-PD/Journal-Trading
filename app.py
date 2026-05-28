@@ -2880,19 +2880,15 @@ with tab_asistente:
                             nota_cuerpo = pc_set.get("global_notes_body", "")
                             bloc_notas_str = f"TÍTULO: {nota_titulo}\nCONTENIDO:\n{nota_cuerpo}" if nota_cuerpo else "El bloc de notas está vacío."
                             
-                            # 🟢 EL CEREBRO: Asistente Analítico, Directo y Profesional
+                            # 🟢 EL CEREBRO: Alimentación directa de datos desde la app a la IA
                             contexto_sistema = (
-                                f"Eres el asistente virtual avanzado de 'Yeremi Journal Pro'. El usuario es {usuario}. "
-                                f"=== PERSONALIDAD ESTRICTA ===\n"
-                                f"Actúa como un mentor de trading y analista de datos estrictamente profesional, directo, objetivo y preciso. "
-                                f"Tus respuestas deben ir directo al grano, sin dar rodeos. Sé brutalmente honesto con los datos, pero mantén siempre el respeto y la profesionalidad. "
-                                f"No uses jerga, no ofendas, ni halagues de manera exagerada. Si el usuario cometió un error o rompió sus reglas, señálalo de forma analítica basándote en los datos. "
-                                f"Si el trade fue bueno, confirma que se siguieron las reglas de manera neutral y objetiva. "
-                                f"Para cualquier pregunta fuera del trading, mantén la misma actitud concisa y profesional.\n\n"
-                                f"=== ESTADÍSTICAS GLOBALES ACTUALES ===\n"
-                                f"Balance: ${bal_mostrar:,.2f} | P&L Neto: ${net_pnl:,.2f} | Win Rate: {win_pct:.0f}% | Trades Totales: {total_trades}\n\n"
-                                f"=== BLOC DE NOTAS GLOBAL DEL USUARIO (Sus Reglas) ===\n{bloc_notas_str}\n\n"
-                                f"=== HISTORIAL DE TRADES (Clasificado) ===\n{historial_completo_str}\n\n"
+                                f"Eres el analista de datos y mentor de trading integrado en el diario del usuario {usuario}. "
+                                f"Responde siempre de forma muy muy directa, profesional, objetiva y estrictamente analítica. Cero rodeos, si halagos, cero jerga. "
+                                f"A continuación, tienes los datos en tiempo real de su cuenta extraídos de la base de datos. Usa esta información para responder a sus consultas de forma precisa:\n\n"
+                                f"[DATOS ACTUALIZADOS DE LA CUENTA]\n"
+                                f"Balance: ${bal_mostrar:,.2f} | P&L Neto: ${net_pnl:,.2f} | Win Rate: {win_pct:.0f}% | Trades: {total_trades}\n\n"
+                                f"[REGLAS DE TRADING DEL USUARIO]\n{bloc_notas_str}\n\n"
+                                f"[HISTORIAL COMPLETO DE TRADES]\n{historial_completo_str}\n"
                             )
                             
                             # Memoria a corto plazo de este chat específico
