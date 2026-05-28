@@ -2792,7 +2792,7 @@ with tab_asistente:
                         import google.generativeai as genai
                         if "gemini_api_key" in st.secrets:
                             genai.configure(api_key=st.secrets["gemini_api_key"])
-                            model = genai.GenerativeModel('gemini-2.5-flash')
+                            model = genai.GenerativeModel('gemini-2.5-flash-lite')
                             
                             historial_ia = []
                             for i, t in enumerate(trades_cronologicos):
