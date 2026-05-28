@@ -2358,7 +2358,7 @@ with tab_calendario:
         with c_m9: st.markdown(f"""<div class="metric-card card-rr"><div class="metric-header"><span class="title-trade-win" style="font-size: var(--size-card-titles);">Peor Trade</span></div><div class="rr-value" style="color: #FF4C4C; font-size: var(--size-box-vals) !important;">${worst_trade:,.2f}</div></div>""", unsafe_allow_html=True)
 
         st.markdown("<div style='margin-top: 20px;'></div>", unsafe_allow_html=True)
-        st.markdown(f"<h4 style='color:gray; font-size:18px;'>📈 Equity Curve (Crecimiento de Cuenta)</h4>", unsafe_allow_html=True)
+        st.markdown(f"<h4 style='color:gray; font-size:18px;'>Equity Curve</h4>", unsafe_allow_html=True)
         
         # Generar Equity Curve interactiva
         if not df_full.empty:
