@@ -2665,6 +2665,7 @@ with tab_asistente:
                 # Verificamos si configuraste tu clave API en st.secrets
                 if "gemini_api_key" in st.secrets:
                     genai.configure(api_key=st.secrets["gemini_api_key"])
+                    
                     model = genai.GenerativeModel('gemini-pro') # Modelo estable y compatible con todas las versiones de la API
                     
                     # Le inyectamos contexto inicial (System Prompt) para que Gemini sepa quién es el usuario y su balance
