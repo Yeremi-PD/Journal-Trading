@@ -952,27 +952,35 @@ def contenido_ajustes():
     st.markdown("---")
     st.markdown(f"### {_l['sidebar']['admin']}")
     with st.expander(_l['sidebar']['admin']):
-        admin_pass = st.text_input(_l['sidebar']['admin_pass'], type="password")
-        if admin_pass == "Yfutures.":
-            st.success(_l['sidebar']['acc_granted'])
-            
-            # 👑 NUEVO: Botones de acción directa (Evita el bug de recarga de Streamlit)
-            es_admin_actual = db_global[usuario]["settings"]["PC"].get("is_admin", False) or db_global[usuario]["settings"]["Móvil"].get("is_admin", False)
-            
-            if not es_admin_actual:
-                st.warning("🤖 La IA está oculta para esta cuenta.")
-                if st.button("🟢 Activar Inteligencia Artificial", use_container_width=True):
-                    db_global[usuario]["settings"]["PC"]["is_admin"] = True
-                    db_global[usuario]["settings"]["Móvil"]["is_admin"] = True
-                    reescribir_excel_usuario(usuario) # Guarda directamente en Google Sheets
-                    st.rerun() # Refresca la página para mostrar la pestaña
+        # 1. Le agregamos un 'key' para que Streamlit no pierda la memoria al darle a Enter
+        admin_pass = st.text_input(_l['sidebar']['admin_pass'], type="password", key="admin_pass_input")
+        
+        # 2. Solo hacemos la verificación si la caja NO está vacía
+        if admin_pass:
+            # 3. El .strip() elimina espacios accidentales al inicio o al final
+            if admin_pass.strip() == "Yfutures.":
+                st.success(_l['sidebar']['acc_granted'])
+                
+                # 👑 NUEVO: Botones de acción directa 
+                es_admin_actual = db_global[usuario]["settings"]["PC"].get("is_admin", False) or db_global[usuario]["settings"]["Móvil"].get("is_admin", False)
+                
+                if not es_admin_actual:
+                    st.warning("🤖 La IA está oculta para esta cuenta.")
+                    if st.button("🟢 Activar Inteligencia Artificial", use_container_width=True):
+                        db_global[usuario]["settings"]["PC"]["is_admin"] = True
+                        db_global[usuario]["settings"]["Móvil"]["is_admin"] = True
+                        reescribir_excel_usuario(usuario)
+                        st.rerun()
+                else:
+                    st.success("✅ La Inteligencia Artificial está ACTIVADA.")
+                    if st.button("🔴 Desactivar IA", use_container_width=True):
+                        db_global[usuario]["settings"]["PC"]["is_admin"] = False
+                        db_global[usuario]["settings"]["Móvil"]["is_admin"] = False
+                        reescribir_excel_usuario(usuario)
+                        st.rerun()
             else:
-                st.success("✅ La Inteligencia Artificial está ACTIVADA.")
-                if st.button("🔴 Desactivar IA", use_container_width=True):
-                    db_global[usuario]["settings"]["PC"]["is_admin"] = False
-                    db_global[usuario]["settings"]["Móvil"]["is_admin"] = False
-                    reescribir_excel_usuario(usuario)
-                    st.rerun()
+                # 4. Ahora te avisa en rojo si escribiste mal la contraseña en lugar de ignorarte
+                st.error("⚠️ Contraseña incorrecta. Revisa mayúsculas, puntos y espacios.")
                 
             for u, data in list(db_global.items()):
                 col_u, col_p, col_btn = st.columns([2, 2, 1])
