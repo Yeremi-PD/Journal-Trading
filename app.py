@@ -2431,9 +2431,9 @@ with tab_calendario:
         gross_loss = abs(float(df_stats[df_stats['pnl'] < 0]['pnl'].sum())) if total_trades > 0 else 0.0
         profit_factor = (gross_profit / gross_loss) if gross_loss > 0 else (gross_profit if gross_profit > 0 else 0.0)
         
-        # Promedios financieros EXACTOS (Suma TODO el dinero positivo/negativo para que cuadre al centavo con el P&L)
-        wins_financieros = len(df_stats[df_stats['pnl'] > 0])
-        losses_financieros = len(df_stats[df_stats['pnl'] < 0])
+        # Promedios financieros EXACTOS (Suma TODO el dinero para P&L)
+        wins_financieros = len(df_stats[df_stats['pnl'] >= 75])
+        losses_financieros = len(df_stats[df_stats['pnl'] <= -75])
         
         avg_win = (gross_profit / wins_financieros) if wins_financieros > 0 else 0.0
         avg_loss = (gross_loss / losses_financieros) if losses_financieros > 0 else 0.0
