@@ -2358,7 +2358,7 @@ with tab_calendario:
         with c_m9: st.markdown(f"""<div class="metric-card card-rr"><div class="metric-header"><span class="title-trade-win" style="font-size: var(--size-card-titles);">Peor Trade</span></div><div class="rr-value" style="color: #FF4C4C; font-size: var(--size-box-vals) !important;">${worst_trade:,.2f}</div></div>""", unsafe_allow_html=True)
 
         st.markdown("<div style='margin-top: 20px;'></div>", unsafe_allow_html=True)
-        st.markdown(f"<h4 style='color:gray; font-size:18px;'>Equity Curve</h4>", unsafe_allow_html=True)
+        st.markdown(f"<h4 style='color:gray; font-size:18px;'>📈 Equity Curve (Crecimiento de Cuenta)</h4>", unsafe_allow_html=True)
         
         # Generar Equity Curve interactiva
         if not df_full.empty:
@@ -2385,10 +2385,15 @@ with tab_calendario:
             # Calcular el zoom automático para no empezar desde $0
             y_min = df_grouped['Equity'].min()
             y_max = df_grouped['Equity'].max()
-            margen = (y_max - y_min) * 0.1 if y_max != y_min else 500
+            margen = (y_max - y_min) * 0.15 if y_max != y_min else 500 # Aumentamos un poco el margen para que quepan los números arriba
             
-            fig = px.bar(df_grouped, x='fecha_format', y='Equity')
-            fig.update_traces(marker_color=colores_barras)
+            fig = px.bar(df_grouped, x='fecha_format', y='Equity', text='Equity')
+            fig.update_traces(
+                marker_color=colores_barras,
+                texttemplate='<b>%{text:$,.2f}</b>',  # Formato de moneda con negrita
+                textposition='outside',             # Coloca el texto arriba de la barra
+                textfont_color=colores_barras       # Usa el mismo Verde o Rojo de la barra
+            )
             fig.update_layout(
                 paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font=dict(color='gray'),
                 xaxis=dict(showgrid=False, title="Fecha del Trade"),
