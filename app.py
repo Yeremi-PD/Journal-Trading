@@ -43,6 +43,9 @@ def conectar_google_sheets():
         client = gspread.authorize(creds)
         return client.open("Trading_Journal_DB")
     except Exception as e:
+        import streamlit as st
+        st.error(f"⚠️ ERROR DE CONEXIÓN CON GOOGLE SHEETS: {e}")
+        print(f"Error detallado de API: {e}")
         return None
 
 db_spreadsheet = conectar_google_sheets()
