@@ -2880,11 +2880,15 @@ with tab_asistente:
                             nota_cuerpo = pc_set.get("global_notes_body", "")
                             bloc_notas_str = f"TÍTULO: {nota_titulo}\nCONTENIDO:\n{nota_cuerpo}" if nota_cuerpo else "El bloc de notas está vacío."
                             
-                            # 🟢 EL CEREBRO: Alimentación directa de datos desde la app a la IA
+                            # Capturamos la fecha exacta del servidor para dársela a la IA
+                            fecha_hoy_str = datetime.now().strftime("%d/%m/%Y")
+                            
+                            # 🟢 EL CEREBRO: Alimentación directa de datos y razonamiento lógico
                             contexto_sistema = (
                                 f"Eres el analista de datos y mentor de trading integrado en el diario del usuario {usuario}. "
-                                f"Responde siempre de forma muy muy directa, profesional, objetiva y estrictamente analítica. Cero rodeos, si halagos, cero jerga. "
-                                f"A continuación, tienes los datos en tiempo real de su cuenta extraídos de la base de datos. Usa esta información para responder a sus consultas de forma precisa:\n\n"
+                                f"La fecha actual del sistema es {fecha_hoy_str}. "
+                                f"Responde de forma directa, profesional y estrictamente analítica. Cero rodeos y cero jerga. "
+                                f"REGLA DE ORO PARA CÁLCULOS: Si el usuario te pregunta por el resultado de un día específico (como 'ayer', 'hoy' o una fecha exacta), DEBES buscar TODOS los trades que coincidan con esa fecha en el historial, listarlos mentalmente y sumar el P&L de TODOS ellos para darle el total consolidado. Nunca respondas basándote en un solo trade si hay varios en ese día.\n\n"
                                 f"[DATOS ACTUALIZADOS DE LA CUENTA]\n"
                                 f"Balance: ${bal_mostrar:,.2f} | P&L Neto: ${net_pnl:,.2f} | Win Rate: {win_pct:.0f}% | Trades: {total_trades}\n\n"
                                 f"[REGLAS DE TRADING DEL USUARIO]\n{bloc_notas_str}\n\n"
