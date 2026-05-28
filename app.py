@@ -526,35 +526,73 @@ LANG = {
 _l = LANG[st.session_state.idioma]
 
 if st.session_state.usuario_actual is None:
-    st.markdown("<h1 style='text-align:center;'>Yeremi Journal Pro</h1>", unsafe_allow_html=True)
-    col1, col2, col3 = st.columns([1, 2, 1])
-    with col2:
-        st.markdown(f"<h3 style='text-align:center; color:gray;'>{_l['login']['iniciar']}</h3>", unsafe_allow_html=True)
-        modo_movil_check = st.checkbox(_l['login']['modo_movil'], value=True)
-        modo_acceso = st.radio(_l['login']['opciones'], [_l['login']['entrar'], _l['login']['registrarse']], horizontal=True)
+    # 🎨 CSS para ocultar sidebar y embellecer la pantalla de Login
+    st.markdown("""
+    <style>
+    [data-testid="stSidebar"] { display: none !important; }
+    .login-title { font-size: 45px !important; font-weight: 900 !important; text-align: center !important; color: #00C897 !important; margin-bottom: 0px !important; letter-spacing: -1px; }
+    .login-sub { font-size: 18px !important; text-align: center !important; color: #A0AEC0 !important; margin-bottom: 30px !important; }
+    /* Pestañas más elegantes */
+    div[data-testid="stTabs"] button { font-size: 18px !important; font-weight: 600 !important; }
+    </style>
+    """, unsafe_allow_html=True)
+
+    st.markdown("<div class='login-title'>Yeremi Journal Pro</div>", unsafe_allow_html=True)
+    st.markdown("<div class='login-sub'>Tu dashboard avanzado de trading</div>", unsafe_allow_html=True)
+    
+    _, col_login, _ = st.columns([1, 1.5, 1])
+    
+    with col_login:
+        # 📱 Selector de dispositivo más limpio
+        modo_movil_check = st.toggle(_l['login']['modo_movil'], value=True)
+        st.markdown("<br>", unsafe_allow_html=True)
         
-        if modo_acceso == _l['login']['entrar']:
-            log_user = st.text_input(_l['login']['user'])
-            log_pass = st.text_input(_l['login']['pass'], type="password")
-            if st.button(_l['login']['acceder'], use_container_width=True):
-                log_user = log_user.strip()
-                log_pass = log_pass.strip()
-                if log_user in db_global and db_global[log_user]["password"] == log_pass:
-                    st.session_state.usuario_actual = log_user
-                    st.session_state.dispositivo_actual = "Móvil" if modo_movil_check else "PC"
-                    components.html(f"""<script>window.parent.localStorage.setItem("yeremi_user", "{log_user}");window.parent.localStorage.setItem("yeremi_device", "{st.session_state.dispositivo_actual}");</script>""", height=0, width=0)
-                    st.query_params["user"] = log_user
-                    st.query_params["device"] = st.session_state.dispositivo_actual
-                    st.rerun()
-                else:
-                    st.error(_l['login']['cred_err'])
-        else:
-            reg_user = st.text_input(_l['login']['new_user'])
-            reg_pass = st.text_input(_l['login']['new_pass'], type="password")
-            if st.button(_l['login']['crear_cta'], use_container_width=True):
-                if reg_user and reg_user not in db_global:
-                    db_global[reg_user] = {"password": reg_pass, "data": inicializar_data_usuario(), "settings": {"PC": inicializar_settings(), "Móvil": inicializar_settings()}}
-                    st.success(_l['login']['cta_creada'])
+        # 🗂️ Pestañas en lugar de Radio Buttons (Mucho más profesional)
+        tab_login, tab_registro = st.tabs(["🔑 " + _l['login']['entrar'], "📝 " + _l['login']['registrarse']])
+        
+        with tab_login:
+            # st.form permite que el usuario presione "Enter" en el teclado para iniciar sesión
+            with st.form("form_login", border=True):
+                log_user = st.text_input(_l['login']['user'], placeholder="Tu nombre de usuario")
+                log_pass = st.text_input(_l['login']['pass'], type="password", placeholder="••••••••")
+                
+                btn_acceder = st.form_submit_button(_l['login']['acceder'], type="primary", use_container_width=True)
+                
+                if btn_acceder:
+                    # 🧹 LIMPIEZA EXTREMA: Matamos espacios vacíos al inicio y al final
+                    u_clean = log_user.strip()
+                    p_clean = log_pass.strip()
+                    
+                    if u_clean in db_global and db_global[u_clean]["password"] == p_clean:
+                        st.session_state.usuario_actual = u_clean
+                        st.session_state.dispositivo_actual = "Móvil" if modo_movil_check else "PC"
+                        components.html(f"""<script>window.parent.localStorage.setItem("yeremi_user", "{u_clean}");window.parent.localStorage.setItem("yeremi_device", "{st.session_state.dispositivo_actual}");</script>""", height=0, width=0)
+                        st.query_params["user"] = u_clean
+                        st.query_params["device"] = st.session_state.dispositivo_actual
+                        st.rerun()
+                    else:
+                        # Si aún da error, le avisamos que chequee mayúsculas
+                        st.error(f"⚠️ {_l['login']['cred_err']}. Revisa si escribiste igual las mayúsculas/minúsculas.")
+
+        with tab_registro:
+            with st.form("form_registro", border=True):
+                reg_user = st.text_input(_l['login']['new_user'], placeholder="Crea un nombre de usuario")
+                reg_pass = st.text_input(_l['login']['new_pass'], type="password", placeholder="Crea una contraseña")
+                
+                btn_registrar = st.form_submit_button(_l['login']['crear_cta'], type="primary", use_container_width=True)
+                
+                if btn_registrar:
+                    u_reg_clean = reg_user.strip()
+                    p_reg_clean = reg_pass.strip()
+                    
+                    if not u_reg_clean or not p_reg_clean:
+                        st.error("⚠️ Debes llenar ambos campos.")
+                    elif u_reg_clean in db_global:
+                        st.error("⚠️ Ese usuario ya existe. Elige otro.")
+                    else:
+                        # Se guarda limpio y sin espacios fantasmas para siempre
+                        db_global[u_reg_clean] = {"password": p_reg_clean, "data": inicializar_data_usuario(), "settings": {"PC": inicializar_settings(), "Móvil": inicializar_settings()}}
+                        st.success(_l['login']['cta_creada'] + " ¡Ahora ve a la pestaña de Entrar!")
     st.stop()
 else:
     cuenta_actual_js = st.session_state.get("data_source_sel", "Account Real")
