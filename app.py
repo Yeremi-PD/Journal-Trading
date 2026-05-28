@@ -112,7 +112,7 @@ def get_global_db():
                                     db_temp[user]["settings"]["PC"]["global_notes_body"] = nota_global_excel
                                     db_temp[user]["settings"]["Móvil"]["global_notes_body"] = nota_global_excel
                                 
-                                # Leemos la columna dedicada "Chats_IA" para cargar tus conversaciones guardadas
+                                # Compatibilidad vieja (por si tenías chats en la columna antigua)
                                 chats_ia_excel = str(row_data.get('Chats_IA', '')).strip()
                                 if chats_ia_excel:
                                     try:
@@ -120,6 +120,23 @@ def get_global_db():
                                         db_temp[user]["settings"]["PC"]["chats_historial"] = chats_cargados
                                         db_temp[user]["settings"]["Móvil"]["chats_historial"] = chats_cargados
                                     except: pass
+                            except: pass
+                            
+                            # 🟢 NUEVO: Recuperar el historial desde la HOJA DEDICADA "Chats_TuNombre"
+                            try:
+                                hoja_chats = db_spreadsheet.worksheet(f"Chats_{user}")
+                                filas_chats = hoja_chats.get_all_values()
+                                if len(filas_chats) > 1:
+                                    chats_recuperados = {}
+                                    for r in filas_chats[1:]:
+                                        if len(r) >= 5:
+                                            nom_chat, preg, resp = r[2], r[3], r[4]
+                                            if nom_chat not in chats_recuperados: chats_recuperados[nom_chat] = []
+                                            if preg: chats_recuperados[nom_chat].append({"role": "user", "content": preg})
+                                            if resp: chats_recuperados[nom_chat].append({"role": "assistant", "content": resp})
+                                    
+                                    db_temp[user]["settings"]["PC"]["chats_historial"] = chats_recuperados
+                                    db_temp[user]["settings"]["Móvil"]["chats_historial"] = chats_recuperados
                             except: pass
                             
                             cuenta = str(row_data.get('Cuenta', 'Account Real')).strip()
@@ -338,6 +355,21 @@ def registrar_en_excel(usuario, password, cuenta, fecha_obj, balance, pnl, trade
         except Exception as e:
             # OPTIMIZACIÓN 2A: Imprimimos el error exacto en la consola para no estar ciegos
             print(f"ERROR GRAVE: Falló el guardado (append_row) para {usuario}. Detalles: {e}")
+
+def registrar_chat_excel(usuario, cuenta, nombre_chat, pregunta, respuesta):
+    if not db_spreadsheet: return
+    try:
+        nombre_hoja = f"Chats_{usuario}"
+        try: 
+            hoja_chats = db_spreadsheet.worksheet(nombre_hoja)
+        except gspread.exceptions.WorksheetNotFound:
+            hoja_chats = db_spreadsheet.add_worksheet(title=nombre_hoja, rows="1000", cols="5")
+            hoja_chats.append_row(["Fecha", "Cuenta", "Chat", "Pregunta", "Respuesta"])
+        
+        ahora = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+        hoja_chats.append_row([ahora, str(cuenta), str(nombre_chat), str(pregunta), str(respuesta)])
+    except Exception as e:
+        print(f"Error guardando chat: {e}")
 
 def reescribir_excel_usuario(usuario):
     if not db_spreadsheet: return
@@ -2638,16 +2670,36 @@ with tab_calendario:
                 st.session_state.retiro_exitoso = False
 
 with tab_asistente:
-    # 🌟 INYECCIÓN DE CSS: Letras un 40% más grandes en mensajes y un diseño limpio para la barra lateral
+    # 🌟 INYECCIÓN DE CSS: Letras 20% más grandes (26px) y botones un 50% más pequeños
     st.markdown("""
     <style>
     div[data-testid="stChatMessageContent"] p, 
     div[data-testid="stChatMessageContent"] div {
-        font-size: 22px !important;
+        font-size: 26px !important;
         line-height: 1.6 !important;
     }
     .chat-sidebar-title {
-        font-weight: bold; color: gray; font-size: 14px; margin-bottom: 10px; text-transform: uppercase;
+        font-weight: bold; color: gray; font-size: 12px; margin-bottom: 5px; text-transform: uppercase; text-align: center;
+    }
+    /* Achicar botones de la barra lateral a la mitad */
+    div[data-testid="column"]:has(.chat-sidebar-title) div[data-testid="stButton"] button {
+        padding: 2px 10px !important;
+        font-size: 12px !important;
+        min-height: 30px !important;
+        height: 30px !important;
+        width: 70% !important;
+        margin: 0 auto !important;
+        display: block !important;
+    }
+    /* Achicar la caja de renombrar chat */
+    div[data-testid="column"]:has(.chat-sidebar-title) div[data-testid="stTextInput"] input {
+        font-size: 12px !important;
+        height: 30px !important;
+        min-height: 30px !important;
+    }
+    div[data-testid="column"]:has(.chat-sidebar-title) div[data-testid="stTextInput"] {
+        width: 80% !important;
+        margin: 0 auto !important;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -2805,13 +2857,16 @@ with tab_asistente:
                     
                     caja_pensando.markdown(respuesta_ai)
                     
-                    # Agregar los mensajes a la base de datos
+                    # Agregar los mensajes a la memoria visual
                     chats_dict[st.session_state.chat_activo_id].append({"role": "user", "content": mensaje_usuario})
                     chats_dict[st.session_state.chat_activo_id].append({"role": "assistant", "content": respuesta_ai})
                     db_global[usuario]["settings"]["Móvil"]["chats_historial"] = chats_dict
-                    reescribir_excel_usuario(usuario)
+                    
+                    # 🟢 NUEVO: Escribir SOLO en la hoja nueva de Chats, sin recargar todo
+                    cuenta_act = st.session_state.get("data_source_sel", "General")
+                    registrar_chat_excel(usuario, cuenta_act, st.session_state.chat_activo_id, mensaje_usuario, respuesta_ai)
             
-            # 🚀 st.rerun() ELIMINADO para evitar el bug del doble Enter. 
+            # 🚀 st.rerun() ELIMINADO para evitar el bug del doble Enter y ser fluido. 
             # La UI se actualizará al instante en la caja superior de forma natural.
 
 # 👇 REABRIMOS LA PESTAÑA CALENDARIO PARA ANIDAR LAS SUB-PESTAÑAS AQUÍ 👇
