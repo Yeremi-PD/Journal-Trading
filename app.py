@@ -2353,6 +2353,25 @@ with tab_calendario:
         
         # FILA 3 DE TARJETAS
         c_m7, c_m8, c_m9 = st.columns(3)
+        with c_m7: st.markdown(f"""<div class="metric-card card-rr"><div class="metric-header"><span class="title-trade-win" style="font-size: var(--size-card-titles);">Mejor Sesión</span></div><div class="rr-value" style="color: #FFFFFF; font-size: var(--size-box-vals) !important;">{mejor_sesion_str} <span style="font-size: 16px; color: #00C897;">({winrate_sesion_str} WR)</span></div></div>""", unsafe_allow_html=True)
+        with c_m8: st.markdown(f"""<div class="metric-card card-rr"><div class="metric-header"><span class="title-trade-win" style="font-size: var(--size-card-titles);">Mejor Trade</span></div><div class="rr-value" style="color: #00C897; font-size: var(--size-box-vals) !important;">+${best_trade:,.2f}</div></div>""", unsafe_allow_html=True)
+        with c_m9: st.markdown(f"""<div class="metric-card card-rr"><div class="metric-header"><span class="title-trade-win" style="font-size: var(--size-card-titles);">Peor Trade</span></div><div class="rr-value" style="color: #FF4C4C; font-size: var(--size-box-vals) !important;">${worst_trade:,.2f}</div></div>""", unsafe_allow_html=True)
+
+        st.markdown("<div style='margin-top: 20px;'></div>", unsafe_allow_html=True)
+        st.markdown(f"<h4 style='color:gray; font-size:18px;'>📈 Equity Curve (Crecimiento de Cuenta)</h4>", unsafe_allow_html=True)
+        
+        # Generar Equity Curve interactiva
+        if not df_full.empty:
+            df_equity = df_full.copy()
+            df_equity['Equity'] = bal_inicial + df_equity['pnl'].cumsum()
+            df_equity = df_equity.reset_index(drop=True)
+            df_equity.index = df_equity.index + 1 # Para que el eje X muestre "Trade 1", "Trade 2"...
+            st.area_chart(df_equity['Equity'], color="#00C897", height=250)
+        else:
+            st.info("Registra algunos trades para visualizar tu Equity Curve.")
+            
+        st.markdown("<div style='margin-top: 15px;'></div>", unsafe_allow_html=True)
+
         wl_parts_pie = []
         if wins >= 1: wl_parts_pie.append(f'<span style="color:#00C897;">{wins}W</span>')
         if losses >= 1: wl_parts_pie.append(f'<span style="color:#FF4C4C;">{losses}L</span>')
