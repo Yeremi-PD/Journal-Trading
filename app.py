@@ -2368,13 +2368,16 @@ with tab_calendario:
             df_equity.index = df_equity.index + 1 # Para que el eje X muestre "Trade 1", "Trade 2"...
             import plotly.express as px
             
+            # Asignar color dinámico: Verde si se ganó, Rojo si se perdió en ese trade
+            colores_barras = ['#00C897' if p >= 0 else '#FF4C4C' for p in df_equity['pnl']]
+            
             # Calcular el zoom automático para no empezar desde $0
             y_min = df_equity['Equity'].min()
             y_max = df_equity['Equity'].max()
             margen = (y_max - y_min) * 0.1 if y_max != y_min else 500
             
             fig = px.bar(df_equity, x=df_equity.index, y='Equity')
-            fig.update_traces(marker_color='#00C897')
+            fig.update_traces(marker_color=colores_barras)
             fig.update_layout(
                 paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font=dict(color='gray'),
                 xaxis=dict(showgrid=False, title="Número de Trade"),
