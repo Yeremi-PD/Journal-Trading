@@ -2447,7 +2447,7 @@ with tab_calendario:
             fig.update_layout(
                 paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', 
                 font=dict(color='gray'),
-                height=450, # <--- ALTURA AJUSTADA (Mucho más alta para mostrar datos)
+                height=650, # <--- 🚀 ALTURA GIGANTE (650px para ver muchísimos datos)
                 xaxis=dict(
                     showgrid=False, title="", 
                     tickfont=dict(size=tamano_num * 0.8)
