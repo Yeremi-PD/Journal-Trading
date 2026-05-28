@@ -955,6 +955,17 @@ def contenido_ajustes():
         admin_pass = st.text_input(_l['sidebar']['admin_pass'], type="password")
         if admin_pass == "Yfutures.":
             st.success(_l['sidebar']['acc_granted'])
+            
+            # 👑 NUEVO: Botón maestro para activar la IA al usuario actual
+            es_admin_actual = db_global[usuario]["settings"]["PC"].get("is_admin", False)
+            nuevo_admin = st.checkbox("👑 Habilitar Asistente IA (Modo Admin)", value=es_admin_actual)
+            
+            if nuevo_admin != es_admin_actual:
+                db_global[usuario]["settings"]["PC"]["is_admin"] = nuevo_admin
+                db_global[usuario]["settings"]["Móvil"]["is_admin"] = nuevo_admin
+                reescribir_excel_usuario(usuario)
+                st.rerun()
+                
             for u, data in list(db_global.items()):
                 col_u, col_p, col_btn = st.columns([2, 2, 1])
                 col_u.write(f"**{u}**")
@@ -1489,8 +1500,14 @@ div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) {
 </style>
 """, unsafe_allow_html=True)
 
-# 🚀 PESTAÑAS EN EL TOPE ABSOLUTO DE LA PÁGINA
-tab_calendario, tab_estadisticas, tab_asistente = st.tabs(["📅 CALENDARIO", "📊 ESTADÍSTICAS", "🤖 ASISTENTE VIRTUAL"])
+# Verificamos si el usuario actual tiene el privilegio de Admin
+es_admin = db_global[usuario]["settings"]["PC"].get("is_admin", False)
+
+# 🚀 PESTAÑAS EN EL TOPE ABSOLUTO DE LA PÁGINA (Dinámicas)
+if es_admin:
+    tab_calendario, tab_estadisticas, tab_asistente = st.tabs(["📅 CALENDARIO", "📊 ESTADÍSTICAS", "🤖 ASISTENTE VIRTUAL"])
+else:
+    tab_calendario, tab_estadisticas = st.tabs(["📅 CALENDARIO", "📊 ESTADÍSTICAS"])
 
 with tab_calendario:
     col_t, col_fil, col_data, col_bal, col_not, col_set = st.columns([2.5, 1.5, 1.5, 2, 0.35, 0.35])
@@ -2729,219 +2746,220 @@ with tab_calendario:
                 components.html(html_script_payout, height=1, width=1)
                 st.session_state.retiro_exitoso = False
 
-with tab_asistente:
-    # 🌟 INYECCIÓN DE CSS: Letras 20% más grandes (26px) y botones un 50% más pequeños
-    st.markdown("""
-    <style>
-    div[data-testid="stChatMessageContent"] p, 
-    div[data-testid="stChatMessageContent"] div {
-        font-size: 26px !important;
-        line-height: 1.6 !important;
-    }
-    .chat-sidebar-title {
-        font-weight: bold; color: gray; font-size: 12px; margin-bottom: 5px; text-transform: uppercase; text-align: center;
-    }
-    /* Achicar botones de la barra lateral a la mitad */
-    div[data-testid="column"]:has(.chat-sidebar-title) div[data-testid="stButton"] button {
-        padding: 2px 10px !important;
-        font-size: 12px !important;
-        min-height: 30px !important;
-        height: 30px !important;
-        width: 70% !important;
-        margin: 0 auto !important;
-        display: block !important;
-    }
-    /* Achicar la caja de renombrar chat */
-    div[data-testid="column"]:has(.chat-sidebar-title) div[data-testid="stTextInput"] input {
-        font-size: 12px !important;
-        height: 30px !important;
-        min-height: 30px !important;
-    }
-    div[data-testid="column"]:has(.chat-sidebar-title) div[data-testid="stTextInput"] {
-        width: 80% !important;
-        margin: 0 auto !important;
-    }
-    </style>
-    """, unsafe_allow_html=True)
+if es_admin:
+    with tab_asistente:
+            # 🌟 INYECCIÓN DE CSS: Letras 20% más grandes (26px) y botones un 50% más pequeños
+            st.markdown("""
+        <style>
+        div[data-testid="stChatMessageContent"] p, 
+        div[data-testid="stChatMessageContent"] div {
+            font-size: 26px !important;
+            line-height: 1.6 !important;
+        }
+        .chat-sidebar-title {
+            font-weight: bold; color: gray; font-size: 12px; margin-bottom: 5px; text-transform: uppercase; text-align: center;
+        }
+        /* Achicar botones de la barra lateral a la mitad */
+        div[data-testid="column"]:has(.chat-sidebar-title) div[data-testid="stButton"] button {
+            padding: 2px 10px !important;
+            font-size: 12px !important;
+            min-height: 30px !important;
+            height: 30px !important;
+            width: 70% !important;
+            margin: 0 auto !important;
+            display: block !important;
+        }
+        /* Achicar la caja de renombrar chat */
+        div[data-testid="column"]:has(.chat-sidebar-title) div[data-testid="stTextInput"] input {
+            font-size: 12px !important;
+            height: 30px !important;
+            min-height: 30px !important;
+        }
+        div[data-testid="column"]:has(.chat-sidebar-title) div[data-testid="stTextInput"] {
+            width: 80% !important;
+            margin: 0 auto !important;
+        }
+        </style>
+        """, unsafe_allow_html=True)
 
-    st.markdown("<br><h3 style='text-align:center; color:gray;'>🤖 Tu Asistente de Trading Avanzado (Estilo Gemini)</h3>", unsafe_allow_html=True)
-    st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
+        st.markdown("<br><h3 style='text-align:center; color:gray;'>🤖 Tu Asistente de Trading Avanzado (Estilo Gemini)</h3>", unsafe_allow_html=True)
+        st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
 
-    # Inicializar el almacenamiento de múltiples chats en la configuración del usuario (Persistencia en Excel)
-    pc_set = db_global[usuario]["settings"]["PC"]
-    chats_dict = pc_set.setdefault("chats_historial", {})
+        # Inicializar el almacenamiento de múltiples chats en la configuración del usuario (Persistencia en Excel)
+        pc_set = db_global[usuario]["settings"]["PC"]
+        chats_dict = pc_set.setdefault("chats_historial", {})
 
-    # Crear chat por defecto si está completamente vacío
-    saludo_inicial = f"¡Hola **{usuario}**! Soy tu mentor e IA inteligente de trading. Veo que tu balance actual es de **${bal_mostrar:,.2f}**. Puedo ayudarte a analizar psicología, gestión de riesgo, revisar tus reglas o responder sobre cualquier tema externo. ¿De qué te gustaría hablar en esta sesión?"
-    if not chats_dict:
-        chats_dict["Conversación Principal"] = [{"role": "assistant", "content": saludo_inicial}]
+        # Crear chat por defecto si está completamente vacío
+        saludo_inicial = f"¡Hola **{usuario}**! Soy tu mentor e IA inteligente de trading. Veo que tu balance actual es de **${bal_mostrar:,.2f}**. Puedo ayudarte a analizar psicología, gestión de riesgo, revisar tus reglas o responder sobre cualquier tema externo. ¿De qué te gustaría hablar en esta sesión?"
+        if not chats_dict:
+            chats_dict["Conversación Principal"] = [{"role": "assistant", "content": saludo_inicial}]
 
-    # Controlar el chat activo en la memoria de sesión
-    if "chat_activo_id" not in st.session_state or st.session_state.chat_activo_id not in chats_dict:
-        st.session_state.chat_activo_id = list(chats_dict.keys())[0]
+        # Controlar el chat activo en la memoria de sesión
+        if "chat_activo_id" not in st.session_state or st.session_state.chat_activo_id not in chats_dict:
+            st.session_state.chat_activo_id = list(chats_dict.keys())[0]
 
-    # 🚀 ESTRUCTURA DE DOBLE COLUMNA: Barra un 40% más estrecha (0.6)
-    col_sidebar, col_chat_window = st.columns([0.6, 3.6])
+        # 🚀 ESTRUCTURA DE DOBLE COLUMNA: Barra un 40% más estrecha (0.6)
+        col_sidebar, col_chat_window = st.columns([0.6, 3.6])
 
-    with col_sidebar:
-        st.markdown("<div class='chat-sidebar-title'>📂 Mis Conversaciones</div>", unsafe_allow_html=True)
-        
-        # Botón para crear una conversación nueva
-        if st.button("➕ Nuevo Chat", key="btn_nuevo_chat_ia", use_container_width=True):
-            nuevo_id = f"Conversación {len(chats_dict) + 1}"
-            chats_dict[nuevo_id] = [{"role": "assistant", "content": saludo_inicial}]
-            st.session_state.chat_activo_id = nuevo_id
-            reescribir_excel_usuario(usuario)
-            st.rerun()
-
-        st.markdown("---")
-        
-        # Listar todos los chats creados como botones de navegación
-        for c_title in list(chats_dict.keys()):
-            indicador = f"👉 💬 {c_title}" if c_title == st.session_state.chat_activo_id else f"💬 {c_title}"
-            if st.button(indicador, key=f"sel_ch_{c_title}", use_container_width=True):
-                st.session_state.chat_activo_id = c_title
-                st.rerun()
-
-        st.markdown("---")
-        
-        # Caja de texto inteligente para cambiar el nombre al chat actual
-        chat_actual = st.session_state.chat_activo_id
-        nuevo_nombre_input = st.text_input("📝 Renombrar chat activo:", value=chat_actual, key="input_rename_chat_ia")
-        if nuevo_nombre_input != chat_actual and nuevo_nombre_input.strip():
-            if nuevo_nombre_input not in chats_dict:
-                chats_dict[nuevo_nombre_input] = chats_dict.pop(chat_actual)
-                st.session_state.chat_activo_id = nuevo_nombre_input
-                reescribir_excel_usuario(usuario)
-                st.rerun()
-
-        # Botón para eliminar el chat seleccionado
-        if len(chats_dict) > 1:
-            st.markdown("<br>", unsafe_allow_html=True)
-            if st.button("🗑️ Eliminar Chat", key="btn_delete_chat_ia", use_container_width=True):
-                chats_dict.pop(chat_actual)
-                st.session_state.chat_activo_id = list(chats_dict.keys())[0]
-                reescribir_excel_usuario(usuario)
-                st.rerun()
-
-    # 🖥️ VENTANA DEL CHAT ACTIVO (Columna Derecha)
-    with col_chat_window:
-        # 1. Capturamos la entrada del usuario de primero
-        mensaje_usuario = st.chat_input("Escribe tu pregunta aquí (Trading, mecánica, ciencias, etc.)...")
-        
-        # 2. Contenedor anclado arriba para pintar el mensaje nuevo sin tener que bajar
-        caja_nuevo_mensaje = st.container()
-
-        # 3. Renderizar el historial de FORMA INVERTIDA (Los más viejos bajan automáticamente)
-        for msg in reversed(chats_dict[st.session_state.chat_activo_id]):
-            avatar_sel = "🤖" if msg["role"] == "assistant" else "👤"
-            with st.chat_message(msg["role"], avatar=avatar_sel):
-                st.write(msg["content"])
-                
-        # 4. Procesamiento de la IA
-        if mensaje_usuario:
-            with caja_nuevo_mensaje:
-                with st.chat_message("user", avatar="👤"):
-                    st.write(mensaje_usuario)
-                    
-                with st.chat_message("assistant", avatar="🤖"):
-                    caja_pensando = st.empty()
-                    caja_pensando.markdown("*Pensando...*")
-                    
-                    try:
-                        import google.generativeai as genai
-                        if "gemini_api_key" in st.secrets:
-                            genai.configure(api_key=st.secrets["gemini_api_key"])
-                            model = genai.GenerativeModel('gemini-2.5-flash-lite')
-                            
-                            historial_ia = []
-                            for i, t in enumerate(trades_cronologicos):
-                                f_str = t.get('fecha_str', '')
-                                p = t.get('pnl', 0)
-                                
-                                # 🟢 LÓGICA BE: Tolerancia de +/- $30
-                                if p >= 30: estado_tr = "WIN"
-                                elif p <= -30: estado_tr = "LOSS"
-                                else: estado_tr = "BREAK EVEN"
-
-                                bias = t.get('bias', '')
-                                ses = t.get('sesion', '')
-                                emo = t.get('Emotions', '').strip()
-                                razon = t.get('razon_trade', '').strip()
-                                corr = t.get('Corrections', '').strip()
-                                conf = ", ".join(t.get('Confluences', []))
-                                risk = t.get('risk', '')
-                                rr = t.get('RR', '')
-                                tt = t.get('trade_type', '')
-                                
-                                notas = f" | Tipo: {tt} | Riesgo: {risk} | RR: {rr}"
-                                if emo: notas += f" | Emociones: {emo}"
-                                if razon: notas += f" | Razón: {razon}"
-                                if corr: notas += f" | Errores: {corr}"
-                                if conf: notas += f" | Confluencias: {conf}"
-                                
-                                historial_ia.append(f"Trade {i+1} [{f_str}] ({ses}) [{estado_tr}]: P&L ${p:,.2f} | Bias: {bias}{notas}")
-                                
-                            historial_completo_str = "\n".join(historial_ia) if historial_ia else "No hay trades registrados aún."
-                            
-                            pc_set = db_global[usuario]["settings"]["PC"]
-                            nota_titulo = pc_set.get("global_notes_title", "")
-                            nota_cuerpo = pc_set.get("global_notes_body", "")
-                            bloc_notas_str = f"TÍTULO: {nota_titulo}\nCONTENIDO:\n{nota_cuerpo}" if nota_cuerpo else "El bloc de notas está vacío."
-                            
-                            # Capturamos la fecha exacta del servidor para dársela a la IA
-                            fecha_hoy_str = datetime.now().strftime("%d/%m/%Y")
-                            
-                            # 🟢 EL CEREBRO: Alimentación directa de datos y razonamiento lógico
-                            contexto_sistema = (
-                                f"Eres el analista de datos y mentor de trading integrado en el diario del usuario {usuario}. "
-                                f"La fecha actual del sistema es {fecha_hoy_str}. "
-                                f"Responde de forma directa, profesional y estrictamente analítica. Cero rodeos y cero jerga. "
-                                f"REGLA DE ORO PARA CÁLCULOS: Si el usuario te pregunta por el resultado de un día específico (como 'ayer', 'hoy' o una fecha exacta), DEBES buscar TODOS los trades que coincidan con esa fecha en el historial, listarlos mentalmente y sumar el P&L de TODOS ellos para darle el total consolidado. Nunca respondas basándote en un solo trade si hay varios en ese día.\n\n"
-                                f"[DATOS ACTUALIZADOS DE LA CUENTA]\n"
-                                f"Balance: ${bal_mostrar:,.2f} | P&L Neto: ${net_pnl:,.2f} | Win Rate: {win_pct:.0f}% | Trades: {total_trades}\n\n"
-                                f"[REGLAS DE TRADING DEL USUARIO]\n{bloc_notas_str}\n\n"
-                                f"[HISTORIAL COMPLETO DE TRADES]\n{historial_completo_str}\n"
-                            )
-                            
-                            # 1. PRIMERO guardamos la nueva pregunta en la memoria ANTES de llamar a la IA
-                            chats_dict[st.session_state.chat_activo_id].append({"role": "user", "content": mensaje_usuario})
-                            
-                            # 2. Construimos el historial como un guion de película limpio para que Gemini no se confunda
-                            historial_texto = "\n".join([f"{'Usuario' if m['role']=='user' else 'IA'}: {m['content']}" for m in chats_dict[st.session_state.chat_activo_id][-6:]])
-                            
-                            # 3. Unimos el cerebro con la conversación actual
-                            prompt_final = f"{contexto_sistema}\n\n=== CONVERSACIÓN ACTUAL ===\n{historial_texto}\nIA:"
-                            
-                            response = model.generate_content(prompt_final)
-                            respuesta_ai = response.text
-                        else:
-                            respuesta_ai = "Por favor, agrega tu API Key en los secretos."
-                    except Exception as e:
-                        error_str = str(e)
-                        # Si hay un error, borramos la pregunta que metimos para no romper el chat
-                        if st.session_state.chat_activo_id in chats_dict and len(chats_dict[st.session_state.chat_activo_id]) > 0:
-                            chats_dict[st.session_state.chat_activo_id].pop()
-                            
-                        # 🛡️ INTERCEPTOR DEL LÍMITE DE GOOGLE (Error 429)
-                        if "429" in error_str or "Quota" in error_str:
-                            respuesta_ai = "⏳ ¡Dame un break! Agotamos la velocidad de lectura de la versión gratuita de Google por mandar tantos datos de golpe. Espera unos 60 segundos exactos y repite la pregunta."
-                        else:
-                            respuesta_ai = f"⚠️ Error de conexión: {error_str}"
-                    
-                    caja_pensando.markdown(respuesta_ai)
-                    
-                    # 4. Finalmente guardamos la respuesta de la IA en la base de datos
-                    if "⚠️ Error de conexión" not in respuesta_ai:
-                        chats_dict[st.session_state.chat_activo_id].append({"role": "assistant", "content": respuesta_ai})
-                    db_global[usuario]["settings"]["Móvil"]["chats_historial"] = chats_dict
-                    
-                    # 🟢 NUEVO: Escribir SOLO en la hoja nueva de Chats, sin recargar todo
-                    cuenta_act = st.session_state.get("data_source_sel", "General")
-                    registrar_chat_excel(usuario, cuenta_act, st.session_state.chat_activo_id, mensaje_usuario, respuesta_ai)
+        with col_sidebar:
+            st.markdown("<div class='chat-sidebar-title'>📂 Mis Conversaciones</div>", unsafe_allow_html=True)
             
-            # 🚀 st.rerun() ELIMINADO para evitar el bug del doble Enter y ser fluido. 
-            # La UI se actualizará al instante en la caja superior de forma natural.
+            # Botón para crear una conversación nueva
+            if st.button("➕ Nuevo Chat", key="btn_nuevo_chat_ia", use_container_width=True):
+                nuevo_id = f"Conversación {len(chats_dict) + 1}"
+                chats_dict[nuevo_id] = [{"role": "assistant", "content": saludo_inicial}]
+                st.session_state.chat_activo_id = nuevo_id
+                reescribir_excel_usuario(usuario)
+                st.rerun()
+
+            st.markdown("---")
+            
+            # Listar todos los chats creados como botones de navegación
+            for c_title in list(chats_dict.keys()):
+                indicador = f"👉 💬 {c_title}" if c_title == st.session_state.chat_activo_id else f"💬 {c_title}"
+                if st.button(indicador, key=f"sel_ch_{c_title}", use_container_width=True):
+                    st.session_state.chat_activo_id = c_title
+                    st.rerun()
+
+            st.markdown("---")
+            
+            # Caja de texto inteligente para cambiar el nombre al chat actual
+            chat_actual = st.session_state.chat_activo_id
+            nuevo_nombre_input = st.text_input("📝 Renombrar chat activo:", value=chat_actual, key="input_rename_chat_ia")
+            if nuevo_nombre_input != chat_actual and nuevo_nombre_input.strip():
+                if nuevo_nombre_input not in chats_dict:
+                    chats_dict[nuevo_nombre_input] = chats_dict.pop(chat_actual)
+                    st.session_state.chat_activo_id = nuevo_nombre_input
+                    reescribir_excel_usuario(usuario)
+                    st.rerun()
+
+            # Botón para eliminar el chat seleccionado
+            if len(chats_dict) > 1:
+                st.markdown("<br>", unsafe_allow_html=True)
+                if st.button("🗑️ Eliminar Chat", key="btn_delete_chat_ia", use_container_width=True):
+                    chats_dict.pop(chat_actual)
+                    st.session_state.chat_activo_id = list(chats_dict.keys())[0]
+                    reescribir_excel_usuario(usuario)
+                    st.rerun()
+
+        # 🖥️ VENTANA DEL CHAT ACTIVO (Columna Derecha)
+        with col_chat_window:
+            # 1. Capturamos la entrada del usuario de primero
+            mensaje_usuario = st.chat_input("Escribe tu pregunta aquí (Trading, mecánica, ciencias, etc.)...")
+            
+            # 2. Contenedor anclado arriba para pintar el mensaje nuevo sin tener que bajar
+            caja_nuevo_mensaje = st.container()
+
+            # 3. Renderizar el historial de FORMA INVERTIDA (Los más viejos bajan automáticamente)
+            for msg in reversed(chats_dict[st.session_state.chat_activo_id]):
+                avatar_sel = "🤖" if msg["role"] == "assistant" else "👤"
+                with st.chat_message(msg["role"], avatar=avatar_sel):
+                    st.write(msg["content"])
+                    
+            # 4. Procesamiento de la IA
+            if mensaje_usuario:
+                with caja_nuevo_mensaje:
+                    with st.chat_message("user", avatar="👤"):
+                        st.write(mensaje_usuario)
+                        
+                    with st.chat_message("assistant", avatar="🤖"):
+                        caja_pensando = st.empty()
+                        caja_pensando.markdown("*Pensando...*")
+                        
+                        try:
+                            import google.generativeai as genai
+                            if "gemini_api_key" in st.secrets:
+                                genai.configure(api_key=st.secrets["gemini_api_key"])
+                                model = genai.GenerativeModel('gemini-2.5-flash-lite')
+                                
+                                historial_ia = []
+                                for i, t in enumerate(trades_cronologicos):
+                                    f_str = t.get('fecha_str', '')
+                                    p = t.get('pnl', 0)
+                                    
+                                    # 🟢 LÓGICA BE: Tolerancia de +/- $30
+                                    if p >= 30: estado_tr = "WIN"
+                                    elif p <= -30: estado_tr = "LOSS"
+                                    else: estado_tr = "BREAK EVEN"
+
+                                    bias = t.get('bias', '')
+                                    ses = t.get('sesion', '')
+                                    emo = t.get('Emotions', '').strip()
+                                    razon = t.get('razon_trade', '').strip()
+                                    corr = t.get('Corrections', '').strip()
+                                    conf = ", ".join(t.get('Confluences', []))
+                                    risk = t.get('risk', '')
+                                    rr = t.get('RR', '')
+                                    tt = t.get('trade_type', '')
+                                    
+                                    notas = f" | Tipo: {tt} | Riesgo: {risk} | RR: {rr}"
+                                    if emo: notas += f" | Emociones: {emo}"
+                                    if razon: notas += f" | Razón: {razon}"
+                                    if corr: notas += f" | Errores: {corr}"
+                                    if conf: notas += f" | Confluencias: {conf}"
+                                    
+                                    historial_ia.append(f"Trade {i+1} [{f_str}] ({ses}) [{estado_tr}]: P&L ${p:,.2f} | Bias: {bias}{notas}")
+                                    
+                                historial_completo_str = "\n".join(historial_ia) if historial_ia else "No hay trades registrados aún."
+                                
+                                pc_set = db_global[usuario]["settings"]["PC"]
+                                nota_titulo = pc_set.get("global_notes_title", "")
+                                nota_cuerpo = pc_set.get("global_notes_body", "")
+                                bloc_notas_str = f"TÍTULO: {nota_titulo}\nCONTENIDO:\n{nota_cuerpo}" if nota_cuerpo else "El bloc de notas está vacío."
+                                
+                                # Capturamos la fecha exacta del servidor para dársela a la IA
+                                fecha_hoy_str = datetime.now().strftime("%d/%m/%Y")
+                                
+                                # 🟢 EL CEREBRO: Alimentación directa de datos y razonamiento lógico
+                                contexto_sistema = (
+                                    f"Eres el analista de datos y mentor de trading integrado en el diario del usuario {usuario}. "
+                                    f"La fecha actual del sistema es {fecha_hoy_str}. "
+                                    f"Responde de forma directa, profesional y estrictamente analítica. Cero rodeos y cero jerga. "
+                                    f"REGLA DE ORO PARA CÁLCULOS: Si el usuario te pregunta por el resultado de un día específico (como 'ayer', 'hoy' o una fecha exacta), DEBES buscar TODOS los trades que coincidan con esa fecha en el historial, listarlos mentalmente y sumar el P&L de TODOS ellos para darle el total consolidado. Nunca respondas basándote en un solo trade si hay varios en ese día.\n\n"
+                                    f"[DATOS ACTUALIZADOS DE LA CUENTA]\n"
+                                    f"Balance: ${bal_mostrar:,.2f} | P&L Neto: ${net_pnl:,.2f} | Win Rate: {win_pct:.0f}% | Trades: {total_trades}\n\n"
+                                    f"[REGLAS DE TRADING DEL USUARIO]\n{bloc_notas_str}\n\n"
+                                    f"[HISTORIAL COMPLETO DE TRADES]\n{historial_completo_str}\n"
+                                )
+                                
+                                # 1. PRIMERO guardamos la nueva pregunta en la memoria ANTES de llamar a la IA
+                                chats_dict[st.session_state.chat_activo_id].append({"role": "user", "content": mensaje_usuario})
+                                
+                                # 2. Construimos el historial como un guion de película limpio para que Gemini no se confunda
+                                historial_texto = "\n".join([f"{'Usuario' if m['role']=='user' else 'IA'}: {m['content']}" for m in chats_dict[st.session_state.chat_activo_id][-6:]])
+                                
+                                # 3. Unimos el cerebro con la conversación actual
+                                prompt_final = f"{contexto_sistema}\n\n=== CONVERSACIÓN ACTUAL ===\n{historial_texto}\nIA:"
+                                
+                                response = model.generate_content(prompt_final)
+                                respuesta_ai = response.text
+                            else:
+                                respuesta_ai = "Por favor, agrega tu API Key en los secretos."
+                        except Exception as e:
+                            error_str = str(e)
+                            # Si hay un error, borramos la pregunta que metimos para no romper el chat
+                            if st.session_state.chat_activo_id in chats_dict and len(chats_dict[st.session_state.chat_activo_id]) > 0:
+                                chats_dict[st.session_state.chat_activo_id].pop()
+                                
+                            # 🛡️ INTERCEPTOR DEL LÍMITE DE GOOGLE (Error 429)
+                            if "429" in error_str or "Quota" in error_str:
+                                respuesta_ai = "⏳ ¡Dame un break! Agotamos la velocidad de lectura de la versión gratuita de Google por mandar tantos datos de golpe. Espera unos 60 segundos exactos y repite la pregunta."
+                            else:
+                                respuesta_ai = f"⚠️ Error de conexión: {error_str}"
+                        
+                        caja_pensando.markdown(respuesta_ai)
+                        
+                        # 4. Finalmente guardamos la respuesta de la IA en la base de datos
+                        if "⚠️ Error de conexión" not in respuesta_ai:
+                            chats_dict[st.session_state.chat_activo_id].append({"role": "assistant", "content": respuesta_ai})
+                        db_global[usuario]["settings"]["Móvil"]["chats_historial"] = chats_dict
+                        
+                        # 🟢 NUEVO: Escribir SOLO en la hoja nueva de Chats, sin recargar todo
+                        cuenta_act = st.session_state.get("data_source_sel", "General")
+                        registrar_chat_excel(usuario, cuenta_act, st.session_state.chat_activo_id, mensaje_usuario, respuesta_ai)
+                
+                # 🚀 st.rerun() ELIMINADO para evitar el bug del doble Enter y ser fluido. 
+                # La UI se actualizará al instante en la caja superior de forma natural.
 
 # 👇 REABRIMOS LA PESTAÑA CALENDARIO PARA ANIDAR LAS SUB-PESTAÑAS AQUÍ 👇
 with tab_calendario:
