@@ -952,34 +952,47 @@ def contenido_ajustes():
     st.markdown("---")
     st.markdown(f"### {_l['sidebar']['admin']}")
     with st.expander(_l['sidebar']['admin']):
-        # 1. Le agregamos un 'key' para que Streamlit no pierda la memoria al darle a Enter
         admin_pass = st.text_input(_l['sidebar']['admin_pass'], type="password", key="admin_pass_input")
         
-        # 2. Solo hacemos la verificación si la caja NO está vacía
         if admin_pass:
-            # 3. El .strip() elimina espacios accidentales al inicio o al final
             if admin_pass.strip() == "Yfutures.":
                 st.success(_l['sidebar']['acc_granted'])
                 
-                # 👑 NUEVO: Botones de acción directa 
-                es_admin_actual = db_global[usuario]["settings"]["PC"].get("is_admin", False) or db_global[usuario]["settings"]["Móvil"].get("is_admin", False)
+                # 🤖 PANEL DE CONTROL MAESTRO DE IA
+                st.markdown("### 🤖 Control de Inteligencia Artificial")
+                st.markdown("<span style='font-size:12px; color:gray;'>Activa o desactiva la IA para cada usuario de forma independiente:</span>", unsafe_allow_html=True)
                 
-                if not es_admin_actual:
-                    st.warning("🤖 La IA está oculta para esta cuenta.")
-                    if st.button("🟢 Activar Inteligencia Artificial", use_container_width=True):
-                        db_global[usuario]["settings"]["PC"]["is_admin"] = True
-                        db_global[usuario]["settings"]["Móvil"]["is_admin"] = True
-                        reescribir_excel_usuario(usuario)
-                        st.rerun()
-                else:
-                    st.success("✅ La Inteligencia Artificial está ACTIVADA.")
-                    if st.button("🔴 Desactivar IA", use_container_width=True):
-                        db_global[usuario]["settings"]["PC"]["is_admin"] = False
-                        db_global[usuario]["settings"]["Móvil"]["is_admin"] = False
-                        reescribir_excel_usuario(usuario)
-                        st.rerun()
+                # Iteramos sobre TODOS los usuarios de tu base de datos
+                for u in list(db_global.keys()):
+                    es_admin_u = db_global[u]["settings"]["PC"].get("is_admin", False) or db_global[u]["settings"]["Móvil"].get("is_admin", False)
+                    
+                    # Creamos dos columnas: una para el nombre y otra para el botón
+                    c1, c2 = st.columns([2, 1])
+                    with c1:
+                        if es_admin_u:
+                            st.markdown(f"👤 **{u}** <br> <span style='color:#00C897; font-size:12px;'>IA Activada ✅</span>", unsafe_allow_html=True)
+                        else:
+                            st.markdown(f"👤 **{u}** <br> <span style='color:#FF4C4C; font-size:12px;'>IA Oculta ❌</span>", unsafe_allow_html=True)
+                    
+                    with c2:
+                        # Le ponemos un 'key' único con el nombre del usuario para que Streamlit sepa a quién le das clic
+                        if es_admin_u:
+                            if st.button("Apagar", key=f"off_ia_{u}"):
+                                db_global[u]["settings"]["PC"]["is_admin"] = False
+                                db_global[u]["settings"]["Móvil"]["is_admin"] = False
+                                reescribir_excel_usuario(u)
+                                st.rerun()
+                        else:
+                            if st.button("Encender", key=f"on_ia_{u}", type="primary"):
+                                db_global[u]["settings"]["PC"]["is_admin"] = True
+                                db_global[u]["settings"]["Móvil"]["is_admin"] = True
+                                reescribir_excel_usuario(u)
+                                st.rerun()
+                
+                st.markdown("---")
+                
+                # 👇 (AQUÍ DEBES DEJAR TU CÓDIGO ORIGINAL DEL 'for u, data in list(db_global.items()):' SI LO TENÍAS PARA BORRAR USUARIOS O VER CLAVES) 👇
             else:
-                # 4. Ahora te avisa en rojo si escribiste mal la contraseña en lugar de ignorarte
                 st.error("⚠️ Contraseña incorrecta. Revisa mayúsculas, puntos y espacios.")
                 
             for u, data in list(db_global.items()):
