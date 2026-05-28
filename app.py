@@ -2626,110 +2626,175 @@ with tab_calendario:
                 st.session_state.retiro_exitoso = False
 
 with tab_asistente:
-    st.markdown("<br><h3 style='text-align:center; color:gray;'>🤖 Tu Asistente de Trading con IA</h3>", unsafe_allow_html=True)
+    # 🌟 INYECCIÓN DE CSS: Letras un 40% más grandes en mensajes y un diseño limpio para la barra lateral
+    st.markdown("""
+    <style>
+    div[data-testid="stChatMessageContent"] p, 
+    div[data-testid="stChatMessageContent"] div {
+        font-size: 22px !important;
+        line-height: 1.6 !important;
+    }
+    .chat-sidebar-title {
+        font-weight: bold; color: gray; font-size: 14px; margin-bottom: 10px; text-transform: uppercase;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+    st.markdown("<br><h3 style='text-align:center; color:gray;'>🤖 Tu Asistente de Trading Avanzado (Estilo Gemini)</h3>", unsafe_allow_html=True)
     st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
-    
-    # 1. Inicializar el historial de chat si no existe en la sesión
-    if "historial_gemini" not in st.session_state:
-        st.session_state.historial_gemini = [
-            {
-                "role": "assistant", 
-                "content": f"¡Hola **{usuario}**! Soy tu asistente de trading impulsado por Gemini. Veo que tu balance actual es de **${bal_mostrar:,.2f}**. Puedo ayudarte a analizar tu gestión de riesgo, darte consejos de psicología de trading o revisar tus dudas. ¿En qué te puedo colaborar hoy?"
-            }
-        ]
-    
-    # 2. Renderizar todos los mensajes guardados en el historial
-    for msg in st.session_state.historial_gemini:
-        avatar_sel = "🤖" if msg["role"] == "assistant" else "👤"
-        with st.chat_message(msg["role"], avatar=avatar_sel):
-            st.write(msg["content"])
-    
-# 3. Capturar la entrada de texto del usuario
-    if mensaje_usuario := st.chat_input("Pregúntame sobre tu gestión de riesgo, psicología o análisis de trades..."):
-        # Mostrar el mensaje del usuario inmediatamente en la pantalla
-        with st.chat_message("user", avatar="👤"):
-            st.write(mensaje_usuario)
+
+    # Inicializar el almacenamiento de múltiples chats en la configuración del usuario (Persistencia en Excel)
+    pc_set = db_global[usuario]["settings"]["PC"]
+    chats_dict = pc_set.setdefault("chats_historial", {})
+
+    # Crear chat por defecto si está completamente vacío
+    saludo_inicial = f"¡Hola **{usuario}**! Soy tu mentor e IA inteligente de trading. Veo que tu balance actual es de **${bal_mostrar:,.2f}**. Puedo ayudarte a analizar psicología, gestión de riesgo, revisar tus reglas o responder sobre cualquier tema externo. ¿De qué te gustaría hablar en esta sesión?"
+    if not chats_dict:
+        chats_dict["Conversación Principal"] = [{"role": "assistant", "content": saludo_inicial}]
+
+    # Controlar el chat activo en la memoria de sesión
+    if "chat_activo_id" not in st.session_state or st.session_state.chat_activo_id not in chats_dict:
+        st.session_state.chat_activo_id = list(chats_dict.keys())[0]
+
+    # 🚀 ESTRUCTURA DE DOBLE COLUMNA: Clonando a Gemini
+    col_sidebar, col_chat_window = st.columns([1, 3.2])
+
+    with col_sidebar:
+        st.markdown("<div class='chat-sidebar-title'>📂 Mis Conversaciones</div>", unsafe_allow_html=True)
         
-        # Guardar la pregunta en el historial de la sesión
-        st.session_state.historial_gemini.append({"role": "user", "content": mensaje_usuario})
+        # Botón para crear una conversación nueva
+        if st.button("➕ Nuevo Chat", key="btn_nuevo_chat_ia", use_container_width=True):
+            nuevo_id = f"Conversación {len(chats_dict) + 1}"
+            chats_dict[nuevo_id] = [{"role": "assistant", "content": saludo_inicial}]
+            st.session_state.chat_activo_id = nuevo_id
+            reescribir_excel_usuario(usuario)
+            st.rerun()
+
+        st.markdown("---")
         
-        # Respuesta del asistente virtual
-        with st.chat_message("assistant", avatar="🤖"):
-            caja_pensando = st.empty()
-            caja_pensando.markdown("*Pensando...*")
+        # Listar todos los chats creados como botones de navegación
+        for c_title in list(chats_dict.keys()):
+            # Marcador visual pro para saber cuál chat está abierto
+            indicador = f"👉 💬 {c_title}" if c_title == st.session_state.chat_activo_id else f"💬 {c_title}"
+            if st.button(indicador, key=f"sel_ch_{c_title}", use_container_width=True):
+                st.session_state.chat_activo_id = c_title
+                st.rerun()
+
+        st.markdown("---")
+        
+        # Caja de texto inteligente para cambiar el nombre al chat actual
+        chat_actual = st.session_state.chat_activo_id
+        nuevo_nombre_input = st.text_input("📝 Renombrar chat activo:", value=chat_actual, key="input_rename_chat_ia")
+        if nuevo_nombre_input != chat_actual and nuevo_nombre_input.strip():
+            if nuevo_nombre_input not in chats_dict:
+                chats_dict[nuevo_nombre_input] = chats_dict.pop(chat_actual)
+                st.session_state.chat_activo_id = nuevo_nombre_input
+                reescribir_excel_usuario(usuario)
+                st.rerun()
+
+        # Botón para eliminar el chat seleccionado (siempre que quede al menos uno)
+        if len(chats_dict) > 1:
+            st.markdown("<br>", unsafe_allow_html=True)
+            if st.button("🗑️ Eliminar Chat", key="btn_delete_chat_ia", use_container_width=True):
+                chats_dict.pop(chat_actual)
+                st.session_state.chat_activo_id = list(chats_dict.keys())[0]
+                reescribir_excel_usuario(usuario)
+                st.rerun()
+
+    # 🖥️ VENTANA DEL CHAT ACTIVO (Columna Derecha)
+    with col_chat_window:
+        # Renderizar cronológicamente los mensajes de la conversación activa
+        for msg in chats_dict[st.session_state.chat_activo_id]:
+            avatar_sel = "🤖" if msg["role"] == "assistant" else "👤"
+            with st.chat_message(msg["role"], avatar=avatar_sel):
+                st.write(msg["content"])
+
+        # Capturar la entrada de texto del usuario
+        if mensaje_usuario := st.chat_input("Escribe tu pregunta aquí (Rendimiento, mecánica, cultura, etc.)..."):
+            # Pintar el mensaje del usuario de forma inmediata en la UI
+            with st.chat_message("user", avatar="👤"):
+                st.write(mensaje_usuario)
             
-            try:
-                import google.generativeai as genai
-                if "gemini_api_key" in st.secrets:
-                    genai.configure(api_key=st.secrets["gemini_api_key"])
-                    model = genai.GenerativeModel('gemini-2.5-flash')
-                    
-                    # 1. RECOPILAR ABSOLUTAMENTE TODOS LOS CAMPOS DE LOS TRADES
-                    historial_ia = []
-                    for i, t in enumerate(trades_cronologicos):
-                        f_str = t.get('fecha_str', '')
-                        p = t.get('pnl', 0)
-                        bias = t.get('bias', '')
-                        ses = t.get('sesion', '')
-                        emo = t.get('Emotions', '').strip()
-                        razon = t.get('razon_trade', '').strip()
-                        corr = t.get('Corrections', '').strip()
-                        conf = ", ".join(t.get('Confluences', []))
-                        risk = t.get('risk', '')
-                        rr = t.get('RR', '')
-                        tt = t.get('trade_type', '')
-                        
-                        # Construir el string de notas con todo lo disponible
-                        notas = f" | Tipo: {tt} | Riesgo: {risk} | RR: {rr}"
-                        if emo: notas += f" | Emociones: {emo}"
-                        if razon: notas += f" | Razón: {razon}"
-                        if corr: notas += f" | Errores: {corr}"
-                        if conf: notas += f" | Confluencias: {conf}"
-                        
-                        historial_ia.append(f"Trade {i+1} [{f_str}] ({ses}): P&L ${p:,.2f} | Bias: {bias}{notas}")
-                        
-                    historial_completo_str = "\n".join(historial_ia) if historial_ia else "No hay trades registrados aún."
-                    
-                    # 2. EXTRAER TAMBIÉN EL BLOC DE NOTAS GLOBAL DEL USUARIO
-                    pc_set = db_global[usuario]["settings"]["PC"]
-                    nota_titulo = pc_set.get("global_notes_title", "")
-                    nota_cuerpo = pc_set.get("global_notes_body", "")
-                    bloc_notas_str = f"TÍTULO: {nota_titulo}\nCONTENIDO:\n{nota_cuerpo}" if nota_cuerpo else "El bloc de notas está vacío."
-                    
-                    # 3. INYECTAR EL CEREBRO FINAL
-                    contexto_sistema = (
-                        f"Eres el asistente virtual avanzado de 'Yeremi Journal Pro'. El usuario es {usuario}. "
-                        f"Actúa de forma extremadamente inteligente, empática, humana y directa. "
-                        f"Trata a {usuario} como tu amigo y protegido.\n\n"
-                        f"=== ESTADÍSTICAS GLOBALES ACTUALES ===\n"
-                        f"Balance: ${bal_mostrar:,.2f} | P&L Neto: ${net_pnl:,.2f} | Win Rate: {win_pct:.0f}% | Trades: {total_trades}\n\n"
-                        f"=== BLOC DE NOTAS GLOBAL DEL USUARIO (Sus Reglas de Trading) ===\n"
-                        f"{bloc_notas_str}\n\n"
-                        f"=== HISTORIAL DE TRADES (ACCESO TOTAL) ===\n"
-                        f"{historial_completo_str}\n\n"
-                        f"INSTRUCCIONES CRÍTICAS:\n"
-                        f"1. Tienes acceso total al diario y reglas del usuario. Si pregunta por su rendimiento, analiza patrones cruzando emociones, errores, sesiones, riesgos y tipos de trade.\n"
-                        f"2. Da respuestas súper personalizadas demostrando que lees sus datos.\n"
-                        f"3. Eres un genio universal: TIENES PERMITIDO Y DEBES responder sobre CUALQUIER TEMA sin limitarte al trading.\n"
-                        f"4. Mantén tus respuestas fluidas, amigables y en español."
-                    )
-                    
-                    # 4. MEMORIA A CORTO PLAZO
-                    mensajes_api = [{"role": "user" if m["role"] == "user" else "model", "parts": [m["content"]]} for m in st.session_state.historial_gemini[-4:]]
-                    
-                    # Llamada a la IA
-                    response = model.generate_content([contexto_sistema] + [str(m) for m in mensajes_api])
-                    respuesta_ai = response.text
-                else:
-                    respuesta_ai = "Falta tu API Key en los secretos."
-            except Exception as e:
-                respuesta_ai = f"Error técnico de IA: {str(e)}"
+            # Guardar la pregunta en el historial del chat activo
+            chats_dict[st.session_state.chat_activo_id].append({"role": "user", "content": mensaje_usuario})
             
-            # Reemplazar el "Pensando..." INMEDIATAMENTE
-            caja_pensando.markdown(respuesta_ai)
-            st.session_state.historial_gemini.append({"role": "assistant", "content": respuesta_ai})
-            
-        # 🚀 st.rerun() ELIMINADO: La respuesta ahora es instantánea y sin doble parpadeo
+            # Espacio reservado para la respuesta de la IA
+            with st.chat_message("assistant", avatar="🤖"):
+                caja_pensando = st.empty()
+                caja_pensando.markdown("*Pensando...*")
+                
+                try:
+                    import google.generativeai as genai
+                    if "gemini_api_key" in st.secrets:
+                        genai.configure(api_key=st.secrets["gemini_api_key"])
+                        model = genai.GenerativeModel('gemini-2.5-flash') # Modelo oficial exigido por Google
+                        
+                        # 1. RECOPILAR ABSOLUTAMENTE TODOS LOS CAMPOS DE LOS TRADES (Acceso Omnisciente)
+                        historial_ia = []
+                        for i, t in enumerate(trades_cronologicos):
+                            f_str = t.get('fecha_str', '')
+                            p = t.get('pnl', 0)
+                            bias = t.get('bias', '')
+                            ses = t.get('sesion', '')
+                            emo = t.get('Emotions', '').strip()
+                            razon = t.get('razon_trade', '').strip()
+                            corr = t.get('Corrections', '').strip()
+                            conf = ", ".join(t.get('Confluences', []))
+                            risk = t.get('risk', '')
+                            rr = t.get('RR', '')
+                            tt = t.get('trade_type', '')
+                            
+                            notas = f" | Tipo: {tt} | Riesgo: {risk} | RR: {rr}"
+                            if emo: notas += f" | Emociones: {emo}"
+                            if razon: notas += f" | Razón: {razon}"
+                            if corr: notas += f" | Errores: {corr}"
+                            if conf: notas += f" | Confluencias: {conf}"
+                            
+                            historial_ia.append(f"Trade {i+1} [{f_str}] ({ses}): P&L ${p:,.2f} | Bias: {bias}{notas}")
+                            
+                        historial_completo_str = "\n".join(historial_ia) if historial_ia else "No hay trades registrados aún."
+                        
+                        # 2. CAPTURAR EL CONTENIDO COMPLETO DEL BLOC DE NOTAS GLOBAL
+                        nota_titulo = pc_set.get("global_notes_title", "")
+                        nota_cuerpo = pc_set.get("global_notes_body", "")
+                        bloc_notas_str = f"TÍTULO: {nota_titulo}\nCONTENIDO:\n{nota_cuerpo}" if nota_cuerpo else "El bloc de notas está vacío."
+                        
+                        # 3. CONSTRUCCIÓN DEL CONTEXTO MAESTRO (Humano, empático y libre de temas)
+                        contexto_sistema = (
+                            f"Eres el asistente virtual avanzado de 'Yeremi Journal Pro'. El usuario es {usuario}. "
+                            f"Actúa de forma extremadamente inteligente, empática, humana y directa. "
+                            f"Trata a {usuario} como tu amigo cercano y protegido.\n\n"
+                            f"=== ESTADÍSTICAS GLOBALES ACTUALES ===\n"
+                            f"Balance: ${bal_mostrar:,.2f} | P&L Neto: ${net_pnl:,.2f} | Win Rate: {win_pct:.0f}% | Trades Totales: {total_trades}\n\n"
+                            f"=== BLOC DE NOTAS GLOBAL DEL USUARIO (Sus Reglas de Trading) ===\n"
+                            f"{bloc_notas_str}\n\n"
+                            f"=== HISTORIAL DE TRADES (ACCESO COMPLETO) ===\n"
+                            f"{historial_completo_str}\n\n"
+                            f"INSTRUCCIONES CRÍTICAS:\n"
+                            f"1. Tienes acceso total al diario y reglas de {usuario}. Si pregunta por su rendimiento, analiza patrones cruzando sus estados emocionales, tipos de trade, sesiones y errores guardados.\n"
+                            f"2. Da respuestas personalizadas demostrando que de verdad lees la data detallada.\n"
+                            f"3. Eres un genio universal: TIENES PERMITIDO Y DEBES responder sobre CUALQUIER TEMA del universo (mecánica de carros, programación, ciencia, cocina, etc.) sin limitarte jamás al trading.\n"
+                            f"4. Mantén tus respuestas fluidas, conversacionales y en español."
+                        )
+                        
+                        # 4. MEMORIA HISTÓRICA A CORTO PLAZO DEL CHAT SELECCIONADO
+                        mensajes_api = [{"role": "user" if m["role"] == "user" else "model", "parts": [m["content"]]} for m in chats_dict[st.session_state.chat_activo_id][-4:]]
+                        
+                        # Consultar cerebro de Google
+                        response = model.generate_content([contexto_sistema] + [str(m) for m in mensajes_api])
+                        respuesta_ai = response.text
+                    else:
+                        respuesta_ai = "Por favor, agrega tu API Key en los secretos de la app web (`gemini_api_key`)."
+                except Exception as e:
+                    respuesta_ai = f"Error de conexión con los servidores de IA: {str(e)}"
+                
+                # Desplegar la respuesta de forma inmediata quitando el "Pensando..."
+                caja_pensando.markdown(respuesta_ai)
+                
+                # Almacenar la respuesta en la lista del chat activo y Sincronizar de inmediato con Excel
+                chats_dict[st.session_state.chat_activo_id].append({"role": "assistant", "content": respuesta_ai})
+                db_global[usuario]["settings"]["Móvil"]["chats_historial"] = chats_dict # Sincronizar espejo móvil
+                reescribir_excel_usuario(usuario)
 
 # 👇 REABRIMOS LA PESTAÑA CALENDARIO PARA ANIDAR LAS SUB-PESTAÑAS AQUÍ 👇
 with tab_calendario:
