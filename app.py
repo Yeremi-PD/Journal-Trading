@@ -2397,16 +2397,27 @@ with tab_calendario:
         with c_m14: st.markdown(f"""<div class="metric-card card-rr"><div class="metric-header"><span class="title-trade-win" style="font-size: var(--size-card-titles);">Profit Prom. Diario</span></div><div class="rr-value" style="color: {c_prof_dia}; font-size: var(--size-box-vals) !important;">{simb_prof_dia}${profit_diario_avg:,.2f}</div></div>""", unsafe_allow_html=True)
 
         st.markdown("<div style='margin-top: 20px;'></div>", unsafe_allow_html=True)
+
+        # === 1. TARJETA GLOBAL DE PORCENTAJE DE VICTORIAS (AHORA ARRIBA) ===
+        wl_parts_pie = []
+        if wins >= 1: wl_parts_pie.append(f'<span style="color:#00C897;">{wins}W</span>')
+        if losses >= 1: wl_parts_pie.append(f'<span style="color:#FF4C4C;">{losses}L</span>')
+        if ties >= 1: wl_parts_pie.append(f'<span style="color:gray;">{ties}BE</span>')
+        wl_text_pie = ' <span style="color:gray;">/</span> '.join(wl_parts_pie) if total_validos > 0 else '<span style="color:gray;">0W / 0L / 0BE</span>'
+        bar_html = get_bar_svg(wins, losses, ties)
+        st.markdown(f"""<div class="metric-card card-win"><div style="display:flex; justify-content:space-between; align-items:flex-start;"><div><div class="metric-header"><span class="title-trade-win">{titulo_win}</span></div><div class="win-value" style="color: {c_win_card};">{win_pct:.2f}%</div></div></div><div style="display:flex; flex-direction:row; align-items:center; justify-content:center; gap:20px; margin-top:0px; padding:0px;"><div style="width: var(--pie-size); height: var(--pie-size); transform: translateY(var(--pie-y-offset)); flex-shrink: 0; display:flex; margin: -15px 0;">{bar_html}</div><div style="font-size: calc(var(--size-box-wl) * 1.5); font-weight: 800; text-align:center; white-space:nowrap; transform: translateY(var(--pie-y-offset));">{wl_text_pie}</div></div></div>""", unsafe_allow_html=True)
+
+        st.markdown("<div style='margin-top: 25px;'></div>", unsafe_allow_html=True)
         st.markdown(f"<h4 style='color:gray; font-size:18px;'>📈 Equity Curve (Crecimiento de Cuenta)</h4>", unsafe_allow_html=True)
         
-        # Generar Equity Curve interactiva
+        # === 2. GENERAR EQUITY CURVE INTERACTIVA (AHORA ABAJO Y MÁS ALTA) ===
         if not df_full.empty:
             df_equity = df_full.copy()
             # Asegurar que tenemos las fechas en formato correcto
             if 'fecha_dt' not in df_equity.columns:
                 df_equity['fecha_dt'] = pd.to_datetime(df_equity['fecha_str'], format='%d/%m/%Y', errors='coerce')
                 
-            # Agrupar el PnL por día para tener una sola barra por fecha (evita el sube y baja de múltiples trades en el mismo día)
+            # Agrupar el PnL por día para tener una sola barra por fecha
             df_grouped = df_equity.groupby('fecha_dt')['pnl'].sum().reset_index()
             df_grouped = df_grouped.sort_values('fecha_dt')
             
@@ -2418,15 +2429,12 @@ with tab_calendario:
             
             import plotly.express as px
             
-            # Asignar color dinámico: Verde si el DÍA fue positivo, Rojo si el DÍA fue negativo
             colores_barras = ['#00C897' if p >= 0 else '#FF4C4C' for p in df_grouped['pnl']]
             
-            # Calcular el zoom automático para no empezar desde $0
             y_min = df_grouped['Equity'].min()
             y_max = df_grouped['Equity'].max()
-            margen = (y_max - y_min) * 0.15 if y_max != y_min else 500 # Aumentamos un poco el margen para que quepan los números arriba
+            margen = (y_max - y_min) * 0.15 if y_max != y_min else 500
             
-            # Tomamos el tamaño exacto que tienes configurado en los cuadritos (Settings)
             tamano_num = user_settings.get("size_box_vals", 25)
             
             fig = px.bar(df_grouped, x='fecha_format', y='Equity', text='Equity')
@@ -2434,35 +2442,26 @@ with tab_calendario:
                 marker_color=colores_barras,
                 texttemplate='<b>%{text:$,.2f}</b>',
                 textposition='outside',
-                textfont=dict(color=colores_barras, size=tamano_num) # <-- Números flotantes (100% del tamaño)
+                textfont=dict(color=colores_barras, size=tamano_num)
             )
             fig.update_layout(
                 paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', 
                 font=dict(color='gray'),
+                height=450, # <--- ALTURA AJUSTADA (Mucho más alta para mostrar datos)
                 xaxis=dict(
                     showgrid=False, title="", 
-                    tickfont=dict(size=tamano_num * 0.8) # <-- Fechas de abajo (80% del tamaño)
+                    tickfont=dict(size=tamano_num * 0.8)
                 ),
                 yaxis=dict(
                     showgrid=True, gridcolor='#4A5568', gridwidth=1, title="", 
                     tickformat="$,.2f", range=[y_min - margen, y_max + margen], 
-                    tickfont=dict(size=tamano_num * 0.8) # <-- Números laterales (80% del tamaño)
+                    tickfont=dict(size=tamano_num * 0.8)
                 ),
                 margin=dict(l=10, r=10, t=tamano_num + 15, b=10), hovermode="x unified"
             )
             st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
         else:
             st.info("Registra algunos trades para visualizar tu Equity Curve.")
-            
-        st.markdown("<div style='margin-top: 15px;'></div>", unsafe_allow_html=True)
-
-        wl_parts_pie = []
-        if wins >= 1: wl_parts_pie.append(f'<span style="color:#00C897;">{wins}W</span>')
-        if losses >= 1: wl_parts_pie.append(f'<span style="color:#FF4C4C;">{losses}L</span>')
-        if ties >= 1: wl_parts_pie.append(f'<span style="color:gray;">{ties}BE</span>')
-        wl_text_pie = ' <span style="color:gray;">/</span> '.join(wl_parts_pie) if total_validos > 0 else '<span style="color:gray;">0W / 0L / 0BE</span>'
-        bar_html = get_bar_svg(wins, losses, ties)
-        st.markdown(f"""<div class="metric-card card-win"><div style="display:flex; justify-content:space-between; align-items:flex-start;"><div><div class="metric-header"><span class="title-trade-win">{titulo_win}</span></div><div class="win-value" style="color: {c_win_card};">{win_pct:.2f}%</div></div></div><div style="display:flex; flex-direction:row; align-items:center; justify-content:center; gap:20px; margin-top:0px; padding:0px;"><div style="width: var(--pie-size); height: var(--pie-size); transform: translateY(var(--pie-y-offset)); flex-shrink: 0; display:flex; margin: -15px 0;">{bar_html}</div><div style="font-size: calc(var(--size-box-wl) * 1.5); font-weight: 800; text-align:center; white-space:nowrap; transform: translateY(var(--pie-y-offset));">{wl_text_pie}</div></div></div>""", unsafe_allow_html=True)
         
         def get_col_simb(valor):
             if valor > 0: return "txt-green", "+"
