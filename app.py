@@ -2215,10 +2215,10 @@ with tab_calendario:
                                 trades_visibles.append(t)
                             if trades_visibles:
                                 pnl_dia = sum(t["pnl"] for t in trades_visibles)
-                                if pnl_dia >= 30:
+                                if pnl_dia >= 75:
                                     c_cls = "cell-win"
                                     c_sim = "+"
-                                elif pnl_dia <= -30:
+                                elif pnl_dia <= -75:
                                     c_cls = "cell-loss"
                                     c_sim = ""
                                 else:
