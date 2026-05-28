@@ -2666,14 +2666,46 @@ with tab_asistente:
                 if "gemini_api_key" in st.secrets:
                     genai.configure(api_key=st.secrets["gemini_api_key"])
                     
-                    model = genai.GenerativeModel('gemini-2.5-flash') # Modelo actualizado de Google
+                    model = genai.GenerativeModel('gemini-2.5-flash') # Modelo actualizado de Google 
                     
-                    # Le inyectamos contexto inicial (System Prompt) para que Gemini sepa quién es el usuario y su balance
+                    # 1. RECOPILAR ABSOLUTAMENTE TODO EL HISTORIAL DE TRADES
+                    historial_ia = []
+                    for i, t in enumerate(trades_cronologicos):
+                        f_str = t.get('fecha_str', '')
+                        p = t.get('pnl', 0)
+                        bias = t.get('bias', '')
+                        ses = t.get('sesion', '')
+                        emo = t.get('Emotions', '').strip()
+                        razon = t.get('razon_trade', '').strip()
+                        corr = t.get('Corrections', '').strip()
+                        conf = ", ".join(t.get('Confluences', []))
+                        
+                        # Solo agregamos las notas si escribiste algo (para ahorrar memoria de la IA)
+                        notas = f" | Emociones: {emo}" if emo else ""
+                        notas += f" | Razón: {razon}" if razon else ""
+                        notas += f" | Correcciones/Errores: {corr}" if corr else ""
+                        notas += f" | Confluencias: {conf}" if conf else ""
+                        
+                        historial_ia.append(f"Trade {i+1} [{f_str}] ({ses}): P&L ${p:,.2f} | Bias: {bias}{notas}")
+                        
+                    historial_completo_str = "\n".join(historial_ia)
+                    if not historial_completo_str: historial_completo_str = "No hay trades registrados aún."
+                    
+                    # 2. INYECTAR EL "CEREBRO" CON TODA LA BASE DE DATOS Y NUEVAS REGLAS
                     contexto_sistema = (
-                        f"Eres un asistente virtual experto en trading, psicología de mercados y gestión de riesgo. "
-                        f"Estás integrado dentro de la aplicación 'Yeremi Journal Pro'. El usuario actual se llama {usuario} "
-                        f"y su balance actual en la cuenta seleccionada es de ${bal_mostrar:,.2f}. Responde de manera profesional, "
-                        f"motivadora, clara y concisa en español."
+                        f"Eres el asistente virtual avanzado, mentor y psicólogo de trading de la app 'Yeremi Journal Pro'. "
+                        f"El usuario con el que hablas es {usuario}. Eres una Inteligencia Artificial, pero actúa de manera extremadamente inteligente, empática, muy humana y directa. "
+                        f"Trata a {usuario} como tu amigo y protegido.\n\n"
+                        f"=== ESTADÍSTICAS GLOBALES ACTUALES ===\n"
+                        f"Balance: ${bal_mostrar:,.2f} | P&L Neto: ${net_pnl:,.2f} | Win Rate: {win_pct:.0f}% | Trades: {total_trades}\n\n"
+                        f"=== HISTORIAL DETALLADO DE TODOS LOS TRADES ===\n"
+                        f"{historial_completo_str}\n\n"
+                        f"INSTRUCCIONES CRÍTICAS PARA TI:\n"
+                        f"1. Tienes acceso al diario íntimo de {usuario}. Si te pregunta '¿cómo me fue esta semana?' o '¿por qué crees que estoy perdiendo?', "
+                        f"ANALIZA el historial de arriba. Busca patrones ocultos entre líneas (Ejemplo: 'Noté que en los últimos 5 trades perdedores escribiste que estabas ansioso' o 'Te va mejor en la sesión de Asia').\n"
+                        f"2. Da respuestas súper personalizadas, mencionando datos exactos de sus trades para que sepa que lo estás leyendo.\n"
+                        f"3. Eres un genio universal: TIENES PERMITIDO Y DEBES responder sobre CUALQUIER TEMA (arreglar carros, física cuántica, historia, recetas, programación, etc.) sin limitarte jamás al trading. Si te pregunta algo fuera de trading, respóndelo con la misma naturalidad.\n"
+                        f"4. Mantén tus respuestas conversacionales, legibles y en español."
                     )
                     
                     # Formateamos los últimos mensajes para darle memoria a corto plazo a la API
