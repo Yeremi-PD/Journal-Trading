@@ -2442,13 +2442,13 @@ with tab_calendario:
         best_trade = float(df_stats['pnl'].max()) if total_trades > 0 else 0.0
         worst_trade = float(df_stats['pnl'].min()) if total_trades > 0 else 0.0
         
-        # 3. Racha (Streaks) (Excluyendo BE)
+        # 3. Racha (Streaks) (Excluyendo BE de +/- $75)
         curr_w = max_w = curr_l = max_l = 0
         for p in df_stats['pnl']:
-            if p >= 30:
+            if p >= 75:
                 curr_w += 1; curr_l = 0
                 max_w = max(max_w, curr_w)
-            elif p <= -30:
+            elif p <= -75:
                 curr_l += 1; curr_w = 0
                 max_l = max(max_l, curr_l)
             else:
@@ -2471,9 +2471,9 @@ with tab_calendario:
                     mejor_sesion_str = str(mejor_sesion)
                     df_ses = df_full[df_full['sesion'] == mejor_sesion]
                     # Limpiamos los BE antes de sacar el Win Rate de la sesión
-                    df_ses_validos = df_ses[(df_ses['pnl'] >= 30) | (df_ses['pnl'] <= -30)]
+                    df_ses_validos = df_ses[(df_ses['pnl'] >= 75) | (df_ses['pnl'] <= -75)]
                     if len(df_ses_validos) > 0:
-                        w_ses = len(df_ses_validos[df_ses_validos['pnl'] >= 30])
+                        w_ses = len(df_ses_validos[df_ses_validos['pnl'] >= 75])
                         winrate_sesion_str = f"{(w_ses/len(df_ses_validos)*100):.0f}%"
             
             if 'fecha_str' in df_full.columns:
@@ -2500,9 +2500,9 @@ with tab_calendario:
                 for s in ['New York', 'Asia']:
                     df_s = df_full[df_full['sesion'] == s]
                     # Limpiamos los BE antes de calcular
-                    df_s_validos = df_s[(df_s['pnl'] >= 30) | (df_s['pnl'] <= -30)]
+                    df_s_validos = df_s[(df_s['pnl'] >= 75) | (df_s['pnl'] <= -75)]
                     if len(df_s_validos) > 0:
-                        wr = (len(df_s_validos[df_s_validos['pnl'] >= 30]) / len(df_s_validos)) * 100
+                        wr = (len(df_s_validos[df_s_validos['pnl'] >= 75]) / len(df_s_validos)) * 100
                         wr_str = f"{wr:.0f}%"
                         color = "#00C897" if wr >= 50 else "#FF4C4C"
                         
@@ -2904,8 +2904,8 @@ if es_admin:
                             for i, t in enumerate(ultimos_100):
                                 f_str = t.get('fecha_str', '')
                                 p = t.get('pnl', 0)
-                                if p >= 30: estado_tr = "W"
-                                elif p <= -30: estado_tr = "L"
+                                if p >= 75: estado_tr = "W"
+                                elif p <= -75: estado_tr = "L"
                                 else: estado_tr = "BE"
                                 ses = t.get('sesion', '')
                                 
