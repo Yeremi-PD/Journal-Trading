@@ -2379,25 +2379,30 @@ with tab_calendario:
         # ==============================================================
         df_full = pd.DataFrame(trades_para_rr) if trades_para_rr else pd.DataFrame()
         
-        # 1. Cálculos de Profit Factor y Averages
+        # 1. Cálculos de Profit Factor y Averages (Corregido)
+        # El dinero de los BE se queda en el PnL neto total (net_pnl), pero no distorsiona los promedios ni rachas.
         gross_profit = float(df_stats[df_stats['pnl'] > 0]['pnl'].sum()) if total_trades > 0 else 0.0
         gross_loss = abs(float(df_stats[df_stats['pnl'] < 0]['pnl'].sum())) if total_trades > 0 else 0.0
         profit_factor = (gross_profit / gross_loss) if gross_loss > 0 else (gross_profit if gross_profit > 0 else 0.0)
         
-        avg_win = (gross_profit / wins) if wins > 0 else 0.0
-        avg_loss = (gross_loss / losses) if losses > 0 else 0.0
+        # Promedios estrictos (Solo sumando los trades que superan el umbral de BE)
+        real_win_sum = float(df_stats[df_stats['pnl'] >= 30]['pnl'].sum()) if total_trades > 0 else 0.0
+        real_loss_sum = abs(float(df_stats[df_stats['pnl'] <= -30]['pnl'].sum())) if total_trades > 0 else 0.0
+        
+        avg_win = (real_win_sum / wins) if wins > 0 else 0.0
+        avg_loss = (real_loss_sum / losses) if losses > 0 else 0.0
         
         # 2. Mejor / Peor Trade
         best_trade = float(df_stats['pnl'].max()) if total_trades > 0 else 0.0
         worst_trade = float(df_stats['pnl'].min()) if total_trades > 0 else 0.0
         
-        # 3. Racha (Streaks)
+        # 3. Racha (Streaks) (Excluyendo BE)
         curr_w = max_w = curr_l = max_l = 0
         for p in df_stats['pnl']:
-            if p > 0:
+            if p >= 30:
                 curr_w += 1; curr_l = 0
                 max_w = max(max_w, curr_w)
-            elif p < 0:
+            elif p <= -30:
                 curr_l += 1; curr_w = 0
                 max_l = max(max_l, curr_l)
             else:
@@ -2419,9 +2424,11 @@ with tab_calendario:
                         mejor_sesion = sesion_pnl.drop('NONE').idxmax()
                     mejor_sesion_str = str(mejor_sesion)
                     df_ses = df_full[df_full['sesion'] == mejor_sesion]
-                    if len(df_ses) > 0:
-                        w_ses = len(df_ses[df_ses['pnl'] > 0])
-                        winrate_sesion_str = f"{(w_ses/len(df_ses)*100):.0f}%"
+                    # Limpiamos los BE antes de sacar el Win Rate de la sesión
+                    df_ses_validos = df_ses[(df_ses['pnl'] >= 30) | (df_ses['pnl'] <= -30)]
+                    if len(df_ses_validos) > 0:
+                        w_ses = len(df_ses_validos[df_ses_validos['pnl'] >= 30])
+                        winrate_sesion_str = f"{(w_ses/len(df_ses_validos)*100):.0f}%"
             
             if 'fecha_str' in df_full.columns:
                 df_full['fecha_dt'] = pd.to_datetime(df_full['fecha_str'], format='%d/%m/%Y', errors='coerce')
@@ -2440,14 +2447,16 @@ with tab_calendario:
         
         # === CÁLCULO DE WIN RATES DE SESIONES Y PROFIT DIARIO ===
         wr_ny_str, wr_as_str = "N/A", "N/A"
-        c_ny, c_as = "gray", "gray" # Colores por defecto si no hay datos
+        c_ny, c_as = "gray", "gray" 
         
         if not df_full.empty:
             if 'sesion' in df_full.columns:
                 for s in ['New York', 'Asia']:
                     df_s = df_full[df_full['sesion'] == s]
-                    if len(df_s) > 0:
-                        wr = (len(df_s[df_s['pnl'] > 0]) / len(df_s)) * 100
+                    # Limpiamos los BE antes de calcular
+                    df_s_validos = df_s[(df_s['pnl'] >= 30) | (df_s['pnl'] <= -30)]
+                    if len(df_s_validos) > 0:
+                        wr = (len(df_s_validos[df_s_validos['pnl'] >= 30]) / len(df_s_validos)) * 100
                         wr_str = f"{wr:.0f}%"
                         color = "#00C897" if wr >= 50 else "#FF4C4C"
                         
