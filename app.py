@@ -3362,13 +3362,17 @@ doc.addEventListener('wheel', function(e) {
     if (currentScale === 1) { 
         translateX = 0; translateY = 0; 
     } else {
-        // Fórmula geométrica: Mueve la imagen mientras hace zoom para que el centro sea tu cursor
+        // Nueva fórmula geométrica precisa: Lee la posición exacta de la imagen en pantalla
         const scaleRatio = currentScale / prevScale;
-        const vCenterX = window.innerWidth / 2;
-        const vCenterY = window.innerHeight / 2;
-
-        translateX -= (e.clientX - vCenterX - translateX) * (scaleRatio - 1);
-        translateY -= (e.clientY - vCenterY - translateY) * (scaleRatio - 1);
+        const rect = img.getBoundingClientRect();
+        
+        // Calculamos el centro real de la foto
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+        
+        // Empujamos la imagen exactamente en dirección al ratón
+        translateX -= (e.clientX - centerX) * (scaleRatio - 1);
+        translateY -= (e.clientY - centerY) * (scaleRatio - 1);
     }
 
     img.style.transition = 'transform 0.1s ease-out';
