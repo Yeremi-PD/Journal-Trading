@@ -1358,14 +1358,14 @@ gap: 25px !important; border-bottom: none !important; overflow: visible !importa
     .modal-controls {{ position: fixed !important; top: 35px !important; right: 25px !important; display: flex !important; gap: 10px !important; z-index: 10000000 !important; align-items: center !important; }}
     
 /* Anulamos la posición manual para que el contenedor Flexbox los ordene solitos */
-    .modal-controls .close-btn { position: relative !important; top: auto !important; right: auto !important; margin: 0 !important; }
+    .modal-controls .close-btn {{ position: relative !important; top: auto !important; right: auto !important; margin: 0 !important; }}
     
     /* Preparamos las imágenes para zoom nativo y bloqueamos el scroll nativo de la pantalla en móviles */
-    .fs-modal img { 
+    .fs-modal img {{ 
         transition: transform 0.1s ease-out !important; 
         touch-action: none !important; 
         will-change: transform !important;
-    }
+    }}
     /* NUEVO: Estilos para la galeria de imagenes */
     .gallery-nav {{ display: flex !important; align-items: center !important; gap: 10px !important; color: white !important; font-weight: bold !important; font-size: 16px !important; margin-right: 15px !important; }}
     .prev-img-btn, .next-img-btn {{ background: #4A5568 !important; padding: 8px 15px !important; border-radius: 8px !important; cursor: pointer !important; user-select: none !important; }}
