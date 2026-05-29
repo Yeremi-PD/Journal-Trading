@@ -3349,7 +3349,7 @@ doc.addEventListener('click', function(e) {
     }
 }, true);
 
-// --- ZOOM CON RUEDA DEL RATON (PC) ---
+// --- ZOOM CON RUEDA DEL RATON DIRECTO AL PUNTERO (PC) ---
 doc.addEventListener('wheel', function(e) {
     const modal = e.target.closest('.fs-modal');
     if (!modal) return;
@@ -3357,15 +3357,27 @@ doc.addEventListener('wheel', function(e) {
     if (!img) return;
 
     e.preventDefault();
+    const prevScale = currentScale;
     const zoomSpeed = 0.15;
     if (e.deltaY < 0) currentScale += zoomSpeed;
     else currentScale -= zoomSpeed;
 
-    currentScale = Math.max(0.5, Math.min(currentScale, 6)); // Límite de 0.5x a 6x de zoom
+    currentScale = Math.max(0.5, Math.min(currentScale, 6)); // Límite de zoom
+    
+    // MATEMÁTICA: Mover la imagen para que el zoom siga el cursor
+    const scaleRatio = currentScale / prevScale;
+    const vCenterX = window.innerWidth / 2;
+    const vCenterY = window.innerHeight / 2;
+
+    translateX = e.clientX - vCenterX - (e.clientX - vCenterX - translateX) * scaleRatio;
+    translateY = e.clientY - vCenterY - (e.clientY - vCenterY - translateY) * scaleRatio;
+
     img.style.transform = `translate(${translateX}px, ${translateY}px) scale(${currentScale})`;
 }, {passive: false});
 
-// --- ZOOM DE DOS DEDOS Y ARRASTRE (MOVIL) ---
+let pinchCenterX, pinchCenterY;
+
+// --- ZOOM DE DOS DEDOS AL CENTRO DEL PELLIZCO (MOVIL) ---
 doc.addEventListener('touchstart', function(e) {
     const modal = e.target.closest('.fs-modal');
     if (!modal) return;
@@ -3373,12 +3385,13 @@ doc.addEventListener('touchstart', function(e) {
     if (!img) return;
 
     if (e.touches.length === 2) {
-        // Modo Pinch (Zoom con dos dedos)
         e.preventDefault();
         startDist = Math.hypot(e.touches[0].pageX - e.touches[1].pageX, e.touches[0].pageY - e.touches[1].pageY);
         initialScale = currentScale;
+        // Guardar el centro exacto donde pusiste los dos dedos
+        pinchCenterX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+        pinchCenterY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
     } else if (e.touches.length === 1 && currentScale > 1) {
-        // Modo Arrastre (Si ya hiciste zoom, puedes mover la imagen con un dedo)
         isDragging = true;
         startX = e.touches[0].pageX - translateX;
         startY = e.touches[0].pageY - translateY;
@@ -3394,10 +3407,32 @@ doc.addEventListener('touchmove', function(e) {
     if (e.touches.length === 2) {
         e.preventDefault();
         const currentDist = Math.hypot(e.touches[0].pageX - e.touches[1].pageX, e.touches[0].pageY - e.touches[1].pageY);
+        const prevScale = currentScale;
+        
         currentScale = initialScale * (currentDist / startDist);
         currentScale = Math.max(0.5, Math.min(currentScale, 6));
+
+        // MATEMÁTICA: Mantener el zoom en los dedos y permitir paneo
+        const scaleRatio = currentScale / prevScale;
+        const vCenterX = window.innerWidth / 2;
+        const vCenterY = window.innerHeight / 2;
+
+        const currentPinchX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+        const currentPinchY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+
+        // 1. Aplica el zoom en el punto del pellizco
+        translateX = currentPinchX - vCenterX - (currentPinchX - vCenterX - translateX) * scaleRatio;
+        translateY = currentPinchY - vCenterY - (currentPinchY - vCenterY - translateY) * scaleRatio;
+        
+        // 2. Permite moverse fluidamente mientras haces el pellizco
+        translateX += (currentPinchX - pinchCenterX);
+        translateY += (currentPinchY - pinchCenterY);
+        
+        pinchCenterX = currentPinchX;
+        pinchCenterY = currentPinchY;
+
         img.style.transform = `translate(${translateX}px, ${translateY}px) scale(${currentScale})`;
-        img.style.transition = 'none'; // Desactiva la animación para que el zoom sea fluido en tiempo real
+        img.style.transition = 'none';
     } else if (e.touches.length === 1 && isDragging) {
         e.preventDefault();
         translateX = e.touches[0].pageX - startX;
