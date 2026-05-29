@@ -3286,16 +3286,17 @@ bloquearTeclado();
 const observer = new MutationObserver(bloquearTeclado);
 observer.observe(doc.body, { childList: true, subtree: true });
 
-// 3. ZOOM CENTRAL Y ARRASTRE LIBRE (Pan & Zoom Perfecto)
+// 3. ZOOM CENTRAL Y ARRASTRE (ESTABLE Y SEGURO)
 let currentScale = 1;
 let translateX = 0;
 let translateY = 0;
+let lastTranslateX = 0;
+let lastTranslateY = 0;
 let isDragging = false;
 let startX, startY;
-let initialTranslateX, initialTranslateY;
 
 function resetZoom(modal) {
-    currentScale = 1; translateX = 0; translateY = 0;
+    currentScale = 1; translateX = 0; translateY = 0; lastTranslateX = 0; lastTranslateY = 0;
     const imgs = modal.querySelectorAll('.gallery-img');
     imgs.forEach(img => {
         img.style.transition = 'transform 0.2s ease-out';
@@ -3307,8 +3308,6 @@ function resetZoom(modal) {
 // --- Control de Clicks (Galería y Cerrar) ---
 doc.addEventListener('click', function(e) {
     let target = e.target;
-
-    // 1. Botones de Galería
     if (target && (target.classList.contains('next-img-btn') || target.classList.contains('prev-img-btn'))) {
         const modal = target.closest('.fs-modal');
         resetZoom(modal);
@@ -3333,7 +3332,6 @@ doc.addEventListener('click', function(e) {
         return;
     }
 
-    // 2. Cerrar Modal
     if (target && target.classList.contains('close-btn')) {
         const modal = target.closest('.fs-modal');
         if(modal) {
@@ -3352,24 +3350,24 @@ doc.addEventListener('click', function(e) {
     }
 }, true);
 
-// --- ZOOM CON RUEDA EN EL CENTRO (PC) ---
+// --- RUEDA DEL RATÓN (PC) ---
 doc.addEventListener('wheel', function(e) {
     const modal = e.target.closest('.fs-modal');
     if (!modal) return;
     const img = modal.querySelector('.gallery-img[style*="display: block"]');
     if (!img) return;
 
-    e.preventDefault();
+    e.preventDefault(); 
+    
     const zoomSpeed = 0.2;
     if (e.deltaY < 0) currentScale += zoomSpeed;
     else currentScale -= zoomSpeed;
 
-    currentScale = Math.max(1, Math.min(currentScale, 5)); // Límite exacto de 1x (original) a 5x (gigante)
-    
-    // Si alejamos por completo, centramos la imagen automáticamente
+    currentScale = Math.max(1, Math.min(currentScale, 6)); // Límite estricto 1x - 6x
+
     if (currentScale === 1) {
-        translateX = 0;
-        translateY = 0;
+        translateX = 0; translateY = 0;
+        lastTranslateX = 0; lastTranslateY = 0;
     }
 
     img.style.transition = 'transform 0.1s ease-out';
@@ -3377,96 +3375,111 @@ doc.addEventListener('wheel', function(e) {
     img.style.cursor = currentScale > 1 ? 'grab' : 'zoom-in';
 }, {passive: false});
 
-// --- LÓGICA DE ARRASTRE (Para poder mover la imagen) ---
-function startDrag(clientX, clientY, target) {
-    if (currentScale > 1 && target.classList.contains('gallery-img')) {
+// --- LÓGICA DE ARRASTRE (RATÓN Y TÁCTIL) ---
+doc.addEventListener('mousedown', function(e) {
+    if (currentScale > 1 && e.target.classList.contains('gallery-img')) {
         isDragging = true;
-        startX = clientX;
-        startY = clientY;
-        initialTranslateX = translateX;
-        initialTranslateY = translateY;
-        target.style.transition = 'none'; // Fluidez total sin lag
-        target.style.cursor = 'grabbing'; // El cursor se vuelve un puño cerrado
+        startX = e.clientX;
+        startY = e.clientY;
+        e.target.style.transition = 'none';
+        e.target.style.cursor = 'grabbing';
+        e.preventDefault(); // Evita que el navegador intente "arrastrar" la foto como un archivo
     }
-}
+});
 
-function doDrag(clientX, clientY, target) {
-    if (isDragging && target.classList.contains('gallery-img')) {
-        const dx = clientX - startX;
-        const dy = clientY - startY;
-        // La matemática perfecta para que el ratón no se desfase de la imagen
-        translateX = initialTranslateX + (dx / currentScale);
-        translateY = initialTranslateY + (dy / currentScale);
-        target.style.transform = `translate(${translateX}px, ${translateY}px) scale(${currentScale})`;
-    }
-}
+doc.addEventListener('mousemove', function(e) {
+    if (!isDragging) return;
+    const img = doc.querySelector('.fs-modal .gallery-img[style*="display: block"]');
+    if (!img) return;
 
-function stopDrag(target) {
+    const dx = (e.clientX - startX) / currentScale;
+    const dy = (e.clientY - startY) / currentScale;
+
+    translateX = lastTranslateX + dx;
+    translateY = lastTranslateY + dy;
+
+    img.style.transform = `translate(${translateX}px, ${translateY}px) scale(${currentScale})`;
+});
+
+// Reseteo absoluto al soltar el clic (evita que se quede pegado)
+window.addEventListener('mouseup', function() {
     if (isDragging) {
         isDragging = false;
-        if (target && target.classList.contains('gallery-img')) {
-            target.style.cursor = 'grab'; // El cursor vuelve a ser una mano abierta
-        }
+        lastTranslateX = translateX;
+        lastTranslateY = translateY;
+        const img = doc.querySelector('.fs-modal .gallery-img[style*="display: block"]');
+        if(img) img.style.cursor = currentScale > 1 ? 'grab' : 'zoom-in';
     }
-}
-
-// Eventos de Ratón (Para la PC)
-doc.addEventListener('mousedown', e => startDrag(e.clientX, e.clientY, e.target));
-doc.addEventListener('mousemove', e => {
-    if (isDragging) { e.preventDefault(); doDrag(e.clientX, e.clientY, e.target); }
 });
-doc.addEventListener('mouseup', e => stopDrag(e.target));
-doc.addEventListener('mouseleave', e => stopDrag(e.target));
 
-// Eventos Táctiles (Para el Teléfono)
-let initialPinchDist = null;
-let initialScalePinch = 1;
+// TACTIL (MOVIL)
+let initialDist = 0;
+let initialScaleStart = 1;
 
-doc.addEventListener('touchstart', e => {
+doc.addEventListener('touchstart', function(e) {
     const modal = e.target.closest('.fs-modal');
     if (!modal) return;
     const img = modal.querySelector('.gallery-img[style*="display: block"]');
     if (!img) return;
 
-    if (e.touches.length === 1) {
-        startDrag(e.touches[0].clientX, e.touches[0].clientY, e.target);
+    if (e.touches.length === 1 && currentScale > 1) {
+        isDragging = true;
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+        img.style.transition = 'none';
     } else if (e.touches.length === 2) {
-        // Pinch Zoom (Pellizcar con dos dedos)
         isDragging = false;
-        initialPinchDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
-        initialScalePinch = currentScale;
+        lastTranslateX = translateX; 
+        lastTranslateY = translateY;
+        initialDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+        initialScaleStart = currentScale;
     }
 }, {passive: false});
 
-doc.addEventListener('touchmove', e => {
+doc.addEventListener('touchmove', function(e) {
     const modal = e.target.closest('.fs-modal');
     if (!modal) return;
+    const img = modal.querySelector('.gallery-img[style*="display: block"]');
+    if (!img) return;
 
     if (e.touches.length === 1 && isDragging) {
         e.preventDefault();
-        doDrag(e.touches[0].clientX, e.touches[0].clientY, e.target);
-    } else if (e.touches.length === 2 && initialPinchDist) {
+        const dx = (e.touches[0].clientX - startX) / currentScale;
+        const dy = (e.touches[0].clientY - startY) / currentScale;
+
+        translateX = lastTranslateX + dx;
+        translateY = lastTranslateY + dy;
+
+        img.style.transform = `translate(${translateX}px, ${translateY}px) scale(${currentScale})`;
+    } else if (e.touches.length === 2 && initialDist > 0) {
         e.preventDefault();
         const currentDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
-        currentScale = initialScalePinch * (currentDist / initialPinchDist);
-        currentScale = Math.max(1, Math.min(currentScale, 5));
         
-        // Centrar automático si quitas el zoom
+        // Protección contra la desaparición de imagen si los dedos están muy juntos
+        if (initialDist < 10) return;
+
+        currentScale = initialScaleStart * (currentDist / initialDist);
+        currentScale = Math.max(1, Math.min(currentScale, 6));
+
         if (currentScale === 1) {
             translateX = 0; translateY = 0;
+            lastTranslateX = 0; lastTranslateY = 0;
         }
-        
-        const img = modal.querySelector('.gallery-img[style*="display: block"]');
-        if (img) {
-            img.style.transition = 'none';
-            img.style.transform = `translate(${translateX}px, ${translateY}px) scale(${currentScale})`;
-        }
+
+        img.style.transition = 'none';
+        img.style.transform = `translate(${translateX}px, ${translateY}px) scale(${currentScale})`;
     }
 }, {passive: false});
 
-doc.addEventListener('touchend', e => {
-    stopDrag(e.target);
-    initialPinchDist = null;
+doc.addEventListener('touchend', function(e) {
+    if (isDragging) {
+        isDragging = false;
+        lastTranslateX = translateX;
+        lastTranslateY = translateY;
+    }
+    if (e.touches.length < 2) {
+        initialDist = 0;
+    }
 });
 </script>
 """, height=0, width=0) 
