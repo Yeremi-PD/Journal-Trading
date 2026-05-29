@@ -352,8 +352,7 @@ def registrar_en_excel(usuario, password, cuenta, fecha_obj, balance, pnl, trade
             nota_global_str = settings_pc.get("global_notes_body", "") if settings_pc else ""
             
             f_ini_val = db_global[usuario]["data"][cuenta].get("fecha_inicio", "")
-    
-         f_cie_val = db_global[usuario]["data"][cuenta].get("fecha_cierre", "")
+            f_cie_val = db_global[usuario]["data"][cuenta].get("fecha_cierre", "")
             
             val_chats_str = json.dumps(settings_pc.get("chats_historial", {})) if settings_pc else "{}"
             nueva_fila = [safe_user, safe_pass, str(cuenta), fecha_texto, val_hora, float(balance), float(pnl), imgs_texto, set_pc_str, set_mov_str, val_bias, val_sesion, val_confs, val_risk, val_rr, val_tt, val_reason, val_corr, val_emo, val_estado, float(val_retiros), f_ini_val, f_cie_val, json.dumps(extra_data), nota_global_str, val_chats_str]
