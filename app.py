@@ -1543,7 +1543,8 @@ else:
     tab_calendario, tab_estadisticas = st.tabs(["📅 CALENDARIO", "📊 ESTADÍSTICAS"])
 
 with tab_calendario:
-    col_t, col_fil, col_data, col_bal, col_not, col_set = st.columns([2.5, 1.5, 1.5, 2, 0.35, 0.35])
+    # Repartimos el espacio del filtro eliminado hacia el título (de 2.5 pasa a 4)
+    col_t, col_data, col_bal, col_not, col_set = st.columns([4, 1.5, 2, 0.35, 0.35])
 
     with col_not:
         with st.popover("📝", use_container_width=True):
@@ -1679,10 +1680,6 @@ with tab_calendario:
         if paso_cuenta: badge_html = f'<span style="font-size: 20px; background-color: #00C897; color: white; padding: 4px 12px; border-radius: 8px; margin-left: 15px; font-weight: 800; letter-spacing: 0px;">{_l["dash"]["pa"]}</span>'
         else: badge_html = f'<span style="font-size: 20px; background-color: #4A5568; color: white; padding: 4px 12px; border-radius: 8px; margin-left: 15px; font-weight: 800; letter-spacing: 0px;">{_l["dash"]["eval"]}</span>'
         st.markdown(f'<div class="dashboard-title" style="display: flex; align-items: center;">{TXT_DASHBOARD}, {usuario} {badge_html}</div>', unsafe_allow_html=True)
-
-    with col_fil: 
-        st.markdown(f'<div class="lbl-filtros">{LBL_FILTROS}</div>', unsafe_allow_html=True)
-        filtro = st.selectbox("Filtros", [OPT_FILTRO_1, OPT_FILTRO_2, OPT_FILTRO_3], label_visibility="collapsed")
 
     with col_data: 
         st.markdown(f'<div class="lbl-data">{LBL_DATA}</div>', unsafe_allow_html=True)
@@ -2225,8 +2222,6 @@ with tab_calendario:
                             trades_visibles = []
                             for t in dia_trades:
                                 if st.session_state.get("toggle_funded_state", False) and t.get("is_pre_funded", False): continue
-                                if filtro == OPT_FILTRO_2 and t["pnl"] <= 0: continue
-                                if filtro == OPT_FILTRO_3 and t["pnl"] >= 0: continue
                                 trades_visibles.append(t)
                             if trades_visibles:
                                 pnl_dia = sum(t["pnl"] for t in trades_visibles)
