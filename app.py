@@ -2264,7 +2264,9 @@ with tab_calendario:
                                         pnl_color_nota = "#00C897" if pnl_val_nota >= 0 else "#FF4C4C"
                                         simbolo_nota = "+" if pnl_val_nota > 0 else ("-" if pnl_val_nota < 0 else "")
                                         pnl_formateado_nota = f"{simbolo_nota}${abs(pnl_val_nota):,.2f}"
-                                        notas_html_contenido += f'<div style="margin-bottom: 15px;"><h4 style="color:{pnl_color_nota}; margin:0;">Trade {idx_t+1} = {pnl_formateado_nota}</h4><b>{_l["dash"]["bias"]}:</b> <span class="note-val">{t.get("bias", "NONE")}</span><br><b>{_l["dash"]["conf"]}:</b> <span class="note-val">{confluences_str}</span><br><b>{_l["dash"]["reason"]}:</b> <span class="note-val">{t.get("razon_trade", "")}</span><br><b>{_l["dash"]["corr"]}:</b> <span class="note-val">{t.get("Corrections", "")}</span><br><b>{_l["dash"]["risk"]}:</b> <span class="note-val">{t.get("risk", "")}</span><br><b>{_l["dash"]["rr"]}:</b> <span class="note-val">{t.get("RR", "")}</span><br><b>{_l["dash"]["tt"]}:</b> <span class="note-val">{t.get("trade_type", "")}</span><br><b>{_l["dash"]["emo"]}:</b> <span class="note-val">{t.get("Emotions", "")}</span></div>'
+                                        hora_trade_nota = t.get("hora", "00:00")
+                            
+                                        notas_html_contenido += f'<div style="margin-bottom: 15px;"><h4 style="color:{pnl_color_nota}; margin:0;">Trade {idx_t+1} = {pnl_formateado_nota}</h4><span style="color:gray; font-size:14px; font-weight:bold;">🕒 {hora_trade_nota}</span><br><b>{_l["dash"]["bias"]}:</b> <span class="note-val">{t.get("bias", "NONE")}</span><br><b>{_l["dash"]["conf"]}:</b> <span class="note-val">{confluences_str}</span><br><b>{_l["dash"]["reason"]}:</b> <span class="note-val">{t.get("razon_trade", "")}</span><br><b>{_l["dash"]["corr"]}:</b> <span class="note-val">{t.get("Corrections", "")}</span><br><b>{_l["dash"]["risk"]}:</b> <span class="note-val">{t.get("risk", "")}</span><br><b>{_l["dash"]["rr"]}:</b> <span class="note-val">{t.get("RR", "")}</span><br><b>{_l["dash"]["tt"]}:</b> <span class="note-val">{t.get("trade_type", "")}</span><br><b>{_l["dash"]["emo"]}:</b> <span class="note-val">{t.get("Emotions", "")}</span></div>'
                                 if has_notes:
                                     id_note_modal = f"mod_note_{anio_sel}_{mes_sel}_{dia}"
                                     note_html = f'<div><input type="checkbox" id="{id_note_modal}" class="modal-toggle" style="display:none;"><label for="{id_note_modal}"><div class="note-icon">💭</div></label><div class="fs-modal"><label for="{id_note_modal}" class="close-btn">{TXT_CERRAR_MODAL}</label><div class="note-modal-content"><h3 style="text-align:center; margin-top:0; font-size: var(--note-lbl-size);">💭 Trades - {dia}/{mes_sel}/{anio_sel}</h3><hr>{notas_html_contenido}</div></div></div>'
@@ -3034,8 +3036,15 @@ with tab_hist:
                     with c_exp:
                         with st.expander(f"🗓️ {data['fecha_str']} (Trade #{i+1}) | P&L: :{color_md}[{simbolo}${pnl_val:,.2f}]"):
                             st.markdown(f"**{_l['hist']['fin']}**")
-                            c_ed1, c_ed2, c_ed3 = st.columns(3)
+                            
+                            # Extraemos la hora guardada para mostrarla
+                            hora_str = data.get("hora", "00:00")
+                            try: hora_dt = datetime.strptime(hora_str, "%H:%M").time()
+                            except: hora_dt = datetime.strptime("00:00", "%H:%M").time()
+                            
+                            c_ed1, c_ed_h, c_ed2, c_ed3 = st.columns([1, 1, 1.5, 1.5])
                             with c_ed1: nueva_fecha = st.date_input(_l['hist']['day'], value=fecha_dt, key=f"f_{clave}_{i}")
+                            with c_ed_h: nueva_hora = st.time_input("Hora", value=hora_dt, step=60, key=f"h_{clave}_{i}")
                             with c_ed2: nuevo_bal = st.number_input(_l['hist']['bal'], value=float(data['balance_final']), format="%.2f", key=f"b_{clave}_{i}")
                             with c_ed3: nuevo_pnl = st.number_input("P&L", value=pnl_val, format="%.2f", key=f"p_{clave}_{i}")
                             st.markdown("---")
@@ -3098,6 +3107,7 @@ with tab_hist:
                                 data["pnl"] = nuevo_pnl
                                 data["balance_final"] = nuevo_bal
                                 data["fecha_str"] = nueva_fecha.strftime("%d/%m/%Y")
+                                data["hora"] = nueva_hora.strftime("%H:%M")
                                 data["bias"] = e_bias; data["sesion"] = e_sesion; data["Confluences"] = e_conf; data["risk"] = e_risk; data["RR"] = e_rr; data["trade_type"] = e_tt; data["razon_trade"] = e_razon; data["Corrections"] = e_corr; data["Emotions"] = e_emo
                                 if nueva_clave != clave:
                                     trade_movido = db_usuario[ctx]["trades"][clave].pop(i)
@@ -3135,7 +3145,7 @@ with tab_tabla:
                     Confluences_list = trade.get('Confluences', [])
                     Confluences_resumen = ", ".join([c.split(". ")[-1] for c in Confluences_list])
                     row = {
-                        "Date": fecha.strftime("%d/%m/%Y"), "Trade": f"#{i+1}", "P&L": f"{pnl_simbol}${pnl:,.2f}", "Trade Type": trade.get('trade_type', ''), "Bias": trade.get('bias', ''), "Sesión": trade.get('sesion', ''), "RR": trade.get('RR', ''), "Confluences": Confluences_resumen, "Risk": trade.get('risk', ''), "Reason For Trade": trade.get('razon_trade', ''), "Corrections": trade.get('Corrections', ''), "Emotions": trade.get('Emotions', '')
+                        "Date": f"{fecha.strftime('%d/%m/%Y')} {trade.get('hora', '00:00')}", "Trade": f"#{i+1}", "P&L": f"{pnl_simbol}${pnl:,.2f}", "Trade Type": trade.get('trade_type', ''), "Bias": trade.get('bias', ''), "Sesión": trade.get('sesion', ''), "RR": trade.get('RR', ''), "Confluences": Confluences_resumen, "Risk": trade.get('risk', ''), "Reason For Trade": trade.get('razon_trade', ''), "Corrections": trade.get('Corrections', ''), "Emotions": trade.get('Emotions', '')
                     }
                     table_data.append(row)
             if not table_data: st.info(_l['table']['no_tr_mo_tbl'])
@@ -3203,6 +3213,7 @@ def area_exportacion():
                 
                 row = {
                     "Fecha": fecha_trade.strftime("%d/%m/%Y"),
+                    "Hora": trade.get('hora', '00:00'),
                     "Trade": f"#{i+1}",
                     "P&L ($)": pnl,
                     "Tipo de Trade": trade.get('trade_type', ''),
