@@ -3286,7 +3286,7 @@ bloquearTeclado();
 const observer = new MutationObserver(bloquearTeclado);
 observer.observe(doc.body, { childList: true, subtree: true });
 
-// 3. MOTOR DE ZOOM Y ARRASTRE DEFINITIVO (Alta Sensibilidad y Seguro Anti-Bugs)
+// --- MOTOR DE ZOOM Y ARRASTRE DEFINITIVO (Alta Sensibilidad y Seguro Anti-Bugs) ---
 let currentScale = 1;
 let translateX = 0, translateY = 0;
 let initialTx = 0, initialTy = 0;
@@ -3302,18 +3302,27 @@ function setTransform(img) {
 }
 
 function resetZoom(modal) {
-    currentScale = 1; translateX = 0; translateY = 0; initialTx = 0; initialTy = 0;
+    currentScale = 1; translateX = 0; translateY = 0; initialTx = 0;
+    initialTy = 0;
     const imgs = modal.querySelectorAll('.gallery-img');
     imgs.forEach(img => {
         img.style.transition = 'transform 0.2s ease-out';
         img.style.transform = 'translate(0px, 0px) scale(1)';
-        img.style.cursor = 'zoom-in';
+        img.style.cursor = 'default';
     });
 }
 
 // --- Control de Clicks (Galería y Cerrar) ---
 doc.addEventListener('click', function(e) {
     let target = e.target;
+    
+    // Matamos el conflicto: Si hacen click directo en la imagen ampliada, bloqueamos cualquier zoom o acción errónea
+    if (target && target.classList.contains('gallery-img')) {
+        e.preventDefault();
+        e.stopPropagation();
+        return;
+    }
+    
     if (target && (target.classList.contains('next-img-btn') || target.classList.contains('prev-img-btn'))) {
         const modal = target.closest('.fs-modal');
         resetZoom(modal);
@@ -3321,6 +3330,7 @@ doc.addEventListener('click', function(e) {
         const total = parseInt(modal.getAttribute('data-total')) || 1;
         
         if (target.classList.contains('next-img-btn')) currentIdx = (currentIdx + 1) % total;
+    
         else currentIdx = (currentIdx - 1 + total) % total;
         
         modal.setAttribute('data-current', currentIdx);
@@ -3329,21 +3339,21 @@ doc.addEventListener('click', function(e) {
             if (parseInt(img.getAttribute('data-idx')) === currentIdx) img.style.setProperty('display', 'block', 'important');
             else img.style.setProperty('display', 'none', 'important');
         });
-        const counter = modal.querySelector('.img-counter');
+const counter = modal.querySelector('.img-counter');
         if (counter) counter.innerText = (currentIdx + 1) + ' / ' + total;
         return;
-    }
+}
     if (target && target.classList.contains('close-btn')) {
         const modal = target.closest('.fs-modal');
-        if(modal) {
+if(modal) {
             resetZoom(modal);
             modal.setAttribute('data-current', '0');
             const counter = modal.querySelector('.img-counter');
-            if (counter) counter.innerText = '1 / ' + (modal.getAttribute('data-total') || 1);
-            modal.querySelectorAll('img').forEach(img => {
+if (counter) counter.innerText = '1 / ' + (modal.getAttribute('data-total') || 1);
+modal.querySelectorAll('img').forEach(img => {
                 img.style.setProperty('display', parseInt(img.getAttribute('data-idx')) === 0 ? 'block' : 'none', 'important');
             });
-        }
+}
     }
 }, true);
 
@@ -3355,6 +3365,9 @@ doc.addEventListener('wheel', function(e) {
     if (!img) return;
     e.preventDefault(); 
     
+    // Desactivamos la transición durante el scroll para eliminar el lag y calcular con precisión matemática pura
+    img.style.transition = 'none';
+    
     const prevScale = currentScale;
     currentScale += e.deltaY < 0 ? 0.25 : -0.25;
     currentScale = Math.max(1, Math.min(currentScale, 6));
@@ -3362,22 +3375,19 @@ doc.addEventListener('wheel', function(e) {
     if (currentScale === 1) { 
         translateX = 0; translateY = 0; 
     } else {
-        // Nueva fórmula geométrica precisa: Lee la posición exacta de la imagen en pantalla
+        // Nueva fórmula exacta basada en las coordenadas reales en pantalla del lightbox
         const scaleRatio = currentScale / prevScale;
         const rect = img.getBoundingClientRect();
         
-        // Calculamos el centro real de la foto
         const centerX = rect.left + rect.width / 2;
         const centerY = rect.top + rect.height / 2;
-        
-        // Empujamos la imagen exactamente en dirección al ratón
+
         translateX -= (e.clientX - centerX) * (scaleRatio - 1);
         translateY -= (e.clientY - centerY) * (scaleRatio - 1);
     }
 
-    img.style.transition = 'transform 0.1s ease-out';
     setTransform(img);
-    img.style.cursor = currentScale > 1 ? 'grab' : 'zoom-in';
+    img.style.cursor = currentScale > 1 ? 'grab' : 'default';
 }, {passive: false});
 
 // --- ARRASTRE FLUIDO INFALIBLE (PC) ---
