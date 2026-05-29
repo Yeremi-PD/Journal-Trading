@@ -1744,8 +1744,9 @@ with tab_calendario:
         text-align: center !important;
     }
 
-    /* 🟢 2. FECHA EXACTAMENTE CENTRADA */
-    div[data-testid="stForm"] div[data-testid="stDateInput"] input {
+    /* 🟢 2. FECHA Y HORA EXACTAMENTE CENTRADAS */
+    div[data-testid="stForm"] div[data-testid="stDateInput"] input,
+    div[data-testid="stForm"] div[data-testid="stTimeInput"] input {
         color: white !important;
         -webkit-text-fill-color: white !important;
         text-align: center !important;
@@ -1791,20 +1792,23 @@ with tab_calendario:
         box-shadow: 0px 4px 10px rgba(0, 200, 151, 0.4) !important; /* Sombra verde */
     }
 
-    /* ==========================================
-    AJUSTES DEL CUADRO "DATE" (FECHA)
+/* ==========================================
+    AJUSTES DEL CUADRO "DATE" Y "TIME"
     ========================================== */
-    div[data-testid="stForm"] div[data-testid="stDateInput"] {
-        width: 90% !important;         /* Qué tanto llena su espacio */
-        margin-top: 0px !important;     /* Mueve el cuadro hacia arriba o abajo */
-        margin-left: -px !important;    /* Muévelo hacia los lados */
+    div[data-testid="stForm"] div[data-testid="stDateInput"],
+    div[data-testid="stForm"] div[data-testid="stTimeInput"] {
+        width: 95% !important;
+        margin-top: 0px !important;
+        margin-left: 0px !important;
     }
 
-    /* Para cambiar la altura específica del cuadro de la fecha */
+    /* Para cambiar la altura específica del cuadro de la fecha y hora */
     div[data-testid="stForm"] div[data-testid="stDateInput"] div[data-baseweb="input"], 
-    div[data-testid="stForm"] div[data-testid="stDateInput"] div[data-baseweb="base-input"] {
-        min-height: 50px !important;    /* Altura del cuadro */
-        height: 40px !important;        /* Altura del cuadro */
+    div[data-testid="stForm"] div[data-testid="stDateInput"] div[data-baseweb="base-input"],
+    div[data-testid="stForm"] div[data-testid="stTimeInput"] div[data-baseweb="input"], 
+    div[data-testid="stForm"] div[data-testid="stTimeInput"] div[data-baseweb="base-input"] {
+        min-height: 50px !important;
+        height: 40px !important;
     }
 
     /* ==========================================
@@ -1954,9 +1958,10 @@ with tab_calendario:
         }
 
         /* ========================================= */
-        /* 4. CUADRO DE LA "FECHA" (DATE INPUT)      */
+        /* 4. CUADRO DE LA "FECHA" Y "HORA"          */
         /* ========================================= */
-        div[data-testid="stForm"] div[data-testid="stDateInput"] {
+        div[data-testid="stForm"] div[data-testid="stDateInput"],
+        div[data-testid="stForm"] div[data-testid="stTimeInput"] {
             width: 100% !important;
             margin-left: 0px !important;
         }
@@ -1970,13 +1975,18 @@ with tab_calendario:
 
         with col_form_area:
             with st.form(key="form_main_entry", clear_on_submit=True, border=False):
-                # Le damos mucho más espacio a Date (1.8) y reducimos un poco Cantidad (0.9)
-                c_date, c_cant, c_det, c_link, c_btn = st.columns([0.8, 1.2, 1.1, 2.5, 1])
+                # Redimensionamos para acomodar la Hora junto a la Fecha
+                c_date, c_hora, c_cant, c_det, c_link, c_btn = st.columns([0.8, 0.7, 1.1, 1.1, 2.2, 1])
                 
                 with c_date:
                     st.markdown('<div class="lbl-header">Fecha:</div>', unsafe_allow_html=True)
                     # Forzamos a que por defecto SIEMPRE cargue el día actual (hoy)
                     fecha_sel = st.date_input("Fecha", value=hoy, label_visibility="collapsed", key="btn_fecha_directa")
+                
+                with c_hora:
+                    st.markdown('<div class="lbl-header">Hora:</div>', unsafe_allow_html=True)
+                    # Carga la hora exacta actual por defecto
+                    hora_sel = st.time_input("Hora", value=datetime.now().time(), label_visibility="collapsed", key="btn_hora_directa")
                     
                 with c_cant:
                     st.markdown('<div class="lbl-header">Cantidad:</div>', unsafe_allow_html=True)
@@ -2094,7 +2104,7 @@ with tab_calendario:
                         "RR": nuevo_rr, 
                         "trade_type": nuevo_tt, 
                         "Emotions": nuevo_emo,
-                        "hora": "",              
+                        "hora": hora_sel.strftime("%H:%M"),              
                         "ticker": "",            
                         "direccion": "",         
                         "lotes": "",             
