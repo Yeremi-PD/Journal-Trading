@@ -299,9 +299,8 @@ def registrar_en_excel(usuario, password, cuenta, fecha_obj, balance, pnl, trade
                 hoja_user = db_spreadsheet.worksheet(usuario)
             except gspread.exceptions.WorksheetNotFound:
                 hoja_user = db_spreadsheet.add_worksheet(title=usuario, rows="1000", cols="30")
-                headers = ["Usuario", "Password", "Cuenta", "Fecha", "Hora", "Balance", "PnL", "Imagenes", "Settings_PC", "Settings_Movil", "Bias", "Sesion", "Confluences", "Risk", "RR", "Trade Type", "Reason", "Corrections", "Emotions", "Estado_Cuenta", "Retiros_Acumulados", "Fecha_Inicio", "Fecha_Cierre", "ExtraData", "Notas_Globales", "Chats_IA"]
+                headers = ["Usuario", "Password", "Cuenta", "Fecha", "Balance", "PnL", "Imagenes", "Settings_PC", "Settings_Movil", "Bias", "Sesion", "Hora", "Confluences", "Risk", "RR", "Trade Type", "Reason", "Corrections", "Emotions", "Estado_Cuenta", "Retiros_Acumulados", "Fecha_Inicio", "Fecha_Cierre", "ExtraData", "Notas_Globales", "Chats_IA"]
                 hoja_user.append_row(headers)
-                
                 # FIJAR EL ALTO DE TODAS LAS FILAS A 25px PARA QUE NINGUNA SE ESTIRE HACIA ABAJO
                 try:
                     peticiones = [
@@ -355,7 +354,7 @@ def registrar_en_excel(usuario, password, cuenta, fecha_obj, balance, pnl, trade
             f_cie_val = db_global[usuario]["data"][cuenta].get("fecha_cierre", "")
             
             val_chats_str = json.dumps(settings_pc.get("chats_historial", {})) if settings_pc else "{}"
-            nueva_fila = [safe_user, safe_pass, str(cuenta), fecha_texto, val_hora, float(balance), float(pnl), imgs_texto, set_pc_str, set_mov_str, val_bias, val_sesion, val_confs, val_risk, val_rr, val_tt, val_reason, val_corr, val_emo, val_estado, float(val_retiros), f_ini_val, f_cie_val, json.dumps(extra_data), nota_global_str, val_chats_str]
+            nueva_fila = [safe_user, safe_pass, str(cuenta), fecha_texto, float(balance), float(pnl), imgs_texto, set_pc_str, set_mov_str, val_bias, val_sesion, val_hora, val_confs, val_risk, val_rr, val_tt, val_reason, val_corr, val_emo, val_estado, float(val_retiros), f_ini_val, f_cie_val, json.dumps(extra_data), nota_global_str, val_chats_str]
             
             hoja_user.append_row(nueva_fila)
         except Exception as e:
@@ -380,7 +379,7 @@ def registrar_chat_excel(usuario, cuenta, nombre_chat, pregunta, respuesta):
 def reescribir_excel_usuario(usuario):
     if not db_spreadsheet: return
     try:
-        headers = ["Usuario", "Password", "Cuenta", "Fecha", "Hora", "Balance", "PnL", "Imagenes", "Settings_PC", "Settings_Movil", "Bias", "Sesion", "Confluences", "Risk", "RR", "Trade Type", "Reason", "Corrections", "Emotions", "Estado_Cuenta", "Retiros_Acumulados", "Fecha_Inicio", "Fecha_Cierre", "ExtraData", "Notas_Globales", "Chats_IA"]
+        headers = ["Usuario", "Password", "Cuenta", "Fecha", "Balance", "PnL", "Imagenes", "Settings_PC", "Settings_Movil", "Bias", "Sesion", "Hora", "Confluences", "Risk", "RR", "Trade Type", "Reason", "Corrections", "Emotions", "Estado_Cuenta", "Retiros_Acumulados", "Fecha_Inicio", "Fecha_Cierre", "ExtraData", "Notas_Globales", "Chats_IA"]
         filas_a_insertar = [headers]
         pwd = db_global[usuario]["password"]
         set_pc_str = json.dumps(db_global[usuario]["settings"]["PC"])
@@ -421,10 +420,9 @@ def reescribir_excel_usuario(usuario):
                     f_cie_val = d_cuenta.get("fecha_cierre", "")
                     
                     filas_a_insertar.append([
-                        usuario, pwd, cuenta, t["fecha_str"], val_hora, float(t["balance_final"]), 
-float(t["pnl"]), 
-                        imgs_texto, set_pc_str, set_mov_str, val_bias, val_sesion, val_confs, val_risk, 
-                         val_rr, val_tt, val_reason, val_corr, val_emo, val_estado, float(val_retiros), f_ini_val, f_cie_val, json.dumps(extra_data), nota_global_str, val_chats_str
+                        usuario, pwd, cuenta, t["fecha_str"], float(t["balance_final"]), float(t["pnl"]), 
+                        imgs_texto, set_pc_str, set_mov_str, val_bias, val_sesion, val_hora, val_confs, val_risk, 
+                        val_rr, val_tt, val_reason, val_corr, val_emo, val_estado, float(val_retiros), f_ini_val, f_cie_val, json.dumps(extra_data), nota_global_str, val_chats_str
                     ])
         
         # OPTIMIZACIÓN 1.2: Uso del parámetro 'values' y 'range_name' para evitar deprecaciones 
