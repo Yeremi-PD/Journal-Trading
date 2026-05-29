@@ -1357,14 +1357,15 @@ gap: 25px !important; border-bottom: none !important; overflow: visible !importa
     /* NUEVO: Contenedor que agrupa los 3 botones y los separa exactamente 10px */
     .modal-controls {{ position: fixed !important; top: 35px !important; right: 25px !important; display: flex !important; gap: 10px !important; z-index: 10000000 !important; align-items: center !important; }}
     
-    /* Anulamos la posición manual para que el contenedor Flexbox los ordene solitos */
-    .modal-controls .close-btn, .zoom-in-btn, .zoom-out-btn {{ position: relative !important; top: auto !important; right: auto !important; margin: 0 !important; }}
+/* Anulamos la posición manual para que el contenedor Flexbox los ordene solitos */
+    .modal-controls .close-btn { position: relative !important; top: auto !important; right: auto !important; margin: 0 !important; }
     
-    .zoom-in-btn, .zoom-out-btn {{ font-size: 20px !important; color: white !important; padding: 8px 18px !important; border-radius: 8px !important; cursor: pointer !important; font-weight: bold !important; box-shadow: 0 4px 6px rgba(0,0,0,0.3); user-select: none !important; }}
-    .zoom-in-btn {{ background-color: #00C897 !important; }}
-    .zoom-out-btn {{ background-color: #4A5568 !important; }}
-    
-    .fs-modal img {{ transition: width 0.3s ease, max-width 0.3s ease !important; }}
+    /* Preparamos las imágenes para zoom nativo y bloqueamos el scroll nativo de la pantalla en móviles */
+    .fs-modal img { 
+        transition: transform 0.1s ease-out !important; 
+        touch-action: none !important; 
+        will-change: transform !important;
+    }
     /* NUEVO: Estilos para la galeria de imagenes */
     .gallery-nav {{ display: flex !important; align-items: center !important; gap: 10px !important; color: white !important; font-weight: bold !important; font-size: 16px !important; margin-right: 15px !important; }}
     .prev-img-btn, .next-img-btn {{ background: #4A5568 !important; padding: 8px 15px !important; border-radius: 8px !important; cursor: pointer !important; user-select: none !important; }}
@@ -2247,7 +2248,7 @@ with tab_calendario:
                                         img_tags += f'<img src="{img_url}" class="gallery-img" data-idx="{idx_img_gal}" style="display: {disp};">'
                                     nav_html = ""
                                     if len(todas_imagenes) > 1: nav_html = f'<div class="gallery-nav"><div class="prev-img-btn">◀</div><div class="img-counter">1 / {len(todas_imagenes)}</div><div class="next-img-btn">▶</div></div>'
-                                    cam_html = f'<div><input type="checkbox" id="{id_modal}" class="modal-toggle" style="display:none;"><label for="{id_modal}"><div class="cam-icon">{BTN_CAM_EMOJI}</div></label><div class="fs-modal" data-current="0" data-total="{len(todas_imagenes)}"><div class="modal-controls">{nav_html}<div class="zoom-out-btn">➖</div><div class="zoom-in-btn">➕</div><label for="{id_modal}" class="close-btn">{TXT_CERRAR_MODAL}</label></div>{img_tags}</div></div>'
+                                    cam_html = f'<div><input type="checkbox" id="{id_modal}" class="modal-toggle" style="display:none;"><label for="{id_modal}"><div class="cam-icon">{BTN_CAM_EMOJI}</div></label><div class="fs-modal" data-current="0" data-total="{len(todas_imagenes)}"><div class="modal-controls">{nav_html}<label for="{id_modal}" class="close-btn">{TXT_CERRAR_MODAL}</label></div>{img_tags}</div></div>'
                                 else: cam_html = ""
                                 notas_html_contenido = ""
                                 has_notes = False
@@ -3088,7 +3089,7 @@ with tab_hist:
                                     img_tags_hist += f'<img src="{img_url}" class="gallery-img" data-idx="{idx_img_gal}" style="display: {disp};">'
                                 nav_html_hist = ""
                                 if len(imagenes_restantes) > 1: nav_html_hist = f'<div class="gallery-nav"><div class="prev-img-btn">◀</div><div class="img-counter">1 / {len(imagenes_restantes)}</div><div class="next-img-btn">▶</div></div>'
-                                modal_html_hist = f'<div><input type="checkbox" id="{id_modal_hist}" class="modal-toggle" style="display:none;"><div class="fs-modal" data-current="0" data-total="{len(imagenes_restantes)}"><div class="modal-controls">{nav_html_hist}<div class="zoom-out-btn">➖</div><div class="zoom-in-btn">➕</div><label for="{id_modal_hist}" class="close-btn">{_l["cal"]["close"]}</label></div>{img_tags_hist}</div></div>'
+                                modal_html_hist = f'<div><input type="checkbox" id="{id_modal_hist}" class="modal-toggle" style="display:none;"><div class="fs-modal" data-current="0" data-total="{len(imagenes_restantes)}"><div class="modal-controls">{nav_html_hist}<label for="{id_modal_hist}" class="close-btn">{_l["cal"]["close"]}</label></div>{img_tags_hist}</div></div>'
                                 st.markdown(modal_html_hist, unsafe_allow_html=True)
                                 cols_img = st.columns(len(imagenes_restantes))
                                 for idx_img, img_b64 in enumerate(imagenes_restantes):
@@ -3285,38 +3286,43 @@ bloquearTeclado();
 const observer = new MutationObserver(bloquearTeclado);
 observer.observe(doc.body, { childList: true, subtree: true });
 
-// 3. Conectar botones del Modal (Galeria, Zoom y Menu)
+// 3. LOGICA AVANZADA DE ZOOM (Rueda del ratón, Pinch en móvil y Arrastre)
+let currentScale = 1;
+let translateX = 0;
+let translateY = 0;
+let isDragging = false;
+let startX, startY, startDist, initialScale;
+
+function resetZoom(modal) {
+    currentScale = 1; translateX = 0; translateY = 0;
+    const imgs = modal.querySelectorAll('.gallery-img');
+    imgs.forEach(img => {
+        img.style.transform = 'translate(0px, 0px) scale(1)';
+    });
+}
+
+// Control de clicks (Siguiente, Anterior, Cerrar)
 doc.addEventListener('click', function(e) {
     let target = e.target;
 
     // --- LOGICA DE GALERIA (Siguiente / Anterior) ---
     if (target && (target.classList.contains('next-img-btn') || target.classList.contains('prev-img-btn'))) {
         const modal = target.closest('.fs-modal');
+        resetZoom(modal); // Resetear el zoom al cambiar de foto
         let currentIdx = parseInt(modal.getAttribute('data-current')) || 0;
         const total = parseInt(modal.getAttribute('data-total')) || 1;
         const isNext = target.classList.contains('next-img-btn');
 
-        if (isNext) {
-            currentIdx = (currentIdx + 1) % total;
-        } else {
-            currentIdx = (currentIdx - 1 + total) % total;
-        }
+        if (isNext) currentIdx = (currentIdx + 1) % total;
+        else currentIdx = (currentIdx - 1 + total) % total;
+        
         modal.setAttribute('data-current', currentIdx);
 
         const imgs = modal.querySelectorAll('.gallery-img');
         imgs.forEach(img => {
             const idx = parseInt(img.getAttribute('data-idx'));
-            if (idx === currentIdx) {
-                img.style.setProperty('display', 'block', 'important');
-            } else {
-                img.style.setProperty('display', 'none', 'important');
-                img.setAttribute('data-zoom-idx', 0);
-                img.style.removeProperty('width');
-                img.style.removeProperty('max-width');
-                img.style.removeProperty('height');
-                img.style.removeProperty('max-height');
-                img.style.removeProperty('margin-top');
-            }
+            if (idx === currentIdx) img.style.setProperty('display', 'block', 'important');
+            else img.style.setProperty('display', 'none', 'important');
         });
 
         const counter = modal.querySelector('.img-counter');
@@ -3324,55 +3330,11 @@ doc.addEventListener('click', function(e) {
         return;
     }
 
-    // --- LOGICA DE ZOOM GRADUAL ---
-    if (target && (target.classList.contains('zoom-in-btn') || target.classList.contains('zoom-out-btn'))) {
-        const modal = target.closest('.fs-modal');
-        const currentIdx = modal.getAttribute('data-current') || "0";
-        const img = modal.querySelector(`.gallery-img[data-idx="${currentIdx}"]`) || modal.querySelector('img');
-        
-        if (!img) return;
-
-        const isZoomIn = target.classList.contains('zoom-in-btn');
-        const zoomLevels = [80, 105, 130, 155, 180, 205]; 
-        let currentIndex = parseInt(img.getAttribute('data-zoom-idx')) || 0;
-        
-        if (isZoomIn) {
-            currentIndex++; 
-            if (currentIndex >= zoomLevels.length) currentIndex = zoomLevels.length - 1; 
-        } else {
-            currentIndex--; 
-            if (currentIndex < 0) currentIndex = 0; 
-        }
-
-        img.setAttribute('data-zoom-idx', currentIndex);
-        let currentWidth = zoomLevels[currentIndex];
-        
-        if (currentIndex > 0) {
-            modal.style.setProperty('display', 'block', 'important');
-            modal.style.setProperty('overflow', 'auto', 'important');
-            modal.style.setProperty('text-align', 'center', 'important');
-            img.style.setProperty('width', currentWidth + 'vw', 'important');
-            img.style.setProperty('max-width', currentWidth + 'vw', 'important');
-            img.style.setProperty('height', 'auto', 'important');
-            img.style.setProperty('max-height', 'none', 'important');
-            img.style.setProperty('margin-top', '80px', 'important');
-        } else {
-            modal.style.removeProperty('display');
-            modal.style.removeProperty('overflow');
-            modal.style.removeProperty('text-align');
-            img.style.removeProperty('width');
-            img.style.removeProperty('max-width');
-            img.style.removeProperty('height');
-            img.style.removeProperty('max-height');
-            img.style.removeProperty('margin-top');
-        }
-        return; 
-    }
-
-    // --- REINICIAR ZOOM Y GALERIA AL CERRAR ---
+    // --- REINICIAR AL CERRAR EL MODAL ---
     if (target && target.classList.contains('close-btn')) {
         const modal = target.closest('.fs-modal');
         if(modal) {
+            resetZoom(modal);
             modal.setAttribute('data-current', '0');
             const counter = modal.querySelector('.img-counter');
             const total = modal.getAttribute('data-total') || 1;
@@ -3380,22 +3342,76 @@ doc.addEventListener('click', function(e) {
 
             const imgs = modal.querySelectorAll('img');
             imgs.forEach(img => {
-                img.setAttribute('data-zoom-idx', 0);
-                modal.style.removeProperty('display');
-                modal.style.removeProperty('overflow');
-                modal.style.removeProperty('text-align');
-                img.style.removeProperty('width');
-                img.style.removeProperty('max-width');
-                img.style.removeProperty('height');
-                img.style.removeProperty('max-height');
-                img.style.removeProperty('margin-top');
-                
                 const idx = parseInt(img.getAttribute('data-idx')) || 0;
                 img.style.setProperty('display', idx === 0 ? 'block' : 'none', 'important');
             });
         }
     }
+}, true);
 
-}, true); // <-- EL 'true' ES VITAL: Fuerza a leer nuestro clic antes de que React lo elimine
+// --- ZOOM CON RUEDA DEL RATON (PC) ---
+doc.addEventListener('wheel', function(e) {
+    const modal = e.target.closest('.fs-modal');
+    if (!modal) return;
+    const img = modal.querySelector('.gallery-img[style*="display: block"]');
+    if (!img) return;
+
+    e.preventDefault();
+    const zoomSpeed = 0.15;
+    if (e.deltaY < 0) currentScale += zoomSpeed;
+    else currentScale -= zoomSpeed;
+
+    currentScale = Math.max(0.5, Math.min(currentScale, 6)); // Límite de 0.5x a 6x de zoom
+    img.style.transform = `translate(${translateX}px, ${translateY}px) scale(${currentScale})`;
+}, {passive: false});
+
+// --- ZOOM DE DOS DEDOS Y ARRASTRE (MOVIL) ---
+doc.addEventListener('touchstart', function(e) {
+    const modal = e.target.closest('.fs-modal');
+    if (!modal) return;
+    const img = modal.querySelector('.gallery-img[style*="display: block"]');
+    if (!img) return;
+
+    if (e.touches.length === 2) {
+        // Modo Pinch (Zoom con dos dedos)
+        e.preventDefault();
+        startDist = Math.hypot(e.touches[0].pageX - e.touches[1].pageX, e.touches[0].pageY - e.touches[1].pageY);
+        initialScale = currentScale;
+    } else if (e.touches.length === 1 && currentScale > 1) {
+        // Modo Arrastre (Si ya hiciste zoom, puedes mover la imagen con un dedo)
+        isDragging = true;
+        startX = e.touches[0].pageX - translateX;
+        startY = e.touches[0].pageY - translateY;
+    }
+}, {passive: false});
+
+doc.addEventListener('touchmove', function(e) {
+    const modal = e.target.closest('.fs-modal');
+    if (!modal) return;
+    const img = modal.querySelector('.gallery-img[style*="display: block"]');
+    if (!img) return;
+    
+    if (e.touches.length === 2) {
+        e.preventDefault();
+        const currentDist = Math.hypot(e.touches[0].pageX - e.touches[1].pageX, e.touches[0].pageY - e.touches[1].pageY);
+        currentScale = initialScale * (currentDist / startDist);
+        currentScale = Math.max(0.5, Math.min(currentScale, 6));
+        img.style.transform = `translate(${translateX}px, ${translateY}px) scale(${currentScale})`;
+        img.style.transition = 'none'; // Desactiva la animación para que el zoom sea fluido en tiempo real
+    } else if (e.touches.length === 1 && isDragging) {
+        e.preventDefault();
+        translateX = e.touches[0].pageX - startX;
+        translateY = e.touches[0].pageY - startY;
+        img.style.transform = `translate(${translateX}px, ${translateY}px) scale(${currentScale})`;
+        img.style.transition = 'none';
+    }
+}, {passive: false});
+
+doc.addEventListener('touchend', function(e) {
+    isDragging = false;
+    // Restaura la animación suave tras soltar la imagen
+    const img = doc.querySelector('.fs-modal .gallery-img[style*="display: block"]');
+    if(img) img.style.transition = 'transform 0.1s ease-out';
+});
 </script>
 """, height=0, width=0) 
