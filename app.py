@@ -3286,29 +3286,32 @@ bloquearTeclado();
 const observer = new MutationObserver(bloquearTeclado);
 observer.observe(doc.body, { childList: true, subtree: true });
 
-// 3. LOGICA AVANZADA DE ZOOM (Rueda del ratón, Pinch en móvil y Arrastre)
+// 3. ZOOM CENTRAL Y ARRASTRE LIBRE (Pan & Zoom Perfecto)
 let currentScale = 1;
 let translateX = 0;
 let translateY = 0;
 let isDragging = false;
-let startX, startY, startDist, initialScale;
+let startX, startY;
+let initialTranslateX, initialTranslateY;
 
 function resetZoom(modal) {
     currentScale = 1; translateX = 0; translateY = 0;
     const imgs = modal.querySelectorAll('.gallery-img');
     imgs.forEach(img => {
+        img.style.transition = 'transform 0.2s ease-out';
         img.style.transform = 'translate(0px, 0px) scale(1)';
+        img.style.cursor = 'zoom-in';
     });
 }
 
-// Control de clicks (Siguiente, Anterior, Cerrar)
+// --- Control de Clicks (Galería y Cerrar) ---
 doc.addEventListener('click', function(e) {
     let target = e.target;
 
-    // --- LOGICA DE GALERIA (Siguiente / Anterior) ---
+    // 1. Botones de Galería
     if (target && (target.classList.contains('next-img-btn') || target.classList.contains('prev-img-btn'))) {
         const modal = target.closest('.fs-modal');
-        resetZoom(modal); // Resetear el zoom al cambiar de foto
+        resetZoom(modal);
         let currentIdx = parseInt(modal.getAttribute('data-current')) || 0;
         const total = parseInt(modal.getAttribute('data-total')) || 1;
         const isNext = target.classList.contains('next-img-btn');
@@ -3330,7 +3333,7 @@ doc.addEventListener('click', function(e) {
         return;
     }
 
-    // --- REINICIAR AL CERRAR EL MODAL ---
+    // 2. Cerrar Modal
     if (target && target.classList.contains('close-btn')) {
         const modal = target.closest('.fs-modal');
         if(modal) {
@@ -3339,17 +3342,17 @@ doc.addEventListener('click', function(e) {
             const counter = modal.querySelector('.img-counter');
             const total = modal.getAttribute('data-total') || 1;
             if (counter) counter.innerText = '1 / ' + total;
-
             const imgs = modal.querySelectorAll('img');
             imgs.forEach(img => {
                 const idx = parseInt(img.getAttribute('data-idx')) || 0;
                 img.style.setProperty('display', idx === 0 ? 'block' : 'none', 'important');
             });
         }
+        return;
     }
 }, true);
 
-// --- ZOOM CON RUEDA DEL RATON (PC) ---
+// --- ZOOM CON RUEDA EN EL CENTRO (PC) ---
 doc.addEventListener('wheel', function(e) {
     const modal = e.target.closest('.fs-modal');
     if (!modal) return;
@@ -3357,54 +3360,113 @@ doc.addEventListener('wheel', function(e) {
     if (!img) return;
 
     e.preventDefault();
-    const zoomSpeed = 0.15;
+    const zoomSpeed = 0.2;
     if (e.deltaY < 0) currentScale += zoomSpeed;
     else currentScale -= zoomSpeed;
 
-    currentScale = Math.max(0.5, Math.min(currentScale, 6)); // Límite de 0.5x a 6x de zoom
-    img.style.transform = `translate(${translateX}px, ${translateY}px) scale(${currentScale})`;
-}, {passive: false});
-
-// --- ZOOM DE DOS DEDOS Y ARRASTRE (MOVIL) ---
-doc.addEventListener('touchstart', function(e) {
-    const modal = e.target.closest('.fs-modal');
-    if (!modal) return;
-    const img = modal.querySelector('.gallery-img[style*="display: block"]');
-    if (!img) return;
-
-    if (e.touches.length === 2) {
-        // Modo Pinch (Zoom con dos dedos)
-        e.preventDefault();
-        startDist = Math.hypot(e.touches[0].pageX - e.touches[1].pageX, e.touches[0].pageY - e.touches[1].pageY);
-        initialScale = currentScale;
-    } else if (e.touches.length === 1 && currentScale > 1) {
-        // Modo Arrastre (Si ya hiciste zoom, puedes mover la imagen con un dedo)
-        isDragging = true;
-        startX = e.touches[0].pageX - translateX;
-        startY = e.touches[0].pageY - translateY;
-    }
-}, {passive: false});
-
-doc.addEventListener('touchmove', function(e) {
-    const modal = e.target.closest('.fs-modal');
-    if (!modal) return;
-    const img = modal.querySelector('.gallery-img[style*="display: block"]');
-    if (!img) return;
+    currentScale = Math.max(1, Math.min(currentScale, 5)); // Límite exacto de 1x (original) a 5x (gigante)
     
-    if (e.touches.length === 2) {
-        e.preventDefault();
-        const currentDist = Math.hypot(e.touches[0].pageX - e.touches[1].pageX, e.touches[0].pageY - e.touches[1].pageY);
-        currentScale = initialScale * (currentDist / startDist);
-        currentScale = Math.max(0.5, Math.min(currentScale, 6));
-        img.style.transform = `translate(${translateX}px, ${translateY}px) scale(${currentScale})`;
-        img.style.transition = 'none'; // Desactiva la animación para que el zoom sea fluido en tiempo real
-    } else if (e.touches.length === 1 && isDragging) {
-        e.preventDefault();
-        translateX = e.touches[0].pageX - startX;
-        translateY = e.touches[0].pageY - startY;
-        img.style.transform = `translate(${translateX}px, ${translateY}px) scale(${currentScale})`;
-        img.style.transition = 'none';
+    // Si alejamos por completo, centramos la imagen automáticamente
+    if (currentScale === 1) {
+        translateX = 0;
+        translateY = 0;
+    }
+
+    img.style.transition = 'transform 0.1s ease-out';
+    img.style.transform = `translate(${translateX}px, ${translateY}px) scale(${currentScale})`;
+    img.style.cursor = currentScale > 1 ? 'grab' : 'zoom-in';
+}, {passive: false});
+
+// --- LÓGICA DE ARRASTRE (Para poder mover la imagen) ---
+function startDrag(clientX, clientY, target) {
+    if (currentScale > 1 && target.classList.contains('gallery-img')) {
+        isDragging = true;
+        startX = clientX;
+        startY = clientY;
+        initialTranslateX = translateX;
+        initialTranslateY = translateY;
+        target.style.transition = 'none'; // Fluidez total sin lag
+        target.style.cursor = 'grabbing'; // El cursor se vuelve un puño cerrado
+    }
+}
+
+function doDrag(clientX, clientY, target) {
+    if (isDragging && target.classList.contains('gallery-img')) {
+        const dx = clientX - startX;
+        const dy = clientY - startY;
+        // La matemática perfecta para que el ratón no se desfase de la imagen
+        translateX = initialTranslateX + (dx / currentScale);
+        translateY = initialTranslateY + (dy / currentScale);
+        target.style.transform = `translate(${translateX}px, ${translateY}px) scale(${currentScale})`;
+    }
+}
+
+function stopDrag(target) {
+    if (isDragging) {
+        isDragging = false;
+        if (target && target.classList.contains('gallery-img')) {
+            target.style.cursor = 'grab'; // El cursor vuelve a ser una mano abierta
+        }
+    }
+}
+
+// Eventos de Ratón (Para la PC)
+doc.addEventListener('mousedown', e => startDrag(e.clientX, e.clientY, e.target));
+doc.addEventListener('mousemove', e => {
+    if (isDragging) { e.preventDefault(); doDrag(e.clientX, e.clientY, e.target); }
+});
+doc.addEventListener('mouseup', e => stopDrag(e.target));
+doc.addEventListener('mouseleave', e => stopDrag(e.target));
+
+// Eventos Táctiles (Para el Teléfono)
+let initialPinchDist = null;
+let initialScalePinch = 1;
+
+doc.addEventListener('touchstart', e => {
+    const modal = e.target.closest('.fs-modal');
+    if (!modal) return;
+    const img = modal.querySelector('.gallery-img[style*="display: block"]');
+    if (!img) return;
+
+    if (e.touches.length === 1) {
+        startDrag(e.touches[0].clientX, e.touches[0].clientY, e.target);
+    } else if (e.touches.length === 2) {
+        // Pinch Zoom (Pellizcar con dos dedos)
+        isDragging = false;
+        initialPinchDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+        initialScalePinch = currentScale;
     }
 }, {passive: false});
+
+doc.addEventListener('touchmove', e => {
+    const modal = e.target.closest('.fs-modal');
+    if (!modal) return;
+
+    if (e.touches.length === 1 && isDragging) {
+        e.preventDefault();
+        doDrag(e.touches[0].clientX, e.touches[0].clientY, e.target);
+    } else if (e.touches.length === 2 && initialPinchDist) {
+        e.preventDefault();
+        const currentDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+        currentScale = initialScalePinch * (currentDist / initialPinchDist);
+        currentScale = Math.max(1, Math.min(currentScale, 5));
+        
+        // Centrar automático si quitas el zoom
+        if (currentScale === 1) {
+            translateX = 0; translateY = 0;
+        }
+        
+        const img = modal.querySelector('.gallery-img[style*="display: block"]');
+        if (img) {
+            img.style.transition = 'none';
+            img.style.transform = `translate(${translateX}px, ${translateY}px) scale(${currentScale})`;
+        }
+    }
+}, {passive: false});
+
+doc.addEventListener('touchend', e => {
+    stopDrag(e.target);
+    initialPinchDist = null;
+});
 </script>
 """, height=0, width=0) 
