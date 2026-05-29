@@ -3349,146 +3349,62 @@ doc.addEventListener('click', function(e) {
     }
 }, true);
 
-// 3. MOTOR DE ZOOM INFALIBLE (Click-to-Zoom y Arrastre)
-let currentScale = 1;
-let translateX = 0;
-let translateY = 0;
-let isDragging = false;
-let startX, startY;
+// --- ZOOM CON RUEDA DEL RATON (PC) ---
+doc.addEventListener('wheel', function(e) {
+    const modal = e.target.closest('.fs-modal');
+    if (!modal) return;
+    const img = modal.querySelector('.gallery-img[style*="display: block"]');
+    if (!img) return;
 
-function resetZoom(modal) {
-    currentScale = 1; translateX = 0; translateY = 0;
-    const imgs = modal.querySelectorAll('.gallery-img');
-    imgs.forEach(img => {
-        img.style.transition = 'transform 0.2s ease-out';
-        img.style.transform = 'translate(0px, 0px) scale(1)';
-        img.style.cursor = 'zoom-in';
-    });
-}
+    e.preventDefault();
+    const zoomSpeed = 0.15;
+    if (e.deltaY < 0) currentScale += zoomSpeed;
+    else currentScale -= zoomSpeed;
 
-// --- Control de Clicks (Galería, Cerrar y ZOOM EXACTO) ---
-doc.addEventListener('click', function(e) {
-    let target = e.target;
+    currentScale = Math.max(0.5, Math.min(currentScale, 6)); // Límite de 0.5x a 6x de zoom
+    img.style.transform = `translate(${translateX}px, ${translateY}px) scale(${currentScale})`;
+}, {passive: false});
 
-    // 1. Botones de Galería (Siguiente / Anterior)
-    if (target && (target.classList.contains('next-img-btn') || target.classList.contains('prev-img-btn'))) {
-        const modal = target.closest('.fs-modal');
-        resetZoom(modal);
-        let currentIdx = parseInt(modal.getAttribute('data-current')) || 0;
-        const total = parseInt(modal.getAttribute('data-total')) || 1;
-        const isNext = target.classList.contains('next-img-btn');
-
-        if (isNext) currentIdx = (currentIdx + 1) % total;
-        else currentIdx = (currentIdx - 1 + total) % total;
-        
-        modal.setAttribute('data-current', currentIdx);
-
-        const imgs = modal.querySelectorAll('.gallery-img');
-        imgs.forEach(img => {
-            const idx = parseInt(img.getAttribute('data-idx'));
-            if (idx === currentIdx) img.style.setProperty('display', 'block', 'important');
-            else img.style.setProperty('display', 'none', 'important');
-        });
-
-        const counter = modal.querySelector('.img-counter');
-        if (counter) counter.innerText = (currentIdx + 1) + ' / ' + total;
-        return;
-    }
-
-    // 2. Cerrar el Modal
-    if (target && target.classList.contains('close-btn')) {
-        const modal = target.closest('.fs-modal');
-        if(modal) {
-            resetZoom(modal);
-            modal.setAttribute('data-current', '0');
-            const counter = modal.querySelector('.img-counter');
-            const total = modal.getAttribute('data-total') || 1;
-            if (counter) counter.innerText = '1 / ' + total;
-
-            const imgs = modal.querySelectorAll('img');
-            imgs.forEach(img => {
-                const idx = parseInt(img.getAttribute('data-idx')) || 0;
-                img.style.setProperty('display', idx === 0 ? 'block' : 'none', 'important');
-            });
-        }
-        return;
-    }
-
-    // 3. 🟢 ZOOM EXACTO DONDE HACES CLIC 🟢
-    if (target && target.classList.contains('gallery-img')) {
-        const prevScale = currentScale;
-        currentScale += 1; // Aumenta 1 nivel de zoom por cada clic (ej. 1x, 2x, 3x)
-        
-        // Si ya está en 4x y das otro clic, se reinicia al tamaño original
-        if (currentScale > 4) {
-            resetZoom(target.closest('.fs-modal'));
-            return;
-        }
-
-        target.style.cursor = currentScale >= 4 ? 'zoom-out' : 'zoom-in';
-
-        const scaleRatio = currentScale / prevScale;
-        const vCenterX = window.innerWidth / 2;
-        const vCenterY = window.innerHeight / 2;
-
-        // Fórmula matemática infalible para empujar la imagen exactamente hacia tu clic
-        translateX -= (e.clientX - vCenterX - translateX) * (scaleRatio - 1);
-        translateY -= (e.clientY - vCenterY - translateY) * (scaleRatio - 1);
-
-        target.style.transition = 'transform 0.2s ease-out';
-        target.style.transform = `translate(${translateX}px, ${translateY}px) scale(${currentScale})`;
-    }
-}, true);
-
-// --- ARRASTRE FLUIDO DE LA IMAGEN ---
-// Ratón (Para la PC)
-doc.addEventListener('mousedown', function(e) {
-    if (currentScale > 1 && e.target.classList.contains('gallery-img')) {
-        isDragging = true;
-        startX = e.clientX - translateX;
-        startY = e.clientY - translateY;
-        e.target.style.transition = 'none'; // Quita la animación para que arrastre instantáneamente
-        e.target.style.cursor = 'grabbing';
-    }
-});
-doc.addEventListener('mousemove', function(e) {
-    if (isDragging && e.target.classList.contains('gallery-img')) {
-        translateX = e.clientX - startX;
-        translateY = e.clientY - startY;
-        e.target.style.transform = `translate(${translateX}px, ${translateY}px) scale(${currentScale})`;
-    }
-});
-doc.addEventListener('mouseup', function(e) { 
-    isDragging = false; 
-    if (e.target.classList && e.target.classList.contains('gallery-img')) {
-        e.target.style.cursor = currentScale >= 4 ? 'zoom-out' : 'zoom-in';
-    }
-});
-
-// Dedos (Para el Teléfono)
+// --- ZOOM DE DOS DEDOS Y ARRASTRE (MOVIL) ---
 doc.addEventListener('touchstart', function(e) {
-    if (currentScale > 1 && e.touches.length === 1 && e.target.classList.contains('gallery-img')) {
-        isDragging = true;
-        startX = e.touches[0].clientX - translateX;
-        startY = e.touches[0].clientY - translateY;
-        e.target.style.transition = 'none';
-    }
-}, {passive: false});
-doc.addEventListener('touchmove', function(e) {
-    if (isDragging && e.touches.length === 1 && e.target.classList.contains('gallery-img')) {
-        e.preventDefault(); // Evita que la página intente hacer scroll hacia abajo
-        translateX = e.touches[0].clientX - startX;
-        translateY = e.touches[0].clientY - startY;
-        e.target.style.transform = `translate(${translateX}px, ${translateY}px) scale(${currentScale})`;
-    }
-}, {passive: false});
-doc.addEventListener('touchend', function() { isDragging = false; });
+    const modal = e.target.closest('.fs-modal');
+    if (!modal) return;
+    const img = modal.querySelector('.gallery-img[style*="display: block"]');
+    if (!img) return;
 
-doc.addEventListener('touchend', function(e) {
-    isDragging = false;
-    // Restaura la animación suave tras soltar la imagen
-    const img = doc.querySelector('.fs-modal .gallery-img[style*="display: block"]');
-    if(img) img.style.transition = 'transform 0.1s ease-out';
-});
+    if (e.touches.length === 2) {
+        // Modo Pinch (Zoom con dos dedos)
+        e.preventDefault();
+        startDist = Math.hypot(e.touches[0].pageX - e.touches[1].pageX, e.touches[0].pageY - e.touches[1].pageY);
+        initialScale = currentScale;
+    } else if (e.touches.length === 1 && currentScale > 1) {
+        // Modo Arrastre (Si ya hiciste zoom, puedes mover la imagen con un dedo)
+        isDragging = true;
+        startX = e.touches[0].pageX - translateX;
+        startY = e.touches[0].pageY - translateY;
+    }
+}, {passive: false});
+
+doc.addEventListener('touchmove', function(e) {
+    const modal = e.target.closest('.fs-modal');
+    if (!modal) return;
+    const img = modal.querySelector('.gallery-img[style*="display: block"]');
+    if (!img) return;
+    
+    if (e.touches.length === 2) {
+        e.preventDefault();
+        const currentDist = Math.hypot(e.touches[0].pageX - e.touches[1].pageX, e.touches[0].pageY - e.touches[1].pageY);
+        currentScale = initialScale * (currentDist / startDist);
+        currentScale = Math.max(0.5, Math.min(currentScale, 6));
+        img.style.transform = `translate(${translateX}px, ${translateY}px) scale(${currentScale})`;
+        img.style.transition = 'none'; // Desactiva la animación para que el zoom sea fluido en tiempo real
+    } else if (e.touches.length === 1 && isDragging) {
+        e.preventDefault();
+        translateX = e.touches[0].pageX - startX;
+        translateY = e.touches[0].pageY - startY;
+        img.style.transform = `translate(${translateX}px, ${translateY}px) scale(${currentScale})`;
+        img.style.transition = 'none';
+    }
+}, {passive: false});
 </script>
 """, height=0, width=0) 
