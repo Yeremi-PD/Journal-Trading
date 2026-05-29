@@ -1980,8 +1980,11 @@ with tab_calendario:
                 
                 with c_date:
                     st.markdown('<div class="lbl-header">Fecha:</div>', unsafe_allow_html=True)
-                    # Forzamos a que por defecto SIEMPRE cargue el día actual (hoy)
-                    fecha_sel = st.date_input("Fecha", value=hoy, label_visibility="collapsed", key="btn_fecha_directa")
+                    # Convertimos la fecha en un Popover para agrupar Fecha y Hora sin ensuciar el UI principal
+                    with st.popover(f"🗓️ {hoy.strftime('%d/%m')}", use_container_width=True):
+                        st.markdown("<div style='margin-bottom: 5px; font-weight: bold; color: gray;'>Día y Hora del Trade</div>", unsafe_allow_html=True)
+                        fecha_sel = st.date_input("Día", value=hoy, label_visibility="collapsed")
+                        hora_sel = st.time_input("Hora", value=datetime.now().time(), label_visibility="collapsed")
                 
                 with c_hora:
                     st.markdown('<div class="lbl-header">Hora:</div>', unsafe_allow_html=True)
