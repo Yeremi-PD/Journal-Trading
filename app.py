@@ -3286,19 +3286,171 @@ bloquearTeclado();
 const observer = new MutationObserver(bloquearTeclado);
 observer.observe(doc.body, { childList: true, subtree: true });
 
-// 3. ZOOM CENTRAL Y ARRASTRE (ESTABLE Y SEGURO)
+// 3. MOTOR DE ZOOM Y ARRASTRE DEFINITIVO (Alta Sensibilidad y Seguro Anti-Bugs)
 let currentScale = 1;
-let translateX = 0;
+let translateX = 0, translateY = 0;
+let initialTx = 0, initialTy = 0;
+let isDragging = false;
+let startX, startY;
 
-// ... (SELECCIONA TODO HASTA ABAJO) ...
+// Función de seguridad: Evita que la imagen se teletransporte por un cálculo fallido
+function setTransform(img) {
+    if (isNaN(translateX) || !isFinite(translateX)) translateX = 0;
+    if (isNaN(translateY) || !isFinite(translateY)) translateY = 0;
+    if (isNaN(currentScale) || !isFinite(currentScale)) currentScale = 1;
+    img.style.transform = `translate(${translateX}px, ${translateY}px) scale(${currentScale})`;
+}
 
-doc.addEventListener('touchend', function(e) {
+function resetZoom(modal) {
+    currentScale = 1; translateX = 0; translateY = 0; initialTx = 0; initialTy = 0;
+    const imgs = modal.querySelectorAll('.gallery-img');
+    imgs.forEach(img => {
+        img.style.transition = 'transform 0.2s ease-out';
+        img.style.transform = 'translate(0px, 0px) scale(1)';
+        img.style.cursor = 'zoom-in';
+    });
+}
+
+// --- Control de Clicks (Galería y Cerrar) ---
+doc.addEventListener('click', function(e) {
+    let target = e.target;
+    if (target && (target.classList.contains('next-img-btn') || target.classList.contains('prev-img-btn'))) {
+        const modal = target.closest('.fs-modal');
+        resetZoom(modal);
+        let currentIdx = parseInt(modal.getAttribute('data-current')) || 0;
+        const total = parseInt(modal.getAttribute('data-total')) || 1;
+        
+        if (target.classList.contains('next-img-btn')) currentIdx = (currentIdx + 1) % total;
+        else currentIdx = (currentIdx - 1 + total) % total;
+        
+        modal.setAttribute('data-current', currentIdx);
+        const imgs = modal.querySelectorAll('.gallery-img');
+        imgs.forEach(img => {
+            if (parseInt(img.getAttribute('data-idx')) === currentIdx) img.style.setProperty('display', 'block', 'important');
+            else img.style.setProperty('display', 'none', 'important');
+        });
+        const counter = modal.querySelector('.img-counter');
+        if (counter) counter.innerText = (currentIdx + 1) + ' / ' + total;
+        return;
+    }
+    if (target && target.classList.contains('close-btn')) {
+        const modal = target.closest('.fs-modal');
+        if(modal) {
+            resetZoom(modal);
+            modal.setAttribute('data-current', '0');
+            const counter = modal.querySelector('.img-counter');
+            if (counter) counter.innerText = '1 / ' + (modal.getAttribute('data-total') || 1);
+            modal.querySelectorAll('img').forEach(img => {
+                img.style.setProperty('display', parseInt(img.getAttribute('data-idx')) === 0 ? 'block' : 'none', 'important');
+            });
+        }
+    }
+}, true);
+
+// --- RUEDA DEL RATÓN PARA ZOOM (PC) ---
+doc.addEventListener('wheel', function(e) {
+    const modal = e.target.closest('.fs-modal');
+    if (!modal) return;
+    const img = modal.querySelector('.gallery-img[style*="display: block"]');
+    if (!img) return;
+    e.preventDefault(); 
+    
+    currentScale += e.deltaY < 0 ? 0.25 : -0.25;
+    currentScale = Math.max(1, Math.min(currentScale, 6)); // Límite de 1x a 6x
+
+    if (currentScale === 1) { translateX = 0; translateY = 0; }
+
+    img.style.transition = 'transform 0.1s ease-out';
+    setTransform(img);
+    img.style.cursor = currentScale > 1 ? 'grab' : 'zoom-in';
+}, {passive: false});
+
+// --- ARRASTRE FLUIDO (PC) ---
+doc.addEventListener('mousedown', function(e) {
+    if (currentScale > 1 && e.target.classList.contains('gallery-img')) {
+        isDragging = true;
+        startX = e.clientX;
+        startY = e.clientY;
+        initialTx = translateX;
+        initialTy = translateY;
+        e.target.style.transition = 'none'; // Quita la animación para respuesta instantánea
+        e.target.style.cursor = 'grabbing';
+        e.preventDefault();
+    }
+});
+
+doc.addEventListener('mousemove', function(e) {
+    if (!isDragging) return;
+    const img = doc.querySelector('.fs-modal .gallery-img[style*="display: block"]');
+    if (!img) return;
+
+    // Sensibilidad 1:1, sigue al ratón perfectamente
+    translateX = initialTx + (e.clientX - startX);
+    translateY = initialTy + (e.clientY - startY);
+    setTransform(img);
+});
+
+window.addEventListener('mouseup', function() {
     if (isDragging) {
         isDragging = false;
-        lastTranslateX = translateX;
-        lastTranslateY = translateY;
+        const img = doc.querySelector('.fs-modal .gallery-img[style*="display: block"]');
+        if(img) img.style.cursor = currentScale > 1 ? 'grab' : 'zoom-in';
     }
-    if (e.touches.length < 2) {
+});
+
+// --- ZOOM Y ARRASTRE (MÓVIL) ---
+let initialDist = 0;
+let initialScaleStart = 1;
+
+doc.addEventListener('touchstart', function(e) {
+    const modal = e.target.closest('.fs-modal');
+    if (!modal) return;
+    const img = modal.querySelector('.gallery-img[style*="display: block"]');
+    if (!img) return;
+
+    if (e.touches.length === 1 && currentScale > 1) {
+        isDragging = true;
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+        initialTx = translateX;
+        initialTy = translateY;
+        img.style.transition = 'none';
+    } else if (e.touches.length === 2) {
+        isDragging = false;
+        initialDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+        initialScaleStart = currentScale;
+        img.style.transition = 'none';
+    }
+}, {passive: false});
+
+doc.addEventListener('touchmove', function(e) {
+    const modal = e.target.closest('.fs-modal');
+    if (!modal) return;
+    const img = modal.querySelector('.gallery-img[style*="display: block"]');
+    if (!img) return;
+
+    if (e.touches.length === 1 && isDragging) {
+        e.preventDefault();
+        // Sensibilidad Aumentada x1.5 para el teléfono
+        translateX = initialTx + (e.touches[0].clientX - startX) * 1.5;
+        translateY = initialTy + (e.touches[0].clientY - startY) * 1.5;
+        setTransform(img);
+    } else if (e.touches.length === 2 && initialDist > 10) { // Protección extra si los dedos están muy pegados
+        e.preventDefault();
+        const currentDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+        if (currentDist === 0) return; // Evita el bug matemático de la pantalla negra
+
+        currentScale = initialScaleStart * (currentDist / initialDist);
+        currentScale = Math.max(1, Math.min(currentScale, 6));
+
+        if (currentScale === 1) { translateX = 0; translateY = 0; }
+        setTransform(img);
+    }
+}, {passive: false});
+
+doc.addEventListener('touchend', function(e) {
+    if (e.touches.length === 0) {
+        isDragging = false;
         initialDist = 0;
     }
 });
