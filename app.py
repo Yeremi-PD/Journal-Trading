@@ -1975,22 +1975,20 @@ with tab_calendario:
 
         with col_form_area:
             with st.form(key="form_main_entry", clear_on_submit=True, border=False):
-                # Redimensionamos para acomodar la Hora junto a la Fecha
-                c_date, c_hora, c_cant, c_det, c_link, c_btn = st.columns([0.8, 0.7, 1.1, 1.1, 2.2, 1])
+                # Volvemos a las 5 columnas originales para mantener tu diseño impecable
+                c_date, c_cant, c_det, c_link, c_btn = st.columns([0.8, 1.2, 1.1, 2.5, 1])
                 
                 with c_date:
                     st.markdown('<div class="lbl-header">Fecha:</div>', unsafe_allow_html=True)
-                    # Convertimos la fecha en un Popover para agrupar Fecha y Hora sin ensuciar el UI principal
+                    # El botón principal mostrará la fecha, y al darle clic abrirá el selector con hora local (UTC-4)
                     with st.popover(f"🗓️ {hoy.strftime('%d/%m')}", use_container_width=True):
                         st.markdown("<div style='margin-bottom: 5px; font-weight: bold; color: gray;'>Día y Hora del Trade</div>", unsafe_allow_html=True)
                         fecha_sel = st.date_input("Día", value=hoy, label_visibility="collapsed")
-                        hora_sel = st.time_input("Hora", value=datetime.now().time(), label_visibility="collapsed")
-                
-                with c_hora:
-                    st.markdown('<div class="lbl-header">Hora:</div>', unsafe_allow_html=True)
-                    # Carga la hora exacta actual por defecto
-                    hora_sel = st.time_input("Hora", value=datetime.now().time(), label_visibility="collapsed", key="btn_hora_directa")
-                    
+                        
+                        # Hora de RD minuto a minuto (step=60)
+                        hora_local_rd = (datetime.utcnow() - pd.Timedelta(hours=4)).time()
+                        hora_sel = st.time_input("Hora exacta", value=hora_local_rd, step=60, label_visibility="collapsed")
+                        
                 with c_cant:
                     st.markdown('<div class="lbl-header">Cantidad:</div>', unsafe_allow_html=True)
                     nuevo_bal_input_str = st.text_input("Balance Input", value="", placeholder=f"{bal_mostrar:.2f}", label_visibility="collapsed")
