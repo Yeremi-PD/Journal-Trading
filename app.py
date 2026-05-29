@@ -3423,7 +3423,7 @@ window.addEventListener('mouseup', function() {
     }
 });
 
-// --- ZOOM Y ARRASTRE (MÓVIL) ---
+// --- ZOOM Y ARRASTRE MULTITOUCH INTELIGENTE (MÓVIL) ---
 let initialDist = 0;
 let initialScaleStart = 1;
 
@@ -3435,10 +3435,9 @@ doc.addEventListener('touchstart', function(e) {
 
     if (e.touches.length === 1 && currentScale > 1) {
         isDragging = true;
-        startX = e.touches[0].clientX;
-        startY = e.touches[0].clientY;
-        initialTx = translateX;
-        initialTy = translateY;
+        // Anclamos el dedo directamente a la posición actual de la imagen sin saltos
+        startX = e.touches[0].clientX - translateX;
+        startY = e.touches[0].clientY - translateY;
         img.style.transition = 'none';
     } else if (e.touches.length === 2) {
         isDragging = false;
@@ -3456,19 +3455,37 @@ doc.addEventListener('touchmove', function(e) {
 
     if (e.touches.length === 1 && isDragging) {
         e.preventDefault();
-        // Sensibilidad Aumentada x1.5 para el teléfono
-        translateX = initialTx + (e.touches[0].clientX - startX) * 1.5;
-        translateY = initialTy + (e.touches[0].clientY - startY) * 1.5;
+        // Movimiento 1:1 ultra fluido y responsivo en pantallas táctiles
+        translateX = e.touches[0].clientX - startX;
+        translateY = e.touches[0].clientY - startY;
         setTransform(img);
-    } else if (e.touches.length === 2 && initialDist > 10) { // Protección extra si los dedos están muy pegados
+    } else if (e.touches.length === 2 && initialDist > 10) {
         e.preventDefault();
         const currentDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
-        if (currentDist === 0) return; // Evita el bug matemático de la pantalla negra
+        if (currentDist === 0) return;
 
+        const prevScale = currentScale;
         currentScale = initialScaleStart * (currentDist / initialDist);
         currentScale = Math.max(1, Math.min(currentScale, 6));
 
-        if (currentScale === 1) { translateX = 0; translateY = 0; }
+        if (currentScale === 1) { 
+            translateX = 0; translateY = 0; 
+        } else {
+            // Buscamos las coordenadas del cuadro real de la imagen en pantalla
+            const scaleRatio = currentScale / prevScale;
+            const rect = img.getBoundingClientRect();
+            
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+
+            // Calculamos el centro dinámico exacto entre tus dos dedos
+            const midX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+            const midY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+
+            // Desplazamos los ejes enfocándonos en el punto medio del pellizco táctil
+            translateX -= (midX - centerX) * (scaleRatio - 1);
+            translateY -= (midY - centerY) * (scaleRatio - 1);
+        }
         setTransform(img);
     }
 }, {passive: false});
