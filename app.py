@@ -3347,7 +3347,7 @@ doc.addEventListener('click', function(e) {
     }
 }, true);
 
-// --- RUEDA DEL RATÓN PARA ZOOM (PC) ---
+// --- RUEDA DEL RATÓN PARA ZOOM HACIA EL PUNTERO (PC) ---
 doc.addEventListener('wheel', function(e) {
     const modal = e.target.closest('.fs-modal');
     if (!modal) return;
@@ -3355,27 +3355,38 @@ doc.addEventListener('wheel', function(e) {
     if (!img) return;
     e.preventDefault(); 
     
+    const prevScale = currentScale;
     currentScale += e.deltaY < 0 ? 0.25 : -0.25;
-    currentScale = Math.max(1, Math.min(currentScale, 6)); // Límite de 1x a 6x
+    currentScale = Math.max(1, Math.min(currentScale, 6));
 
-    if (currentScale === 1) { translateX = 0; translateY = 0; }
+    if (currentScale === 1) { 
+        translateX = 0; translateY = 0; 
+    } else {
+        // Fórmula geométrica: Mueve la imagen mientras hace zoom para que el centro sea tu cursor
+        const scaleRatio = currentScale / prevScale;
+        const vCenterX = window.innerWidth / 2;
+        const vCenterY = window.innerHeight / 2;
+
+        translateX -= (e.clientX - vCenterX - translateX) * (scaleRatio - 1);
+        translateY -= (e.clientY - vCenterY - translateY) * (scaleRatio - 1);
+    }
 
     img.style.transition = 'transform 0.1s ease-out';
     setTransform(img);
     img.style.cursor = currentScale > 1 ? 'grab' : 'zoom-in';
 }, {passive: false});
 
-// --- ARRASTRE FLUIDO (PC) ---
+// --- ARRASTRE FLUIDO INFALIBLE (PC) ---
 doc.addEventListener('mousedown', function(e) {
     if (currentScale > 1 && e.target.classList.contains('gallery-img')) {
         isDragging = true;
-        startX = e.clientX;
-        startY = e.clientY;
-        initialTx = translateX;
-        initialTy = translateY;
+        // Calculamos la distancia exacta entre el ratón y la imagen
+        startX = e.clientX - translateX;
+        startY = e.clientY - translateY;
+        
         e.target.style.transition = 'none'; // Quita la animación para respuesta instantánea
         e.target.style.cursor = 'grabbing';
-        e.preventDefault();
+        e.preventDefault(); // Evita que el navegador intente "agarrar" la foto como un archivo
     }
 });
 
@@ -3384,9 +3395,9 @@ doc.addEventListener('mousemove', function(e) {
     const img = doc.querySelector('.fs-modal .gallery-img[style*="display: block"]');
     if (!img) return;
 
-    // Sensibilidad 1:1, sigue al ratón perfectamente
-    translateX = initialTx + (e.clientX - startX);
-    translateY = initialTy + (e.clientY - startY);
+    // La imagen sigue exactamente los píxeles del ratón
+    translateX = e.clientX - startX;
+    translateY = e.clientY - startY;
     setTransform(img);
 });
 
