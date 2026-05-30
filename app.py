@@ -1124,7 +1124,7 @@ st.markdown(f"""
     }}
     .block-container, [data-testid="stAppViewBlockContainer"], [data-testid="stMainBlockContainer"] {{ 
         padding-top: 0px !important;
-        margin-top: 110px !important; /* Jalamos toda la página hacia arriba al tope absoluto de la pantalla */
+        margin-top: 0px !important; /* Jalamos toda la página hacia arriba al tope absoluto de la pantalla */
     }}
     
     /* Ocultamos por completo la línea nativa inferior de las pestañas (la segunda línea) */
@@ -1136,7 +1136,9 @@ st.markdown(f"""
     [data-testid="stStatusWidget"] {{ visibility: hidden !important; display: none !important; }}
     
 /* 🌟 MAGIA DE LAS PESTAÑAS (TABS) PREMIUM ESTILO FINANCE CENTER 🌟 */
-    div[data-testid="stTabs"] {{ padding: 0px !important; margin-top: 0px !important; overflow: visible !important; position: relative !important; }}
+    div[data-testid="stTabs"] {{ padding: 0px 0px 15px 0px !important;
+    margin-top: -85px !important; /* Ajuste extremo para pegar las pestañas al techo */
+    overflow: visible !important; }}
     
     /* 1. Las pestañas del menú principal se van limpias al tope absoluto de la página */
     div[data-baseweb="tab-list"] {{ 
@@ -1205,8 +1207,8 @@ st.markdown(f"""
     [data-testid="stAppViewBlockContainer"], 
     [data-testid="stMainBlockContainer"],
     .main .block-container {{ 
-        padding-top: 0px !important; 
-        margin-top: 0px !important; 
+        padding-top: 0px !important;
+        margin-top: -70px !important; /* Empuja todo el bloque hacia el tope absoluto */
         max-width: 100% !important;
     }}
 
