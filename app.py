@@ -3027,7 +3027,7 @@ if es_admin:
 
 # 👇 REABRIMOS LA PESTAÑA HISTORIAL DE ÓRDENES PRINCIPAL PARA ANIDAR LAS SUB-PESTAÑAS AQUÍ 👇
 with tab_historial_principal:
-    st.markdown("<div style='margin-top: -60px;'></div>", unsafe_allow_html=True)
+    st.markdown("<div style='margin-top: -90px;'></div>", unsafe_allow_html=True)
 
     # 🚀 AQUI CREAMOS LAS PESTAÑAS AL ESTILO FINANCE CENTER 🚀
     tab_hist, tab_tabla, tab_exportar = st.tabs(["🕒 HISTORIAL DE ÓRDENES", "📊 TABLA DE RESULTADOS", "💾 EXPORTAR DATOS"])
