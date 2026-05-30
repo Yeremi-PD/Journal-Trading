@@ -1206,7 +1206,7 @@ st.markdown(f"""
     [data-testid="stMainBlockContainer"],
     .main .block-container {{ 
         padding-top: 0px !important; 
-        margin-top: -60px !important; 
+        margin-top: -0px !important; 
         max-width: 100% !important;
     }}
 
