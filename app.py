@@ -1214,7 +1214,7 @@ div[data-testid="stTabs"] [data-baseweb="tab-highlight-point"] {{ display: none 
     }}
     
     .tab-buttons-spacer {{
-        height: 80px !important;
+        height: 0px !important;
         width: 100% !important;
         display: block !important;
     }}
