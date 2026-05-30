@@ -1,5 +1,6 @@
 import streamlit as st
 import streamlit.components.v1 as components
+from streamlit_quill import st_quill
 import calendar
 import math
 import base64
@@ -2982,7 +2983,15 @@ with tab_plan:
     with st.form("form_notas_globales", border=False):
         st.markdown("<div class='identificador-trading-plan'></div>", unsafe_allow_html=True)
         nota_titulo = st.text_input("Título", value=pc_set["global_notes_title"], label_visibility="collapsed")
-        nota_cuerpo = st.text_area("Cuerpo", value=pc_set["global_notes_body"], label_visibility="collapsed", height=600)
+        
+        # 🔥 AQUÍ ESTÁ LA MAGIA: El nuevo editor estilo Word 🔥
+        st.markdown("<br>", unsafe_allow_html=True)
+        nota_cuerpo = st_quill(
+            value=pc_set["global_notes_body"],
+            placeholder="Escribe tu Trading Plan aquí con todo el formato que quieras...",
+            html=True, 
+            key="quill_trading_plan"
+        )
         
         _, col_centro_btn, _ = st.columns([1, 1.5, 1])
         with col_centro_btn:
