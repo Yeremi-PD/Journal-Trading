@@ -1208,8 +1208,8 @@ st.markdown(f"""
     [data-testid="stMainBlockContainer"],
     .main .block-container {{ 
         padding-top: 0px !important;
-        margin-top: -10px !important; /* Empuja todo el bloque hacia el tope absoluto */
-        max-width: 10% !important;
+        margin-top: 20px !important; /* Empuja todo el bloque hacia el tope absoluto */
+        max-width: 100% !important;
     }}
 
     .stApp {{ background-color: {bg_color} !important; font-family: 'Inter', sans-serif !important; }}
