@@ -1803,7 +1803,7 @@ if True:
 
     # 3. Inicializamos las pestañas justo aquí, para que queden debajo en la estructura del código
     if es_admin:
-        tab_calendario, tab_estadisticas, tab_historial_principal, tab_asistente = st.tabs(["📅 CALENDARIO", "📊 ESTADÍSTICAS", "🕒 HISTORIAL DE ÓRDENES", "AI"])
+        tab_calendario, tab_estadisticas, tab_historial_principal, tab_asistente = st.tabs(["📅 CALENDARIO", "📊 ESTADÍSTICAS", "🕒 HISTORIAL TRADES", "🤖 AI"])
     else:
         tab_calendario, tab_estadisticas, tab_historial_principal = st.tabs(["📅 CALENDARIO", "📊 ESTADÍSTICAS", "🕒 HISTORIAL DE ÓRDENES"])
 
