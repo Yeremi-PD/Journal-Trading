@@ -1487,18 +1487,24 @@ div[data-testid="stTabs"] [data-baseweb="tab-highlight-point"] {{ display: none 
             }}
             
             div[data-baseweb="tab-list"]::-webkit-scrollbar {{
-                display: none !important; /* Mantiene oculta la barra de scroll */
+                display: none !important; /* Mantenemos oculta la barra de scroll */
             }}
             
-            /* 🛑 QUITAR LAS FLECHAS/FLECHITAS FANTASMA NATIVAS DE STREAMLIT 🛑 */
-            div[data-testid="stTabs"] button:not([role="tab"]),
-            div[data-baseweb="tab-list"] button:not([role="tab"]) {{
+            /* 🛑 ANIQUILACIÓN TOTAL DE LAS FLECHAS DE PAGINACIÓN NATIVAS 🛑 */
+            div[data-testid="stTabs"] > div:first-child button:not([role="tab"]),
+            div[data-testid="stTabs"] [data-baseweb="tab-list"] ~ button,
+            button[aria-label="Next page"],
+            button[aria-label="Previous page"] {{
                 display: none !important;
                 visibility: hidden !important;
+                opacity: 0 !important;
                 width: 0px !important;
+                max-width: 0px !important;
                 height: 0px !important;
+                max-height: 0px !important;
                 padding: 0 !important;
                 margin: 0 !important;
+                pointer-events: none !important;
             }}
             
             /* Ajuste ultra compacto y estético para tus botones reales */
