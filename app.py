@@ -1215,7 +1215,7 @@ div[data-testid="stTabs"] [data-baseweb="tab-highlight-point"] {{ display: none 
     
     .tab-buttons-spacer {{
         height: 80px !important;
-        width: 90% !important;
+        width: 0% !important;
         display: block !important;
     }}
     .fijo-header-global {{
