@@ -4,4 +4,4 @@ google-auth
 pandas
 google-generativeai
 plotly
-pip install streamlit-quill
+streamlit-quill
