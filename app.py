@@ -1180,36 +1180,37 @@ st.markdown(f"""
 div[data-testid="stTabs"] [data-baseweb="tab-highlight-point"] {{ display: none !important;
     }}
     
-/* 📱 RESPONSIVO: PESTAÑAS PEQUEÑAS Y CON SWIPE PARA TELÉFONOS */
+/* 📱 RESPONSIVO: PESTAÑAS SÚPER PEQUEÑAS Y PEGADITAS PARA MÓVIL */
     @media (max-width: 768px) {{
         div[data-baseweb="tab-list"] {{
-            justify-content: flex-start !important;
-            /* Alinear a la izquierda para poder deslizar */
-            overflow-x: auto !important;
-            /* Activa el Swipe horizontal */
-            overflow-y: hidden !important;
-            flex-wrap: nowrap !important; /* Evitar que se apilen hacia abajo */
-            -webkit-overflow-scrolling: touch !important;
-            /* Deslizamiento ultra suave en iPhone/Android */
+            gap: 4px !important; /* 👈 Aquí controlas la separación entre los botones en el celular */
             padding-left: 4px !important;
             padding-right: 4px !important;
-            gap: 1px !important; /* 👈 Reducido de 10px a 4px para pegar los botones entre sí */
+            justify-content: flex-start !important; /* Libera el centrado forzado */
+            width: 100% !important;
+            overflow-x: auto !important; /* Permite que se deslicen libremente si no cupieran */
+            overflow-y: hidden !important;
+            flex-wrap: nowrap !important;
+            -webkit-overflow-scrolling: touch !important;
         }}
         
-        /* Ocultar la barra de scroll horizontal para que se vea como una App nativa */
         div[data-baseweb="tab-list"]::-webkit-scrollbar {{
             display: none !important;
         }}
         
         div[data-testid="stTabs"] button {{
-            font-size: 12px !important; /* 👈 Letra ligeramente más pequeña para optimizar espacio */
-            padding: 6px 8px !important; /* 👈 Reducido de 10px 16px para quitarle la gordura interna horizontal y vertical */
+            font-size: 12px !important; /* Tamaño de letra compacto */
+            padding: 6px 10px !important; /* 👈 Aquí controlas el tamaño/gordura interna de cada botón */
             margin: 0px !important;
-            /* Quitar márgenes gigantes */
+            border-radius: 6px !important;
             white-space: nowrap !important;
-            /* Que el texto "📅 CALENDARIO" no se parta en dos líneas */
-            flex: 0 0 auto !important;
-            /* Proteger el tamaño del botón al hacer swipe */
+            flex: 0 0 auto !important; /* 👈 Rompe el candado que obligaba a los botones a estirarse artificialmente */
+        }}
+        
+        div[data-testid="stTabs"] button p {{
+            font-size: 12px !important;
+            margin: 0 !important;
+            white-space: nowrap !important;
         }}
     }}
     
@@ -1219,7 +1220,7 @@ div[data-testid="stTabs"] [data-baseweb="tab-highlight-point"] {{ display: none 
         display: block !important;
     }}
     .fijo-header-global {{
-        width: 90% !important;
+        width: 100% !important;
         position: relative !important;
         margin-top: 10px !important;
         margin-bottom: 30px !important;
