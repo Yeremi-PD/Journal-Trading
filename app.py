@@ -1492,6 +1492,33 @@ div[data-testid="stTabs"] [data-baseweb="tab-highlight-point"] {{ display: none 
     div[data-testid="stExpanderDetails"] div[data-testid="stDateInput"]::after {{
         margin-top: 25px !important;
     }}
+
+    /* 📱 RESPONSIVO: PESTAÑAS SÚPER PEQUEÑAS Y PEGADITAS PARA MÓVIL */
+    @media (max-width: 768px) {{
+        div[data-baseweb="tab-list"] {{
+            gap: 4px !important; /* Reduce drásticamente el espacio entre botones */
+            padding-left: 5px !important;
+            padding-right: 5px !important;
+            justify-content: flex-start !important;
+            overflow-x: auto !important;
+            overflow-y: hidden !important;
+            flex-wrap: nowrap !important;
+            -webkit-overflow-scrolling: touch !important;
+        }}
+        
+        div[data-baseweb="tab-list"]::-webkit-scrollbar {{
+            display: none !important;
+        }}
+        
+        div[data-testid="stTabs"] button {{
+            font-size: 11px !important; /* Letra mucho más pequeña */
+            padding: 6px 12px !important; /* Botón súper delgado */
+            margin: 0px 2px !important; /* Casi nada de separación por fuera */
+            border-radius: 8px !important; 
+            white-space: nowrap !important;
+            flex: 0 0 auto !important;
+        }}
+    }}
     </style>
     """, unsafe_allow_html=True)
 
