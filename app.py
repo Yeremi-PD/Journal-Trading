@@ -1131,7 +1131,28 @@ st.markdown(f"""
     [data-testid="stStatusWidget"] {{ visibility: hidden !important; display: none !important; }}
     
 /* 🌟 MAGIA DE LAS PESTAÑAS (TABS) PREMIUM ESTILO FINANCE CENTER 🌟 */
-    div[data-testid="stTabs"] {{ padding: 0px 0px 15px 0px !important; margin-top: 10px !important; overflow: visible !important; position: relative !important; }}
+    div[data-testid="stTabs"] {{ padding: 0px !important; margin-top: 0px !important; overflow: visible !important; position: relative !important; }}
+    
+    /* 1. Las pestañas del menú principal se van limpias al tope absoluto de la página */
+    div[data-baseweb="tab-list"] {{ 
+        position: absolute !important;
+        top: -215px !important; 
+        left: 0 !important;
+        width: 100% !important;
+        justify-content: center !important;
+        gap: 25px !important; border-bottom: none !important; overflow: visible !important; padding-bottom: 15px !important;
+        z-index: 1000 !important;
+    }}
+    
+    /* 2. REGLA DE AISLAMIENTO: Las pestañas internas (Historial, Tabla, Exportar) se quedan abajo y fluyen perfectamente sin romperse */
+    div[data-baseweb="tab-panel"] div[data-baseweb="tab-list"] {{
+        position: relative !important;
+        top: 0 !important;
+        margin-top: 25px !important;
+        margin-bottom: 25px !important;
+        z-index: 10 !important;
+    }}
+
     div[data-testid="stTabs"] button {{
         font-size: 21px !important;
         font-weight: 800 !important;
@@ -1152,35 +1173,20 @@ st.markdown(f"""
     }}
     div[data-testid="stTabs"] [data-baseweb="tab-highlight-point"] {{ display: none !important; }}
     
-    /* Contenedor superior para reservar el espacio de los botones de navegación */
     .tab-buttons-spacer {{
-        height: 75px !important;
+        height: 80px !important;
         width: 100% !important;
         display: block !important;
     }}
-
-    /* Cabecera global en su posición original, fluida y responsiva */
     .fijo-header-global {{
         width: 100% !important;
         position: relative !important;
-        margin-bottom: 20px !important;
+        margin-top: 10px !important;
+        margin-bottom: 30px !important;
         z-index: 999 !important;
     }}
-
-    /* Jalamos los botones de las pestañas hacia el tope de la pantalla por encima de la cabecera */
-    div[data-baseweb="tab-list"] {{ 
-        position: absolute !important;
-        top: -180px !important;
-        left: 0 !important;
-        width: 100% !important;
-        justify-content: center !important;
-        gap: 25px !important; border-bottom: none !important; overflow: visible !important; padding-bottom: 15px !important;
-        z-index: 1000 !important;
-    }}
-    
-    /* El panel de contenido nativo de las pestañas */
     div[data-baseweb="tab-panel"] {{
-        margin-top: 0px !important;
+        margin-top: 10px !important;
     }}
 
 /* 🔴 OPCIÓN NUCLEAR: ELIMINAR ESPACIO SUPERIOR EN CUALQUIER VERSIÓN DE STREAMLIT 🔴 */
@@ -2406,9 +2412,8 @@ if True:
                 texto_tg = f"${falta_tg:,.2f}"
                 c_hex_tg = "#FF4C4C" if falta_tg > meta_t else "#FFFFFF"
 
-        # 🚀 Removimos el ancla que subía todo al tope y agregamos un título limpio con línea divisoria
-        st.markdown("<br><h3 style='text-align:center; color:gray;'>📊 Estadísticas Generales</h3>", unsafe_allow_html=True)
-        st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
+# Título redundante eliminado a petición
+        pass
 
         if ctx != "Todas las Cuentas":
             if paso_cuenta: st.toggle(_l['cal']['funded'], key="toggle_funded_state")
