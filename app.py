@@ -1180,40 +1180,6 @@ st.markdown(f"""
 div[data-testid="stTabs"] [data-baseweb="tab-highlight-point"] {{ display: none !important;
     }}
     
-/* 📱 RESPONSIVO: PESTAÑAS SÚPER PEQUEÑAS Y PEGADITAS PARA MÓVIL */
-    @media (max-width: 768px) {{
-        div[data-baseweb="tab-list"] {{
-            gap: 4px !important; /* 👈 Aquí controlas la separación entre los botones en el celular */
-            padding-left: 4px !important;
-            padding-right: 4px !important;
-            justify-content: flex-start !important; /* Libera el centrado forzado */
-            width: 100% !important;
-            overflow-x: auto !important; /* Permite que se deslicen libremente si no cupieran */
-            overflow-y: hidden !important;
-            flex-wrap: nowrap !important;
-            -webkit-overflow-scrolling: touch !important;
-        }}
-        
-        div[data-baseweb="tab-list"]::-webkit-scrollbar {{
-            display: none !important;
-        }}
-        
-        div[data-testid="stTabs"] button {{
-            font-size: 12px !important; /* Tamaño de letra compacto */
-            padding: 6px 10px !important; /* 👈 Aquí controlas el tamaño/gordura interna de cada botón */
-            margin: 0px !important;
-            border-radius: 6px !important;
-            white-space: nowrap !important;
-            flex: 0 0 auto !important; /* 👈 Rompe el candado que obligaba a los botones a estirarse artificialmente */
-        }}
-        
-        div[data-testid="stTabs"] button p {{
-            font-size: 12px !important;
-            margin: 0 !important;
-            white-space: nowrap !important;
-        }}
-    }}
-    
     .tab-buttons-spacer {{
         height: 80px !important;
         width: 100% !important;
@@ -1496,10 +1462,50 @@ div[data-testid="stTabs"] [data-baseweb="tab-highlight-point"] {{ display: none 
         color: {c_dash} !important;
     }}
 
-    /* 🟢 Centrar el emoji SOLAMENTE en el calendario "Day" de la sección de edición */
-    div[data-testid="stExpanderDetails"] div[data-testid="stDateInput"]::after {{
-        margin-top: 25px !important;
-    }}
+/* 🟢 Centrar el emoji SOLAMENTE en el calendario "Day" de la sección de edición */
+        div[data-testid="stExpanderDetails"] div[data-testid="stDateInput"]::after {{
+            margin-top: 25px !important;
+        }}
+
+    /* 📱 RESPONSIVO: CONTROL TOTAL Y REDUCCIÓN DE ESPACIO EN TELÉFONOS */
+        @media (max-width: 768px) {{
+            div[data-baseweb="tab-list"] {{
+                gap: 4px !important; /* Distancia mínima entre botones */
+                padding-left: 2px !important;
+                padding-right: 2px !important;
+                justify-content: flex-start !important; /* Permitir flujo continuo */
+                width: 100% !important;
+                overflow-x: auto !important; /* Forzar scroll horizontal si no caben */
+                overflow-y: hidden !important;
+                flex-wrap: nowrap !important;
+                -webkit-overflow-scrolling: touch !important; /* Swipe ultra rápido en celular */
+            }}
+            
+            div[data-baseweb="tab-list"]::-webkit-scrollbar {{
+                display: none !important; /* Ocultar la barra gris de scroll */
+            }}
+            
+            /* Atacamos todos los selectores posibles en cascada para obligar al teléfono a obedecer */
+            div[data-testid="stTabs"] button, 
+            div[data-baseweb="tab-list"] button, 
+            button[role="tab"] {{
+                font-size: 11px !important; /* Letra pequeña y estilizada */
+                padding: 6px 8px !important; /* Reducción drástica del tamaño del botón */
+                margin: 0px 2px !important; /* Elimina los márgenes laterales gigantes que los separaban */
+                border-radius: 6px !important;
+                white-space: nowrap !important;
+                flex: 0 0 auto !important; /* Desbloquea el estiramiento forzado */
+                min-width: 0 !important;
+            }}
+            
+            div[data-testid="stTabs"] button p, 
+            button[role="tab"] p {{
+                font-size: 11px !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                white-space: nowrap !important;
+            }}
+        }}
 
     </style>
     """, unsafe_allow_html=True)
