@@ -1122,11 +1122,14 @@ st.markdown(f"""
     header[data-testid="stHeader"] {{ 
         display: none !important;
     }}
-    .block-container, [data-testid="stAppViewBlockContainer"], [data-testid="stMainBlockContainer"] {{ 
-        padding-top: 0px !important;
-        margin-top: 0px !important; /* Jalamos toda la página hacia arriba al tope absoluto de la pantalla */
+    .block-container, 
+    [data-testid="stAppViewBlockContainer"], 
+    [data-testid="stMainBlockContainer"],
+    .main .block-container {{ 
+        padding-top: 35px !important; /* Colchón de seguridad para que no se corte en PC */
+        margin-top: 0px !important; 
+        max-width: 100% !important;
     }}
-    
     /* Ocultamos por completo la línea nativa inferior de las pestañas (la segunda línea) */
     div[data-baseweb="tab-border"] {{
         display: none !important;
@@ -1208,7 +1211,7 @@ st.markdown(f"""
     [data-testid="stMainBlockContainer"],
     .main .block-container {{ 
         padding-top: 0px !important;
-        margin-top: 220px !important; /* Empuja todo el bloque hacia el tope absoluto */
+        margin-top: -70px !important; /* Empuja todo el bloque hacia el tope absoluto */
         max-width: 100% !important;
     }}
 
