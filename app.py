@@ -1177,7 +1177,12 @@ st.markdown(f"""
         margin-top: 165px !important;
     }}
 
-
+/* 🔴 OPCIÓN NUCLEAR: ELIMINAR ESPACIO SUPERIOR EN CUALQUIER VERSIÓN DE STREAMLIT 🔴 */
+    header, [data-testid="stHeader"], .stApp > header {{ 
+        display: none !important; 
+        height: 0px !important; 
+        min-height: 0px !important; 
+    }}
     
     .block-container, 
     [data-testid="stAppViewBlockContainer"], 
