@@ -2967,7 +2967,7 @@ if es_admin:
                         reescribir_excel_usuario(usuario)
 
 with tab_plan:
-    st.markdown("<br><h2 style='text-align:center; color:#FFFFFF; font-weight: 900; letter-spacing: -1px;'>📝 MI TRADING PLAN</h2>", unsafe_allow_html=True)
+    st.markdown("<br><h2 style='text-align:center; color:#FFFFFF; font-weight: 900; letter-spacing: -1px;'>📝 TRADING PLAN</h2>", unsafe_allow_html=True)
     
     # Cargar estado guardado de la base de datos
     pc_set = db_global[usuario]["settings"]["PC"]
