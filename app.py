@@ -1526,9 +1526,8 @@ div[data-testid="stTabs"] [data-baseweb="tab-highlight-point"] {{ display: none 
             font-size: 11px !important;
             margin: 0 !important;
             white-space: nowrap !important;
-        }}
-    }}
-    </style>
+        }
+    }
     """, unsafe_allow_html=True)
 
 # ==========================================
