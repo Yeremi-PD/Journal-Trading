@@ -1181,7 +1181,7 @@ div[data-testid="stTabs"] [data-baseweb="tab-highlight-point"] {{ display: none 
     }}
     
 /* 📱 RESPONSIVO: PESTAÑAS PEQUEÑAS Y CON SWIPE PARA TELÉFONOS */
-    @media (max-width: 768px) {{
+    @media (max-width: 68px) {{
         div[data-baseweb="tab-list"] {{
             justify-content: flex-start !important;
             /* Alinear a la izquierda para poder deslizar */
