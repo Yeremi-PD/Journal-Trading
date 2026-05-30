@@ -1184,7 +1184,7 @@ div[data-testid="stTabs"] [data-baseweb="tab-highlight-point"] {{ display: none 
     @media (max-width: 768px) {{
         div[data-baseweb="tab-list"] {{
             gap: 4px !important; /* 👈 Aquí controlas la separación entre los botones en el celular */
-            padding-left: 4px !important;
+            padding-left: 1px !important;
             padding-right: 4px !important;
             justify-content: flex-start !important; /* Libera el centrado forzado */
             width: 100% !important;
