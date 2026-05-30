@@ -3046,17 +3046,12 @@ with tab_plan:
         border: none !important;
     }}
     
-    /* El bloc de notas en sí */
-    div[data-testid="stForm"]:has(.identificador-trading-plan) textarea {{
-        color: {new_bod_color} !important;
-        font-size: {new_bod_size}px !important;
-        font-weight: 500 !important;
-        height: 600px !important;
-        line-height: 1.6 !important;
-        background-color: rgba(30, 40, 50, 0.4) !important;
+    /* 🔥 TRUCO MAESTRO: Forzar el editor Word (iframe) a Modo Oscuro Completo 🔥 */
+    div[data-testid="stForm"]:has(.identificador-trading-plan) iframe {{
+        filter: invert(0.92) hue-rotate(180deg) !important;
         border: 1px solid #4A5568 !important;
         border-radius: 12px !important;
-        padding: 20px !important;
+        box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.5) !important;
     }}
     
     /* Aislar y mejorar el botón de guardado */
@@ -3066,7 +3061,7 @@ with tab_plan:
         height: 50px !important;
         min-height: 50px !important;
         width: 100% !important;
-        margin-left: 0 !important; /* Anula conflictos con otros botones globales */
+        margin-left: 0 !important;
     }}
     </style>
     """, unsafe_allow_html=True)
