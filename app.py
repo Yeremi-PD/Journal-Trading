@@ -1145,7 +1145,7 @@ st.markdown(f"""
         left: 0 !important;
         width: 100% !important;
         justify-content: center !important;
-        gap: 25px !important; border-bottom: none !important; overflow: visible !important; padding-bottom: 15px !important;
+        gap: 25px !important; border-bottom: 1px solid {border_color} !important; overflow: visible !important; padding-bottom: 15px !important;
         z-index: 1000 !important;
     }}
     
