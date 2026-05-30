@@ -1543,7 +1543,8 @@ if es_admin:
 else:
     tab_calendario, tab_estadisticas, tab_historial_principal = st.tabs(["📅 CALENDARIO", "📊 ESTADÍSTICAS", "🕒 HISTORIAL DE ÓRDENES"])
 
-with tab_calendario:
+# Cambiamos a 'if True' para liberar esta fila y que se vuelva fija y global en todas las pestañas
+if True:
     # Repartimos el espacio del filtro eliminado hacia el título (de 2.5 pasa a 4)
     col_t, col_data, col_bal, col_not, col_set = st.columns([4, 1.5, 2, 0.35, 0.35])
 
