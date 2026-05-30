@@ -2872,8 +2872,6 @@ if es_admin:
         </style>
         """, unsafe_allow_html=True)
 
-        st.markdown("<br><h3 style='text-align:center; color:gray;'>🤖 Tu Asistente de Trading Avanzado (Estilo Gemini)</h3>", unsafe_allow_html=True)
-        st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
 
         # 🟢 INICIALIZACIÓN DE VARIABLES DE CHAT EN SESSION STATE
         if "chats_historial_ia" not in st.session_state:
