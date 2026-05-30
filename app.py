@@ -1180,17 +1180,20 @@ st.markdown(f"""
 div[data-testid="stTabs"] [data-baseweb="tab-highlight-point"] {{ display: none !important;
     }}
     
-    /* 📱 RESPONSIVO: PESTAÑAS PEQUEÑAS Y CON SWIPE PARA TELÉFONOS */
+/* 📱 RESPONSIVO: PESTAÑAS PEQUEÑAS Y CON SWIPE PARA TELÉFONOS */
     @media (max-width: 768px) {{
         div[data-baseweb="tab-list"] {{
-            justify-content: flex-start !important; /* Alinear a la izquierda para poder deslizar */
-            overflow-x: auto !important; /* Activar el Swipe horizontal */
+            justify-content: flex-start !important;
+            /* Alinear a la izquierda para poder deslizar */
+            overflow-x: auto !important;
+            /* Activa el Swipe horizontal */
             overflow-y: hidden !important;
             flex-wrap: nowrap !important; /* Evitar que se apilen hacia abajo */
-            -webkit-overflow-scrolling: touch !important; /* Deslizamiento ultra suave en iPhone/Android */
-            padding-left: 10px !important;
-            padding-right: 10px !important;
-            gap: 10px !important;
+            -webkit-overflow-scrolling: touch !important;
+            /* Deslizamiento ultra suave en iPhone/Android */
+            padding-left: 4px !important;
+            padding-right: 4px !important;
+            gap: 4px !important; /* 👈 Reducido de 10px a 4px para pegar los botones entre sí */
         }}
         
         /* Ocultar la barra de scroll horizontal para que se vea como una App nativa */
@@ -1199,11 +1202,14 @@ div[data-testid="stTabs"] [data-baseweb="tab-highlight-point"] {{ display: none 
         }}
         
         div[data-testid="stTabs"] button {{
-            font-size: 14px !important; /* Letra más pequeña */
-            padding: 10px 16px !important; /* Botón menos gordo */
-            margin: 0px !important; /* Quitar márgenes gigantes */
-            white-space: nowrap !important; /* Que el texto "📅 CALENDARIO" no se parta en dos líneas */
-            flex: 0 0 auto !important; /* Proteger el tamaño del botón al hacer swipe */
+            font-size: 12px !important; /* 👈 Letra ligeramente más pequeña para optimizar espacio */
+            padding: 6px 8px !important; /* 👈 Reducido de 10px 16px para quitarle la gordura interna horizontal y vertical */
+            margin: 0px !important;
+            /* Quitar márgenes gigantes */
+            white-space: nowrap !important;
+            /* Que el texto "📅 CALENDARIO" no se parta en dos líneas */
+            flex: 0 0 auto !important;
+            /* Proteger el tamaño del botón al hacer swipe */
         }}
     }}
     
@@ -1494,43 +1500,6 @@ div[data-testid="stTabs"] [data-baseweb="tab-highlight-point"] {{ display: none 
         margin-top: 25px !important;
     }}
 
-/* 📱 RESPONSIVO: PESTAÑAS SÚPER PEQUEÑAS Y PEGADITAS PARA MÓVIL */
-    @media (max-width: 768px) {{
-        div[data-baseweb="tab-list"] {{
-            gap: 2px !important; /* Casi nada de espacio entre botones */
-            padding-left: 2px !important;
-            padding-right: 2px !important;
-            justify-content: center !important; /* Centrar todo */
-            width: 100% !important; /* Obligar a usar exactamente el ancho de la pantalla */
-            overflow: hidden !important; /* Matar el scroll para que no se pierdan a los lados */
-            flex-wrap: nowrap !important;
-        }}
-        
-        div[data-baseweb="tab-list"]::-webkit-scrollbar {{
-            display: none !important;
-        }}
-        
-        div[data-testid="stTabs"] button {{
-            font-size: 9px !important; /* Letra más pequeña para que quepa todo */
-            padding: 6px 2px !important; /* Quitar gordura a los lados */
-            margin: 0px !important; /* Cero márgenes externos */
-            border-radius: 6px !important;
-            white-space: normal !important; /* Permitir que el texto se parta en dos líneas si es muy largo */
-            flex: 1 1 0px !important; /* 🌟 MAGIA: Obliga a los botones a encogerse y repartirse el 100% del espacio en partes iguales */
-            min-width: 0 !important;
-            text-align: center !important;
-            height: auto !important;
-            min-height: 42px !important; /* Mantenerlos tocables con el dedo */
-            line-height: 1.1 !important;
-        }}
-        
-        /* Asegurar que los emojis y textos internos se comporten bien */
-        div[data-testid="stTabs"] button p {{
-            font-size: 9px !important;
-            margin: 0 !important;
-            white-space: normal !important;
-        }}
-    }}
     </style>
     """, unsafe_allow_html=True)
 
