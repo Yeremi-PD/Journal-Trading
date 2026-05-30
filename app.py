@@ -1528,6 +1528,9 @@ div[data-testid="stTabs"] [data-baseweb="tab-highlight-point"] {{ display: none 
             white-space: nowrap !important;
         }
     }
+        }}
+    }}
+    </style>
     """, unsafe_allow_html=True)
 
 # ==========================================
