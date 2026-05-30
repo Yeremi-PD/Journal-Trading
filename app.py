@@ -1494,41 +1494,38 @@ div[data-testid="stTabs"] [data-baseweb="tab-highlight-point"] {{ display: none 
         margin-top: 25px !important;
     }}
 
-/* 📱 RESPONSIVO: PESTAÑAS SÚPER PEQUEÑAS Y PEGADITAS PARA MÓVIL */
+/* 📱 RESPONSIVO: PESTAÑAS ULTRA COMPACTAS Y CON SWIPE PARA MÓVIL */
     @media (max-width: 768px) {{
         div[data-baseweb="tab-list"] {{
-            gap: 2px !important; /* Casi nada de espacio entre botones */
-            padding-left: 2px !important;
-            padding-right: 2px !important;
-            justify-content: center !important; /* Centrar todo */
-            width: 100% !important; /* Obligar a usar exactamente el ancho de la pantalla */
-            overflow: hidden !important; /* Matar el scroll para que no se pierdan a los lados */
-            flex-wrap: nowrap !important;
+            gap: 4px !important; /* Espacio mínimo entre botones para que no se encima uno con otro */
+            padding-left: 5px !important;
+            padding-right: 5px !important;
+            justify-content: flex-start !important; /* Permite que fluyan horizontalmente para arrastrar con el dedo */
+            width: 100% !important;
+            overflow-x: auto !important; /* Activa el desplazamiento lateral */
+            overflow-y: hidden !important;
+            flex-wrap: nowrap !important; /* Mantiene todo en una sola línea recta */
+            -webkit-overflow-scrolling: touch !important; /* Movimiento fluido en iPhone y Android */
         }}
         
         div[data-baseweb="tab-list"]::-webkit-scrollbar {{
-            display: none !important;
+            display: none !important; /* Esconde la barra de scroll para mantener la estética limpia */
         }}
         
         div[data-testid="stTabs"] button {{
-            font-size: 9px !important; /* Letra más pequeña para que quepa todo */
-            padding: 6px 2px !important; /* Quitar gordura a los lados */
-            margin: 0px !important; /* Cero márgenes externos */
+            font-size: 11px !important; /* Letra más pequeña y estilizada */
+            padding: 6px 8px !important; /* Reduce el margen interno drásticamente para pegarlos */
+            margin: 0px !important;
             border-radius: 6px !important;
-            white-space: normal !important; /* Permitir que el texto se parta en dos líneas si es muy largo */
-            flex: 1 1 0px !important; /* 🌟 MAGIA: Obliga a los botones a encogerse y repartirse el 100% del espacio en partes iguales */
-            min-width: 0 !important;
-            text-align: center !important;
-            height: auto !important;
-            min-height: 42px !important; /* Mantenerlos tocables con el dedo */
-            line-height: 1.1 !important;
+            white-space: nowrap !important; /* Evita que el texto se rompa feo en dos renglones */
+            flex: 0 0 auto !important; /* Evita que Streamlit intente aplastarlos o deformarlos */
         }}
         
-        /* Asegurar que los emojis y textos internos se comporten bien */
+        /* Ajustar los párrafos internos nativos de Streamlit */
         div[data-testid="stTabs"] button p {{
-            font-size: 9px !important;
+            font-size: 11px !important;
             margin: 0 !important;
-            white-space: normal !important;
+            white-space: nowrap !important;
         }}
     }}
     </style>
