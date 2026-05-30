@@ -3230,7 +3230,31 @@ def area_exportacion():
             df_export = pd.DataFrame(datos_exportar)
             # Agregamos sep=';' para obligar a Excel a separar cada columna perfectamente
             csv_export = df_export.to_csv(index=False, sep=',', decimal='.').encode('utf-8-sig')
-            nombre_archivo = f"Trades_{usuario}_{periodo_seleccionado.replace(' ', '_')}.csv"
+            
+            hoy_dt = datetime.now().date()
+            y_hoy = hoy_dt.year
+            y_lim = fecha_limite.year
+            
+            if "1 Semana" in periodo_seleccionado:
+                nombre_periodo = f"Semana_{hoy_dt.isocalendar()[1]}_del_{y_hoy}"
+            elif "Semanas" in periodo_seleccionado:
+                w_hoy = hoy_dt.isocalendar()[1]
+                w_lim = fecha_limite.isocalendar()[1]
+                if y_hoy == y_lim: nombre_periodo = f"Semanas_{w_lim}_a_{w_hoy}_del_{y_hoy}"
+                else: nombre_periodo = f"Semana_{w_lim}_{y_lim}_a_Semana_{w_hoy}_{y_hoy}"
+            elif "1 Mes" in periodo_seleccionado:
+                nombre_periodo = f"Mes_{hoy_dt.month}_del_{y_hoy}"
+            elif "Meses" in periodo_seleccionado:
+                if y_hoy == y_lim: nombre_periodo = f"Meses_{fecha_limite.month}_a_{hoy_dt.month}_del_{y_hoy}"
+                else: nombre_periodo = f"Mes_{fecha_limite.month}_{y_lim}_a_Mes_{hoy_dt.month}_{y_hoy}"
+            elif "1 Año" in periodo_seleccionado:
+                nombre_periodo = f"Anio_{y_hoy}"
+            elif "Años" in periodo_seleccionado:
+                nombre_periodo = f"Anios_{y_lim}_a_{y_hoy}"
+            else:
+                nombre_periodo = "Todo_El_Historial"
+                
+            nombre_archivo = f"Trades_{usuario}_{nombre_periodo}.csv"
             
             st.download_button(label="📥 DESCARGAR EXCEL", data=csv_export, file_name=nombre_archivo, mime="text/csv", use_container_width=True)
         else:
