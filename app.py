@@ -1131,7 +1131,7 @@ st.markdown(f"""
     [data-testid="stStatusWidget"] {{ visibility: hidden !important; display: none !important; }}
     
 /* 🌟 MAGIA DE LAS PESTAÑAS (TABS) PREMIUM ESTILO FINANCE CENTER 🌟 */
-    div[data-testid="stTabs"] {{ padding: 0px 0px 15px 0px !important; margin-top: -50px !important; overflow: visible !important; position: relative !important; }}
+    div[data-testid="stTabs"] {{ padding: 0px 0px 15px 0px !important; margin-top: 10px !important; overflow: visible !important; position: relative !important; }}
     div[data-testid="stTabs"] button {{
         font-size: 21px !important;
         font-weight: 800 !important;
@@ -1152,10 +1152,25 @@ st.markdown(f"""
     }}
     div[data-testid="stTabs"] [data-baseweb="tab-highlight-point"] {{ display: none !important; }}
     
-    /* Fijamos los botones principales de navegación arriba del todo */
+    /* Contenedor superior para reservar el espacio de los botones de navegación */
+    .tab-buttons-spacer {{
+        height: 75px !important;
+        width: 100% !important;
+        display: block !important;
+    }}
+
+    /* Cabecera global en su posición original, fluida y responsiva */
+    .fijo-header-global {{
+        width: 100% !important;
+        position: relative !important;
+        margin-bottom: 20px !important;
+        z-index: 999 !important;
+    }}
+
+    /* Jalamos los botones de las pestañas hacia el tope de la pantalla por encima de la cabecera */
     div[data-baseweb="tab-list"] {{ 
         position: absolute !important;
-        top: -10px !important;
+        top: -180px !important;
         left: 0 !important;
         width: 100% !important;
         justify-content: center !important;
@@ -1163,18 +1178,9 @@ st.markdown(f"""
         z-index: 1000 !important;
     }}
     
-    /* Forzamos que la cabecera fija global se posicione justo debajo de los botones */
-    .fijo-header-global {{
-        position: absolute !important;
-        top: 65px !important;
-        left: 0 !important;
-        width: 100% !important;
-        z-index: 999 !important;
-    }}
-    
-    /* Empujamos el contenido interno de las pestañas debajo de la fila del balance */
+    /* El panel de contenido nativo de las pestañas */
     div[data-baseweb="tab-panel"] {{
-        margin-top: 165px !important;
+        margin-top: 0px !important;
     }}
 
 /* 🔴 OPCIÓN NUCLEAR: ELIMINAR ESPACIO SUPERIOR EN CUALQUIER VERSIÓN DE STREAMLIT 🔴 */
@@ -1560,15 +1566,12 @@ div[data-testid="stPopoverBody"]:has(.identificador-bloc-notas) {
 # Verificamos si el usuario actual tiene el privilegio de Admin (Válido para PC y Móvil)
 es_admin = db_global[usuario]["settings"]["PC"].get("is_admin", False) or db_global[usuario]["settings"]["Móvil"].get("is_admin", False)
 
-# 🚀 PESTAÑAS EN EL TOPE ABSOLUTO DE LA PÁGINA (Dinámicas)
-if es_admin:
-    tab_calendario, tab_estadisticas, tab_historial_principal, tab_asistente = st.tabs(["📅 CALENDARIO", "📊 ESTADÍSTICAS", "🕒 HISTORIAL DE ÓRDENES", "🤖 ASISTENTE VIRTUAL"])
-else:
-    tab_calendario, tab_estadisticas, tab_historial_principal = st.tabs(["📅 CALENDARIO", "📊 ESTADÍSTICAS", "🕒 HISTORIAL DE ÓRDENES"])
+# 1. Creamos un separador para dejarle el espacio a los botones de navegación en el tope
+st.markdown('<div class="tab-buttons-spacer"></div>', unsafe_allow_html=True)
 
-# Cambiamos a 'if True' para liberar esta fila y que se vuelva fija y global en todas las pestañas
+# 2. Renderizamos la Cabecera Global fija en su posición original (ahora fluye naturalmente arriba de las pestañas)
+st.markdown('<div class="fijo-header-global">', unsafe_allow_html=True)
 if True:
-    st.markdown('<div class="fijo-header-global">', unsafe_allow_html=True)
     # Repartimos el espacio del filtro eliminado hacia el título (de 2.5 pasa a 4)
     col_t, col_data, col_bal, col_not, col_set = st.columns([4, 1.5, 2, 0.35, 0.35])
 
@@ -1720,6 +1723,12 @@ if True:
 
     st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True) # Cerramos el contenedor de la cabecera fija global
+
+    # 3. Inicializamos las pestañas justo aquí, para que queden debajo en la estructura del código
+    if es_admin:
+        tab_calendario, tab_estadisticas, tab_historial_principal, tab_asistente = st.tabs(["📅 CALENDARIO", "📊 ESTADÍSTICAS", "🕒 HISTORIAL DE ÓRDENES", "🤖 ASISTENTE VIRTUAL"])
+    else:
+        tab_calendario, tab_estadisticas, tab_historial_principal = st.tabs(["📅 CALENDARIO", "📊 ESTADÍSTICAS", "🕒 HISTORIAL DE ÓRDENES"])
 
     # === CSS EXCLUSIVO PARA LA BARRA DE ENTRADA (Estilo Finance Center) ===
     st.markdown("""
