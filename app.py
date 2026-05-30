@@ -1209,7 +1209,7 @@ st.markdown(f"""
     .main .block-container {{ 
         padding-top: 0px !important;
         margin-top: -10px !important; /* Empuja todo el bloque hacia el tope absoluto */
-        max-width: 100% !important;
+        max-width: 10% !important;
     }}
 
     .stApp {{ background-color: {bg_color} !important; font-family: 'Inter', sans-serif !important; }}
