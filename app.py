@@ -1215,11 +1215,11 @@ div[data-testid="stTabs"] [data-baseweb="tab-highlight-point"] {{ display: none 
     
     .tab-buttons-spacer {{
         height: 80px !important;
-        width: 0% !important;
+        width: 100% !important;
         display: block !important;
     }}
     .fijo-header-global {{
-        width: 100% !important;
+        width: 90% !important;
         position: relative !important;
         margin-top: 10px !important;
         margin-bottom: 30px !important;
