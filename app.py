@@ -1141,7 +1141,7 @@ st.markdown(f"""
     /* 1. Las pestañas del menú principal se van limpias al tope absoluto de la página */
     div[data-baseweb="tab-list"] {{ 
         position: absolute !important;
-        top: -25px !important; /* Ajustado para quedar clavado en el borde superior */
+        top: -255px !important; /* Ajustado para quedar clavado en el borde superior */
         left: 0 !important;
         width: 100% !important;
         justify-content: center !important;
