@@ -2967,25 +2967,17 @@ if es_admin:
                         reescribir_excel_usuario(usuario)
 
 with tab_plan:
-    st.markdown("<br><h2 style='text-align:center; color:#00C897; font-weight: 900; letter-spacing: -1px;'>📝 MI TRADING PLAN</h2>", unsafe_allow_html=True)
+    st.markdown("<br><h2 style='text-align:center; color:#FFFFFF; font-weight: 900; letter-spacing: -1px;'>📝 MI TRADING PLAN</h2>", unsafe_allow_html=True)
     
     # Cargar estado guardado de la base de datos
     pc_set = db_global[usuario]["settings"]["PC"]
-    
-    if "global_notes_title" not in pc_set: pc_set["global_notes_title"] = "MIS REGLAS DE TRADING"
-    if "notes_title_color" not in pc_set: pc_set["notes_title_color"] = "#00C897"
-    if "notes_title_size" not in pc_set: pc_set["notes_title_size"] = 35
     if "global_notes_body" not in pc_set: pc_set["global_notes_body"] = ""
-    if "notes_body_color" not in pc_set: pc_set["notes_body_color"] = "#E2E8F0"
-    if "notes_body_size" not in pc_set: pc_set["notes_body_size"] = 18
 
     # 1. EL FORMULARIO (Se auto-ajusta al ancho completo de la pantalla)
     with st.form("form_notas_globales", border=False):
         st.markdown("<div class='identificador-trading-plan'></div>", unsafe_allow_html=True)
-        nota_titulo = st.text_input("Título", value=pc_set["global_notes_title"], label_visibility="collapsed")
         
-        # 🔥 AQUÍ ESTÁ LA MAGIA: El nuevo editor estilo Word 🔥
-        st.markdown("<br>", unsafe_allow_html=True)
+        # Editor premium estilo Word en Modo Oscuro
         nota_cuerpo = st_quill(
             value=pc_set["global_notes_body"],
             placeholder="Escribe tu Trading Plan aquí con todo el formato que quieras...",
@@ -2997,26 +2989,10 @@ with tab_plan:
         with col_centro_btn:
             btn_guardado = st.form_submit_button("💾 GUARDAR DOCUMENTO EN LA NUBE", use_container_width=True)
 
-    # 2. LOS AJUSTES DE DISEÑO
-    with st.expander("🎨 Ajustes de Diseño y Estilo"):
-        c_aj_t1, c_aj_t2 = st.columns(2)
-        with c_aj_t1: new_tit_color = st.color_picker("Color del Título", value=pc_set["notes_title_color"], key="cp_tit_color_notas_unico")
-        with c_aj_t2: new_tit_size = st.slider("Tamaño del Título", 15, 60, value=pc_set["notes_title_size"], key="sl_tit_size_notas_unico")
-        
-        st.markdown("---")
-        c_aj_b1, c_aj_b2 = st.columns(2)
-        with c_aj_b1: new_bod_color = st.color_picker("Color del Texto", value=pc_set["notes_body_color"], key="cp_bod_color_notas_unico")
-        with c_aj_b2: new_bod_size = st.slider("Tamaño del Texto", 10, 40, value=pc_set["notes_body_size"], key="sl_bod_size_notas_unico")
-
-    # 3. LÓGICA DE GUARDADO
+    # 2. LÓGICA DE GUARDADO
     if btn_guardado:
         for dev in ["PC", "Móvil"]:
-            db_global[usuario]["settings"][dev]["global_notes_title"] = nota_titulo
-            db_global[usuario]["settings"][dev]["notes_title_color"] = new_tit_color
-            db_global[usuario]["settings"][dev]["notes_title_size"] = new_tit_size
             db_global[usuario]["settings"][dev]["global_notes_body"] = nota_cuerpo
-            db_global[usuario]["settings"][dev]["notes_body_color"] = new_bod_color
-            db_global[usuario]["settings"][dev]["notes_body_size"] = new_bod_size
         
         reescribir_excel_usuario(usuario)
         st.success("✅ ¡Trading Plan guardado en la base de datos con éxito!")
@@ -3024,7 +3000,7 @@ with tab_plan:
         time.sleep(1)
         st.rerun()
 
-    # 4. CSS EXCLUSIVO Y PROTEGIDO PARA EL TRADING PLAN
+    # 3. CSS EXCLUSIVO Y PROTEGIDO PARA EL TRADING PLAN
     st.markdown(f"""
     <style>
     /* Desactivar fondo molesto del formulario nativo */
@@ -3036,17 +3012,7 @@ with tab_plan:
         margin-top: -10px !important;
     }}
     
-    /* Input del título gigante */
-    div[data-testid="stForm"]:has(.identificador-trading-plan) input {{
-        color: {new_tit_color} !important;
-        font-size: {new_tit_size}px !important;
-        font-weight: 900 !important;
-        text-align: center !important;
-        background-color: transparent !important;
-        border: none !important;
-    }}
-    
-    /* 🔥 TRUCO MAESTRO: Forzar el editor Word (iframe) a Modo Oscuro Completo 🔥 */
+    /* Forzar el editor Word (iframe) a Modo Oscuro Completo */
     div[data-testid="stForm"]:has(.identificador-trading-plan) iframe {{
         filter: invert(0.92) hue-rotate(180deg) !important;
         border: 1px solid #4A5568 !important;
