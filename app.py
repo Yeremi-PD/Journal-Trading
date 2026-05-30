@@ -1181,7 +1181,7 @@ div[data-testid="stTabs"] [data-baseweb="tab-highlight-point"] {{ display: none 
     }}
     
 /* 📱 RESPONSIVO: PESTAÑAS PEQUEÑAS Y CON SWIPE PARA TELÉFONOS */
-    @media (max-width: 68px) {{
+    @media (max-width: 768px) {{
         div[data-baseweb="tab-list"] {{
             justify-content: flex-start !important;
             /* Alinear a la izquierda para poder deslizar */
@@ -1193,7 +1193,7 @@ div[data-testid="stTabs"] [data-baseweb="tab-highlight-point"] {{ display: none 
             /* Deslizamiento ultra suave en iPhone/Android */
             padding-left: 4px !important;
             padding-right: 4px !important;
-            gap: 4px !important; /* 👈 Reducido de 10px a 4px para pegar los botones entre sí */
+            gap: 1px !important; /* 👈 Reducido de 10px a 4px para pegar los botones entre sí */
         }}
         
         /* Ocultar la barra de scroll horizontal para que se vea como una App nativa */
