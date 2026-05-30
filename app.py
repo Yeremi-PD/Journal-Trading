@@ -1130,29 +1130,52 @@ st.markdown(f"""
 /* 🔴 EL SECRETO: OCULTAR EL "RUNNING..." PARA QUE SEA INSTANTÁNEO 🔴 */
     [data-testid="stStatusWidget"] {{ visibility: hidden !important; display: none !important; }}
     
-    /* 🌟 MAGIA DE LAS PESTAÑAS (TABS) PREMIUM ESTILO FINANCE CENTER 🌟 */
-    div[data-testid="stTabs"] {{ padding: 0px 0px 15px 0px !important; margin-top: -50px !important; overflow: visible !important; }}
-    div[data-testid="stTabs"] button {{
+/* 🌟 MAGIA DE LAS PESTAÑAS (TABS) PREMIUM ESTILO FINANCE CENTER 🌟 */
+    div[data-testid="stTabs"] { padding: 0px 0px 15px 0px !important; margin-top: -50px !important; overflow: visible !important; position: relative !important; }
+    div[data-testid="stTabs"] button {
         font-size: 21px !important;
-font-weight: 800 !important;
+        font-weight: 800 !important;
         background-color: rgba(40, 40, 40, 0.4) !important; border-radius: 12px !important; 
         padding: 16px 32px !important; margin: 0px 15px !important;
-border: 1px solid {border_color} !important;
+        border: 1px solid {border_color} !important;
         box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2) !important;
-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important; color: {c_dash} !important;
-}}
-    div[data-testid="stTabs"] button:hover {{
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important; color: {c_dash} !important;
+    }
+    div[data-testid="stTabs"] button:hover {
         transform: translateY(-4px) !important; border-color: #00C897 !important;
-box-shadow: 0px 8px 20px rgba(0, 200, 151, 0.4) !important; z-index: 10 !important;
-}}
-    div[data-testid="stTabs"] button[aria-selected="true"] {{
+        box-shadow: 0px 8px 20px rgba(0, 200, 151, 0.4) !important; z-index: 10 !important;
+    }
+    div[data-testid="stTabs"] button[aria-selected="true"] {
         background: linear-gradient(145deg, #00C897, #007A5E) !important;
-color: white !important; border: none !important;
+        color: white !important; border: none !important;
         transform: scale(1.05) translateY(-2px) !important; box-shadow: 0px 0px 25px rgba(0, 200, 151, 0.5) !important;
-}}
-    div[data-testid="stTabs"] [data-baseweb="tab-highlight-point"] {{ display: none !important; }}
-    div[data-baseweb="tab-list"] {{ justify-content: center !important;
-gap: 25px !important; border-bottom: none !important; overflow: visible !important; padding-bottom: 15px !important; }}
+    }
+    div[data-testid="stTabs"] [data-baseweb="tab-highlight-point"] { display: none !important; }
+    
+    /* Fijamos los botones principales de navegación arriba del todo */
+    div[data-baseweb="tab-list"] { 
+        position: absolute !important;
+        top: -10px !important;
+        left: 0 !important;
+        width: 100% !important;
+        justify-content: center !important;
+        gap: 25px !important; border-bottom: none !important; overflow: visible !important; padding-bottom: 15px !important;
+        z-index: 1000 !important;
+    }
+    
+    /* Forzamos que la cabecera fija global se posicione justo debajo de los botones */
+    .fijo-header-global {
+        position: absolute !important;
+        top: 65px !important;
+        left: 0 !important;
+        width: 100% !important;
+        z-index: 999 !important;
+    }
+    
+    /* Empujamos el contenido interno de las pestañas debajo de la fila del balance */
+    div[data-baseweb="tab-panel"] {
+        margin-top: 165px !important;
+    }
 
 /* 🔴 OPCIÓN NUCLEAR: ELIMINAR ESPACIO SUPERIOR EN CUALQUIER VERSIÓN DE STREAMLIT 🔴 */
     header, [data-testid="stHeader"], .stApp > header {{ 
@@ -1545,6 +1568,7 @@ else:
 
 # Cambiamos a 'if True' para liberar esta fila y que se vuelva fija y global en todas las pestañas
 if True:
+    st.markdown('<div class="fijo-header-global">', unsafe_allow_html=True)
     # Repartimos el espacio del filtro eliminado hacia el título (de 2.5 pasa a 4)
     col_t, col_data, col_bal, col_not, col_set = st.columns([4, 1.5, 2, 0.35, 0.35])
 
@@ -1695,6 +1719,7 @@ if True:
         st.markdown(f'<div class="balance-box">${bal_mostrar:,.2f}</div>', unsafe_allow_html=True)
 
     st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True) # Cerramos el contenedor de la cabecera fija global
 
     # === CSS EXCLUSIVO PARA LA BARRA DE ENTRADA (Estilo Finance Center) ===
     st.markdown("""
