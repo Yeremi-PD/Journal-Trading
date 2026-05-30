@@ -1191,7 +1191,7 @@ st.markdown(f"""
         z-index: 999 !important;
     }}
     div[data-baseweb="tab-panel"] {{
-        margin-top: 10px !important;
+        margin-top: 25px !important; 
     }}
 
 /* 🔴 OPCIÓN NUCLEAR: ELIMINAR ESPACIO SUPERIOR EN CUALQUIER VERSIÓN DE STREAMLIT 🔴 */
