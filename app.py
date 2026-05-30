@@ -1176,7 +1176,35 @@ st.markdown(f"""
         color: white !important; border: none !important;
         transform: scale(1.05) translateY(-2px) !important; box-shadow: 0px 0px 25px rgba(0, 200, 151, 0.5) !important;
     }}
-    div[data-testid="stTabs"] [data-baseweb="tab-highlight-point"] {{ display: none !important; }}
+div[data-testid="stTabs"] [data-baseweb="tab-highlight-point"] {{ display: none !important;
+    }}
+    
+    /* 📱 RESPONSIVO: PESTAÑAS PEQUEÑAS Y CON SWIPE PARA TELÉFONOS */
+    @media (max-width: 768px) {{
+        div[data-baseweb="tab-list"] {{
+            justify-content: flex-start !important; /* Alinear a la izquierda para poder deslizar */
+            overflow-x: auto !important; /* Activar el Swipe horizontal */
+            overflow-y: hidden !important;
+            flex-wrap: nowrap !important; /* Evitar que se apilen hacia abajo */
+            -webkit-overflow-scrolling: touch !important; /* Deslizamiento ultra suave en iPhone/Android */
+            padding-left: 10px !important;
+            padding-right: 10px !important;
+            gap: 10px !important;
+        }}
+        
+        /* Ocultar la barra de scroll horizontal para que se vea como una App nativa */
+        div[data-baseweb="tab-list"]::-webkit-scrollbar {{
+            display: none !important;
+        }}
+        
+        div[data-testid="stTabs"] button {{
+            font-size: 14px !important; /* Letra más pequeña */
+            padding: 10px 16px !important; /* Botón menos gordo */
+            margin: 0px !important; /* Quitar márgenes gigantes */
+            white-space: nowrap !important; /* Que el texto "📅 CALENDARIO" no se parta en dos líneas */
+            flex: 0 0 auto !important; /* Proteger el tamaño del botón al hacer swipe */
+        }}
+    }}
     
     .tab-buttons-spacer {{
         height: 80px !important;
