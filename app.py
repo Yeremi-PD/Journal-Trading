@@ -1124,7 +1124,7 @@ st.markdown(f"""
     }}
     .block-container, [data-testid="stAppViewBlockContainer"], [data-testid="stMainBlockContainer"] {{ 
         padding-top: 0px !important;
-        margin-top: -95px !important; /* Jalamos toda la página hacia arriba al tope absoluto de la pantalla */
+        margin-top: -0px !important; /* Jalamos toda la página hacia arriba al tope absoluto de la pantalla */
     }}
     
     /* Ocultamos por completo la línea nativa inferior de las pestañas (la segunda línea) */
