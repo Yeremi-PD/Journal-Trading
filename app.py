@@ -1507,7 +1507,6 @@ div[data-testid="stTabs"] [data-baseweb="tab-highlight-point"] {{ display: none 
             }}
         }}
 
-    </style>
     """, unsafe_allow_html=True)
 
 # ==========================================
