@@ -2634,7 +2634,8 @@ with tab_calendario:
             base = bal_actual - valor
             return (valor / base * 100) if base != 0 else 0.0
         
-        if not ver_todo:
+        # Siempre mostramos las estadísticas semanales del mes del calendario actual
+        if True:
             semanas_stats = {i: {"pnl": 0.0, "w": 0, "l": 0} for i in range(1, len(mes_matriz) + 1)}
             for key, lista_t in db_usuario[ctx]["trades"].items():
                 if key[0] == anio_sel and key[1] == mes_sel:
@@ -2668,7 +2669,9 @@ with tab_calendario:
             if m_l >= 1: wl_parts_mo.append(f'<span style="color:#FF4C4C;">{m_l}L</span>')
             wl_text_mo = ' <span style="color:gray;">/</span> '.join(wl_parts_mo)
             st.markdown(f'<div class="weeks-container">{semanas_html}<div class="mo-box"><div class="mo-title" style="font-size:var(--size-box-titles) !important;">{TXT_MO}</div><div class="mo-val {cM}" style="font-size:var(--size-box-vals) !important;">{sM}${m_total:,.2f}<br><span style="font-size:var(--size-box-pct);">{sM}{pct_m:.2f}%</span><br><span style="font-size: var(--size-box-wl); font-weight: 500;">{wl_text_mo}</span></div></div></div>', unsafe_allow_html=True)
-        else:
+        
+        # Si "Ver Solo Este Mes" está DESACTIVADO (ver_todo es True), mostramos TAMBIÉN las cajas de los meses debajo
+        if ver_todo:
             meses_stats = {}
             for key, lista_t in db_usuario[ctx]["trades"].items():
                 y, m = key[0], key[1]
