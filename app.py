@@ -1495,42 +1495,39 @@ div[data-testid="stTabs"] [data-baseweb="tab-highlight-point"] {{ display: none 
     }}
 
 /* 📱 RESPONSIVO: PESTAÑAS SÚPER PEQUEÑAS Y PEGADITAS PARA MÓVIL */
-    @media (max-width: 768px) {{
-        div[data-baseweb="tab-list"] {{
-            gap: 2px !important; /* Casi nada de espacio entre botones */
-            padding-left: 2px !important;
-            padding-right: 2px !important;
-            justify-content: center !important; /* Centrar todo */
-            width: 100% !important; /* Obligar a usar exactamente el ancho de la pantalla */
-            overflow: hidden !important; /* Matar el scroll para que no se pierdan a los lados */
-            flex-wrap: nowrap !important;
-        }}
+    @media (max-width: 768px) {
+        div[data-baseweb="tab-list"] {
+            gap: 4px !important; /* Espacio mínimo entre los botones */
+            padding-left: 6px !important;
+            padding-right: 6px !important;
+            justify-content: flex-start !important; /* Permite que fluyan linealmente para poder arrastrarlos */
+            width: 100% !important;
+            overflow-x: auto !important; /* Revive el deslizamiento horizontal con el dedo */
+            overflow-y: hidden !important;
+            flex-wrap: nowrap !important; /* Fuerza una sola línea recta */
+            -webkit-overflow-scrolling: touch !important; /* Desplazamiento ultra suave y rápido en iPhone/Android */
+        }
         
-        div[data-baseweb="tab-list"]::-webkit-scrollbar {{
-            display: none !important;
-        }}
+        div[data-baseweb="tab-list"]::-webkit-scrollbar {
+            display: none !important; /* Mantiene oculta la barra de scroll para estética limpia */
+        }
         
-        div[data-testid="stTabs"] button {{
-            font-size: 9px !important; /* Letra más pequeña para que quepa todo */
-            padding: 6px 2px !important; /* Quitar gordura a los lados */
-            margin: 0px !important; /* Cero márgenes externos */
-            border-radius: 6px !important;
-            white-space: normal !important; /* Permitir que el texto se parta en dos líneas si es muy largo */
-            flex: 1 1 0px !important; /* 🌟 MAGIA: Obliga a los botones a encogerse y repartirse el 100% del espacio en partes iguales */
-            min-width: 0 !important;
-            text-align: center !important;
-            height: auto !important;
-            min-height: 42px !important; /* Mantenerlos tocables con el dedo */
-            line-height: 1.1 !important;
-        }}
+        div[data-testid="stTabs"] button {
+            font-size: 11px !important; /* Letra compacta, nítida y perfectamente legible */
+            padding: 8px 10px !important; /* Reduce la gordura de las cajas drásticamente */
+            margin: 0px !important;
+            border-radius: 8px !important;
+            white-space: nowrap !important; /* Evita que textos largos como 'HISTORIAL TRADES' se rompan en dos líneas */
+            flex: 0 0 auto !important; /* Protege los botones para que no se aplasten ni se deformen */
+        }
         
-        /* Asegurar que los emojis y textos internos se comporten bien */
-        div[data-testid="stTabs"] button p {{
-            font-size: 9px !important;
+        /* Forzar consistencia de tamaño en los textos internos de Streamlit */
+        div[data-testid="stTabs"] button p {
+            font-size: 11px !important;
             margin: 0 !important;
-            white-space: normal !important;
-        }}
-    }}
+            white-space: nowrap !important;
+        }
+    }
     </style>
     """, unsafe_allow_html=True)
 
