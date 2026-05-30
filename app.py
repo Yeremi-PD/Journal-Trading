@@ -1120,11 +1120,16 @@ st.markdown(f"""
 
 /* 🔴 ANIQUILACIÓN TOTAL DEL ESPACIO SUPERIOR 🔴 */
     header[data-testid="stHeader"] {{ 
-        display: none !important; 
+        display: none !important;
     }}
-    .block-container, [data-testid="stAppViewBlockContainer"] {{ 
-        padding-top: 0px !important; 
-        margin-top: 0px !important; 
+    .block-container, [data-testid="stAppViewBlockContainer"], [data-testid="stMainBlockContainer"] {{ 
+        padding-top: 0px !important;
+        margin-top: -45px !important; /* Jalamos toda la página hacia arriba al tope absoluto de la pantalla */
+    }}
+    
+    /* Ocultamos por completo la línea nativa inferior de las pestañas (la segunda línea) */
+    div[data-baseweb="tab-border"] {{
+        display: none !important;
     }}
     
 /* 🔴 EL SECRETO: OCULTAR EL "RUNNING..." PARA QUE SEA INSTANTÁNEO 🔴 */
@@ -1136,7 +1141,7 @@ st.markdown(f"""
     /* 1. Las pestañas del menú principal se van limpias al tope absoluto de la página */
     div[data-baseweb="tab-list"] {{ 
         position: absolute !important;
-        top: -215px !important; 
+        top: -225px !important; /* Ajustado para quedar clavado en el borde superior */
         left: 0 !important;
         width: 100% !important;
         justify-content: center !important;
