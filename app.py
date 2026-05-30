@@ -1652,10 +1652,9 @@ if True:
     # Repartimos el espacio del filtro eliminado hacia el título (de 2.5 pasa a 4)
     col_t, col_data, col_bal, col_set = st.columns([4, 1.5, 2, 0.35])
 
-
+    with col_set:
         with st.popover("⚙️", use_container_width=True):
             contenido_ajustes()
-        # ==============================================================
 
     with col_t:
         if paso_cuenta: badge_html = f'<span style="font-size: 20px; background-color: #00C897; color: white; padding: 4px 12px; border-radius: 8px; margin-left: 15px; font-weight: 800; letter-spacing: 0px;">{_l["dash"]["pa"]}</span>'
