@@ -1124,7 +1124,7 @@ st.markdown(f"""
     }}
     .block-container, [data-testid="stAppViewBlockContainer"], [data-testid="stMainBlockContainer"] {{ 
         padding-top: 0px !important;
-        margin-top: 90px !important; /* Jalamos toda la página hacia arriba al tope absoluto de la pantalla */
+        margin-top: 0px !important; /* Jalamos toda la página hacia arriba al tope absoluto de la pantalla */
     }}
     
     /* Ocultamos por completo la línea nativa inferior de las pestañas (la segunda línea) */
@@ -1141,7 +1141,7 @@ st.markdown(f"""
     /* 1. Las pestañas del menú principal se van limpias al tope absoluto de la página */
     div[data-baseweb="tab-list"] {{ 
         position: absolute !important;
-        top: -235px !important; /* Ajustado para quedar clavado en el borde superior */
+        top: -25px !important; /* Ajustado para quedar clavado en el borde superior */
         left: 0 !important;
         width: 100% !important;
         justify-content: center !important;
