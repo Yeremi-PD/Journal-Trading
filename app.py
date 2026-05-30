@@ -1467,46 +1467,57 @@ div[data-testid="stTabs"] [data-baseweb="tab-highlight-point"] {{ display: none 
             margin-top: 25px !important;
         }}
 
-    /* 📱 RESPONSIVO: CONTROL TOTAL Y REDUCCIÓN DE ESPACIO EN TELÉFONOS */
+/* 🟢 Centrar el emoji SOLAMENTE en el calendario "Day" de la sección de edición */
+        div[data-testid="stExpanderDetails"] div[data-testid="stDateInput"]::after {{
+            margin-top: 25px !important;
+        }}
+
+    /* 📱 RESPONSIVO: ELIMINAR FLECHAS Y REDUCIR ESPACIO EN MÓVIL */
         @media (max-width: 768px) {{
             div[data-baseweb="tab-list"] {{
-                gap: 4px !important; /* Distancia mínima entre botones */
-                padding-left: 2px !important;
-                padding-right: 2px !important;
-                justify-content: flex-start !important; /* Permitir flujo continuo */
+                gap: 4px !important; /* Espaciado mínimo entre las pestañas */
+                padding-left: 4px !important;
+                padding-right: 4px !important;
+                justify-content: flex-start !important; /* Permite arrastrar de lado a lado con el dedo */
                 width: 100% !important;
-                overflow-x: auto !important; /* Forzar scroll horizontal si no caben */
+                overflow-x: auto !important; /* Activa el desplazamiento táctil lateral */
                 overflow-y: hidden !important;
-                flex-wrap: nowrap !important;
-                -webkit-overflow-scrolling: touch !important; /* Swipe ultra rápido en celular */
+                flex-wrap: nowrap !important; /* Fuerza una sola línea recta */
+                -webkit-overflow-scrolling: touch !important; /* Desplazamiento ultra fluido en teléfonos */
             }}
             
             div[data-baseweb="tab-list"]::-webkit-scrollbar {{
-                display: none !important; /* Ocultar la barra gris de scroll */
+                display: none !important; /* Mantiene oculta la barra de scroll */
             }}
             
-            /* Atacamos todos los selectores posibles en cascada para obligar al teléfono a obedecer */
-            div[data-testid="stTabs"] button, 
-            div[data-baseweb="tab-list"] button, 
-            button[role="tab"] {{
-                font-size: 11px !important; /* Letra pequeña y estilizada */
-                padding: 6px 8px !important; /* Reducción drástica del tamaño del botón */
-                margin: 0px 2px !important; /* Elimina los márgenes laterales gigantes que los separaban */
+            /* 🛑 QUITAR LAS FLECHAS/FLECHITAS FANTASMA NATIVAS DE STREAMLIT 🛑 */
+            div[data-testid="stTabs"] button:not([role="tab"]),
+            div[data-baseweb="tab-list"] button:not([role="tab"]) {{
+                display: none !important;
+                visibility: hidden !important;
+                width: 0px !important;
+                height: 0px !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }}
+            
+            /* Ajuste ultra compacto y estético para tus botones reales */
+            div[data-testid="stTabs"] button[role="tab"] {{
+                font-size: 11px !important; /* Letra estilizada para que rinda el espacio */
+                padding: 6px 10px !important; /* Reduce la gordura de las cajas drásticamente */
+                margin: 0px !important;
                 border-radius: 6px !important;
-                white-space: nowrap !important;
-                flex: 0 0 auto !important; /* Desbloquea el estiramiento forzado */
-                min-width: 0 !important;
+                white-space: nowrap !important; /* Evita saltos de línea extraños */
+                flex: 0 0 auto !important; /* Desbloquea el candado que estiraba los botones */
             }}
             
-            div[data-testid="stTabs"] button p, 
-            button[role="tab"] p {{
+            div[data-testid="stTabs"] button[role="tab"] p {{
                 font-size: 11px !important;
                 margin: 0 !important;
-                padding: 0 !important;
                 white-space: nowrap !important;
             }}
         }}
-
+    </style>
     """, unsafe_allow_html=True)
 
 # ==========================================
