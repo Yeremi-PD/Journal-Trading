@@ -1210,8 +1210,8 @@ st.markdown(f"""
     [data-testid="stAppViewBlockContainer"], 
     [data-testid="stMainBlockContainer"],
     .main .block-container {{ 
-        padding-top: 0px !important;
-        margin-top: -70px !important; /* Empuja todo el bloque hacia el tope absoluto */
+        padding-top: 35px !important; /* Colchón de seguridad para que no se corte en PC */
+        margin-top: 0px !important; 
         max-width: 100% !important;
     }}
 
