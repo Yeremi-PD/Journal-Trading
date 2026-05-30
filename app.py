@@ -1493,17 +1493,16 @@ div[data-testid="stTabs"] [data-baseweb="tab-highlight-point"] {{ display: none 
         margin-top: 25px !important;
     }}
 
-    /* 📱 RESPONSIVO: PESTAÑAS SÚPER PEQUEÑAS Y PEGADITAS PARA MÓVIL */
+/* 📱 RESPONSIVO: PESTAÑAS SÚPER PEQUEÑAS Y PEGADITAS PARA MÓVIL */
     @media (max-width: 768px) {{
         div[data-baseweb="tab-list"] {{
-            gap: 4px !important; /* Reduce drásticamente el espacio entre botones */
-            padding-left: 5px !important;
-            padding-right: 5px !important;
-            justify-content: flex-start !important;
-            overflow-x: auto !important;
-            overflow-y: hidden !important;
+            gap: 2px !important; /* Casi nada de espacio entre botones */
+            padding-left: 2px !important;
+            padding-right: 2px !important;
+            justify-content: center !important; /* Centrar todo */
+            width: 100% !important; /* Obligar a usar exactamente el ancho de la pantalla */
+            overflow: hidden !important; /* Matar el scroll para que no se pierdan a los lados */
             flex-wrap: nowrap !important;
-            -webkit-overflow-scrolling: touch !important;
         }}
         
         div[data-baseweb="tab-list"]::-webkit-scrollbar {{
@@ -1511,12 +1510,24 @@ div[data-testid="stTabs"] [data-baseweb="tab-highlight-point"] {{ display: none 
         }}
         
         div[data-testid="stTabs"] button {{
-            font-size: 11px !important; /* Letra mucho más pequeña */
-            padding: 6px 12px !important; /* Botón súper delgado */
-            margin: 0px 2px !important; /* Casi nada de separación por fuera */
-            border-radius: 8px !important; 
-            white-space: nowrap !important;
-            flex: 0 0 auto !important;
+            font-size: 9px !important; /* Letra más pequeña para que quepa todo */
+            padding: 6px 2px !important; /* Quitar gordura a los lados */
+            margin: 0px !important; /* Cero márgenes externos */
+            border-radius: 6px !important;
+            white-space: normal !important; /* Permitir que el texto se parta en dos líneas si es muy largo */
+            flex: 1 1 0px !important; /* 🌟 MAGIA: Obliga a los botones a encogerse y repartirse el 100% del espacio en partes iguales */
+            min-width: 0 !important;
+            text-align: center !important;
+            height: auto !important;
+            min-height: 42px !important; /* Mantenerlos tocables con el dedo */
+            line-height: 1.1 !important;
+        }}
+        
+        /* Asegurar que los emojis y textos internos se comporten bien */
+        div[data-testid="stTabs"] button p {{
+            font-size: 9px !important;
+            margin: 0 !important;
+            white-space: normal !important;
         }}
     }}
     </style>
