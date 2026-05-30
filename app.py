@@ -3228,8 +3228,8 @@ def area_exportacion():
         st.markdown("<div style='margin-top: 28px;'></div>", unsafe_allow_html=True) 
         if datos_exportar:
             df_export = pd.DataFrame(datos_exportar)
-            # Agregamos sep=';' para obligar a Excel a separar cada columna perfectamente
-            csv_export = df_export.to_csv(index=False, sep=',', decimal='.').encode('utf-8-sig')
+            # 🟢 FIX: Cambiamos a sep=';' para que Excel en español lo divida en columnas automáticamente
+            csv_export = df_export.to_csv(index=False, sep=';', decimal=',').encode('utf-8-sig')
             
             hoy_dt = datetime.now().date()
             y_hoy = hoy_dt.year
