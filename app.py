@@ -1539,9 +1539,9 @@ es_admin = db_global[usuario]["settings"]["PC"].get("is_admin", False) or db_glo
 
 # 🚀 PESTAÑAS EN EL TOPE ABSOLUTO DE LA PÁGINA (Dinámicas)
 if es_admin:
-    tab_calendario, tab_estadisticas, tab_asistente = st.tabs(["📅 CALENDARIO", "📊 ESTADÍSTICAS", "🤖 ASISTENTE VIRTUAL"])
+    tab_calendario, tab_estadisticas, tab_historial_principal, tab_asistente = st.tabs(["📅 CALENDARIO", "📊 ESTADÍSTICAS", "🕒 HISTORIAL DE ÓRDENES", "🤖 ASISTENTE VIRTUAL"])
 else:
-    tab_calendario, tab_estadisticas = st.tabs(["📅 CALENDARIO", "📊 ESTADÍSTICAS"])
+    tab_calendario, tab_estadisticas, tab_historial_principal = st.tabs(["📅 CALENDARIO", "📊 ESTADÍSTICAS", "🕒 HISTORIAL DE ÓRDENES"])
 
 with tab_calendario:
     # Repartimos el espacio del filtro eliminado hacia el título (de 2.5 pasa a 4)
@@ -2982,8 +2982,8 @@ if es_admin:
                         db_global[usuario]["settings"]["PC"]["chats_historial"] = chats_dict
                         reescribir_excel_usuario(usuario)
 
-# 👇 REABRIMOS LA PESTAÑA CALENDARIO PARA ANIDAR LAS SUB-PESTAÑAS AQUÍ 👇
-with tab_calendario:
+# 👇 REABRIMOS LA PESTAÑA HISTORIAL DE ÓRDENES PRINCIPAL PARA ANIDAR LAS SUB-PESTAÑAS AQUÍ 👇
+with tab_historial_principal:
     st.markdown("<div style='margin-top: 60px;'></div>", unsafe_allow_html=True)
 
     # 🚀 AQUI CREAMOS LAS PESTAÑAS AL ESTILO FINANCE CENTER 🚀
