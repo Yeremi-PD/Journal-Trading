@@ -326,12 +326,15 @@ def forzar_sincronizacion(cuenta_a_mantener):
     except: pass
     st.rerun()
 
-if "db_global_local" not in st.session_state:
-    # 🛑 ELIMINAMOS el st.cache_resource.clear() porque era lo que devoraba la API innecesariamente.
-    # Ahora Streamlit recordará los datos inteligentemente.
-    st.session_state.db_global_local = copy.deepcopy(get_global_db())
-
-db_global = st.session_state.db_global_local
+# 🚀 OPTIMIZACIÓN EXTREMA: Diferir la descarga de la base de datos
+# Solo descargamos los datos si ya hay una sesión activa o un auto-login en curso.
+# Esto hace que el arranque sea INSTANTÁNEO y el script de la memoria pueda actuar sin lag.
+if st.query_params.get("user") or st.session_state.get("usuario_actual") is not None:
+    if "db_global_local" not in st.session_state:
+        st.session_state.db_global_local = copy.deepcopy(get_global_db())
+    db_global = st.session_state.db_global_local
+else:
+    db_global = {} # Base de datos vacía simulada para no trabar el arranque
 
 def registrar_en_excel(usuario, password, cuenta, fecha_obj, balance, pnl, trade_data, settings_pc, settings_movil):
     if db_spreadsheet:
@@ -581,6 +584,12 @@ if st.session_state.usuario_actual is None:
                     u_clean = log_user.strip()
                     p_clean = log_pass.strip()
                     
+                    # 🚀 AHORA SÍ: Descargamos la base de datos solo cuando le das al botón
+                    if "db_global_local" not in st.session_state:
+                        with st.spinner("⏳ Conectando al servidor..."):
+                            st.session_state.db_global_local = copy.deepcopy(get_global_db())
+                    db_global = st.session_state.db_global_local
+                    
                     # 🔍 1. Ignorar por completo mayúsculas y minúsculas (El verdadero culpable)
                     user_match = next((k for k in db_global.keys() if k.lower() == u_clean.lower()), None)
                     
@@ -611,6 +620,12 @@ if st.session_state.usuario_actual is None:
                 if btn_registrar:
                     u_reg_clean = reg_user.strip()
                     p_reg_clean = reg_pass.strip()
+                    
+                    # 🚀 Descargamos la base de datos para verificar que el usuario no exista
+                    if "db_global_local" not in st.session_state:
+                        with st.spinner("⏳ Verificando disponibilidad..."):
+                            st.session_state.db_global_local = copy.deepcopy(get_global_db())
+                    db_global = st.session_state.db_global_local
                     
                     if not u_reg_clean or not p_reg_clean:
                         st.error("⚠️ Debes llenar ambos campos.")
