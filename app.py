@@ -1890,11 +1890,20 @@ if True:
     if st.session_state.dispositivo_actual == "Móvil":
         st.markdown("""
         <style>
+        /* Sube la página completa 10 puntos más hacia el tope en el teléfono */
+        .block-container, 
+        [data-testid="stAppViewBlockContainer"], 
+        [data-testid="stMainBlockContainer"], 
+        .main .block-container {
+            margin-top: -130px !important; /* Modificado de -120px a -130px */
+        }
+        
+        /* Pone el título de "Hola, usuario" un poco más grande en el celular */
         .dashboard-title {
             margin-left: 0px !important;
             margin-top: 0px !important;
             text-align: center !important;
-            font-size: 28px !important;
+            font-size: 36px !important; /* Aumentado de 28px a 36px para mayor impacto */
             display: flex !important;
             flex-direction: column !important;
             align-items: center !important;
