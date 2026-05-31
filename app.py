@@ -2640,6 +2640,7 @@ if True:
                 if stats["l"] >= 1: wl_parts_sem.append(f'<span style="color:#FF4C4C;">{stats["l"]}L</span>')
                 if stats["be"] >= 1: wl_parts_sem.append(f'<span style="color:gray;">{stats["be"]}BE</span>')
                 wl_text_sem = ' <span style="color:gray;">/</span> '.join(wl_parts_sem) if wl_parts_sem else '<span style="color:gray;">0W / 0L / 0BE</span>'
+wl_text_sem += f' <span style="color:white;">({total_trades_sem}T)</span>'
                 
                 # ✨ AQUÍ SE CAMBIÓ A ({total_trades_sem}T) ✨
                 semanas_html += f'<div class="wk-box"><div class="wk-title" style="font-size:var(--size-box-titles) !important;">{titulo_str}</div><div class="wk-val {c_sem}" style="font-size:var(--size-box-vals) !important;">{s_sem}${stats["pnl"]:,.2f} ({total_trades_sem}T)<br><span style="font-size:var(--size-box-pct);">{s_sem}{pct_sem:.2f}%</span><br><span style="font-size: var(--size-box-wl); font-weight: 500;">{wl_text_sem}</span></div></div>'
@@ -2652,6 +2653,7 @@ if True:
             if m_l >= 1: wl_parts_mo.append(f'<span style="color:#FF4C4C;">{m_l}L</span>')
             if m_be >= 1: wl_parts_mo.append(f'<span style="color:gray;">{m_be}BE</span>')
             wl_text_mo = ' <span style="color:gray;">/</span> '.join(wl_parts_mo) if wl_parts_mo else '<span style="color:gray;">0W / 0L / 0BE</span>'
+wl_text_mo += f' <span style="color:white;">({total_trades_mo}T)</span>'
             
             # ✨ AQUÍ SE CAMBIÓ A ({total_trades_mo}T) ✨
             st.markdown(f'<div class="weeks-container">{semanas_html}<div class="mo-box"><div class="mo-title" style="font-size:var(--size-box-titles) !important;">{TXT_MO}</div><div class="mo-val {cM}" style="font-size:var(--size-box-vals) !important;">{sM}${m_total:,.2f} ({total_trades_mo}T)<br><span style="font-size:var(--size-box-pct);">{sM}{pct_m:.2f}%</span><br><span style="font-size: var(--size-box-wl); font-weight: 500;">{wl_text_mo}</span></div></div></div>', unsafe_allow_html=True)
@@ -2692,6 +2694,7 @@ if True:
                 if l_m >= 1: wl_parts_all.append(f'<span style="color:#FF4C4C;">{l_m}L</span>')
                 if be_m >= 1: wl_parts_all.append(f'<span style="color:gray;">{be_m}BE</span>')
                 wl_text_all = ' <span style="color:gray;">/</span> '.join(wl_parts_all) if wl_parts_all else '<span style="color:gray;">0W / 0L / 0BE</span>'
+wl_text_all += f' <span style="color:white;">({total_trades_hist_m}T)</span>'
                 
                 # ✨ AQUÍ SE CAMBIÓ A ({total_trades_hist_m}T) ✨
                 meses_html += f'<div class="wk-box"><div class="wk-title" style="font-size:var(--size-box-titles) !important;">{nombre_m}</div><div class="wk-val {c_m}" style="font-size:var(--size-box-vals) !important;">{s_m}${val_m:,.2f} ({total_trades_hist_m}T)<br><span style="font-size:var(--size-box-pct);">{s_m}{pct_m_box:.2f}%</span><br><span style="font-size: var(--size-box-wl); font-weight: 500;">{wl_text_all}</span></div></div>'
