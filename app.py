@@ -1462,66 +1462,46 @@ div[data-testid="stTabs"] [data-baseweb="tab-highlight-point"] {{ display: none 
         color: {c_dash} !important;
     }}
 
-/* 🟢 Centrar el emoji SOLAMENTE en el calendario "Day" de la sección de edición */
-        div[data-testid="stExpanderDetails"] div[data-testid="stDateInput"]::after {{
-            margin-top: 25px !important;
-        }}
-
-        /* 🚨 EXTERMINACIÓN GLOBAL Y ABSOLUTA DE FLECHAS (FUERA DE MEDIA QUERIES) 🚨 */
-        div[data-testid="stTabs"] button:not([role="tab"]),
-        div[data-testid="stTabs"] [role="tablist"] ~ *,
-        div[data-testid="stTabs"] [data-baseweb="tab-list"] ~ *,
-        div[data-testid="stTabs"] button[aria-label*="page"],
-        div[data-testid="stTabs"] button[aria-label*="tab"],
-        div[data-testid="stTabs"] svg,
-        div[data-testid="stTabs"] i,
-        .stTabs button:not([role="tab"]) {{
-            display: none !important;
-            visibility: hidden !important;
-            opacity: 0 !important;
-            width: 0px !important;
-            max-width: 0px !important;
-            height: 0px !important;
-            max-height: 0px !important;
-            padding: 0 !important;
-            margin: 0 !important;
-            pointer-events: none !important;
-        }}
-
-        /* 📱 RESPONSIVO: SOLO PARA AJUSTAR EL TAMAÑO DE TUS BOTONES REALES EN MÓVIL */
+    /* 📱 RESPONSIVO: CONTROL TOTAL Y REDUCCIÓN DE ESPACIO EN TELÉFONOS */
         @media (max-width: 768px) {{
             div[data-baseweb="tab-list"] {{
-                gap: 4px !important; /* Espaciado mínimo entre tus pestañas reales */
-                padding-left: 4px !important;
-                padding-right: 4px !important;
-                justify-content: flex-start !important; /* Permite arrastrar el menú con el dedo */
+                gap: 4px !important; /* Distancia mínima entre botones */
+                padding-left: 2px !important;
+                padding-right: 2px !important;
+                justify-content: flex-start !important; /* Permitir flujo continuo */
                 width: 100% !important;
-                overflow-x: auto !important; /* Activa el desplazamiento táctil lateral */
+                overflow-x: auto !important; /* Forzar scroll horizontal si no caben */
                 overflow-y: hidden !important;
-                flex-wrap: nowrap !important; /* Todo en una sola línea recta */
-                -webkit-overflow-scrolling: touch !important; /* Desplazamiento ultra fluido en teléfonos */
+                flex-wrap: nowrap !important;
+                -webkit-overflow-scrolling: touch !important; /* Swipe ultra rápido en celular */
             }}
             
             div[data-baseweb="tab-list"]::-webkit-scrollbar {{
-                display: none !important; /* Oculta la barra de scroll */
+                display: none !important; /* Ocultar la barra gris de scroll */
             }}
             
-            /* Ajuste súper limpio para tus botones reales */
-            div[data-testid="stTabs"] button[role="tab"] {{
-                font-size: 11px !important;
-                padding: 6px 10px !important;
-                margin: 0px !important;
+            /* Atacamos todos los selectores posibles en cascada para obligar al teléfono a obedecer */
+            div[data-testid="stTabs"] button, 
+            div[data-baseweb="tab-list"] button, 
+            button[role="tab"] {{
+                font-size: 11px !important; /* Letra pequeña y estilizada */
+                padding: 6px 8px !important; /* Reducción drástica del tamaño del botón */
+                margin: 0px 2px !important; /* Elimina los márgenes laterales gigantes que los separaban */
                 border-radius: 6px !important;
                 white-space: nowrap !important;
-                flex: 0 0 auto !important; /* Evita que el sistema los aplaste */
+                flex: 0 0 auto !important; /* Desbloquea el estiramiento forzado */
+                min-width: 0 !important;
             }}
             
-            div[data-testid="stTabs"] button[role="tab"] p {{
+            div[data-testid="stTabs"] button p, 
+            button[role="tab"] p {{
                 font-size: 11px !important;
                 margin: 0 !important;
+                padding: 0 !important;
                 white-space: nowrap !important;
             }}
         }}
+
     </style>
     """, unsafe_allow_html=True)
 
