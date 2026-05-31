@@ -2639,12 +2639,11 @@ if True:
                 if stats["w"] >= 1: wl_parts_sem.append(f'<span style="color:#00C897;">{stats["w"]}W</span>')
                 if stats["l"] >= 1: wl_parts_sem.append(f'<span style="color:#FF4C4C;">{stats["l"]}L</span>')
                 if stats["be"] >= 1: wl_parts_sem.append(f'<span style="color:gray;">{stats["be"]}BE</span>')
-                wl_text_sem = ' <span style="color:gray;">/</span> '.join(wl_parts_sem) if wl_parts_sem else '<span style="color:gray;">0W / 0L / 0BE</span>'
-wl_text_sem += f' <span style="color:white;">({total_trades_sem}T)</span>'
                 
-                # ✨ AQUÍ SE CAMBIÓ A ({total_trades_sem}T) ✨
+                # Alineación corregida a 16 espacios exactos con el conteo en blanco al final
                 wl_text_sem = ' <span style="color:gray;">/</span> '.join(wl_parts_sem) if wl_parts_sem else '<span style="color:gray;">0W / 0L / 0BE</span>'
                 wl_text_sem += f' <span style="color:white;">({total_trades_sem}T)</span>'
+                
                 semanas_html += f'<div class="wk-box"><div class="wk-title" style="font-size:var(--size-box-titles) !important;">{titulo_str}</div><div class="wk-val {c_sem}" style="font-size:var(--size-box-vals) !important;">{s_sem}${stats["pnl"]:,.2f}<br><span style="font-size:var(--size-box-pct);">{s_sem}{pct_sem:.2f}%</span><br><span style="font-size: var(--size-box-wl); font-weight: 500;">{wl_text_sem}</span></div></div>'
             
             # Calculamos el total de operaciones de la caja del mes actual
