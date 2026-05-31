@@ -1674,9 +1674,9 @@ if True:
 
     # 3. Inicializamos las pestañas justo aquí, para que queden debajo en la estructura del código
     if es_admin:
-        tab_calendario, tab_estadisticas, tab_historial_principal, tab_plan, tab_asistente = st.tabs(["📅 CALENDARIO", "📊 METRICAS", "🕒 HISTORIAL", "📝 PLAN", "🤖 AI"])
+        tab_calendario, tab_estadisticas, tab_historial_principal, tab_plan, tab_asistente = st.tabs(["📅 CALENDARIO", "📊 MÉTRICAS", "🕒 HISTORIAL", "📝 PLAN", "🤖 AI"])
     else:
-        tab_calendario, tab_estadisticas, tab_historial_principal, tab_plan = st.tabs(["📅 CALENDARIO", "📊 ESTADÍSTICAS", "🕒 HISTORIAL DE ÓRDENES", "📝 TRADING PLAN"])
+        tab_calendario, tab_estadisticas, tab_historial_principal, tab_plan = st.tabs(["📅 CALENDARIO", "📊 MÉTRICAS", "🕒 HISTORIAL", "📝 PLAN"])
 
     # === CSS EXCLUSIVO PARA LA BARRA DE ENTRADA (Estilo Finance Center) ===
     st.markdown("""
