@@ -1031,7 +1031,7 @@ def contenido_ajustes():
                                 st.rerun()
                 
                 st.markdown("---")
-                st.markdown("### 🗑️ Gestión de Usuarios")
+                        st.markdown("### 🗑️ Gestión de Usuarios")
                         
                         # 🔒 AHORA ESTO ESTÁ PROTEGIDO: Solo se ejecuta si la contraseña es correcta
                         for u, data in list(db_global.items()):
