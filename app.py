@@ -2660,7 +2660,7 @@ if True:
             
             st.markdown(f'<div class="weeks-container">{semanas_html}<div class="mo-box"><div class="mo-title" style="font-size:var(--size-box-titles) !important;">{TXT_MO}</div><div class="mo-val {cM}" style="font-size:var(--size-box-vals) !important;">{sM}${m_total:,.2f}<br><span style="font-size:var(--size-box-pct);">{sM}{pct_m:.2f}%</span><br><span style="font-size: var(--size-box-wl); font-weight: 500;">{wl_text_mo}</span></div></div></div>', unsafe_allow_html=True)
             
-        # Si "Ver Solo Este Mes" está DESACTIVADO (ver_todo es True), mostramos TAMBIÉN las cajas de los meses debajo
+# Si "Ver Solo Este Mes" está DESACTIVADO (ver_todo es True), mostramos TAMBIÉN las cajas de los meses debajo
         if ver_todo:
             meses_stats = {}
             for key, lista_t in db_usuario[ctx]["trades"].items():
@@ -2674,6 +2674,7 @@ if True:
                     if val["pnl"] >= 75: meses_stats[(y, m)]["w"] += 1
                     elif val["pnl"] <= -75: meses_stats[(y, m)]["l"] += 1
                     else: meses_stats[(y, m)]["be"] += 1
+            
             meses_html = ""
             for (y, m) in sorted(meses_stats.keys()):
                 val_m = meses_stats[(y, m)]["pnl"]
@@ -2683,11 +2684,13 @@ if True:
                 
                 # Calculamos el total de operaciones para el desglose histórico mensual continuo
                 total_trades_hist_m = w_m + l_m + be_m
-                
+            
                 if st.session_state.idioma == "ES":
                     meses_es = ["", "Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"]
                     nombre_m = f"{meses_es[m]} {y}"
-                else: nombre_m = f"{calendar.month_abbr[m]} {y}"
+                else: 
+                    nombre_m = f"{calendar.month_abbr[m]} {y}"
+                
                 c_m, s_m = get_col_simb(val_m)
                 pct_m_box = calc_pct(val_m)
                 
@@ -2695,13 +2698,12 @@ if True:
                 if w_m >= 1: wl_parts_all.append(f'<span style="color:#00C897;">{w_m}W</span>')
                 if l_m >= 1: wl_parts_all.append(f'<span style="color:#FF4C4C;">{l_m}L</span>')
                 if be_m >= 1: wl_parts_all.append(f'<span style="color:gray;">{be_m}BE</span>')
-                wl_text_all = ' <span style="color:gray;">/</span> '.join(wl_parts_all) if wl_parts_all else '<span style="color:gray;">0W / 0L / 0BE</span>'
-wl_text_all += f' <span style="color:white;">({total_trades_hist_m}T)</span>'
                 
-                # ✨ AQUÍ SE CAMBIÓ A ({total_trades_hist_m}T) ✨
                 wl_text_all = ' <span style="color:gray;">/</span> '.join(wl_parts_all) if wl_parts_all else '<span style="color:gray;">0W / 0L / 0BE</span>'
                 wl_text_all += f' <span style="color:white;">({total_trades_hist_m}T)</span>'
+                
                 meses_html += f'<div class="wk-box"><div class="wk-title" style="font-size:var(--size-box-titles) !important;">{nombre_m}</div><div class="wk-val {c_m}" style="font-size:var(--size-box-vals) !important;">{s_m}${val_m:,.2f}<br><span style="font-size:var(--size-box-pct);">{s_m}{pct_m_box:.2f}%</span><br><span style="font-size: var(--size-box-wl); font-weight: 500;">{wl_text_all}</span></div></div>'
+            
             if meses_html: st.markdown(f'<div class="weeks-container">{meses_html}</div>', unsafe_allow_html=True)
             else: st.info("No hay meses con trades registrados aún.")
 
