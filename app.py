@@ -2646,19 +2646,18 @@ if True:
                 
                 semanas_html += f'<div class="wk-box"><div class="wk-title" style="font-size:var(--size-box-titles) !important;">{titulo_str}</div><div class="wk-val {c_sem}" style="font-size:var(--size-box-vals) !important;">{s_sem}${stats["pnl"]:,.2f}<br><span style="font-size:var(--size-box-pct);">{s_sem}{pct_sem:.2f}%</span><br><span style="font-size: var(--size-box-wl); font-weight: 500;">{wl_text_sem}</span></div></div>'
             
-            # Calculamos el total de operaciones de la caja del mes actual
+# Calculamos el total de operaciones de la caja del mes actual
             total_trades_mo = m_w + m_l + m_be
             
             wl_parts_mo = []
             if m_w >= 1: wl_parts_mo.append(f'<span style="color:#00C897;">{m_w}W</span>')
             if m_l >= 1: wl_parts_mo.append(f'<span style="color:#FF4C4C;">{m_l}L</span>')
             if m_be >= 1: wl_parts_mo.append(f'<span style="color:gray;">{m_be}BE</span>')
-            wl_text_mo = ' <span style="color:gray;">/</span> '.join(wl_parts_mo) if wl_parts_mo else '<span style="color:gray;">0W / 0L / 0BE</span>'
-wl_text_mo += f' <span style="color:white;">({total_trades_mo}T)</span>'
             
-            # ✨ AQUÍ SE CAMBIÓ A ({total_trades_mo}T) ✨
+            # Alineación corregida a 12 espacios limpios y conteo en blanco al final sin duplicados
             wl_text_mo = ' <span style="color:gray;">/</span> '.join(wl_parts_mo) if wl_parts_mo else '<span style="color:gray;">0W / 0L / 0BE</span>'
             wl_text_mo += f' <span style="color:white;">({total_trades_mo}T)</span>'
+            
             st.markdown(f'<div class="weeks-container">{semanas_html}<div class="mo-box"><div class="mo-title" style="font-size:var(--size-box-titles) !important;">{TXT_MO}</div><div class="mo-val {cM}" style="font-size:var(--size-box-vals) !important;">{sM}${m_total:,.2f}<br><span style="font-size:var(--size-box-pct);">{sM}{pct_m:.2f}%</span><br><span style="font-size: var(--size-box-wl); font-weight: 500;">{wl_text_mo}</span></div></div></div>', unsafe_allow_html=True)
             
         # Si "Ver Solo Este Mes" está DESACTIVADO (ver_todo es True), mostramos TAMBIÉN las cajas de los meses debajo
