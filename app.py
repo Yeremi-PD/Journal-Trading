@@ -1902,14 +1902,14 @@ if True:
             width: 100% !important;
         }
         div[data-testid="column"]:has(.lbl-data) div[data-testid="stSelectbox"] {
-            transform: translateX(-50px) !important;
+            transform: translateX(-150px) !important;
         }
 
         .balance-box 
         {
             transform: none !important;
             width: 100% !important;
-            margin-top: 95px !important;
+            margin-top: 5px !important;
         }
         /* ========================================= */
         /* 1. BOTÓN PRINCIPAL "GUARDAR"              */
