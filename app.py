@@ -2694,7 +2694,7 @@ if True:
                 wl_text_all = ' <span style="color:gray;">/</span> '.join(wl_parts_all) if wl_parts_all else '<span style="color:gray;">0W / 0L / 0BE</span>'
                 
                 # 🔥 CAMBIO: Colocamos ({total_trades_hist_m}t) al lado del P&L financiero histórico continuo y removemos la línea vieja 🔥
-                meses_html += f'<div class="wk-box"><div class="wk-title" style="font-size:var(--size-box-titles) !important;">{nombre_m}</div><div class="wk-val {c_m}" style="font-size:var(--size-box-vals) !important;">{s_m}${val_m:,.2f} ({total_trades_hist_m}t)<br><span style="font-size:var(--size-box-pct);">{s_m}{pct_m_box:.2f}%</span><br><span style="font-size: var(--size-box-wl); font-weight: 500;">{wl_text_all}</span></div></div>'
+                meses_html += f'<div class="wk-box"><div class="wk-title" style="font-size:var(--size-box-titles) !important;">{nombre_m}</div><div class="wk-val {c_m}" style="font-size:var(--size-box-vals) !important;">{s_m}${val_m:,.2f} ({total_trades_hist_m}T)<br><span style="font-size:var(--size-box-pct);">{s_m}{pct_m_box:.2f}%</span><br><span style="font-size: var(--size-box-wl); font-weight: 500;">{wl_text_all}</span></div></div>'
             if meses_html: st.markdown(f'<div class="weeks-container">{meses_html}</div>', unsafe_allow_html=True)
             else: st.info("No hay meses con trades registrados aún.")
 
