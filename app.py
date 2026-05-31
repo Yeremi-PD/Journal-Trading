@@ -1674,9 +1674,9 @@ if True:
 
     # 3. Inicializamos las pestañas justo aquí, para que queden debajo en la estructura del código
     if es_admin:
-        tab_calendario, tab_estadisticas, tab_historial_principal, tab_plan, tab_asistente = st.tabs(["📅 CALENDARIO", "📊 METRICAS", "🕒 HISTORIAL", "📝 PLAN", "🤖 AI"])
+        tab_calendario, tab_estadisticas, tab_historial_principal, tab_plan, tab_asistente = st.tabs(["📅 CALENDARIO", "📊 MÉTRICAS", "🕒 HISTORIAL", "📝 PLAN", "🤖 AI"])
     else:
-        tab_calendario, tab_estadisticas, tab_historial_principal, tab_plan = st.tabs(["📅 CALENDARIO", "📊 ESTADÍSTICAS", "🕒 HISTORIAL DE ÓRDENES", "📝 TRADING PLAN"])
+        tab_calendario, tab_estadisticas, tab_historial_principal, tab_plan = st.tabs(["📅 CALENDARIO", "📊 MÉTRICAS", "🕒 HISTORIAL", "📝 PLAN"])
 
     # === CSS EXCLUSIVO PARA LA BARRA DE ENTRADA (Estilo Finance Center) ===
     st.markdown("""
@@ -1890,11 +1890,20 @@ if True:
     if st.session_state.dispositivo_actual == "Móvil":
         st.markdown("""
         <style>
+        /* Sube la página completa 10 puntos más hacia el tope en el teléfono */
+        .block-container, 
+        [data-testid="stAppViewBlockContainer"], 
+        [data-testid="stMainBlockContainer"], 
+        .main .block-container {
+            margin-top: -150px !important; /* Modificado de -120px a -130px */
+        }
+        
+        /* Pone el título de "Hola, usuario" un poco más grande en el celular */
         .dashboard-title {
             margin-left: 0px !important;
             margin-top: 0px !important;
             text-align: center !important;
-            font-size: 28px !important;
+            font-size: 36px !important; /* Aumentado de 28px a 36px para mayor impacto */
             display: flex !important;
             flex-direction: column !important;
             align-items: center !important;
