@@ -1895,7 +1895,7 @@ if True:
         [data-testid="stAppViewBlockContainer"], 
         [data-testid="stMainBlockContainer"], 
         .main .block-container {
-            margin-top: -10px !important; /* Modificado de -120px a -130px */
+            margin-top: -150px !important; /* Modificado de -120px a -130px */
         }
         
         /* Pone el título de "Hola, usuario" un poco más grande en el celular */
