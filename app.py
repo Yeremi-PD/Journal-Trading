@@ -1490,11 +1490,12 @@ div[data-testid="stTabs"] [data-baseweb="tab-highlight-point"] {{ display: none 
                 display: none !important; /* Mantenemos oculta la barra de scroll */
             }}
             
-            /* 🛑 ANIQUILACIÓN TOTAL DE LAS FLECHAS DE PAGINACIÓN NATIVAS 🛑 */
-            div[data-testid="stTabs"] > div:first-child button:not([role="tab"]),
-            div[data-testid="stTabs"] [data-baseweb="tab-list"] ~ button,
-            button[aria-label="Next page"],
-            button[aria-label="Previous page"] {{
+            /* 🛑 ATAQUE DE HERMANOS: Vaporiza CUALQUIER elemento que se pare al lado de la lista de pestañas 🛑 */
+            div[data-testid="stTabs"] [data-baseweb="tab-list"] ~ *,
+            * ~ div[data-testid="stTabs"] [data-baseweb="tab-list"],
+            div[data-testid="stTabs"] > div:first-child > button:not([role="tab"]),
+            button[aria-label*="page"],
+            button[class*="chevron"] {{
                 display: none !important;
                 visibility: hidden !important;
                 opacity: 0 !important;
