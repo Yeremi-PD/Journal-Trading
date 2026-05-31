@@ -1467,11 +1467,6 @@ div[data-testid="stTabs"] [data-baseweb="tab-highlight-point"] {{ display: none 
             margin-top: 25px !important;
         }}
 
-/* 🟢 Centrar el emoji SOLAMENTE en el calendario "Day" de la sección de edición */
-        div[data-testid="stExpanderDetails"] div[data-testid="stDateInput"]::after {{
-            margin-top: 25px !important;
-        }}
-
         /* 🚨 EXTERMINACIÓN GLOBAL Y ABSOLUTA DE FLECHAS (FUERA DE MEDIA QUERIES) 🚨 */
         div[data-testid="stTabs"] button:not([role="tab"]),
         div[data-testid="stTabs"] [role="tablist"] ~ *,
