@@ -47,31 +47,41 @@ if "user" not in st.query_params:
     """, unsafe_allow_html=True)
 
     # 2. El iframe lee la memoria al instante
-    components.html("""
-    <script>
-    const urlParams = new URLSearchParams(window.parent.location.search);
-    const sUser = window.parent.localStorage.getItem("yeremi_user");
-    const sDevice = window.parent.localStorage.getItem("yeremi_device");
-    const sAccount = window.parent.localStorage.getItem("yeremi_account");
+    # --- OPTIMIZACIÓN 3.0: TELÓN DE ACERO ANTI-PARPADEO ---
+# Ocultamos la app por completo al arrancar si no hay usuario en la URL.
+if "user" not in st.query_params and st.session_state.get("usuario_actual") is None:
+    st.markdown("""
+    <style id="telon-anti-parpadeo">
+        /* Vuelve la pantalla invisible mientras procesa la memoria del iPhone */
+        .stApp { visibility: hidden !important; opacity: 0 !important; }
+        body { background-color: #1A202C !important; }
+    </style>
+    """, unsafe_allow_html=True)
 
-    if (sUser && !urlParams.has("user")) {
-        urlParams.set("user", sUser);
-        if (sDevice) urlParams.set("device", sDevice);
-        else urlParams.set("device", window.parent.innerWidth <= 768 ? 'Móvil' : 'PC');
-        if (sAccount) urlParams.set("account", sAccount);
+components.html("""
+<script>
+const urlParams = new URLSearchParams(window.parent.location.search);
+const sUser = window.parent.localStorage.getItem("yeremi_user");
+const sDevice = window.parent.localStorage.getItem("yeremi_device");
+const sAccount = window.parent.localStorage.getItem("yeremi_account");
 
-        // Reemplazo instantáneo sin parpadeo
-        window.parent.location.replace(window.parent.location.pathname + "?" + urlParams.toString());
-    } else {
-        // Si no hay cuenta (usuario nuevo o cerrado sesión), revelamos la pantalla de login suavemente
-        const stApp = window.parent.document.querySelector('.stApp');
-        if(stApp) {
-            stApp.style.setProperty('opacity', '1', 'important');
-            stApp.style.setProperty('pointer-events', 'auto', 'important');
-        }
-    }
-    </script>
-    """, height=0, width=0)
+if (sUser && !urlParams.has("user")) {
+    // 🚀 TIENE MEMORIA: Redirigimos INMEDIATAMENTE sin quitar el telón (NUNCA verás el Login)
+    urlParams.set("user", sUser);
+    urlParams.set("device", sDevice ? sDevice : (window.parent.innerWidth <= 768 ? 'Móvil' : 'PC'));
+    if (sAccount) urlParams.set("account", sAccount);
+    window.parent.location.replace(window.parent.location.pathname + "?" + urlParams.toString());
+} else {
+    // 🛑 NO TIENE MEMORIA: Destruimos el telón suavemente para que puedas iniciar sesión
+    setTimeout(() => {
+        const telon = window.parent.document.getElementById('telon-anti-parpadeo');
+        if (telon) telon.remove();
+        const app = window.parent.document.querySelector('.stApp');
+        if (app) { app.style.visibility = 'visible'; app.style.opacity = '1'; }
+    }, 50);
+}
+</script>
+""", height=0, width=0)
 
 # ==========================================
 # 2. BASE DE DATOS GLOBAL Y LOGIN (GOOGLE SHEETS)
