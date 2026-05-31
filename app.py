@@ -2600,9 +2600,10 @@ if True:
             base = bal_actual - valor
             return (valor / base * 100) if base != 0 else 0.0
         
-        # Siempre mostramos las estadísticas semanales del mes del calendario actual
+# Siempre mostramos las estadísticas semanales del mes del calendario actual
         if True:
-            semanas_stats = {i: {"pnl": 0.0, "w": 0, "l": 0} for i in range(1, len(mes_matriz) + 1)}
+            # Añadimos "be" al diccionario para llevar la cuenta de Breakevens
+            semanas_stats = {i: {"pnl": 0.0, "w": 0, "l": 0, "be": 0} for i in range(1, len(mes_matriz) + 1)}
             for key, lista_t in db_usuario[ctx]["trades"].items():
                 if key[0] == anio_sel and key[1] == mes_sel:
                     dia = key[2]
@@ -2611,12 +2612,17 @@ if True:
                             for val in lista_t:
                                 if st.session_state.get("toggle_funded_state", False) and val.get("is_pre_funded", False): continue
                                 semanas_stats[idx + 1]["pnl"] += val["pnl"]
-                                if val["pnl"] > 0: semanas_stats[idx + 1]["w"] += 1
-                                elif val["pnl"] < 0: semanas_stats[idx + 1]["l"] += 1
+                                
+                                # Aplicamos el filtro estricto de tu diario (+/- 75 dólares)
+                                if val["pnl"] >= 75: semanas_stats[idx + 1]["w"] += 1
+                                elif val["pnl"] <= -75: semanas_stats[idx + 1]["l"] += 1
+                                else: semanas_stats[idx + 1]["be"] += 1
                             break
+            
             m_total = sum(s["pnl"] for s in semanas_stats.values())
             m_w = sum(s["w"] for s in semanas_stats.values())
             m_l = sum(s["l"] for s in semanas_stats.values())
+            m_be = sum(s["be"] for s in semanas_stats.values())
             cM, sM = get_col_simb(m_total)
             pct_m = calc_pct(m_total)
             titulos_semanas = [TXT_W1, TXT_W2, TXT_W3, TXT_W4, TXT_W5, TXT_W6]
@@ -2625,43 +2631,55 @@ if True:
                 titulo_str = titulos_semanas[idx] if idx < len(titulos_semanas) else f"Week {num_sem}"
                 c_sem, s_sem = get_col_simb(stats["pnl"])
                 pct_sem = calc_pct(stats["pnl"])
+                
                 wl_parts_sem = []
                 if stats["w"] >= 1: wl_parts_sem.append(f'<span style="color:#00C897;">{stats["w"]}W</span>')
                 if stats["l"] >= 1: wl_parts_sem.append(f'<span style="color:#FF4C4C;">{stats["l"]}L</span>')
-                wl_text_sem = ' <span style="color:gray;">/</span> '.join(wl_parts_sem)
+                if stats["be"] >= 1: wl_parts_sem.append(f'<span style="color:gray;">{stats["be"]}BE</span>')
+                wl_text_sem = ' <span style="color:gray;">/</span> '.join(wl_parts_sem) if wl_parts_sem else '<span style="color:gray;">0W / 0L / 0BE</span>'
+                
                 semanas_html += f'<div class="wk-box"><div class="wk-title" style="font-size:var(--size-box-titles) !important;">{titulo_str}</div><div class="wk-val {c_sem}" style="font-size:var(--size-box-vals) !important;">{s_sem}${stats["pnl"]:,.2f}<br><span style="font-size:var(--size-box-pct);">{s_sem}{pct_sem:.2f}%</span><br><span style="font-size: var(--size-box-wl); font-weight: 500;">{wl_text_sem}</span></div></div>'
+            
             wl_parts_mo = []
             if m_w >= 1: wl_parts_mo.append(f'<span style="color:#00C897;">{m_w}W</span>')
             if m_l >= 1: wl_parts_mo.append(f'<span style="color:#FF4C4C;">{m_l}L</span>')
-            wl_text_mo = ' <span style="color:gray;">/</span> '.join(wl_parts_mo)
+            if m_be >= 1: wl_parts_mo.append(f'<span style="color:gray;">{m_be}BE</span>')
+            wl_text_mo = ' <span style="color:gray;">/</span> '.join(wl_parts_mo) if wl_parts_mo else '<span style="color:gray;">0W / 0L / 0BE</span>'
+            
             st.markdown(f'<div class="weeks-container">{semanas_html}<div class="mo-box"><div class="mo-title" style="font-size:var(--size-box-titles) !important;">{TXT_MO}</div><div class="mo-val {cM}" style="font-size:var(--size-box-vals) !important;">{sM}${m_total:,.2f}<br><span style="font-size:var(--size-box-pct);">{sM}{pct_m:.2f}%</span><br><span style="font-size: var(--size-box-wl); font-weight: 500;">{wl_text_mo}</span></div></div></div>', unsafe_allow_html=True)
-        
+            
         # Si "Ver Solo Este Mes" está DESACTIVADO (ver_todo es True), mostramos TAMBIÉN las cajas de los meses debajo
         if ver_todo:
             meses_stats = {}
             for key, lista_t in db_usuario[ctx]["trades"].items():
                 y, m = key[0], key[1]
-                if (y, m) not in meses_stats: meses_stats[(y, m)] = {"pnl": 0.0, "w": 0, "l": 0}
+                if (y, m) not in meses_stats: meses_stats[(y, m)] = {"pnl": 0.0, "w": 0, "l": 0, "be": 0}
                 for val in lista_t:
                     if st.session_state.get("toggle_funded_state", False) and val.get("is_pre_funded", False): continue
                     meses_stats[(y, m)]["pnl"] += val["pnl"]
-                    if val["pnl"] > 0: meses_stats[(y, m)]["w"] += 1
-                    elif val["pnl"] < 0: meses_stats[(y, m)]["l"] += 1
+                    
+                    # Unificamos también el desglose mensual histórico continuo
+                    if val["pnl"] >= 75: meses_stats[(y, m)]["w"] += 1
+                    elif val["pnl"] <= -75: meses_stats[(y, m)]["l"] += 1
+                    else: meses_stats[(y, m)]["be"] += 1
             meses_html = ""
             for (y, m) in sorted(meses_stats.keys()):
                 val_m = meses_stats[(y, m)]["pnl"]
                 w_m = meses_stats[(y, m)]["w"]
                 l_m = meses_stats[(y, m)]["l"]
+                be_m = meses_stats[(y, m)]["be"]
                 if st.session_state.idioma == "ES":
                     meses_es = ["", "Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"]
                     nombre_m = f"{meses_es[m]} {y}"
                 else: nombre_m = f"{calendar.month_abbr[m]} {y}"
                 c_m, s_m = get_col_simb(val_m)
                 pct_m_box = calc_pct(val_m)
+                
                 wl_parts_all = []
                 if w_m >= 1: wl_parts_all.append(f'<span style="color:#00C897;">{w_m}W</span>')
                 if l_m >= 1: wl_parts_all.append(f'<span style="color:#FF4C4C;">{l_m}L</span>')
-                wl_text_all = ' <span style="color:gray;">/</span> '.join(wl_parts_all)
+                if be_m >= 1: wl_parts_all.append(f'<span style="color:gray;">{be_m}BE</span>')
+                wl_text_all = ' <span style="color:gray;">/</span> '.join(wl_parts_all) if wl_parts_all else '<span style="color:gray;">0W / 0L / 0BE</span>'
                 meses_html += f'<div class="wk-box"><div class="wk-title" style="font-size:var(--size-box-titles) !important;">{nombre_m}</div><div class="wk-val {c_m}" style="font-size:var(--size-box-vals) !important;">{s_m}${val_m:,.2f}<br><span style="font-size:var(--size-box-pct);">{s_m}{pct_m_box:.2f}%</span><br><span style="font-size: var(--size-box-wl); font-weight: 500;">{wl_text_all}</span></div></div>'
             if meses_html: st.markdown(f'<div class="weeks-container">{meses_html}</div>', unsafe_allow_html=True)
             else: st.info("No hay meses con trades registrados aún.")
