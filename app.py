@@ -34,6 +34,46 @@ logo_final = ImageOps.pad(logo_recortado, (tamaño_max, tamaño_max))
 st.set_page_config(page_title="Yeremi Journal Pro", page_icon=logo_final, layout="wide")
 
 # ==========================================
+# 🚀 AUTO-LOGIN ULTRA RÁPIDO (CERO PARPADEO) 🚀
+# ==========================================
+# Ponemos el detector de sesión ANTES de la base de datos para ganar segundos valiosos.
+import streamlit.components.v1 as components
+if "user" not in st.query_params:
+    # 1. Ocultamos toda la app de golpe para que no veas la pantalla parpadeando
+    st.markdown("""
+        <style>
+        .stApp { opacity: 0 !important; pointer-events: none !important; transition: opacity 0.3s ease; }
+        </style>
+    """, unsafe_allow_html=True)
+
+    # 2. El iframe lee la memoria al instante
+    components.html("""
+    <script>
+    const urlParams = new URLSearchParams(window.parent.location.search);
+    const sUser = window.parent.localStorage.getItem("yeremi_user");
+    const sDevice = window.parent.localStorage.getItem("yeremi_device");
+    const sAccount = window.parent.localStorage.getItem("yeremi_account");
+
+    if (sUser && !urlParams.has("user")) {
+        urlParams.set("user", sUser);
+        if (sDevice) urlParams.set("device", sDevice);
+        else urlParams.set("device", window.parent.innerWidth <= 768 ? 'Móvil' : 'PC');
+        if (sAccount) urlParams.set("account", sAccount);
+
+        // Reemplazo instantáneo sin parpadeo
+        window.parent.location.replace(window.parent.location.pathname + "?" + urlParams.toString());
+    } else {
+        // Si no hay cuenta (usuario nuevo o cerrado sesión), revelamos la pantalla de login suavemente
+        const stApp = window.parent.document.querySelector('.stApp');
+        if(stApp) {
+            stApp.style.setProperty('opacity', '1', 'important');
+            stApp.style.setProperty('pointer-events', 'auto', 'important');
+        }
+    }
+    </script>
+    """, height=0, width=0)
+
+# ==========================================
 # 2. BASE DE DATOS GLOBAL Y LOGIN (GOOGLE SHEETS)
 # ==========================================
 @st.cache_resource(ttl=3000, show_spinner=False)
@@ -443,36 +483,7 @@ def reescribir_excel_usuario(usuario):
     except Exception as e:
         print(f"Error al reescribir excel: {e}")
 
-# --- OPTIMIZACIÓN: SCRIPT ÚNICO DE ARRANQUE Y MEMORIA ---
-components.html("""
-<script>
-const urlParams = new URLSearchParams(window.parent.location.search);
-const sUser = window.parent.localStorage.getItem("yeremi_user");
-const sDevice = window.parent.localStorage.getItem("yeremi_device");
-const sAccount = window.parent.localStorage.getItem("yeremi_account");
-
-// SOLO intervenimos si la URL está completamente vacía de usuario 
-// (es decir, abriste la app fresca desde el inicio del iPhone)
-if (sUser && !urlParams.has("user")) {
-    urlParams.set("user", sUser);
-    
-    if (sDevice) {
-        urlParams.set("device", sDevice);
-    } else {
-        const isMobile = window.parent.innerWidth <= 768;
-        urlParams.set("device", isMobile ? 'Móvil' : 'PC');
-    }
-    
-    if (sAccount) {
-        urlParams.set("account", sAccount);
-    }
-    
-    // Redirigimos una ÚNICA vez
-    window.parent.location.replace(window.parent.location.pathname + "?" + urlParams.toString());
-}
-</script>
-""", height=0, width=0)
-
+# (El script de memoria se movió a la línea 1 para el auto-login ultra rápido)
 # Lógica para matar la sesión si decides salir manualmente
 if st.session_state.get("logout_trigger", False):
     st.session_state.usuario_actual = None
