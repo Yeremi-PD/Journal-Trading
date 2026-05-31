@@ -1031,22 +1031,25 @@ def contenido_ajustes():
                                 st.rerun()
                 
                 st.markdown("---")
-                
-                # 👇 (AQUÍ DEBES DEJAR TU CÓDIGO ORIGINAL DEL 'for u, data in list(db_global.items()):' SI LO TENÍAS PARA BORRAR USUARIOS O VER CLAVES) 👇
-            else:
-                st.error("⚠️ Contraseña incorrecta. Revisa mayúsculas, puntos y espacios.")
-                
-            for u, data in list(db_global.items()):
-                col_u, col_p, col_btn = st.columns([2, 2, 1])
-                col_u.write(f"**{u}**")
-                col_p.write(f"{data['password']}")
-                if col_btn.button("❌", key=f"del_usr_{u}"):
-                    del db_global[u]
-                    if st.session_state.usuario_actual == u: 
-                        st.session_state.usuario_actual = None
-                        try: st.query_params.clear()
-                        except: pass
-                    st.rerun()
+                        st.markdown("### 🗑️ Gestión de Usuarios")
+                        
+                        # 🔒 AHORA ESTO ESTÁ PROTEGIDO: Solo se ejecuta si la contraseña es correcta
+                        for u, data in list(db_global.items()):
+                            col_u, col_p, col_btn = st.columns([2, 2, 1])
+                            col_u.write(f"**{u}**")
+                            col_p.write(f"{data['password']}")
+                      
+                            if col_btn.button("❌", key=f"del_usr_{u}"):
+                                del db_global[u]
+                                if st.session_state.usuario_actual == u: 
+                                    st.session_state.usuario_actual = None
+                                 
+                                try: st.query_params.clear()
+                                except: pass
+                                st.rerun()
+                    else:
+                        # Si pones mal la clave, el código muere aquí y no muestra lo de arriba
+                        st.error("⚠️ Contraseña incorrecta. Revisa mayúsculas, puntos y espacios.")
 
     st.markdown("---")
     st.markdown(f"### {_l['sidebar']['sec_dash']}")
