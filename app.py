@@ -1873,7 +1873,7 @@ if True:
             margin-top: -150px !important; /* Modificado de -120px a -130px */
         }
         
-        /* Pone el título de "Hola, usuario" un poco más grande en el celular */
+/* Pone el título de "Hola, usuario" un poco más grande en el celular */
         .dashboard-title {
             margin-left: 0px !important;
             margin-top: 0px !important;
@@ -1887,13 +1887,26 @@ if True:
         .dashboard-title span {
             margin-left: 0px !important;
         }
-        .lbl-total-bal, .lbl-filtros, .lbl-data, .lbl-input, .lbl-link, .lbl-header {
+        .lbl-total-bal, .lbl-filtros, .lbl-input, .lbl-link, .lbl-header {
             transform: none !important;
             text-align: center !important;
             justify-content: center !important;
             width: 100% !important;
         }
-        .balance-box {
+        
+        /* Mueve la etiqueta "Cuentas" y su caja de selección 50 puntos a la izquierda en el teléfono */
+        .lbl-data {
+            transform: translateX(-50px) !important;
+            text-align: center !important;
+            justify-content: center !important;
+            width: 100% !important;
+        }
+        div[data-testid="column"]:has(.lbl-data) div[data-testid="stSelectbox"] {
+            transform: translateX(-50px) !important;
+        }
+
+        .balance-box 
+        {
             transform: none !important;
             width: 100% !important;
             margin-top: 5px !important;
