@@ -174,7 +174,19 @@ def get_global_db():
                                 set_pc = json.loads(str(row_data.get('Settings_PC', '{}')).strip() or '{}')
                                 if set_pc: db_temp[user]["settings"]["PC"].update(set_pc)
                                 set_mov = json.loads(str(row_data.get('Settings_Movil', '{}')).strip() or '{}')
-                                if set_mov: db_temp[user]["settings"]["Móvil"].update(set_mov)
+                                if set_mov: 
+ db_temp[user]["settings"]["Móvil"].update(set_mov)
+
+                                # Leemos la columna "App_Data" (Variables del sistema)
+                                app_data_excel = str(row_data.get('App_Data', '{}')).strip()
+                                if app_data_excel:
+                                    try:
+                                        app_data_json = json.loads(app_data_excel)
+                                        db_temp[user]["settings"]["PC"].update(app_data_json)
+                                        db_temp[user]["settings"]["Móvil"].update(app_data_json)
+                                    except: pass
+                                
+                                # Leemos la columna "Notas_Globales" directamente desde Excel
                                 
                                 # Leemos la columna "Notas_Globales" directamente desde Excel
                                 nota_global_excel = str(row_data.get('Notas_Globales', '')).strip()
@@ -353,7 +365,7 @@ def registrar_en_excel(usuario, password, cuenta, fecha_obj, balance, pnl, trade
                 hoja_user = db_spreadsheet.worksheet(usuario)
             except gspread.exceptions.WorksheetNotFound:
                 hoja_user = db_spreadsheet.add_worksheet(title=usuario, rows="1000", cols="30")
-                headers = ["Usuario", "Password", "Cuenta", "Fecha", "Balance", "PnL", "Imagenes", "Settings_PC", "Settings_Movil", "Bias", "Sesion", "Hora", "Confluences", "Risk", "RR", "Trade Type", "Reason", "Corrections", "Emotions", "Estado_Cuenta", "Retiros_Acumulados", "Fecha_Inicio", "Fecha_Cierre", "ExtraData", "Notas_Globales", "Chats_IA"]
+                headers = ["Usuario", "Password", "Cuenta", "Fecha", "Balance", "PnL", "Imagenes", "Settings_PC", "Settings_Movil", "Bias", "Sesion", "Hora", "Confluences", "Risk", "RR", "Trade Type", "Reason", "Corrections", "Emotions", "Estado_Cuenta", "Retiros_Acumulados", "Fecha_Inicio", "Fecha_Cierre", "ExtraData", "Notas_Globales", "Chats_IA", "App_Data"]
                 hoja_user.append_row(headers)
                 # FIJAR EL ALTO DE TODAS LAS FILAS A 25px PARA QUE NINGUNA SE ESTIRE HACIA ABAJO
                 try:
@@ -373,8 +385,15 @@ def registrar_en_excel(usuario, password, cuenta, fecha_obj, balance, pnl, trade
             else:
                 imgs_texto = f"📸 Tiene {num_fotos} foto(s)" if num_fotos > 0 else ""
             
-            set_pc_str = json.dumps(settings_pc) if settings_pc else "{}"
-            set_mov_str = json.dumps(settings_movil) if settings_movil else "{}"
+            claves_config = ["orientacion_horizontal", "bal_num_sz", "bal_box_w", "bal_box_pad", "size_top_stats", "size_card_titles", "size_box_titles", "size_box_vals", "size_box_pct", "size_box_wl", "pie_size", "pie_y_offset", "cal_mes_size", "cal_pnl_size", "cal_pct_size", "cal_dia_size", "cal_cam_size", "cal_scale", "cal_line_height", "cal_txt_y", "cal_txt_pad", "cal_note_size", "note_lbl_size", "note_val_size"]
+            
+            pc_config = {k: v for k, v in (settings_pc or {}).items() if k in claves_config}
+            mov_config = {k: v for k, v in (settings_movil or {}).items() if k in claves_config}
+            app_data_dict = {k: v for k, v in (settings_pc or {}).items() if k not in claves_config and k not in ["chats_historial", "global_notes_body"]}
+            
+            set_pc_str = json.dumps(pc_config)
+            set_mov_str = json.dumps(mov_config)
+            app_data_str = json.dumps(app_data_dict)
             
             # Extraemos los datos originales
             val_bias = trade_data.get("bias", "NONE")
@@ -408,7 +427,8 @@ def registrar_en_excel(usuario, password, cuenta, fecha_obj, balance, pnl, trade
             f_cie_val = db_global[usuario]["data"][cuenta].get("fecha_cierre", "")
             
             val_chats_str = json.dumps(settings_pc.get("chats_historial", {})) if settings_pc else "{}"
-            nueva_fila = [safe_user, safe_pass, str(cuenta), fecha_texto, float(balance), float(pnl), imgs_texto, set_pc_str, set_mov_str, val_bias, val_sesion, val_hora, val_confs, val_risk, val_rr, val_tt, val_reason, val_corr, val_emo, val_estado, float(val_retiros), f_ini_val, f_cie_val, json.dumps(extra_data), nota_global_str, val_chats_str]
+            nueva_fila = [safe_user, safe_pass, str(cuenta), fecha_texto, float(balance), float(pnl), imgs_texto, 
+ set_pc_str, set_mov_str, val_bias, val_sesion, val_hora, val_confs, val_risk, val_rr, val_tt, val_reason, val_corr, val_emo, val_estado, float(val_retiros), f_ini_val, f_cie_val, json.dumps(extra_data), nota_global_str, val_chats_str, app_data_str]
             
             hoja_user.append_row(nueva_fila)
         except Exception as e:
@@ -433,11 +453,21 @@ def registrar_chat_excel(usuario, cuenta, nombre_chat, pregunta, respuesta):
 def reescribir_excel_usuario(usuario):
     if not db_spreadsheet: return
     try:
-        headers = ["Usuario", "Password", "Cuenta", "Fecha", "Balance", "PnL", "Imagenes", "Settings_PC", "Settings_Movil", "Bias", "Sesion", "Hora", "Confluences", "Risk", "RR", "Trade Type", "Reason", "Corrections", "Emotions", "Estado_Cuenta", "Retiros_Acumulados", "Fecha_Inicio", "Fecha_Cierre", "ExtraData", "Notas_Globales", "Chats_IA"]
+        headers = ["Usuario", "Password", "Cuenta", "Fecha", "Balance", "PnL", "Imagenes", "Settings_PC", "Settings_Movil", "Bias", "Sesion", "Hora", "Confluences", "Risk", "RR", "Trade Type", "Reason", "Corrections", "Emotions", "Estado_Cuenta", "Retiros_Acumulados", "Fecha_Inicio", "Fecha_Cierre", "ExtraData", "Notas_Globales", "Chats_IA", "App_Data"]
         filas_a_insertar = [headers]
-        pwd = db_global[usuario]["password"]
-        set_pc_str = json.dumps(db_global[usuario]["settings"]["PC"])
-        set_mov_str = json.dumps(db_global[usuario]["settings"]["Móvil"])
+  
+       pwd = db_global[usuario]["password"]
+        
+        claves_config = ["orientacion_horizontal", "bal_num_sz", "bal_box_w", "bal_box_pad", "size_top_stats", "size_card_titles", "size_box_titles", "size_box_vals", "size_box_pct", "size_box_wl", "pie_size", "pie_y_offset", "cal_mes_size", "cal_pnl_size", "cal_pct_size", "cal_dia_size", "cal_cam_size", "cal_scale", "cal_line_height", "cal_txt_y", "cal_txt_pad", "cal_note_size", "note_lbl_size", "note_val_size"]
+        
+        pc_config = {k: v for k, v in db_global[usuario]["settings"]["PC"].items() if k in claves_config}
+        mov_config = {k: v for k, v in db_global[usuario]["settings"]["Móvil"].items() if k in claves_config}
+        app_data_dict = {k: v for k, v in db_global[usuario]["settings"]["PC"].items() if k not in claves_config and k not in ["chats_historial", "global_notes_body"]}
+        
+        set_pc_str = json.dumps(pc_config)
+        set_mov_str = json.dumps(mov_config)
+        app_data_str = json.dumps(app_data_dict)
+        val_chats_str = json.dumps(db_global[usuario]["settings"]["PC"].get("chats_historial", {}))
         val_chats_str = json.dumps(db_global[usuario]["settings"]["PC"].get("chats_historial", {}))
 
         for cuenta, d_cuenta in db_global[usuario]["data"].items():
@@ -474,10 +504,12 @@ def reescribir_excel_usuario(usuario):
                     f_cie_val = d_cuenta.get("fecha_cierre", "")
                     
                     filas_a_insertar.append([
-                        usuario, pwd, cuenta, t["fecha_str"], float(t["balance_final"]), float(t["pnl"]), 
+   
+                      usuario, pwd, cuenta, t["fecha_str"], float(t["balance_final"]), float(t["pnl"]), 
                         imgs_texto, set_pc_str, set_mov_str, val_bias, val_sesion, val_hora, val_confs, val_risk, 
-                        val_rr, val_tt, val_reason, val_corr, val_emo, val_estado, float(val_retiros), f_ini_val, f_cie_val, json.dumps(extra_data), nota_global_str, val_chats_str
-                    ])
+                        val_rr, val_tt, val_reason, val_corr, val_emo, val_estado, float(val_retiros), f_ini_val, f_cie_val, json.dumps(extra_data), nota_global_str, val_chats_str, app_data_str
+      
+               ])
         
         # OPTIMIZACIÓN 1.2: Uso del parámetro 'values' y 'range_name' para evitar deprecaciones 
         # de la librería gspread y hacer que el guardado masivo sea instantáneo.
