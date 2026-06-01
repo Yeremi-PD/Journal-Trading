@@ -38,22 +38,12 @@ st.set_page_config(page_title="Yeremi Journal Pro", page_icon=logo_final, layout
 # ==========================================
 # Ponemos el detector de sesión ANTES de la base de datos para ganar segundos valiosos.
 import streamlit.components.v1 as components
-if "user" not in st.query_params:
-    # 1. Ocultamos toda la app de golpe para que no veas la pantalla parpadeando
-    st.markdown("""
-        <style>
-        .stApp { opacity: 0 !important; pointer-events: none !important; transition: opacity 0.3s ease; }
-        </style>
-    """, unsafe_allow_html=True)
-
-    # 2. El iframe lee la memoria al instante
-    # --- OPTIMIZACIÓN 3.0: TELÓN DE ACERO ANTI-PARPADEO ---
-# Ocultamos la app por completo al arrancar si no hay usuario en la URL.
+# --- OPTIMIZACIÓN 3.0: TELÓN DE ACERO ANTI-PARPADEO ---
 if "user" not in st.query_params and st.session_state.get("usuario_actual") is None:
     st.markdown("""
     <style id="telon-anti-parpadeo">
-        /* Vuelve la pantalla invisible mientras procesa la memoria del iPhone */
-        .stApp { visibility: hidden !important; opacity: 0 !important; }
+        /* Vuelve la pantalla invisible mientras procesa la memoria del dispositivo */
+        .stApp { visibility: hidden !important; opacity: 0 !important; pointer-events: none !important; transition: opacity 0.3s ease; }
         body { background-color: #1A202C !important; }
     </style>
     """, unsafe_allow_html=True)
@@ -77,7 +67,7 @@ if (sUser && !urlParams.has("user")) {
         const telon = window.parent.document.getElementById('telon-anti-parpadeo');
         if (telon) telon.remove();
         const app = window.parent.document.querySelector('.stApp');
-        if (app) { app.style.visibility = 'visible'; app.style.opacity = '1'; }
+        if (app) { app.style.visibility = 'visible'; app.style.opacity = '1'; app.style.pointerEvents = 'auto'; }
     }, 50);
 }
 </script>
@@ -1142,6 +1132,8 @@ def contenido_ajustes():
         for key in list(st.session_state.keys()):
             del st.session_state[key]
         st.query_params.clear()
+        
+        # Quitamos st.rerun() para permitir que el script limpie el caché del navegador antes de recargar
         components.html("""
         <script>
             window.parent.localStorage.clear();
@@ -1150,7 +1142,6 @@ def contenido_ajustes():
             window.parent.location.replace(cleanURL);
         </script>
         """, height=0, width=0)
-        st.rerun()
 
 
 # ==========================================
