@@ -376,13 +376,13 @@ def registrar_en_excel(usuario, password, cuenta, fecha_obj, balance, pnl, trade
             claves_basura = ["chats_historial", "global_notes_body", "payouts", "payout_dates", "is_admin"]
             
             if settings_pc:
-                pc_limpio = {k: v for k, v in settings_pc.items() if k not in claves_basura and not k.startswith("pa_celeb") and not k.startswith("cuenta_quemada")}
+                pc_limpio = {k: v for k, v in settings_pc.items() if k not in claves_basura}
                 set_pc_str = json.dumps(pc_limpio)
             else:
                 set_pc_str = "{}"
             
             if settings_movil:
-                mov_limpio = {k: v for k, v in settings_movil.items() if k not in claves_basura and not k.startswith("pa_celeb") and not k.startswith("cuenta_quemada")}
+                mov_limpio = {k: v for k, v in settings_movil.items() if k not in claves_basura}
                 set_mov_str = json.dumps(mov_limpio)
             else:
                 set_mov_str = "{}"
@@ -450,11 +450,11 @@ def reescribir_excel_usuario(usuario):
         claves_basura = ["chats_historial", "global_notes_body", "payouts", "payout_dates", "is_admin"]
         
         pc_actual = db_global[usuario]["settings"]["PC"]
-        pc_limpio = {k: v for k, v in pc_actual.items() if k not in claves_basura and not k.startswith("pa_celeb") and not k.startswith("cuenta_quemada")}
+        pc_limpio = {k: v for k, v in pc_actual.items() if k not in claves_basura}
         set_pc_str = json.dumps(pc_limpio)
         
         mov_actual = db_global[usuario]["settings"]["Móvil"]
-        mov_limpio = {k: v for k, v in mov_actual.items() if k not in claves_basura and not k.startswith("pa_celeb") and not k.startswith("cuenta_quemada")}
+        mov_limpio = {k: v for k, v in mov_actual.items() if k not in claves_basura}
         set_mov_str = json.dumps(mov_limpio)
         val_chats_str = json.dumps(db_global[usuario]["settings"]["PC"].get("chats_historial", {}))
 
