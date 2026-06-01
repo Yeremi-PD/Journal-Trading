@@ -373,8 +373,19 @@ def registrar_en_excel(usuario, password, cuenta, fecha_obj, balance, pnl, trade
             else:
                 imgs_texto = f"📸 Tiene {num_fotos} foto(s)" if num_fotos > 0 else ""
             
-            set_pc_str = json.dumps(settings_pc) if settings_pc else "{}"
-            set_mov_str = json.dumps(settings_movil) if settings_movil else "{}"
+            claves_basura = ["chats_historial", "global_notes_body", "payouts", "payout_dates", "is_admin"]
+            
+            if settings_pc:
+                pc_limpio = {k: v for k, v in settings_pc.items() if k not in claves_basura and not k.startswith("pa_celeb") and not k.startswith("cuenta_quemada")}
+                set_pc_str = json.dumps(pc_limpio)
+            else:
+                set_pc_str = "{}"
+            
+            if settings_movil:
+                mov_limpio = {k: v for k, v in settings_movil.items() if k not in claves_basura and not k.startswith("pa_celeb") and not k.startswith("cuenta_quemada")}
+                set_mov_str = json.dumps(mov_limpio)
+            else:
+                set_mov_str = "{}"
             
             # Extraemos los datos originales
             val_bias = trade_data.get("bias", "NONE")
@@ -436,8 +447,15 @@ def reescribir_excel_usuario(usuario):
         headers = ["Usuario", "Password", "Cuenta", "Fecha", "Balance", "PnL", "Imagenes", "Settings_PC", "Settings_Movil", "Bias", "Sesion", "Hora", "Confluences", "Risk", "RR", "Trade Type", "Reason", "Corrections", "Emotions", "Estado_Cuenta", "Retiros_Acumulados", "Fecha_Inicio", "Fecha_Cierre", "ExtraData", "Notas_Globales", "Chats_IA"]
         filas_a_insertar = [headers]
         pwd = db_global[usuario]["password"]
-        set_pc_str = json.dumps(db_global[usuario]["settings"]["PC"])
-        set_mov_str = json.dumps(db_global[usuario]["settings"]["Móvil"])
+        claves_basura = ["chats_historial", "global_notes_body", "payouts", "payout_dates", "is_admin"]
+        
+        pc_actual = db_global[usuario]["settings"]["PC"]
+        pc_limpio = {k: v for k, v in pc_actual.items() if k not in claves_basura and not k.startswith("pa_celeb") and not k.startswith("cuenta_quemada")}
+        set_pc_str = json.dumps(pc_limpio)
+        
+        mov_actual = db_global[usuario]["settings"]["Móvil"]
+        mov_limpio = {k: v for k, v in mov_actual.items() if k not in claves_basura and not k.startswith("pa_celeb") and not k.startswith("cuenta_quemada")}
+        set_mov_str = json.dumps(mov_limpio)
         val_chats_str = json.dumps(db_global[usuario]["settings"]["PC"].get("chats_historial", {}))
 
         for cuenta, d_cuenta in db_global[usuario]["data"].items():
