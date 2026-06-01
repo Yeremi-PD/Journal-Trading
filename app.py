@@ -173,9 +173,9 @@ def get_global_db():
                             try:
                                 set_pc = json.loads(str(row_data.get('Settings_PC', '{}')).strip() or '{}')
                                 if set_pc: db_temp[user]["settings"]["PC"].update(set_pc)
+                                
                                 set_mov = json.loads(str(row_data.get('Settings_Movil', '{}')).strip() or '{}')
-                                if set_mov: 
- db_temp[user]["settings"]["Móvil"].update(set_mov)
+                                if set_mov: db_temp[user]["settings"]["Móvil"].update(set_mov)
 
                                 # Leemos la columna "App_Data" (Variables del sistema)
                                 app_data_excel = str(row_data.get('App_Data', '{}')).strip()
