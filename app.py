@@ -455,8 +455,8 @@ def reescribir_excel_usuario(usuario):
     try:
         headers = ["Usuario", "Password", "Cuenta", "Fecha", "Balance", "PnL", "Imagenes", "Settings_PC", "Settings_Movil", "Bias", "Sesion", "Hora", "Confluences", "Risk", "RR", "Trade Type", "Reason", "Corrections", "Emotions", "Estado_Cuenta", "Retiros_Acumulados", "Fecha_Inicio", "Fecha_Cierre", "ExtraData", "Notas_Globales", "Chats_IA", "App_Data"]
         filas_a_insertar = [headers]
-  
-       pwd = db_global[usuario]["password"]
+        
+        pwd = db_global[usuario]["password"]
         
         claves_config = ["orientacion_horizontal", "bal_num_sz", "bal_box_w", "bal_box_pad", "size_top_stats", "size_card_titles", "size_box_titles", "size_box_vals", "size_box_pct", "size_box_wl", "pie_size", "pie_y_offset", "cal_mes_size", "cal_pnl_size", "cal_pct_size", "cal_dia_size", "cal_cam_size", "cal_scale", "cal_line_height", "cal_txt_y", "cal_txt_pad", "cal_note_size", "note_lbl_size", "note_val_size"]
         
