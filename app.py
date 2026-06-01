@@ -1924,7 +1924,7 @@ if True:
     """, unsafe_allow_html=True)
 
     # 📱 MAGIA PARA MÓVIL: Esto SOLO se activa en el teléfono, dejando la PC 100% intacta
-    if st.session_state.dispositivo_actual == "Móvil":
+    if st.session_state.get("dispositivo_actual", "PC") == "Móvil":
         st.markdown("""
         <style>
         /* Sube la página completa 10 puntos más hacia el tope en el teléfono */
