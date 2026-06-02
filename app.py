@@ -3485,24 +3485,17 @@ with tab_galeria:
 .fs-modal {{ display: none; position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; background: rgba(0,0,0,0.98) !important; z-index: 9999999 !important; flex-direction: column !important; align-items: center !important; justify-content: center !important; }}
 .fs-modal img {{ width: 80vw !important; height: 80vh !important; max-width: 80vw !important; max-height: 80vh !important; object-fit: contain !important; transition: transform 0.1s ease-out !important; }}
 .close-btn {{ position: fixed !important; top: 35px !important; right: 25px !important; font-size: 20px !important; background-color: #FF4C4C !important; color: white !important; padding: 8px 15px !important; border-radius: 8px !important; cursor: pointer !important; z-index: 10000000 !important; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }}
-.gal-grid {{ display: grid; grid-template-columns: repeat(auto-fill, minmax(450px, 1fr)); gap: 35px; margin-top: -25px; }}
+.gal-grid {{ display: grid; grid-template-columns: repeat(auto-fill, minmax(450px, 1fr)); gap: 35px; margin-top: 0px; }}
 .gal-item {{ background: transparent; padding: 0; border: none; text-align: center; box-shadow: none; position: static; }}
 .gal-label:hover {{ transform: scale(1.02); }}
-.gal-filters-btn {{ display: flex; gap: 12px; justify-content: center; align-items: center; margin-top: -20px; margin-bottom: 15px; position: relative; z-index: 10; }}
-.gal-filters-btn button {{ height: 42px; padding: 0 25px; background: #2D3748; border: 1px solid #4A5568; border-radius: 8px; cursor: pointer; color: white; font-weight: bold; font-size: 15px; transition: all 0.2s ease; }}
+.gal-filters-btn {{ display: flex; gap: 15px; justify-content: center; margin-top: -20px; margin-bottom: 15px; position: relative; z-index: 10; }}
+.gal-filters-btn button {{ padding: 10px 25px; background: #2D3748; border: 1px solid #4A5568; border-radius: 20px; cursor: pointer; color: white; font-weight: bold; font-size: 16px; transition: 0.3s; }}
 .gal-filters-btn button.active {{ background: #00C897 !important; border-color: #00C897 !important; box-shadow: 0 4px 10px rgba(0,200,151,0.4) !important; }}
-.gal-counter-bar {{ text-align: center; color: #A0AEC0; font-size: 15px; font-weight: 600; margin-bottom: 25px; letter-spacing: 0.5px; }}
-.gal-counter-bar span {{ color: #FFFFFF; font-weight: 800; margin: 0 4px; }}
-.gal-counter-bar .txt-eval {{ color: #A0AEC0; margin-left: 8px; }}
-.gal-counter-bar .txt-pa {{ color: #00C897; margin-left: 8px; }}
 </style>
 <div class="gal-filters-btn" id="gal-filter-container">
 <button id="btn-Todas" class="active">Todas</button>
 <button id="btn-Eval">Eval</button>
 <button id="btn-PA">PA</button>
-</div>
-<div class="gal-counter-bar">
-📸 Total Imágenes: <span>{cnt_todas}</span> | <span class="txt-eval">Eval:</span> <span>{cnt_eval}</span> | <span class="txt-pa">PA:</span> <span>{cnt_pa}</span>
 </div>
 <div class="gal-grid">
 {html_items}
