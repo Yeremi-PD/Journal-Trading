@@ -1554,10 +1554,20 @@ div[data-testid="stTabs"] [data-baseweb="tab-highlight-point"] {{ display: none 
         color: {c_dash} !important;
     }}
 
-    /* 📱 RESPONSIVO: CONTROL TOTAL Y REDUCCIÓN DE ESPACIO EN TELÉFONOS */
+/* 📱 RESPONSIVO: CONTROL TOTAL Y REDUCCIÓN DE ESPACIO EN TELÉFONOS */
         @media (max-width: 768px) {{
+            /* 🔴 ANIQUILACIÓN TOTAL DE LAS FLECHAS DE SCROLL NATIVAS */
+            div[data-testid="stTabs"] button:not([role="tab"]),
+            div[data-testid="stTabs"] button[aria-label*="Scroll"] {{
+                display: none !important;
+                width: 0px !important;
+                height: 0px !important;
+                opacity: 0 !important;
+                pointer-events: none !important;
+            }}
+
             div[data-baseweb="tab-list"] {{
-                gap: 4px !important; /* Distancia mínima entre botones */
+                gap: 4px !important;
                 padding-left: 2px !important;
                 padding-right: 2px !important;
                 justify-content: flex-start !important; /* Permitir flujo continuo */
@@ -1566,10 +1576,12 @@ div[data-testid="stTabs"] [data-baseweb="tab-highlight-point"] {{ display: none 
                 overflow-y: hidden !important;
                 flex-wrap: nowrap !important;
                 -webkit-overflow-scrolling: touch !important; /* Swipe ultra rápido en celular */
+                scrollbar-width: none !important; /* Ocultar scroll en Firefox */
+                -ms-overflow-style: none !important; /* Ocultar scroll en Edge/IE */
             }}
             
             div[data-baseweb="tab-list"]::-webkit-scrollbar {{
-                display: none !important; /* Ocultar la barra gris de scroll */
+                display: none !important; /* Ocultar scroll en Chrome/Safari/iOS */
             }}
             
             /* Atacamos todos los selectores posibles en cascada para obligar al teléfono a obedecer */
