@@ -965,68 +965,55 @@ if st.session_state.get("ver_galeria_global", False):
         if not todas_imagenes:
             st.info("No hay imágenes guardadas en esta cuenta.")
         else:
-            # Construimos la cuadrícula HTML para que el filtro sea INSTANTÁNEO (JS) y no haya redibujado (Python)
+            # Pegado al margen izquierdo para evitar que Streamlit lo convierta en texto
             html_items = ""
             for idx, (img_url, fecha, pnl, estado) in enumerate(todas_imagenes):
                 c_pnl = "#00C897" if pnl >= 0 else "#FF4C4C"
                 simb = "+" if pnl > 0 else ""
                 id_modal = f"gal_global_{idx}"
                 
-                # FIX 1: height:300px y object-fit:contain para que la foto no se corte NUNCA
-                html_items += f'''
-                <div class="gal-item" data-stage="{estado}">
-                    <div style="margin-bottom: 10px; font-weight: bold; color: white; font-size:16px;">
-                        🗓️ {fecha} <br> <span style="color:{c_pnl};">{simb}${pnl:,.2f}</span>
-                    </div>
-                    <input type="checkbox" id="{id_modal}" class="modal-toggle" style="display:none;">
-                    <label for="{id_modal}" style="cursor:zoom-in; display:block; background:#1A202C; border-radius:10px; padding: 5px; border:1px solid #4A5568;">
-                        <img src="{img_url}" style="width:100%; height:300px; object-fit:contain; border-radius:6px;">
-                    </label>
-                    <div class="fs-modal" data-current="0" data-total="1">
-                        <div class="modal-controls">
-                            <label for="{id_modal}" class="close-btn">✖ CERRAR FOTO</label>
-                        </div>
-                        <img src="{img_url}" class="gallery-img" data-idx="0" style="display: block;">
-                    </div>
-                </div>
-                '''
+                html_items += f'''<div class="gal-item" data-stage="{estado}">
+<div style="margin-bottom: 10px; font-weight: bold; color: white; font-size:16px;">
+🗓️ {fecha} <br> <span style="color:{c_pnl};">{simb}${pnl:,.2f}</span>
+</div>
+<input type="checkbox" id="{id_modal}" class="modal-toggle" style="display:none;">
+<label for="{id_modal}" style="cursor:zoom-in; display:block; background:#1A202C; border-radius:10px; padding: 5px; border:1px solid #4A5568;">
+<img src="{img_url}" style="width:100%; height:300px; object-fit:contain; border-radius:6px;">
+</label>
+<div class="fs-modal" data-current="0" data-total="1">
+<div class="modal-controls">
+<label for="{id_modal}" class="close-btn">✖ CERRAR FOTO</label>
+</div>
+<img src="{img_url}" class="gallery-img" data-idx="0" style="display: block;">
+</div>
+</div>'''
             
-            # CSS y Botones de Filtro HTML (Cero recargas)
-            html_galeria_completa = f'''
-            <style>
-            .modal-toggle:checked ~ .fs-modal {{ display: flex !important; }}
-            .fs-modal {{ display: none; position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; background: rgba(0,0,0,0.98) !important; z-index: 9999999 !important; flex-direction: column !important; align-items: center !important; justify-content: center !important; }}
-            .fs-modal img {{ width: 80vw !important; height: 80vh !important; max-width: 80vw !important; max-height: 80vh !important; object-fit: contain !important; transition: transform 0.1s ease-out !important; }}
-            .close-btn {{ position: fixed !important; top: 35px !important; right: 25px !important; font-size: 20px !important; background-color: #FF4C4C !important; color: white !important; padding: 8px 15px !important; border-radius: 8px !important; cursor: pointer !important; z-index: 10000000 !important; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }}
-            
-            /* Cuadrícula Inteligente */
-            .gal-grid {{ display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 25px; margin-top: 20px; }}
-            .gal-item {{ background: #2D3748; padding: 15px; border-radius: 12px; border: 1px solid #4A5568; text-align: center; }}
-            
-            /* Botones de Filtro HTML */
-            .gal-filters-btn {{ display: flex; gap: 15px; justify-content: center; margin-bottom: 30px; }}
-            .gal-filters-btn button {{ padding: 10px 25px; background: #2D3748; border: 1px solid #4A5568; border-radius: 20px; cursor: pointer; color: white; font-weight: bold; font-size: 16px; transition: 0.3s; }}
-            .gal-filters-btn button.active {{ background: #00C897; border-color: #00C897; box-shadow: 0 4px 10px rgba(0,200,151,0.4); }}
-            </style>
-            
-            <div class="gal-filters-btn" id="gal-filter-container">
-                <button onclick="window.parent.filtrarGaleria('Todas')" id="btn-Todas">Todas</button>
-                <button onclick="window.parent.filtrarGaleria('Eval')" id="btn-Eval">Solo Eval</button>
-                <button onclick="window.parent.filtrarGaleria('PA')" id="btn-PA">Solo PA</button>
-            </div>
-            
-            <div class="gal-grid">
-                {html_items}
-            </div>
-            '''
+            html_galeria_completa = f'''<style>
+.modal-toggle:checked ~ .fs-modal {{ display: flex !important; }}
+.fs-modal {{ display: none; position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; background: rgba(0,0,0,0.98) !important; z-index: 9999999 !important; flex-direction: column !important; align-items: center !important; justify-content: center !important; }}
+.fs-modal img {{ width: 80vw !important; height: 80vh !important; max-width: 80vw !important; max-height: 80vh !important; object-fit: contain !important; transition: transform 0.1s ease-out !important; }}
+.close-btn {{ position: fixed !important; top: 35px !important; right: 25px !important; font-size: 20px !important; background-color: #FF4C4C !important; color: white !important; padding: 8px 15px !important; border-radius: 8px !important; cursor: pointer !important; z-index: 10000000 !important; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }}
+.gal-grid {{ display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 25px; margin-top: 20px; }}
+.gal-item {{ background: #2D3748; padding: 15px; border-radius: 12px; border: 1px solid #4A5568; text-align: center; }}
+.gal-filters-btn {{ display: flex; gap: 15px; justify-content: center; margin-bottom: 30px; }}
+.gal-filters-btn button {{ padding: 10px 25px; background: #2D3748; border: 1px solid #4A5568; border-radius: 20px; cursor: pointer; color: white; font-weight: bold; font-size: 16px; transition: 0.3s; }}
+.gal-filters-btn button.active {{ background: #00C897; border-color: #00C897; box-shadow: 0 4px 10px rgba(0,200,151,0.4); }}
+</style>
+<div class="gal-filters-btn" id="gal-filter-container">
+<button onclick="window.parent.filtrarGaleria('Todas')" id="btn-Todas">Todas</button>
+<button onclick="window.parent.filtrarGaleria('Eval')" id="btn-Eval">Solo Eval</button>
+<button onclick="window.parent.filtrarGaleria('PA')" id="btn-PA">Solo PA</button>
+</div>
+<div class="gal-grid">
+{html_items}
+</div>'''
             st.markdown(html_galeria_completa, unsafe_allow_html=True)
             
-        # 3. FIX 2: INYECTAMOS EL JAVASCRIPT QUE FILTRA INSTANTÁNEAMENTE Y HACE EL ZOOM
+        # 3. JAVASCRIPT QUE FILTRA INSTANTÁNEAMENTE Y HACE EL ZOOM
         components.html(f"""
         <script>
         const doc = window.parent.document;
         
-        // --- LÓGICA DE FILTROS INSTANTÁNEOS ---
         window.parent.filtrarGaleria = function(etapa) {{
             const botones = doc.querySelectorAll('#gal-filter-container button');
             if(botones.length === 0) return;
@@ -1044,10 +1031,8 @@ if st.session_state.get("ver_galeria_global", False):
             }});
         }};
         
-        // Ejecutar el filtro inicial automáticamente
         setTimeout(() => {{ if (window.parent.filtrarGaleria) window.parent.filtrarGaleria('{estado_actual}'); }}, 50);
 
-        // --- LÓGICA DEL ZOOM (Intacta) ---
         let currentScale = 1; let translateX = 0, translateY = 0; let isDragging = false; let startX, startY;
         
         function setTransform(img) {{
