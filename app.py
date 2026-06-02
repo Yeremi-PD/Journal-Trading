@@ -3150,7 +3150,7 @@ with tab_historial_principal:
     st.markdown("<div style='margin-top: -50px;'></div>", unsafe_allow_html=True)
 
     # 🚀 AQUI CREAMOS LAS PESTAÑAS AL ESTILO FINANCE CENTER 🚀
-    tab_hist, tab_tabla, tab_galeria, tab_exportar = st.tabs(["🕒 TRADES", "📊 TABLA DE RESULTADOS", "🖼️ GALERÍA", "💾 EXPORTAR DATOS"])
+    tab_hist, tab_tabla, tab_galeria, tab_exportar = st.tabs(["TRADES", "TABLA DE RESULTADOS", "IMAGENES", "EXPORTAR DATA"])
 
 def borrar_imagen_historial(contexto, clave, idx_trade, idx_img):
     if len(db_usuario[contexto]["trades"][clave][idx_trade]["imagenes"]) > idx_img: db_usuario[contexto]["trades"][clave][idx_trade]["imagenes"].pop(idx_img)
