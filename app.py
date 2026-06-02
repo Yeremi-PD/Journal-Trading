@@ -1152,13 +1152,13 @@ def contenido_ajustes():
 
     st.markdown("<br>", unsafe_allow_html=True)
     st.markdown("---")
-    if st.button(_l['sidebar']['logout'], use_container_width=True):
+    if st.button(_l['sidebar']['gallery'], key="btn_abrir_galeria", use_container_width=True):
         st.session_state.ver_galeria_global = True
         st.rerun()
 
     st.markdown("<br>", unsafe_allow_html=True)
     st.markdown("---")
-    if st.button(_l['sidebar']['logout'], use_container_width=True):
+    if st.button(_l['sidebar']['logout'], key="btn_cerrar_sesion", use_container_width=True):
         for key in list(st.session_state.keys()):
             del st.session_state[key]
         st.query_params.clear()
