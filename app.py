@@ -1184,9 +1184,140 @@ def contenido_ajustes():
 
     st.markdown("---")
     st.markdown(f"### {_l['sidebar']['sec_gallery']}")
-    if st.button(_l['sidebar']['view_all'], use_container_width=True):
-        st.session_state.galeria_idx = 0 
-        modal_galeria_individual(st.session_state.data_source_sel)
+    
+    # --- GALERÍA 100% HTML/CSS (CERO RECARGAS Y CENTRADO PERFECTO) ---
+    ctx_gal = st.session_state.get("data_source_sel", list(db_usuario.keys())[0] if db_usuario else "")
+    if ctx_gal and ctx_gal in db_usuario:
+        trades_list = []
+        for lt in db_usuario[ctx_gal]["trades"].values(): trades_list.extend(lt)
+        
+        # Detector automático de fase para el filtro por defecto
+        estado_actual = "PA" if st.session_state.get("toggle_funded_state", False) else "Eval"
+        check_all = ""
+        check_eval = "checked" if estado_actual == "Eval" else ""
+        check_pa = "checked" if estado_actual == "PA" else ""
+        
+        items_html = ""
+        for idx_t, t in enumerate(trades_list):
+            estado_trade = t.get("estado_cuenta", "Eval")
+            for idx_i, img_url in enumerate(t.get("imagenes", [])):
+                pnl = float(t.get("pnl", 0))
+                c_pnl = "#00C897" if pnl >= 0 else "#FF4C4C"
+                simb = "+" if pnl > 0 else ""
+                fecha = t.get("fecha_str", "")
+                id_zoom = f"zoom_img_{idx_t}_{idx_i}"
+                
+                items_html += f'''
+                <div class="gal-item {estado_trade}-item">
+                    <div style="margin-bottom: 10px; font-weight: bold; color: white; font-size:16px;">
+                        🗓️ {fecha} <br> <span style="color:{c_pnl};">{simb}${pnl:,.2f}</span>
+                    </div>
+                    
+                    <input type="checkbox" id="{id_zoom}" class="modal-toggle" style="display:none;">
+                    <label for="{id_zoom}" style="cursor:zoom-in; display:block;">
+                        <img src="{img_url}" style="width:100%; height:220px; object-fit:cover; border-radius:8px; border: 1px solid #4A5568;">
+                    </label>
+                    
+                    <div class="fs-modal" data-current="0" data-total="1" style="z-index:99999999 !important;">
+                        <div class="modal-controls">
+                            <label for="{id_zoom}" class="close-btn">✖ CERRAR FOTO</label>
+                        </div>
+                        <img src="{img_url}" class="gallery-img" data-idx="0" style="display: block; max-width: 90vw; max-height: 90vh; margin: auto; object-fit: contain;">
+                    </div>
+                </div>
+                '''
+        
+        if not items_html:
+            items_html = "<h3 style='color:gray; grid-column: 1 / -1; text-align:center;'>No hay imágenes guardadas aún.</h3>"
+        
+        html_galeria_master = f'''
+        <style>
+            .btn-gallery-sidebar {{
+                display: block; width: 100%; text-align: center;
+                background-color: transparent; color: white;
+                border: 1px solid #4A5568; border-radius: 8px;
+                padding: 12px; cursor: pointer; font-weight: bold; font-size: 18px;
+                margin-top: 10px; transition: 0.3s;
+            }}
+            .btn-gallery-sidebar:hover {{
+                border-color: #00C897; background: rgba(0, 200, 151, 0.1);
+            }}
+            
+            /* Galería General (Fondo Master) */
+            .gallery-main-modal {{
+                position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+                background: #1A202C !important; z-index: 9999990 !important;
+                display: none; flex-direction: column; justify-content: flex-start;
+                padding: 40px 20px; overflow-y: auto; overflow-x: hidden;
+            }}
+            #gallery-main-toggle:checked ~ .gallery-main-modal {{
+                display: flex !important;
+            }}
+            
+            input[name="gal-filter"] {{ display: none; }}
+            
+            /* Estilo Filtros (Cuentas) */
+            .gal-filters {{
+                display: flex; gap: 15px; margin-top: 20px; margin-bottom: 30px; justify-content: center; flex-wrap: wrap;
+            }}
+            .gal-filters label {{
+                padding: 10px 25px; background: #2D3748; border: 1px solid #4A5568;
+                border-radius: 20px; cursor: pointer; color: white; font-weight: bold; font-size: 16px;
+                transition: 0.3s;
+            }}
+            #filter-all:checked ~ .gal-filters label[for="filter-all"],
+            #filter-eval:checked ~ .gal-filters label[for="filter-eval"],
+            #filter-pa:checked ~ .gal-filters label[for="filter-pa"] {{
+                background: #00C897; border-color: #00C897; color: white; box-shadow: 0 4px 10px rgba(0,200,151,0.4);
+            }}
+            
+            /* Grid Cuadrícula Mágica */
+            .gal-grid {{
+                display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+                gap: 25px; width: 100%; max-width: 1400px; margin: 0 auto; padding-bottom: 50px;
+            }}
+            .gal-item {{
+                background: #2D3748; padding: 15px; border-radius: 12px;
+                border: 1px solid #4A5568; text-align: center;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            }}
+            
+            /* MOTOR DE FILTRADO CSS (Instantáneo sin redibujar Python) */
+            #filter-eval:checked ~ .gal-grid .PA-item {{ display: none !important; }}
+            #filter-pa:checked ~ .gal-grid .Eval-item {{ display: none !important; }}
+            
+            .btn-cerrar-master {{
+                position: absolute; top: 20px; right: 30px;
+                background: #FF4C4C; color: white; padding: 10px 20px;
+                border-radius: 8px; font-weight: bold; cursor: pointer;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.3); z-index: 9999995 !important;
+            }}
+        </style>
+        
+        <input type="checkbox" id="gallery-main-toggle" class="modal-toggle" style="display:none;">
+        <label for="gallery-main-toggle" class="btn-gallery-sidebar">🖼️ Ver Todas las Imágenes</label>
+        
+        <div class="gallery-main-modal">
+            <label for="gallery-main-toggle" class="btn-cerrar-master">✖ CERRAR GALERÍA</label>
+            
+            <h2 style="color:white; text-align:center; font-weight:900; margin-bottom:10px; font-size: 35px;">🖼️ Tu Galería de Trades</h2>
+            
+            <input type="radio" name="gal-filter" id="filter-all" {check_all}>
+            <input type="radio" name="gal-filter" id="filter-eval" {check_eval}>
+            <input type="radio" name="gal-filter" id="filter-pa" {check_pa}>
+            
+            <div class="gal-filters">
+               <label for="filter-all">Ver Todas</label>
+               <label for="filter-eval">Solo Eval</label>
+               <label for="filter-pa">Solo PA</label>
+            </div>
+            
+            <div class="gal-grid">
+                {items_html}
+            </div>
+        </div>
+        '''
+        st.markdown(html_galeria_master, unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
     st.markdown("---")
