@@ -896,7 +896,7 @@ def reset_settings(category):
     for k in keys: s[k] = defaults[k]
 
 # ==========================================
-# MODAL DE GALERÍA DE IMÁGENES
+# MODAL DE GALERÍA DE IMÁGENES (CON ZOOM Y PANTALLA COMPLETA)
 # ==========================================
 @st.dialog("🖼️ Galería de Imágenes", width="large")
 def modal_galeria_individual(ctx):
@@ -905,8 +905,7 @@ def modal_galeria_individual(ctx):
     for lt in db_usuario[ctx]["trades"].values():
         trades_list.extend(lt)
         
-    # 2. Determinar si la cuenta actual está fondeada (PA) o en evaluación (Eval) 
-    # para que el filtro inicie ahí por defecto.
+    # 2. Determinar si la cuenta actual está fondeada (PA) o en evaluación (Eval)
     estado_actual = "Eval"
     if st.session_state.get("toggle_funded_state", False):
         estado_actual = "PA"
@@ -930,17 +929,33 @@ def modal_galeria_individual(ctx):
         st.info(f"No hay imágenes guardadas en la categoría '{filtro}'.")
         return
         
-    # 5. Renderizar la galería en 2 columnas para que se vean grandes y claras
+    # 5. Renderizar la galería con el motor de ZOOM y Arrastre activado
     cols = st.columns(2)
     for idx, (img_url, fecha, pnl) in enumerate(imagenes_filtradas):
         with cols[idx % 2]:
-            c_pnl = "green" if pnl >= 0 else "red"
+            # Colores del texto del PnL
+            c_pnl = "#00C897" if pnl >= 0 else "#FF4C4C"
             simb = "+" if pnl > 0 else ""
-            st.markdown(f"**🗓️ {fecha}** | :{c_pnl}[{simb}${pnl:,.2f}]")
-            try:
-                st.image(img_url, use_container_width=True)
-            except:
-                st.error("Enlace roto o formato de imagen no compatible.")
+            st.markdown(f"**🗓️ {fecha}** | <span style='color:{c_pnl}; font-weight:800;'>{simb}${pnl:,.2f}</span>", unsafe_allow_html=True)
+            
+            # HTML Inyectado para que funcione el clic, el zoom y el arrastre
+            id_modal = f"gal_mod_{idx}"
+            modal_html = f'''
+            <div>
+                <input type="checkbox" id="{id_modal}" class="modal-toggle" style="display:none;">
+                <label for="{id_modal}" style="cursor:pointer; display:block;">
+                    <img src="{img_url}" style="width:100%; border-radius:10px; border:1px solid #4A5568; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">
+                </label>
+                <div class="fs-modal" data-current="0" data-total="1">
+                    <div class="modal-controls">
+                        <label for="{id_modal}" class="close-btn">{_l["cal"]["close"]}</label>
+                    </div>
+                    <img src="{img_url}" class="gallery-img" data-idx="0" style="display: block;">
+                </div>
+            </div>
+            '''
+            st.markdown(modal_html, unsafe_allow_html=True)
+            st.markdown("<br>", unsafe_allow_html=True)
 
 # ==========================================
 # 5. MODAL DE AJUSTES Y ADMIN (REEMPLAZA BARRA LATERAL)
