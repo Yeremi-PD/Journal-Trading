@@ -3439,15 +3439,14 @@ with tab_exportar:
 with tab_galeria:
     st.markdown("<br><h4 style='text-align:center; color:white;'>🖼️ Galería de Trades</h4>", unsafe_allow_html=True)
     
-    trades_list = []
-    for lt in db_usuario[ctx]["trades"].values(): 
-        trades_list.extend(lt)
-    
     todas_imagenes = []
-    for t in trades_list:
-        estado_trade = t.get("estado_cuenta", "Eval")
-        for img in t.get("imagenes", []):
-            todas_imagenes.append((img, t.get("fecha_str", ""), float(t.get("pnl", 0)), estado_trade))
+    # 1. Ordenamos las fechas de más reciente a más antigua (reverse=True)
+    for key, lt in sorted(db_usuario[ctx]["trades"].items(), key=lambda x: datetime(x[0][0], x[0][1], x[0][2]), reverse=True):
+        # 2. Invertimos también los trades del mismo día para que el último ingresado salga primero
+        for t in reversed(lt):
+            estado_trade = t.get("estado_cuenta", "Eval")
+            for img in t.get("imagenes", []):
+                todas_imagenes.append((img, t.get("fecha_str", ""), float(t.get("pnl", 0)), estado_trade))
     
     if not todas_imagenes:
         st.info("No hay imágenes guardadas en esta cuenta.")
@@ -3489,9 +3488,9 @@ with tab_galeria:
 .gal-filters-btn button.active {{ background: #00C897 !important; border-color: #00C897 !important; box-shadow: 0 4px 10px rgba(0,200,151,0.4) !important; }}
 </style>
 <div class="gal-filters-btn" id="gal-filter-container">
-<button onclick="window.parent.filtrarGaleria('Todas')" id="btn-Todas" class="active">Todas</button>
-<button onclick="window.parent.filtrarGaleria('Eval')" id="btn-Eval">Eval</button>
-<button onclick="window.parent.filtrarGaleria('PA')" id="btn-PA">PA</button>
+<button onclick="window.filtrarGaleria('Todas')" id="btn-Todas" class="active">Todas</button>
+<button onclick="window.filtrarGaleria('Eval')" id="btn-Eval">Eval</button>
+<button onclick="window.filtrarGaleria('PA')" id="btn-PA">PA</button>
 </div>
 <div class="gal-grid">
 {html_items}
