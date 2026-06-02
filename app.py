@@ -3495,7 +3495,7 @@ with tab_galeria:
         html_galeria_completa = f'''<style>
 .modal-toggle:checked ~ .fs-modal {{ display: flex !important; }}
 .fs-modal {{ display: none; position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; background: rgba(0,0,0,0.98) !important; z-index: 9999999 !important; flex-direction: column !important; align-items: center !important; justify-content: center !important; }}
-.fs-modal img {{ width: 100vw !important; height: 100vh !important; max-width: 100vw !important; max-height: 100vh !important; object-fit: contain !important; transition: width 0.2s, height 0.2s, transform 0.2s ease-out !important; image-rendering: high-quality !important; will-change: auto !important; }}
+.fs-modal img {{ width: 100vw !important; height: 100vh !important; max-width: 100vw !important; max-height: 100vh !important; object-fit: contain !important; transition: transform 0.1s ease-out !important; transform-origin: center center !important; will-change: transform !important; }}
 .close-btn {{ position: fixed !important; top: 35px !important; right: 25px !important; font-size: 20px !important; background-color: #FF4C4C !important; color: white !important; padding: 8px 15px !important; border-radius: 8px !important; cursor: pointer !important; z-index: 10000000 !important; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }}
 .gal-grid {{ display: grid; grid-template-columns: repeat(auto-fill, minmax(450px, 1fr)); gap: 35px; margin-top: -25px; }}
 .gal-item {{ background: transparent; padding: 0; border: none; text-align: center; box-shadow: none; position: static; }}
@@ -3619,11 +3619,7 @@ with tab_galeria:
             if (e.target && e.target.classList.contains('close-btn')) {{
                 currentScale = 1; translateX = 0; translateY = 0;
                 doc.querySelectorAll('.gallery-img').forEach(img => {{ 
-                    img.style.setProperty('width', '100vw', 'important');
-                    img.style.setProperty('height', '100vh', 'important');
-                    img.style.setProperty('max-width', '100vw', 'important');
-                    img.style.setProperty('max-height', '100vh', 'important');
-                    img.style.transform = 'translate(0px, 0px)'; 
+                    img.style.transform = 'translate(0px, 0px) scale(1)'; 
                 }});
             }}
         }});
@@ -3678,31 +3674,21 @@ let initialTx = 0, initialTy = 0;
 let isDragging = false;
 let startX, startY;
 
-// Función de seguridad y FIX DE CALIDAD ULTRA HD
+// Función de seguridad con ZOOM EXACTO AL RATÓN
 function setTransform(img) {
     if (isNaN(translateX) || !isFinite(translateX)) translateX = 0;
     if (isNaN(translateY) || !isFinite(translateY)) translateY = 0;
     if (isNaN(currentScale) || !isFinite(currentScale)) currentScale = 1;
     
-    // MAGIA: Cambiamos el tamaño físico de la foto en vez de estirar la textura.
-    // Esto fuerza al navegador a cargar los megapíxeles reales y evita el "zoom óptico feo".
-    img.style.setProperty('width', `${100 * currentScale}vw`, 'important');
-    img.style.setProperty('height', `${100 * currentScale}vh`, 'important');
-    img.style.setProperty('max-width', `${100 * currentScale}vw`, 'important');
-    img.style.setProperty('max-height', `${100 * currentScale}vh`, 'important');
-    img.style.transform = `translate(${translateX}px, ${translateY}px)`;
+    img.style.transform = `translate(${translateX}px, ${translateY}px) scale(${currentScale})`;
 }
 
 function resetZoom(modal) {
     currentScale = 1; translateX = 0; translateY = 0; initialTx = 0; initialTy = 0;
     const imgs = modal.querySelectorAll('.gallery-img');
     imgs.forEach(img => {
-        img.style.transition = 'width 0.2s, height 0.2s, transform 0.2s ease-out';
-        img.style.setProperty('width', '100vw', 'important');
-        img.style.setProperty('height', '100vh', 'important');
-        img.style.setProperty('max-width', '100vw', 'important');
-        img.style.setProperty('max-height', '100vh', 'important');
-        img.style.transform = 'translate(0px, 0px)';
+        img.style.transition = 'transform 0.2s ease-out';
+        img.style.transform = 'translate(0px, 0px) scale(1)';
         img.style.cursor = 'default';
     });
 }
