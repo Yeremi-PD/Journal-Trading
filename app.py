@@ -3530,6 +3530,15 @@ with tab_galeria:
             }});
         }};
         
+        // 🔴 FIX DEFINITIVO: VINCULACIÓN DIRECTA DE BOTONES PARA EVITAR EL BLOQUEO DE STREAMLIT
+        const btnT = doc.getElementById('btn-Todas');
+        const btnE = doc.getElementById('btn-Eval');
+        const btnP = doc.getElementById('btn-PA');
+        
+        if (btnT) btnT.addEventListener('click', () => window.parent.filtrarGaleria('Todas'));
+        if (btnE) btnE.addEventListener('click', () => window.parent.filtrarGaleria('Eval'));
+        if (btnP) btnP.addEventListener('click', () => window.parent.filtrarGaleria('PA'));
+        
         // Autoejecutar filtro para que cargue con los estilos correctos al instante
         setTimeout(() => {{ if (window.parent.filtrarGaleria) window.parent.filtrarGaleria('Todas'); }}, 200);
         setTimeout(() => {{ if (window.parent.filtrarGaleria) window.parent.filtrarGaleria('{estado_actual}'); }}, 50);
