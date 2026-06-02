@@ -896,6 +896,53 @@ def reset_settings(category):
     for k in keys: s[k] = defaults[k]
 
 # ==========================================
+# MODAL DE GALERÍA DE IMÁGENES
+# ==========================================
+@st.dialog("🖼️ Galería de Imágenes", width="large")
+def modal_galeria_individual(ctx):
+    # 1. Recopilar todos los trades de la cuenta seleccionada
+    trades_list = []
+    for lt in db_usuario[ctx]["trades"].values():
+        trades_list.extend(lt)
+        
+    # 2. Determinar si la cuenta actual está fondeada (PA) o en evaluación (Eval) 
+    # para que el filtro inicie ahí por defecto.
+    estado_actual = "Eval"
+    if st.session_state.get("toggle_funded_state", False):
+        estado_actual = "PA"
+        
+    opciones_filtro = ["Todas", "Eval", "PA"]
+    idx_defecto = 2 if estado_actual == "PA" else 1
+    
+    # 3. Mostrar los filtros de radio button
+    filtro = st.radio("🔍 Filtrar fotos por etapa de la cuenta:", opciones_filtro, index=idx_defecto, horizontal=True)
+    st.markdown("---")
+    
+    # 4. Filtrar las imágenes basado en la selección
+    imagenes_filtradas = []
+    for t in trades_list:
+        estado_trade = t.get("estado_cuenta", "Eval")
+        if filtro == "Todas" or filtro == estado_trade:
+            for img in t.get("imagenes", []):
+                imagenes_filtradas.append((img, t.get("fecha_str", ""), t.get("pnl", 0)))
+                
+    if not imagenes_filtradas:
+        st.info(f"No hay imágenes guardadas en la categoría '{filtro}'.")
+        return
+        
+    # 5. Renderizar la galería en 2 columnas para que se vean grandes y claras
+    cols = st.columns(2)
+    for idx, (img_url, fecha, pnl) in enumerate(imagenes_filtradas):
+        with cols[idx % 2]:
+            c_pnl = "green" if pnl >= 0 else "red"
+            simb = "+" if pnl > 0 else ""
+            st.markdown(f"**🗓️ {fecha}** | :{c_pnl}[{simb}${pnl:,.2f}]")
+            try:
+                st.image(img_url, use_container_width=True)
+            except:
+                st.error("Enlace roto o formato de imagen no compatible.")
+
+# ==========================================
 # 5. MODAL DE AJUSTES Y ADMIN (REEMPLAZA BARRA LATERAL)
 # ==========================================
 def contenido_ajustes():
