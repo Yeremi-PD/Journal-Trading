@@ -939,73 +939,122 @@ if st.session_state.get("ver_galeria_global", False):
     ctx_gal = st.session_state.get("data_source_sel", list(db_usuario.keys())[0] if db_usuario else "")
     if ctx_gal and ctx_gal in db_usuario:
         
-        # 1. INYECTAMOS EL CSS AQUÍ MISMO PARA QUE EL MODAL FUNCIONE
-        st.markdown("""
-        <style>
-        .modal-toggle:checked ~ .fs-modal { display: flex !important; }
-        .fs-modal { display: none; position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; background: rgba(0,0,0,0.98) !important; z-index: 9999999 !important; flex-direction: column !important; align-items: center !important; justify-content: center !important; }
-        .fs-modal img { width: 80vw !important; height: 80vh !important; max-width: 80vw !important; max-height: 80vh !important; object-fit: contain !important; transition: transform 0.1s ease-out !important; }
-        .close-btn { position: fixed !important; top: 35px !important; right: 25px !important; font-size: 20px !important; background-color: #FF4C4C !important; color: white !important; padding: 8px 15px !important; border-radius: 8px !important; cursor: pointer !important; z-index: 10000000 !important; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
-        </style>
-        """, unsafe_allow_html=True)
+        estado_actual = "PA" if st.session_state.get("toggle_funded_state", False) else "Eval"
         
         st.markdown("<h2 style='text-align:center; color:white; font-weight:900;'>🖼️ Tu Galería de Trades</h2>", unsafe_allow_html=True)
         
-        c_btn1, c_btn2, c_btn3 = st.columns([1, 2, 1])
-        with c_btn2:
-            estado_actual = "PA" if st.session_state.get("toggle_funded_state", False) else "Eval"
-            filtro_gal = st.radio("🔍 Filtrar fotos por etapa:", ["Todas", "Eval", "PA"], index=2 if estado_actual == "PA" else 1, horizontal=True)
-            
+        # Botón de regreso aislado
+        _, c_btn_back, _ = st.columns([1, 1, 1])
+        with c_btn_back:
             if st.button("⬅️ VOLVER AL DASHBOARD", key="btn_volver_dash", type="primary", use_container_width=True):
                 st.session_state.ver_galeria_global = False
                 st.rerun()
+        
         st.markdown("---")
         
+        # Recopilamos TODAS las imágenes (sin filtrar en Python)
         trades_list = []
         for lt in db_usuario[ctx_gal]["trades"].values(): trades_list.extend(lt)
         
-        imagenes_filtradas = []
+        todas_imagenes = []
         for t in trades_list:
-            if filtro_gal == "Todas" or filtro_gal == t.get("estado_cuenta", "Eval"):
-                for img in t.get("imagenes", []):
-                    imagenes_filtradas.append((img, t.get("fecha_str", ""), t.get("pnl", 0)))
+            estado_trade = t.get("estado_cuenta", "Eval")
+            for img in t.get("imagenes", []):
+                todas_imagenes.append((img, t.get("fecha_str", ""), float(t.get("pnl", 0)), estado_trade))
         
-        if not imagenes_filtradas:
-            st.info(f"No hay imágenes guardadas en la categoría '{filtro_gal}'.")
+        if not todas_imagenes:
+            st.info("No hay imágenes guardadas en esta cuenta.")
         else:
-            cols = st.columns(3)
-            for idx, (img_url, fecha, pnl) in enumerate(imagenes_filtradas):
-                with cols[idx % 3]:
-                    c_pnl = "#00C897" if pnl >= 0 else "#FF4C4C"
-                    simb = "+" if pnl > 0 else ""
-                    st.markdown(f"**🗓️ {fecha}** | <span style='color:{c_pnl}; font-weight:800;'>{simb}${pnl:,.2f}</span>", unsafe_allow_html=True)
-                    
-                    id_modal = f"gal_global_{idx}"
-                    html_img = f'''
-                    <div>
-                        <input type="checkbox" id="{id_modal}" class="modal-toggle" style="display:none;">
-                        <label for="{id_modal}" style="cursor:zoom-in; display:block;">
-                            <img src="{img_url}" style="width:100%; height:200px; object-fit:cover; border-radius:10px; border:1px solid #4A5568;">
-                        </label>
-                        <div class="fs-modal" data-current="0" data-total="1">
-                            <label for="{id_modal}" class="close-btn">✖ CERRAR FOTO</label>
-                            <img src="{img_url}" class="gallery-img" data-idx="0" style="display: block;">
-                        </div>
+            # Construimos la cuadrícula HTML para que el filtro sea INSTANTÁNEO (JS) y no haya redibujado (Python)
+            html_items = ""
+            for idx, (img_url, fecha, pnl, estado) in enumerate(todas_imagenes):
+                c_pnl = "#00C897" if pnl >= 0 else "#FF4C4C"
+                simb = "+" if pnl > 0 else ""
+                id_modal = f"gal_global_{idx}"
+                
+                # FIX 1: height:300px y object-fit:contain para que la foto no se corte NUNCA
+                html_items += f'''
+                <div class="gal-item" data-stage="{estado}">
+                    <div style="margin-bottom: 10px; font-weight: bold; color: white; font-size:16px;">
+                        🗓️ {fecha} <br> <span style="color:{c_pnl};">{simb}${pnl:,.2f}</span>
                     </div>
-                    '''
-                    st.markdown(html_img, unsafe_allow_html=True)
-        
-        # 2. INYECTAMOS EL JAVASCRIPT DEL ZOOM AQUÍ MISMO PARA QUE FUNCIONE EN EL AISLAMIENTO
-        components.html("""
+                    <input type="checkbox" id="{id_modal}" class="modal-toggle" style="display:none;">
+                    <label for="{id_modal}" style="cursor:zoom-in; display:block; background:#1A202C; border-radius:10px; padding: 5px; border:1px solid #4A5568;">
+                        <img src="{img_url}" style="width:100%; height:300px; object-fit:contain; border-radius:6px;">
+                    </label>
+                    <div class="fs-modal" data-current="0" data-total="1">
+                        <div class="modal-controls">
+                            <label for="{id_modal}" class="close-btn">✖ CERRAR FOTO</label>
+                        </div>
+                        <img src="{img_url}" class="gallery-img" data-idx="0" style="display: block;">
+                    </div>
+                </div>
+                '''
+            
+            # CSS y Botones de Filtro HTML (Cero recargas)
+            html_galeria_completa = f'''
+            <style>
+            .modal-toggle:checked ~ .fs-modal {{ display: flex !important; }}
+            .fs-modal {{ display: none; position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; background: rgba(0,0,0,0.98) !important; z-index: 9999999 !important; flex-direction: column !important; align-items: center !important; justify-content: center !important; }}
+            .fs-modal img {{ width: 80vw !important; height: 80vh !important; max-width: 80vw !important; max-height: 80vh !important; object-fit: contain !important; transition: transform 0.1s ease-out !important; }}
+            .close-btn {{ position: fixed !important; top: 35px !important; right: 25px !important; font-size: 20px !important; background-color: #FF4C4C !important; color: white !important; padding: 8px 15px !important; border-radius: 8px !important; cursor: pointer !important; z-index: 10000000 !important; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }}
+            
+            /* Cuadrícula Inteligente */
+            .gal-grid {{ display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 25px; margin-top: 20px; }}
+            .gal-item {{ background: #2D3748; padding: 15px; border-radius: 12px; border: 1px solid #4A5568; text-align: center; }}
+            
+            /* Botones de Filtro HTML */
+            .gal-filters-btn {{ display: flex; gap: 15px; justify-content: center; margin-bottom: 30px; }}
+            .gal-filters-btn button {{ padding: 10px 25px; background: #2D3748; border: 1px solid #4A5568; border-radius: 20px; cursor: pointer; color: white; font-weight: bold; font-size: 16px; transition: 0.3s; }}
+            .gal-filters-btn button.active {{ background: #00C897; border-color: #00C897; box-shadow: 0 4px 10px rgba(0,200,151,0.4); }}
+            </style>
+            
+            <div class="gal-filters-btn" id="gal-filter-container">
+                <button onclick="window.parent.filtrarGaleria('Todas')" id="btn-Todas">Todas</button>
+                <button onclick="window.parent.filtrarGaleria('Eval')" id="btn-Eval">Solo Eval</button>
+                <button onclick="window.parent.filtrarGaleria('PA')" id="btn-PA">Solo PA</button>
+            </div>
+            
+            <div class="gal-grid">
+                {html_items}
+            </div>
+            '''
+            st.markdown(html_galeria_completa, unsafe_allow_html=True)
+            
+        # 3. FIX 2: INYECTAMOS EL JAVASCRIPT QUE FILTRA INSTANTÁNEAMENTE Y HACE EL ZOOM
+        components.html(f"""
         <script>
         const doc = window.parent.document;
+        
+        // --- LÓGICA DE FILTROS INSTANTÁNEOS ---
+        window.parent.filtrarGaleria = function(etapa) {{
+            const botones = doc.querySelectorAll('#gal-filter-container button');
+            if(botones.length === 0) return;
+            botones.forEach(b => b.classList.remove('active'));
+            const btnActivo = doc.getElementById('btn-' + etapa);
+            if(btnActivo) btnActivo.classList.add('active');
+            
+            const items = doc.querySelectorAll('.gal-item');
+            items.forEach(item => {{
+                if (etapa === 'Todas' || item.getAttribute('data-stage') === etapa) {{
+                    item.style.display = 'block';
+                }} else {{
+                    item.style.display = 'none';
+                }}
+            }});
+        }};
+        
+        // Ejecutar el filtro inicial automáticamente
+        setTimeout(() => {{ if (window.parent.filtrarGaleria) window.parent.filtrarGaleria('{estado_actual}'); }}, 50);
+
+        // --- LÓGICA DEL ZOOM (Intacta) ---
         let currentScale = 1; let translateX = 0, translateY = 0; let isDragging = false; let startX, startY;
         
-        function setTransform(img) {
-            img.style.transform = `translate(${translateX}px, ${translateY}px) scale(${currentScale})`;
-        }
+        function setTransform(img) {{
+            img.style.transform = `translate(${{translateX}}px, ${{translateY}}px) scale(${{currentScale}})`;
+        }}
         
-        doc.addEventListener('wheel', function(e) {
+        doc.addEventListener('wheel', function(e) {{
             const modal = e.target.closest('.fs-modal');
             if (!modal) return;
             const img = modal.querySelector('.gallery-img');
@@ -1015,59 +1064,59 @@ if st.session_state.get("ver_galeria_global", False):
             const prevScale = currentScale;
             currentScale += e.deltaY < 0 ? 0.25 : -0.25;
             currentScale = Math.max(1, Math.min(currentScale, 6));
-            if (currentScale === 1) { translateX = 0; translateY = 0; }
-            else {
+            if (currentScale === 1) {{ translateX = 0; translateY = 0; }}
+            else {{
                 const scaleRatio = currentScale / prevScale;
                 const rect = img.getBoundingClientRect();
                 const centerX = rect.left + rect.width / 2;
                 const centerY = rect.top + rect.height / 2;
                 translateX -= (e.clientX - centerX) * (scaleRatio - 1);
                 translateY -= (e.clientY - centerY) * (scaleRatio - 1);
-            }
+            }}
             setTransform(img);
             img.style.cursor = currentScale > 1 ? 'grab' : 'default';
-        }, {passive: false});
+        }}, {{passive: false}});
 
-        doc.addEventListener('mousedown', function(e) {
-            if (currentScale > 1 && e.target.classList.contains('gallery-img')) {
+        doc.addEventListener('mousedown', function(e) {{
+            if (currentScale > 1 && e.target.classList.contains('gallery-img')) {{
                 isDragging = true;
                 startX = e.clientX - translateX;
                 startY = e.clientY - translateY;
                 e.target.style.transition = 'none';
                 e.target.style.cursor = 'grabbing';
                 e.preventDefault();
-            }
-        });
+            }}
+        }});
         
-        doc.addEventListener('mousemove', function(e) {
+        doc.addEventListener('mousemove', function(e) {{
             if (!isDragging) return;
             const img = doc.querySelector('.fs-modal .gallery-img');
             if (!img) return;
             translateX = e.clientX - startX;
             translateY = e.clientY - startY;
             setTransform(img);
-        });
+        }});
         
-        window.addEventListener('mouseup', function() {
-            if (isDragging) {
+        window.addEventListener('mouseup', function() {{
+            if (isDragging) {{
                 isDragging = false;
                 const img = doc.querySelector('.fs-modal .gallery-img');
                 if(img) img.style.cursor = currentScale > 1 ? 'grab' : 'zoom-in';
-            }
-        });
+            }}
+        }});
 
-        doc.addEventListener('click', function(e) {
-            if (e.target && e.target.classList.contains('close-btn')) {
+        doc.addEventListener('click', function(e) {{
+            if (e.target && e.target.classList.contains('close-btn')) {{
                 currentScale = 1; translateX = 0; translateY = 0;
-                doc.querySelectorAll('.gallery-img').forEach(img => {
+                doc.querySelectorAll('.gallery-img').forEach(img => {{
                     img.style.transform = 'translate(0px, 0px) scale(1)';
-                });
-            }
-        });
+                }});
+            }}
+        }});
         </script>
         """, height=0, width=0)
         
-    st.stop() # <-- Esto detiene el dashboard para que la galería sea súper rápida
+    st.stop()
 
 # ==========================================
 # 5. MODAL DE AJUSTES Y ADMIN (REEMPLAZA BARRA LATERAL)
