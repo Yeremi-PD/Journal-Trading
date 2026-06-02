@@ -933,177 +933,6 @@ def modal_galeria_individual(ctx):
                 st.error("Enlace roto.")
 
 # ==========================================
-# INTERCEPTOR: PÁGINA AISLADA DE GALERÍA
-# ==========================================
-if st.session_state.get("ver_galeria_global", False):
-    ctx_gal = st.session_state.get("data_source_sel", list(db_usuario.keys())[0] if db_usuario else "")
-    if ctx_gal and ctx_gal in db_usuario:
-        
-        estado_actual = "PA" if st.session_state.get("toggle_funded_state", False) else "Eval"
-        
-        st.markdown("<h2 style='text-align:center; color:white; font-weight:900;'>🖼️ Tu Galería de Trades</h2>", unsafe_allow_html=True)
-        
-        # Botón de regreso aislado
-        _, c_btn_back, _ = st.columns([1, 1, 1])
-        with c_btn_back:
-            if st.button("⬅️ VOLVER AL DASHBOARD", key="btn_volver_dash", type="primary", use_container_width=True):
-                st.session_state.ver_galeria_global = False
-                st.rerun()
-        
-        st.markdown("---")
-        
-        # Recopilamos TODAS las imágenes (sin filtrar en Python)
-        trades_list = []
-        for lt in db_usuario[ctx_gal]["trades"].values(): trades_list.extend(lt)
-        
-        todas_imagenes = []
-        for t in trades_list:
-            estado_trade = t.get("estado_cuenta", "Eval")
-            for img in t.get("imagenes", []):
-                todas_imagenes.append((img, t.get("fecha_str", ""), float(t.get("pnl", 0)), estado_trade))
-        
-        if not todas_imagenes:
-            st.info("No hay imágenes guardadas en esta cuenta.")
-        else:
-            # Pegado al margen izquierdo para evitar que Streamlit lo convierta en texto
-            html_items = ""
-            for idx, (img_url, fecha, pnl, estado) in enumerate(todas_imagenes):
-                c_pnl = "#00C897" if pnl >= 0 else "#FF4C4C"
-                simb = "+" if pnl > 0 else ""
-                id_modal = f"gal_global_{idx}"
-                
-                html_items += f'''<div class="gal-item" data-stage="{estado}">
-<div style="margin-bottom: 10px; font-weight: bold; color: white; font-size:16px;">
-🗓️ {fecha} <br> <span style="color:{c_pnl};">{simb}${pnl:,.2f}</span>
-</div>
-<input type="checkbox" id="{id_modal}" class="modal-toggle" style="display:none;">
-<label for="{id_modal}" style="cursor:zoom-in; display:block; background:#1A202C; border-radius:10px; padding: 5px; border:1px solid #4A5568;">
-<img src="{img_url}" style="width:100%; height:300px; object-fit:contain; border-radius:6px;">
-</label>
-<div class="fs-modal" data-current="0" data-total="1">
-<div class="modal-controls">
-<label for="{id_modal}" class="close-btn">✖ CERRAR FOTO</label>
-</div>
-<img src="{img_url}" class="gallery-img" data-idx="0" style="display: block;">
-</div>
-</div>'''
-            
-            html_galeria_completa = f'''<style>
-.modal-toggle:checked ~ .fs-modal {{ display: flex !important; }}
-.fs-modal {{ display: none; position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; background: rgba(0,0,0,0.98) !important; z-index: 9999999 !important; flex-direction: column !important; align-items: center !important; justify-content: center !important; }}
-.fs-modal img {{ width: 80vw !important; height: 80vh !important; max-width: 80vw !important; max-height: 80vh !important; object-fit: contain !important; transition: transform 0.1s ease-out !important; }}
-.close-btn {{ position: fixed !important; top: 35px !important; right: 25px !important; font-size: 20px !important; background-color: #FF4C4C !important; color: white !important; padding: 8px 15px !important; border-radius: 8px !important; cursor: pointer !important; z-index: 10000000 !important; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }}
-.gal-grid {{ display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 25px; margin-top: 20px; }}
-.gal-item {{ background: #2D3748; padding: 15px; border-radius: 12px; border: 1px solid #4A5568; text-align: center; }}
-.gal-filters-btn {{ display: flex; gap: 15px; justify-content: center; margin-bottom: 30px; }}
-.gal-filters-btn button {{ padding: 10px 25px; background: #2D3748; border: 1px solid #4A5568; border-radius: 20px; cursor: pointer; color: white; font-weight: bold; font-size: 16px; transition: 0.3s; }}
-.gal-filters-btn button.active {{ background: #00C897; border-color: #00C897; box-shadow: 0 4px 10px rgba(0,200,151,0.4); }}
-</style>
-<div class="gal-filters-btn" id="gal-filter-container">
-<button onclick="window.parent.filtrarGaleria('Todas')" id="btn-Todas">Todas</button>
-<button onclick="window.parent.filtrarGaleria('Eval')" id="btn-Eval">Solo Eval</button>
-<button onclick="window.parent.filtrarGaleria('PA')" id="btn-PA">Solo PA</button>
-</div>
-<div class="gal-grid">
-{html_items}
-</div>'''
-            st.markdown(html_galeria_completa, unsafe_allow_html=True)
-            
-        # 3. JAVASCRIPT QUE FILTRA INSTANTÁNEAMENTE Y HACE EL ZOOM
-        components.html(f"""
-        <script>
-        const doc = window.parent.document;
-        
-        window.parent.filtrarGaleria = function(etapa) {{
-            const botones = doc.querySelectorAll('#gal-filter-container button');
-            if(botones.length === 0) return;
-            botones.forEach(b => b.classList.remove('active'));
-            const btnActivo = doc.getElementById('btn-' + etapa);
-            if(btnActivo) btnActivo.classList.add('active');
-            
-            const items = doc.querySelectorAll('.gal-item');
-            items.forEach(item => {{
-                if (etapa === 'Todas' || item.getAttribute('data-stage') === etapa) {{
-                    item.style.display = 'block';
-                }} else {{
-                    item.style.display = 'none';
-                }}
-            }});
-        }};
-        
-        setTimeout(() => {{ if (window.parent.filtrarGaleria) window.parent.filtrarGaleria('{estado_actual}'); }}, 50);
-
-        let currentScale = 1; let translateX = 0, translateY = 0; let isDragging = false; let startX, startY;
-        
-        function setTransform(img) {{
-            img.style.transform = `translate(${{translateX}}px, ${{translateY}}px) scale(${{currentScale}})`;
-        }}
-        
-        doc.addEventListener('wheel', function(e) {{
-            const modal = e.target.closest('.fs-modal');
-            if (!modal) return;
-            const img = modal.querySelector('.gallery-img');
-            if (!img) return;
-            e.preventDefault(); 
-            img.style.transition = 'none';
-            const prevScale = currentScale;
-            currentScale += e.deltaY < 0 ? 0.25 : -0.25;
-            currentScale = Math.max(1, Math.min(currentScale, 6));
-            if (currentScale === 1) {{ translateX = 0; translateY = 0; }}
-            else {{
-                const scaleRatio = currentScale / prevScale;
-                const rect = img.getBoundingClientRect();
-                const centerX = rect.left + rect.width / 2;
-                const centerY = rect.top + rect.height / 2;
-                translateX -= (e.clientX - centerX) * (scaleRatio - 1);
-                translateY -= (e.clientY - centerY) * (scaleRatio - 1);
-            }}
-            setTransform(img);
-            img.style.cursor = currentScale > 1 ? 'grab' : 'default';
-        }}, {{passive: false}});
-
-        doc.addEventListener('mousedown', function(e) {{
-            if (currentScale > 1 && e.target.classList.contains('gallery-img')) {{
-                isDragging = true;
-                startX = e.clientX - translateX;
-                startY = e.clientY - translateY;
-                e.target.style.transition = 'none';
-                e.target.style.cursor = 'grabbing';
-                e.preventDefault();
-            }}
-        }});
-        
-        doc.addEventListener('mousemove', function(e) {{
-            if (!isDragging) return;
-            const img = doc.querySelector('.fs-modal .gallery-img');
-            if (!img) return;
-            translateX = e.clientX - startX;
-            translateY = e.clientY - startY;
-            setTransform(img);
-        }});
-        
-        window.addEventListener('mouseup', function() {{
-            if (isDragging) {{
-                isDragging = false;
-                const img = doc.querySelector('.fs-modal .gallery-img');
-                if(img) img.style.cursor = currentScale > 1 ? 'grab' : 'zoom-in';
-            }}
-        }});
-
-        doc.addEventListener('click', function(e) {{
-            if (e.target && e.target.classList.contains('close-btn')) {{
-                currentScale = 1; translateX = 0; translateY = 0;
-                doc.querySelectorAll('.gallery-img').forEach(img => {{
-                    img.style.transform = 'translate(0px, 0px) scale(1)';
-                }});
-            }}
-        }});
-        </script>
-        """, height=0, width=0)
-        
-    st.stop()
-
-# ==========================================
 # 5. MODAL DE AJUSTES Y ADMIN (REEMPLAZA BARRA LATERAL)
 # ==========================================
 def contenido_ajustes():
@@ -1321,15 +1150,9 @@ def contenido_ajustes():
         user_settings["cal_txt_y"] = st.slider(_l['sidebar']['cal_y'], -50, 50, user_settings.get("cal_txt_y", 0))
         user_settings["cal_txt_pad"] = st.slider(_l['sidebar']['cal_pad'], -50, 50, user_settings.get("cal_txt_pad", 0))
 
-    st.markdown("---")
-    st.markdown(f"### {_l['sidebar']['sec_gallery']}")
-    if st.button(_l['sidebar']['view_all'], key="btn_ver_galeria_unica", use_container_width=True):
-        st.session_state.ver_galeria_global = True
-        st.rerun()
-
     st.markdown("<br>", unsafe_allow_html=True)
     st.markdown("---")
-    if st.button(_l['sidebar']['logout'], key="btn_cerrar_sesion_unico", use_container_width=True):
+    if st.button(_l['sidebar']['logout'], use_container_width=True):
         st.session_state.ver_galeria_global = True
         st.rerun()
 
@@ -3327,7 +3150,7 @@ with tab_historial_principal:
     st.markdown("<div style='margin-top: -50px;'></div>", unsafe_allow_html=True)
 
     # 🚀 AQUI CREAMOS LAS PESTAÑAS AL ESTILO FINANCE CENTER 🚀
-    tab_hist, tab_tabla, tab_exportar = st.tabs(["🕒 HISTORIAL DE ÓRDENES", "📊 TABLA DE RESULTADOS", "💾 EXPORTAR DATOS"])
+    tab_hist, tab_tabla, tab_exportar, tab_galeria = st.tabs(["🕒 HISTORIAL DE ÓRDENES", "📊 TABLA DE RESULTADOS", "💾 EXPORTAR DATOS", "🖼️ GALERÍA"])
 
 def borrar_imagen_historial(contexto, clave, idx_trade, idx_img):
     if len(db_usuario[contexto]["trades"][clave][idx_trade]["imagenes"]) > idx_img: db_usuario[contexto]["trades"][clave][idx_trade]["imagenes"].pop(idx_img)
@@ -3612,6 +3435,148 @@ def area_exportacion():
 with tab_exportar:
     with st.container():
         area_exportacion()
+
+with tab_galeria:
+    st.markdown("<br><h4 style='text-align:center; color:white;'>🖼️ Galería de Trades</h4>", unsafe_allow_html=True)
+    
+    trades_list = []
+    for lt in db_usuario[ctx]["trades"].values(): 
+        trades_list.extend(lt)
+    
+    todas_imagenes = []
+    for t in trades_list:
+        estado_trade = t.get("estado_cuenta", "Eval")
+        for img in t.get("imagenes", []):
+            todas_imagenes.append((img, t.get("fecha_str", ""), float(t.get("pnl", 0)), estado_trade))
+    
+    if not todas_imagenes:
+        st.info("No hay imágenes guardadas en esta cuenta.")
+    else:
+        estado_actual = "PA" if st.session_state.get("toggle_funded_state", False) else "Eval"
+        html_items = ""
+        for idx, (img_url, fecha, pnl, estado) in enumerate(todas_imagenes):
+            c_pnl = "#00C897" if pnl >= 0 else "#FF4C4C"
+            simb = "+" if pnl > 0 else ""
+            id_modal = f"gal_tab_{idx}"
+            
+            html_items += f'''<div class="gal-item" data-stage="{estado}">
+<div style="margin-bottom: 10px; font-weight: bold; color: white; font-size:16px;">
+🗓️ {fecha} <br> <span style="color:{c_pnl};">{simb}${pnl:,.2f}</span>
+</div>
+<input type="checkbox" id="{id_modal}" class="modal-toggle" style="display:none;">
+<label for="{id_modal}" style="cursor:zoom-in; display:block; background:#1A202C; border-radius:10px; padding: 5px; border:1px solid #4A5568;">
+<img src="{img_url}" style="width:100%; height:300px; object-fit:contain; border-radius:6px;">
+</label>
+<div class="fs-modal" data-current="0" data-total="1">
+<div class="modal-controls">
+<label for="{id_modal}" class="close-btn">✖ CERRAR FOTO</label>
+</div>
+<img src="{img_url}" class="gallery-img" data-idx="0" style="display: block;">
+</div>
+</div>'''
+        
+        html_galeria_completa = f'''<style>
+.modal-toggle:checked ~ .fs-modal {{ display: flex !important; }}
+.fs-modal {{ display: none; position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; background: rgba(0,0,0,0.98) !important; z-index: 9999999 !important; flex-direction: column !important; align-items: center !important; justify-content: center !important; }}
+.fs-modal img {{ width: 80vw !important; height: 80vh !important; max-width: 80vw !important; max-height: 80vh !important; object-fit: contain !important; transition: transform 0.1s ease-out !important; }}
+.close-btn {{ position: fixed !important; top: 35px !important; right: 25px !important; font-size: 20px !important; background-color: #FF4C4C !important; color: white !important; padding: 8px 15px !important; border-radius: 8px !important; cursor: pointer !important; z-index: 10000000 !important; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }}
+.gal-grid {{ display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 25px; margin-top: 20px; }}
+.gal-item {{ background: #2D3748; padding: 15px; border-radius: 12px; border: 1px solid #4A5568; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }}
+.gal-filters-btn {{ display: flex; gap: 15px; justify-content: center; margin-bottom: 30px; }}
+.gal-filters-btn button {{ padding: 10px 25px; background: #2D3748; border: 1px solid #4A5568; border-radius: 20px; cursor: pointer; color: white; font-weight: bold; font-size: 16px; transition: 0.3s; }}
+.gal-filters-btn button.active {{ background: #00C897; border-color: #00C897; box-shadow: 0 4px 10px rgba(0,200,151,0.4); }}
+</style>
+<div class="gal-filters-btn" id="gal-filter-container">
+<button onclick="window.parent.filtrarGaleria('Todas')" id="btn-Todas">Todas</button>
+<button onclick="window.parent.filtrarGaleria('Eval')" id="btn-Eval">Solo Eval</button>
+<button onclick="window.parent.filtrarGaleria('PA')" id="btn-PA">Solo PA</button>
+</div>
+<div class="gal-grid">
+{html_items}
+</div>'''
+        st.markdown(html_galeria_completa, unsafe_allow_html=True)
+        
+        components.html(f"""
+        <script>
+        const doc = window.parent.document;
+        window.parent.filtrarGaleria = function(etapa) {{
+            const botones = doc.querySelectorAll('#gal-filter-container button');
+            if(botones.length === 0) return;
+            botones.forEach(b => b.classList.remove('active'));
+            const btnActivo = doc.getElementById('btn-' + etapa);
+            if(btnActivo) btnActivo.classList.add('active');
+            
+            const items = doc.querySelectorAll('.gal-item');
+            items.forEach(item => {{
+                if (etapa === 'Todas' || item.getAttribute('data-stage') === etapa) {{
+                    item.style.display = 'block';
+                }} else {{
+                    item.style.display = 'none';
+                }}
+            }});
+        }};
+        setTimeout(() => {{ if (window.parent.filtrarGaleria) window.parent.filtrarGaleria('{estado_actual}'); }}, 50);
+
+        let currentScale = 1; let translateX = 0, translateY = 0; let isDragging = false; let startX, startY;
+        function setTransform(img) {{ img.style.transform = `translate(${{translateX}}px, ${{translateY}}px) scale(${{currentScale}})`; }}
+        
+        doc.addEventListener('wheel', function(e) {{
+            const modal = e.target.closest('.fs-modal');
+            if (!modal) return;
+            const img = modal.querySelector('.gallery-img');
+            if (!img) return;
+            e.preventDefault(); 
+            img.style.transition = 'none';
+            const prevScale = currentScale;
+            currentScale += e.deltaY < 0 ? 0.25 : -0.25;
+            currentScale = Math.max(1, Math.min(currentScale, 6));
+            if (currentScale === 1) {{ translateX = 0; translateY = 0; }}
+            else {{
+                const scaleRatio = currentScale / prevScale;
+                const rect = img.getBoundingClientRect();
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+                translateX -= (e.clientX - centerX) * (scaleRatio - 1);
+                translateY -= (e.clientY - centerY) * (scaleRatio - 1);
+            }}
+            setTransform(img);
+            img.style.cursor = currentScale > 1 ? 'grab' : 'default';
+        }}, {{passive: false}});
+
+        doc.addEventListener('mousedown', function(e) {{
+            if (currentScale > 1 && e.target.classList.contains('gallery-img')) {{
+                isDragging = true; startX = e.clientX - translateX; startY = e.clientY - translateY;
+                e.target.style.transition = 'none'; e.target.style.cursor = 'grabbing'; e.preventDefault();
+            }}
+        }});
+        
+        doc.addEventListener('mousemove', function(e) {{
+            if (!isDragging) return;
+            const img = doc.querySelector('.fs-modal .gallery-img');
+            if (!img) return;
+            translateX = e.clientX - startX; translateY = e.clientY - startY; setTransform(img);
+        }});
+        
+        window.addEventListener('mouseup', function() {{
+            if (isDragging) {{
+                isDragging = false;
+                const img = doc.querySelector('.fs-modal .gallery-img');
+                if(img) img.style.cursor = currentScale > 1 ? 'grab' : 'zoom-in';
+            }}
+        }});
+
+        doc.addEventListener('click', function(e) {{
+            if (e.target && e.target.classList.contains('close-btn')) {{
+                currentScale = 1; translateX = 0; translateY = 0;
+                doc.querySelectorAll('.gallery-img').forEach(img => {{ img.style.transform = 'translate(0px, 0px) scale(1)'; }});
+            }}
+        }});
+        </script>
+        """, height=0, width=0)
+
+# ==========================================
+# SCRIPT PARA CERRAR MODALES Y BLOQUEAR TECLADO
+# ==========================================
 
 components.html("""
 <style>
