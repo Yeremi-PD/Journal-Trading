@@ -933,6 +933,61 @@ def modal_galeria_individual(ctx):
                 st.error("Enlace roto.")
 
 # ==========================================
+# INTERCEPTOR: PÁGINA AISLADA DE GALERÍA
+# ==========================================
+if st.session_state.get("ver_galeria_global", False):
+    ctx_gal = st.session_state.get("data_source_sel", list(db_usuario.keys())[0] if db_usuario else "")
+    if ctx_gal and ctx_gal in db_usuario:
+        st.markdown("<h2 style='text-align:center; color:white; font-weight:900;'>🖼️ Tu Galería de Trades</h2>", unsafe_allow_html=True)
+        
+        c_btn1, c_btn2, c_btn3 = st.columns([1, 2, 1])
+        with c_btn2:
+            estado_actual = "PA" if st.session_state.get("toggle_funded_state", False) else "Eval"
+            filtro_gal = st.radio("🔍 Filtrar fotos por etapa:", ["Todas", "Eval", "PA"], index=2 if estado_actual == "PA" else 1, horizontal=True)
+            
+            if st.button("⬅️ VOLVER AL DASHBOARD", type="primary", use_container_width=True):
+                st.session_state.ver_galeria_global = False
+                st.rerun()
+        st.markdown("---")
+        
+        trades_list = []
+        for lt in db_usuario[ctx_gal]["trades"].values(): trades_list.extend(lt)
+        
+        imagenes_filtradas = []
+        for t in trades_list:
+            if filtro_gal == "Todas" or filtro_gal == t.get("estado_cuenta", "Eval"):
+                for img in t.get("imagenes", []):
+                    imagenes_filtradas.append((img, t.get("fecha_str", ""), t.get("pnl", 0)))
+        
+        if not imagenes_filtradas:
+            st.info(f"No hay imágenes guardadas en la categoría '{filtro_gal}'.")
+        else:
+            cols = st.columns(3)
+            for idx, (img_url, fecha, pnl) in enumerate(imagenes_filtradas):
+                with cols[idx % 3]:
+                    c_pnl = "#00C897" if pnl >= 0 else "#FF4C4C"
+                    simb = "+" if pnl > 0 else ""
+                    st.markdown(f"**🗓️ {fecha}** | <span style='color:{c_pnl}; font-weight:800;'>{simb}${pnl:,.2f}</span>", unsafe_allow_html=True)
+                    
+                    id_modal = f"gal_global_{idx}"
+                    html_img = f'''
+                    <div>
+                        <input type="checkbox" id="{id_modal}" class="modal-toggle" style="display:none;">
+                        <label for="{id_modal}" style="cursor:zoom-in; display:block;">
+                            <img src="{img_url}" style="width:100%; height:200px; object-fit:cover; border-radius:10px; border:1px solid #4A5568;">
+                        </label>
+                        <div class="fs-modal" data-current="0" data-total="1">
+                            <div class="modal-controls">
+                                <label for="{id_modal}" class="close-btn">✖ CERRAR FOTO</label>
+                            </div>
+                            <img src="{img_url}" class="gallery-img" data-idx="0" style="display: block;">
+                        </div>
+                    </div>
+                    '''
+                    st.markdown(html_img, unsafe_allow_html=True)
+    st.stop() # <-- ESTO ES CLAVE: Detiene la carga del dashboard para que no haya errores
+
+# ==========================================
 # 5. MODAL DE AJUSTES Y ADMIN (REEMPLAZA BARRA LATERAL)
 # ==========================================
 def contenido_ajustes():
@@ -1151,15 +1206,14 @@ def contenido_ajustes():
         user_settings["cal_txt_pad"] = st.slider(_l['sidebar']['cal_pad'], -50, 50, user_settings.get("cal_txt_pad", 0))
 
     st.markdown("---")
-    st.markdown(f"### {_l['sidebar']['sec_sync']}")
-    if st.button(_l['sidebar']['sync'], use_container_width=True):
-        # Capturamos la cuenta activa antes de sincronizar
-        cta_actual_sync = st.session_state.get("data_source_sel")
-        forzar_sincronizacion(cta_actual_sync)
-
-    st.markdown("---")
     st.markdown(f"### {_l['sidebar']['sec_gallery']}")
     if st.button(_l['sidebar']['view_all'], use_container_width=True):
+        st.session_state.ver_galeria_global = True
+        st.rerun()
+
+    st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown("---")
+    if st.button(_l['sidebar']['logout'], use_container_width=True):
         st.session_state.ver_galeria_global = True
         st.rerun()
 
@@ -3443,76 +3497,6 @@ with tab_exportar:
     with st.container():
         area_exportacion()
 
-# ==========================================
-# RENDERIZADOR DE GALERÍA GLOBAL (FUERA DE POPOVERS PARA ZOOM PERFECTO)
-# ==========================================
-if st.session_state.get("ver_galeria_global", False):
-    ctx_gal = st.session_state.get("data_source_sel", list(db_usuario.keys())[0] if db_usuario else "")
-    if ctx_gal and ctx_gal in db_usuario:
-        estado_actual = "PA" if st.session_state.get("toggle_funded_state", False) else "Eval"
-        
-        st.markdown("""
-        <style>
-        .galeria-fondo-master { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #1A202C; z-index: 9999990; overflow-y: auto; padding: 40px 20px; }
-        </style>
-        """, unsafe_allow_html=True)
-        
-        st.markdown('<div class="galeria-fondo-master">', unsafe_allow_html=True)
-        
-        col_c1, col_c2, col_c3 = st.columns([1, 2, 1])
-        with col_c2:
-            st.markdown("<h2 style='color:white; text-align:center;'>🖼️ Galería de Imágenes</h2>", unsafe_allow_html=True)
-            opciones = ["Todas", "Eval", "PA"]
-            idx_def = 2 if estado_actual == "PA" else 1
-            filtro_gal = st.radio("🔍 Filtrar fotos por etapa:", opciones, index=idx_def, horizontal=True, key="filtro_galeria_global")
-            
-            if st.button("✖ CERRAR GALERÍA", type="primary", use_container_width=True):
-                st.session_state.ver_galeria_global = False
-                st.rerun()
-        
-        st.markdown("---")
-        
-        trades_list = []
-        for lt in db_usuario[ctx_gal]["trades"].values(): trades_list.extend(lt)
-        
-        imagenes_filtradas = []
-        for t in trades_list:
-            if filtro_gal == "Todas" or filtro_gal == t.get("estado_cuenta", "Eval"):
-                for img in t.get("imagenes", []):
-                    imagenes_filtradas.append((img, t.get("fecha_str", ""), t.get("pnl", 0)))
-        
-        if not imagenes_filtradas:
-            st.info(f"No hay imágenes guardadas en '{filtro_gal}'.")
-        else:
-            cols = st.columns(3)
-            for idx, (img_url, fecha, pnl) in enumerate(imagenes_filtradas):
-                with cols[idx % 3]:
-                    c_pnl = "#00C897" if pnl >= 0 else "#FF4C4C"
-                    simb = "+" if pnl > 0 else ""
-                    st.markdown(f"**🗓️ {fecha}** | <span style='color:{c_pnl}; font-weight:800;'>{simb}${pnl:,.2f}</span>", unsafe_allow_html=True)
-                    
-                    # MAGIA HTML: Usa exactamente tus mismas clases (modal-toggle, fs-modal, gallery-img)
-                    id_modal = f"gal_global_{idx}"
-                    html_img = f'''
-                    <div>
-                        <input type="checkbox" id="{id_modal}" class="modal-toggle" style="display:none;">
-                        <label for="{id_modal}" style="cursor:zoom-in; display:block;">
-                            <img src="{img_url}" style="width:100%; height:200px; object-fit:cover; border-radius:10px; border:1px solid #4A5568;">
-                        </label>
-                        <div class="fs-modal" data-current="0" data-total="1">
-                            <div class="modal-controls">
-                                <label for="{id_modal}" class="close-btn">✖ CERRAR</label>
-                            </div>
-                            <img src="{img_url}" class="gallery-img" data-idx="0" style="display: block;">
-                        </div>
-                    </div>
-                    '''
-                    st.markdown(html_img, unsafe_allow_html=True)
-        st.markdown('</div>', unsafe_allow_html=True)
-
-# ==========================================
-# SCRIPT PARA CERRAR MODALES Y BLOQUEAR TECLADO
-# ==========================================
 components.html("""
 <style>
 /* FIX: Centrar el texto del Balance Verticalmente */
