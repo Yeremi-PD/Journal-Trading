@@ -3461,7 +3461,7 @@ with tab_galeria:
             
             html_items += f'''<div class="gal-item" data-stage="{estado}">
 <input type="checkbox" id="{id_modal}" class="modal-toggle" style="display:none;">
-<label for="{id_modal}" style="cursor:zoom-in; display:block; background:#1A202C; border-radius:16px; overflow:hidden; border:1px solid #4A5568; position: relative; box-shadow: 0 10px 20px rgba(0,0,0,0.4);">
+<label class="gal-label" for="{id_modal}" style="cursor:zoom-in; display:block; background:transparent; border-radius:16px; overflow:hidden; border:none; position: relative; box-shadow: none; transition: transform 0.2s ease;">
 <img src="{img_url}" style="width:100%; height:450px; object-fit:contain; display: block;">
 <div style="position: absolute; bottom: 0; left: 0; width: 100%; background: linear-gradient(transparent, rgba(0,0,0,0.95)); padding: 40px 20px 15px 20px; display: flex; justify-content: space-between; align-items: flex-end;">
 <span style="font-weight: bold; color: white; text-shadow: 1px 1px 4px black; font-size: 20px;">🗓️ {fecha}</span>
@@ -3482,14 +3482,14 @@ with tab_galeria:
 .fs-modal img {{ width: 80vw !important; height: 80vh !important; max-width: 80vw !important; max-height: 80vh !important; object-fit: contain !important; transition: transform 0.1s ease-out !important; }}
 .close-btn {{ position: fixed !important; top: 35px !important; right: 25px !important; font-size: 20px !important; background-color: #FF4C4C !important; color: white !important; padding: 8px 15px !important; border-radius: 8px !important; cursor: pointer !important; z-index: 10000000 !important; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }}
 .gal-grid {{ display: grid; grid-template-columns: repeat(auto-fill, minmax(450px, 1fr)); gap: 35px; margin-top: 20px; }}
-.gal-item {{ background: transparent; padding: 0; border: none; text-align: center; box-shadow: none; position: relative; transition: transform 0.2s ease; }}
-.gal-item:hover {{ transform: scale(1.02); }}
-.gal-filters-btn {{ display: flex; gap: 15px; justify-content: center; margin-bottom: 30px; }}
+.gal-item {{ background: transparent; padding: 0; border: none; text-align: center; box-shadow: none; position: static; }}
+.gal-label:hover {{ transform: scale(1.02); }}
+.gal-filters-btn {{ display: flex; gap: 15px; justify-content: center; margin-bottom: 30px; position: relative; z-index: 10; }}
 .gal-filters-btn button {{ padding: 10px 25px; background: #2D3748; border: 1px solid #4A5568; border-radius: 20px; cursor: pointer; color: white; font-weight: bold; font-size: 16px; transition: 0.3s; }}
-.gal-filters-btn button.active {{ background: #00C897; border-color: #00C897; box-shadow: 0 4px 10px rgba(0,200,151,0.4); }}
+.gal-filters-btn button.active {{ background: #00C897 !important; border-color: #00C897 !important; box-shadow: 0 4px 10px rgba(0,200,151,0.4) !important; }}
 </style>
 <div class="gal-filters-btn" id="gal-filter-container">
-<button onclick="window.parent.filtrarGaleria('Todas')" id="btn-Todas">Todas</button>
+<button onclick="window.parent.filtrarGaleria('Todas')" id="btn-Todas" class="active">Todas</button>
 <button onclick="window.parent.filtrarGaleria('Eval')" id="btn-Eval">Eval</button>
 <button onclick="window.parent.filtrarGaleria('PA')" id="btn-PA">PA</button>
 </div>
@@ -3500,14 +3500,27 @@ with tab_galeria:
         
         components.html(f"""
         <script>
+        const doc = window.parent.document;
         window.parent.filtrarGaleria = function(etapa) {{
-            const doc = window.parent.document;
             const botones = doc.querySelectorAll('#gal-filter-container button');
             if(botones.length === 0) return;
-            botones.forEach(b => b.classList.remove('active'));
-            const btnActivo = doc.getElementById('btn-' + etapa);
-            if(btnActivo) btnActivo.classList.add('active');
             
+            // Forzar reseteo de colores de todos los botones
+            botones.forEach(b => {{
+                b.classList.remove('active');
+                b.style.background = '#2D3748';
+                b.style.borderColor = '#4A5568';
+            }});
+            
+            // Forzar color verde en el seleccionado
+            const btnActivo = doc.getElementById('btn-' + etapa);
+            if(btnActivo) {{
+                btnActivo.classList.add('active');
+                btnActivo.style.background = '#00C897';
+                btnActivo.style.borderColor = '#00C897';
+            }}
+            
+            // Mostrar y ocultar fotos con la lógica estricta del filtro
             const items = doc.querySelectorAll('.gal-item');
             items.forEach(item => {{
                 if (etapa === 'Todas' || item.getAttribute('data-stage') === etapa) {{
@@ -3517,6 +3530,9 @@ with tab_galeria:
                 }}
             }});
         }};
+        
+        // Autoejecutar filtro para que cargue con los estilos correctos al instante
+        setTimeout(() => {{ if (window.parent.filtrarGaleria) window.parent.filtrarGaleria('Todas'); }}, 200);
         setTimeout(() => {{ if (window.parent.filtrarGaleria) window.parent.filtrarGaleria('{estado_actual}'); }}, 50);
 
         let currentScale = 1; let translateX = 0, translateY = 0; let isDragging = false; let startX, startY;
