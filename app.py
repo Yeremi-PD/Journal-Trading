@@ -1639,23 +1639,23 @@ meta_global = 1500 if bal_inicial_abs <= 35000 else (3000 if bal_inicial_abs <= 
 paso_cuenta, idx_pase = False, -1
 
 # 🚫 Bloqueamos la conversión a cuenta fondeada (PA) si estamos en Backtesting o en Todas las Cuentas
-        if not db_usuario[ctx].get("backtesting_mode", False) and ctx != "Todas las Cuentas":
-            balance_acumulado = bal_inicial_abs
-            for idx, tr in enumerate(_tc):
-                balance_acumulado += float(tr.get("pnl", 0.0))
-                if (balance_acumulado - bal_inicial_abs) >= meta_global:
-                    paso_cuenta, idx_pase = True, idx
-                    break
+if not db_usuario[ctx].get("backtesting_mode", False) and ctx != "Todas las Cuentas":
+    balance_acumulado = bal_inicial_abs
+    for idx, tr in enumerate(_tc):
+        balance_acumulado += float(tr.get("pnl", 0.0))
+        if (balance_acumulado - bal_inicial_abs) >= meta_global:
+            paso_cuenta, idx_pase = True, idx
+            break
 
-        for idx, tr in enumerate(_tc):
-            estado_guardado = tr.get("estado_cuenta", "")
-            if estado_guardado == "PA":
-                tr["is_pre_funded"] = False
-                paso_cuenta = True
-            elif estado_guardado == "Eval":
-                tr["is_pre_funded"] = True
-            else:
-                tr["is_pre_funded"] = (idx <= idx_pase)
+for idx, tr in enumerate(_tc):
+    estado_guardado = tr.get("estado_cuenta", "")
+    if estado_guardado == "PA":
+        tr["is_pre_funded"] = False
+        paso_cuenta = True
+    elif estado_guardado == "Eval":
+        tr["is_pre_funded"] = True
+    else:
+        tr["is_pre_funded"] = (idx <= idx_pase)
 
 # El estatus PA/Eval se calcula siempre para que veas si la cuenta es fondeada o no
 if paso_cuenta:
