@@ -1474,7 +1474,7 @@ div[data-testid="stTabs"] [data-baseweb="tab-highlight-point"] {{ display: none 
     .cam-icon:hover {{ transform: translateX(calc(-50% + {BTN_CAM_X}px)) scale(1.2) !important; }}
     .note-icon {{ position: absolute !important; top: 6px !important; right: 10px !important; font-size: var(--cal-note-size) !important; cursor: pointer !important; transition: 0.2s !important; text-shadow: 0 2px 4px rgba(0,0,0,0.2) !important; }}
     .note-icon:hover {{ transform: scale(1.2) !important; }}
-    .note-modal-content {{ background: {card_bg} !important; color: {c_dash} !important; padding: 20px !important; border-radius: 10px !important; max-width: 500px !important; width: 90% !important; border: 1px solid {border_color} !important; box-shadow: 0 0 20px black !important; z-index: 1000000 !important; overflow-y: auto !important; max-height: 80vh !important; }}
+    .note-modal-content {{ background: {card_bg} !important; color: {c_dash} !important; padding: 30px !important; border-radius: 12px !important; max-width: 900px !important; width: 95% !important; border: 1px solid {border_color} !important; box-shadow: 0 0 30px rgba(0,0,0,0.8) !important; z-index: 1000000 !important; overflow-y: auto !important; max-height: 88vh !important; }}
     .note-modal-content b {{ font-size: var(--note-lbl-size) !important; font-weight: bold !important; display: inline-block !important; margin-top: 5px !important; color: {c_dash} !important; }}
     .note-modal-content span.note-val {{ font-size: var(--note-val-size) !important; display: inline-block !important; margin-bottom: 5px !important; color: {c_dash} !important; }}
     .note-modal-content hr {{ border-color: {border_color} !important; margin: 10px 0 !important; }}
