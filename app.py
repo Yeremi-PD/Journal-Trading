@@ -306,33 +306,6 @@ def get_global_db():
                                         db_temp[user]["data"][cuenta]["fecha_creacion"] = _pe["fecha_creacion"]
                             except: pass
 
-                            # --- MIGRACIÓN ÚNICA: ARREGLAR TRADES VIEJOS SIN BUCLES INFINITOS ---
-                            from datetime import timedelta
-                            hora_final = trade_info.get("hora", "00:00")
-                            
-                            ya_corregido = False
-                            if extra:
-                                try:
-                                    _extra_json = json.loads(extra)
-                                    ya_corregido = _extra_json.get("horario_corregido", False)
-                                except: pass
-                                
-                            if not ya_corregido:
-                                try:
-                                    h_num = int(hora_final.split(":")[0])
-                                    if h_num >= 18:
-                                        # Lo movemos un día hacia adelante (Prop Firm Rule)
-                                        d_obj_nuevo = d_obj + timedelta(days=1)
-                                        clave = (d_obj_nuevo.year, d_obj_nuevo.month, d_obj_nuevo.day)
-                                        trade_info["fecha_str"] = d_obj_nuevo.strftime("%d/%m/%Y")
-                                        
-                                    # Le ponemos la marca para que NUNCA MÁS se vuelva a mover
-                                    trade_info["horario_corregido"] = True
-                                except: pass
-                            else:
-                                trade_info["horario_corregido"] = True
-                            # -------------------------------------------------------------
-
                             if clave not in db_temp[user]["data"][cuenta]["trades"]:
                                 db_temp[user]["data"][cuenta]["trades"][clave] = []
                                 
@@ -2080,19 +2053,13 @@ if True:
                 
                 with c_date:
                     st.markdown('<div class="lbl-header">Fecha:</div>', unsafe_allow_html=True)
-                    # Hora de RD minuto a minuto (step=60)
-                    hora_local_rd = (datetime.utcnow() - pd.Timedelta(hours=4)).time()
-                    
-                    # --- LÓGICA DE PROP FIRM (AUTO-DÍA SIGUIENTE A LAS 6PM) ---
-                    dia_por_defecto = hoy
-                    if hora_local_rd.hour >= 18:
-                        dia_por_defecto = hoy + pd.Timedelta(days=1)
-                    # ----------------------------------------------------------
-
-                    # El botón principal mostrará la fecha ajustada automáticamente
-                    with st.popover(f"🗓️ {dia_por_defecto.strftime('%d/%m')}", use_container_width=True):
+                    # El botón principal mostrará la fecha, y al darle clic abrirá el selector con hora local (UTC-4)
+                    with st.popover(f"🗓️ {hoy.strftime('%d/%m')}", use_container_width=True):
                         st.markdown("<div style='margin-bottom: 5px; font-weight: bold; color: gray;'>Día y Hora del Trade</div>", unsafe_allow_html=True)
-                        fecha_sel = st.date_input("Día", value=dia_por_defecto, label_visibility="collapsed")
+                        fecha_sel = st.date_input("Día", value=hoy, label_visibility="collapsed")
+                        
+                        # Hora de RD minuto a minuto (step=60)
+                        hora_local_rd = (datetime.utcnow() - pd.Timedelta(hours=4)).time()
                         hora_sel = st.time_input("Hora exacta", value=hora_local_rd, step=60, label_visibility="collapsed")
                         
                 with c_cant:
@@ -2182,14 +2149,7 @@ if True:
                             else: pnl = valor_float - bal_mostrar if valor_float != bal_mostrar else 0.0
                     except ValueError: pnl = 0.0
                     nuevo_bal_absoluto = viejo_real + pnl
-                    
-                    # --- LÓGICA DE PROP FIRM (DÍA EMPIEZA A LAS 18:00) ---
-                    from datetime import timedelta
-                    fecha_efectiva = fecha_sel
-                    if hora_sel.hour >= 18:
-                        fecha_efectiva = fecha_sel + timedelta(days=1)
-                    
-                    clave_final = (fecha_efectiva.year, fecha_efectiva.month, fecha_efectiva.day)
+                    clave_final = (fecha_sel.year, fecha_sel.month, fecha_sel.day)
                     imgs_finales = []
                     if link_imagen.strip().startswith("http"): 
                         imgs_finales.append(link_imagen.strip())
@@ -2206,7 +2166,7 @@ if True:
                     trade_nuevo = {
                         "pnl": pnl, 
                         "balance_final": nuevo_bal_absoluto, 
-                        "fecha_str": fecha_efectiva.strftime("%d/%m/%Y"), 
+                        "fecha_str": fecha_sel.strftime("%d/%m/%Y"), 
                         "imagenes": imgs_finales, 
                         "imagenes_b64": imagenes_base64_extra, # Se aisla aquí para que guarde en ExtraData
                         "bias": nuevo_bias, 
@@ -2226,14 +2186,13 @@ if True:
                         "precio_salida": "",     
                         "comisiones": "",        
                         "estado_cuenta": estado_actual,
-                        "retiros_acumulados": retiros_ac,
-                        "horario_corregido": True
+                        "retiros_acumulados": retiros_ac
                     }
                     if clave_final not in db_usuario[ctx]["trades"]: db_usuario[ctx]["trades"][clave_final] = []
                     db_usuario[ctx]["trades"][clave_final].append(trade_nuevo)
                     import time
                     db_usuario[ctx]["balance"] = nuevo_bal_absoluto
-                    registrar_en_excel(usuario, db_global[usuario]["password"], ctx, fecha_efectiva, nuevo_bal_absoluto, pnl, trade_nuevo, db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
+                    registrar_en_excel(usuario, db_global[usuario]["password"], ctx, fecha_sel, nuevo_bal_absoluto, pnl, trade_nuevo, db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
                     st.success(_l['dash']['trade_saved'])
                     time.sleep(1)
                     st.rerun()
