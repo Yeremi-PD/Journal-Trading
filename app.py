@@ -2051,7 +2051,7 @@ if True:
         col_form_area = st.container()
 
         with col_form_area:
-            with st.form(key="form_main_entry", clear_on_submit=True, border=False):
+            with st.form(key="form_main_entry", clear_on_submit=False, border=False):
                 # Volvemos a las 5 columnas originales para mantener tu diseño impecable
                 c_date, c_cant, c_det, c_link, c_btn = st.columns([0.8, 1.2, 1.1, 2.5, 1])
                 
