@@ -2160,12 +2160,22 @@ if True:
                 else:
                     viejo_real = db_usuario[ctx]["balance"]
                     try:
-                        if entrada_limpia.startswith('+') or entrada_limpia.startswith('-'): pnl = float(entrada_limpia)
+                        if entrada_limpia.startswith('+') or entrada_limpia.startswith('-'): 
+                            pnl = float(entrada_limpia)
                         else:
                             valor_float = float(entrada_limpia.replace(',', ''))
-                            if abs(valor_float) < 20000: pnl = valor_float
-                            else: pnl = valor_float - bal_mostrar if valor_float != bal_mostrar else 0.0
-                    except ValueError: pnl = 0.0
+                            
+                            # 🟢 CORRECCIÓN: Detección inteligente sin límites duros.
+                            # Si el número ingresado tiene una diferencia menor al 50% de tu balance actual, 
+                            # es lógicamente tu Balance Total. Si no, es tu PnL (Ganancia/Pérdida).
+                            if abs(valor_float - bal_mostrar) < (bal_mostrar * 0.5):
+                                pnl = valor_float - bal_mostrar
+                            else: 
+                                pnl = valor_float
+                                
+                    except ValueError: 
+                        pnl = 0.0
+                        
                     nuevo_bal_absoluto = viejo_real + pnl
                     clave_final = (fecha_sel.year, fecha_sel.month, fecha_sel.day)
                     imgs_finales = []
