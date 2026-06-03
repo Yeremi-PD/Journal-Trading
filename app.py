@@ -2080,13 +2080,19 @@ if True:
                 
                 with c_date:
                     st.markdown('<div class="lbl-header">Fecha:</div>', unsafe_allow_html=True)
-                    # El botón principal mostrará la fecha, y al darle clic abrirá el selector con hora local (UTC-4)
-                    with st.popover(f"🗓️ {hoy.strftime('%d/%m')}", use_container_width=True):
+                    # Hora de RD minuto a minuto (step=60)
+                    hora_local_rd = (datetime.utcnow() - pd.Timedelta(hours=4)).time()
+                    
+                    # --- LÓGICA DE PROP FIRM (AUTO-DÍA SIGUIENTE A LAS 6PM) ---
+                    dia_por_defecto = hoy
+                    if hora_local_rd.hour >= 18:
+                        dia_por_defecto = hoy + pd.Timedelta(days=1)
+                    # ----------------------------------------------------------
+
+                    # El botón principal mostrará la fecha ajustada automáticamente
+                    with st.popover(f"🗓️ {dia_por_defecto.strftime('%d/%m')}", use_container_width=True):
                         st.markdown("<div style='margin-bottom: 5px; font-weight: bold; color: gray;'>Día y Hora del Trade</div>", unsafe_allow_html=True)
-                        fecha_sel = st.date_input("Día", value=hoy, label_visibility="collapsed")
-                        
-                        # Hora de RD minuto a minuto (step=60)
-                        hora_local_rd = (datetime.utcnow() - pd.Timedelta(hours=4)).time()
+                        fecha_sel = st.date_input("Día", value=dia_por_defecto, label_visibility="collapsed")
                         hora_sel = st.time_input("Hora exacta", value=hora_local_rd, step=60, label_visibility="collapsed")
                         
                 with c_cant:
