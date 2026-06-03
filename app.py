@@ -765,7 +765,7 @@ def modal_fecha_inicio(nombre, balance):
     st.markdown("<p style='text-align: center; color: #A0AEC0; margin-bottom: 10px;'>Selecciona la fecha exacta en la que comenzaste esta prueba.</p>", unsafe_allow_html=True)
     
     # Selector de fecha limpio y nativo
-    f_ini = st.date_input("Fecha de Inicio", value=datetime.now().date(), label_visibility="collapsed")
+    f_ini = st.date_input("Fecha de Inicio", value=(datetime.now() + pd.Timedelta(hours=6)).date(), label_visibility="collapsed")
     f_cie = f_ini + pd.Timedelta(days=30)
     
     st.markdown("<br>", unsafe_allow_html=True)
@@ -853,7 +853,7 @@ for dev in ["PC", "Móvil"]:
 
 user_settings = db_global[usuario]["settings"][st.session_state.dispositivo_actual]
 
-hoy = datetime.now().date()
+hoy = (datetime.now() + pd.Timedelta(hours=6)).date()
 
 # --- LÓGICA DE AUTO-TRANSPORTE AL ÚLTIMO MES TRADEADO ---
 # Se activa cuando entras o cuando cambias de cuenta en el selectbox (refresco instantáneo)
@@ -3053,7 +3053,7 @@ if es_admin:
                             nota_cuerpo = pc_set.get("global_notes_body", "")
                             bloc_notas_str = f"REGLAS:\n{nota_cuerpo}" if nota_cuerpo else "Sin reglas."
                             
-                            fecha_hoy_str = datetime.now().strftime("%d/%m/%Y")
+                            fecha_hoy_str = (datetime.now() + pd.Timedelta(hours=6)).strftime("%d/%m/%Y")
                             
                             contexto_sistema = (
                                 f"Eres el analista de datos de {usuario}. Fecha actual: {fecha_hoy_str}.\n"
@@ -3369,7 +3369,7 @@ def area_exportacion():
         periodo_seleccionado = st.selectbox("📅 Selecciona el rango de tiempo:", list(opciones_tiempo.keys()))
     
     dias_a_restar = opciones_tiempo[periodo_seleccionado]
-    fecha_limite = datetime.now().date() - pd.Timedelta(days=dias_a_restar)
+    fecha_limite = (datetime.now() + pd.Timedelta(hours=6)).date() - pd.Timedelta(days=dias_a_restar)
     
     # 2. Recopilar y filtrar datos
     datos_exportar = []
@@ -3409,7 +3409,7 @@ def area_exportacion():
             # 🟢 FIX: Cambiamos a sep=';' para que Excel en español lo divida en columnas automáticamente
             csv_export = df_export.to_csv(index=False, sep=';', decimal=',').encode('utf-8-sig')
             
-            hoy_dt = datetime.now().date()
+            hoy_dt = (datetime.now() + pd.Timedelta(hours=6)).date()
             y_hoy = hoy_dt.year
             y_lim = fecha_limite.year
             
