@@ -979,6 +979,34 @@ def contenido_ajustes():
     if st.button(_l['sidebar']['sync'], use_container_width=True):
         forzar_sincronizacion(st.session_state.get("data_source_sel", "Account Real"))
 
+    # 🛠️ BOTÓN DE REPARACIÓN MÁGICA DE BALANCES
+    if st.button("🛠️ Reparar Balances Descuadrados", use_container_width=True):
+        ctx_reparar = st.session_state.get("data_source_sel", "Account Real")
+        if ctx_reparar in db_usuario and ctx_reparar != "Todas las Cuentas":
+            _tc_rep = []
+            for c, lt in sorted(db_usuario[ctx_reparar]["trades"].items(), key=lambda x: datetime(x[0][0], x[0][1], x[0][2])): _tc_rep.extend(lt)
+            
+            # 1. Descubrir balance inicial de la cuenta (25k, 50k o 100k)
+            bruto_inicial = db_usuario[ctx_reparar]["balance"] - sum(t["pnl"] for t in _tc_rep) if _tc_rep else db_usuario[ctx_reparar]["balance"]
+            if bruto_inicial > 75000: bal_ini_rep = 100000.0
+            elif bruto_inicial > 35000: bal_ini_rep = 50000.0
+            else: bal_ini_rep = 25000.0
+            
+            # 2. Viajar al pasado y recalcular el balance trade por trade en orden cronológico
+            bal_acum = bal_ini_rep
+            for c, lt in sorted(db_usuario[ctx_reparar]["trades"].items(), key=lambda x: datetime(x[0][0], x[0][1], x[0][2])):
+                for t in lt:
+                    bal_acum += float(t.get("pnl", 0.0))
+                    t["balance_final"] = bal_acum
+            
+            # 3. Actualizar el balance actual definitivo y subir al Excel
+            db_usuario[ctx_reparar]["balance"] = bal_acum
+            reescribir_excel_usuario(usuario)
+            st.success("✅ ¡Todos los balances fueron recalculados y arreglados en la nube!")
+            import time
+            time.sleep(1)
+            st.rerun()
+
     st.markdown("---")
     st.markdown(f"### {_l['sidebar']['manage_acc']}")
 
