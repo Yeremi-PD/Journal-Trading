@@ -2164,19 +2164,16 @@ if True:
                             pnl = float(entrada_limpia)
                         else:
                             valor_float = float(entrada_limpia.replace(',', ''))
-                            
-                            # 🟢 CORRECCIÓN: Detección inteligente sin límites duros.
-                            # Si el número ingresado tiene una diferencia menor al 50% de tu balance actual, 
-                            # es lógicamente tu Balance Total. Si no, es tu PnL (Ganancia/Pérdida).
                             if abs(valor_float - bal_mostrar) < (bal_mostrar * 0.5):
                                 pnl = valor_float - bal_mostrar
                             else: 
                                 pnl = valor_float
-                                
                     except ValueError: 
                         pnl = 0.0
                         
-                    nuevo_bal_absoluto = viejo_real + pnl
+                    # 🟢 CORRECCIÓN DEFINITIVA: Usamos el balance de la pantalla (bal_mostrar) 
+                    # para que el Google Sheets sea un espejo exacto de lo que estás viendo.
+                    nuevo_bal_absoluto = bal_mostrar + pnl
                     clave_final = (fecha_sel.year, fecha_sel.month, fecha_sel.day)
                     imgs_finales = []
                     if link_imagen.strip().startswith("http"): 
