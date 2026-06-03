@@ -2204,6 +2204,11 @@ if True:
                     db_usuario[ctx]["balance"] = nuevo_bal_absoluto
                     registrar_en_excel(usuario, db_global[usuario]["password"], ctx, fecha_sel, nuevo_bal_absoluto, pnl, trade_nuevo, db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
                     st.success(_l['dash']['trade_saved'])
+                    
+                    # 🟢 DESTRUIR LA MEMORIA DE LA HORA PARA QUE EL PRÓXIMO TRADE TOME LA HORA NUEVA
+                    if "hora_fija_trade" in st.session_state: del st.session_state.hora_fija_trade
+                    if "fecha_fija_trade" in st.session_state: del st.session_state.fecha_fija_trade
+                    
                     time.sleep(1)
                     st.rerun()
 
