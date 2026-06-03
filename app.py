@@ -2149,7 +2149,14 @@ if True:
                             else: pnl = valor_float - bal_mostrar if valor_float != bal_mostrar else 0.0
                     except ValueError: pnl = 0.0
                     nuevo_bal_absoluto = viejo_real + pnl
-                    clave_final = (fecha_sel.year, fecha_sel.month, fecha_sel.day)
+                    
+                    # --- LÓGICA DE PROP FIRM (DÍA EMPIEZA A LAS 18:00) ---
+                    from datetime import timedelta
+                    fecha_efectiva = fecha_sel
+                    if hora_sel.hour >= 18:
+                        fecha_efectiva = fecha_sel + timedelta(days=1)
+                    
+                    clave_final = (fecha_efectiva.year, fecha_efectiva.month, fecha_efectiva.day)
                     imgs_finales = []
                     if link_imagen.strip().startswith("http"): 
                         imgs_finales.append(link_imagen.strip())
@@ -2166,7 +2173,7 @@ if True:
                     trade_nuevo = {
                         "pnl": pnl, 
                         "balance_final": nuevo_bal_absoluto, 
-                        "fecha_str": fecha_sel.strftime("%d/%m/%Y"), 
+                        "fecha_str": fecha_efectiva.strftime("%d/%m/%Y"), 
                         "imagenes": imgs_finales, 
                         "imagenes_b64": imagenes_base64_extra, # Se aisla aquí para que guarde en ExtraData
                         "bias": nuevo_bias, 
@@ -2192,7 +2199,7 @@ if True:
                     db_usuario[ctx]["trades"][clave_final].append(trade_nuevo)
                     import time
                     db_usuario[ctx]["balance"] = nuevo_bal_absoluto
-                    registrar_en_excel(usuario, db_global[usuario]["password"], ctx, fecha_sel, nuevo_bal_absoluto, pnl, trade_nuevo, db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
+                    registrar_en_excel(usuario, db_global[usuario]["password"], ctx, fecha_efectiva, nuevo_bal_absoluto, pnl, trade_nuevo, db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
                     st.success(_l['dash']['trade_saved'])
                     time.sleep(1)
                     st.rerun()
