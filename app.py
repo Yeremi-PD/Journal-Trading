@@ -306,6 +306,33 @@ def get_global_db():
                                         db_temp[user]["data"][cuenta]["fecha_creacion"] = _pe["fecha_creacion"]
                             except: pass
 
+                            # --- MIGRACIÓN ÚNICA: ARREGLAR TRADES VIEJOS SIN BUCLES INFINITOS ---
+                            from datetime import timedelta
+                            hora_final = trade_info.get("hora", "00:00")
+                            
+                            ya_corregido = False
+                            if extra:
+                                try:
+                                    _extra_json = json.loads(extra)
+                                    ya_corregido = _extra_json.get("horario_corregido", False)
+                                except: pass
+                                
+                            if not ya_corregido:
+                                try:
+                                    h_num = int(hora_final.split(":")[0])
+                                    if h_num >= 18:
+                                        # Lo movemos un día hacia adelante (Prop Firm Rule)
+                                        d_obj_nuevo = d_obj + timedelta(days=1)
+                                        clave = (d_obj_nuevo.year, d_obj_nuevo.month, d_obj_nuevo.day)
+                                        trade_info["fecha_str"] = d_obj_nuevo.strftime("%d/%m/%Y")
+                                        
+                                    # Le ponemos la marca para que NUNCA MÁS se vuelva a mover
+                                    trade_info["horario_corregido"] = True
+                                except: pass
+                            else:
+                                trade_info["horario_corregido"] = True
+                            # -------------------------------------------------------------
+
                             if clave not in db_temp[user]["data"][cuenta]["trades"]:
                                 db_temp[user]["data"][cuenta]["trades"][clave] = []
                                 
@@ -2193,7 +2220,8 @@ if True:
                         "precio_salida": "",     
                         "comisiones": "",        
                         "estado_cuenta": estado_actual,
-                        "retiros_acumulados": retiros_ac
+                        "retiros_acumulados": retiros_ac,
+                        "horario_corregido": True
                     }
                     if clave_final not in db_usuario[ctx]["trades"]: db_usuario[ctx]["trades"][clave_final] = []
                     db_usuario[ctx]["trades"][clave_final].append(trade_nuevo)
