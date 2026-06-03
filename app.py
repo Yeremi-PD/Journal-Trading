@@ -1639,15 +1639,23 @@ meta_global = 1500 if bal_inicial_abs <= 35000 else (3000 if bal_inicial_abs <= 
 paso_cuenta, idx_pase = False, -1
 
 # 🚫 Bloqueamos la conversión a cuenta fondeada (PA) si estamos en Backtesting o en Todas las Cuentas
-if not db_usuario[ctx].get("backtesting_mode", False) and ctx != "Todas las Cuentas":
-    balance_acumulado = bal_inicial_abs
-    for idx, tr in enumerate(_tc):
-        balance_acumulado += float(tr.get("pnl", 0.0))
-        if (balance_acumulado - bal_inicial_abs) >= meta_global:
-            paso_cuenta, idx_pase = True, idx
-            break
+        if not db_usuario[ctx].get("backtesting_mode", False) and ctx != "Todas las Cuentas":
+            balance_acumulado = bal_inicial_abs
+            for idx, tr in enumerate(_tc):
+                balance_acumulado += float(tr.get("pnl", 0.0))
+                if (balance_acumulado - bal_inicial_abs) >= meta_global:
+                    paso_cuenta, idx_pase = True, idx
+                    break
 
-for idx, tr in enumerate(_tc): tr["is_pre_funded"] = (idx <= idx_pase)
+        for idx, tr in enumerate(_tc):
+            estado_guardado = tr.get("estado_cuenta", "")
+            if estado_guardado == "PA":
+                tr["is_pre_funded"] = False
+                paso_cuenta = True
+            elif estado_guardado == "Eval":
+                tr["is_pre_funded"] = True
+            else:
+                tr["is_pre_funded"] = (idx <= idx_pase)
 
 # El estatus PA/Eval se calcula siempre para que veas si la cuenta es fondeada o no
 if paso_cuenta:
@@ -3263,6 +3271,11 @@ with tab_hist:
                                     def_tt = data.get('trade_type', 'A')
                                     if def_tt not in ['A+', 'A', 'B', 'C']: def_tt = 'A'
                                     e_tt = st.selectbox(_l['dash']['tt'], ['A+', 'A', 'B', 'C'], index=['A+', 'A', 'B', 'C'].index(def_tt), key=f"e_tt_{clave}_{i}")
+                                    
+                                    # NUEVO: Selector manual de Fase (Eval o PA)
+                                    def_estado = data.get('estado_cuenta', 'Eval')
+                                    if def_estado not in ['Eval', 'PA']: def_estado = 'Eval'
+                                    e_estado = st.selectbox("Fase de la Cuenta", ['Eval', 'PA'], index=['Eval', 'PA'].index(def_estado), key=f"e_est_{clave}_{i}")
                                 with c_ed5:
                                     e_razon = st.text_area(_l['dash']['reason'], value=data.get('razon_trade', ''), key=f"e_raz_{clave}_{i}", height=68)
                                     e_corr = st.text_area(_l['dash']['corr'], value=data.get('Corrections', ''), key=f"e_cor_{clave}_{i}", height=68)
@@ -3297,7 +3310,7 @@ with tab_hist:
                                 data["balance_final"] = nuevo_bal
                                 data["fecha_str"] = nueva_fecha.strftime("%d/%m/%Y")
                                 data["hora"] = nueva_hora.strftime("%H:%M")
-                                data["bias"] = e_bias; data["sesion"] = e_sesion; data["Confluences"] = e_conf; data["risk"] = e_risk; data["RR"] = e_rr; data["trade_type"] = e_tt; data["razon_trade"] = e_razon; data["Corrections"] = e_corr; data["Emotions"] = e_emo
+                                data["bias"] = e_bias; data["sesion"] = e_sesion; data["Confluences"] = e_conf; data["risk"] = e_risk; data["RR"] = e_rr; data["trade_type"] = e_tt; data["estado_cuenta"] = e_estado; data["razon_trade"] = e_razon; data["Corrections"] = e_corr; data["Emotions"] = e_emo
                                 if nueva_clave != clave:
                                     trade_movido = db_usuario[ctx]["trades"][clave].pop(i)
                                     if not db_usuario[ctx]["trades"][clave]: del db_usuario[ctx]["trades"][clave]
