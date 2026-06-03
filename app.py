@@ -1647,15 +1647,7 @@ if not db_usuario[ctx].get("backtesting_mode", False) and ctx != "Todas las Cuen
             paso_cuenta, idx_pase = True, idx
             break
 
-for idx, tr in enumerate(_tc):
-    estado_guardado = tr.get("estado_cuenta", "")
-    if estado_guardado == "PA":
-        tr["is_pre_funded"] = False
-        paso_cuenta = True
-    elif estado_guardado == "Eval":
-        tr["is_pre_funded"] = True
-    else:
-        tr["is_pre_funded"] = (idx <= idx_pase)
+for idx, tr in enumerate(_tc): tr["is_pre_funded"] = (idx <= idx_pase)
 
 # El estatus PA/Eval se calcula siempre para que veas si la cuenta es fondeada o no
 if paso_cuenta:
@@ -2059,26 +2051,20 @@ if True:
         col_form_area = st.container()
 
         with col_form_area:
-            with st.form(key="form_main_entry", clear_on_submit=False, border=False):
+            with st.form(key="form_main_entry", clear_on_submit=True, border=False):
                 # Volvemos a las 5 columnas originales para mantener tu diseño impecable
                 c_date, c_cant, c_det, c_link, c_btn = st.columns([0.8, 1.2, 1.1, 2.5, 1])
                 
                 with c_date:
                     st.markdown('<div class="lbl-header">Fecha:</div>', unsafe_allow_html=True)
-                    
-                    # 🟢 CONGELAMOS LA FECHA Y HORA AL ABRIR LA PÁGINA
-                    if "hora_fija_trade" not in st.session_state:
-                        st.session_state.hora_fija_trade = (datetime.utcnow() - pd.Timedelta(hours=4)).time()
-                    if "fecha_fija_trade" not in st.session_state:
-                        st.session_state.fecha_fija_trade = hoy
-                        
-                    # El botón principal mostrará la fecha
-                    with st.popover(f"🗓️ {st.session_state.fecha_fija_trade.strftime('%d/%m')}", use_container_width=True):
+                    # El botón principal mostrará la fecha, y al darle clic abrirá el selector con hora local (UTC-4)
+                    with st.popover(f"🗓️ {hoy.strftime('%d/%m')}", use_container_width=True):
                         st.markdown("<div style='margin-bottom: 5px; font-weight: bold; color: gray;'>Día y Hora del Trade</div>", unsafe_allow_html=True)
-                        fecha_sel = st.date_input("Día", value=st.session_state.fecha_fija_trade, label_visibility="collapsed")
+                        fecha_sel = st.date_input("Día", value=hoy, label_visibility="collapsed")
                         
-                        # Hora de RD (step=60) congelada
-                        hora_sel = st.time_input("Hora exacta", value=st.session_state.hora_fija_trade, step=60, label_visibility="collapsed")
+                        # Hora de RD minuto a minuto (step=60)
+                        hora_local_rd = (datetime.utcnow() - pd.Timedelta(hours=4)).time()
+                        hora_sel = st.time_input("Hora exacta", value=hora_local_rd, step=60, label_visibility="collapsed")
                         
                 with c_cant:
                     st.markdown('<div class="lbl-header">Cantidad:</div>', unsafe_allow_html=True)
@@ -2160,20 +2146,13 @@ if True:
                 else:
                     viejo_real = db_usuario[ctx]["balance"]
                     try:
-                        if entrada_limpia.startswith('+') or entrada_limpia.startswith('-'): 
-                            pnl = float(entrada_limpia)
+                        if entrada_limpia.startswith('+') or entrada_limpia.startswith('-'): pnl = float(entrada_limpia)
                         else:
                             valor_float = float(entrada_limpia.replace(',', ''))
-                            if abs(valor_float - bal_mostrar) < (bal_mostrar * 0.5):
-                                pnl = valor_float - bal_mostrar
-                            else: 
-                                pnl = valor_float
-                    except ValueError: 
-                        pnl = 0.0
-                        
-                    # 🟢 CORRECCIÓN DEFINITIVA: Usamos el balance de la pantalla (bal_mostrar) 
-                    # para que el Google Sheets sea un espejo exacto de lo que estás viendo.
-                    nuevo_bal_absoluto = bal_mostrar + pnl
+                            if abs(valor_float) < 20000: pnl = valor_float
+                            else: pnl = valor_float - bal_mostrar if valor_float != bal_mostrar else 0.0
+                    except ValueError: pnl = 0.0
+                    nuevo_bal_absoluto = viejo_real + pnl
                     clave_final = (fecha_sel.year, fecha_sel.month, fecha_sel.day)
                     imgs_finales = []
                     if link_imagen.strip().startswith("http"): 
@@ -2219,11 +2198,6 @@ if True:
                     db_usuario[ctx]["balance"] = nuevo_bal_absoluto
                     registrar_en_excel(usuario, db_global[usuario]["password"], ctx, fecha_sel, nuevo_bal_absoluto, pnl, trade_nuevo, db_global[usuario]["settings"]["PC"], db_global[usuario]["settings"]["Móvil"])
                     st.success(_l['dash']['trade_saved'])
-                    
-                    # 🟢 DESTRUIR LA MEMORIA DE LA HORA PARA QUE EL PRÓXIMO TRADE TOME LA HORA NUEVA
-                    if "hora_fija_trade" in st.session_state: del st.session_state.hora_fija_trade
-                    if "fecha_fija_trade" in st.session_state: del st.session_state.fecha_fija_trade
-                    
                     time.sleep(1)
                     st.rerun()
 
@@ -3278,11 +3252,6 @@ with tab_hist:
                                     def_tt = data.get('trade_type', 'A')
                                     if def_tt not in ['A+', 'A', 'B', 'C']: def_tt = 'A'
                                     e_tt = st.selectbox(_l['dash']['tt'], ['A+', 'A', 'B', 'C'], index=['A+', 'A', 'B', 'C'].index(def_tt), key=f"e_tt_{clave}_{i}")
-                                    
-                                    # NUEVO: Selector manual de Fase (Eval o PA)
-                                    def_estado = data.get('estado_cuenta', 'Eval')
-                                    if def_estado not in ['Eval', 'PA']: def_estado = 'Eval'
-                                    e_estado = st.selectbox("Fase de la Cuenta", ['Eval', 'PA'], index=['Eval', 'PA'].index(def_estado), key=f"e_est_{clave}_{i}")
                                 with c_ed5:
                                     e_razon = st.text_area(_l['dash']['reason'], value=data.get('razon_trade', ''), key=f"e_raz_{clave}_{i}", height=68)
                                     e_corr = st.text_area(_l['dash']['corr'], value=data.get('Corrections', ''), key=f"e_cor_{clave}_{i}", height=68)
@@ -3317,7 +3286,7 @@ with tab_hist:
                                 data["balance_final"] = nuevo_bal
                                 data["fecha_str"] = nueva_fecha.strftime("%d/%m/%Y")
                                 data["hora"] = nueva_hora.strftime("%H:%M")
-                                data["bias"] = e_bias; data["sesion"] = e_sesion; data["Confluences"] = e_conf; data["risk"] = e_risk; data["RR"] = e_rr; data["trade_type"] = e_tt; data["estado_cuenta"] = e_estado; data["razon_trade"] = e_razon; data["Corrections"] = e_corr; data["Emotions"] = e_emo
+                                data["bias"] = e_bias; data["sesion"] = e_sesion; data["Confluences"] = e_conf; data["risk"] = e_risk; data["RR"] = e_rr; data["trade_type"] = e_tt; data["razon_trade"] = e_razon; data["Corrections"] = e_corr; data["Emotions"] = e_emo
                                 if nueva_clave != clave:
                                     trade_movido = db_usuario[ctx]["trades"][clave].pop(i)
                                     if not db_usuario[ctx]["trades"][clave]: del db_usuario[ctx]["trades"][clave]
