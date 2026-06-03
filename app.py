@@ -975,6 +975,10 @@ def contenido_ajustes():
         reescribir_excel_usuario(usuario)
         st.success(_l['sidebar']['saved_design'])
 
+    # 🔄 BOTÓN PARA RECONECTAR Y RECARGAR EXCEL DESDE LA NUBE
+    if st.button(_l['sidebar']['sync'], use_container_width=True):
+        forzar_sincronizacion(st.session_state.get("data_source_sel", "Account Real"))
+
     st.markdown("---")
     st.markdown(f"### {_l['sidebar']['manage_acc']}")
 
