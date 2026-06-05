@@ -2229,27 +2229,43 @@ if True:
         margin-left: 0px !important;
     }
 
-    /* Cargador de archivos visible y adaptado al Modo Oscuro */
+    /* Cargador de archivos visible, adaptado al Modo Oscuro y SÚPER FINO */
     div[data-testid="stFileUploader"] {
         display: block !important;
         width: 100% !important;
         margin-top: 5px !important;
+        margin-bottom: -10px !important; /* Mata el espacio vacío debajo */
     }
     div[data-testid="stFileUploader"] [data-testid="stFileUploadDropzone"] {
         background-color: #2D3748 !important;
         border: 1px dashed #4A5568 !important;
         border-radius: 8px !important;
-        padding: 5px !important;
+        padding: 2px 10px !important;    /* Reducción drástica del relleno */
+        min-height: 35px !important;     /* Aplasta la altura nativa */
+        height: 35px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
     }
     div[data-testid="stFileUploader"] [data-testid="stFileUploadDropzone"] button {
         background-color: #1A202C !important;
         color: white !important;
         border: 1px solid #4A5568 !important;
         border-radius: 6px !important;
+        padding: 0px 15px !important;
+        min-height: 25px !important;     /* Botón mucho más fino */
+        height: 25px !important;
+        margin: 0 !important;
+        line-height: 1 !important;
     }
     div[data-testid="stFileUploader"] [data-testid="stFileUploadDropzone"] * {
         color: #A0AEC0 !important;
-        font-size: 13px !important;
+        font-size: 12px !important;
+        margin: 0 !important;
+    }
+    /* Ocultamos los textos estorbosos nativos de Streamlit */
+    div[data-testid="stFileUploader"] [data-testid="stFileUploadDropzone"] small {
+        display: none !important;
     }
     </style>
     """, unsafe_allow_html=True)
