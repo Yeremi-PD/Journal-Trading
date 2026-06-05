@@ -1421,15 +1421,8 @@ def contenido_ajustes():
         user_settings["note_lbl_size"] = st.slider(_l['sidebar']['cal_note_lbl'], 10, 40, user_settings.get("note_lbl_size", 16), key="sk_note_lbl_size")
         user_settings["note_val_size"] = st.slider(_l['sidebar']['cal_note_val'], 10, 40, user_settings.get("note_val_size", 16), key="sk_note_val_size")
         user_settings["cal_scale"] = st.slider(_l['sidebar']['cal_scale'], 50, 200, user_settings["cal_scale"], key="sk_cal_scale")
-        user_settings["cal_line_height"] = st.slider(_l['sidebar']['cal_space'], 0.5, 3.0, user_settings["cal_line_height"], 0.1, key="sk_cal_line_height")
         user_settings["cal_txt_y"] = st.slider(_l['sidebar']['cal_y'], -50, 50, user_settings.get("cal_txt_y", 0), key="sk_cal_txt_y")
         user_settings["cal_txt_pad"] = st.slider(_l['sidebar']['cal_pad'], -50, 50, user_settings.get("cal_txt_pad", 0), key="sk_cal_txt_pad")
-
-    st.markdown("<br>", unsafe_allow_html=True)
-    st.markdown("---")
-    if st.button(_l['sidebar']['gallery'], key="btn_abrir_galeria", use_container_width=True):
-        st.session_state.ver_galeria_global = True
-        st.rerun()
 
     st.markdown("<br>", unsafe_allow_html=True)
     st.markdown("---")
