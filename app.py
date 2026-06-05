@@ -2112,9 +2112,9 @@ if True:
         cursor: pointer !important;
     }
 
-    /* 🟢 3. OCULTAR EL BOTÓN UPLOAD DEFINITIVAMENTE */
+    /* 🟢 3. MOSTRAR EL BOTÓN UPLOAD */
     div[data-testid="stFileUploader"] {
-        display: none !important;
+        display: block !important;
     }
     div[data-testid="stForm"] div[data-testid="stDateInput"]::after {
         display: none !important; 
