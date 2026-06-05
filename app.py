@@ -791,7 +791,7 @@ if st.session_state.usuario_actual is None:
                     elif u_reg_clean in db_global:
                         st.error("⚠️ Ese usuario ya existe. Elige otro.")
                     else:
-                        db_global[u_reg_clean] = {"password": p_reg_clean, "data": inicializar_data_usuario(), "settings": {"PC": inicializar_settings(), "Móvil": inicializar_settings()}}
+                        db_global[u_reg_clean] = {"password": p_reg_clean, "data": inicializar_data_usuario(), "settings": {"PC": inicializar_settings("PC"), "Móvil": inicializar_settings("Móvil")}}
                         
                         # 🚀 AUTO-LOGIN INMEDIATO (Se salta la vista de login y entra directo a la app)
                         st.session_state.usuario_actual = u_reg_clean
