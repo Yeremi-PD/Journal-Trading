@@ -41,7 +41,7 @@ import streamlit.components.v1 as components
 # --- OPTIMIZACIÓN 3.0: TELÓN DE ACERO ANTI-PARPADEO ---
 if "user" not in st.query_params and st.session_state.get("usuario_actual") is None:
     st.markdown("""
-    <style id="telon-anti-parpadeo">
+    <style>
         /* Vuelve la pantalla invisible mientras procesa la memoria del dispositivo */
         .stApp { visibility: hidden !important; opacity: 0 !important; pointer-events: none !important; transition: opacity 0.3s ease; }
         body { background-color: #1A202C !important; }
@@ -63,12 +63,11 @@ if (sUser && !urlParams.has("user")) {
     if (sAccount) urlParams.set("account", sAccount);
     window.parent.location.replace(window.parent.location.pathname + "?" + urlParams.toString());
 } else {
-    // 🛑 NO TIENE MEMORIA: Destruimos el telón suavemente para que puedas iniciar sesión
+    // 🛑 NO TIENE MEMORIA O YA REDIRIGIÓ: Inyectamos una regla maestra que anula el bloqueo de Python al instante
     setTimeout(() => {
-        const telon = window.parent.document.getElementById('telon-anti-parpadeo');
-        if (telon) telon.remove();
-        const app = window.parent.document.querySelector('.stApp');
-        if (app) { app.style.visibility = 'visible'; app.style.opacity = '1'; app.style.pointerEvents = 'auto'; }
+        const override = window.parent.document.createElement('style');
+        override.innerHTML = '.stApp { visibility: visible !important; opacity: 1 !important; pointer-events: auto !important; }';
+        window.parent.document.head.appendChild(override);
     }, 50);
 }
 </script>
