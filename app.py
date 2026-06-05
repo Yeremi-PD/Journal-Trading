@@ -2384,8 +2384,8 @@ if True:
 
         with col_form_area:
             with st.form(key="form_main_entry", clear_on_submit=True, border=False):
-                # Volvemos a las 5 columnas originales para mantener tu diseño impecable
-                c_date, c_cant, c_det, c_link, c_btn = st.columns([0.8, 1.2, 1.1, 2.5, 1])
+                # 🚀 NUEVO LAYOUT: 6 columnas para separar el Link y el botón Popover de imagen
+                c_date, c_cant, c_det, c_link, c_upd, c_btn = st.columns([0.8, 1.2, 1.1, 1.9, 0.6, 1])
                 
                 with c_date:
                     st.markdown('<div class="lbl-header">Fecha:</div>', unsafe_allow_html=True)
@@ -2466,98 +2466,37 @@ if True:
                         nuevo_corr = st.text_area(_l['dash']['corr'], value='', height=45)
                         
                 with c_link:
-                    st.markdown('<div class="lbl-header">Imagen del Trade:</div>', unsafe_allow_html=True)
-                    link_imagen = st.text_input("Link", value="", label_visibility="collapsed", placeholder="🔗 El link aparecerá aquí automáticamente")
+                    st.markdown('<div class="lbl-header">Imagen:</div>', unsafe_allow_html=True)
+                    link_imagen = st.text_input("Link", value="", label_visibility="collapsed", placeholder="🔗 Pega el Link aquí")
                     
-                    # 🔥 BOTÓN CUSTOM PREMIUM (Bypass total al diseño de Streamlit) 🔥
-                    components.html("""
-                    <style>
-                    body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', sans-serif; }
-                    .btn-elegante {
-                        width: 100%; 
-                        background: linear-gradient(135deg, #2D3748 0%, #1A202C 100%);
-                        color: #A0AEC0; 
-                        border: 1px solid #4A5568; 
-                        border-radius: 8px;
-                        height: 45px; 
-                        display: flex; 
-                        align-items: center; 
-                        justify-content: center;
-                        font-size: 14px; 
-                        font-weight: 600; 
-                        cursor: pointer; 
-                        transition: all 0.3s ease;
-                        box-shadow: 0 4px 6px rgba(0,0,0,0.2); 
-                        margin-top: 5px;
+                with c_upd:
+                    # El punto transparente alinea el botón a la altura perfecta del input
+                    st.markdown('<div class="lbl-header" style="color:transparent; pointer-events:none; user-select:none;">.</div>', unsafe_allow_html=True)
+                    
+                    st.markdown("""<style>
+                    /* 1. Hacemos que el botón principal del Popover tenga el mismo tamaño y estilo que el input */
+                    div[data-testid="stForm"] div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > button {
+                        width: 100% !important; margin: 0 !important; height: 40px !important; min-height: 40px !important;
+                        background: #2D3748 !important; border: 1px solid #4A5568 !important; color: white !important; font-size: 14px !important;
+                        box-shadow: none !important; margin-top: 0px !important; border-radius: 8px !important;
                     }
-                    .btn-elegante:hover {
-                        background: linear-gradient(135deg, #00C897 0%, #007A5E 100%);
-                        color: white; 
-                        border-color: #00C897; 
-                        transform: translateY(-2px);
-                        box-shadow: 0 6px 12px rgba(0,200,151,0.3);
+                    div[data-testid="stForm"] div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > button:hover {
+                        border-color: #00C897 !important; background: rgba(0,200,151,0.1) !important; transform: none !important; color: #00C897 !important;
                     }
-                    </style>
-                    
-                    <div id="btn-upload" class="btn-elegante" onclick="document.getElementById('file-input').click()">
-                        🖼️ Buscar Imagen o Pegar (Ctrl+V)
-                    </div>
-                    <input type="file" id="file-input" style="display: none;" accept="image/png, image/jpeg">
-
-                    <script>
-                    // ⚠️ PEGA TU API DE IMGBB JUSTO AQUÍ ADENTRO DE LAS COMILLAS
-                    const API_KEY = "TU_API_KEY_AQUI"; 
-                    
-                    const btn = document.getElementById('btn-upload');
-                    
-                    async function uploadImage(file) {
-                        btn.innerText = "⏳ Subiendo a la nube...";
-                        const formData = new FormData();
-                        formData.append("image", file);
-                        formData.append("key", API_KEY);
-
-                        try {
-                            const res = await fetch("https://api.imgbb.com/1/upload", { method: "POST", body: formData });
-                            const data = await res.json();
-                            
-                            if(data.success) {
-                                const url = data.data.url;
-                                // 🟢 MAGIA: Buscar la caja de texto de Streamlit y pegarle el link automáticamente
-                                const stInputs = window.parent.document.querySelectorAll('input[aria-label="Link"]');
-                                if(stInputs.length > 0) {
-                                    const targetInput = stInputs[0]; 
-                                    const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value").set;
-                                    setter.call(targetInput, url);
-                                    targetInput.dispatchEvent(new Event('input', { bubbles: true }));
-                                }
-                                btn.style.background = "linear-gradient(135deg, #00C897 0%, #007A5E 100%)";
-                                btn.style.color = "white";
-                                btn.innerText = "✅ ¡Link insertado arriba!";
-                                setTimeout(() => { 
-                                    btn.style.background = ""; 
-                                    btn.style.color = "";
-                                    btn.innerText = "🖼️ Buscar Imagen o Pegar (Ctrl+V)"; 
-                                }, 3000);
-                            } else {
-                                btn.innerText = "❌ ImgBB rechazó la foto";
-                            }
-                        } catch (e) {
-                            btn.innerText = "❌ Error de conexión";
-                        }
+                    /* 2. Revivimos el cargador SOLO adentro del apartado para que sea grande y cómodo */
+                    div[data-testid="stPopoverBody"] div[data-testid="stFileUploader"] { margin: 0 !important; width: 100% !important; display: block !important; }
+                    div[data-testid="stPopoverBody"] div[data-testid="stFileUploader"] section { 
+                        background: rgba(0,0,0,0.2) !important; border: 2px dashed #00C897 !important; min-height: 120px !important; height: auto !important; display: flex !important; flex-direction: column !important; justify-content: center !important; 
                     }
-
-                    document.getElementById('file-input').addEventListener('change', (e) => {
-                        if(e.target.files.length > 0) uploadImage(e.target.files[0]);
-                    });
-
-                    // Detectar Ctrl+V (Pegar) en toda la ventana de Streamlit
-                    window.parent.document.addEventListener('paste', (e) => {
-                        if (e.clipboardData && e.clipboardData.files.length > 0) {
-                            uploadImage(e.clipboardData.files[0]);
-                        }
-                    });
-                    </script>
-                    """, height=60)
+                    div[data-testid="stPopoverBody"] div[data-testid="stFileUploader"] section svg { display: block !important; color: #00C897 !important; width: 40px !important; height: 40px !important; margin: 0 auto !important; }
+                    div[data-testid="stPopoverBody"] div[data-testid="stFileUploader"] section div > span,
+                    div[data-testid="stPopoverBody"] div[data-testid="stFileUploader"] section small { display: block !important; color: white !important; text-align: center !important; }
+                    div[data-testid="stPopoverBody"] div[data-testid="stFileUploader"] section button { width: auto !important; background: #00C897 !important; color: white !important; margin: 10px auto 0 auto !important; padding: 5px 20px !important; border: none !important; }
+                    </style>""", unsafe_allow_html=True)
+                    
+                    with st.popover("🖼️ Subir", use_container_width=True):
+                        st.markdown("<p style='text-align:center; font-weight:bold; color:white; margin-bottom:10px; font-size: 16px;'>Arrastra tu imagen o pega (Ctrl+V)</p>", unsafe_allow_html=True)
+                        archivo_local_img = st.file_uploader("", type=["png", "jpg", "jpeg"], label_visibility="collapsed", key="main_file_uploader")
                     
                 with c_btn:
                     btn_save = st.form_submit_button("GUARDAR", key="btn_save_main")
