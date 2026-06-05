@@ -752,7 +752,6 @@ if st.session_state.usuario_actual is None:
             st.button("¿No tienes cuenta? Regístrate aquí", on_click=toggle_vista_login, use_container_width=True)
             st.markdown('</div>', unsafe_allow_html=True)
 
-
         # --- VISTA DE REGISTRO ---
         else:
             with st.form("form_registro", border=False):
