@@ -2221,41 +2221,35 @@ if True:
     }
 
     /* ==========================================
-    AJUSTES DEL CUADRO "PEGAR ENLACE"
+    AJUSTES DEL CUADRO "PEGAR ENLACE Y CARGADOR"
     ========================================== */
     div[data-testid="stForm"] div[data-testid="stTextInput"]:has(input[aria-label="Link"]) {
-        width: 100% !important;         /* Cambia a 80%, 200px, etc. */
-        margin-top: 30px !important;     /* Mueve el input hacia arriba o abajo */
-        margin-left: 0px !important;    /* Mueve el input hacia los lados */
+        width: 100% !important;
+        margin-top: 5px !important;
+        margin-left: 0px !important;
     }
 
-    /* ==========================================
-    AJUSTES DEL BOTÓN "UPLOAD" (Subir Archivo)
-    ========================================== */
+    /* Cargador de archivos visible y adaptado al Modo Oscuro */
     div[data-testid="stFileUploader"] {
-        display: block !important;      /* Revive el botón */
-        width: 100% !important;         /* Ajusta el ancho total del botón */
-        margin-top: -40px !important;    /* Separación desde el cuadro del Link */
-        margin-left: 0px !important;    /* Posición lateral */
+        display: block !important;
+        width: 100% !important;
+        margin-top: 5px !important;
     }
-
-    /* Diseño interno del cajón de subida */
     div[data-testid="stFileUploader"] [data-testid="stFileUploadDropzone"] {
-        padding: 8px !important;
-        min-height: 40px !important;    /* Altura exacta del botón */
-        background-color: transparent !important; /* <--- FONDO GRIS ELIMINADO */
-        border: 1px dashed #4A5568 !important; /* Si quieres quitarle el borde de rayitas, cambia esto a 'none !important;' */
-        border-radius: 6px !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
+        background-color: #2D3748 !important;
+        border: 1px dashed #4A5568 !important;
+        border-radius: 8px !important;
+        padding: 5px !important;
     }
-
-    /* Ocultar los textos feos por defecto de Streamlit */
-    div[data-testid="stFileUploader"] [data-testid="stFileUploadDropzone"] button,
-    div[data-testid="stFileUploader"] [data-testid="stFileUploadDropzone"] div > span,
-    div[data-testid="stFileUploader"] [data-testid="stFileUploadDropzone"] small {
-        display: none !important;
+    div[data-testid="stFileUploader"] [data-testid="stFileUploadDropzone"] button {
+        background-color: #1A202C !important;
+        color: white !important;
+        border: 1px solid #4A5568 !important;
+        border-radius: 6px !important;
+    }
+    div[data-testid="stFileUploader"] [data-testid="stFileUploadDropzone"] * {
+        color: #A0AEC0 !important;
+        font-size: 13px !important;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -2425,9 +2419,10 @@ if True:
                         nuevo_corr = st.text_area(_l['dash']['corr'], value='', height=45)
                         
                 with c_link:
-                    st.markdown('<div class="lbl-header">Image Link:</div>', unsafe_allow_html=True)
-                    link_imagen = st.text_input("Link", value="", label_visibility="collapsed", placeholder="🔗 Pega el Enlace de la Imagen")
-                    # Botón upload eliminado a petición, solo usamos el Link de arriba.
+                    st.markdown('<div class="lbl-header">Imagen del Trade:</div>', unsafe_allow_html=True)
+                    link_imagen = st.text_input("Link", value="", label_visibility="collapsed", placeholder="🔗 Pega el Enlace de la Imagen", key="main_link_input")
+                    # 📥 Cargador de archivos integrado
+                    archivo_local_img = st.file_uploader("O sube un archivo PNG/JPG", type=["png", "jpg", "jpeg"], label_visibility="collapsed", key="main_file_uploader")
                     
                 with c_btn:
                     btn_save = st.form_submit_button("GUARDAR", key="btn_save_main")
@@ -2450,6 +2445,24 @@ if True:
                     nuevo_bal_absoluto = viejo_real + pnl
                     clave_final = (fecha_sel.year, fecha_sel.month, fecha_sel.day)
                     imgs_finales = []
+                    
+                    # 🟢 NUBE AUTOMÁTICA: Si subieron un archivo local, lo convertimos en un link permanente de inmediato
+                    if archivo_local_img is not None:
+                        with st.spinner("📤 Convirtiendo archivo en link permanente..."):
+                            try:
+                                import requests
+                                url_api_catbox = "https://catbox.moe/user/api.php"
+                                parametros_envio = {"reqtype": "fileupload"}
+                                archivos_envio = {"fileToUpload": (archivo_local_img.name, archivo_local_img.getvalue(), archivo_local_img.type)}
+                                respuesta_servidor = requests.post(url_api_catbox, data=parametros_envio, files=archivos_envio)
+                                
+                                if respuesta_servidor.status_code == 200 and respuesta_servidor.text.startswith("http"):
+                                    imgs_finales.append(respuesta_servidor.text.strip())
+                                else:
+                                    st.error("⚠️ El servidor de imágenes rechazó el archivo. Intenta con otra captura.")
+                            except Exception as e_upload:
+                                st.error(f"⚠️ Error al conectar con el servidor de imágenes: {e_upload}")
+                    
                     if link_imagen.strip().startswith("http"): 
                         imgs_finales.append(link_imagen.strip())
 
