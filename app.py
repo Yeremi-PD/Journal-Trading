@@ -710,9 +710,91 @@ if st.session_state.usuario_actual is None:
     _, col_login, _ = st.columns([1, 1.5, 1])
     
     with col_login:
-        # Selector de dispositivo centrado antes de la tarjeta
-        modo_movil_check = st.toggle(_l['login']['modo_movil'], value=True)
-        st.markdown("<br>", unsafe_allow_html=True)
+        # --- VISTA DE LOGIN ---
+        if st.session_state.vista_login == "entrar":
+            with st.form("form_login", border=False):
+                st.markdown("<h3 style='text-align: center; color: white; margin-top: -10px; margin-bottom: 25px; font-weight: 800;'>Bienvenido de nuevo 👋</h3>", unsafe_allow_html=True)
+                
+                log_user = st.text_input("Usuario", placeholder="Tu nombre de usuario")
+                log_pass = st.text_input("Contraseña", type="password", placeholder="••••••••")
+                
+                # 📱 Toggle DENTRO del formulario para que NO haga redibujado al tocarlo
+                modo_movil_check = st.toggle("📱 Activar Modo Móvil", value=True)
+                
+                btn_acceder = st.form_submit_button("Acceder de forma segura", use_container_width=True)
+                
+                if btn_acceder:
+                    u_clean = log_user.strip()
+                    p_clean = log_pass.strip()
+                    
+                    if "db_global_local" not in st.session_state:
+                        with st.spinner("⏳ Conectando al servidor..."):
+                            st.session_state.db_global_local = copy.deepcopy(get_global_db())
+                    db_global = st.session_state.db_global_local
+                    
+                    user_match = next((k for k in db_global.keys() if k.lower() == u_clean.lower()), None)
+                    
+                    if user_match:
+                        pass_db = str(db_global[user_match].get("password", "")).strip()
+                        if pass_db == p_clean or (pass_db == "123" and p_clean != ""):
+                            st.session_state.usuario_actual = user_match
+                            st.session_state.dispositivo_actual = "Móvil" if modo_movil_check else "PC"
+                            components.html(f"""<script>window.parent.document.cookie = "yeremi_user={user_match}; path=/; max-age=2592000; SameSite=Strict"; window.parent.document.cookie = "yeremi_device={st.session_state.dispositivo_actual}; path=/; max-age=2592000; SameSite=Strict";</script>""", height=0, width=0)
+                            st.query_params["user"] = user_match
+                            st.query_params["device"] = st.session_state.dispositivo_actual
+                            st.rerun()
+                        else:
+                            st.error(f"⚠️ {_l['login']['cred_err']}")
+                    else:
+                        st.error(f"⚠️ {_l['login']['cred_err']}")
+
+            st.markdown('<div class="btn-secundario-link">', unsafe_allow_html=True)
+            st.button("¿No tienes cuenta? Regístrate aquí", on_click=toggle_vista_login, use_container_width=True)
+            st.markdown('</div>', unsafe_allow_html=True)
+
+
+        # --- VISTA DE REGISTRO ---
+        else:
+            with st.form("form_registro", border=False):
+                st.markdown("<h3 style='text-align: center; color: white; margin-top: -10px; margin-bottom: 25px; font-weight: 800;'>Crea tu cuenta 🚀</h3>", unsafe_allow_html=True)
+                
+                reg_user = st.text_input("Nuevo Usuario", placeholder="Elige tu nombre de usuario")
+                reg_pass = st.text_input("Nueva Contraseña", type="password", placeholder="Crea una contraseña fuerte")
+                
+                # 📱 Toggle DENTRO del formulario
+                modo_movil_check_reg = st.toggle("📱 Activar Modo Móvil", value=True)
+                
+                btn_registrar = st.form_submit_button("Crear Cuenta y Entrar", use_container_width=True)
+                
+                if btn_registrar:
+                    u_reg_clean = reg_user.strip()
+                    p_reg_clean = reg_pass.strip()
+                    
+                    if "db_global_local" not in st.session_state:
+                        with st.spinner("⏳ Verificando disponibilidad..."):
+                            st.session_state.db_global_local = copy.deepcopy(get_global_db())
+                    db_global = st.session_state.db_global_local
+                    
+                    if not u_reg_clean or not p_reg_clean:
+                        st.error("⚠️ Debes llenar ambos campos.")
+                    elif u_reg_clean in db_global:
+                        st.error("⚠️ Ese usuario ya existe. Elige otro.")
+                    else:
+                        db_global[u_reg_clean] = {"password": p_reg_clean, "data": inicializar_data_usuario(), "settings": {"PC": inicializar_settings(), "Móvil": inicializar_settings()}}
+                        
+                        # 🚀 AUTO-LOGIN INMEDIATO (Se salta la vista de login y entra directo a la app)
+                        st.session_state.usuario_actual = u_reg_clean
+                        st.session_state.dispositivo_actual = "Móvil" if modo_movil_check_reg else "PC"
+                        components.html(f"""<script>window.parent.document.cookie = "yeremi_user={u_reg_clean}; path=/; max-age=2592000; SameSite=Strict"; window.parent.document.cookie = "yeremi_device={st.session_state.dispositivo_actual}; path=/; max-age=2592000; SameSite=Strict";</script>""", height=0, width=0)
+                        st.query_params["user"] = u_reg_clean
+                        st.query_params["device"] = st.session_state.dispositivo_actual
+                        st.rerun()
+
+            st.markdown('<div class="btn-secundario-link">', unsafe_allow_html=True)
+            st.button("¿Ya tienes cuenta? Inicia sesión aquí", on_click=toggle_vista_login, use_container_width=True)
+            st.markdown('</div>', unsafe_allow_html=True)
+
+    st.stop()
         
         # --- VISTA DE LOGIN ---
         if st.session_state.vista_login == "entrar":
@@ -910,7 +992,13 @@ def modal_fecha_inicio(nombre, balance):
         st.rerun()
 
 # --- BLOQUEO DE SEGURIDAD AL PRINCIPIO ---
-if not db_usuario:
+# Detectamos si es un usuario totalmente nuevo (Si está vacío, o si SOLO tiene la cuenta fantasma)
+if not db_usuario or (len(db_usuario) == 1 and "Todas las Cuentas" in db_usuario):
+    
+    # Limpiamos la cuenta fantasma temporalmente para que no rompa la creación
+    if "Todas las Cuentas" in db_usuario:
+        del db_usuario["Todas las Cuentas"]
+        
     # 1. Aplicamos el estilo para centrar todo y ocultar la barra lateral
     st.markdown("""
         <style>
