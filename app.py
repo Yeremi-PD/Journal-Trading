@@ -978,15 +978,20 @@ def contenido_ajustes():
     dispositivo_visual = st.radio(
         _l['sidebar']['design'], 
         [_l['sidebar']['pc'], _l['sidebar']['mobile']], 
-        index=0 if "PC" in st.session_state.dispositivo_actual else 1
+        index=0 if "PC" in st.session_state.dispositivo_actual else 1,
+        key="radio_device_sel"
     )
 
-    st.session_state.dispositivo_actual = "PC" if _l['sidebar']['pc'] in dispositivo_visual else "Móvil"
+    nuevo_dispositivo = "PC" if _l['sidebar']['pc'] in dispositivo_visual else "Móvil"
 
-    try: 
-        st.query_params["device"] = st.session_state.dispositivo_actual
-    except: 
-        pass
+    # 🟢 FIX: Si detecta que cambiaste de dispositivo, fuerza el redibujado instantáneo
+    if nuevo_dispositivo != st.session_state.dispositivo_actual:
+        st.session_state.dispositivo_actual = nuevo_dispositivo
+        try: 
+            st.query_params["device"] = st.session_state.dispositivo_actual
+        except: 
+            pass
+        st.rerun()
 
     if st.button(_l['sidebar']['save_design'], use_container_width=True):
         reescribir_excel_usuario(usuario)
