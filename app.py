@@ -501,11 +501,15 @@ def reescribir_excel_usuario(usuario):
       
                ])
         
-        # OPTIMIZACIÓN 1.2: Uso del parámetro 'values' y 'range_name' para evitar deprecaciones 
-        # de la librería gspread y hacer que el guardado masivo sea instantáneo.
+        # OPTIMIZACIÓN 1.2: Guardado Seguro Anti-Cortes de Internet
         hoja_user = db_spreadsheet.worksheet(usuario)
-        hoja_user.clear()
+        
+        # 🟢 1. SOBRESCRIBIR PRIMERO: Guardamos todo encima. Si se cae el internet aquí, la data NO se pierde.
         hoja_user.update(values=filas_a_insertar, range_name="A1")
+        
+        # 🟢 2. LIMPIAR DESPUÉS: Borramos 500 filas debajo de la nueva data para eliminar trades "fantasma" si borraste algo.
+        fila_inicio_basura = len(filas_a_insertar) + 1
+        hoja_user.batch_clear([f"A{fila_inicio_basura}:AA{fila_inicio_basura + 500}"])
         
         # FIJAR EL ALTO DE TODAS LAS FILAS A 25px PARA QUE NINGUNA SE ESTIRE HACIA ABAJO
         try:
