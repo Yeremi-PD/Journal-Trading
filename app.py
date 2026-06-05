@@ -207,7 +207,15 @@ def get_global_db():
                             if not cuenta: cuenta = 'Account Real'
                             
                             f_str = str(row_data.get('Fecha', '')).strip()
-                            if not f_str: continue # Ignorar filas sin fecha
+                            if not f_str: 
+                                # 🟢 Si no hay fecha de operación, procesamos la fila como una inicialización base para una cuenta vacía
+                                if cuenta not in db_temp[user]["data"]:
+                                    db_temp[user]["data"][cuenta] = {"balance": safe_float(row_data.get('Balance', 25000.0)), "trades": {}, "backtesting_mode": False}
+                                if row_data.get('Fecha_Inicio'):
+                                    db_temp[user]["data"][cuenta]["fecha_inicio"] = str(row_data.get('Fecha_Inicio')).strip()
+                                if row_data.get('Fecha_Cierre'):
+                                    db_temp[user]["data"][cuenta]["fecha_cierre"] = str(row_data.get('Fecha_Cierre')).strip()
+                                continue
                             
                             try:
                                 d_obj = datetime.strptime(f_str, "%d/%m/%Y")
@@ -469,8 +477,20 @@ def reescribir_excel_usuario(usuario):
 
         for cuenta, d_cuenta in db_global[usuario]["data"].items():
             if cuenta == "Todas las Cuentas": continue
-            for clave, lista_t in sorted(d_cuenta["trades"].items()):
-                for t in lista_t:
+            
+            f_ini_val = d_cuenta.get("fecha_inicio", "")
+            f_cie_val = d_cuenta.get("fecha_cierre", "")
+            
+            if not d_cuenta["trades"]:
+                # 🟢 Fila base de inicialización inmediata para registrar cuentas nuevas que aún no tienen operaciones
+                filas_a_insertar.append([
+                    usuario, pwd, cuenta, "", float(d_cuenta.get("balance", 25000.0)), 0.0, 
+                    "", set_pc_str, set_mov_str, "NONE", "NONE", "00:00", "", "", 
+                    "", "", "", "", "", "Eval", 0.0, f_ini_val, f_cie_val, "{}", nota_global_str, val_chats_str, app_data_str
+                ])
+            else:
+                for clave, lista_t in sorted(d_cuenta["trades"].items()):
+                    for t in lista_t:
                     links = [img for img in t.get("imagenes", []) if img.startswith("http")]
                     num_fotos = len(t.get("imagenes", []))
                     imgs_texto = ", ".join(links) if links else (f"📸 Tiene {num_fotos} foto(s)" if num_fotos > 0 else "")
