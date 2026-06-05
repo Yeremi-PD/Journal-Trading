@@ -1180,6 +1180,7 @@ def contenido_ajustes():
             window.parent.location.replace(cleanURL);
         </script>
         """, height=0, width=0)
+        st.stop() # 🛑 FIX: Detiene la lectura del código aquí mismo para evitar que crashee
 
 
 # ==========================================
