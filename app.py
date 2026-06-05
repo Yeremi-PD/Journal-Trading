@@ -1203,7 +1203,15 @@ def cb_cambiar_idioma():
 
 def cb_cambiar_dispositivo():
     st.session_state.dispositivo_actual = "PC" if "PC" in st.session_state.radio_device_sel else "Móvil"
-    try: st.query_params["device"] = st.session_state.dispositivo_actual
+    
+    # 🟢 LIMPIEZA DE MEMORIA TRANSITORIA: Evita que la PC herede los tamaños del celular
+    claves_sliders = ["bal_num_sz", "bal_box_w", "bal_box_pad", "size_top_stats", "size_card_titles", "size_box_titles", "size_box_vals", "size_box_pct", "size_box_wl", "pie_size", "pie_y_offset", "cal_mes_size", "cal_pnl_size", "cal_pct_size", "cal_dia_size", "cal_cam_size", "cal_note_size", "note_lbl_size", "note_val_size", "cal_scale", "cal_line_height", "cal_txt_y", "cal_txt_pad"]
+    for k in claves_sliders:
+        if f"sk_{k}" in st.session_state:
+            del st.session_state[f"sk_{k}"]
+            
+    try: 
+        st.query_params["device"] = st.session_state.dispositivo_actual
     except: pass
 
 def cb_cambiar_tema():
