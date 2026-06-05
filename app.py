@@ -527,7 +527,7 @@ def reescribir_excel_usuario(usuario):
         except gspread.exceptions.WorksheetNotFound:
             hoja_user = db_spreadsheet.add_worksheet(title=usuario, rows="1000", cols="30")
         
-        # 🟢 1. SOBRESCRIBIR PRIMERO: Guardamos todo encima.
+# 1. SOBRESCRIBIR PRIMERO: Guardamos todo encima.
         hoja_user.update(values=filas_a_insertar, range_name="A1")
         
         # 🟢 2. LIMPIAR DESPUÉS: Borramos 500 filas debajo de la nueva data para eliminar trades "fantasma"
@@ -544,12 +544,13 @@ def reescribir_excel_usuario(usuario):
         except: pass
     except Exception as e:
         print(f"Error al reescribir excel: {e}")
+
+# --- CONTROL DE LOGOUT INDEPENDIENTE (SOLO SE EJECUTA AL DAR CLIC EN CERRAR SESIÓN) ---
+if st.session_state.get("logout_trigger", False):
     st.session_state.usuario_actual = None
     st.session_state.logout_trigger = False
     try: st.query_params.clear()
     except: pass
-    
-    # 🟢 INYECCIÓN SILENCIOSA: Borramos memoria sin interrumpir a Streamlit para que dibuje el Login al instante
     components.html("""
     <script>
         window.parent.document.cookie = "yeremi_user=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
@@ -559,9 +560,10 @@ def reescribir_excel_usuario(usuario):
         window.parent.localStorage.removeItem("yeremi_device");
         window.parent.localStorage.removeItem("yeremi_account");
         window.parent.history.replaceState({}, document.title, window.parent.location.pathname);
+        window.parent.location.reload();
     </script>
     """, height=0, width=0)
-    # NO PONEMOS st.stop() AQUÍ. El código seguirá bajando y mostrará la pantalla principal de Login automáticamente.
+    st.rerun()
 
 if "dispositivo_actual" not in st.session_state: st.session_state.dispositivo_actual = "PC"
 
