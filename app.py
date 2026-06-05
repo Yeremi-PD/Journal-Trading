@@ -918,32 +918,137 @@ if not db_usuario or (len(db_usuario) == 1 and "Todas las Cuentas" in db_usuario
     if "Todas las Cuentas" in db_usuario:
         del db_usuario["Todas las Cuentas"]
         
-    # 1. Aplicamos el estilo para centrar todo y ocultar la barra lateral
+    # 🎨 CSS PREMIUM COMBINADO: Look inmersivo Teal + Black y Glassmorphism
     st.markdown("""
-        <style>
-        [data-testid="stSidebar"] { display: none; }
-        .stApp { background-color: #1A202C !important; }
-        h1 { color: white !important; font-size: 50px !important; font-weight: 800 !important; text-align: center !important; }
-        p { color: #718096 !important; font-size: 20px !important; text-align: center !important; }
-        </style>
+    <style>
+    [data-testid="stSidebar"] { display: none !important; }
+    
+    .stApp {
+        background: radial-gradient(circle at 50% -10%, #004D40 0%, #0A0E17 40%, #050505 100%) !important;
+    }
+
+    .setup-main-title { 
+        font-size: 55px !important; 
+        font-weight: 900 !important; 
+        text-align: center !important; 
+        background: linear-gradient(90deg, #00C897, #00FFB2);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 5px !important; 
+        letter-spacing: -2px; 
+    }
+    .setup-main-sub { 
+        font-size: 18px !important; 
+        text-align: center !important; 
+        color: #A0AEC0 !important; 
+        margin-bottom: 35px !important; 
+        font-weight: 500;
+    }
+    
+    /* Efecto Glassmorphism unificado para la tarjeta */
+    div[data-testid="stForm"] {
+        background: rgba(20, 25, 35, 0.6) !important;
+        backdrop-filter: blur(15px) !important;
+        -webkit-backdrop-filter: blur(15px) !important;
+        border: 1px solid rgba(0, 200, 151, 0.15) !important;
+        border-radius: 20px !important;
+        padding: 40px 30px !important;
+        box-shadow: 0 25px 50px rgba(0,0,0,0.6), inset 0 0 0 1px rgba(255,255,255,0.02) !important;
+    }
+
+    /* Forzar textos de etiquetas legibles dentro del contenedor Glass */
+    div[data-testid="stForm"] label p {
+        color: #E2E8F0 !important;
+        font-weight: 600 !important;
+        font-size: 15px !important;
+    }
+
+    /* Elementos inputs estilizados oscuros */
+    div[data-testid="stForm"] div[data-baseweb="input"],
+    div[data-testid="stForm"] div[data-baseweb="select"] > div,
+    div[data-testid="stForm"] div[data-testid="stDateInput"] > div:first-child {
+        background-color: rgba(0,0,0,0.4) !important;
+        border: 1px solid #2D3748 !important;
+        border-radius: 10px !important;
+        transition: all 0.3s ease !important;
+    }
+    
+    div[data-testid="stForm"] input {
+        color: white !important;
+        font-size: 16px !important;
+    }
+
+    div[data-testid="stForm"] div[data-baseweb="select"] * {
+        color: white !important;
+    }
+    
+    /* Botón Crear Cuenta y Empezar */
+    div[data-testid="stFormSubmitButton"] button {
+        background: linear-gradient(135deg, #00C897 0%, #007A5E 100%) !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 10px !important;
+        height: 50px !important;
+        font-size: 18px !important;
+        font-weight: 800 !important;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease !important;
+        box-shadow: 0 8px 20px rgba(0, 200, 151, 0.2) !important;
+        margin-top: 25px !important;
+    }
+    div[data-testid="stFormSubmitButton"] button:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 12px 25px rgba(0, 200, 151, 0.4) !important;
+    }
+
+    /* Corrección estética específica para el date input nativo dentro de esta caja */
+    div[data-testid="stForm"] div[data-testid="stDateInput"] {
+        width: 100% !important;
+    }
+    div[data-testid="stForm"] div[data-testid="stDateInput"] input {
+        color: white !important;
+        -webkit-text-fill-color: white !important;
+    }
+    </style>
     """, unsafe_allow_html=True)
     
-    # 2. Dibujamos el contenido usando Streamlit puro (sin divs HTML que rompan la app)
-    st.markdown(f"# {_l['setup']['title']}")
-    st.markdown(_l['setup']['sub'])
+    st.markdown("<div class='setup-main-title'>Yeremi Journal Pro</div>", unsafe_allow_html=True)
+    st.markdown(f"<div class='setup-main-sub'>{_l['setup']['title']}</div>", unsafe_allow_html=True)
     
-    st.markdown("<br><br>", unsafe_allow_html=True)
-    
-    _, col_centro, _ = st.columns([1, 2, 1])
+    _, col_centro, _ = st.columns([1, 1.6, 1])
     with col_centro:
-        with st.form("form_primera_cuenta"):
+        with st.form("form_primera_cuenta", border=False):
+            st.markdown("<h3 style='text-align: center; color: white; margin-top: -10px; margin-bottom: 25px; font-weight: 800;'>Configuración del Portfolio 📈</h3>", unsafe_allow_html=True)
+            
             nombre_cta = st.text_input(_l['setup']['acc_name'], value="Account Real")
             bal_inicial_opcion = st.selectbox(_l['setup']['init_bal'], [25000.0, 50000.0, 100000.0], format_func=lambda x: f"${x:,.0f}")
             
-            if st.form_submit_button(_l['setup']['btn_start'], use_container_width=True):
+            # 📅 Fecha de inicio agregada directamente aquí en la misma tarjeta
+            fecha_inicio_opcion = st.date_input("Fecha de Inicio de Desafío / Cuenta", value=(datetime.now() + pd.Timedelta(hours=6)).date())
+            
+            btn_inicializar = st.form_submit_button(_l['setup']['btn_start'], use_container_width=True)
+            
+            if btn_inicializar:
                 if nombre_cta:
-                    # En lugar de guardar, abrimos el popup
-                    modal_fecha_inicio(nombre_cta, bal_inicial_opcion)
+                    f_ini = fecha_inicio_opcion
+                    f_cie = f_ini + pd.Timedelta(days=30)
+                    
+                    db_usuario[nombre_cta] = {
+                        "balance": bal_inicial_opcion, 
+                        "trades": {}, 
+                        "fecha_inicio": f_ini.strftime("%d/%m/%Y"),
+                        "fecha_cierre": f_cie.strftime("%d/%m/%Y")
+                    }
+                    st.session_state.data_source_sel = nombre_cta
+                    
+                    try: st.query_params["account"] = nombre_cta
+                    except: pass
+                    
+                    with st.spinner("⏳ Creando base de datos segura..."):
+                        # Guarda directamente la estructura y actualiza Excel
+                        reescribir_excel_usuario(usuario)
+                        
+                    st.rerun()
     st.stop()
 
 # --- SI LLEGAMOS AQUÍ, EL USUARIO YA TIENE CUENTA ---
