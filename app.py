@@ -2470,20 +2470,44 @@ if True:
                     link_imagen = st.text_input("Link", value="", label_visibility="collapsed", placeholder="🔗 Pega el Link aquí")
                     
                 with c_upd:
-                    # El punto transparente alinea el botón a la altura perfecta del input
-                    st.markdown('<div class="lbl-header" style="color:transparent; pointer-events:none; user-select:none;">.</div>', unsafe_allow_html=True)
+                    # 🟢 Ahora sí le ponemos un título real y visible
+                    st.markdown('<div class="lbl-header">Subir Imagen:</div>', unsafe_allow_html=True)
                     
                     st.markdown("""<style>
-                    /* 1. Hacemos que el botón principal del Popover tenga el mismo tamaño y estilo que el input */
+                    /* 1. BAJAR LA CAJA DEL LINK 20 PUNTOS */
+                    div[data-testid="stForm"] div[data-testid="stTextInput"]:has(input[aria-label="Link"]) {
+                        margin-top: 25px !important; 
+                    }
+
+                    /* 2. SUBIR EL BOTÓN DEL POPOVER 20 PUNTOS */
                     div[data-testid="stForm"] div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > button {
                         width: 100% !important; margin: 0 !important; height: 40px !important; min-height: 40px !important;
                         background: #2D3748 !important; border: 1px solid #4A5568 !important; color: white !important; font-size: 14px !important;
-                        box-shadow: none !important; margin-top: 0px !important; border-radius: 8px !important;
+                        box-shadow: none !important; border-radius: 8px !important;
+                        margin-top: -20px !important; /* <--- Subiendo 20 puntos */
                     }
                     div[data-testid="stForm"] div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > button:hover {
                         border-color: #00C897 !important; background: rgba(0,200,151,0.1) !important; transform: none !important; color: #00C897 !important;
                     }
-                    /* 2. Revivimos el cargador SOLO adentro del apartado para que sea grande y cómodo */
+                    
+                    /* 3. 🔴 CONVERTIR EL CÍRCULO VERDE EN UNA X ROJA PARA BORRAR ARCHIVOS 🔴 */
+                    [data-testid="stFileUploaderDeleteBtn"] {
+                        background-color: #FF4C4C !important;
+                        border-radius: 50% !important;
+                        opacity: 1 !important;
+                    }
+                    [data-testid="stFileUploaderDeleteBtn"] svg {
+                        color: white !important;
+                        fill: white !important;
+                        width: 20px !important;
+                        height: 20px !important;
+                    }
+                    [data-testid="stFileUploaderDeleteBtn"]:hover {
+                        background-color: #D32F2F !important;
+                        transform: scale(1.1) !important;
+                    }
+                    
+                    /* 4. Revivimos el cargador adentro del apartado */
                     div[data-testid="stPopoverBody"] div[data-testid="stFileUploader"] { margin: 0 !important; width: 100% !important; display: block !important; }
                     div[data-testid="stPopoverBody"] div[data-testid="stFileUploader"] section { 
                         background: rgba(0,0,0,0.2) !important; border: 2px dashed #00C897 !important; min-height: 120px !important; height: auto !important; display: flex !important; flex-direction: column !important; justify-content: center !important; 
