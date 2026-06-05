@@ -2229,68 +2229,74 @@ if True:
         margin-left: 0px !important;
     }
 
-/* 🟢 CARGADOR FINO Y CON SOPORTE PARA PEGAR (CTRL+V) 🟢 */
+/* 🌟 BOTÓN PREMIUM DE SUBIDA (SIN ZONA DE ARRASTRE VISIBLE) 🌟 */
     div[data-testid="stFileUploader"] {
         margin-top: 5px !important;
         margin-bottom: -10px !important;
     }
     
+    /* 1. Desaparecemos la caja de arrastre por completo (sin bordes ni fondo) */
     div[data-testid="stFileUploader"] section[data-testid="stFileUploadDropzone"] {
-        background-color: #2D3748 !important;
-        border: 1px dashed #4A5568 !important;
-        border-radius: 8px !important;
-        padding: 0 15px !important;     /* Cero relleno vertical, solo a los lados */
-        min-height: 45px !important;    /* Altura delgada perfecta */
+        background-color: transparent !important;
+        border: none !important;
+        padding: 0 !important;
+        min-height: 45px !important;
         height: 45px !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
     }
 
-    /* Ocultar el ícono de la nube gigante y el límite de MB */
+    /* 2. Matamos todos los textos, instrucciones e íconos feos */
     div[data-testid="stFileUploader"] section[data-testid="stFileUploadDropzone"] svg,
-    div[data-testid="stFileUploader"] section[data-testid="stFileUploadDropzone"] small {
-        display: none !important;
-    }
-
-    /* Alinear el texto y el botón horizontalmente */
-    div[data-testid="stFileUploader"] section[data-testid="stFileUploadDropzone"] > div {
-        display: flex !important;
-        align-items: center !important;
-        flex-direction: row !important;
-        gap: 10px !important;
-    }
-
-    /* Ocultar el texto nativo por defecto */
+    div[data-testid="stFileUploader"] section[data-testid="stFileUploadDropzone"] small,
     div[data-testid="stFileUploader"] section[data-testid="stFileUploadDropzone"] div > span {
         display: none !important;
     }
 
-    /* Inyectar nuestro propio texto personalizado */
-    div[data-testid="stFileUploader"] section[data-testid="stFileUploadDropzone"] > div::before {
-        content: "📁 Clic aquí y presiona Ctrl+V para pegar";
-        color: #A0AEC0 !important;
-        font-size: 13px !important;
-        font-weight: 600 !important;
-    }
-
-    /* Estilar el botón de "Browse files" para que sea pequeño */
+    /* 3. Transformamos el botoncito en un BOTÓN GIGANTE QUE OCUPA TODO EL ESPACIO */
     div[data-testid="stFileUploader"] section[data-testid="stFileUploadDropzone"] button {
-        background-color: #1A202C !important;
-        color: white !important;
-        border: 1px solid #4A5568 !important;
-        border-radius: 6px !important;
-        padding: 0 15px !important;
-        min-height: 28px !important;
-        height: 28px !important;
+        width: 100% !important;
+        height: 45px !important;
+        min-height: 45px !important;
         margin: 0 !important;
-        font-size: 12px !important;
-        line-height: 1 !important;
+        background: linear-gradient(135deg, #2D3748 0%, #1A202C 100%) !important;
+        border: 1px solid #4A5568 !important;
+        border-radius: 8px !important;
+        transition: all 0.3s ease !important;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.2) !important;
+        position: relative !important;
+        /* Hacemos transparente el texto original en inglés */
+        color: transparent !important; 
     }
 
+    /* 4. Efecto elegante al pasar el mouse */
     div[data-testid="stFileUploader"] section[data-testid="stFileUploadDropzone"] button:hover {
-        background-color: #00C897 !important;
+        background: linear-gradient(135deg, #00C897 0%, #007A5E 100%) !important;
         border-color: #00C897 !important;
+        transform: translateY(-2px) !important;
+        box-shadow: 0 6px 12px rgba(0, 200, 151, 0.3) !important;
+    }
+
+    /* 5. Inyectamos nuestro propio texto en español centrado encima del botón */
+    div[data-testid="stFileUploader"] section[data-testid="stFileUploadDropzone"] button::after {
+        content: "🖼️ Seleccionar Imagen o Pegar (Ctrl+V)";
+        position: absolute !important;
+        top: 50% !important;
+        left: 50% !important;
+        transform: translate(-50%, -50%) !important;
+        color: #A0AEC0 !important;
+        font-size: 14px !important;
+        font-weight: 600 !important;
+        width: 100% !important;
+        text-align: center !important;
+        letter-spacing: 0.5px !important;
+        transition: color 0.3s ease !important;
+    }
+
+    /* 6. El texto se vuelve blanco brillante al pasar el mouse */
+    div[data-testid="stFileUploader"] section[data-testid="stFileUploadDropzone"] button:hover::after {
+        color: #FFFFFF !important;
     }
     </style>
     """, unsafe_allow_html=True)
