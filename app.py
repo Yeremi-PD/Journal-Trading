@@ -34,41 +34,38 @@ logo_final = ImageOps.pad(logo_recortado, (tamaño_max, tamaño_max))
 st.set_page_config(page_title="Yeremi Journal Pro", page_icon=logo_final, layout="wide")
 
 # ==========================================
-# 🚀 AUTO-LOGIN ULTRA RÁPIDO (CERO PARPADEO) 🚀
+# 🚀 AUTO-LOGIN (SISTEMA DE ALTA SEGURIDAD COMPATIBLE CON LA NUBE) 🚀
 # ==========================================
-# Ponemos el detector de sesión ANTES de la base de datos para ganar segundos valiosos.
 import streamlit.components.v1 as components
-# --- OPTIMIZACIÓN 3.0: TELÓN DE ACERO ANTI-PARPADEO ---
-if "user" not in st.query_params and st.session_state.get("usuario_actual") is None:
-    st.markdown("""
-    <style>
-        /* Vuelve la pantalla invisible mientras procesa la memoria del dispositivo */
-        .stApp { visibility: hidden !important; opacity: 0 !important; pointer-events: none !important; transition: opacity 0.3s ease; }
-        body { background-color: #1A202C !important; }
-    </style>
-    """, unsafe_allow_html=True)
 
+# Eliminamos por completo el telón invisible para asegurar la carga del diario bajo cualquier circunstancia
 components.html("""
 <script>
-const urlParams = new URLSearchParams(window.parent.location.search);
-const getCookie = (name) => { const value = `; ${window.parent.document.cookie}`; const parts = value.split(`; ${name}=`); if (parts.length === 2) return parts.pop().split(';').shift(); return null; };
-const sUser = getCookie("yeremi_user");
-const sDevice = getCookie("yeremi_device");
-const sAccount = getCookie("yeremi_account");
+try {
+    const urlParams = new URLSearchParams(window.parent.location.search);
+    
+    // Función protegida para mitigar bloqueos de Sandbox impuestos por Streamlit Share
+    const getCookie = (name) => { 
+        try {
+            const value = `; ${window.parent.document.cookie}`; 
+            const parts = value.split(`; ${name}=`); 
+            if (parts.length === 2) return parts.pop().split(';').shift(); 
+        } catch(e) { return null; }
+        return null; 
+    };
+    
+    const sUser = getCookie("yeremi_user");
+    const sDevice = getCookie("yeremi_device");
+    const sAccount = getCookie("yeremi_account");
 
-if (sUser && !urlParams.has("user")) {
-    // 🚀 TIENE MEMORIA: Redirigimos INMEDIATAMENTE sin quitar el telón (NUNCA verás el Login)
-    urlParams.set("user", sUser);
-    urlParams.set("device", sDevice ? sDevice : (window.parent.innerWidth <= 768 ? 'Móvil' : 'PC'));
-    if (sAccount) urlParams.set("account", sAccount);
-    window.parent.location.replace(window.parent.location.pathname + "?" + urlParams.toString());
-} else {
-    // 🛑 NO TIENE MEMORIA O YA REDIRIGIÓ: Inyectamos una regla maestra que anula el bloqueo de Python al instante
-    setTimeout(() => {
-        const override = window.parent.document.createElement('style');
-        override.innerHTML = '.stApp { visibility: visible !important; opacity: 1 !important; pointer-events: auto !important; }';
-        window.parent.document.head.appendChild(override);
-    }, 50);
+    if (sUser && !urlParams.has("user")) {
+        urlParams.set("user", sUser);
+        urlParams.set("device", sDevice ? sDevice : (window.parent.innerWidth <= 768 ? 'Móvil' : 'PC'));
+        if (sAccount) urlParams.set("account", sAccount);
+        window.parent.location.replace(window.parent.location.pathname + "?" + urlParams.toString());
+    }
+} catch (error) {
+    console.log("Aviso de control: Restricciones de Iframe activas en este navegador.");
 }
 </script>
 """, height=0, width=0)
