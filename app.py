@@ -473,7 +473,6 @@ def reescribir_excel_usuario(usuario):
         set_mov_str = json.dumps(mov_config)
         app_data_str = json.dumps(app_data_dict)
         val_chats_str = json.dumps(db_global[usuario]["settings"]["PC"].get("chats_historial", {}))
-        val_chats_str = json.dumps(db_global[usuario]["settings"]["PC"].get("chats_historial", {}))
 
         for cuenta, d_cuenta in db_global[usuario]["data"].items():
             if cuenta == "Todas las Cuentas": continue
@@ -491,50 +490,44 @@ def reescribir_excel_usuario(usuario):
             else:
                 for clave, lista_t in sorted(d_cuenta["trades"].items()):
                     for t in lista_t:
-                    links = [img for img in t.get("imagenes", []) if img.startswith("http")]
-                    num_fotos = len(t.get("imagenes", []))
-                    imgs_texto = ", ".join(links) if links else (f"📸 Tiene {num_fotos} foto(s)" if num_fotos > 0 else "")
-                    
-                    val_bias = t.get("bias", "NONE")
-                    val_sesion = t.get("sesion", "NONE")
-                    val_confs = ", ".join(t.get("Confluences", []))
-                    val_risk = t.get("risk", "")
-                    val_rr = t.get("RR", "")
-                    val_tt = t.get("trade_type", "")
-                    val_reason = t.get("razon_trade", "")
-                    val_corr = t.get("Corrections", "")
-                    val_emo = t.get("Emotions", "")
-                    
-                    val_estado = t.get("estado_cuenta", "Eval")
-                    val_retiros = t.get("retiros_acumulados", 0.0)
-                    val_hora = t.get("hora", "00:00")
-               
-      
-                    keys_to_remove = ['pnl', 'balance_final', 'fecha_str', 'imagenes', 'bias', 'sesion', 'Confluences', 'risk', 'RR', 'trade_type', 'razon_trade', 'Corrections', 'Emotions', 'estado_cuenta', 'retiros_acumulados', 'hora']
-                    extra_data = {k:v for k,v in t.items() if k not in keys_to_remove}
-                    
-                    # INYECTAMOS EL MODO BACKTESTING DESDE LA CUENTA
-                    extra_data["backtesting_mode"] = d_cuenta.get("backtesting_mode", False)
-                    nota_global_str = db_global[usuario]["settings"]["PC"].get("global_notes_body", "")
-                    
-                    f_ini_val = d_cuenta.get("fecha_inicio", "")
-                    f_cie_val = d_cuenta.get("fecha_cierre", "")
-                    
-                    filas_a_insertar.append([
-   
-                      usuario, pwd, cuenta, t["fecha_str"], float(t["balance_final"]), float(t["pnl"]), 
-                        imgs_texto, set_pc_str, set_mov_str, val_bias, val_sesion, val_hora, val_confs, val_risk, 
-                        val_rr, val_tt, val_reason, val_corr, val_emo, val_estado, float(val_retiros), f_ini_val, f_cie_val, json.dumps(extra_data), nota_global_str, val_chats_str, app_data_str
-      
-               ])
+                        links = [img for img in t.get("imagenes", []) if img.startswith("http")]
+                        num_fotos = len(t.get("imagenes", []))
+                        imgs_texto = ", ".join(links) if links else (f"📸 Tiene {num_fotos} foto(s)" if num_fotos > 0 else "")
+                        
+                        val_bias = t.get("bias", "NONE")
+                        val_sesion = t.get("sesion", "NONE")
+                        val_confs = ", ".join(t.get("Confluences", []))
+                        val_risk = t.get("risk", "")
+                        val_rr = t.get("RR", "")
+                        val_tt = t.get("trade_type", "")
+                        val_reason = t.get("razon_trade", "")
+                        val_corr = t.get("Corrections", "")
+                        val_emo = t.get("Emotions", "")
+                        
+                        val_estado = t.get("estado_cuenta", "Eval")
+                        val_retiros = t.get("retiros_acumulados", 0.0)
+                        val_hora = t.get("hora", "00:00")
+                        
+                        keys_to_remove = ['pnl', 'balance_final', 'fecha_str', 'imagenes', 'bias', 'sesion', 'Confluences', 'risk', 'RR', 'trade_type', 'razon_trade', 'Corrections', 'Emotions', 'estado_cuenta', 'retiros_acumulados', 'hora']
+                        extra_data = {k:v for k,v in t.items() if k not in keys_to_remove}
+                        
+                        # INYECTAMOS EL MODO BACKTESTING DESDE LA CUENTA
+                        extra_data["backtesting_mode"] = d_cuenta.get("backtesting_mode", False)
+                        nota_global_str = db_global[usuario]["settings"]["PC"].get("global_notes_body", "")
+                        
+                        filas_a_insertar.append([
+                            usuario, pwd, cuenta, t["fecha_str"], float(t["balance_final"]), float(t["pnl"]), 
+                            imgs_texto, set_pc_str, set_mov_str, val_bias, val_sesion, val_hora, val_confs, val_risk, 
+                            val_rr, val_tt, val_reason, val_corr, val_emo, val_estado, float(val_retiros), f_ini_val, f_cie_val, json.dumps(extra_data), nota_global_str, val_chats_str, app_data_str
+                        ])
         
         # OPTIMIZACIÓN 1.2: Guardado Seguro Anti-Cortes de Internet
         hoja_user = db_spreadsheet.worksheet(usuario)
         
-        # 🟢 1. SOBRESCRIBIR PRIMERO: Guardamos todo encima. Si se cae el internet aquí, la data NO se pierde.
+        # 🟢 1. SOBRESCRIBIR PRIMERO: Guardamos todo encima.
         hoja_user.update(values=filas_a_insertar, range_name="A1")
         
-        # 🟢 2. LIMPIAR DESPUÉS: Borramos 500 filas debajo de la nueva data para eliminar trades "fantasma" si borraste algo.
+        # 🟢 2. LIMPIAR DESPUÉS: Borramos 500 filas debajo de la nueva data para eliminar trades "fantasma"
         fila_inicio_basura = len(filas_a_insertar) + 1
         hoja_user.batch_clear([f"A{fila_inicio_basura}:AA{fila_inicio_basura + 500}"])
         
@@ -548,10 +541,6 @@ def reescribir_excel_usuario(usuario):
         except: pass
     except Exception as e:
         print(f"Error al reescribir excel: {e}")
-
-# (El script de memoria se movió a la línea 1 para el auto-login ultra rápido)
-# Lógica para matar la sesión si decides salir manualmente
-if st.session_state.get("logout_trigger", False):
     st.session_state.usuario_actual = None
     st.session_state.logout_trigger = False
     try: st.query_params.clear()
