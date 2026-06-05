@@ -3474,27 +3474,29 @@ with tab_galeria:
     else:
         estado_actual = "PA" if st.session_state.get("toggle_funded_state", False) else "Eval"
         html_items = ""
+        img_tags_master = ""
+        
         for idx, (img_url, fecha, pnl, estado) in enumerate(todas_imagenes):
             c_pnl = "#00C897" if pnl >= 0 else "#FF4C4C"
             simb = "+" if pnl > 0 else ""
-            id_modal = f"gal_tab_{idx}"
             
+            # 1. Elemento individual en la cuadrícula (Ahora apunta al Modal Maestro en vez del suyo propio)
             html_items += f'''<div class="gal-item" data-stage="{estado}">
-<input type="checkbox" id="{id_modal}" class="modal-toggle" style="display:none;">
-<label class="gal-label" for="{id_modal}" style="cursor:zoom-in; display:block; background:transparent; border-radius:16px; overflow:hidden; border:none; position: relative; box-shadow: none; transition: transform 0.2s ease;">
+<label class="gal-label" for="gal_master_toggle" onclick="if(window.parent.abrirGaleriaMaestra) window.parent.abrirGaleriaMaestra({idx})" style="cursor:zoom-in; display:block; background:transparent; border-radius:16px; overflow:hidden; border:none; position: relative; box-shadow: none; transition: transform 0.2s ease;">
 <img src="{img_url}" style="width:100%; height:450px; object-fit:contain; display: block;">
 <div style="position: absolute; bottom: 0; left: 0; width: 100%; background: linear-gradient(transparent, rgba(0,0,0,0.95)); padding: 40px 20px 15px 20px; display: flex; justify-content: space-between; align-items: flex-end;">
 <span style="font-weight: bold; color: white; text-shadow: 1px 1px 4px black; font-size: 20px;">🗓️ {fecha}</span>
 <span style="font-weight: 900; color: {c_pnl}; text-shadow: 1px 1px 4px black; font-size: 24px;">{simb}${pnl:,.2f}</span>
 </div>
 </label>
-<div class="fs-modal" data-current="0" data-total="1">
-<div class="modal-controls">
-<label for="{id_modal}" class="close-btn">✖ CERRAR FOTO</label>
-</div>
-<img src="{img_url}" class="gallery-img" data-idx="0" style="display: block;">
-</div>
 </div>'''
+
+            # 2. Acumulamos las imágenes ocultas en el Modal Maestro
+            disp = "block" if idx == 0 else "none"
+            img_tags_master += f'<img src="{img_url}" class="gallery-img gal-img-master" data-idx="{idx}" data-stage="{estado}" style="display: {disp};">'
+            
+        # 3. Construimos el panel de controles con tus flechas
+        nav_html_master = f'''<div class="gallery-nav"><div class="prev-img-btn">◀</div><div class="img-counter" id="gal_master_counter">1 / {cnt_todas}</div><div class="next-img-btn">▶</div></div>'''
         
         html_galeria_completa = f'''<style>
 .modal-toggle:checked ~ .fs-modal {{ display: flex !important; }}
@@ -3521,25 +3523,52 @@ with tab_galeria:
 📸 Total Imágenes: <span>{cnt_todas}</span> | <span class="txt-eval">Eval:</span> <span>{cnt_eval}</span> | <span class="txt-pa">PA:</span> <span>{cnt_pa}</span>
 </div>
 <div class="gal-grid">
+<input type="checkbox" id="gal_master_toggle" class="modal-toggle" style="display:none;">
 {html_items}
+<div class="fs-modal" id="gal_master_modal" data-current="0" data-total="{cnt_todas}">
+<div class="modal-controls">
+{nav_html_master}
+<label for="gal_master_toggle" class="close-btn">✖ CERRAR FOTO</label>
+</div>
+{img_tags_master}
+</div>
 </div>'''
         st.markdown(html_galeria_completa, unsafe_allow_html=True)
         
         components.html(f"""
         <script>
         const doc = window.parent.document;
+        
+        // 🚀 NUEVA FUNCIÓN: Permite saltar directamente a la imagen a la que le diste clic
+        window.parent.abrirGaleriaMaestra = function(idx) {{
+            const modal = doc.getElementById('gal_master_modal');
+            if(!modal) return;
+            
+            modal.setAttribute('data-current', idx);
+            const imgs = modal.querySelectorAll('.gal-img-master');
+            imgs.forEach(img => {{
+                if(parseInt(img.getAttribute('data-idx')) === idx) {{
+                    img.style.setProperty('display', 'block', 'important');
+                }} else {{
+                    img.style.setProperty('display', 'none', 'important');
+                }}
+            }});
+            
+            const total = parseInt(modal.getAttribute('data-total')) || 1;
+            const counter = doc.getElementById('gal_master_counter');
+            if(counter) counter.innerText = (idx + 1) + ' / ' + total;
+        }};
+
         window.parent.filtrarGaleria = function(etapa) {{
             const botones = doc.querySelectorAll('#gal-filter-container button');
             if(botones.length === 0) return;
             
-            // Forzar reseteo de colores de todos los botones
             botones.forEach(b => {{
                 b.classList.remove('active');
                 b.style.background = '#2D3748';
                 b.style.borderColor = '#4A5568';
             }});
             
-            // Forzar color verde en el seleccionado
             const btnActivo = doc.getElementById('btn-' + etapa);
             if(btnActivo) {{
                 btnActivo.classList.add('active');
@@ -3547,7 +3576,6 @@ with tab_galeria:
                 btnActivo.style.borderColor = '#00C897';
             }}
             
-            // Mostrar y ocultar fotos con la lógica estricta del filtro
             const items = doc.querySelectorAll('.gal-item');
             items.forEach(item => {{
                 if (etapa === 'Todas' || item.getAttribute('data-stage') === etapa) {{
@@ -3557,8 +3585,7 @@ with tab_galeria:
                 }}
             }});
         }};
-        
-        // 🔴 FIX DEFINITIVO: VINCULACIÓN DIRECTA DE BOTONES PARA EVITAR EL BLOQUEO DE STREAMLIT
+
         const btnT = doc.getElementById('btn-Todas');
         const btnE = doc.getElementById('btn-Eval');
         const btnP = doc.getElementById('btn-PA');
@@ -3567,17 +3594,17 @@ with tab_galeria:
         if (btnE) btnE.addEventListener('click', () => window.parent.filtrarGaleria('Eval'));
         if (btnP) btnP.addEventListener('click', () => window.parent.filtrarGaleria('PA'));
         
-        // Autoejecutar filtro para que cargue con los estilos correctos al instante
         setTimeout(() => {{ if (window.parent.filtrarGaleria) window.parent.filtrarGaleria('Todas'); }}, 200);
         setTimeout(() => {{ if (window.parent.filtrarGaleria) window.parent.filtrarGaleria('{estado_actual}'); }}, 50);
 
-        let currentScale = 1; let translateX = 0, translateY = 0; let isDragging = false; let startX, startY;
+        let currentScale = 1; let translateX = 0, translateY = 0;
+        let isDragging = false; let startX, startY;
         function setTransform(img) {{ img.style.transform = `translate(${{translateX}}px, ${{translateY}}px) scale(${{currentScale}})`; }}
         
         doc.addEventListener('wheel', function(e) {{
             const modal = e.target.closest('.fs-modal');
             if (!modal) return;
-            const img = modal.querySelector('.gallery-img');
+            const img = modal.querySelector('.gallery-img[style*="display: block"]');
             if (!img) return;
             e.preventDefault(); 
             img.style.transition = 'none';
@@ -3596,7 +3623,7 @@ with tab_galeria:
             setTransform(img);
             img.style.cursor = currentScale > 1 ? 'grab' : 'default';
         }}, {{passive: false}});
-
+        
         doc.addEventListener('mousedown', function(e) {{
             if (currentScale > 1 && e.target.classList.contains('gallery-img')) {{
                 isDragging = true; startX = e.clientX - translateX; startY = e.clientY - translateY;
@@ -3606,7 +3633,7 @@ with tab_galeria:
         
         doc.addEventListener('mousemove', function(e) {{
             if (!isDragging) return;
-            const img = doc.querySelector('.fs-modal .gallery-img');
+            const img = doc.querySelector('.fs-modal .gallery-img[style*="display: block"]');
             if (!img) return;
             translateX = e.clientX - startX; translateY = e.clientY - startY; setTransform(img);
         }});
@@ -3614,11 +3641,11 @@ with tab_galeria:
         window.addEventListener('mouseup', function() {{
             if (isDragging) {{
                 isDragging = false;
-                const img = doc.querySelector('.fs-modal .gallery-img');
+                const img = doc.querySelector('.fs-modal .gallery-img[style*="display: block"]');
                 if(img) img.style.cursor = currentScale > 1 ? 'grab' : 'zoom-in';
             }}
         }});
-
+        
         doc.addEventListener('click', function(e) {{
             if (e.target && e.target.classList.contains('close-btn')) {{
                 currentScale = 1; translateX = 0; translateY = 0;
