@@ -528,6 +528,19 @@ if st.session_state.get("logout_trigger", False):
     st.session_state.logout_trigger = False
     try: st.query_params.clear()
     except: pass
+    
+    # 🟢 INYECCIÓN MAESTRA: Limpiamos cookies, localstorage y recargamos en el bloque superior
+    components.html("""
+    <script>
+        window.parent.document.cookie = "yeremi_user=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+        window.parent.document.cookie = "yeremi_device=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+        window.parent.document.cookie = "yeremi_account=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+        window.parent.localStorage.clear();
+        window.parent.sessionStorage.clear();
+        const cleanURL = window.parent.location.origin + window.parent.location.pathname;
+        window.parent.location.replace(cleanURL);
+    </script>
+    """, height=0, width=0)
     st.stop()
 
 if "dispositivo_actual" not in st.session_state: st.session_state.dispositivo_actual = "PC"
@@ -1167,16 +1180,9 @@ def contenido_ajustes():
     st.markdown("<br>", unsafe_allow_html=True)
     st.markdown("---")
     if st.button(_l['sidebar']['logout'], key="btn_cerrar_sesion", use_container_width=True):
-        # En vez de matar el código o borrar memoria manual, solo mandamos la orden al navegador
-        components.html("""
-        <script>
-            window.parent.document.cookie = "yeremi_user=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-            window.parent.document.cookie = "yeremi_device=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-            window.parent.document.cookie = "yeremi_account=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-            const cleanURL = window.parent.location.origin + window.parent.location.pathname;
-            window.parent.location.replace(cleanURL);
-        </script>
-        """, height=0, width=0)
+        # 🟢 Activamos el interruptor global y recargamos. ¡100% seguro!
+        st.session_state.logout_trigger = True
+        st.rerun()
 
 
 # ==========================================
@@ -1557,6 +1563,35 @@ div[data-testid="stTabs"] [data-baseweb="tab-highlight-point"] {{ display: none 
     div[data-testid="stExpanderDetails"] div[data-testid="stTextInput"] input {{
         background-color: transparent !important;
         color: {c_dash} !important;
+    }}
+
+    /* 🎚️ SLIDERS MODERNOS TIPO FINANCE DASHBOARD */
+    div[data-testid="stSlider"] > div[data-baseweb="slider"] {{
+        padding-top: 10px !important;
+    }}
+    div[data-testid="stSlider"] div[role="slider"] {{
+        background-color: #00C897 !important;
+        border: 4px solid {card_bg} !important;
+        box-shadow: 0 0 12px rgba(0, 200, 151, 0.6) !important;
+        width: 24px !important;
+        height: 24px !important;
+        border-radius: 50% !important;
+        transition: transform 0.1s ease, box-shadow 0.1s ease !important;
+    }}
+    div[data-testid="stSlider"] div[role="slider"]:hover {{
+        transform: scale(1.2) !important;
+        box-shadow: 0 0 20px rgba(0, 200, 151, 0.9) !important;
+    }}
+    /* Pista del slider y relleno verde */
+    div[data-testid="stSlider"] div[data-baseweb="slider"] > div > div:first-child {{
+        background-color: {border_color} !important;
+        height: 6px !important;
+        border-radius: 10px !important;
+    }}
+    div[data-testid="stSlider"] div[data-baseweb="slider"] > div > div:nth-child(2) {{
+        background-color: #00C897 !important;
+        height: 6px !important;
+        border-radius: 10px !important;
     }}
 
 /* 📱 RESPONSIVO: CONTROL TOTAL Y REDUCCIÓN DE ESPACIO EN TELÉFONOS */
