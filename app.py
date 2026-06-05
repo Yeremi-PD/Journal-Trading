@@ -522,7 +522,10 @@ def reescribir_excel_usuario(usuario):
                         ])
         
         # OPTIMIZACIÓN 1.2: Guardado Seguro Anti-Cortes de Internet
-        hoja_user = db_spreadsheet.worksheet(usuario)
+        try:
+            hoja_user = db_spreadsheet.worksheet(usuario)
+        except gspread.exceptions.WorksheetNotFound:
+            hoja_user = db_spreadsheet.add_worksheet(title=usuario, rows="1000", cols="30")
         
         # 🟢 1. SOBRESCRIBIR PRIMERO: Guardamos todo encima.
         hoja_user.update(values=filas_a_insertar, range_name="A1")
@@ -797,6 +800,10 @@ if st.session_state.usuario_actual is None:
                         st.error("⚠️ Ese usuario ya existe. Elige otro.")
                     else:
                         db_global[u_reg_clean] = {"password": p_reg_clean, "data": inicializar_data_usuario(), "settings": {"PC": inicializar_settings("PC"), "Móvil": inicializar_settings("Móvil")}}
+                        
+                        # 🟢 GUARDAR INMEDIATAMENTE EN GOOGLE SHEETS PARA QUE EL USUARIO EXISTA REALMENTE
+                        with st.spinner("⏳ Creando tu espacio seguro en la nube..."):
+                            reescribir_excel_usuario(u_reg_clean)
                         
                         # 🚀 AUTO-LOGIN INMEDIATO (Se salta la vista de login y entra directo a la app)
                         st.session_state.usuario_actual = u_reg_clean
