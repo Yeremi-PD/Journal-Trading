@@ -2229,43 +2229,57 @@ if True:
         margin-left: 0px !important;
     }
 
-    /* Cargador de archivos visible, adaptado al Modo Oscuro y SÚPER FINO */
+    /* 🔴 APLASTAR EL CARGADOR DE ARCHIVOS AL MÁXIMO 🔴 */
     div[data-testid="stFileUploader"] {
         display: block !important;
         width: 100% !important;
         margin-top: 5px !important;
-        margin-bottom: -10px !important; /* Mata el espacio vacío debajo */
+        margin-bottom: -15px !important;
     }
-    div[data-testid="stFileUploader"] [data-testid="stFileUploadDropzone"] {
-        background-color: #2D3748 !important;
+    
+    /* Atacamos directamente la etiqueta section que Streamlit usa para la zona de arrastre */
+    div[data-testid="stFileUploader"] section[data-testid="stFileUploadDropzone"] {
+        background-color: transparent !important;
         border: 1px dashed #4A5568 !important;
         border-radius: 8px !important;
-        padding: 2px 10px !important;    /* Reducción drástica del relleno */
-        min-height: 35px !important;     /* Aplasta la altura nativa */
-        height: 35px !important;
+        padding: 0px !important;         /* CERO relleno interno */
+        min-height: 38px !important;     /* Altura forzada */
+        height: 38px !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
+        overflow: hidden !important;     /* Corta cualquier cosa que intente estirarlo */
     }
-    div[data-testid="stFileUploader"] [data-testid="stFileUploadDropzone"] button {
-        background-color: #1A202C !important;
+    
+    /* El botón "Browse files" */
+    div[data-testid="stFileUploader"] section[data-testid="stFileUploadDropzone"] button {
+        background-color: #2D3748 !important;
         color: white !important;
         border: 1px solid #4A5568 !important;
         border-radius: 6px !important;
-        padding: 0px 15px !important;
-        min-height: 25px !important;     /* Botón mucho más fino */
-        height: 25px !important;
+        padding: 2px 20px !important;
+        min-height: 28px !important;
+        height: 28px !important;
         margin: 0 !important;
-        line-height: 1 !important;
+        font-size: 13px !important;
+        font-weight: bold !important;
     }
-    div[data-testid="stFileUploader"] [data-testid="stFileUploadDropzone"] * {
-        color: #A0AEC0 !important;
-        font-size: 12px !important;
-        margin: 0 !important;
+
+    div[data-testid="stFileUploader"] section[data-testid="stFileUploadDropzone"] button:hover {
+        background-color: #00C897 !important;
+        border-color: #00C897 !important;
+        color: white !important;
     }
-    /* Ocultamos los textos estorbosos nativos de Streamlit */
-    div[data-testid="stFileUploader"] [data-testid="stFileUploadDropzone"] small {
+    
+    /* ☠️ ELIMINAMOS EL ICONO GIGANTE Y LOS TEXTOS INÚTILES ☠️ */
+    div[data-testid="stFileUploader"] section[data-testid="stFileUploadDropzone"] svg,
+    div[data-testid="stFileUploader"] section[data-testid="stFileUploadDropzone"] div > span,
+    div[data-testid="stFileUploader"] section[data-testid="stFileUploadDropzone"] small {
         display: none !important;
+        height: 0 !important;
+        width: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
     }
     </style>
     """, unsafe_allow_html=True)
