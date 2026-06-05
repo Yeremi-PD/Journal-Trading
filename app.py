@@ -1424,7 +1424,7 @@ div[data-testid="stTabs"] [data-baseweb="tab-highlight-point"] {{ display: none 
     /* 🔴 Aclarar textareas apuntando directo a su contenedor principal */
     div[data-testid="stPopoverBody"] div[data-testid="stTextArea"] > div {{ background-color: {border_color} !important; border-radius: 8px !important; }}
     div[data-testid="stPopoverBody"] div[data-testid="stTextArea"] div[data-baseweb="base-input"] {{ background-color: transparent !important; border: none !important; }}
-    div[data-testid="stPopoverBody"] div[data-testid="stTextArea"] textarea {{ background-color: transparent !important; color: {c_dash} !important; }}
+    div[data-testid="stPopoverBody"] div[data-testid="stTextArea"] textarea {{ background-color: transparent !important; color: {c_dash} !important; text-transform: uppercase !important; }}
 
     div[data-testid="stPopoverBody"] label {{ font-size: 20px !important; font-weight: 800 !important; }}
     div[data-testid="stPopoverBody"] p, div[data-testid="stPopoverBody"] span, div[data-testid="stPopoverBody"] div {{ font-size: 18px !important; }}
@@ -1568,6 +1568,9 @@ div[data-testid="stTabs"] [data-baseweb="tab-highlight-point"] {{ display: none 
     div[data-testid="stExpanderDetails"] div[data-testid="stTextInput"] input {{
         background-color: transparent !important;
         color: {c_dash} !important;
+    }}
+    div[data-testid="stExpanderDetails"] div[data-testid="stTextArea"] textarea {{
+        text-transform: uppercase !important;
     }}
 
     /* 🎚️ SLIDERS MODERNOS TIPO FINANCE DASHBOARD */
@@ -2140,6 +2143,10 @@ if True:
                     
                         for idx, c_name in enumerate(all_confs_list):
                             if cols_conf[idx % 3].checkbox(c_name, key=f"new_conf_{idx}"): nuevo_conf.append(c_name)
+                        
+                        st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
+                        nuevo_conf_custom = st.text_area("Otras Confluencias (Opcional)", value='', height=45, placeholder="Escribe aquí otras confluencias...")
+                        
                         st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
                         nuevo_razon = st.text_area(_l['dash']['reason'], value='', height=45)
                         st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 5px; margin-bottom: 0px;'>{_l['dash']['risk']}</div>", unsafe_allow_html=True)
@@ -2205,6 +2212,9 @@ if True:
                     else:
                         retiros_ac = 0.0
 
+                    if nuevo_conf_custom.strip():
+                        nuevo_conf.append(nuevo_conf_custom.strip().upper())
+
                     trade_nuevo = {
                         "pnl": pnl, 
                         "balance_final": nuevo_bal_absoluto, 
@@ -2213,12 +2223,12 @@ if True:
                         "bias": nuevo_bias, 
                         "sesion": nueva_sesion,
                         "Confluences": nuevo_conf, 
-                        "razon_trade": nuevo_razon, 
-                        "Corrections": nuevo_corr, 
+                        "razon_trade": nuevo_razon.upper(), 
+                        "Corrections": nuevo_corr.upper(), 
                         "risk": nuevo_risk, 
                         "RR": nuevo_rr, 
                         "trade_type": nuevo_tt, 
-                        "Emotions": nuevo_emo,
+                        "Emotions": nuevo_emo.upper(),
                         "hora": hora_sel.strftime("%H:%M"),              
                         "ticker": "",            
                         "direccion": "",         
