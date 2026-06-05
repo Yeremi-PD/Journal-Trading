@@ -1137,39 +1137,39 @@ def contenido_ajustes():
         if st.button(_l['sidebar']['res_dash'], key="res_dash", use_container_width=True): 
             reset_settings("dash")
             st.rerun()
-        user_settings["bal_num_sz"] = st.slider(_l['sidebar']['bal_num_sz'], 10, 60, user_settings["bal_num_sz"])
-        user_settings["bal_box_w"] = st.slider(_l['sidebar']['green_w'], 10, 100, user_settings["bal_box_w"])
-        user_settings["bal_box_pad"] = st.slider(_l['sidebar']['green_pad'], 0, 50, user_settings["bal_box_pad"])
+        user_settings["bal_num_sz"] = st.slider(_l['sidebar']['bal_num_sz'], 10, 60, user_settings["bal_num_sz"], key="sk_bal_num_sz")
+        user_settings["bal_box_w"] = st.slider(_l['sidebar']['green_w'], 10, 100, user_settings["bal_box_w"], key="sk_bal_box_w")
+        user_settings["bal_box_pad"] = st.slider(_l['sidebar']['green_pad'], 0, 50, user_settings["bal_box_pad"], key="sk_bal_box_pad")
 
     with st.expander(_l['sidebar']['txt_chart_set']):
         if st.button(_l['sidebar']['res_txt'], key="res_txt", use_container_width=True): 
             reset_settings("txt")
             st.rerun()
-        user_settings["size_top_stats"] = st.slider(_l['sidebar']['sz_top'], 10, 40, user_settings["size_top_stats"])
-        user_settings["size_card_titles"] = st.slider(_l['sidebar']['sz_tit'], 10, 40, user_settings["size_card_titles"])
-        user_settings["size_box_titles"] = st.slider(_l['sidebar']['sz_tit_wm'], 10, 40, user_settings["size_box_titles"])
-        user_settings["size_box_vals"] = st.slider(_l['sidebar']['sz_pnl_box'], 10, 50, user_settings["size_box_vals"])
-        user_settings["size_box_pct"] = st.slider(_l['sidebar']['sz_pct_box'], 10, 40, user_settings["size_box_pct"])
-        user_settings["size_box_wl"] = st.slider(_l['sidebar']['sz_wl_box'], 10, 40, user_settings["size_box_wl"])
-        user_settings["pie_size"] = st.slider(_l['sidebar']['pie_sz'], 50, 300, user_settings["pie_size"])
-        user_settings["pie_y_offset"] = st.slider(_l['sidebar']['pie_y'], -100, 100, user_settings["pie_y_offset"])
+        user_settings["size_top_stats"] = st.slider(_l['sidebar']['sz_top'], 10, 40, user_settings["size_top_stats"], key="sk_size_top_stats")
+        user_settings["size_card_titles"] = st.slider(_l['sidebar']['sz_tit'], 10, 40, user_settings["size_card_titles"], key="sk_size_card_titles")
+        user_settings["size_box_titles"] = st.slider(_l['sidebar']['sz_tit_wm'], 10, 40, user_settings["size_box_titles"], key="sk_size_box_titles")
+        user_settings["size_box_vals"] = st.slider(_l['sidebar']['sz_pnl_box'], 10, 50, user_settings["size_box_vals"], key="sk_size_box_vals")
+        user_settings["size_box_pct"] = st.slider(_l['sidebar']['sz_pct_box'], 10, 40, user_settings["size_box_pct"], key="sk_size_box_pct")
+        user_settings["size_box_wl"] = st.slider(_l['sidebar']['sz_wl_box'], 10, 40, user_settings["size_box_wl"], key="sk_size_box_wl")
+        user_settings["pie_size"] = st.slider(_l['sidebar']['pie_sz'], 50, 300, user_settings["pie_size"], key="sk_pie_size")
+        user_settings["pie_y_offset"] = st.slider(_l['sidebar']['pie_y'], -100, 100, user_settings["pie_y_offset"], key="sk_pie_y_offset")
 
     with st.expander(_l['sidebar']['cal_set']):
         if st.button(_l['sidebar']['res_cal'], key="res_cal", use_container_width=True): 
             reset_settings("cal")
             st.rerun()
-        user_settings["cal_mes_size"] = st.slider(_l['sidebar']['cal_mo_sz'], 10, 50, user_settings["cal_mes_size"])
-        user_settings["cal_pnl_size"] = st.slider(_l['sidebar']['cal_pnl_sz'], 10, 40, user_settings["cal_pnl_size"])
-        user_settings["cal_pct_size"] = st.slider(_l['sidebar']['cal_pct_sz'], 10, 30, user_settings["cal_pct_size"])
-        user_settings["cal_dia_size"] = st.slider(_l['sidebar']['cal_num_sz'], 10, 30, user_settings["cal_dia_size"])
-        user_settings["cal_cam_size"] = st.slider(_l['sidebar']['cal_cam_sz'], 10, 50, user_settings["cal_cam_size"])
-        user_settings["cal_note_size"] = st.slider(_l['sidebar']['cal_note_sz'], 10, 50, user_settings.get("cal_note_size", 30))
-        user_settings["note_lbl_size"] = st.slider(_l['sidebar']['cal_note_lbl'], 10, 40, user_settings.get("note_lbl_size", 16))
-        user_settings["note_val_size"] = st.slider(_l['sidebar']['cal_note_val'], 10, 40, user_settings.get("note_val_size", 16))
-        user_settings["cal_scale"] = st.slider(_l['sidebar']['cal_scale'], 50, 200, user_settings["cal_scale"])
-        user_settings["cal_line_height"] = st.slider(_l['sidebar']['cal_space'], 0.5, 3.0, user_settings["cal_line_height"], 0.1)
-        user_settings["cal_txt_y"] = st.slider(_l['sidebar']['cal_y'], -50, 50, user_settings.get("cal_txt_y", 0))
-        user_settings["cal_txt_pad"] = st.slider(_l['sidebar']['cal_pad'], -50, 50, user_settings.get("cal_txt_pad", 0))
+        user_settings["cal_mes_size"] = st.slider(_l['sidebar']['cal_mo_sz'], 10, 50, user_settings["cal_mes_size"], key="sk_cal_mes_size")
+        user_settings["cal_pnl_size"] = st.slider(_l['sidebar']['cal_pnl_sz'], 10, 40, user_settings["cal_pnl_size"], key="sk_cal_pnl_size")
+        user_settings["cal_pct_size"] = st.slider(_l['sidebar']['cal_pct_sz'], 10, 30, user_settings["cal_pct_size"], key="sk_cal_pct_size")
+        user_settings["cal_dia_size"] = st.slider(_l['sidebar']['cal_num_sz'], 10, 30, user_settings["cal_dia_size"], key="sk_cal_dia_size")
+        user_settings["cal_cam_size"] = st.slider(_l['sidebar']['cal_cam_sz'], 10, 50, user_settings["cal_cam_size"], key="sk_cal_cam_size")
+        user_settings["cal_note_size"] = st.slider(_l['sidebar']['cal_note_sz'], 10, 50, user_settings.get("cal_note_size", 30), key="sk_cal_note_size")
+        user_settings["note_lbl_size"] = st.slider(_l['sidebar']['cal_note_lbl'], 10, 40, user_settings.get("note_lbl_size", 16), key="sk_note_lbl_size")
+        user_settings["note_val_size"] = st.slider(_l['sidebar']['cal_note_val'], 10, 40, user_settings.get("note_val_size", 16), key="sk_note_val_size")
+        user_settings["cal_scale"] = st.slider(_l['sidebar']['cal_scale'], 50, 200, user_settings["cal_scale"], key="sk_cal_scale")
+        user_settings["cal_line_height"] = st.slider(_l['sidebar']['cal_space'], 0.5, 3.0, user_settings["cal_line_height"], 0.1, key="sk_cal_line_height")
+        user_settings["cal_txt_y"] = st.slider(_l['sidebar']['cal_y'], -50, 50, user_settings.get("cal_txt_y", 0), key="sk_cal_txt_y")
+        user_settings["cal_txt_pad"] = st.slider(_l['sidebar']['cal_pad'], -50, 50, user_settings.get("cal_txt_pad", 0), key="sk_cal_txt_pad")
 
     st.markdown("<br>", unsafe_allow_html=True)
     st.markdown("---")
@@ -1212,12 +1212,16 @@ else:
 def gen_css_vars(s):
     return f"--size-top-stats:{s['size_top_stats']}px;--size-card-titles:{s['size_card_titles']}px;--size-box-titles:{s['size_box_titles']}px;--size-box-vals:{s['size_box_vals']}px;--size-box-pct:{s['size_box_pct']}px;--size-box-wl:{s['size_box_wl']}px;--pie-size:{s['pie_size']}px;--pie-y-offset:{s['pie_y_offset']}px;--cal-mes-size:{s['cal_mes_size']}px;--cal-pnl-size:{s['cal_pnl_size']}px;--cal-pct-size:{s['cal_pct_size']}px;--cal-dia-size:{s['cal_dia_size']}px;--cal-cam-size:{s['cal_cam_size']}px;--cal-note-size:{s.get('cal_note_size',30)}px;--cal-scale:{s['cal_scale']}px;--cal-line-height:{s['cal_line_height']};--bal-num-sz:{s['bal_num_sz']}px;--bal-box-w:{s['bal_box_w']}%;--bal-box-pad:{s['bal_box_pad']}px;--cal-txt-y:{s.get('cal_txt_y',0)}px;--cal-txt-pad:{s.get('cal_txt_pad',0)}px;--note-lbl-size:{s.get('note_lbl_size',16)}px;--note-val-size:{s.get('note_val_size',16)}px;"
 
-# 🟢 FIX: Creamos un "espacio vacío" para inyectar el tamaño exacto DESPUÉS de mover la perita
-espacio_css_dinamico = st.empty()
+# 🟢 FIX DEFINITIVO: Interceptamos la memoria de los sliders ANTES de inyectar el CSS
+claves_sliders = ["bal_num_sz", "bal_box_w", "bal_box_pad", "size_top_stats", "size_card_titles", "size_box_titles", "size_box_vals", "size_box_pct", "size_box_wl", "pie_size", "pie_y_offset", "cal_mes_size", "cal_pnl_size", "cal_pct_size", "cal_dia_size", "cal_cam_size", "cal_note_size", "note_lbl_size", "note_val_size", "cal_scale", "cal_line_height", "cal_txt_y", "cal_txt_pad"]
+for k in claves_sliders:
+    if f"sk_{k}" in st.session_state:
+        user_settings[k] = st.session_state[f"sk_{k}"]
 
 st.markdown(f"""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+:root {{ {gen_css_vars(user_settings)} }}
 
 /* Ocultar Barra Lateral y Controles Nativos por Completo */
     [data-testid="stSidebar"] {{ display: none !important; }}
@@ -1772,10 +1776,6 @@ if True:
     with col_set:
         with st.popover("⚙️", use_container_width=True):
             contenido_ajustes()
-            
-    # 🟢 FIX: Aquí le mandamos el nuevo tamaño al "espacio vacío" de arriba. 
-    # El cambio de la perita ahora es inmediato a la primera.
-    espacio_css_dinamico.markdown(f"<style>:root {{ {gen_css_vars(user_settings)} }}</style>", unsafe_allow_html=True)
 
     with col_t:
         if paso_cuenta: badge_html = f'<span style="font-size: 20px; background-color: #00C897; color: white; padding: 4px 12px; border-radius: 8px; margin-left: 15px; font-weight: 800; letter-spacing: 0px;">{_l["dash"]["pa"]}</span>'
