@@ -952,6 +952,21 @@ def modal_galeria_individual(ctx):
 # ==========================================
 # 5. MODAL DE AJUSTES Y ADMIN (REEMPLAZA BARRA LATERAL)
 # ==========================================
+def cb_cambiar_idioma():
+    st.session_state.idioma = "ES" if "ES" in st.session_state.radio_lang_sel else "EN"
+
+def cb_cambiar_dispositivo():
+    st.session_state.dispositivo_actual = "PC" if "PC" in st.session_state.radio_device_sel else "Móvil"
+    try: st.query_params["device"] = st.session_state.dispositivo_actual
+    except: pass
+
+def cb_cambiar_tema():
+    st.session_state.tema = "Oscuro" if st.session_state.tema == "Claro" else "Claro"
+
+def cb_reset_dash(): reset_settings("dash")
+def cb_reset_txt(): reset_settings("txt")
+def cb_reset_cal(): reset_settings("cal")
+
 def contenido_ajustes():
     st.markdown("<h3 style='text-align: center; margin-top: -10px;'>⚙️ Menú de Ajustes</h3>", unsafe_allow_html=True)
     tamanio_texto_cuenta = "22px"
@@ -963,35 +978,23 @@ def contenido_ajustes():
     )
 
     st.markdown("---")
-    idioma_seleccionado = st.radio(
+    st.radio(
         _l['sidebar']['lang'],
         ["ES", "EN"],
         index=0 if st.session_state.idioma == "ES" else 1,
-        horizontal=True
+        horizontal=True,
+        key="radio_lang_sel",
+        on_change=cb_cambiar_idioma
     )
-    nuevo_idioma = "ES" if "ES" in idioma_seleccionado else "EN"
-    if nuevo_idioma != st.session_state.idioma:
-        st.session_state.idioma = nuevo_idioma
-        st.rerun()
 
     st.markdown("---")
-    dispositivo_visual = st.radio(
+    st.radio(
         _l['sidebar']['design'], 
         [_l['sidebar']['pc'], _l['sidebar']['mobile']], 
         index=0 if "PC" in st.session_state.dispositivo_actual else 1,
-        key="radio_device_sel"
+        key="radio_device_sel",
+        on_change=cb_cambiar_dispositivo
     )
-
-    nuevo_dispositivo = "PC" if _l['sidebar']['pc'] in dispositivo_visual else "Móvil"
-
-    # 🟢 FIX: Si detecta que cambiaste de dispositivo, fuerza el redibujado instantáneo
-    if nuevo_dispositivo != st.session_state.dispositivo_actual:
-        st.session_state.dispositivo_actual = nuevo_dispositivo
-        try: 
-            st.query_params["device"] = st.session_state.dispositivo_actual
-        except: 
-            pass
-        st.rerun()
 
     if st.button(_l['sidebar']['save_design'], use_container_width=True):
         reescribir_excel_usuario(usuario)
@@ -1071,9 +1074,7 @@ def contenido_ajustes():
 
     st.markdown(f"### {_l['sidebar']['sec_theme']}")
     texto_boton_tema = _l['sidebar']['to_dark'] if st.session_state.tema == "Claro" else _l['sidebar']['to_light']
-    if st.button(texto_boton_tema):
-        st.session_state.tema = "Oscuro" if st.session_state.tema == "Claro" else "Claro"
-        st.rerun()
+    st.button(texto_boton_tema, on_click=cb_cambiar_tema)
             
     st.markdown("---")
     st.markdown(f"### {_l['sidebar']['admin']}")
@@ -1139,17 +1140,13 @@ def contenido_ajustes():
     st.markdown("---")
     st.markdown(f"### {_l['sidebar']['sec_dash']}")
     with st.expander(_l['sidebar']['dash_set']):
-        if st.button(_l['sidebar']['res_dash'], key="res_dash", use_container_width=True): 
-            reset_settings("dash")
-            st.rerun()
+        st.button(_l['sidebar']['res_dash'], key="res_dash", use_container_width=True, on_click=cb_reset_dash)
         user_settings["bal_num_sz"] = st.slider(_l['sidebar']['bal_num_sz'], 10, 60, user_settings["bal_num_sz"], key="sk_bal_num_sz")
         user_settings["bal_box_w"] = st.slider(_l['sidebar']['green_w'], 10, 100, user_settings["bal_box_w"], key="sk_bal_box_w")
         user_settings["bal_box_pad"] = st.slider(_l['sidebar']['green_pad'], 0, 50, user_settings["bal_box_pad"], key="sk_bal_box_pad")
 
     with st.expander(_l['sidebar']['txt_chart_set']):
-        if st.button(_l['sidebar']['res_txt'], key="res_txt", use_container_width=True): 
-            reset_settings("txt")
-            st.rerun()
+        st.button(_l['sidebar']['res_txt'], key="res_txt", use_container_width=True, on_click=cb_reset_txt)
         user_settings["size_top_stats"] = st.slider(_l['sidebar']['sz_top'], 10, 40, user_settings["size_top_stats"], key="sk_size_top_stats")
         user_settings["size_card_titles"] = st.slider(_l['sidebar']['sz_tit'], 10, 40, user_settings["size_card_titles"], key="sk_size_card_titles")
         user_settings["size_box_titles"] = st.slider(_l['sidebar']['sz_tit_wm'], 10, 40, user_settings["size_box_titles"], key="sk_size_box_titles")
@@ -1160,9 +1157,7 @@ def contenido_ajustes():
         user_settings["pie_y_offset"] = st.slider(_l['sidebar']['pie_y'], -100, 100, user_settings["pie_y_offset"], key="sk_pie_y_offset")
 
     with st.expander(_l['sidebar']['cal_set']):
-        if st.button(_l['sidebar']['res_cal'], key="res_cal", use_container_width=True): 
-            reset_settings("cal")
-            st.rerun()
+        st.button(_l['sidebar']['res_cal'], key="res_cal", use_container_width=True, on_click=cb_reset_cal)
         user_settings["cal_mes_size"] = st.slider(_l['sidebar']['cal_mo_sz'], 10, 50, user_settings["cal_mes_size"], key="sk_cal_mes_size")
         user_settings["cal_pnl_size"] = st.slider(_l['sidebar']['cal_pnl_sz'], 10, 40, user_settings["cal_pnl_size"], key="sk_cal_pnl_size")
         user_settings["cal_pct_size"] = st.slider(_l['sidebar']['cal_pct_sz'], 10, 30, user_settings["cal_pct_size"], key="sk_cal_pct_size")
