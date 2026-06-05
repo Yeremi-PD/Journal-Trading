@@ -529,19 +529,19 @@ if st.session_state.get("logout_trigger", False):
     try: st.query_params.clear()
     except: pass
     
-    # 🟢 INYECCIÓN MAESTRA: Limpiamos cookies, localstorage y recargamos en el bloque superior
+    # 🟢 INYECCIÓN SILENCIOSA: Borramos memoria sin interrumpir a Streamlit para que dibuje el Login al instante
     components.html("""
     <script>
         window.parent.document.cookie = "yeremi_user=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
         window.parent.document.cookie = "yeremi_device=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
         window.parent.document.cookie = "yeremi_account=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-        window.parent.localStorage.clear();
-        window.parent.sessionStorage.clear();
-        const cleanURL = window.parent.location.origin + window.parent.location.pathname;
-        window.parent.location.replace(cleanURL);
+        window.parent.localStorage.removeItem("yeremi_user");
+        window.parent.localStorage.removeItem("yeremi_device");
+        window.parent.localStorage.removeItem("yeremi_account");
+        window.parent.history.replaceState({}, document.title, window.parent.location.pathname);
     </script>
     """, height=0, width=0)
-    st.stop()
+    # NO PONEMOS st.stop() AQUÍ. El código seguirá bajando y mostrará la pantalla principal de Login automáticamente.
 
 if "dispositivo_actual" not in st.session_state: st.session_state.dispositivo_actual = "PC"
 
