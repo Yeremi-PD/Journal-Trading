@@ -2229,39 +2229,68 @@ if True:
         margin-left: 0px !important;
     }
 
-/* 🔴 ANIQUILACIÓN TOTAL DE LA ZONA DE ARRASTRE 🔴 */
+/* 🟢 CARGADOR FINO Y CON SOPORTE PARA PEGAR (CTRL+V) 🟢 */
     div[data-testid="stFileUploader"] {
         margin-top: 5px !important;
-        margin-bottom: -15px !important;
+        margin-bottom: -10px !important;
     }
-    div[data-testid="stFileUploader"] section {
-        padding: 0px !important;
-        min-height: 38px !important;
-        height: 38px !important;
-        background-color: transparent !important;
+    
+    div[data-testid="stFileUploader"] section[data-testid="stFileUploadDropzone"] {
+        background-color: #2D3748 !important;
         border: 1px dashed #4A5568 !important;
+        border-radius: 8px !important;
+        padding: 0 15px !important;     /* Cero relleno vertical, solo a los lados */
+        min-height: 45px !important;    /* Altura delgada perfecta */
+        height: 45px !important;
         display: flex !important;
         align-items: center !important;
+        justify-content: center !important;
     }
-    /* Ocultamos el ícono de la nube, el texto de arrastrar y el límite de 200MB */
-    div[data-testid="stFileUploader"] section svg,
-    div[data-testid="stFileUploader"] section small,
-    div[data-testid="stFileUploader"] section div > span {
+
+    /* Ocultar el ícono de la nube gigante y el límite de MB */
+    div[data-testid="stFileUploader"] section[data-testid="stFileUploadDropzone"] svg,
+    div[data-testid="stFileUploader"] section[data-testid="stFileUploadDropzone"] small {
         display: none !important;
     }
-    /* Forzamos al botón a ocupar toda la barrita fina */
-    div[data-testid="stFileUploader"] section button {
-        width: 100% !important;
-        height: 34px !important;
-        min-height: 34px !important;
-        margin: 0 !important;
-        background-color: #2D3748 !important;
-        color: white !important;
-        border-radius: 6px !important;
-        border: none !important;
+
+    /* Alinear el texto y el botón horizontalmente */
+    div[data-testid="stFileUploader"] section[data-testid="stFileUploadDropzone"] > div {
+        display: flex !important;
+        align-items: center !important;
+        flex-direction: row !important;
+        gap: 10px !important;
     }
-    div[data-testid="stFileUploader"] section button:hover {
+
+    /* Ocultar el texto nativo por defecto */
+    div[data-testid="stFileUploader"] section[data-testid="stFileUploadDropzone"] div > span {
+        display: none !important;
+    }
+
+    /* Inyectar nuestro propio texto personalizado */
+    div[data-testid="stFileUploader"] section[data-testid="stFileUploadDropzone"] > div::before {
+        content: "📁 Clic aquí y presiona Ctrl+V para pegar";
+        color: #A0AEC0 !important;
+        font-size: 13px !important;
+        font-weight: 600 !important;
+    }
+
+    /* Estilar el botón de "Browse files" para que sea pequeño */
+    div[data-testid="stFileUploader"] section[data-testid="stFileUploadDropzone"] button {
+        background-color: #1A202C !important;
+        color: white !important;
+        border: 1px solid #4A5568 !important;
+        border-radius: 6px !important;
+        padding: 0 15px !important;
+        min-height: 28px !important;
+        height: 28px !important;
+        margin: 0 !important;
+        font-size: 12px !important;
+        line-height: 1 !important;
+    }
+
+    div[data-testid="stFileUploader"] section[data-testid="stFileUploadDropzone"] button:hover {
         background-color: #00C897 !important;
+        border-color: #00C897 !important;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -2458,22 +2487,26 @@ if True:
                     clave_final = (fecha_sel.year, fecha_sel.month, fecha_sel.day)
                     imgs_finales = []
                     
-                    # 🟢 NUBE AUTOMÁTICA: Si subieron un archivo local, lo convertimos en un link permanente de inmediato
+                    # 🟢 NUBE AUTOMÁTICA PROFESIONAL (ImgBB)
                     if archivo_local_img is not None:
-                        with st.spinner("📤 Convirtiendo archivo en link permanente..."):
+                        with st.spinner("📤 Subiendo a la nube segura..."):
                             try:
                                 import requests
-                                url_api_catbox = "https://catbox.moe/user/api.php"
-                                parametros_envio = {"reqtype": "fileupload"}
-                                archivos_envio = {"fileToUpload": (archivo_local_img.name, archivo_local_img.getvalue(), archivo_local_img.type)}
-                                respuesta_servidor = requests.post(url_api_catbox, data=parametros_envio, files=archivos_envio)
+                                url_api = "https://api.imgbb.com/1/upload"
                                 
-                                if respuesta_servidor.status_code == 200 and respuesta_servidor.text.startswith("http"):
-                                    imgs_finales.append(respuesta_servidor.text.strip())
+                                # 🔥 PEGA AQUÍ TU API KEY DE IMGBB ENTRE LAS COMILLAS 🔥
+                                api_key_imgbb = "dd266f375897b76af931e00467716917" 
+                                
+                                payload = {"key": api_key_imgbb}
+                                archivos = {"image": (archivo_local_img.name, archivo_local_img.getvalue(), archivo_local_img.type)}
+                                respuesta = requests.post(url_api, params=payload, files=archivos)
+                                
+                                if respuesta.status_code == 200:
+                                    imgs_finales.append(respuesta.json()["data"]["url"])
                                 else:
-                                    st.error("⚠️ El servidor de imágenes rechazó el archivo. Intenta con otra captura.")
+                                    st.error(f"⚠️ ImgBB rechazó la imagen. Error: {respuesta.status_code}")
                             except Exception as e_upload:
-                                st.error(f"⚠️ Error al conectar con el servidor de imágenes: {e_upload}")
+                                st.error(f"⚠️ Error de conexión: {e_upload}")
                     
                     if link_imagen.strip().startswith("http"): 
                         imgs_finales.append(link_imagen.strip())
@@ -3611,18 +3644,22 @@ with tab_hist:
                             if st.button(_l['hist']['save_edits'], key=f"save_{clave}_{i}", use_container_width=True):
                                 if nuevo_link_edit.strip().startswith("http"): data["imagenes"].append(nuevo_link_edit.strip())
                                 
-                                # 🟢 NUBE AUTOMÁTICA EN HISTORIAL: Subir múltiples fotos al editar
+                                # 🟢 NUBE AUTOMÁTICA EN HISTORIAL (ImgBB Múltiple)
                                 if archivos_edit_img:
                                     with st.spinner("📤 Subiendo nuevas imágenes a la nube..."):
                                         import requests
-                                        url_api_catbox = "https://catbox.moe/user/api.php"
+                                        url_api = "https://api.imgbb.com/1/upload"
+                                        
+                                        # 🔥 PEGA AQUÍ LA MISMA API KEY DE IMGBB 🔥
+                                        api_key_imgbb = "dd266f375897b76af931e00467716917"
+                                        
                                         for arch in archivos_edit_img:
                                             try:
-                                                parametros_envio = {"reqtype": "fileupload"}
-                                                archivos_envio = {"fileToUpload": (arch.name, arch.getvalue(), arch.type)}
-                                                respuesta = requests.post(url_api_catbox, data=parametros_envio, files=archivos_envio)
-                                                if respuesta.status_code == 200 and respuesta.text.startswith("http"):
-                                                    data["imagenes"].append(respuesta.text.strip())
+                                                payload = {"key": api_key_imgbb}
+                                                archivos = {"image": (arch.name, arch.getvalue(), arch.type)}
+                                                respuesta = requests.post(url_api, params=payload, files=archivos)
+                                                if respuesta.status_code == 200:
+                                                    data["imagenes"].append(respuesta.json()["data"]["url"])
                                             except Exception as e:
                                                 print(f"Error subiendo imagen extra: {e}")
                                 
