@@ -263,9 +263,7 @@ def get_global_db():
                             if extra:
                                 try: 
                                     parsed_extra = json.loads(extra)
-                                    # Rescatar imágenes subidas manualmente (Base64)
-                                    if "imagenes_b64" in parsed_extra:
-                                        trade_info["imagenes"].extend(parsed_extra["imagenes_b64"])
+                        
                                     # MIGRACIÓN: Si las columnas de Excel estaban vacías, rescatamos los datos del JSON viejo
                                     if not bias_leido and "bias" in parsed_extra: trade_info["bias"] = parsed_extra["bias"]
                                     if not sesion_leida and "sesion" in parsed_extra: trade_info["sesion"] = parsed_extra["sesion"]
@@ -2161,9 +2159,6 @@ if True:
                     imgs_finales = []
                     if link_imagen.strip().startswith("http"): 
                         imgs_finales.append(link_imagen.strip())
-                    
-                    # Botón upload eliminado, mantenemos la lista de Base64 vacía por si hay imágenes viejas en el historial
-                    imagenes_base64_extra = []
 
                     estado_actual = "PA" if st.session_state.get("toggle_funded_state", False) else "Eval"
                     if "payouts" in db_global[usuario]["settings"]["PC"]:
@@ -2176,7 +2171,6 @@ if True:
                         "balance_final": nuevo_bal_absoluto, 
                         "fecha_str": fecha_sel.strftime("%d/%m/%Y"), 
                         "imagenes": imgs_finales, 
-                        "imagenes_b64": imagenes_base64_extra, # Se aisla aquí para que guarde en ExtraData
                         "bias": nuevo_bias, 
                         "sesion": nueva_sesion,
                         "Confluences": nuevo_conf, 
