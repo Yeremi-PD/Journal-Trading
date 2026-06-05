@@ -2467,9 +2467,97 @@ if True:
                         
                 with c_link:
                     st.markdown('<div class="lbl-header">Imagen del Trade:</div>', unsafe_allow_html=True)
-                    link_imagen = st.text_input("Link", value="", label_visibility="collapsed", placeholder="🔗 Pega el Enlace de la Imagen", key="main_link_input")
-                    # 📥 Cargador de archivos integrado
-                    archivo_local_img = st.file_uploader("O sube un archivo PNG/JPG", type=["png", "jpg", "jpeg"], label_visibility="collapsed", key="main_file_uploader")
+                    link_imagen = st.text_input("Link", value="", label_visibility="collapsed", placeholder="🔗 El link aparecerá aquí automáticamente")
+                    
+                    # 🔥 BOTÓN CUSTOM PREMIUM (Bypass total al diseño de Streamlit) 🔥
+                    components.html("""
+                    <style>
+                    body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', sans-serif; }
+                    .btn-elegante {
+                        width: 100%; 
+                        background: linear-gradient(135deg, #2D3748 0%, #1A202C 100%);
+                        color: #A0AEC0; 
+                        border: 1px solid #4A5568; 
+                        border-radius: 8px;
+                        height: 45px; 
+                        display: flex; 
+                        align-items: center; 
+                        justify-content: center;
+                        font-size: 14px; 
+                        font-weight: 600; 
+                        cursor: pointer; 
+                        transition: all 0.3s ease;
+                        box-shadow: 0 4px 6px rgba(0,0,0,0.2); 
+                        margin-top: 5px;
+                    }
+                    .btn-elegante:hover {
+                        background: linear-gradient(135deg, #00C897 0%, #007A5E 100%);
+                        color: white; 
+                        border-color: #00C897; 
+                        transform: translateY(-2px);
+                        box-shadow: 0 6px 12px rgba(0,200,151,0.3);
+                    }
+                    </style>
+                    
+                    <div id="btn-upload" class="btn-elegante" onclick="document.getElementById('file-input').click()">
+                        🖼️ Buscar Imagen o Pegar (Ctrl+V)
+                    </div>
+                    <input type="file" id="file-input" style="display: none;" accept="image/png, image/jpeg">
+
+                    <script>
+                    // ⚠️ PEGA TU API DE IMGBB JUSTO AQUÍ ADENTRO DE LAS COMILLAS
+                    const API_KEY = "TU_API_KEY_AQUI"; 
+                    
+                    const btn = document.getElementById('btn-upload');
+                    
+                    async function uploadImage(file) {
+                        btn.innerText = "⏳ Subiendo a la nube...";
+                        const formData = new FormData();
+                        formData.append("image", file);
+                        formData.append("key", API_KEY);
+
+                        try {
+                            const res = await fetch("https://api.imgbb.com/1/upload", { method: "POST", body: formData });
+                            const data = await res.json();
+                            
+                            if(data.success) {
+                                const url = data.data.url;
+                                // 🟢 MAGIA: Buscar la caja de texto de Streamlit y pegarle el link automáticamente
+                                const stInputs = window.parent.document.querySelectorAll('input[aria-label="Link"]');
+                                if(stInputs.length > 0) {
+                                    const targetInput = stInputs[0]; 
+                                    const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value").set;
+                                    setter.call(targetInput, url);
+                                    targetInput.dispatchEvent(new Event('input', { bubbles: true }));
+                                }
+                                btn.style.background = "linear-gradient(135deg, #00C897 0%, #007A5E 100%)";
+                                btn.style.color = "white";
+                                btn.innerText = "✅ ¡Link insertado arriba!";
+                                setTimeout(() => { 
+                                    btn.style.background = ""; 
+                                    btn.style.color = "";
+                                    btn.innerText = "🖼️ Buscar Imagen o Pegar (Ctrl+V)"; 
+                                }, 3000);
+                            } else {
+                                btn.innerText = "❌ ImgBB rechazó la foto";
+                            }
+                        } catch (e) {
+                            btn.innerText = "❌ Error de conexión";
+                        }
+                    }
+
+                    document.getElementById('file-input').addEventListener('change', (e) => {
+                        if(e.target.files.length > 0) uploadImage(e.target.files[0]);
+                    });
+
+                    // Detectar Ctrl+V (Pegar) en toda la ventana de Streamlit
+                    window.parent.document.addEventListener('paste', (e) => {
+                        if (e.clipboardData && e.clipboardData.files.length > 0) {
+                            uploadImage(e.clipboardData.files[0]);
+                        }
+                    });
+                    </script>
+                    """, height=60)
                     
                 with c_btn:
                     btn_save = st.form_submit_button("GUARDAR", key="btn_save_main")
