@@ -3290,6 +3290,14 @@ with tab_hist:
                                     cols_e_conf = st.columns(3)
                                     for idx_c, c_name in enumerate(all_confs):
                                         if cols_e_conf[idx_c % 3].checkbox(c_name, value=(c_name in curr_confs), key=f"e_conf_{clave}_{i}_{idx_c}"): e_conf.append(c_name)
+                                    
+                                    # Rescatar confluencias custom si las hay
+                                    custom_confs_existentes = [c for c in curr_confs if c not in all_confs]
+                                    texto_custom_existente = ", ".join(custom_confs_existentes)
+                                    
+                                    st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
+                                    e_conf_custom = st.text_area("Otras Confluencias (Opcional)", value=texto_custom_existente, key=f"e_conf_custom_{clave}_{i}", height=45)
+
                                     def_risk = data.get('risk', '0.5%')
                                     if def_risk not in ['1%', '0.9%', '0.8%', '0.7%', '0.6%', '0.5%', '0.4%']: def_risk = '0.5%'
                                     e_risk = st.selectbox(_l['dash']['risk'], ['1%', '0.9%', '0.8%', '0.7%', '0.6%', '0.5%', '0.4%'], index=['1%', '0.9%', '0.8%', '0.7%', '0.6%', '0.5%', '0.4%'].index(def_risk), key=f"e_risk_{clave}_{i}")
@@ -3333,7 +3341,11 @@ with tab_hist:
                                 data["balance_final"] = nuevo_bal
                                 data["fecha_str"] = nueva_fecha.strftime("%d/%m/%Y")
                                 data["hora"] = nueva_hora.strftime("%H:%M")
-                                data["bias"] = e_bias; data["sesion"] = e_sesion; data["Confluences"] = e_conf; data["risk"] = e_risk; data["RR"] = e_rr; data["trade_type"] = e_tt; data["razon_trade"] = e_razon; data["Corrections"] = e_corr; data["Emotions"] = e_emo
+                                
+                                if e_conf_custom.strip():
+                                    e_conf.append(e_conf_custom.strip().upper())
+                                    
+                                data["bias"] = e_bias; data["sesion"] = e_sesion; data["Confluences"] = e_conf; data["risk"] = e_risk; data["RR"] = e_rr; data["trade_type"] = e_tt; data["razon_trade"] = e_razon.upper(); data["Corrections"] = e_corr.upper(); data["Emotions"] = e_emo.upper()
                                 if nueva_clave != clave:
                                     trade_movido = db_usuario[ctx]["trades"][clave].pop(i)
                                     if not db_usuario[ctx]["trades"][clave]: del db_usuario[ctx]["trades"][clave]
