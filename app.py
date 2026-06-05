@@ -641,9 +641,10 @@ if st.session_state.usuario_actual is None:
                             st.query_params["device"] = st.session_state.dispositivo_actual
                             st.rerun()
                         else:
-                            st.error(f"⚠️ Contraseña incorrecta. Escribiste: '{p_clean}' | La base espera: '{pass_db}'")
+                            st.error(f"⚠️ {_l['login']['cred_err']}")
                     else:
-                        st.error(f"⚠️ El usuario '{u_clean}' no existe. Usuarios disponibles en la nube: {list(db_global.keys())}")
+                        # Seguridad: Damos el mismo error genérico si el usuario no existe para evitar ataques de enumeración
+                        st.error(f"⚠️ {_l['login']['cred_err']}")
 
         with tab_registro:
             with st.form("form_registro", border=True):
@@ -1166,11 +1167,7 @@ def contenido_ajustes():
     st.markdown("<br>", unsafe_allow_html=True)
     st.markdown("---")
     if st.button(_l['sidebar']['logout'], key="btn_cerrar_sesion", use_container_width=True):
-        for key in list(st.session_state.keys()):
-            del st.session_state[key]
-        st.query_params.clear()
-        
-        # Quitamos st.rerun() para permitir que el script limpie el caché del navegador antes de recargar
+        # En vez de matar el código o borrar memoria manual, solo mandamos la orden al navegador
         components.html("""
         <script>
             window.parent.document.cookie = "yeremi_user=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
@@ -1180,7 +1177,6 @@ def contenido_ajustes():
             window.parent.location.replace(cleanURL);
         </script>
         """, height=0, width=0)
-        st.stop() # 🛑 FIX: Detiene la lectura del código aquí mismo para evitar que crashee
 
 
 # ==========================================
