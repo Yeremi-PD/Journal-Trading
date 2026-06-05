@@ -51,9 +51,10 @@ if "user" not in st.query_params and st.session_state.get("usuario_actual") is N
 components.html("""
 <script>
 const urlParams = new URLSearchParams(window.parent.location.search);
-const sUser = window.parent.localStorage.getItem("yeremi_user");
-const sDevice = window.parent.localStorage.getItem("yeremi_device");
-const sAccount = window.parent.localStorage.getItem("yeremi_account");
+const getCookie = (name) => { const value = `; ${window.parent.document.cookie}`; const parts = value.split(`; ${name}=`); if (parts.length === 2) return parts.pop().split(';').shift(); return null; };
+const sUser = getCookie("yeremi_user");
+const sDevice = getCookie("yeremi_device");
+const sAccount = getCookie("yeremi_account");
 
 if (sUser && !urlParams.has("user")) {
     // 🚀 TIENE MEMORIA: Redirigimos INMEDIATAMENTE sin quitar el telón (NUNCA verás el Login)
@@ -635,7 +636,7 @@ if st.session_state.usuario_actual is None:
                         if pass_db == p_clean or (pass_db == "123" and p_clean != ""):
                             st.session_state.usuario_actual = user_match
                             st.session_state.dispositivo_actual = "Móvil" if modo_movil_check else "PC"
-                            components.html(f"""<script>window.parent.localStorage.setItem("yeremi_user", "{user_match}");window.parent.localStorage.setItem("yeremi_device", "{st.session_state.dispositivo_actual}");</script>""", height=0, width=0)
+                            components.html(f"""<script>window.parent.document.cookie = "yeremi_user={user_match}; path=/; max-age=2592000; SameSite=Strict"; window.parent.document.cookie = "yeremi_device={st.session_state.dispositivo_actual}; path=/; max-age=2592000; SameSite=Strict";</script>""", height=0, width=0)
                             st.query_params["user"] = user_match
                             st.query_params["device"] = st.session_state.dispositivo_actual
                             st.rerun()
@@ -672,7 +673,7 @@ if st.session_state.usuario_actual is None:
     st.stop()
 else:
     cuenta_actual_js = st.session_state.get("data_source_sel", "Account Real")
-    components.html(f"""<script>window.parent.localStorage.setItem("yeremi_user", "{st.session_state.usuario_actual}");window.parent.localStorage.setItem("yeremi_device", "{st.session_state.dispositivo_actual}");window.parent.localStorage.setItem("yeremi_account", "{cuenta_actual_js}");</script>""", height=0, width=0)
+    components.html(f"""<script>window.parent.document.cookie = "yeremi_user={st.session_state.usuario_actual}; path=/; max-age=2592000; SameSite=Strict"; window.parent.document.cookie = "yeremi_device={st.session_state.dispositivo_actual}; path=/; max-age=2592000; SameSite=Strict"; window.parent.document.cookie = "yeremi_account={cuenta_actual_js}; path=/; max-age=2592000; SameSite=Strict";</script>""", height=0, width=0)
 
 # ==========================================
 # 3. SECCIÓN DE AJUSTES MANUALES (CONSTANTES)
@@ -1172,8 +1173,9 @@ def contenido_ajustes():
         # Quitamos st.rerun() para permitir que el script limpie el caché del navegador antes de recargar
         components.html("""
         <script>
-            window.parent.localStorage.clear();
-            window.parent.sessionStorage.clear();
+            window.parent.document.cookie = "yeremi_user=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+            window.parent.document.cookie = "yeremi_device=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+            window.parent.document.cookie = "yeremi_account=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
             const cleanURL = window.parent.location.origin + window.parent.location.pathname;
             window.parent.location.replace(cleanURL);
         </script>
