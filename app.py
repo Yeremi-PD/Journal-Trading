@@ -595,15 +595,112 @@ LANG = {
 }
 _l = LANG[st.session_state.idioma]
 
+if "vista_login" not in st.session_state:
+    st.session_state.vista_login = "entrar"
+
+def toggle_vista_login():
+    if st.session_state.vista_login == "entrar":
+        st.session_state.vista_login = "registro"
+    else:
+        st.session_state.vista_login = "entrar"
+
 if st.session_state.usuario_actual is None:
-    # 🎨 CSS para ocultar sidebar y embellecer la pantalla de Login
+    # 🎨 CSS PREMIUM: Modo Teal oscuro, degradados y Glassmorphism
     st.markdown("""
     <style>
     [data-testid="stSidebar"] { display: none !important; }
-    .login-title { font-size: 45px !important; font-weight: 900 !important; text-align: center !important; color: #00C897 !important; margin-bottom: 0px !important; letter-spacing: -1px; }
-    .login-sub { font-size: 18px !important; text-align: center !important; color: #A0AEC0 !important; margin-bottom: 30px !important; }
-    /* Pestañas más elegantes */
-    div[data-testid="stTabs"] button { font-size: 18px !important; font-weight: 600 !important; }
+    
+    /* Fondo con degradado radial oscuro elegante */
+    .stApp {
+        background: radial-gradient(circle at 50% -10%, #004D40 0%, #0A0E17 40%, #050505 100%) !important;
+    }
+
+    /* Título principal con degradado Teal */
+    .login-title { 
+        font-size: 55px !important; 
+        font-weight: 900 !important; 
+        text-align: center !important; 
+        background: linear-gradient(90deg, #00C897, #00FFB2);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 5px !important; 
+        letter-spacing: -2px; 
+    }
+    .login-sub { 
+        font-size: 18px !important; 
+        text-align: center !important; 
+        color: #A0AEC0 !important; 
+        margin-bottom: 35px !important; 
+        font-weight: 500;
+    }
+    
+    /* Efecto Glassmorphism para la tarjeta del formulario */
+    div[data-testid="stForm"] {
+        background: rgba(20, 25, 35, 0.6) !important;
+        backdrop-filter: blur(15px) !important;
+        -webkit-backdrop-filter: blur(15px) !important;
+        border: 1px solid rgba(0, 200, 151, 0.15) !important;
+        border-radius: 20px !important;
+        padding: 40px 30px !important;
+        box-shadow: 0 25px 50px rgba(0,0,0,0.6), inset 0 0 0 1px rgba(255,255,255,0.02) !important;
+    }
+
+    /* Inputs estilizados */
+    div[data-testid="stForm"] div[data-baseweb="input"] {
+        background-color: rgba(0,0,0,0.4) !important;
+        border: 1px solid #2D3748 !important;
+        border-radius: 10px !important;
+        transition: all 0.3s ease !important;
+    }
+    div[data-testid="stForm"] div[data-baseweb="input"]:focus-within {
+        border-color: #00C897 !important;
+        box-shadow: 0 0 10px rgba(0, 200, 151, 0.2) !important;
+    }
+    div[data-testid="stForm"] input {
+        color: white !important;
+        font-size: 16px !important;
+    }
+    
+    /* Botón Principal (Entrar/Registrar) */
+    div[data-testid="stFormSubmitButton"] button {
+        background: linear-gradient(135deg, #00C897 0%, #007A5E 100%) !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 10px !important;
+        height: 50px !important;
+        font-size: 18px !important;
+        font-weight: 800 !important;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease !important;
+        box-shadow: 0 8px 20px rgba(0, 200, 151, 0.2) !important;
+        margin-top: 15px !important;
+    }
+    div[data-testid="stFormSubmitButton"] button:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 12px 25px rgba(0, 200, 151, 0.4) !important;
+    }
+
+    /* Contenedor del Toggle Móvil para centrarlo */
+    div[data-testid="stCheckbox"] {
+        justify-content: center !important;
+        margin-bottom: 10px !important;
+    }
+
+    /* Estilo para el botón secundario de "Cambiar vista" */
+    .btn-secundario-link button {
+        background: transparent !important;
+        border: none !important;
+        color: #A0AEC0 !important;
+        font-size: 15px !important;
+        font-weight: 600 !important;
+        box-shadow: none !important;
+        transition: color 0.3s ease !important;
+        padding-top: 15px !important;
+    }
+    .btn-secundario-link button:hover {
+        color: #00C897 !important;
+        background: transparent !important;
+    }
     </style>
     """, unsafe_allow_html=True)
 
@@ -613,39 +710,33 @@ if st.session_state.usuario_actual is None:
     _, col_login, _ = st.columns([1, 1.5, 1])
     
     with col_login:
-        # 📱 Selector de dispositivo más limpio
+        # Selector de dispositivo centrado antes de la tarjeta
         modo_movil_check = st.toggle(_l['login']['modo_movil'], value=True)
         st.markdown("<br>", unsafe_allow_html=True)
         
-        # 🗂️ Pestañas en lugar de Radio Buttons (Mucho más profesional)
-        tab_login, tab_registro = st.tabs(["🔑 " + _l['login']['entrar'], "📝 " + _l['login']['registrarse']])
-        
-        with tab_login:
-            # st.form permite que el usuario presione "Enter" en el teclado para iniciar sesión
-            with st.form("form_login", border=True):
-                log_user = st.text_input(_l['login']['user'], placeholder="Tu nombre de usuario")
-                log_pass = st.text_input(_l['login']['pass'], type="password", placeholder="••••••••")
+        # --- VISTA DE LOGIN ---
+        if st.session_state.vista_login == "entrar":
+            with st.form("form_login", border=False):
+                st.markdown("<h3 style='text-align: center; color: white; margin-top: -10px; margin-bottom: 25px; font-weight: 800;'>Bienvenido de nuevo 👋</h3>", unsafe_allow_html=True)
                 
-                btn_acceder = st.form_submit_button(_l['login']['acceder'], type="primary", use_container_width=True)
+                log_user = st.text_input("Usuario", placeholder="Tu nombre de usuario")
+                log_pass = st.text_input("Contraseña", type="password", placeholder="••••••••")
+                
+                btn_acceder = st.form_submit_button("Acceder de forma segura", use_container_width=True)
                 
                 if btn_acceder:
                     u_clean = log_user.strip()
                     p_clean = log_pass.strip()
                     
-                    # 🚀 AHORA SÍ: Descargamos la base de datos solo cuando le das al botón
                     if "db_global_local" not in st.session_state:
                         with st.spinner("⏳ Conectando al servidor..."):
                             st.session_state.db_global_local = copy.deepcopy(get_global_db())
                     db_global = st.session_state.db_global_local
                     
-                    # 🔍 1. Ignorar por completo mayúsculas y minúsculas (El verdadero culpable)
                     user_match = next((k for k in db_global.keys() if k.lower() == u_clean.lower()), None)
                     
                     if user_match:
                         pass_db = str(db_global[user_match].get("password", "")).strip()
-                        
-                        # 🚨 2. SISTEMA ANTI-CAÍDAS API: Si Google se bloquea, la contraseña se pone "123" por seguridad.
-                        # Te dejamos entrar si pones la clave correcta O si pones la de emergencia "123".
                         if pass_db == p_clean or (pass_db == "123" and p_clean != ""):
                             st.session_state.usuario_actual = user_match
                             st.session_state.dispositivo_actual = "Móvil" if modo_movil_check else "PC"
@@ -656,21 +747,28 @@ if st.session_state.usuario_actual is None:
                         else:
                             st.error(f"⚠️ {_l['login']['cred_err']}")
                     else:
-                        # Seguridad: Damos el mismo error genérico si el usuario no existe para evitar ataques de enumeración
                         st.error(f"⚠️ {_l['login']['cred_err']}")
 
-        with tab_registro:
-            with st.form("form_registro", border=True):
-                reg_user = st.text_input(_l['login']['new_user'], placeholder="Crea un nombre de usuario")
-                reg_pass = st.text_input(_l['login']['new_pass'], type="password", placeholder="Crea una contraseña")
+            # Botón de enlace sutil para ir a registrarse (Afuera del form)
+            st.markdown('<div class="btn-secundario-link">', unsafe_allow_html=True)
+            st.button("¿No tienes cuenta? Regístrate aquí", on_click=toggle_vista_login, use_container_width=True)
+            st.markdown('</div>', unsafe_allow_html=True)
+
+
+        # --- VISTA DE REGISTRO ---
+        else:
+            with st.form("form_registro", border=False):
+                st.markdown("<h3 style='text-align: center; color: white; margin-top: -10px; margin-bottom: 25px; font-weight: 800;'>Crea tu cuenta 🚀</h3>", unsafe_allow_html=True)
                 
-                btn_registrar = st.form_submit_button(_l['login']['crear_cta'], type="primary", use_container_width=True)
+                reg_user = st.text_input("Nuevo Usuario", placeholder="Elige tu nombre de usuario")
+                reg_pass = st.text_input("Nueva Contraseña", type="password", placeholder="Crea una contraseña fuerte")
+                
+                btn_registrar = st.form_submit_button("Crear Cuenta", use_container_width=True)
                 
                 if btn_registrar:
                     u_reg_clean = reg_user.strip()
                     p_reg_clean = reg_pass.strip()
                     
-                    # 🚀 Descargamos la base de datos para verificar que el usuario no exista
                     if "db_global_local" not in st.session_state:
                         with st.spinner("⏳ Verificando disponibilidad..."):
                             st.session_state.db_global_local = copy.deepcopy(get_global_db())
@@ -681,9 +779,19 @@ if st.session_state.usuario_actual is None:
                     elif u_reg_clean in db_global:
                         st.error("⚠️ Ese usuario ya existe. Elige otro.")
                     else:
-                        # Se guarda limpio y sin espacios fantasmas para siempre
                         db_global[u_reg_clean] = {"password": p_reg_clean, "data": inicializar_data_usuario(), "settings": {"PC": inicializar_settings(), "Móvil": inicializar_settings()}}
-                        st.success(_l['login']['cta_creada'] + " ¡Ahora ve a la pestaña de Entrar!")
+                        st.success("✅ ¡Cuenta creada! Ya puedes iniciar sesión.")
+                        # Retornamos automáticamente a la vista de login tras registrarse
+                        st.session_state.vista_login = "entrar"
+                        import time
+                        time.sleep(1.5)
+                        st.rerun()
+
+            # Botón de enlace sutil para regresar al login (Afuera del form)
+            st.markdown('<div class="btn-secundario-link">', unsafe_allow_html=True)
+            st.button("¿Ya tienes cuenta? Inicia sesión aquí", on_click=toggle_vista_login, use_container_width=True)
+            st.markdown('</div>', unsafe_allow_html=True)
+
     st.stop()
 else:
     cuenta_actual_js = st.session_state.get("data_source_sel", "Account Real")
