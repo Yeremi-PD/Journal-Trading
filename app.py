@@ -2229,57 +2229,39 @@ if True:
         margin-left: 0px !important;
     }
 
-    /* 🔴 APLASTAR EL CARGADOR DE ARCHIVOS AL MÁXIMO 🔴 */
+/* 🔴 ANIQUILACIÓN TOTAL DE LA ZONA DE ARRASTRE 🔴 */
     div[data-testid="stFileUploader"] {
-        display: block !important;
-        width: 100% !important;
         margin-top: 5px !important;
         margin-bottom: -15px !important;
     }
-    
-    /* Atacamos directamente la etiqueta section que Streamlit usa para la zona de arrastre */
-    div[data-testid="stFileUploader"] section[data-testid="stFileUploadDropzone"] {
+    div[data-testid="stFileUploader"] section {
+        padding: 0px !important;
+        min-height: 38px !important;
+        height: 38px !important;
         background-color: transparent !important;
         border: 1px dashed #4A5568 !important;
-        border-radius: 8px !important;
-        padding: 0px !important;         /* CERO relleno interno */
-        min-height: 38px !important;     /* Altura forzada */
-        height: 38px !important;
         display: flex !important;
         align-items: center !important;
-        justify-content: center !important;
-        overflow: hidden !important;     /* Corta cualquier cosa que intente estirarlo */
     }
-    
-    /* El botón "Browse files" */
-    div[data-testid="stFileUploader"] section[data-testid="stFileUploadDropzone"] button {
+    /* Ocultamos el ícono de la nube, el texto de arrastrar y el límite de 200MB */
+    div[data-testid="stFileUploader"] section svg,
+    div[data-testid="stFileUploader"] section small,
+    div[data-testid="stFileUploader"] section div > span {
+        display: none !important;
+    }
+    /* Forzamos al botón a ocupar toda la barrita fina */
+    div[data-testid="stFileUploader"] section button {
+        width: 100% !important;
+        height: 34px !important;
+        min-height: 34px !important;
+        margin: 0 !important;
         background-color: #2D3748 !important;
         color: white !important;
-        border: 1px solid #4A5568 !important;
         border-radius: 6px !important;
-        padding: 2px 20px !important;
-        min-height: 28px !important;
-        height: 28px !important;
-        margin: 0 !important;
-        font-size: 13px !important;
-        font-weight: bold !important;
+        border: none !important;
     }
-
-    div[data-testid="stFileUploader"] section[data-testid="stFileUploadDropzone"] button:hover {
+    div[data-testid="stFileUploader"] section button:hover {
         background-color: #00C897 !important;
-        border-color: #00C897 !important;
-        color: white !important;
-    }
-    
-    /* ☠️ ELIMINAMOS EL ICONO GIGANTE Y LOS TEXTOS INÚTILES ☠️ */
-    div[data-testid="stFileUploader"] section[data-testid="stFileUploadDropzone"] svg,
-    div[data-testid="stFileUploader"] section[data-testid="stFileUploadDropzone"] div > span,
-    div[data-testid="stFileUploader"] section[data-testid="stFileUploadDropzone"] small {
-        display: none !important;
-        height: 0 !important;
-        width: 0 !important;
-        margin: 0 !important;
-        padding: 0 !important;
     }
     </style>
     """, unsafe_allow_html=True)
