@@ -96,17 +96,29 @@ db_spreadsheet = conectar_google_sheets()
 def inicializar_data_usuario():
     return {}
 
-def inicializar_settings():
+def inicializar_settings(device="PC"):
+    if device == "Móvil":
+        return {
+            "orientacion_horizontal": False, 
+            "bal_num_sz": 30, "bal_box_w": 63, "bal_box_pad": 0, 
+            "size_top_stats": 18, "size_card_titles": 16, "size_box_titles": 20, 
+            "size_box_vals": 24, "size_box_pct": 20, "size_box_wl": 14, 
+            "pie_size": 120, "pie_y_offset": -10, 
+            "cal_mes_size": 23, "cal_pnl_size": 17, "cal_pct_size": 14, 
+            "cal_dia_size": 14, "cal_cam_size": 10, "cal_scale": 80, 
+            "cal_line_height": 1.3, "cal_txt_y": 0, "cal_txt_pad": 0, 
+            "cal_note_size": 12, "note_lbl_size": 26, "note_val_size": 21
+        }
     return {
         "orientacion_horizontal": False,
-        "bal_num_sz": 30, "bal_box_w": 50, "bal_box_pad": 10,
-        "size_top_stats": 18, "size_card_titles": 20, "size_box_titles": 20,
+        "bal_num_sz": 26, "bal_box_w": 46, "bal_box_pad": 5,
+        "size_top_stats": 22, "size_card_titles": 20, "size_box_titles": 20,
         "size_box_vals": 25, "size_box_pct": 20, "size_box_wl": 14,
-        "pie_size": 120, "pie_y_offset": 0,
-        "cal_mes_size": 28, "cal_pnl_size": 30, "cal_pct_size": 25,
-        "cal_dia_size": 20, "cal_cam_size": 30, "cal_scale": 100, "cal_line_height": 1.2,
-        "cal_txt_y": 0, "cal_txt_pad": 0, "cal_note_size": 30,
-        "note_lbl_size": 16, "note_val_size": 16
+        "pie_size": 154, "pie_y_offset": -34,
+        "cal_mes_size": 33, "cal_pnl_size": 20, "cal_pct_size": 19,
+        "cal_dia_size": 19, "cal_cam_size": 20, "cal_scale": 143, "cal_line_height": 1.2,
+        "cal_txt_y": 0, "cal_txt_pad": 0, "cal_note_size": 23,
+        "note_lbl_size": 25, "note_val_size": 18
     }
 
 @st.cache_resource(ttl=600, show_spinner=False)
@@ -120,7 +132,7 @@ def get_global_db():
             db_temp[user] = {
                 "password": "123", 
                 "data": inicializar_data_usuario(),
-                "settings": {"PC": inicializar_settings(), "Móvil": inicializar_settings()}
+                "settings": {"PC": inicializar_settings("PC"), "Móvil": inicializar_settings("Móvil")}
             }
             
             try:
@@ -1084,7 +1096,7 @@ elif "PC" not in db_global[usuario]["settings"]:
     db_global[usuario]["settings"] = {"PC": db_global[usuario]["settings"].copy(), "Móvil": db_global[usuario]["settings"].copy()}
 
 for dev in ["PC", "Móvil"]:
-    for k, v in inicializar_settings().items():
+    for k, v in inicializar_settings(dev).items():
         if k not in db_global[usuario]["settings"][dev]:
             db_global[usuario]["settings"][dev][k] = v
 
@@ -1125,7 +1137,7 @@ def cambiar_mes(delta):
     elif st.session_state.cal_month < 1: st.session_state.cal_month = 12; st.session_state.cal_year -= 1
 
 def reset_settings(category):
-    defaults = inicializar_settings()
+    defaults = inicializar_settings(st.session_state.dispositivo_actual)
     s = db_global[usuario]["settings"][st.session_state.dispositivo_actual]
     if category == "dash": keys = ["bal_num_sz", "bal_box_w", "bal_box_pad"]
     elif category == "txt": keys = ["size_top_stats", "size_card_titles", "size_box_titles", "size_box_vals", "size_box_pct", "size_box_wl", "pie_size", "pie_y_offset"]
