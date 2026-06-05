@@ -740,8 +740,8 @@ if st.session_state.usuario_actual is None:
                 log_user = st.text_input("Usuario", placeholder="Tu nombre de usuario")
                 log_pass = st.text_input("Contraseña", type="password", placeholder="••••••••")
                 
-                # 📱 Toggle DENTRO del formulario para que NO haga redibujado al tocarlo
-                modo_movil_check = st.toggle("📱 Activar Modo Móvil", value=True)
+                # 📱 Toggle DENTRO del formulario (Desactivado por defecto)
+                modo_movil_check = st.toggle("📱 Activar Modo Móvil", value=False)
                 
                 btn_acceder = st.form_submit_button("Acceder de forma segura", use_container_width=True)
                 
@@ -782,8 +782,8 @@ if st.session_state.usuario_actual is None:
                 reg_user = st.text_input("Nuevo Usuario", placeholder="Elige tu nombre de usuario")
                 reg_pass = st.text_input("Nueva Contraseña", type="password", placeholder="Crea una contraseña fuerte")
                 
-                # 📱 Toggle DENTRO del formulario
-                modo_movil_check_reg = st.toggle("📱 Activar Modo Móvil", value=True)
+                # 📱 Toggle DENTRO del formulario (Desactivado por defecto)
+                modo_movil_check_reg = st.toggle("📱 Activar Modo Móvil", value=False)
                 
                 btn_registrar = st.form_submit_button("Crear Cuenta y Entrar", use_container_width=True)
                 
