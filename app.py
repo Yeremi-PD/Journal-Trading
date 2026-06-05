@@ -3574,7 +3574,8 @@ with tab_hist:
                             st.markdown("---")
                             st.markdown(_l['hist']['saved_img'])
                             upd_key = f"upd_{clave}_{i}"
-                            st.file_uploader(_l['hist']['upd_new'], accept_multiple_files=True, key=upd_key, on_change=agregar_imagenes_historial, args=(ctx, clave, i, upd_key))
+                            # 📥 Capturamos los archivos subidos (permite múltiples a la vez)
+                            archivos_edit_img = st.file_uploader(_l['hist']['upd_new'], accept_multiple_files=True, key=upd_key)
                             link_key = f"link_upd_{clave}_{i}"
                             nuevo_link_edit = st.text_input(_l['dash']['paste_link'], key=link_key, placeholder=_l['dash']['paste_link'])
                             imagenes_restantes = db_usuario[ctx]["trades"][clave][i].get("imagenes", [])
@@ -3594,8 +3595,25 @@ with tab_hist:
                                         st.markdown(f'<label for="{id_modal_hist}" style="cursor:pointer; display:block;"><img src="{img_b64}" style="width:100%; border-radius:10px; border:1px solid gray; box-shadow: 0 4px 6px rgba(0,0,0,0.1);"></label>', unsafe_allow_html=True)
                                         st.button(_l['hist']['del_img'], key=f"delimg_{clave}_{i}_{idx_img}", on_click=borrar_imagen_historial, args=(ctx, clave, i, idx_img), use_container_width=True)
                             else: st.caption(_l['hist']['no_img_saved'])
+            
                             if st.button(_l['hist']['save_edits'], key=f"save_{clave}_{i}", use_container_width=True):
                                 if nuevo_link_edit.strip().startswith("http"): data["imagenes"].append(nuevo_link_edit.strip())
+                                
+                                # 🟢 NUBE AUTOMÁTICA EN HISTORIAL: Subir múltiples fotos al editar
+                                if archivos_edit_img:
+                                    with st.spinner("📤 Subiendo nuevas imágenes a la nube..."):
+                                        import requests
+                                        url_api_catbox = "https://catbox.moe/user/api.php"
+                                        for arch in archivos_edit_img:
+                                            try:
+                                                parametros_envio = {"reqtype": "fileupload"}
+                                                archivos_envio = {"fileToUpload": (arch.name, arch.getvalue(), arch.type)}
+                                                respuesta = requests.post(url_api_catbox, data=parametros_envio, files=archivos_envio)
+                                                if respuesta.status_code == 200 and respuesta.text.startswith("http"):
+                                                    data["imagenes"].append(respuesta.text.strip())
+                                            except Exception as e:
+                                                print(f"Error subiendo imagen extra: {e}")
+                                
                                 nueva_clave = (nueva_fecha.year, nueva_fecha.month, nueva_fecha.day)
                                 data["pnl"] = nuevo_pnl
                                 data["balance_final"] = nuevo_bal
