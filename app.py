@@ -87,6 +87,76 @@ def conectar_google_sheets():
 
 db_spreadsheet = conectar_google_sheets()
 
+# ==========================================
+# 🛡️ MOTOR DE LICENCIAS Y CORREOS (NUEVO)
+# ==========================================
+def registrar_nuevo_acceso(usuario, password):
+    import uuid
+    import pandas as pd
+    if not db_spreadsheet: return "ERROR"
+    codigo = str(uuid.uuid4()).split('-')[0].upper() # Genera un código tipo A4F9E2
+    f_crea = datetime.now().strftime("%d/%m/%Y")
+    f_ven = (datetime.now() + pd.Timedelta(days=30)).strftime("%d/%m/%Y") # 30 días de prueba
+    try:
+        hoja = db_spreadsheet.worksheet("Accesos")
+    except:
+        hoja = db_spreadsheet.add_worksheet(title="Accesos", rows="1000", cols="10")
+        hoja.append_row(["Usuario", "Password", "Codigo_Acceso", "Fecha_Creacion", "Fecha_Vencimiento", "Activo"])
+    
+    hoja.append_row([usuario, password, codigo, f_crea, f_ven, "TRUE"])
+    return codigo
+
+def enviar_correo_admin(usuario, codigo):
+    import smtplib
+    from email.mime.text import MIMEText
+    try:
+        # Extrae los datos desde los secretos de Streamlit
+        emisor = st.secrets.get("admin_email", "")
+        password = st.secrets.get("admin_pass", "")
+        if not emisor or not password: return
+        
+        msg = MIMEText(f"¡Nuevo registro en tu Journal!\n\n👤 Usuario: {usuario}\n🔑 Código Generado: {codigo}\n\nEntra a tu Google Sheets (Pestaña 'Accesos') para inhabilitar esta cuenta o cambiar su fecha de corte.")
+        msg['Subject'] = f"🚀 Nuevo Usuario Registrado: {usuario}"
+        msg['From'] = emisor
+        msg['To'] = emisor # Te lo envías a ti mismo
+        
+        with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
+            smtp.login(emisor, password)
+            smtp.send_message(msg)
+    except Exception as e:
+        print("Correo no enviado. Verifica tus secretos:", e)
+
+def verificar_acceso_live(usuario):
+    # Revisa el Excel en tiempo real para bloquear usuarios baneados al instante
+    if not db_spreadsheet: return True, ""
+    try:
+        hoja = db_spreadsheet.worksheet("Accesos")
+        filas = hoja.get_all_values()
+        if len(filas) > 1:
+            headers = [str(h).strip() for h in filas[0]]
+            try: 
+                idx_usr = headers.index("Usuario")
+                idx_act = headers.index("Activo")
+                idx_ven = headers.index("Fecha_Vencimiento")
+            except: return True, ""
+            
+            for r in filas[1:]:
+                if len(r) > max(idx_usr, idx_act, idx_ven) and str(r[idx_usr]).strip().lower() == usuario.lower():
+                    # Revisa si la columna Activo dice TRUE o FALSE (Checkbox)
+                    if str(r[idx_act]).strip().upper() not in ["TRUE", "VERDADERO", "SI", "1"]: 
+                        return False, "🚫 Tu cuenta ha sido inhabilitada por el administrador."
+                    
+                    # Revisa la fecha de vencimiento
+                    venc_str = str(r[idx_ven]).strip()
+                    if venc_str:
+                        try:
+                            if datetime.strptime(venc_str, "%d/%m/%Y").date() < datetime.now().date(): 
+                                return False, "⏳ Tu licencia de uso ha expirado. Contacta al soporte."
+                        except: pass
+                    return True, ""
+    except: pass
+    return True, ""
+
 # Función de imágenes por archivo desactivada. Solo usaremos Links.
 
 def inicializar_data_usuario():
@@ -759,6 +829,13 @@ if st.session_state.usuario_actual is None:
                     if user_match:
                         pass_db = str(db_global[user_match].get("password", "")).strip()
                         if pass_db == p_clean or (pass_db == "123" and p_clean != ""):
+                            
+                            # 🛡️ VERIFICACIÓN EN VIVO DE LICENCIA
+                            acceso_permitido, msg_error = verificar_acceso_live(user_match)
+                            if not acceso_permitido:
+                                st.error(msg_error)
+                                st.stop()
+                                
                             st.session_state.usuario_actual = user_match
                             st.session_state.dispositivo_actual = "Móvil" if modo_movil_check else "PC"
                             components.html(f"""<script>window.parent.document.cookie = "yeremi_user={user_match}; path=/; max-age=2592000; SameSite=Strict"; window.parent.document.cookie = "yeremi_device={st.session_state.dispositivo_actual}; path=/; max-age=2592000; SameSite=Strict";</script>""", height=0, width=0)
@@ -806,6 +883,10 @@ if st.session_state.usuario_actual is None:
                         # 🟢 GUARDAR INMEDIATAMENTE EN GOOGLE SHEETS PARA QUE EL USUARIO EXISTA REALMENTE
                         with st.spinner("⏳ Creando tu espacio seguro en la nube..."):
                             reescribir_excel_usuario(u_reg_clean)
+                            
+                            # 🛡️ REGISTRAR LICENCIA Y AVISAR AL ADMIN
+                            cod_gen = registrar_nuevo_acceso(u_reg_clean, p_reg_clean)
+                            enviar_correo_admin(u_reg_clean, cod_gen)
                         
                         # 🚀 AUTO-LOGIN INMEDIATO (Se salta la vista de login y entra directo a la app)
                         st.session_state.usuario_actual = u_reg_clean
