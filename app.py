@@ -2728,12 +2728,11 @@ if True:
                     link_imagen = st.text_input("Link", value="", label_visibility="collapsed", placeholder="🔗 Pega el Link aquí")
                     
                 with c_upd:
-                    # 🟢 DESTRUCCIÓN Y CREACIÓN: Unimos el título y el CSS en un solo bloque indivisible
-                    st.markdown("""
-                    <div style="position: relative; width: 100%; height: 10px; z-index: 99;">
-                        <div class="lbl-header" style="position: absolute; top: -10px; left: 0;">Captura:</div>
-                    </div>
-                    <style>
+                    # 1. EL TÍTULO VA EN SU PROPIA LÍNEA PARA QUE NO FALLE
+                    st.markdown('<div class="lbl-header" style="margin-bottom: 0px;">Captura:</div>', unsafe_allow_html=True)
+                    
+                    # 2. EL CSS VA EN SU PROPIO BLOQUE ESTRICTO
+                    st.markdown("""<style>
                     /* Alineamos el link de la columna 4 */
                     div[data-testid="stForm"] div[data-testid="stTextInput"]:has(input[aria-label="Link"]) {
                         margin-top: 0px !important;
@@ -2743,11 +2742,10 @@ if True:
                     /* PREPARAMOS EL TERRENO DE LA COLUMNA 5 */
                     div[data-testid="stForm"] div[data-testid="column"]:nth-child(5) {
                         position: relative !important;
-                        min-height: 60px !important;
                     }
 
                     /* 🚀 CREAMOS EL BOTÓN DE CERO Y LE DAMOS POSICIÓN ABSOLUTA EXTREMA */
-                    html body div[data-testid="stForm"] div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] {
+                    div[data-testid="stForm"] div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] {
                         position: absolute !important;
                         top: 25px !important; /* 🔥 CONTROL MAESTRO: CÁMBIALO AQUÍ PARA MOVERLO 🔥 */
                         left: 0 !important;
@@ -2757,12 +2755,12 @@ if True:
                     }
 
                     /* ☠️ ANIQUILAMOS LA REGLA ANTERIOR DE STREAMLIT QUE LO HUNDÍA 25PX */
-                    html body div[data-testid="stForm"] div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > button,
-                    html body div[data-testid="stForm"] div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > div:first-child > button {
+                    div[data-testid="stForm"] div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > button,
+                    div[data-testid="stForm"] div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > div:first-child > button {
                         width: 100% !important;     
                         height: 45px !important;    
                         min-height: 45px !important;
-                        margin: 0 !important; /* MATA EL MARGEN GLOBAL VIEJO */
+                        margin: 0 !important; 
                         padding: 0 !important;
                         background: #2D3748 !important; 
                         border: 1px solid #4A5568 !important; 
@@ -2775,7 +2773,7 @@ if True:
                     }
 
                     /* Efecto hover premium */
-                    html body div[data-testid="stForm"] div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > button:hover {
+                    div[data-testid="stForm"] div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > button:hover {
                         border-color: #00C897 !important;
                         background: rgba(0, 200, 151, 0.1) !important;
                         color: #00C897 !important;
@@ -2799,23 +2797,12 @@ if True:
                     }
                     
                     /* Revivimos el cargador adentro del apartado */
-                    div[data-testid="stPopoverBody"] div[data-testid="stFileUploader"] { margin: 0 !important;
-                        width: 100% !important; display: block !important; }
-                    div[data-testid="stPopoverBody"] div[data-testid="stFileUploader"] section { 
-                        background: rgba(0,0,0,0.2) !important;
-                        border: 2px dashed #00C897 !important; min-height: 120px !important; height: auto !important; display: flex !important; flex-direction: column !important; justify-content: center !important;
-                    }
-                    div[data-testid="stPopoverBody"] div[data-testid="stFileUploader"] section svg { display: block !important;
-                        color: #00C897 !important; width: 40px !important; height: 40px !important; margin: 0 auto !important;
-                    }
-                    div[data-testid="stPopoverBody"] div[data-testid="stFileUploader"] section div > span,
-                    div[data-testid="stPopoverBody"] div[data-testid="stFileUploader"] section small { display: block !important;
-                        color: white !important; text-align: center !important; }
-                    div[data-testid="stPopoverBody"] div[data-testid="stFileUploader"] section button { width: auto !important;
-                        background: #00C897 !important; color: white !important; margin: 10px auto 0 auto !important; padding: 5px 20px !important; border: none !important;
-                    }
-                    </style>
-                    """, unsafe_allow_html=True)
+                    div[data-testid="stPopoverBody"] div[data-testid="stFileUploader"] { margin: 0 !important; width: 100% !important; display: block !important; }
+                    div[data-testid="stPopoverBody"] div[data-testid="stFileUploader"] section { background: rgba(0,0,0,0.2) !important; border: 2px dashed #00C897 !important; min-height: 120px !important; height: auto !important; display: flex !important; flex-direction: column !important; justify-content: center !important; }
+                    div[data-testid="stPopoverBody"] div[data-testid="stFileUploader"] section svg { display: block !important; color: #00C897 !important; width: 40px !important; height: 40px !important; margin: 0 auto !important; }
+                    div[data-testid="stPopoverBody"] div[data-testid="stFileUploader"] section div > span, div[data-testid="stPopoverBody"] div[data-testid="stFileUploader"] section small { display: block !important; color: white !important; text-align: center !important; }
+                    div[data-testid="stPopoverBody"] div[data-testid="stFileUploader"] section button { width: auto !important; background: #00C897 !important; color: white !important; margin: 10px auto 0 auto !important; padding: 5px 20px !important; border: none !important; }
+                    </style>""", unsafe_allow_html=True)
                     
                     with st.popover("🖼️ Subir", use_container_width=True):
                         st.markdown("<p style='text-align:center; font-weight:bold; color:white; margin-bottom:10px; font-size: 16px;'>Arrastra tu imagen o pega (Ctrl+V)</p>", unsafe_allow_html=True)
