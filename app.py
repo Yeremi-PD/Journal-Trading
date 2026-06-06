@@ -116,11 +116,19 @@ def enviar_correo_admin(usuario, codigo):
     import smtplib
     from email.mime.text import MIMEText
     try:
+        # 1. Buscar en la raíz
         emisor = st.secrets.get("admin_email", "")
         password = st.secrets.get("admin_pass", "")
         
+        # 2. Si Streamlit los escondió dentro de Google, los sacamos de ahí
+        if not emisor or not password:
+            if "gcp_service_account" in st.secrets:
+                emisor = st.secrets["gcp_service_account"].get("admin_email", "")
+                password = st.secrets["gcp_service_account"].get("admin_pass", "")
+                
+        # 3. Si definitivamente no están, chivamos exactamente qué variables ve el sistema
         if not emisor or not password: 
-            return "FALTAN_SECRETOS"
+            return f"FALTAN_SECRETOS: Streamlit solo ve estas variables: {list(st.secrets.keys())}"
         
         msg = MIMEText(f"¡Tienes un nuevo cliente en Yeremi Journal!\n\n👤 Usuario: {usuario}\n🔑 Código: {codigo}\n\nRevisa la pestaña 'Accesos' en Google Sheets para administrar su licencia.")
         msg['Subject'] = f"🚀 Nuevo Registro: {usuario}"
@@ -138,31 +146,6 @@ def enviar_correo_admin(usuario, codigo):
 
 def verificar_acceso_live(usuario):
     if not db_spreadsheet: return True, ""
-    try:
-        hoja = db_spreadsheet.worksheet("Accesos")
-        filas = hoja.get_all_values()
-        if len(filas) > 1:
-            headers = [str(h).strip() for h in filas[0]]
-            try: 
-                idx_usr = headers.index("Usuario")
-                idx_act = headers.index("Activo")
-                idx_ven = headers.index("Fecha_Vencimiento")
-            except: return True, ""
-            
-            for r in filas[1:]:
-                if len(r) > max(idx_usr, idx_act, idx_ven) and str(r[idx_usr]).strip().lower() == usuario.lower():
-                    if str(r[idx_act]).strip().upper() not in ["TRUE", "VERDADERO", "SI", "1"]: 
-                        return False, "🚫 Tu cuenta ha sido inhabilitada por el administrador."
-                    
-                    venc_str = str(r[idx_ven]).strip()
-                    if venc_str:
-                        try:
-                            if datetime.strptime(venc_str, "%d/%m/%Y").date() < datetime.now().date(): 
-                                return False, "⏳ Tu licencia ha expirado. Contacta al soporte."
-                        except: pass
-                    return True, ""
-    except: pass
-    return True, ""
     try:
         hoja = db_spreadsheet.worksheet("Accesos")
         filas = hoja.get_all_values()
@@ -931,12 +914,12 @@ if st.session_state.usuario_actual is None:
                             
                             if "ERROR" in codigo_nuevo:
                                 st.error(f"⚠️ Error al crear la hoja Accesos en Google Sheets: {codigo_nuevo}")
-                                import time; time.sleep(4) # Congela la pantalla 4 seg para que puedas leerlo
+                                import time; time.sleep(4)
                             else:
                                 estado_correo = enviar_correo_admin(u_reg_clean, codigo_nuevo)
-                                if estado_correo == "FALTAN_SECRETOS":
-                                    st.warning("⚠️ No se envió correo: Faltan tus credenciales de Gmail en los Secrets.")
-                                    import time; time.sleep(4)
+                                if "FALTAN_SECRETOS" in estado_correo:
+                                    st.warning(f"⚠️ {estado_correo}")
+                                    import time; time.sleep(6)
                                 elif estado_correo == "ERROR_AUTH":
                                     st.error("⚠️ No se envió correo: La contraseña de aplicación de Google es incorrecta.")
                                     import time; time.sleep(4)
