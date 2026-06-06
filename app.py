@@ -2532,7 +2532,7 @@ if True:
         div[data-testid="stForm"] div[data-testid="stTextInput"]:has(input[aria-label="Link"]) {
             width: 100% !important;
             transform: none !important;    /* <--- Desbloqueado en móvil también */
-            margin-top: 50px !important;   /* <--- Altura adaptada para teléfonos */
+            margin-top: 45px !important;   /* <--- Altura adaptada para teléfonos */
             margin-left: 0px !important;
         }
 
