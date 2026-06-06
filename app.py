@@ -226,6 +226,63 @@ def verificar_acceso_live(usuario):
     except: pass
     return True, ""
 
+# 🛡️ FUNCIÓN ÚNICA CENTRALIZADA: PANTALLA DE BLOQUEO TOTAL PREMIUM
+def mostrar_pantalla_bloqueo(usuario_bloqueado):
+    # 1. JS instantáneo para limpiar cookies y local storage en el navegador del usuario expulsado
+    components.html("""
+    <script>
+        window.parent.document.cookie = "yeremi_user=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+        window.parent.document.cookie = "yeremi_device=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+        window.parent.document.cookie = "yeremi_account=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+        window.parent.localStorage.removeItem("yeremi_user");
+        window.parent.localStorage.removeItem("yeremi_device");
+        window.parent.localStorage.removeItem("yeremi_account");
+        window.parent.history.replaceState({}, document.title, window.parent.location.pathname);
+    </script>
+    """, height=0, width=0)
+
+    # 2. Renderizamos la interfaz rompiendo cualquier corsé o columna de Streamlit
+    st.markdown(f"""
+    <style>
+    /* 🔴 MATAMOS TODA LA ESTRUCTURA ORIGINAL PARA LIMPIAR LAS ESQUINAS AL 100% 🔴 */
+    header, [data-testid="stHeader"], [data-testid="stSidebar"], [data-testid="stTabs"], 
+    form, .login-title, .login-sub, .fijo-header-global, .tab-buttons-spacer {{
+        display: none !important;
+        height: 0px !important;
+        opacity: 0 !important;
+    }}
+    /* Transformamos el fondo de la app en el degradado de seguridad */
+    .stApp {{
+        background: radial-gradient(circle at 50% -10%, #4A1515 0%, #0A0E17 50%, #050505 100%) !important;
+    }}
+    </style>
+    
+    <div style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; font-family: 'Inter', sans-serif; text-align: center; padding: 20px; box-sizing: border-box; z-index: 999999999;">
+        <div style="background: rgba(25, 20, 20, 0.4); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 76, 76, 0.2); border-radius: 24px; padding: 50px 40px; max-width: 550px; width: 100%; box-shadow: 0 30px 60px rgba(0,0,0,0.8);">
+            <div style="font-size: 80px; margin-bottom: 20px; filter: drop-shadow(0 0 15px rgba(255,76,76,0.5));">🚫</div>
+            <h1 style="font-size: 38px; font-weight: 900; color: #FF4C4C; margin: 0 0 15px 0; letter-spacing: -1px; text-transform: uppercase;">Acceso Restringido</h1>
+            <p style="font-size: 18px; color: #E2E8F0; line-height: 1.5; margin: 0 0 25px 0; font-weight: 500;">
+                Tu cuenta ha sido inhabilitada temporalmente por un administrador del sistema.
+            </p>
+            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 20px; margin-bottom: 30px; text-align: left;">
+                <div style="font-size: 13px; color: #718096; text-transform: uppercase; font-weight: 700; margin-bottom: 5px;">Detalles de Seguridad</div>
+                <div style="font-size: 15px; color: #CBD5E0; margin-bottom: 3px;">• <b>Usuario:</b> {usuario_bloqueado}</div>
+                <div style="font-size: 15px; color: #CBD5E0; margin-bottom: 3px;">• <b>Estado:</b> Licencia Inactiva / Suspendida</div>
+                <div style="font-size: 15px; color: #CBD5E0;">• <b>Acción Requerida:</b> Verificación de soporte técnico</div>
+            </div>
+            <p style="font-size: 16px; color: #A0AEC0; margin-bottom: 20px; font-weight: 600;">Por favor, ponte en contacto con Soporte de inmediato para reactivar tu cuenta:</p>
+            <a href="https://wa.me/18494015150" target="_blank" style="text-decoration: none;">
+                <div style="background: #25D366; color: white; font-size: 21px; font-weight: 800; padding: 18px 30px; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 10px 25px rgba(37, 211, 102, 0.4); cursor: pointer; width: 100%; box-sizing: border-box;">
+                    💬 WhatsApp: 849 401 5150
+                </div>
+            </a>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+    st.stop()
+
+# Función de imágenes por archivo desactivada.
+
 # Función de imágenes por archivo desactivada. Solo usaremos Links.
 
 def inicializar_data_usuario():
@@ -729,36 +786,7 @@ if query_u in db_global and st.session_state.usuario_actual is None:
     try:
         acceso_permitido, msg_error = verificar_acceso_live(query_u)
         if not acceso_permitido:
-            try: st.query_params.clear()
-            except: pass
-            
-            st.markdown(f"""
-            <div style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: radial-gradient(circle at 50% -10%, #4A1515 0%, #0A0E17 50%, #050505 100%); z-index: 9999999; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; font-family: 'Inter', sans-serif; text-align: center; padding: 20px; box-sizing: border-box;">
-                <div style="background: rgba(25, 20, 20, 0.4); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 76, 76, 0.2); border-radius: 24px; padding: 50px 40px; max-width: 550px; width: 100%; box-shadow: 0 30px 60px rgba(0,0,0,0.8);">
-                    <div style="font-size: 80px; margin-bottom: 20px; filter: drop-shadow(0 0 15px rgba(255,76,76,0.5));">🚫</div>
-                    <h1 style="font-size: 38px; font-weight: 900; color: #FF4C4C; margin: 0 0 15px 0; letter-spacing: -1px; text-transform: uppercase;">Acceso Restringido</h1>
-                    <p style="font-size: 18px; color: #E2E8F0; line-height: 1.5; margin: 0 0 25px 0; font-weight: 500;">
-                        Tu cuenta ha sido inhabilitada temporalmente por un administrador del sistema.
-                    </p>
-                    <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 20px; margin-bottom: 30px; text-align: left;">
-                        <div style="font-size: 13px; color: #718096; text-transform: uppercase; font-weight: 700; margin-bottom: 5px;">Detalles de Seguridad</div>
-                        <div style="font-size: 15px; color: #CBD5E0; margin-bottom: 3px;">• <b>Usuario:</b> {query_u}</div>
-                        <div style="font-size: 15px; color: #CBD5E0; margin-bottom: 3px;">• <b>Estado:</b> Licencia Inactiva / Suspendida</div>
-                        <div style="font-size: 15px; color: #CBD5E0;">• <b>Acción Requerida:</b> Verificación de soporte técnico</div>
-                    </div>
-                    <p style="font-size: 16px; color: #A0AEC0; margin-bottom: 20px; font-weight: 600;">Por favor, ponte en contacto con Soporte de inmediato para reactivar tu cuenta:</p>
-                    <a href="https://wa.me/18494015150" target="_blank" style="text-decoration: none;">
-                        <div style="background: #25D366; color: white; font-size: 21px; font-weight: 800; padding: 18px 30px; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 10px 25px rgba(37, 211, 102, 0.4); cursor: pointer; width: 100%; box-sizing: border-box;">
-                            💬 WhatsApp: 849 401 5150
-                        </div>
-                    </a>
-                    <div style="margin-top: 40px; font-size: 11px; color: #4A5568; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;">
-                        PF Journal Pro Security Suite
-                    </div>
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
-            st.stop() # Mata la carga de la página aquí mismo
+            mostrar_pantalla_bloqueo(query_u)
     except NameError:
         pass
         
@@ -1018,33 +1046,7 @@ if st.session_state.usuario_actual is None:
 # 🛡️ Verificar Licencia en vivo antes de dejarlo entrar
                             acceso_permitido, msg_error = verificar_acceso_live(user_match)
                             if not acceso_permitido:
-                                st.markdown(f"""
-                                <div style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: radial-gradient(circle at 50% -10%, #4A1515 0%, #0A0E17 50%, #050505 100%); z-index: 9999999; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; font-family: 'Inter', sans-serif; text-align: center; padding: 20px; box-sizing: border-box;">
-                                    <div style="background: rgba(25, 20, 20, 0.4); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 76, 76, 0.2); border-radius: 24px; padding: 50px 40px; max-width: 550px; width: 100%; box-shadow: 0 30px 60px rgba(0,0,0,0.8);">
-                                        <div style="font-size: 80px; margin-bottom: 20px; filter: drop-shadow(0 0 15px rgba(255,76,76,0.5));">🚫</div>
-                                        <h1 style="font-size: 38px; font-weight: 900; color: #FF4C4C; margin: 0 0 15px 0; letter-spacing: -1px; text-transform: uppercase;">Acceso Restringido</h1>
-                                        <p style="font-size: 18px; color: #E2E8F0; line-height: 1.5; margin: 0 0 25px 0; font-weight: 500;">
-                                            Tu cuenta ha sido inhabilitada temporalmente por un administrador del sistema.
-                                        </p>
-                                        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 20px; margin-bottom: 30px; text-align: left;">
-                                            <div style="font-size: 13px; color: #718096; text-transform: uppercase; font-weight: 700; margin-bottom: 5px;">Detalles de Seguridad</div>
-                                            <div style="font-size: 15px; color: #CBD5E0; margin-bottom: 3px;">• <b>Usuario:</b> {user_match}</div>
-                                            <div style="font-size: 15px; color: #CBD5E0; margin-bottom: 3px;">• <b>Estado:</b> Licencia Inactiva / Suspendida</div>
-                                            <div style="font-size: 15px; color: #CBD5E0;">• <b>Acción Requerida:</b> Verificación de soporte técnico</div>
-                                        </div>
-                                        <p style="font-size: 16px; color: #A0AEC0; margin-bottom: 20px; font-weight: 600;">Por favor, ponte en contacto con Soporte de inmediato para reactivar tu cuenta:</p>
-                                        <a href="https://wa.me/18494015150" target="_blank" style="text-decoration: none;">
-                                            <div style="background: #25D366; color: white; font-size: 21px; font-weight: 800; padding: 18px 30px; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 10px 25px rgba(37, 211, 102, 0.4); cursor: pointer; width: 100%; box-sizing: border-box;">
-                                                💬 WhatsApp: 849 401 5150
-                                            </div>
-                                        </a>
-                                        <div style="margin-top: 40px; font-size: 11px; color: #4A5568; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;">
-                                            PF Journal Pro Security Suite
-                                        </div>
-                                    </div>
-                                </div>
-                                """, unsafe_allow_html=True)
-                                st.stop()
+                                mostrar_pantalla_bloqueo(user_match)
                                 
                             st.session_state.usuario_actual = user_match
                             st.session_state.dispositivo_actual = "Móvil" if modo_movil_check else "PC"
@@ -1128,53 +1130,7 @@ else:
 # 🛡️ GUARDIÁN GLOBAL EN TIEMPO REAL (Baneo inmediato con expulsión)
     acceso_permitido, msg_error = verificar_acceso_live(st.session_state.usuario_actual)
     if not acceso_permitido:
-        # Destruimos la sesión en el servidor de inmediato
-        usr_temp = st.session_state.usuario_actual
-        st.session_state.usuario_actual = None
-        try: st.query_params.clear()
-        except: pass
-        
-        # Inyectamos JS para limpiar credenciales al instante pero manteniéndolo fijo en la pantalla premium
-        components.html("""
-        <script>
-            window.parent.document.cookie = "yeremi_user=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-            window.parent.document.cookie = "yeremi_device=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-            window.parent.document.cookie = "yeremi_account=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-            window.parent.localStorage.removeItem("yeremi_user");
-            window.parent.localStorage.removeItem("yeremi_device");
-            window.parent.localStorage.removeItem("yeremi_account");
-            window.parent.history.replaceState({}, document.title, window.parent.location.pathname);
-        </script>
-        """, height=0, width=0)
-        
-        # 👑 PANTALLA GIGANTE PREMIUM DE ACCESO BLOQUEADO 👑
-        st.markdown(f"""
-        <div style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: radial-gradient(circle at 50% -10%, #4A1515 0%, #0A0E17 50%, #050505 100%); z-index: 9999999; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; font-family: 'Inter', sans-serif; text-align: center; padding: 20px; box-sizing: border-box;">
-            <div style="background: rgba(25, 20, 20, 0.4); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 76, 76, 0.2); border-radius: 24px; padding: 50px 40px; max-width: 550px; width: 100%; box-shadow: 0 30px 60px rgba(0,0,0,0.8);">
-                <div style="font-size: 80px; margin-bottom: 20px; filter: drop-shadow(0 0 15px rgba(255,76,76,0.5));">🚫</div>
-                <h1 style="font-size: 38px; font-weight: 900; color: #FF4C4C; margin: 0 0 15px 0; letter-spacing: -1px; text-transform: uppercase;">Acceso Restringido</h1>
-                <p style="font-size: 18px; color: #E2E8F0; line-height: 1.5; margin: 0 0 25px 0; font-weight: 500;">
-                    Tu cuenta ha sido inhabilitada temporalmente por un administrador del sistema.
-                </p>
-                <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 20px; margin-bottom: 30px; text-align: left;">
-                    <div style="font-size: 13px; color: #718096; text-transform: uppercase; font-weight: 700; margin-bottom: 5px;">Detalles de Seguridad</div>
-                    <div style="font-size: 15px; color: #CBD5E0; margin-bottom: 3px;">• <b>Usuario:</b> {usr_temp}</div>
-                    <div style="font-size: 15px; color: #CBD5E0; margin-bottom: 3px;">• <b>Estado:</b> Licencia Inactiva / Suspendida</div>
-                    <div style="font-size: 15px; color: #CBD5E0;">• <b>Acción Requerida:</b> Verificación de soporte técnico</div>
-                </div>
-                <p style="font-size: 16px; color: #A0AEC0; margin-bottom: 20px; font-weight: 600;">Por favor, ponte en contacto con Soporte de inmediato para reactivar tu cuenta:</p>
-                <a href="https://wa.me/18494015150" target="_blank" style="text-decoration: none;">
-                    <div style="background: #25D366; color: white; font-size: 21px; font-weight: 800; padding: 18px 30px; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 10px 25px rgba(37, 211, 102, 0.4); cursor: pointer; width: 100%; box-sizing: border-box;">
-                        💬 WhatsApp: 849 401 5150
-                    </div>
-                </a>
-                <div style="margin-top: 40px; font-size: 11px; color: #4A5568; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;">
-                    PF Journal Pro Security Suite
-                </div>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-        st.stop() # Bloqueo absoluto: Detiene la carga de cualquier pestaña o dato financiero
+        mostrar_pantalla_bloqueo(st.session_state.usuario_actual)
         
     cuenta_actual_js = st.session_state.get("data_source_sel", "Account Real")
     components.html(f"""<script>window.parent.document.cookie = "yeremi_user={st.session_state.usuario_actual};
