@@ -947,8 +947,36 @@ if st.session_state.usuario_actual is None:
 
     st.stop()
 else:
+    # 🛡️ GUARDIÁN GLOBAL EN TIEMPO REAL (Baneo inmediato con expulsión)
+    acceso_permitido, msg_error = verificar_acceso_live(st.session_state.usuario_actual)
+    if not acceso_permitido:
+        st.error(msg_error)
+        
+        # Destruimos la sesión en el servidor de inmediato
+        st.session_state.usuario_actual = None
+        try: st.query_params.clear()
+        except: pass
+        
+        # Inyectamos JS fulminante para limpiar cookies y memoria local del navegador del usuario expulsado
+        components.html("""
+        <script>
+            window.parent.document.cookie = "yeremi_user=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+            window.parent.document.cookie = "yeremi_device=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+            window.parent.document.cookie = "yeremi_account=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+            window.parent.localStorage.removeItem("yeremi_user");
+            window.parent.localStorage.removeItem("yeremi_device");
+            window.parent.localStorage.removeItem("yeremi_account");
+            window.parent.history.replaceState({}, document.title, window.parent.location.pathname);
+            // Recargamos la página después de 3 segundos para regresarlo al login limpio
+            setTimeout(() => { window.parent.location.reload(); }, 3000);
+        </script>
+        """, height=0, width=0)
+        st.stop() # Bloqueo absoluto: Detiene la carga de cualquier pestaña o dato financiero
+        
     cuenta_actual_js = st.session_state.get("data_source_sel", "Account Real")
-    components.html(f"""<script>window.parent.document.cookie = "yeremi_user={st.session_state.usuario_actual}; path=/; max-age=2592000; SameSite=Strict"; window.parent.document.cookie = "yeremi_device={st.session_state.dispositivo_actual}; path=/; max-age=2592000; SameSite=Strict"; window.parent.document.cookie = "yeremi_account={cuenta_actual_js}; path=/; max-age=2592000; SameSite=Strict";</script>""", height=0, width=0)
+    components.html(f"""<script>window.parent.document.cookie = "yeremi_user={st.session_state.usuario_actual};
+path=/; max-age=2592000; SameSite=Strict"; window.parent.document.cookie = "yeremi_device={st.session_state.dispositivo_actual}; path=/; max-age=2592000; SameSite=Strict"; window.parent.document.cookie = "yeremi_account={cuenta_actual_js}; path=/; max-age=2592000;
+SameSite=Strict";</script>""", height=0, width=0)
 
 # ==========================================
 # 3. SECCIÓN DE AJUSTES MANUALES (CONSTANTES)
