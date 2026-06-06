@@ -2731,7 +2731,7 @@ if True:
                     # 1. TÍTULO NORMAL
                     st.markdown('<div class="lbl-header">Captura:</div>', unsafe_allow_html=True)
                     
-                    # 2. CSS SIMPLIFICADO: A FAVOR DE LA GRAVEDAD
+                    # 2. CSS SIMPLIFICADO Y DISEÑO PREMIUM
                     st.markdown("""<style>
                     /* Alineamos el link de la columna 4 */
                     div[data-testid="stForm"] div[data-testid="stTextInput"]:has(input[aria-label="Link"]) {
@@ -2741,7 +2741,7 @@ if True:
 
                     /* 🚀 EMPUJAMOS EL BOTÓN HACIA ABAJO CON MARGIN */
                     div[data-testid="stForm"] div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] {
-                        margin-top: 25px !important; /* 🔥 CONTROL MAESTRO: CÁMBIALO AQUÍ PARA BAJARLO MÁS (Ej: 35px, 45px) 🔥 */
+                        margin-top: 25px !important; /* 🔥 CONTROL MAESTRO: CÁMBIALO AQUÍ PARA BAJARLO MÁS */
                         width: 100% !important;
                     }
 
@@ -2769,22 +2769,24 @@ if True:
                         color: #00C897 !important;
                     }
                     
-                    /* 🔴 CONVERTIR EL CÍRCULO VERDE EN UNA X ROJA PARA BORRAR ARCHIVOS 🔴 */
-                    [data-testid="stFileUploaderDeleteBtn"] { background-color: #FF4C4C !important; border-radius: 50% !important; opacity: 1 !important; }
-                    [data-testid="stFileUploaderDeleteBtn"] svg { color: white !important; fill: white !important; width: 20px !important; height: 20px !important; }
-                    [data-testid="stFileUploaderDeleteBtn"]:hover { background-color: #D32F2F !important; transform: scale(1.1) !important; }
+                    /* 🤍 BOTÓN DE BORRAR ARCHIVO (Blanco, sutil y minimalista) 🤍 */
+                    [data-testid="stFileUploaderDeleteBtn"] { background-color: transparent !important; border-radius: 50% !important; opacity: 0.6 !important; border: 1px solid #A0AEC0 !important; }
+                    [data-testid="stFileUploaderDeleteBtn"] svg { color: white !important; fill: white !important; width: 14px !important; height: 14px !important; }
+                    [data-testid="stFileUploaderDeleteBtn"]:hover { background-color: rgba(255,255,255,0.2) !important; opacity: 1 !important; border-color: white !important; }
                     
-                    /* Revivimos el cargador adentro del apartado */
+                    /* 🎨 CAJA DE SUBIDA DE IMAGEN (Sobria y elegante) */
                     div[data-testid="stPopoverBody"] div[data-testid="stFileUploader"] { margin: 0 !important; width: 100% !important; display: block !important; }
-                    div[data-testid="stPopoverBody"] div[data-testid="stFileUploader"] section { background: rgba(0,0,0,0.2) !important; border: 2px dashed #00C897 !important; min-height: 120px !important; height: auto !important; display: flex !important; flex-direction: column !important; justify-content: center !important; }
-                    div[data-testid="stPopoverBody"] div[data-testid="stFileUploader"] section svg { display: block !important; color: #00C897 !important; width: 40px !important; height: 40px !important; margin: 0 auto !important; }
-                    div[data-testid="stPopoverBody"] div[data-testid="stFileUploader"] section div > span, div[data-testid="stPopoverBody"] div[data-testid="stFileUploader"] section small { display: block !important; color: white !important; text-align: center !important; }
-                    div[data-testid="stPopoverBody"] div[data-testid="stFileUploader"] section button { width: auto !important; background: #00C897 !important; color: white !important; margin: 10px auto 0 auto !important; padding: 5px 20px !important; border: none !important; }
+                    div[data-testid="stPopoverBody"] div[data-testid="stFileUploader"] section { background: #1A202C !important; border: 1px solid #4A5568 !important; border-radius: 12px !important; min-height: 100px !important; height: auto !important; display: flex !important; flex-direction: column !important; justify-content: center !important; }
+                    div[data-testid="stPopoverBody"] div[data-testid="stFileUploader"] section svg { display: block !important; color: #A0AEC0 !important; width: 35px !important; height: 35px !important; margin: 0 auto !important; }
+                    div[data-testid="stPopoverBody"] div[data-testid="stFileUploader"] section div > span, div[data-testid="stPopoverBody"] div[data-testid="stFileUploader"] section small { display: block !important; color: #E2E8F0 !important; text-align: center !important; }
+                    div[data-testid="stPopoverBody"] div[data-testid="stFileUploader"] section button { width: auto !important; background: #2D3748 !important; color: white !important; margin: 10px auto 0 auto !important; padding: 5px 20px !important; border: 1px solid #4A5568 !important; border-radius: 6px !important; font-weight: normal !important; }
+                    div[data-testid="stPopoverBody"] div[data-testid="stFileUploader"] section button:hover { background: #4A5568 !important; }
                     </style>""", unsafe_allow_html=True)
                     
                     with st.popover("🖼️ Subir", use_container_width=True):
-                        st.markdown("<p style='text-align:center; font-weight:bold; color:white; margin-bottom:10px; font-size: 16px;'>Arrastra tu imagen o pega (Ctrl+V)</p>", unsafe_allow_html=True)
-                        archivo_local_img = st.file_uploader("", type=["png", "jpg", "jpeg"], label_visibility="collapsed", key="main_file_uploader")
+                        st.markdown("<p style='text-align:center; font-weight:bold; color:#E2E8F0; margin-bottom:10px; font-size: 15px;'>Arrastra o pega (Máximo 2)</p>", unsafe_allow_html=True)
+                        # Activamos la función para subir MÚLTIPLES archivos
+                        archivos_local_img = st.file_uploader("", type=["png", "jpg", "jpeg"], accept_multiple_files=True, label_visibility="collapsed", key="main_file_uploader")
                     
                 with c_btn:
                     btn_save = st.form_submit_button("GUARDAR", key="btn_save_main")
