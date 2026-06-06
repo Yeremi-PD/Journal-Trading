@@ -878,6 +878,9 @@ if st.session_state.usuario_actual is None:
                         with st.spinner("⏳ Creando tu espacio seguro en la nube..."):
                             reescribir_excel_usuario(u_reg_clean)
                             
+                            # 🟢 LIMPIAMOS LA MEMORIA PARA QUE EL USUARIO QUEDE FIJO AL REFRESCAR
+                            st.cache_resource.clear()
+                            
                             # 🛡️ Crear Licencia y Enviar Correo
                             codigo_nuevo = registrar_nuevo_acceso(u_reg_clean, p_reg_clean)
                             enviar_correo_admin(u_reg_clean, codigo_nuevo)
@@ -1148,6 +1151,9 @@ if not db_usuario or (len(db_usuario) == 1 and "Todas las Cuentas" in db_usuario
                     with st.spinner("⏳ Creando base de datos segura..."):
                         # Guarda directamente la estructura y actualiza Excel
                         reescribir_excel_usuario(usuario)
+                        
+                        # 🟢 LIMPIAMOS LA MEMORIA CACHÉ PARA QUE RECUERDE LA CUENTA AL REFRESCAR
+                        st.cache_resource.clear()
                         
                     st.rerun()
     st.stop()
