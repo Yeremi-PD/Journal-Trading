@@ -2808,26 +2808,26 @@ if True:
                     clave_final = (fecha_sel.year, fecha_sel.month, fecha_sel.day)
                     imgs_finales = []
                     
-                    # 🟢 NUBE AUTOMÁTICA PROFESIONAL (ImgBB)
-                    if archivo_local_img is not None:
-                        with st.spinner("📤 Subiendo a la nube segura..."):
-                            try:
-                                import requests
-                                url_api = "https://api.imgbb.com/1/upload"
-                                
-                                # 🔥 PEGA AQUÍ TU API KEY DE IMGBB ENTRE LAS COMILLAS 🔥
-                                api_key_imgbb = "dd266f375897b76af931e00467716917" 
-                                
-                                payload = {"key": api_key_imgbb}
-                                archivos = {"image": (archivo_local_img.name, archivo_local_img.getvalue(), archivo_local_img.type)}
-                                respuesta = requests.post(url_api, params=payload, files=archivos)
-                                
-                                if respuesta.status_code == 200:
-                                    imgs_finales.append(respuesta.json()["data"]["url"])
-                                else:
-                                    st.error(f"⚠️ ImgBB rechazó la imagen. Error: {respuesta.status_code}")
-                            except Exception as e_upload:
-                                st.error(f"⚠️ Error de conexión: {e_upload}")
+                    # 🟢 NUBE AUTOMÁTICA PROFESIONAL (ImgBB) - HASTA 2 IMÁGENES
+                    if archivos_local_img:
+                        with st.spinner("📤 Subiendo imágenes a la nube segura..."):
+                            import requests
+                            url_api = "https://api.imgbb.com/1/upload"
+                            api_key_imgbb = "dd266f375897b76af931e00467716917" 
+                            
+                            # Limitamos el bucle a un máximo de 2 archivos
+                            for arch in archivos_local_img[:2]:
+                                try:
+                                    payload = {"key": api_key_imgbb}
+                                    archivos = {"image": (arch.name, arch.getvalue(), arch.type)}
+                                    respuesta = requests.post(url_api, params=payload, files=archivos)
+                                    
+                                    if respuesta.status_code == 200:
+                                        imgs_finales.append(respuesta.json()["data"]["url"])
+                                    else:
+                                        st.error(f"⚠️ ImgBB rechazó una imagen. Error: {respuesta.status_code}")
+                                except Exception as e_upload:
+                                    st.error(f"⚠️ Error de conexión al subir: {e_upload}")
                     
                     if link_imagen.strip().startswith("http"): 
                         imgs_finales.append(link_imagen.strip())
