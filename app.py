@@ -2655,7 +2655,7 @@ if True:
                     st.markdown("""<style>
                     /* 1. 🚀 FUERZA BRUTA: SUBIR EL LINK 10PX EXACTOS */
                     div[data-testid="stForm"] div[data-testid="stTextInput"]:has(input[aria-label="Link"]) {
-                        margin-top: 0px !important; 
+                        margin-top: 10px !important; 
                         transform: translateY(-10px) !important; /* Salta el bloqueo y lo obliga a subir 10px */
                     }
 
