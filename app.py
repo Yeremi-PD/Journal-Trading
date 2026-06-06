@@ -36,10 +36,26 @@ st.set_page_config(page_title="PF Journal Pro", page_icon=logo_final, layout="wi
 # 🚀 ANTI-PARPADEO ROJO: Ocultamos el error fantasma de "Missing Submit Button"
 st.markdown("""
 <style>
-/* Nuke a la caja roja de excepciones nativas de Streamlit */
-[data-testid="stException"] { display: none !important; }
+/* 1. Nuke a todas las cajas de excepciones nativas */
+[data-testid="stException"], 
+[data-testid="stAppExceptionContainer"] { display: none !important; }
 </style>
 """, unsafe_allow_html=True)
+
+# 🤖 ASESINO SILENCIOSO: Caza la alerta específica del botón y la borra en 1 milisegundo
+components.html("""
+<script>
+const doc = window.parent.document;
+const observer = new MutationObserver(() => {
+    doc.querySelectorAll('[data-testid="stAlert"]').forEach(alert => {
+        if(alert.innerText.includes("Submit") || alert.innerText.includes("form_submit_button") || alert.innerText.includes("missing")) {
+            alert.style.display = 'none';
+        }
+    });
+});
+observer.observe(doc.body, {childList: true, subtree: true});
+</script>
+""", height=0, width=0)
 
 # ==========================================
 # 🚀 AUTO-LOGIN (SISTEMA
