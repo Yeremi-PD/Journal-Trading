@@ -2531,7 +2531,7 @@ if True:
         /* ========================================= */
         div[data-testid="stForm"] div[data-testid="stTextInput"]:has(input[aria-label="Link"]) {
             width: 100% !important;
-            margin-top: 20px !important;  /* <-- Aumenta a 5px o 10px si quieres separarlo del título */
+            margin-top: 0px !important;  /* <-- Aumenta a 5px o 10px si quieres separarlo del título */
             margin-left: 0px !important;
         }
 
