@@ -2653,20 +2653,21 @@ if True:
                     st.markdown('<div class="lbl-header">Subir Imagen:</div>', unsafe_allow_html=True)
                     
                     st.markdown("""<style>
-                    /* 1. 🔓 SUBIR EL INPUT DEL LINK 10 PUNTOS (Queda en 0) */
+                    /* 1. 🚀 FUERZA BRUTA: SUBIR EL LINK 10PX EXACTOS */
                     div[data-testid="stForm"] div[data-testid="stTextInput"]:has(input[aria-label="Link"]) {
-                        transform: none !important;
-                        margin-top: 0px !important;  /* Subió 10 puntos */
+                        margin-top: 0px !important; 
+                        transform: translateY(-10px) !important; /* Salta el bloqueo y lo obliga a subir 10px */
                     }
 
-                    /* 2. SUBIR EL BOTÓN DE POPOVER ~21 PUNTOS (Queda en -11) */
+                    /* 2. 🚀 FUERZA BRUTA: SUBIR EL BOTÓN POPOVER 21PX EXACTOS */
                     div[data-testid="stForm"] div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > button {
                         width: 100% !important;
                         margin: 0 !important; height: 40px !important; min-height: 40px !important;
                         background: #2D3748 !important; border: 1px solid #4A5568 !important; color: white !important;
                         font-size: 14px !important;
                         box-shadow: none !important; border-radius: 8px !important;
-                        margin-top: -11px !important;  /* Subió casi 21 puntos */
+                        margin-top: 0px !important; 
+                        transform: translateY(-21px) !important; /* Salta el bloqueo y lo obliga a subir 21px */
                     }
                     
                     /* 3. 🔴 CONVERTIR EL CÍRCULO VERDE EN UNA X ROJA PARA BORRAR ARCHIVOS 🔴 */
