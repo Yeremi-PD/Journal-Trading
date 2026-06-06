@@ -33,8 +33,16 @@ logo_final = ImageOps.pad(logo_recortado, (tamaño_max, tamaño_max))
 
 st.set_page_config(page_title="PF Journal Pro", page_icon=logo_final, layout="wide")
 
+# 🚀 ANTI-PARPADEO ROJO: Ocultamos el error fantasma de "Missing Submit Button"
+st.markdown("""
+<style>
+/* Nuke a la caja roja de excepciones nativas de Streamlit */
+[data-testid="stException"] { display: none !important; }
+</style>
+""", unsafe_allow_html=True)
+
 # ==========================================
-#  AUTO-LOGIN (SISTEMA DE ALTA SEGURIDAD COMPATIBLE CON LA NUBE) 
+# 🚀 AUTO-LOGIN (SISTEMA
 # ==========================================
 import streamlit.components.v1 as components
 
