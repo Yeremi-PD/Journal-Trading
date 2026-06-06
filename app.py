@@ -244,21 +244,21 @@ def mostrar_pantalla_bloqueo(usuario_bloqueado):
     # 2. Renderizamos la interfaz rompiendo cualquier corsé o columna de Streamlit
     st.markdown(f"""
     <style>
-            /* 🔴 MATAMOS TODA LA ESTRUCTURA ORIGINAL PARA LIMPIAR LAS ESQUINAS AL 100% 🔴 */
-            header, [data-testid="stHeader"], [data-testid="stSidebar"], [data-testid="stTabs"], 
-            form, [data-testid="stForm"], [data-testid="column"], [data-testid="stHorizontalBlock"],
-            .login-title, .login-sub, .fijo-header-global, .tab-buttons-spacer {
-                display: none !important;
-                height: 0px !important;
-                opacity: 0 !important;
-                visibility: hidden !important;
-                pointer-events: none !important;
-            }}
-            /* Transformamos el fondo de la app en el degradado de seguridad */
-            .stApp {
-                background: radial-gradient(circle at 50% -10%, #4A1515 0%, #0A0E17 50%, #050505 100%) !important;
-            }}
-            </style>
+    /* 🔴 MATAMOS TODA LA ESTRUCTURA ORIGINAL PARA LIMPIAR LAS ESQUINAS AL 100% 🔴 */
+    header, [data-testid="stHeader"], [data-testid="stSidebar"], [data-testid="stTabs"], 
+    form, [data-testid="stForm"], [data-testid="column"], [data-testid="stHorizontalBlock"],
+    .login-title, .login-sub, .fijo-header-global, .tab-buttons-spacer {{
+        display: none !important;
+        height: 0px !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+        pointer-events: none !important;
+    }}
+    /* Transformamos el fondo de la app en el degradado de seguridad */
+    .stApp {{
+        background: radial-gradient(circle at 50% -10%, #4A1515 0%, #0A0E17 50%, #050505 100%) !important;
+    }}
+    </style>
     
     <div style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; font-family: 'Inter', sans-serif; text-align: center; padding: 20px; box-sizing: border-box; z-index: 999999999;">
         <div style="background: rgba(25, 20, 20, 0.4); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 76, 76, 0.2); border-radius: 24px; padding: 50px 40px; max-width: 550px; width: 100%; box-shadow: 0 30px 60px rgba(0,0,0,0.8);">
