@@ -272,7 +272,7 @@ def mostrar_pantalla_bloqueo(usuario_bloqueado):
     }}
     
     /* Ocultamos títulos globales y menús del fondo */
-    .login-title, .login-sub, .fijo-header-global, .tab-buttons-spacer, [data-testid="stTabs"], [data-testid="column"], [data-testid="stHorizontalBlock"] {{
+    .login-title, .login-sub, .fijo-header-global, .tab-buttons-spacer, [data-testid="stTabs"] {{
         display: none !important;
         opacity: 0 !important;
     }}
@@ -290,7 +290,7 @@ def mostrar_pantalla_bloqueo(usuario_bloqueado):
             <p style="font-size: 18px; color: #E2E8F0; line-height: 1.5; margin: 0 0 25px 0; font-weight: 500;">
                 Su cuenta está inactiva porque el plazo de tiempo permitido para este usuario ha caducado.
             </p>
-            <div style="background: rgba(25, 20, 20, 0.3); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 20px; margin-bottom: 30px; text-align: left;">
+            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 20px; margin-bottom: 30px; text-align: left;">
                 <div style="font-size: 13px; color: #718096; text-transform: uppercase; font-weight: 700; margin-bottom: 5px;">Detalles de Seguridad</div>
                 <div style="font-size: 15px; color: #CBD5E0; margin-bottom: 3px;">• <b>Usuario:</b> {usuario_bloqueado}</div>
                 <div style="font-size: 15px; color: #CBD5E0; margin-bottom: 3px;">• <b>Estado:</b> Tiempo Agotado / Expirado</div>
