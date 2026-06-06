@@ -2668,7 +2668,6 @@ if True:
                         box-shadow: none !important; border-radius: 8px !important;
                         margin-top: 10px !important;  /* Sincronizado perfectamente en paralelo a 10px */
                     }
-                    }
                     
                     /* 3. 🔴 CONVERTIR EL CÍRCULO VERDE EN UNA X ROJA PARA BORRAR ARCHIVOS 🔴 */
                     [data-testid="stFileUploaderDeleteBtn"] {
