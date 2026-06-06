@@ -946,7 +946,7 @@ if st.session_state.usuario_actual is None:
                 # 📱 Toggle DENTRO del formulario (Desactivado por defecto)
                 modo_movil_check = st.toggle("📱 Activar Modo Móvil", value=False)
                 
-                btn_acceder = st.form_submit_button("Acceder de forma segura", use_container_width=True)
+                btn_acceder = st.form_submit_button("ACCEDER", use_container_width=True)
                 
                 if btn_acceder:
                     u_clean = log_user.strip()
