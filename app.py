@@ -2769,24 +2769,44 @@ if True:
                         color: #00C897 !important;
                     }
                     
-                    /* 🤍 BOTÓN DE BORRAR ARCHIVO (Blanco, sutil y minimalista) 🤍 */
-                    [data-testid="stFileUploaderDeleteBtn"] { background-color: transparent !important; border-radius: 50% !important; opacity: 0.6 !important; border: 1px solid #A0AEC0 !important; }
-                    [data-testid="stFileUploaderDeleteBtn"] svg { color: white !important; fill: white !important; width: 14px !important; height: 14px !important; }
-                    [data-testid="stFileUploaderDeleteBtn"]:hover { background-color: rgba(255,255,255,0.2) !important; opacity: 1 !important; border-color: white !important; }
-                    
-                    /* 🎨 CAJA DE SUBIDA DE IMAGEN (Sobria y elegante) */
+                    /* 🎨 CAJA DE SUBIDA DE IMÁGENES (Permite apilar varias sin romperse) */
                     div[data-testid="stPopoverBody"] div[data-testid="stFileUploader"] { margin: 0 !important; width: 100% !important; display: block !important; }
-                    div[data-testid="stPopoverBody"] div[data-testid="stFileUploader"] section { background: #1A202C !important; border: 1px solid #4A5568 !important; border-radius: 12px !important; min-height: 100px !important; height: auto !important; display: flex !important; flex-direction: column !important; justify-content: center !important; }
+                    div[data-testid="stPopoverBody"] div[data-testid="stFileUploader"] section { background: #1A202C !important; border: 1px dashed #4A5568 !important; border-radius: 12px !important; padding: 15px !important; }
                     div[data-testid="stPopoverBody"] div[data-testid="stFileUploader"] section svg { display: block !important; color: #A0AEC0 !important; width: 35px !important; height: 35px !important; margin: 0 auto !important; }
                     div[data-testid="stPopoverBody"] div[data-testid="stFileUploader"] section div > span, div[data-testid="stPopoverBody"] div[data-testid="stFileUploader"] section small { display: block !important; color: #E2E8F0 !important; text-align: center !important; }
-                    div[data-testid="stPopoverBody"] div[data-testid="stFileUploader"] section button { width: auto !important; background: #2D3748 !important; color: white !important; margin: 10px auto 0 auto !important; padding: 5px 20px !important; border: 1px solid #4A5568 !important; border-radius: 6px !important; font-weight: normal !important; }
-                    div[data-testid="stPopoverBody"] div[data-testid="stFileUploader"] section button:hover { background: #4A5568 !important; }
+                    div[data-testid="stPopoverBody"] div[data-testid="stFileUploader"] section button:not([data-testid="stFileUploaderDeleteBtn"]) { background: #2D3748 !important; color: white !important; border: 1px solid #4A5568 !important; border-radius: 6px !important; padding: 5px 15px !important; margin-top: 10px !important; width: auto !important; }
+                    div[data-testid="stPopoverBody"] div[data-testid="stFileUploader"] section button:not([data-testid="stFileUploaderDeleteBtn"]):hover { background: #4A5568 !important; }
+
+                    /* 🤍 BOTÓN DE LA "X" (Blanco, sutil y limpio) 🤍 */
+                    [data-testid="stFileUploaderDeleteBtn"] { background-color: transparent !important; border: none !important; box-shadow: none !important; padding: 5px !important; width: 32px !important; height: 32px !important; display: flex !important; align-items: center !important; justify-content: center !important; border-radius: 50% !important; }
+                    [data-testid="stFileUploaderDeleteBtn"] svg { color: white !important; fill: white !important; width: 16px !important; height: 16px !important; display: block !important; }
+                    [data-testid="stFileUploaderDeleteBtn"]:hover { background-color: rgba(255, 76, 76, 0.2) !important; }
+                    [data-testid="stFileUploaderDeleteBtn"]:hover svg { color: #FF4C4C !important; fill: #FF4C4C !important; }
+
+                    /* 📦 CAJITAS DE LOS ARCHIVOS YA SUBIDOS */
+                    [data-testid="stUploadedFile"] { background-color: #2D3748 !important; border: 1px solid #4A5568 !important; border-radius: 8px !important; margin-top: 8px !important; }
                     </style>""", unsafe_allow_html=True)
                     
                     with st.popover("🖼️ Subir", use_container_width=True):
                         st.markdown("<p style='text-align:center; font-weight:bold; color:#E2E8F0; margin-bottom:10px; font-size: 15px;'>Arrastra o pega (Máximo 2)</p>", unsafe_allow_html=True)
-                        # Activamos la función para subir MÚLTIPLES archivos
                         archivos_local_img = st.file_uploader("", type=["png", "jpg", "jpeg"], accept_multiple_files=True, label_visibility="collapsed", key="main_file_uploader")
+                        
+                        # 🚀 SCRIPT MÁGICO PARA PEGAR CON CTRL+V EN CUALQUIER PARTE 🚀
+                        components.html("""
+                        <script>
+                        const doc = window.parent.document;
+                        doc.addEventListener('paste', function(e) {
+                            if (e.clipboardData && e.clipboardData.files.length > 0) {
+                                const dropzone = doc.querySelector('[data-testid="stFileUploadDropzone"]');
+                                if (dropzone) {
+                                    e.preventDefault();
+                                    const dropEvent = new DragEvent('drop', { bubbles: true, cancelable: true, dataTransfer: e.clipboardData });
+                                    dropzone.dispatchEvent(dropEvent);
+                                }
+                            }
+                        });
+                        </script>
+                        """, height=0, width=0)
                     
                 with c_btn:
                     btn_save = st.form_submit_button("GUARDAR", key="btn_save_main")
