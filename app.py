@@ -93,7 +93,6 @@ db_spreadsheet = conectar_google_sheets()
 def registrar_nuevo_acceso(usuario, password):
     import uuid
     import pandas as pd
-    import time
     if not db_spreadsheet: return "ERROR_DB"
     codigo = str(uuid.uuid4()).split('-')[0].upper()
     f_crea = datetime.now().strftime("%d/%m/%Y")
@@ -102,12 +101,19 @@ def registrar_nuevo_acceso(usuario, password):
     try:
         try:
             hoja = db_spreadsheet.worksheet("Accesos")
+            # Si la hoja ya existe, inyectamos a la fuerza en la FILA 2 (Empujando lo viejo hacia abajo)
+            hoja.insert_row([str(usuario).strip(), str(password).strip(), codigo, f_crea, f_ven, "TRUE"], index=2)
+            
         except gspread.exceptions.WorksheetNotFound:
-            hoja = db_spreadsheet.add_worksheet(title="Accesos", rows=1000, cols=10)
-            time.sleep(1) # Le damos 1 segundo a Google para crear la hoja antes de escribir
-            hoja.append_row(["Usuario", "Password", "Codigo_Acceso", "Fecha_Creacion", "Fecha_Vencimiento", "Activo"])
-        
-        hoja.append_row([str(usuario).strip(), str(password).strip(), codigo, f_crea, f_ven, "TRUE"])
+            # Si NO existe, la creamos con solo 50 filas para que no haya donde perderse
+            hoja = db_spreadsheet.add_worksheet(title="Accesos", rows=50, cols=10)
+            
+            # Obligamos a que los TÍTULOS vayan a la FILA 1
+            hoja.insert_row(["Usuario", "Password", "Codigo_Acceso", "Fecha_Creacion", "Fecha_Vencimiento", "Activo"], index=1)
+            
+            # Obligamos a que el USUARIO NUEVO vaya a la FILA 2
+            hoja.insert_row([str(usuario).strip(), str(password).strip(), codigo, f_crea, f_ven, "TRUE"], index=2)
+            
         return codigo
     except Exception as e:
         return f"ERROR_API: {e}"
