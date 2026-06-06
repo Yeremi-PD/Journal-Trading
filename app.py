@@ -93,19 +93,24 @@ db_spreadsheet = conectar_google_sheets()
 def registrar_nuevo_acceso(usuario, password):
     import uuid
     import pandas as pd
-    if not db_spreadsheet: return "ERROR"
+    import time
+    if not db_spreadsheet: return "ERROR_DB"
     codigo = str(uuid.uuid4()).split('-')[0].upper()
     f_crea = datetime.now().strftime("%d/%m/%Y")
     f_ven = (datetime.now() + pd.Timedelta(days=30)).strftime("%d/%m/%Y")
-    try:
-        hoja = db_spreadsheet.worksheet("Accesos")
-    except:
-        # 🟢 FIX: Los números de filas y columnas van sin comillas para que no crashee
-        hoja = db_spreadsheet.add_worksheet(title="Accesos", rows=1000, cols=10)
-        hoja.append_row(["Usuario", "Password", "Codigo_Acceso", "Fecha_Creacion", "Fecha_Vencimiento", "Activo"])
     
-    hoja.append_row([str(usuario).strip(), str(password).strip(), codigo, f_crea, f_ven, "TRUE"])
-    return codigo
+    try:
+        try:
+            hoja = db_spreadsheet.worksheet("Accesos")
+        except gspread.exceptions.WorksheetNotFound:
+            hoja = db_spreadsheet.add_worksheet(title="Accesos", rows=1000, cols=10)
+            time.sleep(1) # Le damos 1 segundo a Google para crear la hoja antes de escribir
+            hoja.append_row(["Usuario", "Password", "Codigo_Acceso", "Fecha_Creacion", "Fecha_Vencimiento", "Activo"])
+        
+        hoja.append_row([str(usuario).strip(), str(password).strip(), codigo, f_crea, f_ven, "TRUE"])
+        return codigo
+    except Exception as e:
+        return f"ERROR_API: {e}"
 
 def enviar_correo_admin(usuario, codigo):
     import smtplib
@@ -115,8 +120,7 @@ def enviar_correo_admin(usuario, codigo):
         password = st.secrets.get("admin_pass", "")
         
         if not emisor or not password: 
-            st.warning("⚠️ El usuario se registró en la pestaña Accesos, pero NO se envió el correo porque faltan las credenciales en st.secrets")
-            return
+            return "FALTAN_SECRETOS"
         
         msg = MIMEText(f"¡Tienes un nuevo cliente en Yeremi Journal!\n\n👤 Usuario: {usuario}\n🔑 Código: {codigo}\n\nRevisa la pestaña 'Accesos' en Google Sheets para administrar su licencia.")
         msg['Subject'] = f"🚀 Nuevo Registro: {usuario}"
@@ -126,14 +130,39 @@ def enviar_correo_admin(usuario, codigo):
         with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
             smtp.login(emisor, password)
             smtp.send_message(msg)
-            
+        return "OK"
     except smtplib.SMTPAuthenticationError:
-        st.error("⚠️ Correo no enviado. Parece que la Contraseña de Aplicación de Google es incorrecta.")
+        return "ERROR_AUTH"
     except Exception as e:
-        st.error(f"⚠️ Error enviando correo: {e}")
+        return f"ERROR_MAIL: {e}"
 
 def verificar_acceso_live(usuario):
     if not db_spreadsheet: return True, ""
+    try:
+        hoja = db_spreadsheet.worksheet("Accesos")
+        filas = hoja.get_all_values()
+        if len(filas) > 1:
+            headers = [str(h).strip() for h in filas[0]]
+            try: 
+                idx_usr = headers.index("Usuario")
+                idx_act = headers.index("Activo")
+                idx_ven = headers.index("Fecha_Vencimiento")
+            except: return True, ""
+            
+            for r in filas[1:]:
+                if len(r) > max(idx_usr, idx_act, idx_ven) and str(r[idx_usr]).strip().lower() == usuario.lower():
+                    if str(r[idx_act]).strip().upper() not in ["TRUE", "VERDADERO", "SI", "1"]: 
+                        return False, "🚫 Tu cuenta ha sido inhabilitada por el administrador."
+                    
+                    venc_str = str(r[idx_ven]).strip()
+                    if venc_str:
+                        try:
+                            if datetime.strptime(venc_str, "%d/%m/%Y").date() < datetime.now().date(): 
+                                return False, "⏳ Tu licencia ha expirado. Contacta al soporte."
+                        except: pass
+                    return True, ""
+    except: pass
+    return True, ""
     try:
         hoja = db_spreadsheet.worksheet("Accesos")
         filas = hoja.get_all_values()
@@ -895,15 +924,27 @@ if st.session_state.usuario_actual is None:
                         # 🟢 GUARDAR INMEDIATAMENTE EN GOOGLE SHEETS PARA QUE EL USUARIO EXISTA REALMENTE
                         with st.spinner("⏳ Creando tu espacio seguro en la nube..."):
                             reescribir_excel_usuario(u_reg_clean)
-                            
-                            # 🟢 LIMPIAMOS LA MEMORIA PARA QUE EL USUARIO QUEDE FIJO AL REFRESCAR
                             st.cache_resource.clear()
                             
-                            # 🛡️ Crear Licencia y Enviar Correo
+                            # 🛡️ Crear Licencia y Enviar Correo con Rastreador de Errores
                             codigo_nuevo = registrar_nuevo_acceso(u_reg_clean, p_reg_clean)
-                            enviar_correo_admin(u_reg_clean, codigo_nuevo)
+                            
+                            if "ERROR" in codigo_nuevo:
+                                st.error(f"⚠️ Error al crear la hoja Accesos en Google Sheets: {codigo_nuevo}")
+                                import time; time.sleep(4) # Congela la pantalla 4 seg para que puedas leerlo
+                            else:
+                                estado_correo = enviar_correo_admin(u_reg_clean, codigo_nuevo)
+                                if estado_correo == "FALTAN_SECRETOS":
+                                    st.warning("⚠️ No se envió correo: Faltan tus credenciales de Gmail en los Secrets.")
+                                    import time; time.sleep(4)
+                                elif estado_correo == "ERROR_AUTH":
+                                    st.error("⚠️ No se envió correo: La contraseña de aplicación de Google es incorrecta.")
+                                    import time; time.sleep(4)
+                                elif "ERROR" in estado_correo:
+                                    st.error(f"⚠️ Error desconocido en el correo: {estado_correo}")
+                                    import time; time.sleep(4)
                         
-                        # 🚀 AUTO-LOGIN INMEDIATO (Se salta la vista de login y entra directo a la app)
+                        # 🚀 AUTO-LOGIN INMEDIATO
                         st.session_state.usuario_actual = u_reg_clean
                         st.session_state.dispositivo_actual = "Móvil" if modo_movil_check_reg else "PC"
                         components.html(f"""<script>window.parent.document.cookie = "yeremi_user={u_reg_clean}; path=/; max-age=2592000; SameSite=Strict"; window.parent.document.cookie = "yeremi_device={st.session_state.dispositivo_actual}; path=/; max-age=2592000; SameSite=Strict";</script>""", height=0, width=0)
