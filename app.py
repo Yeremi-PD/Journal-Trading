@@ -2739,34 +2739,34 @@ if True:
                     }
 
                     /* ======================================================
-                       🎛️ CONTROL TOTAL DEL BOTÓN "SUBIR" (LIBERADO)
+                       🎛️ CONTROL TOTAL DEL BOTÓN "SUBIR" (LIBERADO AL 100%)
                        ====================================================== */
                     
-                    /* 1. Liberamos la columna que lo atrapa para que no se corte */
+                    /* 1. Liberamos la columna que lo atrapa */
                     div[data-testid="stForm"] div[data-testid="column"]:nth-child(5) {
                         position: relative !important;
                         z-index: 99 !important;
                     }
 
-                    /* 2. Mueve la caja a tu antojo (Cambia top y left) */
+                    /* 2. MUÉVELO AQUÍ: Matamos la ancla y lo forzamos a subir */
                     div[data-testid="stForm"] div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] {
                         position: relative !important;
-                        transform: none !important; /* Quitamos la grúa vieja que lo limitaba */
-                        top: -30px !important;      /* ⬆️ SÚBELO O BÁJALO AQUÍ (Negativo sube, Positivo baja) */
-                        left: 0px !important;       /* ⬅️ MUÉVELO A LOS LADOS AQUÍ (Negativo izq, Positivo der) */
-                        margin-top: 0px !important;
+                        margin-top: -20px !important; /* ⬆️ SÚBELO AQUÍ: Mientras más negativo, más sube (-30px, -40px) */
+                        transform: translateY(-10px) !important; /* ⬆️ GRÚA EXTRA: Obliga a subir ignorando a Streamlit */
                     }
 
-                    /* 3. Damos formato y tamaño al botón interno */
-                    div[data-testid="stForm"] div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > button {
-                        width: 100% !important;     /* ↔️ ANCHO DEL BOTÓN */
-                        height: 45px !important;    /* ↕️ ALTO DEL BOTÓN */
+                    /* 3. Damos formato y MATAMOS el margen de 25px que lo hundía */
+                    div[data-testid="stForm"] div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > button,
+                    div[data-testid="stForm"] div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > div:first-child > button {
+                        width: 100% !important;     
+                        height: 45px !important;    
                         min-height: 45px !important;
-                        margin: 0 !important; 
+                        margin-top: 0px !important; /* ☠️ ESTO MATA LA PIEDRA QUE LO HUNDÍA ☠️ */
+                        padding: 0 !important;
                         background: #2D3748 !important; 
                         border: 1px solid #4A5568 !important; 
                         color: white !important;
-                        font-size: 16px !important; /* 🔠 TAMAÑO DE LETRA */
+                        font-size: 16px !important; 
                         font-weight: bold !important;
                         box-shadow: 0 4px 6px rgba(0,0,0,0.2) !important; 
                         border-radius: 8px !important;
@@ -2774,7 +2774,8 @@ if True:
                     }
 
                     /* Efecto hover premium al pasar el ratón */
-                    div[data-testid="stForm"] div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > button:hover {
+                    div[data-testid="stForm"] div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > button:hover,
+                    div[data-testid="stForm"] div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > div:first-child > button:hover {
                         border-color: #00C897 !important;
                         background: rgba(0, 200, 151, 0.1) !important;
                         color: #00C897 !important;
