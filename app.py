@@ -244,17 +244,40 @@ def mostrar_pantalla_bloqueo(usuario_bloqueado):
     # 2. Renderizamos la interfaz rompiendo cualquier corsé o columna de Streamlit
     st.markdown(f"""
     <style>
-    /* 🔴 MATAMOS TODA LA ESTRUCTURA ORIGINAL PARA LIMPIAR LAS ESQUINAS AL 100% 🔴 */
-    header, [data-testid="stHeader"], [data-testid="stSidebar"], [data-testid="stTabs"], 
-    form, [data-testid="stForm"], [data-testid="column"], [data-testid="stHorizontalBlock"],
-    .login-title, .login-sub, .fijo-header-global, .tab-buttons-spacer {{
+    /* 🔴 DESACTIVAMOS EL FONDO Y BORDES DE LA TARJETA DE LOGIN ORIGINAL 🔴 */
+    div[data-testid="stForm"] {{
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        padding: 0 !important;
+    }}
+    
+    /* Ocultamos por completo los textos, inputs y botones nativos del inicio de sesión */
+    div[data-testid="stForm"] h3,
+    div[data-testid="stForm"] label,
+    div[data-testid="stForm"] div[data-baseweb="input"],
+    div[data-testid="stForm"] div[data-baseweb="base-input"],
+    div[data-testid="stForm"] div[data-testid="stCheckbox"],
+    div[data-testid="stForm"] [data-testid="stFormSubmitButton"],
+    div[data-testid="stForm"] .btn-secundario-link,
+    div[data-testid="stForm"] p {{
         display: none !important;
-        height: 0px !important;
         opacity: 0 !important;
         visibility: hidden !important;
-        pointer-events: none !important;
+        height: 0px !important;
+        margin: 0 !important;
+        padding: 0 !important;
     }}
-    /* Transformamos el fondo de la app en el degradado de seguridad */
+    
+    /* Ocultamos títulos globales y menús del fondo */
+    .login-title, .login-sub, .fijo-header-global, .tab-buttons-spacer, [data-testid="stTabs"] {{
+        display: none !important;
+        opacity: 0 !important;
+    }}
+    
+    /* Forzamos el degradado de seguridad en toda la pantalla de la app */
     .stApp {{
         background: radial-gradient(circle at 50% -10%, #4A1515 0%, #0A0E17 50%, #050505 100%) !important;
     }}
