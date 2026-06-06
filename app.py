@@ -2650,7 +2650,7 @@ if True:
                     
                 with c_upd:
                     # 🟢 Ahora sí le ponemos un título real y visible
-                    st.markdown('<div class="lbl-header">Subir Imagen:</div>', unsafe_allow_html=True)
+                    st.markdown('<div class="lbl-header">Captura:</div>', unsafe_allow_html=True)
                     
                     st.markdown("""<style>
                     /* 1. 🚀 FUERZA BRUTA: SUBIR EL LINK 10PX EXACTOS */
