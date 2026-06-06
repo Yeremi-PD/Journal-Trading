@@ -2785,7 +2785,7 @@ if True:
                     [data-testid="stUploadedFile"] { background-color: #2D3748 !important; border: 1px solid #4A5568 !important; border-radius: 8px !important; margin-top: 8px !important; }
                     </style>""", unsafe_allow_html=True)
                     
-                    with st.popover("🖼️ Subir", use_container_width=True):
+                    with st.popover("🖼️", use_container_width=True):
                         st.markdown("<p style='text-align:center; font-weight:bold; color:#E2E8F0; margin-bottom:10px; font-size: 15px;'>Arrastra o pega (Máximo 2)</p>", unsafe_allow_html=True)
                         archivos_local_img = st.file_uploader("", type=["png", "jpg", "jpeg"], accept_multiple_files=True, label_visibility="collapsed", key="main_file_uploader")
                         
