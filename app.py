@@ -2532,7 +2532,7 @@ if True:
         div[data-testid="stForm"] div[data-testid="stTextInput"]:has(input[aria-label="Link"]) {
             width: 100% !important;
             transform: none !important;    /* <--- Desbloqueado en móvil también */
-            margin-top: 45px !important;   /* <--- Altura adaptada para teléfonos */
+            margin-top: 50px !important;   /* <--- Altura adaptada para teléfonos */
             margin-left: 0px !important;
         }
 
@@ -2657,7 +2657,7 @@ if True:
                     /* 1. 🔓 DESTRUIR CANDADO FIJO Y BAJAR EL LINK LIMPIAMENTE */
                     div[data-testid="stForm"] div[data-testid="stTextInput"]:has(input[aria-label="Link"]) {
                         transform: none !important;   /* <--- Rompe el -30px que lo congelaba arriba */
-                        margin-top: 45px !important;  /* <--- Controla la altura exacta de bajada */
+                        margin-top: 40px !important;  /* <--- Controla la altura exacta de bajada */
                     }
 
                     /* 2. ALINEAR EL BOTÓN POPOVER A LA MISMA ALTURA SIMÉTRICA */
