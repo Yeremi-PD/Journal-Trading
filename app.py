@@ -155,6 +155,8 @@ def verificar_acceso_live(usuario):
     try:
         hoja = db_spreadsheet.worksheet("Accesos")
         filas = hoja.get_all_values()
+        user_encontrado = False
+        
         if len(filas) > 1:
             headers = [str(h).strip() for h in filas[0]]
             try: 
@@ -165,6 +167,8 @@ def verificar_acceso_live(usuario):
             
             for r in filas[1:]:
                 if len(r) > max(idx_usr, idx_act, idx_ven) and str(r[idx_usr]).strip().lower() == usuario.lower():
+                    user_encontrado = True
+                    # Si está en la lista, validamos si su estado es Activo o si ya venció
                     if str(r[idx_act]).strip().upper() not in ["TRUE", "VERDADERO", "SI", "1"]: 
                         return False, "🚫 Tu cuenta ha sido inhabilitada por el administrador."
                     
@@ -175,6 +179,24 @@ def verificar_acceso_live(usuario):
                                 return False, "⏳ Tu licencia ha expirado. Contacta al soporte."
                         except: pass
                     return True, ""
+        
+        # 🟢 AUTO-MIGRACIÓN DE USUARIOS VIEJOS
+        # Si el bucle terminó y el usuario no existe en la pestaña de control, lo registramos de inmediato
+        if not user_encontrado:
+            pwd_viejo = "123"
+            # Rescatamos la contraseña real que tiene el usuario en la base de datos de la sesión
+            if "db_global_local" in st.session_state and usuario in st.session_state.db_global_local:
+                pwd_viejo = st.session_state.db_global_local[usuario].get("password", "123")
+            
+            import uuid
+            import pandas as pd
+            codigo = str(uuid.uuid4()).split('-')[0].upper()
+            f_crea = datetime.now().strftime("%d/%m/%Y")
+            f_ven = (datetime.now() + pd.Timedelta(days=30)).strftime("%d/%m/%Y") # 30 días de gracia iniciales
+            
+            # Lo metemos directo a la Fila 2 debajo de los encabezados
+            hoja.insert_row([str(usuario).strip(), str(pwd_viejo).strip(), codigo, f_crea, f_ven, "TRUE"], index=2)
+            
     except: pass
     return True, ""
 
