@@ -123,22 +123,22 @@ def registrar_nuevo_acceso(usuario, password):
     f_ven = (datetime.now() + pd.Timedelta(days=30)).strftime("%d/%m/%Y")
     
     try:
-        try:
-            hoja = db_spreadsheet.worksheet("Accesos")
-            # Si la hoja ya existe, inyectamos a la fuerza en la FILA 2 (Empujando lo viejo hacia abajo)
-            hoja.insert_row([str(usuario).strip(), str(password).strip(), codigo, f_crea, f_ven, "TRUE"], index=2)
-            
-        except gspread.exceptions.WorksheetNotFound:
-            # Si NO existe, la creamos con solo 50 filas para que no haya donde perderse
-            hoja = db_spreadsheet.add_worksheet(title="Accesos", rows=50, cols=10)
-            
-            # Obligamos a que los TÍTULOS vayan a la FILA 1
-            hoja.insert_row(["Usuario", "Password", "Codigo_Acceso", "Fecha_Creacion", "Fecha_Vencimiento", "Activo"], index=1)
-            
-            # Obligamos a que el USUARIO NUEVO vaya a la FILA 2
-            hoja.insert_row([str(usuario).strip(), str(password).strip(), codigo, f_crea, f_ven, "TRUE"], index=2)
-            
-        return codigo
+            try:
+                hoja = db_spreadsheet.worksheet("Accesos")
+                # 🟢 Usamos append_row para que el usuario vaya al final de la lista
+                hoja.append_row([str(usuario).strip(), str(password).strip(), codigo, f_crea, f_ven, "TRUE"])
+                
+            except gspread.exceptions.WorksheetNotFound:
+                # Si NO existe, la creamos con solo 50 filas para que no haya donde perderse
+                hoja = db_spreadsheet.add_worksheet(title="Accesos", rows=50, cols=10)
+                
+                # Obligamos a que los TÍTULOS vayan a la FILA 1
+                hoja.insert_row(["Usuario", "Password", "Codigo_Acceso", "Fecha_Creacion", "Fecha_Vencimiento", "Activo"], index=1)
+                
+                # Y agregamos el primer usuario debajo
+                hoja.append_row([str(usuario).strip(), str(password).strip(), codigo, f_crea, f_ven, "TRUE"])
+                
+            return codigo
     except Exception as e:
         return f"ERROR_API: {e}"
 
@@ -218,8 +218,8 @@ def verificar_acceso_live(usuario):
             f_crea = datetime.now().strftime("%d/%m/%Y")
             f_ven = (datetime.now() + pd.Timedelta(days=30)).strftime("%d/%m/%Y") # 30 días de gracia iniciales
             
-            # Lo metemos directo a la Fila 2 debajo de los encabezados
-            hoja.insert_row([str(usuario).strip(), str(pwd_viejo).strip(), codigo, f_crea, f_ven, "TRUE"], index=2)
+            # 🟢 Lo agregamos al FINAL de la lista para mantener la cronología
+            hoja.append_row([str(usuario).strip(), str(pwd_viejo).strip(), codigo, f_crea, f_ven, "TRUE"])
             
     except: pass
     return True, ""
