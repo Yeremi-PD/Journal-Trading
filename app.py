@@ -847,6 +847,38 @@ if st.session_state.usuario_actual is None:
         color: #00C897 !important;
         background: transparent !important;
     }
+
+    /* FIX MÓVIL PARA LOGIN: Hacer que el cuadro y los textos se expandan al 100% y se vean inmensos */
+    @media (max-width: 768px) {
+        div[data-testid="column"]:nth-child(1),
+        div[data-testid="column"]:nth-child(3) {
+            display: none !important; /* Destruye las columnas laterales invisibles que aplastaban el centro */
+        }
+        div[data-testid="column"]:nth-child(2) {
+            min-width: 100% !important;
+            width: 100% !important;
+        }
+        div[data-testid="stForm"] {
+            padding: 40px 20px !important;
+            margin-top: 15px !important;
+        }
+        div[data-testid="stForm"] input {
+            font-size: 18px !important;
+            height: 55px !important;
+        }
+        div[data-testid="stFormSubmitButton"] button {
+            font-size: 22px !important;
+            height: 60px !important;
+            margin-top: 25px !important;
+        }
+        .login-title { 
+            font-size: 45px !important; 
+        }
+        div[data-testid="stForm"] h3 {
+            font-size: 28px !important;
+            margin-bottom: 35px !important;
+        }
+    }
     </style>
     """, unsafe_allow_html=True)
 
@@ -2659,9 +2691,9 @@ if True:
                         transform: translateY(-5px) !important; /* Salta el bloqueo y lo obliga a subir 10px */
                     }
 
-                    /* 2. 🚀 FUERZA BRUTA: ARRANCAR LA CAJA ENTERA DEL POPOVER Y SUBIRLA 21PX */
+                    /* 2. 🚀 FUERZA BRUTA: ARRANCAR LA CAJA ENTERA DEL POPOVER Y SUBIRLA 41PX */
                     div[data-testid="stForm"] div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] {
-                        transform: translateY(-21px) !important; /* <-- La grúa se aplica a la caja madre */
+                        transform: translateY(-41px) !important; /* <-- La grúa se aplica a la caja madre */
                         margin-top: 0px !important;
                     }
 
