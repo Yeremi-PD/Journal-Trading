@@ -2728,10 +2728,10 @@ if True:
                     link_imagen = st.text_input("Link", value="", label_visibility="collapsed", placeholder="🔗 Pega el Link aquí")
                     
                 with c_upd:
-                    # 1. EL TÍTULO VA EN SU PROPIA LÍNEA PARA QUE NO FALLE
-                    st.markdown('<div class="lbl-header" style="margin-bottom: 0px;">Captura:</div>', unsafe_allow_html=True)
+                    # 1. TÍTULO NORMAL
+                    st.markdown('<div class="lbl-header">Captura:</div>', unsafe_allow_html=True)
                     
-                    # 2. EL CSS VA EN SU PROPIO BLOQUE ESTRICTO
+                    # 2. CSS SIMPLIFICADO: A FAVOR DE LA GRAVEDAD
                     st.markdown("""<style>
                     /* Alineamos el link de la columna 4 */
                     div[data-testid="stForm"] div[data-testid="stTextInput"]:has(input[aria-label="Link"]) {
@@ -2739,29 +2739,18 @@ if True:
                         transform: translateY(-5px) !important; 
                     }
 
-                    /* PREPARAMOS EL TERRENO DE LA COLUMNA 5 */
-                    div[data-testid="stForm"] div[data-testid="column"]:nth-child(5) {
-                        position: relative !important;
-                    }
-
-                    /* 🚀 CREAMOS EL BOTÓN DE CERO Y LE DAMOS POSICIÓN ABSOLUTA EXTREMA */
+                    /* 🚀 EMPUJAMOS EL BOTÓN HACIA ABAJO CON MARGIN */
                     div[data-testid="stForm"] div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] {
-                        position: absolute !important;
-                        top: 25px !important; /* 🔥 CONTROL MAESTRO: CÁMBIALO AQUÍ PARA MOVERLO 🔥 */
-                        left: 0 !important;
+                        margin-top: 25px !important; /* 🔥 CONTROL MAESTRO: CÁMBIALO AQUÍ PARA BAJARLO MÁS (Ej: 35px, 45px) 🔥 */
                         width: 100% !important;
-                        margin: 0 !important;
-                        padding: 0 !important;
                     }
 
-                    /* ☠️ ANIQUILAMOS LA REGLA ANTERIOR DE STREAMLIT QUE LO HUNDÍA 25PX */
+                    /* Formato del botón interno */
                     div[data-testid="stForm"] div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > button,
                     div[data-testid="stForm"] div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > div:first-child > button {
                         width: 100% !important;     
                         height: 45px !important;    
                         min-height: 45px !important;
-                        margin: 0 !important; 
-                        padding: 0 !important;
                         background: #2D3748 !important; 
                         border: 1px solid #4A5568 !important; 
                         color: white !important;
@@ -2770,6 +2759,7 @@ if True:
                         box-shadow: 0 4px 6px rgba(0,0,0,0.2) !important; 
                         border-radius: 8px !important;
                         transition: all 0.2s ease !important;
+                        padding: 0 !important;
                     }
 
                     /* Efecto hover premium */
@@ -2780,21 +2770,9 @@ if True:
                     }
                     
                     /* 🔴 CONVERTIR EL CÍRCULO VERDE EN UNA X ROJA PARA BORRAR ARCHIVOS 🔴 */
-                    [data-testid="stFileUploaderDeleteBtn"] {
-                        background-color: #FF4C4C !important;
-                        border-radius: 50% !important;
-                        opacity: 1 !important;
-                    }
-                    [data-testid="stFileUploaderDeleteBtn"] svg {
-                        color: white !important;
-                        fill: white !important;
-                        width: 20px !important;
-                        height: 20px !important;
-                    }
-                    [data-testid="stFileUploaderDeleteBtn"]:hover {
-                        background-color: #D32F2F !important;
-                        transform: scale(1.1) !important;
-                    }
+                    [data-testid="stFileUploaderDeleteBtn"] { background-color: #FF4C4C !important; border-radius: 50% !important; opacity: 1 !important; }
+                    [data-testid="stFileUploaderDeleteBtn"] svg { color: white !important; fill: white !important; width: 20px !important; height: 20px !important; }
+                    [data-testid="stFileUploaderDeleteBtn"]:hover { background-color: #D32F2F !important; transform: scale(1.1) !important; }
                     
                     /* Revivimos el cargador adentro del apartado */
                     div[data-testid="stPopoverBody"] div[data-testid="stFileUploader"] { margin: 0 !important; width: 100% !important; display: block !important; }
