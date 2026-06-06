@@ -288,15 +288,15 @@ def mostrar_pantalla_bloqueo(usuario_bloqueado):
             <div style="font-size: 80px; margin-bottom: 20px; filter: drop-shadow(0 0 15px rgba(255,76,76,0.5));">🚫</div>
             <h1 style="font-size: 38px; font-weight: 900; color: #FF4C4C; margin: 0 0 15px 0; letter-spacing: -1px; text-transform: uppercase;">Acceso Restringido</h1>
             <p style="font-size: 18px; color: #E2E8F0; line-height: 1.5; margin: 0 0 25px 0; font-weight: 500;">
-                Tu cuenta ha sido inhabilitada temporalmente por un administrador del sistema.
+                Su cuenta está inactiva porque el plazo de tiempo permitido para este usuario ha caducado.
             </p>
             <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 20px; margin-bottom: 30px; text-align: left;">
                 <div style="font-size: 13px; color: #718096; text-transform: uppercase; font-weight: 700; margin-bottom: 5px;">Detalles de Seguridad</div>
                 <div style="font-size: 15px; color: #CBD5E0; margin-bottom: 3px;">• <b>Usuario:</b> {usuario_bloqueado}</div>
-                <div style="font-size: 15px; color: #CBD5E0; margin-bottom: 3px;">• <b>Estado:</b> Licencia Inactiva / Suspendida</div>
-                <div style="font-size: 15px; color: #CBD5E0;">• <b>Acción Requerida:</b> Verificación de soporte técnico</div>
+                <div style="font-size: 15px; color: #CBD5E0; margin-bottom: 3px;">• <b>Estado:</b> Tiempo Agotado / Expirado</div>
+                <div style="font-size: 15px; color: #CBD5E0;">• <b>Acción Requerida:</b> Renovación de acceso</div>
             </div>
-            <p style="font-size: 16px; color: #A0AEC0; margin-bottom: 20px; font-weight: 600;">Por favor, ponte en contacto con Soporte de inmediato para reactivar tu cuenta:</p>
+            <p style="font-size: 16px; color: #A0AEC0; margin-bottom: 20px; font-weight: 600;">Comuníquese con soporte técnico al siguiente número:</p>
             <a href="https://wa.me/18494015150" target="_blank" style="text-decoration: none;">
                 <div style="background: #25D366; color: white; font-size: 21px; font-weight: 800; padding: 18px 30px; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 10px 25px rgba(37, 211, 102, 0.4); cursor: pointer; width: 100%; box-sizing: border-box;">
                     💬 WhatsApp: 849 401 5150
