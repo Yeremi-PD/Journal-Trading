@@ -2734,24 +2734,50 @@ if True:
                     st.markdown("""<style>
                     /* 1. 🚀 FUERZA BRUTA: SUBIR EL LINK 10PX EXACTOS */
                     div[data-testid="stForm"] div[data-testid="stTextInput"]:has(input[aria-label="Link"]) {
-                        margin-top: 0px !important; 
-                        transform: translateY(-5px) !important; /* Salta el bloqueo y lo obliga a subir 10px */
+                        margin-top: 0px !important;
+                        transform: translateY(-5px) !important; 
                     }
 
-                    /* 2. 🚀 FUERZA BRUTA: ARRANCAR LA CAJA ENTERA DEL POPOVER Y SUBIRLA 65PX */
+                    /* ======================================================
+                       🎛️ CONTROL TOTAL DEL BOTÓN "SUBIR" (LIBERADO)
+                       ====================================================== */
+                    
+                    /* 1. Liberamos la columna que lo atrapa para que no se corte */
+                    div[data-testid="stForm"] div[data-testid="column"]:nth-child(5) {
+                        position: relative !important;
+                        z-index: 99 !important;
+                    }
+
+                    /* 2. Mueve la caja a tu antojo (Cambia top y left) */
                     div[data-testid="stForm"] div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] {
-                        transform: translateY(-65px) !important; /* <-- La grúa se aplica a la caja madre */
+                        position: relative !important;
+                        transform: none !important; /* Quitamos la grúa vieja que lo limitaba */
+                        top: -30px !important;      /* ⬆️ SÚBELO O BÁJALO AQUÍ (Negativo sube, Positivo baja) */
+                        left: 0px !important;       /* ⬅️ MUÉVELO A LOS LADOS AQUÍ (Negativo izq, Positivo der) */
                         margin-top: 0px !important;
                     }
 
-                    /* 3. Damos formato al botón interno para que fluya sin estorbar */
+                    /* 3. Damos formato y tamaño al botón interno */
                     div[data-testid="stForm"] div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > button {
-                        width: 100% !important;
-                        margin: 0 !important; height: 40px !important; min-height: 40px !important;
-                        background: #2D3748 !important; border: 1px solid #4A5568 !important; color: white !important;
-                        font-size: 14px !important;
-                        box-shadow: none !important; border-radius: 8px !important;
-                        margin-top: 0px !important; /* Forzamos a anular cualquier margen global que tenga */
+                        width: 100% !important;     /* ↔️ ANCHO DEL BOTÓN */
+                        height: 45px !important;    /* ↕️ ALTO DEL BOTÓN */
+                        min-height: 45px !important;
+                        margin: 0 !important; 
+                        background: #2D3748 !important; 
+                        border: 1px solid #4A5568 !important; 
+                        color: white !important;
+                        font-size: 16px !important; /* 🔠 TAMAÑO DE LETRA */
+                        font-weight: bold !important;
+                        box-shadow: 0 4px 6px rgba(0,0,0,0.2) !important; 
+                        border-radius: 8px !important;
+                        transition: all 0.2s ease !important;
+                    }
+
+                    /* Efecto hover premium al pasar el ratón */
+                    div[data-testid="stForm"] div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > button:hover {
+                        border-color: #00C897 !important;
+                        background: rgba(0, 200, 151, 0.1) !important;
+                        color: #00C897 !important;
                     }
                     
                     /* 3. 🔴 CONVERTIR EL CÍRCULO VERDE EN UNA X ROJA PARA BORRAR ARCHIVOS 🔴 */
