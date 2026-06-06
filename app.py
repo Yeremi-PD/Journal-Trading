@@ -2728,40 +2728,42 @@ if True:
                     link_imagen = st.text_input("Link", value="", label_visibility="collapsed", placeholder="🔗 Pega el Link aquí")
                     
                 with c_upd:
-                    # 🟢 Ahora sí le ponemos un título real y visible
-                    st.markdown('<div class="lbl-header">Captura:</div>', unsafe_allow_html=True)
-                    
+                    # 🟢 1. PONEMOS EL CSS PRIMERO PARA MATAR EL ESPACIO FANTASMA
                     st.markdown("""<style>
-                    /* 1. 🚀 FUERZA BRUTA: SUBIR EL LINK 10PX EXACTOS */
+                    /* Alineamos el link */
                     div[data-testid="stForm"] div[data-testid="stTextInput"]:has(input[aria-label="Link"]) {
                         margin-top: 0px !important;
                         transform: translateY(-5px) !important; 
                     }
 
                     /* ======================================================
-                       🎛️ CONTROL TOTAL DEL BOTÓN "SUBIR" (LIBERADO AL 100%)
+                       ☢️ OPCIÓN NUCLEAR: POSICIÓN ABSOLUTA (SE MUEVE SÍ O SÍ)
                        ====================================================== */
                     
-                    /* 1. Liberamos la columna que lo atrapa */
+                    /* Hacemos que la columna sea la base para anclar el botón */
                     div[data-testid="stForm"] div[data-testid="column"]:nth-child(5) {
                         position: relative !important;
                         z-index: 99 !important;
+                        min-height: 60px !important; /* Mantiene la columna firme */
                     }
 
-                    /* 2. MUÉVELO AQUÍ: Matamos la ancla y lo forzamos a subir */
+                    /* 🚀 ARRANCAMOS EL BOTÓN Y LO VOLVEMOS ABSOLUTO (FUERA DE LAS LEYES DE STREAMLIT) */
                     div[data-testid="stForm"] div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] {
-                        position: relative !important;
-                        margin-top: -20px !important; /* ⬆️ SÚBELO AQUÍ: Mientras más negativo, más sube (-30px, -40px) */
-                        transform: translateY(-10px) !important; /* ⬆️ GRÚA EXTRA: Obliga a subir ignorando a Streamlit */
+                        position: absolute !important;
+                        top: 32px !important; /* ⬆️ MUÉVELO AQUÍ: Si quieres que suba más, pon 25px o 20px */
+                        left: 0px !important;
+                        width: 100% !important;
+                        margin: 0 !important;
+                        padding: 0 !important;
                     }
 
-                    /* 3. Damos formato y MATAMOS el margen de 25px que lo hundía */
+                    /* Forzamos que el botón no tenga márgenes muertos */
                     div[data-testid="stForm"] div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > button,
                     div[data-testid="stForm"] div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > div:first-child > button {
                         width: 100% !important;     
                         height: 45px !important;    
                         min-height: 45px !important;
-                        margin-top: 0px !important; /* ☠️ ESTO MATA LA PIEDRA QUE LO HUNDÍA ☠️ */
+                        margin: 0 !important; 
                         padding: 0 !important;
                         background: #2D3748 !important; 
                         border: 1px solid #4A5568 !important; 
@@ -2773,15 +2775,14 @@ if True:
                         transition: all 0.2s ease !important;
                     }
 
-                    /* Efecto hover premium al pasar el ratón */
-                    div[data-testid="stForm"] div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > button:hover,
-                    div[data-testid="stForm"] div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > div:first-child > button:hover {
+                    /* Efecto hover premium */
+                    div[data-testid="stForm"] div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > button:hover {
                         border-color: #00C897 !important;
                         background: rgba(0, 200, 151, 0.1) !important;
                         color: #00C897 !important;
                     }
                     
-                    /* 3. 🔴 CONVERTIR EL CÍRCULO VERDE EN UNA X ROJA PARA BORRAR ARCHIVOS 🔴 */
+                    /* 🔴 CONVERTIR EL CÍRCULO VERDE EN UNA X ROJA PARA BORRAR ARCHIVOS 🔴 */
                     [data-testid="stFileUploaderDeleteBtn"] {
                         background-color: #FF4C4C !important;
                         border-radius: 50% !important;
@@ -2798,16 +2799,26 @@ if True:
                         transform: scale(1.1) !important;
                     }
                     
-                    /* 4. Revivimos el cargador adentro del apartado */
-                    div[data-testid="stPopoverBody"] div[data-testid="stFileUploader"] { margin: 0 !important; width: 100% !important; display: block !important; }
+                    /* Revivimos el cargador adentro del apartado */
+                    div[data-testid="stPopoverBody"] div[data-testid="stFileUploader"] { margin: 0 !important;
+                        width: 100% !important; display: block !important; }
                     div[data-testid="stPopoverBody"] div[data-testid="stFileUploader"] section { 
-                        background: rgba(0,0,0,0.2) !important; border: 2px dashed #00C897 !important; min-height: 120px !important; height: auto !important; display: flex !important; flex-direction: column !important; justify-content: center !important; 
+                        background: rgba(0,0,0,0.2) !important;
+                        border: 2px dashed #00C897 !important; min-height: 120px !important; height: auto !important; display: flex !important; flex-direction: column !important; justify-content: center !important;
                     }
-                    div[data-testid="stPopoverBody"] div[data-testid="stFileUploader"] section svg { display: block !important; color: #00C897 !important; width: 40px !important; height: 40px !important; margin: 0 auto !important; }
+                    div[data-testid="stPopoverBody"] div[data-testid="stFileUploader"] section svg { display: block !important;
+                        color: #00C897 !important; width: 40px !important; height: 40px !important; margin: 0 auto !important;
+                    }
                     div[data-testid="stPopoverBody"] div[data-testid="stFileUploader"] section div > span,
-                    div[data-testid="stPopoverBody"] div[data-testid="stFileUploader"] section small { display: block !important; color: white !important; text-align: center !important; }
-                    div[data-testid="stPopoverBody"] div[data-testid="stFileUploader"] section button { width: auto !important; background: #00C897 !important; color: white !important; margin: 10px auto 0 auto !important; padding: 5px 20px !important; border: none !important; }
+                    div[data-testid="stPopoverBody"] div[data-testid="stFileUploader"] section small { display: block !important;
+                        color: white !important; text-align: center !important; }
+                    div[data-testid="stPopoverBody"] div[data-testid="stFileUploader"] section button { width: auto !important;
+                        background: #00C897 !important; color: white !important; margin: 10px auto 0 auto !important; padding: 5px 20px !important; border: none !important;
+                    }
                     </style>""", unsafe_allow_html=True)
+                    
+                    # 🟢 2. EL TÍTULO AHORA VA ABAJO DEL CSS PARA QUE SE PEGUE AL BOTÓN
+                    st.markdown('<div class="lbl-header">Captura:</div>', unsafe_allow_html=True)
                     
                     with st.popover("🖼️ Subir", use_container_width=True):
                         st.markdown("<p style='text-align:center; font-weight:bold; color:white; margin-bottom:10px; font-size: 16px;'>Arrastra tu imagen o pega (Ctrl+V)</p>", unsafe_allow_html=True)
