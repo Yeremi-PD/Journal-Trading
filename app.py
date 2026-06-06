@@ -2663,7 +2663,7 @@ if True:
                         width: 100% !important; margin: 0 !important; height: 40px !important; min-height: 40px !important;
                         background: #2D3748 !important; border: 1px solid #4A5568 !important; color: white !important; font-size: 14px !important;
                         box-shadow: none !important; border-radius: 8px !important;
-                        margin-top: -20px !important; /* <--- Subiendo 20 puntos */
+                        margin-top: -220px !important; /* <--- Subiendo 20 puntos */
                     }
                     div[data-testid="stForm"] div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > button:hover {
                         border-color: #00C897 !important; background: rgba(0,200,151,0.1) !important; transform: none !important; color: #00C897 !important;
