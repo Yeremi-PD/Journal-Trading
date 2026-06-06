@@ -2656,7 +2656,7 @@ if True:
                     /* 1. 🚀 FUERZA BRUTA: SUBIR EL LINK 10PX EXACTOS */
                     div[data-testid="stForm"] div[data-testid="stTextInput"]:has(input[aria-label="Link"]) {
                         margin-top: 0px !important; 
-                        transform: translateY(10px) !important; /* Salta el bloqueo y lo obliga a subir 10px */
+                        transform: translateY(-5px) !important; /* Salta el bloqueo y lo obliga a subir 10px */
                     }
 
                     /* 2. 🚀 FUERZA BRUTA: SUBIR EL BOTÓN POPOVER 21PX EXACTOS */
