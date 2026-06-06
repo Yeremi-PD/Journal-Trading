@@ -2531,7 +2531,7 @@ if True:
         /* ========================================= */
         div[data-testid="stForm"] div[data-testid="stTextInput"]:has(input[aria-label="Link"]) {
             width: 100% !important;
-            margin-top: 30px !important;  /* <-- Aumenta a 5px o 10px si quieres separarlo del título */
+            margin-top: 20px !important;  /* <-- Aumenta a 5px o 10px si quieres separarlo del título */
             margin-left: 0px !important;
         }
 
@@ -2653,20 +2653,20 @@ if True:
                     st.markdown('<div class="lbl-header">Subir Imagen:</div>', unsafe_allow_html=True)
                     
                     st.markdown("""<style>
-                    /* 1. BAJAR LA CAJA DEL LINK 20 PUNTOS */
+                    /* 1. 🔓 DESTRUIR CANDADO FIJO Y BAJAR EL LINK LIMPIAMENTE */
                     div[data-testid="stForm"] div[data-testid="stTextInput"]:has(input[aria-label="Link"]) {
-                        margin-top: 25px !important; 
+                        transform: none !important;   /* <--- Rompe el -30px que lo congelaba arriba */
+                        margin-top: 45px !important;  /* <--- Controla la altura exacta de bajada */
                     }
 
-                    /* 2. SUBIR EL BOTÓN DEL POPOVER 20 PUNTOS */
+                    /* 2. ALINEAR EL BOTÓN POPOVER A LA MISMA ALTURA SIMÉTRICA */
                     div[data-testid="stForm"] div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > button {
-                        width: 100% !important; margin: 0 !important; height: 40px !important; min-height: 40px !important;
-                        background: #2D3748 !important; border: 1px solid #4A5568 !important; color: white !important; font-size: 14px !important;
+                        width: 100% !important;
+                        margin: 0 !important; height: 40px !important; min-height: 40px !important;
+                        background: #2D3748 !important; border: 1px solid #4A5568 !important; color: white !important;
+                        font-size: 14px !important;
                         box-shadow: none !important; border-radius: 8px !important;
-                        margin-top: -20px !important; /* <--- Subiendo 20 puntos */
-                    }
-                    div[data-testid="stForm"] div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > button:hover {
-                        border-color: #00C897 !important; background: rgba(0,200,151,0.1) !important; transform: none !important; color: #00C897 !important;
+                        margin-top: 0px !important;   /* <--- En 0px fluye perfectamente en paralelo al input */
                     }
                     
                     /* 3. 🔴 CONVERTIR EL CÍRCULO VERDE EN UNA X ROJA PARA BORRAR ARCHIVOS 🔴 */
