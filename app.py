@@ -848,63 +848,82 @@ if st.session_state.usuario_actual is None:
         background: transparent !important;
     }
 
-/* FIX MÓVIL PARA LOGIN EXTREMO: Textos y botones grandes y bien ajustados */
-    @media (max-width: 768px) {
-        /* 1. Escondemos las columnas laterales para que no te aplasten el cuadro */
-        div[data-testid="column"]:first-child,
-        div[data-testid="column"]:last-child {
+/* FIX MÓVIL PARA LOGIN EXTREMO: Destrucción de columnas nativas */
+    @media (max-width: 1024px) {
+        /* 1. Forzamos a que el bloque que sostiene las columnas se vuelva vertical */
+        div[data-testid="stHorizontalBlock"] {
+            flex-direction: column !important;
+        }
+        
+        /* 2. Matamos las columnas 1 y 3 (los espacios vacíos) para que no existan */
+        div[data-testid="stHorizontalBlock"] > div:nth-child(1),
+        div[data-testid="stHorizontalBlock"] > div:nth-child(3) {
             display: none !important;
+            width: 0 !important;
+            flex: 0 !important;
         }
-        /* 2. Forzamos la columna central a usar todo el ancho del teléfono */
-        div[data-testid="column"]:nth-child(2) {
-            min-width: 100% !important;
+        
+        /* 3. La columna central toma el 100% absoluto de la pantalla rompiendo el corsé */
+        div[data-testid="stHorizontalBlock"] > div:nth-child(2) {
             width: 100% !important;
-            padding: 0 10px !important;
+            min-width: 100% !important;
+            max-width: 100% !important;
+            flex: 1 1 100% !important;
         }
-        /* 3. Agrandamos el cuadro del formulario (el fondo de cristal) */
+
+        /* 4. Agrandamos el fondo de cristal para que llene la pantalla */
         div[data-testid="stForm"] {
+            width: 100% !important;
             padding: 40px 20px !important;
             margin-top: 10px !important;
-            width: 100% !important;
+            box-sizing: border-box !important;
         }
-        /* 4. EL TRUCO: Hay que agrandar la CAJA BASE del input, no solo la letra */
+
+        /* 5. Entradas de texto GIGANTES */
         div[data-testid="stForm"] div[data-baseweb="input"],
         div[data-testid="stForm"] div[data-baseweb="base-input"] {
-            height: 65px !important;
-            min-height: 65px !important;
+            height: 75px !important;
+            min-height: 75px !important;
+            border-radius: 12px !important;
         }
-        /* 5. Ahora sí, la letra adentro del input se verá perfecta */
         div[data-testid="stForm"] input {
-            font-size: 22px !important;
-            height: 65px !important;
+            font-size: 26px !important;
+            height: 75px !important;
         }
-        /* 6. Botón de Acceder / Crear Cuenta gigante */
+
+        /* 6. Botón GIGANTE */
         div[data-testid="stFormSubmitButton"] button {
-            font-size: 24px !important;
-            height: 70px !important;
-            margin-top: 25px !important;
+            font-size: 28px !important;
+            height: 85px !important;
+            border-radius: 12px !important;
+            margin-top: 30px !important;
         }
-        /* 7. Ajuste de Títulos para que no se salgan de la pantalla */
+
+        /* 7. Letras de las etiquetas ("Usuario", "Contraseña") */
+        div[data-testid="stForm"] label p {
+            font-size: 22px !important;
+        }
+
+        /* 8. Títulos de arriba */
         .login-title { 
-            font-size: 48px !important;
+            font-size: 55px !important;
             line-height: 1.1 !important;
         }
         .login-sub { 
-            font-size: 18px !important;
+            font-size: 22px !important;
             margin-bottom: 25px !important;
         }
+
+        /* 9. Título interno ("Bienvenido") */
         div[data-testid="stForm"] h3 {
-            font-size: 32px !important;
-            margin-bottom: 30px !important;
+            font-size: 38px !important;
+            margin-bottom: 35px !important;
         }
-        /* 8. Botón secundario ("¿No tienes cuenta?") */
+
+        /* 10. Botón de abajo ("No tienes cuenta") */
         .btn-secundario-link button {
-            font-size: 18px !important;
-            padding-top: 20px !important;
-        }
-        /* 9. Textos de "Usuario" y "Contraseña" */
-        div[data-testid="stForm"] label p {
-            font-size: 18px !important;
+            font-size: 22px !important;
+            padding-top: 30px !important;
         }
     }
     </style>
