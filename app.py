@@ -2653,20 +2653,20 @@ if True:
                     st.markdown('<div class="lbl-header">Subir Imagen:</div>', unsafe_allow_html=True)
                     
                     st.markdown("""<style>
-                    /* 1. 🔓 LIBERAR Y AJUSTAR INPUT A 10PX */
+                    /* 1. 🔓 SUBIR EL INPUT DEL LINK 10 PUNTOS (Queda en 0) */
                     div[data-testid="stForm"] div[data-testid="stTextInput"]:has(input[aria-label="Link"]) {
-                        transform: none !important;   /* Rompe definitivamente el candado de arriba */
-                        margin-top: 0px !important;  /* Ajustado a solo 10px de separación */
+                        transform: none !important;
+                        margin-top: 0px !important;  /* Subió 10 puntos */
                     }
 
-                    /* 2. AJUSTAR EL BOTÓN DEL POPOVER A 10PX INDEPENDIENTES */
+                    /* 2. SUBIR EL BOTÓN DE POPOVER ~21 PUNTOS (Queda en -11) */
                     div[data-testid="stForm"] div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > button {
                         width: 100% !important;
                         margin: 0 !important; height: 40px !important; min-height: 40px !important;
                         background: #2D3748 !important; border: 1px solid #4A5568 !important; color: white !important;
                         font-size: 14px !important;
                         box-shadow: none !important; border-radius: 8px !important;
-                        margin-top: 0px !important;  /* Sincronizado perfectamente en paralelo a 10px */
+                        margin-top: -11px !important;  /* Subió casi 21 puntos */
                     }
                     
                     /* 3. 🔴 CONVERTIR EL CÍRCULO VERDE EN UNA X ROJA PARA BORRAR ARCHIVOS 🔴 */
