@@ -2728,36 +2728,27 @@ if True:
                     link_imagen = st.text_input("Link", value="", label_visibility="collapsed", placeholder="🔗 Pega el Link aquí")
                     
                 with c_upd:
-                    # 🟢 1. PONEMOS EL CSS PRIMERO PARA MATAR EL ESPACIO FANTASMA
-                    st.markdown("""<style>
+                    # 🟢 1. EL TÍTULO VA PRIMERO SIEMPRE (Para que nunca baje)
+                    st.markdown('<div class="lbl-header">Captura:</div>', unsafe_allow_html=True)
+                    
+                    # 🟢 2. EL CSS VA ESCONDIDO EN UN DIV DE ALTURA CERO (Mata el hueco fantasma)
+                    st.markdown("""<div style='display:none; height:0px; margin:0; padding:0;'>
+                    <style>
                     /* Alineamos el link */
                     div[data-testid="stForm"] div[data-testid="stTextInput"]:has(input[aria-label="Link"]) {
                         margin-top: 0px !important;
                         transform: translateY(-5px) !important; 
                     }
 
-                    /* ======================================================
-                       ☢️ OPCIÓN NUCLEAR: POSICIÓN ABSOLUTA (SE MUEVE SÍ O SÍ)
-                       ====================================================== */
-                    
-                    /* Hacemos que la columna sea la base para anclar el botón */
-                    div[data-testid="stForm"] div[data-testid="column"]:nth-child(5) {
-                        position: relative !important;
-                        z-index: 99 !important;
-                        min-height: 60px !important; /* Mantiene la columna firme */
-                    }
-
-                    /* 🚀 ARRANCAMOS EL BOTÓN Y LO VOLVEMOS ABSOLUTO (FUERA DE LAS LEYES DE STREAMLIT) */
+                    /* 3. 🚀 SÚBELO AQUÍ CON TRANSFORM (No afecta al título) */
                     div[data-testid="stForm"] div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] {
-                        position: absolute !important;
-                        top: 32px !important; /* ⬆️ MUÉVELO AQUÍ: Si quieres que suba más, pon 25px o 20px */
-                        left: 0px !important;
-                        width: 100% !important;
-                        margin: 0 !important;
-                        padding: 0 !important;
+                        transform: translateY(-14px) !important; /* ⬆️ SÚBELO AQUÍ: Mientras más negativo, más sube (-20px, -30px) */
+                        margin-top: 0px !important;
+                        position: relative !important;
+                        z-index: 10 !important;
                     }
 
-                    /* Forzamos que el botón no tenga márgenes muertos */
+                    /* Formato del botón interno */
                     div[data-testid="stForm"] div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > button,
                     div[data-testid="stForm"] div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > div:first-child > button {
                         width: 100% !important;     
@@ -2815,10 +2806,7 @@ if True:
                     div[data-testid="stPopoverBody"] div[data-testid="stFileUploader"] section button { width: auto !important;
                         background: #00C897 !important; color: white !important; margin: 10px auto 0 auto !important; padding: 5px 20px !important; border: none !important;
                     }
-                    </style>""", unsafe_allow_html=True)
-                    
-                    # 🟢 2. EL TÍTULO AHORA VA ABAJO DEL CSS PARA QUE SE PEGUE AL BOTÓN
-                    st.markdown('<div class="lbl-header">Captura:</div>', unsafe_allow_html=True)
+                    </style></div>""", unsafe_allow_html=True)
                     
                     with st.popover("🖼️ Subir", use_container_width=True):
                         st.markdown("<p style='text-align:center; font-weight:bold; color:white; margin-bottom:10px; font-size: 16px;'>Arrastra tu imagen o pega (Ctrl+V)</p>", unsafe_allow_html=True)
