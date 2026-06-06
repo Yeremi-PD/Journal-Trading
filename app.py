@@ -1488,7 +1488,6 @@ def contenido_ajustes():
         unsafe_allow_html=True
     )
 
-    st.markdown("---")
     st.radio(
         _l['sidebar']['lang'],
         ["ES", "EN"],
