@@ -125,8 +125,9 @@ def registrar_nuevo_acceso(usuario, password):
     try:
             try:
                 hoja = db_spreadsheet.worksheet("Accesos")
-                # 🟢 Usamos append_row para que el usuario vaya al final de la lista
-                hoja.append_row([str(usuario).strip(), str(password).strip(), codigo, f_crea, f_ven, "TRUE"])
+                # 🟢 Contamos las filas ocupadas reales y lo metemos justo en la siguiente
+                proxima_fila = len(hoja.get_all_values()) + 1
+                hoja.insert_row([str(usuario).strip(), str(password).strip(), codigo, f_crea, f_ven, "TRUE"], index=proxima_fila)
                 
             except gspread.exceptions.WorksheetNotFound:
                 # Si NO existe, la creamos con solo 50 filas para que no haya donde perderse
@@ -135,8 +136,8 @@ def registrar_nuevo_acceso(usuario, password):
                 # Obligamos a que los TÍTULOS vayan a la FILA 1
                 hoja.insert_row(["Usuario", "Password", "Codigo_Acceso", "Fecha_Creacion", "Fecha_Vencimiento", "Activo"], index=1)
                 
-                # Y agregamos el primer usuario debajo
-                hoja.append_row([str(usuario).strip(), str(password).strip(), codigo, f_crea, f_ven, "TRUE"])
+                # Y agregamos el primer usuario en la FILA 2
+                hoja.insert_row([str(usuario).strip(), str(password).strip(), codigo, f_crea, f_ven, "TRUE"], index=2)
                 
             return codigo
     except Exception as e:
@@ -218,8 +219,9 @@ def verificar_acceso_live(usuario):
             f_crea = datetime.now().strftime("%d/%m/%Y")
             f_ven = (datetime.now() + pd.Timedelta(days=30)).strftime("%d/%m/%Y") # 30 días de gracia iniciales
             
-            # 🟢 Lo agregamos al FINAL de la lista para mantener la cronología
-            hoja.append_row([str(usuario).strip(), str(pwd_viejo).strip(), codigo, f_crea, f_ven, "TRUE"])
+            # 🟢 Contamos las filas ocupadas reales para la migración y lo añadimos al final real
+            proxima_fila_migra = len(hoja.get_all_values()) + 1
+            hoja.insert_row([str(usuario).strip(), str(pwd_viejo).strip(), codigo, f_crea, f_ven, "TRUE"], index=proxima_fila_migra)
             
     except: pass
     return True, ""
