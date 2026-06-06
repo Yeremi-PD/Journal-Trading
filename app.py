@@ -100,7 +100,8 @@ def registrar_nuevo_acceso(usuario, password):
     try:
         hoja = db_spreadsheet.worksheet("Accesos")
     except:
-        hoja = db_spreadsheet.add_worksheet(title="Accesos", rows="1000", cols="10")
+        # 🟢 FIX: Los números de filas y columnas van sin comillas para que no crashee
+        hoja = db_spreadsheet.add_worksheet(title="Accesos", rows=1000, cols=10)
         hoja.append_row(["Usuario", "Password", "Codigo_Acceso", "Fecha_Creacion", "Fecha_Vencimiento", "Activo"])
     
     hoja.append_row([str(usuario).strip(), str(password).strip(), codigo, f_crea, f_ven, "TRUE"])
@@ -112,9 +113,12 @@ def enviar_correo_admin(usuario, codigo):
     try:
         emisor = st.secrets.get("admin_email", "")
         password = st.secrets.get("admin_pass", "")
-        if not emisor or not password: return
         
-        msg = MIMEText(f"¡Tienes un nuevo cliente en Yeremi Journal Pro!\n\n👤 Usuario: {usuario}\n🔑 Código: {codigo}\n\nRevisa la pestaña 'Accesos' en Google Sheets para administrar su licencia.")
+        if not emisor or not password: 
+            st.warning("⚠️ El usuario se registró en la pestaña Accesos, pero NO se envió el correo porque faltan las credenciales en st.secrets")
+            return
+        
+        msg = MIMEText(f"¡Tienes un nuevo cliente en Yeremi Journal!\n\n👤 Usuario: {usuario}\n🔑 Código: {codigo}\n\nRevisa la pestaña 'Accesos' en Google Sheets para administrar su licencia.")
         msg['Subject'] = f"🚀 Nuevo Registro: {usuario}"
         msg['From'] = emisor
         msg['To'] = emisor 
@@ -122,8 +126,11 @@ def enviar_correo_admin(usuario, codigo):
         with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
             smtp.login(emisor, password)
             smtp.send_message(msg)
+            
+    except smtplib.SMTPAuthenticationError:
+        st.error("⚠️ Correo no enviado. Parece que la Contraseña de Aplicación de Google es incorrecta.")
     except Exception as e:
-        print("Error enviando correo:", e)
+        st.error(f"⚠️ Error enviando correo: {e}")
 
 def verificar_acceso_live(usuario):
     if not db_spreadsheet: return True, ""
@@ -650,8 +657,19 @@ query_u = st.query_params.get("user")
 query_d = st.query_params.get("device", "PC")
 
 # OPTIMIZACIÓN: Asignamos el usuario directo sin hacer "st.rerun()".
-# Esto elimina una pantalla de carga blanca innecesaria.
 if query_u in db_global and st.session_state.usuario_actual is None:
+    
+    # 🛡️ SEGURIDAD EXTREMA: Bloquear enlaces guardados si el usuario fue baneado
+    try:
+        acceso_permitido, msg_error = verificar_acceso_live(query_u)
+        if not acceso_permitido:
+            st.error(msg_error)
+            try: st.query_params.clear()
+            except: pass
+            st.stop() # Mata la carga de la página aquí mismo
+    except NameError:
+        pass # Por si la función verificar_acceso_live aún no ha cargado en memoria
+        
     st.session_state.usuario_actual = query_u
     st.session_state.dispositivo_actual = query_d
 
