@@ -848,35 +848,54 @@ if st.session_state.usuario_actual is None:
         background: transparent !important;
     }
 
-    /* FIX MÓVIL PARA LOGIN: Hacer que el cuadro y los textos se expandan al 100% y se vean inmensos */
+    /* FIX MÓVIL PARA LOGIN EXTREMO: Textos y botones al doble de tamaño (100% más grandes) */
     @media (max-width: 768px) {
         div[data-testid="column"]:nth-child(1),
         div[data-testid="column"]:nth-child(3) {
-            display: none !important; /* Destruye las columnas laterales invisibles que aplastaban el centro */
+            display: none !important; 
         }
         div[data-testid="column"]:nth-child(2) {
             min-width: 100% !important;
             width: 100% !important;
         }
         div[data-testid="stForm"] {
-            padding: 40px 20px !important;
-            margin-top: 15px !important;
+            padding: 50px 20px !important;
+            margin-top: 20px !important;
         }
+        /* Aumentamos brutalmente los inputs (Usuario y Contraseña) */
         div[data-testid="stForm"] input {
-            font-size: 18px !important;
-            height: 55px !important;
-        }
-        div[data-testid="stFormSubmitButton"] button {
-            font-size: 22px !important;
-            height: 60px !important;
-            margin-top: 25px !important;
-        }
-        .login-title { 
-            font-size: 45px !important; 
-        }
-        div[data-testid="stForm"] h3 {
             font-size: 28px !important;
-            margin-bottom: 35px !important;
+            height: 80px !important;
+        }
+        /* Botón de Acceder / Crear Cuenta gigante */
+        div[data-testid="stFormSubmitButton"] button {
+            font-size: 32px !important;
+            height: 85px !important;
+            margin-top: 35px !important;
+        }
+        /* Título principal de Yeremi Journal */
+        .login-title { 
+            font-size: 65px !important; 
+            line-height: 1.1 !important;
+        }
+        .login-sub { 
+            font-size: 26px !important; 
+            margin-bottom: 30px !important;
+        }
+        /* Título de 'Bienvenido de nuevo 👋' o 'Crea tu cuenta' */
+        div[data-testid="stForm"] h3 {
+            font-size: 45px !important;
+            margin-bottom: 45px !important;
+            line-height: 1.2 !important;
+        }
+        /* Botón secundario de '¿No tienes cuenta? Regístrate aquí' */
+        .btn-secundario-link button {
+            font-size: 24px !important;
+            padding-top: 25px !important;
+        }
+        /* Etiquetas y placeholders si aplican */
+        div[data-testid="stForm"] label p {
+            font-size: 22px !important;
         }
     }
     </style>
@@ -2691,9 +2710,9 @@ if True:
                         transform: translateY(-5px) !important; /* Salta el bloqueo y lo obliga a subir 10px */
                     }
 
-                    /* 2. 🚀 FUERZA BRUTA: ARRANCAR LA CAJA ENTERA DEL POPOVER Y SUBIRLA 41PX */
+                    /* 2. 🚀 FUERZA BRUTA: ARRANCAR LA CAJA ENTERA DEL POPOVER Y SUBIRLA 65PX */
                     div[data-testid="stForm"] div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] {
-                        transform: translateY(-41px) !important; /* <-- La grúa se aplica a la caja madre */
+                        transform: translateY(-65px) !important; /* <-- La grúa se aplica a la caja madre */
                         margin-top: 0px !important;
                     }
 
