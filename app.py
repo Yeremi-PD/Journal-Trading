@@ -2667,7 +2667,7 @@ if True:
                         background: #2D3748 !important; border: 1px solid #4A5568 !important; color: white !important;
                         font-size: 14px !important;
                         box-shadow: none !important; border-radius: 8px !important;
-                        margin-top: 0px !important;   /* <--- En 0px fluye perfectamente en paralelo al input */
+                        margin-top: 10px !important;   /* <--- En 0px fluye perfectamente en paralelo al input */
                     }
                     
                     /* 3. 🔴 CONVERTIR EL CÍRCULO VERDE EN UNA X ROJA PARA BORRAR ARCHIVOS 🔴 */
