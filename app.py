@@ -848,54 +848,63 @@ if st.session_state.usuario_actual is None:
         background: transparent !important;
     }
 
-    /* FIX MÓVIL PARA LOGIN EXTREMO: Textos y botones al doble de tamaño (100% más grandes) */
+/* FIX MÓVIL PARA LOGIN EXTREMO: Textos y botones grandes y bien ajustados */
     @media (max-width: 768px) {
-        div[data-testid="column"]:nth-child(1),
-        div[data-testid="column"]:nth-child(3) {
-            display: none !important; 
+        /* 1. Escondemos las columnas laterales para que no te aplasten el cuadro */
+        div[data-testid="column"]:first-child,
+        div[data-testid="column"]:last-child {
+            display: none !important;
         }
+        /* 2. Forzamos la columna central a usar todo el ancho del teléfono */
         div[data-testid="column"]:nth-child(2) {
             min-width: 100% !important;
             width: 100% !important;
+            padding: 0 10px !important;
         }
+        /* 3. Agrandamos el cuadro del formulario (el fondo de cristal) */
         div[data-testid="stForm"] {
-            padding: 50px 20px !important;
-            margin-top: 20px !important;
+            padding: 40px 20px !important;
+            margin-top: 10px !important;
+            width: 100% !important;
         }
-        /* Aumentamos brutalmente los inputs (Usuario y Contraseña) */
+        /* 4. EL TRUCO: Hay que agrandar la CAJA BASE del input, no solo la letra */
+        div[data-testid="stForm"] div[data-baseweb="input"],
+        div[data-testid="stForm"] div[data-baseweb="base-input"] {
+            height: 65px !important;
+            min-height: 65px !important;
+        }
+        /* 5. Ahora sí, la letra adentro del input se verá perfecta */
         div[data-testid="stForm"] input {
-            font-size: 28px !important;
-            height: 80px !important;
+            font-size: 22px !important;
+            height: 65px !important;
         }
-        /* Botón de Acceder / Crear Cuenta gigante */
+        /* 6. Botón de Acceder / Crear Cuenta gigante */
         div[data-testid="stFormSubmitButton"] button {
-            font-size: 32px !important;
-            height: 85px !important;
-            margin-top: 35px !important;
+            font-size: 24px !important;
+            height: 70px !important;
+            margin-top: 25px !important;
         }
-        /* Título principal de Yeremi Journal */
+        /* 7. Ajuste de Títulos para que no se salgan de la pantalla */
         .login-title { 
-            font-size: 65px !important; 
+            font-size: 48px !important;
             line-height: 1.1 !important;
         }
         .login-sub { 
-            font-size: 26px !important; 
+            font-size: 18px !important;
+            margin-bottom: 25px !important;
+        }
+        div[data-testid="stForm"] h3 {
+            font-size: 32px !important;
             margin-bottom: 30px !important;
         }
-        /* Título de 'Bienvenido de nuevo 👋' o 'Crea tu cuenta' */
-        div[data-testid="stForm"] h3 {
-            font-size: 45px !important;
-            margin-bottom: 45px !important;
-            line-height: 1.2 !important;
-        }
-        /* Botón secundario de '¿No tienes cuenta? Regístrate aquí' */
+        /* 8. Botón secundario ("¿No tienes cuenta?") */
         .btn-secundario-link button {
-            font-size: 24px !important;
-            padding-top: 25px !important;
+            font-size: 18px !important;
+            padding-top: 20px !important;
         }
-        /* Etiquetas y placeholders si aplican */
+        /* 9. Textos de "Usuario" y "Contraseña" */
         div[data-testid="stForm"] label p {
-            font-size: 22px !important;
+            font-size: 18px !important;
         }
     }
     </style>
