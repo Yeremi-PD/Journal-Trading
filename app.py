@@ -161,7 +161,7 @@ def enviar_correo_admin(usuario, codigo):
         if not emisor or not password: 
             return f"FALTAN_SECRETOS: Streamlit solo ve estas variables: {list(st.secrets.keys())}"
         
-        msg = MIMEText(f"¡Tienes un nuevo cliente en PF Journal!\n\n👤 Usuario: {usuario}\n🔑 Código: {codigo}\n\nRevisa la pestaña 'Accesos' en Google Sheets para administrar su licencia.")
+        msg = MIMEText(f"¡Tienes un nuevo Usuario en PF Journal Pro!\n\n👤 Usuario: {usuario}\n🔑 Código: {codigo}\n\nRevisa la Base de Datos para administrar su licencia.")
         msg['Subject'] = f" Nuevo Registro: {usuario}"
         msg['From'] = emisor
         msg['To'] = emisor 
