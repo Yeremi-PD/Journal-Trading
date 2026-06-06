@@ -31,7 +31,7 @@ else:
 tamaño_max = max(logo_recortado.size)
 logo_final = ImageOps.pad(logo_recortado, (tamaño_max, tamaño_max))
 
-st.set_page_config(page_title="Yeremi Journal Pro", page_icon=logo_final, layout="wide")
+st.set_page_config(page_title="PF", page_icon=logo_final, layout="wide")
 
 # ==========================================
 # 🚀 AUTO-LOGIN (SISTEMA DE ALTA SEGURIDAD COMPATIBLE CON LA NUBE) 🚀
@@ -929,7 +929,7 @@ if st.session_state.usuario_actual is None:
     </style>
     """, unsafe_allow_html=True)
 
-    st.markdown("<div class='login-title'>Yeremi Journal Pro</div>", unsafe_allow_html=True)
+    st.markdown("<div class='login-title'>PF</div>", unsafe_allow_html=True)
     st.markdown("<div class='login-sub'>Tu dashboard avanzado de trading</div>", unsafe_allow_html=True)
     
     _, col_login, _ = st.columns([1, 1.5, 1])
@@ -1293,7 +1293,7 @@ if not db_usuario or (len(db_usuario) == 1 and "Todas las Cuentas" in db_usuario
     </style>
     """, unsafe_allow_html=True)
     
-    st.markdown("<div class='setup-main-title'>Yeremi Journal Pro</div>", unsafe_allow_html=True)
+    st.markdown("<div class='setup-main-title'>PF</div>", unsafe_allow_html=True)
     st.markdown(f"<div class='setup-main-sub'>{_l['setup']['title']}</div>", unsafe_allow_html=True)
     
     _, col_centro, _ = st.columns([1, 1.6, 1])
