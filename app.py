@@ -993,7 +993,7 @@ if st.session_state.usuario_actual is None:
                 # 📱 Toggle DENTRO del formulario (Desactivado por defecto)
                 modo_movil_check_reg = st.toggle("📱 Activar Modo Móvil", value=False)
                 
-                btn_registrar = st.form_submit_button("Crear Cuenta", use_container_width=True)
+                btn_registrar = st.form_submit_button("CREAR CUENTAa", use_container_width=True)
                 
                 if btn_registrar:
                     u_reg_clean = reg_user.strip()
@@ -1484,7 +1484,6 @@ def contenido_ajustes():
     tamanio_texto_cuenta = "22px"
     st.markdown(
         f"<div style='margin-top:-15px; font-size: {tamanio_texto_cuenta}; font-weight: bold;'>"
-        f"👤 {_l['sidebar']['account']} <span style='color: #00C897;'>{usuario}</span>"
         f"</div>", 
         unsafe_allow_html=True
     )
