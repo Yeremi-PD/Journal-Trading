@@ -2728,33 +2728,41 @@ if True:
                     link_imagen = st.text_input("Link", value="", label_visibility="collapsed", placeholder="🔗 Pega el Link aquí")
                     
                 with c_upd:
-                    # 🟢 1. EL TÍTULO VA PRIMERO SIEMPRE (Para que nunca baje)
-                    st.markdown('<div class="lbl-header">Captura:</div>', unsafe_allow_html=True)
-                    
-                    # 🟢 2. EL CSS VA ESCONDIDO EN UN DIV DE ALTURA CERO (Mata el hueco fantasma)
-                    st.markdown("""<div style='display:none; height:0px; margin:0; padding:0;'>
+                    # 🟢 DESTRUCCIÓN Y CREACIÓN: Unimos el título y el CSS en un solo bloque indivisible
+                    st.markdown("""
+                    <div style="position: relative; width: 100%; height: 10px; z-index: 99;">
+                        <div class="lbl-header" style="position: absolute; top: -10px; left: 0;">Captura:</div>
+                    </div>
                     <style>
-                    /* Alineamos el link */
+                    /* Alineamos el link de la columna 4 */
                     div[data-testid="stForm"] div[data-testid="stTextInput"]:has(input[aria-label="Link"]) {
                         margin-top: 0px !important;
                         transform: translateY(-5px) !important; 
                     }
 
-                    /* 3. 🚀 SÚBELO AQUÍ CON TRANSFORM (No afecta al título) */
-                    div[data-testid="stForm"] div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] {
-                        transform: translateY(-14px) !important; /* ⬆️ SÚBELO AQUÍ: Mientras más negativo, más sube (-20px, -30px) */
-                        margin-top: 0px !important;
+                    /* PREPARAMOS EL TERRENO DE LA COLUMNA 5 */
+                    div[data-testid="stForm"] div[data-testid="column"]:nth-child(5) {
                         position: relative !important;
-                        z-index: 10 !important;
+                        min-height: 60px !important;
                     }
 
-                    /* Formato del botón interno */
-                    div[data-testid="stForm"] div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > button,
-                    div[data-testid="stForm"] div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > div:first-child > button {
+                    /* 🚀 CREAMOS EL BOTÓN DE CERO Y LE DAMOS POSICIÓN ABSOLUTA EXTREMA */
+                    html body div[data-testid="stForm"] div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] {
+                        position: absolute !important;
+                        top: 25px !important; /* 🔥 CONTROL MAESTRO: CÁMBIALO AQUÍ PARA MOVERLO 🔥 */
+                        left: 0 !important;
+                        width: 100% !important;
+                        margin: 0 !important;
+                        padding: 0 !important;
+                    }
+
+                    /* ☠️ ANIQUILAMOS LA REGLA ANTERIOR DE STREAMLIT QUE LO HUNDÍA 25PX */
+                    html body div[data-testid="stForm"] div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > button,
+                    html body div[data-testid="stForm"] div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > div:first-child > button {
                         width: 100% !important;     
                         height: 45px !important;    
                         min-height: 45px !important;
-                        margin: 0 !important; 
+                        margin: 0 !important; /* MATA EL MARGEN GLOBAL VIEJO */
                         padding: 0 !important;
                         background: #2D3748 !important; 
                         border: 1px solid #4A5568 !important; 
@@ -2767,7 +2775,7 @@ if True:
                     }
 
                     /* Efecto hover premium */
-                    div[data-testid="stForm"] div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > button:hover {
+                    html body div[data-testid="stForm"] div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > button:hover {
                         border-color: #00C897 !important;
                         background: rgba(0, 200, 151, 0.1) !important;
                         color: #00C897 !important;
@@ -2806,7 +2814,8 @@ if True:
                     div[data-testid="stPopoverBody"] div[data-testid="stFileUploader"] section button { width: auto !important;
                         background: #00C897 !important; color: white !important; margin: 10px auto 0 auto !important; padding: 5px 20px !important; border: none !important;
                     }
-                    </style></div>""", unsafe_allow_html=True)
+                    </style>
+                    """, unsafe_allow_html=True)
                     
                     with st.popover("🖼️ Subir", use_container_width=True):
                         st.markdown("<p style='text-align:center; font-weight:bold; color:white; margin-bottom:10px; font-size: 16px;'>Arrastra tu imagen o pega (Ctrl+V)</p>", unsafe_allow_html=True)
