@@ -2656,7 +2656,7 @@ if True:
                     /* 1. 🔓 LIBERAR Y AJUSTAR INPUT A 10PX */
                     div[data-testid="stForm"] div[data-testid="stTextInput"]:has(input[aria-label="Link"]) {
                         transform: none !important;   /* Rompe definitivamente el candado de arriba */
-                        margin-top: 10px !important;  /* Ajustado a solo 10px de separación */
+                        margin-top: 0px !important;  /* Ajustado a solo 10px de separación */
                     }
 
                     /* 2. AJUSTAR EL BOTÓN DEL POPOVER A 10PX INDEPENDIENTES */
