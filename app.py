@@ -1017,7 +1017,7 @@ if st.session_state.usuario_actual is None:
                 # 📱 Toggle DENTRO del formulario (Desactivado por defecto)
                 modo_movil_check_reg = st.toggle("📱 Activar Modo Móvil", value=False)
                 
-                btn_registrar = st.form_submit_button("CREAR CUENTAa", use_container_width=True)
+                btn_registrar = st.form_submit_button("CREAR CUENTA", use_container_width=True)
                 
                 if btn_registrar:
                     u_reg_clean = reg_user.strip()
