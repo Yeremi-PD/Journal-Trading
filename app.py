@@ -2659,15 +2659,20 @@ if True:
                         transform: translateY(-5px) !important; /* Salta el bloqueo y lo obliga a subir 10px */
                     }
 
-                    /* 2. 🚀 FUERZA BRUTA: SUBIR EL BOTÓN POPOVER 21PX EXACTOS */
+                    /* 2. 🚀 FUERZA BRUTA: ARRANCAR LA CAJA ENTERA DEL POPOVER Y SUBIRLA 21PX */
+                    div[data-testid="stForm"] div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] {
+                        transform: translateY(-21px) !important; /* <-- La grúa se aplica a la caja madre */
+                        margin-top: 0px !important;
+                    }
+
+                    /* 3. Damos formato al botón interno para que fluya sin estorbar */
                     div[data-testid="stForm"] div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > button {
                         width: 100% !important;
                         margin: 0 !important; height: 40px !important; min-height: 40px !important;
                         background: #2D3748 !important; border: 1px solid #4A5568 !important; color: white !important;
                         font-size: 14px !important;
                         box-shadow: none !important; border-radius: 8px !important;
-                        margin-top: 0px !important; 
-                        transform: translateY(-21px) !important; /* Salta el bloqueo y lo obliga a subir 21px */
+                        margin-top: 0px !important; /* Forzamos a anular cualquier margen global que tenga */
                     }
                     
                     /* 3. 🔴 CONVERTIR EL CÍRCULO VERDE EN UNA X ROJA PARA BORRAR ARCHIVOS 🔴 */
