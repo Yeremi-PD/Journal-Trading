@@ -701,6 +701,8 @@ def reescribir_excel_usuario(usuario):
         set_mov_str = json.dumps(mov_config)
         app_data_str = json.dumps(app_data_dict)
         val_chats_str = json.dumps(db_global[usuario]["settings"]["PC"].get("chats_historial", {}))
+        # 🟢 DEFINIMOS LA VARIABLE AQUÍ ARRIBA PARA QUE EL GUARDADO DE CUENTAS VACÍAS NO FALLE
+        nota_global_str = db_global[usuario]["settings"]["PC"].get("global_notes_body", "")
 
         for cuenta, d_cuenta in db_global[usuario]["data"].items():
             if cuenta == "Todas las Cuentas": continue
