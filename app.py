@@ -624,6 +624,10 @@ def get_global_db():
                                     trade_info.update({k:v for k,v in parsed_extra.items() if k not in ex_keys})
                                 except: pass
                             
+                            # 🟢 TRADUCTOR HISTÓRICO: Convierte cualquier rastro de nombres viejos a 'Funded' para la galería
+                            if str(trade_info.get("estado_cuenta", "")).upper() in ["PA", "PA ACCOUNT", "FONDO", "FONDEADA"]:
+                                trade_info["estado_cuenta"] = "Funded"
+                            
                             if cuenta not in db_temp[user]["data"]:
                                 db_temp[user]["data"][cuenta] = {"balance": 25000.00, "trades": {}, "backtesting_mode": False}
                             
