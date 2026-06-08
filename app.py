@@ -4269,7 +4269,7 @@ with tab_historial_principal:
     st.markdown("<div style='margin-top: -50px;'></div>", unsafe_allow_html=True)
     
     # Mantenemos las 4 pestañas para todos, pero las bloquearemos por dentro en modo lectura
-    tab_hist, tab_tabla, tab_galeria, tab_exportar = st.tabs(["EDICIÓN DE TRADE", "TABLA DE RESULTADOS", "IMÁGENES", "EXPORTAR DATA"])
+    tab_tabla, tab_galeria, tab_hist, tab_exportar = st.tabs(["TABLA DE RESULTADOS", "IMÁGENES", "EDICIÓN DE TRADE", "EXPORTAR DATA"])
 
 def borrar_imagen_historial(contexto, clave, idx_trade, idx_img):
     if len(db_usuario[contexto]["trades"][clave][idx_trade]["imagenes"]) > idx_img: db_usuario[contexto]["trades"][clave][idx_trade]["imagenes"].pop(idx_img)
