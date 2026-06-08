@@ -4626,13 +4626,14 @@ with tab_galeria:
     for key, lt in sorted(db_usuario[ctx]["trades"].items(), key=lambda x: datetime(x[0][0], x[0][1], x[0][2]), reverse=True):
         # 2. Invertimos también los trades del mismo día para que el último ingresado salga primero
         for t in reversed(lt):
-    estado_trade = t.get("estado_cuenta", "Eval")
-    # Si el trade es antiguo y dice "PA", lo tratamos como "Funded" en la interfaz
-    if estado_trade == "PA":
-        estado_trade = "Funded"
-        
-    for img in t.get("imagenes", []):
-        todas_imagenes.append((img, t.get("fecha_str", ""), float(t.get("pnl", 0)), estado_trade))
+            estado_trade = t.get("estado_cuenta", "Eval")
+            
+            # Si el trade es antiguo y dice "PA", lo tratamos como "Funded" en la interfaz
+            if estado_trade == "PA":
+                estado_trade = "Funded"
+                
+            for img in t.get("imagenes", []):
+                todas_imagenes.append((img, t.get("fecha_str", ""), float(t.get("pnl", 0)), estado_trade))
 
     # Calcular totales dinámicos para la barra de contadores de la galería
     cnt_todas = len(todas_imagenes)
