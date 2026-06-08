@@ -869,7 +869,7 @@ if st.session_state.usuario_actual is None:
 
     /* Título principal con degradado Teal */
     .login-title { 
-        font-size: 55px !important; 
+        font-size: 40px !important; 
         font-weight: 900 !important; 
         text-align: center !important; 
         background: linear-gradient(90deg, #00C897, #00FFB2);
@@ -1786,15 +1786,15 @@ if st.session_state.tema == "Claro":
     wk_tit_c, c_cam_bg, c_linea = WEEKS_TITULOS_COLOR_C, BTN_CAM_BG_C, LINEA_COLOR_C
     edit_bg = "#EDF2F7"
 else:
-    bg_color, card_bg, border_color, empty_cell_bg = "#1A202C", "#2D3748", "#4A5568", "#1A202C"
-    c_dash, c_filtros, c_opt_filtros = TXT_DASH_COLOR_O, LBL_FILTROS_COLOR_O, OPT_FILTROS_COLOR_O   
-    c_data, c_opt_data, c_lbl_bal, c_lbl_in = LBL_DATA_COLOR_O, OPT_DATA_COLOR_O, LBL_BAL_TOTAL_COLOR_O, LBL_INPUT_COLOR_O
-    c_mes, c_dias_sem, c_num_dia, c_pct_dia = TXT_MES_COLOR_O, TXT_DIAS_SEM_COLOR_O, TXT_NUM_DIA_COLOR_O, TXT_PCT_DIA_COLOR_O
-    c_tit_pnl, c_tit_win, c_val_win = CARD_PNL_TITULO_COLOR_O, CARD_WIN_TITULO_COLOR_O, CARD_WIN_VALOR_COLOR_O
-    btn_bg, btn_txt, input_bg = BTN_CAL_BG_O, "#FFFFFF", INPUT_FONDO_O
-    drop_bg, drop_border, u_btn_bg, u_btn_txt = DROPZONE_BG_O, DROPZONE_BORDER_O, BTN_UP_BG_O, BTN_UP_TXT_O
-    wk_tit_c, c_cam_bg, c_linea = WEEKS_TITULOS_COLOR_O, BTN_CAM_BG_O, LINEA_COLOR_O
-    edit_bg = "#374151"
+        bg_color, card_bg, border_color, empty_cell_bg = "#0F172A", "#1E293B", "#334155", "#0F172A"
+        c_dash, c_filtros, c_opt_filtros = "#F8FAFC", LBL_FILTROS_COLOR_O, OPT_FILTROS_COLOR_O   
+        c_data, c_opt_data, c_lbl_bal, c_lbl_in = LBL_DATA_COLOR_O, OPT_DATA_COLOR_O, "#F8FAFC", LBL_INPUT_COLOR_O
+        c_mes, c_dias_sem, c_num_dia, c_pct_dia = "#F8FAFC", "#94A3B8", "#F8FAFC", "#94A3B8"
+        c_tit_pnl, c_tit_win, c_val_win = "#94A3B8", "#94A3B8", "#F8FAFC"
+        btn_bg, btn_txt, input_bg = "#1E293B", "#F8FAFC", "#0F172A"
+        drop_bg, drop_border, u_btn_bg, u_btn_txt = DROPZONE_BG_O, "1px dashed #334155", "#1E293B", "#F8FAFC"
+        wk_tit_c, c_cam_bg, c_linea = "#94A3B8", "#334155", "#334155"
+        edit_bg = "#1E293B"
 
 def gen_css_vars(s):
     return f"--size-top-stats:{s['size_top_stats']}px;--size-card-titles:{s['size_card_titles']}px;--size-box-titles:{s['size_box_titles']}px;--size-box-vals:{s['size_box_vals']}px;--size-box-pct:{s['size_box_pct']}px;--size-box-wl:{s['size_box_wl']}px;--pie-size:{s['pie_size']}px;--pie-y-offset:{s['pie_y_offset']}px;--cal-mes-size:{s['cal_mes_size']}px;--cal-pnl-size:{s['cal_pnl_size']}px;--cal-pct-size:{s['cal_pct_size']}px;--cal-dia-size:{s['cal_dia_size']}px;--cal-cam-size:{s['cal_cam_size']}px;--cal-note-size:{s.get('cal_note_size',30)}px;--cal-scale:{s['cal_scale']}px;--cal-line-height:{s['cal_line_height']};--bal-num-sz:{s['bal_num_sz']}px;--bal-box-w:{s['bal_box_w']}%;--bal-box-pad:{s['bal_box_pad']}px;--cal-txt-y:{s.get('cal_txt_y',0)}px;--cal-txt-pad:{s.get('cal_txt_pad',0)}px;--note-lbl-size:{s.get('note_lbl_size',16)}px;--note-val-size:{s.get('note_val_size',16)}px;"
@@ -2020,7 +2020,7 @@ div[data-testid="stTabs"] [data-baseweb="tab-highlight-point"] {{ display: none 
     div[data-testid="stPopoverBody"] .titulo-trade-details,
     div[data-testid="stPopoverBody"] .titulo-trade-details p,
     div[data-testid="stPopoverBody"] .titulo-trade-details span {{
-        font-size: 45px !important;
+        font-size: 28px !important;
         font-weight: 900 !important;
         text-align: center !important;
         margin-top: 0px !important;
@@ -2109,7 +2109,8 @@ div[data-testid="stTabs"] [data-baseweb="tab-highlight-point"] {{ display: none 
     .prev-img-btn:hover, .next-img-btn:hover {{ background: #00C897 !important; }}
 
     .card-pnl, .card-win, .card-rr {{ width: 100% !important; height: auto !important; min-height: 100px !important; }}
-    .metric-card {{ background-color: {card_bg} !important; border-radius: 15px !important; padding: 15px 20px !important; border: 1px solid {border_color} !important; }}
+    .metric-card {{ background-color: {card_bg} !important; border-radius: 12px !important; padding: 15px 20px !important;
+border: 1px solid {border_color} !important; box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important; }}
     .metric-header {{ display: flex !important; align-items: center !important; gap: 8px !important; margin-bottom: 5px !important; }}
     .title-net-pnl {{ font-size: var(--size-card-titles) !important; font-weight: 700 !important; color: {c_tit_pnl} !important; }}
     .title-trade-win {{ font-size: var(--size-card-titles) !important; font-weight: 700 !important; color: {c_tit_win} !important; }}
@@ -2658,7 +2659,7 @@ if True:
             margin-left: 0px !important;
             margin-top: 0px !important;
             text-align: center !important;
-            font-size: 36px !important; /* Aumentado de 28px a 36px para mayor impacto */
+            font-size: 24px !important; /* Reducido para un look más premium y limpio */
             display: flex !important;
             flex-direction: column !important;
             align-items: center !important;
