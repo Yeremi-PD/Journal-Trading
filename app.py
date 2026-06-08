@@ -1326,7 +1326,7 @@ for cta, d_cta in db_usuario.items():
 
 db_usuario["Todas las Cuentas"] = {"balance": balance_total, "trades": trades_todas, "backtesting_mode": False}
 
-@st.dialog("📅 Configurar Inicio de Cuenta")
+@st.dialog(" Configurar Inicio de Cuenta")
 def modal_fecha_inicio(nombre, balance):
     # CSS para bloquear el diseño global y devolver el selector de fecha a su estado nativo y elegante
     st.markdown("""
@@ -1476,7 +1476,7 @@ if not db_usuario or (len(db_usuario) == 1 and "Todas las Cuentas" in db_usuario
             nombre_cta = st.text_input(_l['setup']['acc_name'], value="Account Real")
             bal_inicial_opcion = st.selectbox(_l['setup']['init_bal'], [25000.0, 50000.0, 100000.0], format_func=lambda x: f"${x:,.0f}")
             
-            # 📅 Fecha de inicio agregada directamente aquí en la misma tarjeta
+            #  Fecha de inicio agregada directamente aquí en la misma tarjeta
             fecha_inicio_opcion = st.date_input("Fecha de Inicio de la Cuenta", value=(datetime.now() + pd.Timedelta(hours=6)).date())
             
             btn_inicializar = st.form_submit_button(_l['setup']['btn_start'], use_container_width=True)
@@ -2835,7 +2835,7 @@ if True:
             
                     st.markdown('<div class="lbl-header">Fecha:</div>', unsafe_allow_html=True)
                     # El botón principal mostrará la fecha, y al darle clic abrirá el selector con hora local (UTC-4)
-                    with st.popover(f"📅 {hoy.strftime('%d/%m')}", use_container_width=True):
+                    with st.popover(f"{hoy.strftime('%d/%m')}", use_container_width=True):
                         st.markdown("<div style='margin-bottom: 10px; font-weight: 700; color: #94A3B8; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;'>Configurar Fecha y Hora</div>", unsafe_allow_html=True)
                         fecha_sel = st.date_input("Día", value=hoy, label_visibility="collapsed")
                         
@@ -3351,7 +3351,7 @@ if True:
             with c_lose_col: st.markdown(f'<div class="metric-card card-pnl" style="{e_caja}"><div class="metric-header"><span class="title-net-pnl" style="font-size: var(--size-card-titles);">{_l["cal"]["lose_acc"]}</span></div><div style="color: {c_hex_dd}; font-size: var(--size-box-vals);\nfont-weight: 800;">{texto_lose}</div></div>', unsafe_allow_html=True)
         
         # El botón filtra por mes, y SIEMPRE arranca apagado (viendo todo), sin importar el backtesting
-        ver_solo_mes = st.toggle("📅 Ver Solo Este Mes", value=False)
+        ver_solo_mes = st.toggle("Ver Solo Este Mes", value=False)
         ver_todo = not ver_solo_mes
         
         if st.session_state.get("toggle_funded_state", False) and paso_cuenta: todos_los_trades_planos = trades_cronologicos
