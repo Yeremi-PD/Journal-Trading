@@ -1584,127 +1584,159 @@ def cb_reset_dash(): reset_settings("dash")
 def cb_reset_txt(): reset_settings("txt")
 def cb_reset_cal(): reset_settings("cal")
 
-def contenido_ajustes():
-    st.markdown("<h3 style='text-align: center; margin-top: -10px;'>⚙️ Menú de Ajustes</h3>", unsafe_allow_html=True)
-    tamanio_texto_cuenta = "22px"
-    st.markdown(
-        f"<div style='margin-top:-15px; font-size: {tamanio_texto_cuenta}; font-weight: bold;'>"
-        f"</div>", 
-        unsafe_allow_html=True
-    )
+@st.dialog("⚙️ CONFIGURACIÓN GLOBAL", width="large")
+def modal_configuracion_completa():
+    # 1. Inyectar CSS para volver el modal pantalla completa y premium
+    st.markdown("""
+    <style>
+    /* Hacer que el modal ocupe el 100% de la pantalla exacto */
+    div[data-testid="stDialog"] > div[role="dialog"] {
+        width: 100vw !important;
+        max-width: 100vw !important;
+        height: 100vh !important;
+        max-height: 100vh !important;
+        margin: 0 !important;
+        padding: 40px !important;
+        border-radius: 0px !important;
+        background: radial-gradient(circle at 50% 0%, #0F172A 0%, #020617 100%) !important;
+        border: none !important;
+        overflow-y: auto !important;
+    }
+    /* Ocultar el botón X nativo para usar uno propio más bonito */
+    div[data-testid="stDialog"] button[aria-label="Close"] {
+        top: 25px !important;
+        right: 25px !important;
+        transform: scale(1.3) !important;
+        color: #EF4444 !important;
+    }
+    /* Estilos de las pestañas internas de config */
+    div[data-testid="stDialog"] div[data-testid="stTabs"] button {
+        background-color: transparent !important;
+        border: 1px solid #334155 !important;
+        color: #94A3B8 !important;
+    }
+    div[data-testid="stDialog"] div[data-testid="stTabs"] button[aria-selected="true"] {
+        background-color: #10B981 !important;
+        border-color: #10B981 !important;
+        color: white !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
 
-    st.radio(
-        _l['sidebar']['lang'],
-        ["ES", "EN"],
-        index=0 if st.session_state.idioma == "ES" else 1,
-        horizontal=True,
-        key="radio_lang_sel",
-        on_change=cb_cambiar_idioma
-    )
+    st.markdown("<h2 style='text-align: center; color: #F8FAFC; font-weight: 900; margin-top: -40px; margin-bottom: 20px; letter-spacing: -1px;'>PANEL DE CONTROL</h2>", unsafe_allow_html=True)
 
-    st.markdown("---")
-    st.radio(
-        _l['sidebar']['design'], 
-        [_l['sidebar']['pc'], _l['sidebar']['mobile']], 
-        index=0 if "PC" in st.session_state.dispositivo_actual else 1,
-        key="radio_device_sel",
-        on_change=cb_cambiar_dispositivo
-    )
+    tab_perfil, tab_diseno, tab_admin = st.tabs(["👤 Cuentas y Datos", "🎨 Apariencia e Interfaz", "🛡️ Zona Admin"])
 
-    if st.button(_l['sidebar']['save_design'], use_container_width=True):
-        reescribir_excel_usuario(usuario)
-        st.success(_l['sidebar']['saved_design'])
-
-    # 🔄 BOTÓN PARA RECONECTAR Y RECARGAR EXCEL DESDE LA NUBE
-    if st.button(_l['sidebar']['sync'], use_container_width=True):
-        forzar_sincronizacion(st.session_state.get("data_source_sel", "Account Real"))
-
-    st.markdown("---")
-    st.markdown(f"### {_l['sidebar']['manage_acc']}")
-
-    with st.expander(_l['sidebar']['create_acc']):
-        st.markdown(f"**{_l['sidebar']['acc_details']}**")
-        nueva_cuenta_nombre = st.text_input(_l['setup']['acc_name'], key="input_nombre_nueva_cta")
-        nueva_cuenta_bal = st.selectbox(_l['sidebar']['sel_bal'], [25000.0, 50000.0, 100000.0], format_func=lambda x: f"${x:,.0f}", key="select_bal_nueva_cta")
-        
-        if st.button(_l['sidebar']['btn_create_acc'], use_container_width=True, key="btn_crear_cta_sidebar"):
-            if nueva_cuenta_nombre and nueva_cuenta_nombre not in db_usuario:
-                modal_fecha_inicio(nueva_cuenta_nombre, nueva_cuenta_bal)
-            elif nueva_cuenta_nombre in db_usuario:
-                st.warning(_l['sidebar']['exist_name'])
-
-    ctx_actual = st.session_state.get("data_source_sel", "Account Real")
-    with st.expander(f"{_l['sidebar']['reset_acc']} {ctx_actual}"):
-        opciones_reset = {"$25,000": 25000.0, "$50,000": 50000.0, "$100,000": 100000.0}
-        seleccion_reset = st.radio(_l['sidebar']['sel_bal'], list(opciones_reset.keys()), key="radio_reset_sidebar")
-        nuevo_balance_reset = opciones_reset[seleccion_reset]
-        
-        if "confirm_reset" not in st.session_state: st.session_state.confirm_reset = False
-        
-        if st.button(_l['sidebar']['btn_conf_reset'], use_container_width=True, key="btn_solicitar_reset"):
-            st.session_state.confirm_reset = True
+    with tab_perfil:
+        c_p1, c_p2 = st.columns(2)
+        with c_p1:
+            st.markdown(f"### {_l['sidebar']['manage_acc']}")
+            with st.container(border=True):
+                st.markdown(f"**{_l['sidebar']['create_acc']}**")
+                nueva_cuenta_nombre = st.text_input(_l['setup']['acc_name'], key="input_nombre_nueva_cta")
+                nueva_cuenta_bal = st.selectbox(_l['sidebar']['sel_bal'], [25000.0, 50000.0, 100000.0], format_func=lambda x: f"${x:,.0f}", key="select_bal_nueva_cta")
+                if st.button(_l['sidebar']['btn_create_acc'], use_container_width=True, key="btn_crear_cta_sidebar"):
+                    if nueva_cuenta_nombre and nueva_cuenta_nombre not in db_usuario:
+                        modal_fecha_inicio(nueva_cuenta_nombre, nueva_cuenta_bal)
+                    elif nueva_cuenta_nombre in db_usuario:
+                        st.warning(_l['sidebar']['exist_name'])
             
-        if st.session_state.confirm_reset:
-            st.warning(f"{_l['sidebar']['ask_reset']} {ctx_actual}?")
-            cr_yes, cr_no = st.columns(2)
-            if cr_yes.button(_l['sidebar']['yes_reset'], key="btn_si_reset_final"):
-                db_usuario[ctx_actual]["balance"] = nuevo_balance_reset
-                db_usuario[ctx_actual]["trades"] = {}
-                reescribir_excel_usuario(usuario)
-                st.session_state.confirm_reset = False
-                st.rerun()
-            if cr_no.button(_l['sidebar']['no'], key="btn_no_reset_final"):
-                st.session_state.confirm_reset = False
-                st.rerun()
-
-    with st.expander(_l['sidebar']['del_acc']):
-        cuenta_a_borrar = st.selectbox(_l['sidebar']['sel_del'], list(db_usuario.keys()), key="select_eliminar_cta")
-        
-        if "confirm_delete_acc" not in st.session_state: st.session_state.confirm_delete_acc = False
-        
-        if st.button(_l['sidebar']['btn_del'], use_container_width=True, key="btn_solicitar_borrado"):
-            if len(db_usuario) <= 1:
-                st.error(_l['sidebar']['err_del_only'])
-            else:
-                st.session_state.confirm_delete_acc = True
+            ctx_actual = st.session_state.get("data_source_sel", "Account Real")
+            with st.container(border=True):
+                st.markdown(f"**{_l['sidebar']['reset_acc']} {ctx_actual}**")
+                opciones_reset = {"$25,000": 25000.0, "$50,000": 50000.0, "$100,000": 100000.0}
+                seleccion_reset = st.radio(_l['sidebar']['sel_bal'], list(opciones_reset.keys()), key="radio_reset_sidebar", horizontal=True)
+                nuevo_balance_reset = opciones_reset[seleccion_reset]
                 
-        if st.session_state.confirm_delete_acc:
-            st.warning(f"{_l['sidebar']['ask_del']} '{cuenta_a_borrar}'?")
-            cd_yes, cd_no = st.columns(2)
-            if cd_yes.button(_l['sidebar']['yes_del'], key="btn_si_borrar_final"):
-                del db_usuario[cuenta_a_borrar]
-                if st.session_state.data_source_sel == cuenta_a_borrar:
-                    st.session_state.data_source_sel = list(db_usuario.keys())[0]
-                reescribir_excel_usuario(usuario)
-                st.session_state.confirm_delete_acc = False
-                st.rerun()
-            if cd_no.button(_l['sidebar']['cancel'], key="btn_no_borrar_final"):
-                st.session_state.confirm_delete_acc = False
-                st.rerun()
+                if "confirm_reset" not in st.session_state: st.session_state.confirm_reset = False
+                if st.button(_l['sidebar']['btn_conf_reset'], use_container_width=True, key="btn_solicitar_reset"): st.session_state.confirm_reset = True
+                if st.session_state.confirm_reset:
+                    st.warning(f"{_l['sidebar']['ask_reset']} {ctx_actual}?")
+                    cr_yes, cr_no = st.columns(2)
+                    if cr_yes.button(_l['sidebar']['yes_reset'], key="btn_si_reset_final"):
+                        db_usuario[ctx_actual]["balance"] = nuevo_balance_reset
+                        db_usuario[ctx_actual]["trades"] = {}
+                        reescribir_excel_usuario(usuario)
+                        st.session_state.confirm_reset = False
+                        st.rerun()
+                    if cr_no.button(_l['sidebar']['no'], key="btn_no_reset_final"):
+                        st.session_state.confirm_reset = False
+                        st.rerun()
 
-    st.markdown("---")
-    tamanio_titulo = "18px"
-    tamanio_opciones = "16px"
-    st.markdown(f"""<style>div[role="dialog"] div[data-testid="stRadio"] > label p {{font-size: {tamanio_titulo} !important; font-weight: bold !important;}} div[role="dialog"] div[data-testid="stRadio"] div[role="radiogroup"] label p {{font-size: {tamanio_opciones} !important;}}</style>""", unsafe_allow_html=True)
+        with c_p2:
+            st.markdown("### Acciones de Sistema")
+            with st.container(border=True):
+                st.markdown(f"**{_l['sidebar']['del_acc']}**")
+                cuenta_a_borrar = st.selectbox(_l['sidebar']['sel_del'], list(db_usuario.keys()), key="select_eliminar_cta")
+                if "confirm_delete_acc" not in st.session_state: st.session_state.confirm_delete_acc = False
+                if st.button(_l['sidebar']['btn_del'], use_container_width=True, key="btn_solicitar_borrado"):
+                    if len(db_usuario) <= 1: st.error(_l['sidebar']['err_del_only'])
+                    else: st.session_state.confirm_delete_acc = True
+                if st.session_state.confirm_delete_acc:
+                    st.warning(f"{_l['sidebar']['ask_del']} '{cuenta_a_borrar}'?")
+                    cd_yes, cd_no = st.columns(2)
+                    if cd_yes.button(_l['sidebar']['yes_del'], key="btn_si_borrar_final"):
+                        del db_usuario[cuenta_a_borrar]
+                        if st.session_state.data_source_sel == cuenta_a_borrar: st.session_state.data_source_sel = list(db_usuario.keys())[0]
+                        reescribir_excel_usuario(usuario)
+                        st.session_state.confirm_delete_acc = False
+                        st.rerun()
+                    if cd_no.button(_l['sidebar']['cancel'], key="btn_no_borrar_final"):
+                        st.session_state.confirm_delete_acc = False
+                        st.rerun()
 
-    st.markdown(f"### {_l['sidebar']['sec_theme']}")
-    texto_boton_tema = _l['sidebar']['to_dark'] if st.session_state.tema == "Claro" else _l['sidebar']['to_light']
-    st.button(texto_boton_tema, on_click=cb_cambiar_tema)
+            st.markdown("<br>", unsafe_allow_html=True)
+            if st.button("↻ Sincronizar Base de Datos", use_container_width=True):
+                forzar_sincronizacion(st.session_state.get("data_source_sel", "Account Real"))
             
-    st.markdown("---")
-    st.markdown(f"### 🛡️ Portal de Administración")
-    with st.expander("Acceso Restringido (Solo Staff)"):
-        st.markdown("<p style='color:#94A3B8; font-size:13px;'>Ingresa la clave maestra para gestionar usuarios y licencias.</p>", unsafe_allow_html=True)
+            st.markdown("<br>", unsafe_allow_html=True)
+            if st.button("🚪 CERRAR SESIÓN", type="primary", key="btn_cerrar_sesion", use_container_width=True):
+                st.session_state.logout_trigger = True
+                st.rerun()
+
+    with tab_diseno:
+        c_d1, c_d2 = st.columns(2)
+        with c_d1:
+            st.markdown("### Preferencias Básicas")
+            st.radio(_l['sidebar']['lang'], ["ES", "EN"], index=0 if st.session_state.idioma == "ES" else 1, horizontal=True, key="radio_lang_sel", on_change=cb_cambiar_idioma)
+            st.radio(_l['sidebar']['design'], [_l['sidebar']['pc'], _l['sidebar']['mobile']], index=0 if "PC" in st.session_state.dispositivo_actual else 1, horizontal=True, key="radio_device_sel", on_change=cb_cambiar_dispositivo)
+            
+            st.markdown("<br>", unsafe_allow_html=True)
+            texto_boton_tema = _l['sidebar']['to_dark'] if st.session_state.tema == "Claro" else _l['sidebar']['to_light']
+            st.button(f"🌗 {texto_boton_tema}", on_click=cb_cambiar_tema, use_container_width=True)
+
+        with c_d2:
+            st.markdown("### 🖥️ Tamaño de Interfaz")
+            st.markdown("<p style='color:#94A3B8; font-size:14px;'>Ajusta la densidad visual de los elementos según tu pantalla.</p>", unsafe_allow_html=True)
+            opciones_tamano = ["Compacto (S)", "Cómodo (M)", "Amplio (L)"]
+            tamano_ui = st.radio("Densidad visual", opciones_tamano, index=1, horizontal=True, label_visibility="collapsed")
+            
+            if st.button("Aplicar Tamaño", use_container_width=True, type="primary"):
+                disp = st.session_state.dispositivo_actual
+                if "Compacto" in tamano_ui:
+                    db_global[usuario]["settings"][disp].update({
+                        "bal_num_sz": 22, "bal_box_w": 40, "bal_box_pad": 5, "size_top_stats": 18, "size_card_titles": 14, "size_box_titles": 16, "size_box_vals": 20, "size_box_pct": 16, "size_box_wl": 12, "pie_size": 120, "pie_y_offset": -20, "cal_mes_size": 24, "cal_pnl_size": 16, "cal_pct_size": 14, "cal_dia_size": 14, "cal_cam_size": 16, "cal_scale": 110, "cal_line_height": 1.1, "cal_note_size": 18, "note_lbl_size": 20, "note_val_size": 14
+                    })
+                elif "Cómodo" in tamano_ui:
+                    cb_reset_dash(); cb_reset_txt(); cb_reset_cal()
+                elif "Amplio" in tamano_ui:
+                    db_global[usuario]["settings"][disp].update({
+                        "bal_num_sz": 32, "bal_box_w": 55, "bal_box_pad": 10, "size_top_stats": 26, "size_card_titles": 22, "size_box_titles": 24, "size_box_vals": 30, "size_box_pct": 24, "size_box_wl": 18, "pie_size": 180, "pie_y_offset": -40, "cal_mes_size": 40, "cal_pnl_size": 24, "cal_pct_size": 22, "cal_dia_size": 22, "cal_cam_size": 26, "cal_scale": 180, "cal_line_height": 1.4, "cal_note_size": 28, "note_lbl_size": 30, "note_val_size": 22
+                    })
+                reescribir_excel_usuario(usuario)
+                st.success(f"✅ Tamaño {tamano_ui} aplicado.")
+                import time; time.sleep(0.5); st.rerun()
+
+    with tab_admin:
+        st.markdown("### 🛡️ Portal de Administración")
+        st.markdown("<p style='color:#94A3B8; font-size:14px;'>Ingresa la clave maestra para gestionar usuarios y licencias.</p>", unsafe_allow_html=True)
         admin_pass = st.text_input("Clave de Administrador", type="password", key="admin_pass_input", label_visibility="collapsed", placeholder="••••••••")
         
         if admin_pass:
             if admin_pass.strip() == "Yfutures.":
                 st.markdown("<div style='background: rgba(16,185,129,0.1); border-left: 4px solid #10B981; padding: 10px 15px; border-radius: 4px; margin-bottom: 20px;'><span style='color: #10B981; font-weight: 700;'>✅ Acceso de Administrador Concedido</span></div>", unsafe_allow_html=True)
-                
                 st.markdown("#### 👥 Panel de Clientes")
-                st.markdown("<p style='font-size:13px; color:#94A3B8; margin-top:-10px;'>Gestiona el acceso a la IA y administra las cuentas activas.</p>", unsafe_allow_html=True)
                 
-                # Cabecera de la tabla improvisada
                 col_h1, col_h2, col_h3, col_h4 = st.columns([2, 1.5, 1.5, 1])
                 col_h1.markdown("<span style='color:#94A3B8; font-size:12px; text-transform:uppercase;'>Usuario</span>", unsafe_allow_html=True)
                 col_h2.markdown("<span style='color:#94A3B8; font-size:12px; text-transform:uppercase;'>Contraseña</span>", unsafe_allow_html=True)
@@ -1712,86 +1744,32 @@ def contenido_ajustes():
                 col_h4.markdown("<span style='color:#94A3B8; font-size:12px; text-transform:uppercase;'>Acción</span>", unsafe_allow_html=True)
                 st.markdown("<hr style='margin-top: 5px; margin-bottom: 10px; border-color: #334155;'>", unsafe_allow_html=True)
                 
-                # Iteramos sobre TODOS los usuarios
                 for u, data in list(db_global.items()):
                     es_admin_u = data["settings"]["PC"].get("is_admin", False) or data["settings"]["Móvil"].get("is_admin", False)
-                    
                     c1, c2, c3, c4 = st.columns([2, 1.5, 1.5, 1])
-                    
-                    # Columna 1: Usuario
                     c1.markdown(f"<span style='color:#F8FAFC; font-weight:600;'>👤 {u}</span>", unsafe_allow_html=True)
-                    
-                    # Columna 2: Password (Estilo código)
                     c2.markdown(f"<code style='color:#94A3B8; background:rgba(0,0,0,0.2); padding: 4px 8px; border-radius: 4px;'>{data['password']}</code>", unsafe_allow_html=True)
-                    
-                    # Columna 3: Toggle IA
                     with c3:
                         if es_admin_u:
-                            if st.button("Apagar IA", key=f"off_ia_{u}", help="Desactivar Inteligencia Artificial"):
+                            if st.button("Apagar IA", key=f"off_ia_{u}", use_container_width=True):
                                 db_global[u]["settings"]["PC"]["is_admin"] = False
                                 db_global[u]["settings"]["Móvil"]["is_admin"] = False
-                                reescribir_excel_usuario(u)
-                                st.rerun()
+                                reescribir_excel_usuario(u); st.rerun()
                         else:
-                            if st.button("Activar IA", key=f"on_ia_{u}", type="primary", help="Habilitar Inteligencia Artificial"):
+                            if st.button("Activar IA", key=f"on_ia_{u}", type="primary", use_container_width=True):
                                 db_global[u]["settings"]["PC"]["is_admin"] = True
                                 db_global[u]["settings"]["Móvil"]["is_admin"] = True
-                                reescribir_excel_usuario(u)
-                                st.rerun()
-                                
-                    # Columna 4: Eliminar
+                                reescribir_excel_usuario(u); st.rerun()
                     with c4:
-                        if st.button("🗑️", key=f"del_usr_{u}", help="Eliminar usuario permanentemente"):
+                        if st.button("🗑️", key=f"del_usr_{u}", use_container_width=True):
                             del db_global[u]
-                            if st.session_state.usuario_actual == u: 
-                                st.session_state.usuario_actual = None
+                            if st.session_state.usuario_actual == u: st.session_state.usuario_actual = None
                             try: st.query_params.clear()
                             except: pass
                             st.rerun()
-                            
                     st.markdown("<hr style='margin-top: 5px; margin-bottom: 10px; border-color: #334155; opacity: 0.3;'>", unsafe_allow_html=True)
-                    
             else:
-                st.markdown("<div style='background: rgba(239,68,68,0.1); border-left: 4px solid #EF4444; padding: 10px 15px; border-radius: 4px;'><span style='color: #EF4444; font-weight: 700;'>⚠️ Contraseña incorrecta. Acceso denegado.</span></div>", unsafe_allow_html=True)
-
-    st.markdown("---")
-    st.markdown("### 🖥️ Tamaño de Interfaz")
-    st.markdown("<p style='color:#94A3B8; font-size:13px;'>Ajusta la densidad visual de los elementos según el tamaño de tu pantalla.</p>", unsafe_allow_html=True)
-    
-    # Selector de tamaño
-    opciones_tamano = ["Compacto (S)", "Cómodo (M)", "Amplio (L)"]
-    tamano_ui = st.radio("Densidad visual", opciones_tamano, index=1, horizontal=True, label_visibility="collapsed")
-    
-    if st.button("Aplicar Tamaño", use_container_width=True, type="primary"):
-        disp = st.session_state.dispositivo_actual
-        if "Compacto" in tamano_ui:
-            # Tamaño Small
-            db_global[usuario]["settings"][disp].update({
-                "bal_num_sz": 22, "bal_box_w": 40, "bal_box_pad": 5, "size_top_stats": 18, "size_card_titles": 14, "size_box_titles": 16, "size_box_vals": 20, "size_box_pct": 16, "size_box_wl": 12, "pie_size": 120, "pie_y_offset": -20, "cal_mes_size": 24, "cal_pnl_size": 16, "cal_pct_size": 14, "cal_dia_size": 14, "cal_cam_size": 16, "cal_scale": 110, "cal_line_height": 1.1, "cal_note_size": 18, "note_lbl_size": 20, "note_val_size": 14
-            })
-        elif "Cómodo" in tamano_ui:
-            # Tamaño Medium (Valores de fábrica)
-            cb_reset_dash()
-            cb_reset_txt()
-            cb_reset_cal()
-        elif "Amplio" in tamano_ui:
-            # Tamaño Large
-            db_global[usuario]["settings"][disp].update({
-                "bal_num_sz": 32, "bal_box_w": 55, "bal_box_pad": 10, "size_top_stats": 26, "size_card_titles": 22, "size_box_titles": 24, "size_box_vals": 30, "size_box_pct": 24, "size_box_wl": 18, "pie_size": 180, "pie_y_offset": -40, "cal_mes_size": 40, "cal_pnl_size": 24, "cal_pct_size": 22, "cal_dia_size": 22, "cal_cam_size": 26, "cal_scale": 180, "cal_line_height": 1.4, "cal_note_size": 28, "note_lbl_size": 30, "note_val_size": 22
-            })
-        
-        reescribir_excel_usuario(usuario)
-        st.success(f"✅ Tamaño {tamano_ui} aplicado con éxito.")
-        import time
-        time.sleep(0.5)
-        st.rerun()
-
-    st.markdown("<br>", unsafe_allow_html=True)
-    st.markdown("---")
-    if st.button(_l['sidebar']['logout'], key="btn_cerrar_sesion", use_container_width=True):
-        # 🟢 Activamos el interruptor global y recargamos. ¡100% seguro!
-        st.session_state.logout_trigger = True
-        st.rerun()
+                st.error("⚠️ Contraseña incorrecta.")
 
 
 # ==========================================
@@ -2402,8 +2380,8 @@ if True:
     col_t, col_data, col_bal, col_set = st.columns([4, 1.5, 2, 0.35])
 
     with col_set:
-        with st.popover("⚙️", use_container_width=True):
-            contenido_ajustes()
+        if st.button("⚙️", use_container_width=True):
+            modal_configuracion_completa()
 
     with col_t:
         if paso_cuenta: badge_html = f'<span style="font-size: 20px; background-color: #10B981; color: white; padding: 4px 12px; border-radius: 8px; margin-left: 15px; font-weight: 800; letter-spacing: 0px; align-self: center;">{_l["dash"]["pa"]}</span>'
