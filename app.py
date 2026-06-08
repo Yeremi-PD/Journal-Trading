@@ -286,7 +286,7 @@ def mostrar_pantalla_bloqueo(usuario_bloqueado):
     <div style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; font-family: 'Inter', sans-serif; text-align: center; padding: 20px; box-sizing: border-box; z-index: 999999999;">
         <div style="background: rgba(25, 20, 20, 0.4); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 76, 76, 0.2); border-radius: 24px; padding: 50px 40px; max-width: 550px; width: 100%; box-shadow: 0 30px 60px rgba(0,0,0,0.8);">
             <div style="font-size: 80px; margin-bottom: 20px; filter: drop-shadow(0 0 15px rgba(255,76,76,0.5));">🚫</div>
-            <h1 style="font-size: 38px; font-weight: 900; color: #FF4C4C; margin: 0 0 15px 0; letter-spacing: -1px; text-transform: uppercase;">Acceso Restringido</h1>
+            <h1 style="font-size: 38px; font-weight: 900; color: #EF4444; margin: 0 0 15px 0; letter-spacing: -1px; text-transform: uppercase;">Acceso Restringido</h1>
             <p style="font-size: 18px; color: #E2E8F0; line-height: 1.5; margin: 0 0 25px 0; font-weight: 500;">
                 Su cuenta está inactiva porque el plazo de tiempo permitido para este usuario ha caducado.
             </p>
@@ -872,7 +872,7 @@ if st.session_state.usuario_actual is None:
         font-size: 40px !important; 
         font-weight: 900 !important; 
         text-align: center !important; 
-        background: linear-gradient(90deg, #00C897, #00FFB2);
+        background: linear-gradient(90deg, #10B981, #00FFB2);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         margin-bottom: 5px !important; 
@@ -905,7 +905,7 @@ if st.session_state.usuario_actual is None:
         transition: all 0.3s ease !important;
     }
     div[data-testid="stForm"] div[data-baseweb="input"]:focus-within {
-        border-color: #00C897 !important;
+        border-color: #10B981 !important;
         box-shadow: 0 0 10px rgba(0, 200, 151, 0.2) !important;
     }
     div[data-testid="stForm"] input {
@@ -915,7 +915,7 @@ if st.session_state.usuario_actual is None:
     
     /* Botón Principal (Entrar/Registrar) */
     div[data-testid="stFormSubmitButton"] button {
-        background: linear-gradient(135deg, #00C897 0%, #007A5E 100%) !important;
+        background: linear-gradient(135deg, #10B981 0%, #007A5E 100%) !important;
         color: white !important;
         border: none !important;
         border-radius: 10px !important;
@@ -950,7 +950,7 @@ if st.session_state.usuario_actual is None:
         padding-top: 15px !important;
     }
     .btn-secundario-link button:hover {
-        color: #00C897 !important;
+        color: #10B981 !important;
         background: transparent !important;
     }
 
@@ -1252,7 +1252,7 @@ def modal_fecha_inicio(nombre, balance):
     """, unsafe_allow_html=True)
 
     # Textos más limpios y centrados
-    st.markdown(f"<h3 style='text-align: center; margin-top:-10px;'>Cuenta: <span style='color:#00C897;'>{nombre}</span></h3>", unsafe_allow_html=True)
+    st.markdown(f"<h3 style='text-align: center; margin-top:-10px;'>Cuenta: <span style='color:#10B981;'>{nombre}</span></h3>", unsafe_allow_html=True)
     st.markdown("<p style='text-align: center; color: #A0AEC0; margin-bottom: 10px;'>Selecciona la fecha exacta en la que comenzaste esta prueba.</p>", unsafe_allow_html=True)
     
     # Selector de fecha limpio y nativo
@@ -1296,7 +1296,7 @@ if not db_usuario or (len(db_usuario) == 1 and "Todas las Cuentas" in db_usuario
         font-size: 55px !important; 
         font-weight: 900 !important; 
         text-align: center !important; 
-        background: linear-gradient(90deg, #00C897, #00FFB2);
+        background: linear-gradient(90deg, #10B981, #00FFB2);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         margin-bottom: 5px !important; 
@@ -1349,7 +1349,7 @@ if not db_usuario or (len(db_usuario) == 1 and "Todas las Cuentas" in db_usuario
     
     /* Botón Crear Cuenta y Empezar */
     div[data-testid="stFormSubmitButton"] button {
-        background: linear-gradient(135deg, #00C897 0%, #007A5E 100%) !important;
+        background: linear-gradient(135deg, #10B981 0%, #007A5E 100%) !important;
         color: white !important;
         border: none !important;
         border-radius: 10px !important;
@@ -1691,9 +1691,9 @@ def contenido_ajustes():
                     c1, c2 = st.columns([2, 1])
                     with c1:
                         if es_admin_u:
-                            st.markdown(f"👤 **{u}** <br> <span style='color:#00C897; font-size:12px;'>IA Activada ✅</span>", unsafe_allow_html=True)
+                            st.markdown(f"👤 **{u}** <br> <span style='color:#10B981; font-size:12px;'>IA Activada ✅</span>", unsafe_allow_html=True)
                         else:
-                            st.markdown(f"👤 **{u}** <br> <span style='color:#FF4C4C; font-size:12px;'>IA Oculta ❌</span>", unsafe_allow_html=True)
+                            st.markdown(f"👤 **{u}** <br> <span style='color:#EF4444; font-size:12px;'>IA Oculta ❌</span>", unsafe_allow_html=True)
                     
                     with c2:
                         # Le ponemos un 'key' único con el nombre del usuario para que Streamlit sepa a quién le das clic
@@ -1864,11 +1864,11 @@ st.markdown(f"""
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important; color: {c_dash} !important;
     }}
     div[data-testid="stTabs"] button:hover {{
-        transform: translateY(-4px) !important; border-color: #00C897 !important;
+        transform: translateY(-4px) !important; border-color: #10B981 !important;
         box-shadow: 0px 8px 20px rgba(0, 200, 151, 0.4) !important; z-index: 10 !important;
     }}
     div[data-testid="stTabs"] button[aria-selected="true"] {{
-        background: linear-gradient(145deg, #00C897, #007A5E) !important;
+        background: linear-gradient(145deg, #10B981, #007A5E) !important;
         color: white !important; border: none !important;
         transform: scale(1.05) translateY(-2px) !important; box-shadow: 0px 0px 25px rgba(0, 200, 151, 0.5) !important;
     }}
@@ -1921,7 +1921,7 @@ div[data-testid="stTabs"] [data-baseweb="tab-highlight-point"] {{ display: none 
     div[data-testid="stTextInput"]:has(input[aria-label="Link"]) div[data-baseweb="base-input"], div[data-testid="stTextInput"]:has(input[aria-label="Link"]) div[data-baseweb="input"] {{ background-color: {btn_bg} !important; border-color: {border_color} !important; border-radius: 8px !important; }}
     input[aria-label="Link"] {{ height: {LINK_IMG_H} !important; font-size: {LINK_IMG_TXT_SIZE}px !important; background-color: transparent !important; color: {c_dash} !important; }}
 
-    .balance-box {{ background: #00C897 !important; color: white !important; padding: var(--bal-box-pad) 0px !important; border-radius: 80px !important; text-align: center !important; font-weight: 700 !important; font-size: var(--bal-num-sz) !important; width: var(--bal-box-w) !important; margin: 0 auto !important; transform: translate({BALANCE_BOX_X}px, {BALANCE_BOX_Y}px) !important; }}
+    .balance-box {{ background: #10B981 !important; color: white !important; padding: var(--bal-box-pad) 0px !important; border-radius: 80px !important; text-align: center !important; font-weight: 700 !important; font-size: var(--bal-num-sz) !important; width: var(--bal-box-w) !important; margin: 0 auto !important; transform: translate({BALANCE_BOX_X}px, {BALANCE_BOX_Y}px) !important; }}
     .thin-line {{ border-bottom: {LINEA_GROSOR}px solid {c_linea} !important; margin: {LINEA_MARGEN_SUP}px 0px {LINEA_MARGEN_INF}px 0px !important; width: {LINEA_ANCHO}% !important; transform: translateX({LINEA_X}px) !important; }}
 
     div[data-testid="stSelectbox"] label, div[data-testid="stNumberInput"] label {{ display: none !important; }}
@@ -1937,7 +1937,7 @@ div[data-testid="stTabs"] [data-baseweb="tab-highlight-point"] {{ display: none 
     div[data-testid="stNumberInput"] input {{ color: {c_lbl_in} !important; font-size: {INPUT_BAL_TXT_SIZE}px !important; background-color: {input_bg} !important; font-weight: bold !important; height: {INPUT_BAL_H} !important; box-sizing: border-box !important; padding-top: 0 !important; padding-bottom: 0 !important; }}
 
     [data-testid="stForm"] {{ padding: 0 !important; border: none !important; background: transparent !important; margin: 0 !important; }}
-    [data-testid="stFormSubmitButton"] button {{ background-color: #00C897 !important; color: white !important; font-weight: bold !important; height: 35px !important; min-height: 35px !important; border-radius: 8px !important; border: none !important; width: {INPUT_BAL_W} !important; margin-left: {INPUT_BAL_X}px !important; margin-top: 5px !important; }}
+    [data-testid="stFormSubmitButton"] button {{ background-color: #10B981 !important; color: white !important; font-weight: bold !important; height: 35px !important; min-height: 35px !important; border-radius: 8px !important; border: none !important; width: {INPUT_BAL_W} !important; margin-left: {INPUT_BAL_X}px !important; margin-top: 5px !important; }}
 
     [data-testid="stFileUploader"] {{ transform: translate({DROPZONE_X}px, {DROPZONE_Y}px) !important; background-color: transparent !important; border: none !important; padding: 0 !important; box-shadow: none !important; width: {DROPZONE_W} !important; min-width: {DROPZONE_W} !important; }}
     [data-testid="stFileUploadDropzone"] {{ background-color: {drop_bg} !important; border: {drop_border} !important; border-radius: 8px !important; height: {DROPZONE_H} !important; display: flex !important; justify-content: center !important; align-items: center !important; position: relative !important; }}
@@ -1997,8 +1997,8 @@ div[data-testid="stTabs"] [data-baseweb="tab-highlight-point"] {{ display: none 
         background-color: transparent !important; 
         width: 6px !important; 
         height: 12px !important; 
-        border-bottom: 3px solid #00C897 !important; 
-        border-right: 3px solid #00C897 !important; 
+        border-bottom: 3px solid #10B981 !important; 
+        border-right: 3px solid #10B981 !important; 
         transform: rotate(45deg) translate(-1px, -2px) !important; 
         display: block !important;
     }}
@@ -2078,8 +2078,8 @@ div[data-testid="stTabs"] [data-baseweb="tab-highlight-point"] {{ display: none 
     .note-modal-content span.note-val {{ font-size: var(--note-val-size) !important; display: inline-block !important; margin-bottom: 5px !important; color: {c_dash} !important; }}
     .note-modal-content hr {{ border-color: {border_color} !important; margin: 10px 0 !important; }}
 
-.cell-win {{ border: 2px solid #00C897 !important; color: #00664F !important; background-color: #e6f9f4 !important;}}
-    .cell-loss {{ border: 2px solid #FF4C4C !important; color: #9B1C1C !important; background-color: #ffeded !important;}}
+.cell-win {{ border: 2px solid #10B981 !important; color: #00664F !important; background-color: #e6f9f4 !important;}}
+    .cell-loss {{ border: 2px solid #EF4444 !important; color: #9B1C1C !important; background-color: #ffeded !important;}}
     .cell-be-win {{ border: 2px solid #A0AEC0 !important; color: #00664F !important; background-color: #7e7e7e !important;}}
     .cell-be-loss {{ border: 2px solid #A0AEC0 !important; color: #9B1C1C !important; background-color: #7e7e7e !important;}}
     .cell-empty {{ border: 1px solid {border_color} !important; background-color: {empty_cell_bg} !important;}}
@@ -2089,7 +2089,7 @@ div[data-testid="stTabs"] [data-baseweb="tab-highlight-point"] {{ display: none 
     .fs-modal {{ display: none; position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; background: rgba(0,0,0,0.98) !important; z-index: 9999999 !important; flex-direction: column !important; align-items: center !important; justify-content: center !important; padding: 0 !important; margin: 0 !important; }}
     .fs-modal img {{ width: 80vw !important; height: 80vh !important; max-width: 80vw !important; max-height: 80vh !important; margin: auto !important; box-shadow: 0px 10px 30px rgba(0,0,0,0.5) !important; border-radius: 10px !important; object-fit: contain !important; image-rendering: high-quality !important; image-rendering: crisp-edges !important; }}
     /* Botón de cerrar por defecto (para que no se rompa el de las Notas) */
-    .close-btn {{ position: fixed !important; top: 35px !important; right: 25px !important; font-size: 20px !important; background-color: #FF4C4C !important; color: white !important; padding: 8px 15px !important; border-radius: 8px !important; cursor: pointer !important; z-index: 10000000 !important; font-weight: bold !important; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }}
+    .close-btn {{ position: fixed !important; top: 35px !important; right: 25px !important; font-size: 20px !important; background-color: #EF4444 !important; color: white !important; padding: 8px 15px !important; border-radius: 8px !important; cursor: pointer !important; z-index: 10000000 !important; font-weight: bold !important; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }}
 
     /* NUEVO: Contenedor que agrupa los 3 botones y los separa exactamente 10px */
     .modal-controls {{ position: fixed !important; top: 35px !important; right: 25px !important; display: flex !important; gap: 10px !important; z-index: 10000000 !important; align-items: center !important; }}
@@ -2106,7 +2106,7 @@ div[data-testid="stTabs"] [data-baseweb="tab-highlight-point"] {{ display: none 
     /* NUEVO: Estilos para la galeria de imagenes */
     .gallery-nav {{ display: flex !important; align-items: center !important; gap: 10px !important; color: white !important; font-weight: bold !important; font-size: 16px !important; margin-right: 15px !important; }}
     .prev-img-btn, .next-img-btn {{ background: #4A5568 !important; padding: 8px 15px !important; border-radius: 8px !important; cursor: pointer !important; user-select: none !important; }}
-    .prev-img-btn:hover, .next-img-btn:hover {{ background: #00C897 !important; }}
+    .prev-img-btn:hover, .next-img-btn:hover {{ background: #10B981 !important; }}
 
     .card-pnl, .card-win, .card-rr {{ width: 100% !important; height: auto !important; min-height: 100px !important; }}
     .metric-card {{ background-color: {card_bg} !important; border-radius: 12px !important; padding: 15px 20px !important;
@@ -2114,8 +2114,8 @@ border: 1px solid {border_color} !important; box-shadow: 0 1px 3px rgba(0,0,0,0.
     .metric-header {{ display: flex !important; align-items: center !important; gap: 8px !important; margin-bottom: 5px !important; }}
     .title-net-pnl {{ font-size: var(--size-card-titles) !important; font-weight: 700 !important; color: {c_tit_pnl} !important; }}
     .title-trade-win {{ font-size: var(--size-card-titles) !important; font-weight: 700 !important; color: {c_tit_win} !important; }}
-    .pnl-value {{ font-size: 28px !important; font-weight: 800 !important; color: #00C897 !important; letter-spacing: -0.5px !important; }}
-    .pnl-value-loss {{ color: #FF4C4C !important; }}
+    .pnl-value {{ font-size: 28px !important; font-weight: 800 !important; color: #10B981 !important; letter-spacing: -0.5px !important; }}
+    .pnl-value-loss {{ color: #EF4444 !important; }}
     
 /* Win Rate gigante, exactamente del mismo tamaño que P&L */
     .win-value {{ font-size: var(--size-box-vals) !important;
@@ -2137,8 +2137,8 @@ border: 1px solid {border_color} !important; box-shadow: 0 1px 3px rgba(0,0,0,0.
     .mo-title {{ font-weight: 800 !important; color: {wk_tit_c} !important; letter-spacing: 1px !important; }}
     .mo-val {{ font-weight: 800 !important; line-height: 1.2 !important; }}
     
-      .txt-green {{ color: #00C897 !important; }}
-    .txt-red {{ color: #FF4C4C !important; }}
+      .txt-green {{ color: #10B981 !important; }}
+    .txt-red {{ color: #EF4444 !important; }}
     .txt-gray {{ color: gray !important; }}
 
     div[data-testid="stExpanderDetails"] div[data-testid="stTextArea"] > div,
@@ -2166,7 +2166,7 @@ border: 1px solid {border_color} !important; box-shadow: 0 1px 3px rgba(0,0,0,0.
         padding-top: 10px !important;
     }}
     div[data-testid="stSlider"] div[role="slider"] {{
-        background-color: #00C897 !important;
+        background-color: #10B981 !important;
         border: 4px solid {card_bg} !important;
         box-shadow: 0 0 12px rgba(0, 200, 151, 0.6) !important;
         width: 24px !important;
@@ -2185,7 +2185,7 @@ border: 1px solid {border_color} !important; box-shadow: 0 1px 3px rgba(0,0,0,0.
         border-radius: 10px !important;
     }}
     div[data-testid="stSlider"] div[data-baseweb="slider"] > div > div:nth-child(2) {{
-        background-color: #00C897 !important;
+        background-color: #10B981 !important;
         height: 6px !important;
         border-radius: 10px !important;
     }}
@@ -2293,7 +2293,7 @@ if paso_cuenta:
         reescribir_excel_usuario(usuario)
         st.toast(_l['dash']['detect_pa'], icon="🎉")
         st.balloons()
-        html_script = """<script>setTimeout(function() { if (!window.parent.document.getElementById('confetti-script')) { const script = window.parent.document.createElement('script'); script.id = 'confetti-script'; script.src = 'https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js'; script.onload = function() { iniciarCelebracionCompleta(); }; window.parent.document.head.appendChild(script); } else { iniciarCelebracionCompleta(); } }, 500); function iniciarCelebracionCompleta() { const doc = window.parent.document; if (!doc.getElementById('celebration-style')) { const style = doc.createElement('style'); style.id = 'celebration-style'; style.innerHTML = `@import url('https://fonts.googleapis.com/css2?family=Inter:wght@800;900&display=swap'); #celebration-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(0,0,0,0.9); backdrop-filter: blur(10px); z-index: 9999998; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; font-family: 'Inter', sans-serif; text-align: center; opacity: 0; animation: fadeInCelebration 0.8s forwards; pointer-events: none; } .cel-content { transform: scale(0.5); animation: scaleInCelebration 0.8s 0.2s forwards cubic-bezier(0.17, 0.89, 0.32, 1.49); } .cel-title { font-size: 80px; font-weight: 900; margin-bottom: 20px; letter-spacing: -4px; line-height: 1; text-shadow: 0 10px 20px rgba(0,0,0,0.5); } .cel-sub { font-size: 30px; font-weight: 800; color: #00C897; text-transform: uppercase; letter-spacing: 2px; } @keyframes fadeInCelebration { to { opacity: 1; } } @keyframes fadeOutCelebration { from { opacity: 1; } to { opacity: 0; } } @keyframes scaleInCelebration { to { transform: scale(1); } }`; doc.head.appendChild(style); } const overlay = doc.createElement('div'); overlay.id = 'celebration-overlay'; overlay.innerHTML = `<div class="cel-content"><div class="cel-title">"""+_l['dash']['congrats']+"""<br>""" + usuario.upper() + """</div><div class="cel-sub">"""+_l['dash']['now_pa']+"""</div></div>`; doc.body.appendChild(overlay); var duration = 5 * 1000; var end = window.parent.Date.now() + duration; var colors = ['#00C897', '#FFFFFF', '#FFD700', '#FF4C4C']; (function frame() { if (window.parent.confetti) { window.parent.confetti({ particleCount: 7, angle: 60, spread: 60, origin: { x: 0, y: 0.6 }, colors: colors, zIndex: 9999999 }); window.parent.confetti({ particleCount: 7, angle: 120, spread: 60, origin: { x: 1, y: 0.6 }, colors: colors, zIndex: 9999999 }); } if (window.parent.Date.now() < end) { window.parent.requestAnimationFrame(frame); } }()); setTimeout(() => { overlay.style.animation = 'fadeOutCelebration 1s forwards'; setTimeout(() => { if(doc.body.contains(overlay)) { doc.body.removeChild(overlay); } }, 1000); }, 6500); } </script>"""
+        html_script = """<script>setTimeout(function() { if (!window.parent.document.getElementById('confetti-script')) { const script = window.parent.document.createElement('script'); script.id = 'confetti-script'; script.src = 'https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js'; script.onload = function() { iniciarCelebracionCompleta(); }; window.parent.document.head.appendChild(script); } else { iniciarCelebracionCompleta(); } }, 500); function iniciarCelebracionCompleta() { const doc = window.parent.document; if (!doc.getElementById('celebration-style')) { const style = doc.createElement('style'); style.id = 'celebration-style'; style.innerHTML = `@import url('https://fonts.googleapis.com/css2?family=Inter:wght@800;900&display=swap'); #celebration-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(0,0,0,0.9); backdrop-filter: blur(10px); z-index: 9999998; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; font-family: 'Inter', sans-serif; text-align: center; opacity: 0; animation: fadeInCelebration 0.8s forwards; pointer-events: none; } .cel-content { transform: scale(0.5); animation: scaleInCelebration 0.8s 0.2s forwards cubic-bezier(0.17, 0.89, 0.32, 1.49); } .cel-title { font-size: 80px; font-weight: 900; margin-bottom: 20px; letter-spacing: -4px; line-height: 1; text-shadow: 0 10px 20px rgba(0,0,0,0.5); } .cel-sub { font-size: 30px; font-weight: 800; color: #10B981; text-transform: uppercase; letter-spacing: 2px; } @keyframes fadeInCelebration { to { opacity: 1; } } @keyframes fadeOutCelebration { from { opacity: 1; } to { opacity: 0; } } @keyframes scaleInCelebration { to { transform: scale(1); } }`; doc.head.appendChild(style); } const overlay = doc.createElement('div'); overlay.id = 'celebration-overlay'; overlay.innerHTML = `<div class="cel-content"><div class="cel-title">"""+_l['dash']['congrats']+"""<br>""" + usuario.upper() + """</div><div class="cel-sub">"""+_l['dash']['now_pa']+"""</div></div>`; doc.body.appendChild(overlay); var duration = 5 * 1000; var end = window.parent.Date.now() + duration; var colors = ['#10B981', '#FFFFFF', '#FFD700', '#EF4444']; (function frame() { if (window.parent.confetti) { window.parent.confetti({ particleCount: 7, angle: 60, spread: 60, origin: { x: 0, y: 0.6 }, colors: colors, zIndex: 9999999 }); window.parent.confetti({ particleCount: 7, angle: 120, spread: 60, origin: { x: 1, y: 0.6 }, colors: colors, zIndex: 9999999 }); } if (window.parent.Date.now() < end) { window.parent.requestAnimationFrame(frame); } }()); setTimeout(() => { overlay.style.animation = 'fadeOutCelebration 1s forwards'; setTimeout(() => { if(doc.body.contains(overlay)) { doc.body.removeChild(overlay); } }, 1000); }, 6500); } </script>"""
         components.html(html_script, height=1, width=1)
 
 modo_funded_activo = st.session_state.get("toggle_funded_state", False) and paso_cuenta
@@ -2330,7 +2330,7 @@ div[data-testid="column"]:nth-child(6) div[data-testid="stPopover"] > button p {
 }
 div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > button:hover,
 div[data-testid="column"]:nth-child(6) div[data-testid="stPopover"] > button:hover {
-    border-color: #00C897 !important; background: rgba(0, 200, 151, 0.1) !important;
+    border-color: #10B981 !important; background: rgba(0, 200, 151, 0.1) !important;
 }
 
 /* MAGIA: Despegar el Popover del botón y mandarlo al centro de la pantalla */
@@ -2369,7 +2369,7 @@ if True:
             contenido_ajustes()
 
     with col_t:
-        if paso_cuenta: badge_html = f'<span style="font-size: 20px; background-color: #00C897; color: white; padding: 4px 12px; border-radius: 8px; margin-left: 15px; font-weight: 800; letter-spacing: 0px;">{_l["dash"]["pa"]}</span>'
+        if paso_cuenta: badge_html = f'<span style="font-size: 20px; background-color: #10B981; color: white; padding: 4px 12px; border-radius: 8px; margin-left: 15px; font-weight: 800; letter-spacing: 0px;">{_l["dash"]["pa"]}</span>'
         else: badge_html = f'<span style="font-size: 20px; background-color: #4A5568; color: white; padding: 4px 12px; border-radius: 8px; margin-left: 15px; font-weight: 800; letter-spacing: 0px;">{_l["dash"]["eval"]}</span>'
         st.markdown(f'<div class="dashboard-title" style="display: flex; align-items: center;">{TXT_DASHBOARD}, {usuario} {badge_html}</div>', unsafe_allow_html=True)
 
@@ -2465,7 +2465,7 @@ if True:
     AJUSTES DEL BOTÓN "GUARDAR"
     ========================================== */
     div[data-testid="stForm"] [data-testid="stFormSubmitButton"] button {
-        background-color: #00C897 !important; /* Color de fondo (Verde) */
+        background-color: #10B981 !important; /* Color de fondo (Verde) */
         color: white !important;              /* Color del texto */
         font-size: 30pt !important;           /* <-- TAMAÑO DEL TEXTO DEL BOTÓN */
         font-weight: bold !important;         /* Negrita */
@@ -2613,8 +2613,8 @@ if True:
 
     /* 4. Efecto elegante al pasar el mouse */
     div[data-testid="stFileUploader"] section[data-testid="stFileUploadDropzone"] button:hover {
-        background: linear-gradient(135deg, #00C897 0%, #007A5E 100%) !important;
-        border-color: #00C897 !important;
+        background: linear-gradient(135deg, #10B981 0%, #007A5E 100%) !important;
+        border-color: #10B981 !important;
         transform: translateY(-2px) !important;
         box-shadow: 0 6px 12px rgba(0, 200, 151, 0.3) !important;
     }
@@ -2847,9 +2847,9 @@ if True:
 
                     /* Efecto hover premium */
                     div[data-testid="stForm"] div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > button:hover {
-                        border-color: #00C897 !important;
+                        border-color: #10B981 !important;
                         background: rgba(0, 200, 151, 0.1) !important;
-                        color: #00C897 !important;
+                        color: #10B981 !important;
                     }
                     
                     /* 🎨 CAJA DE SUBIDA DE IMÁGENES (Permite apilar varias sin romperse) */
@@ -2864,7 +2864,7 @@ if True:
                     [data-testid="stFileUploaderDeleteBtn"] { background-color: transparent !important; border: none !important; box-shadow: none !important; padding: 5px !important; width: 32px !important; height: 32px !important; display: flex !important; align-items: center !important; justify-content: center !important; border-radius: 50% !important; }
                     [data-testid="stFileUploaderDeleteBtn"] svg { color: white !important; fill: white !important; width: 16px !important; height: 16px !important; display: block !important; }
                     [data-testid="stFileUploaderDeleteBtn"]:hover { background-color: rgba(255, 76, 76, 0.2) !important; }
-                    [data-testid="stFileUploaderDeleteBtn"]:hover svg { color: #FF4C4C !important; fill: #FF4C4C !important; }
+                    [data-testid="stFileUploaderDeleteBtn"]:hover svg { color: #EF4444 !important; fill: #EF4444 !important; }
 
                     /* 📦 CAJITAS DE LOS ARCHIVOS YA SUBIDOS */
                     [data-testid="stUploadedFile"] { background-color: #2D3748 !important; border: 1px solid #4A5568 !important; border-radius: 8px !important; margin-top: 8px !important; }
@@ -3006,10 +3006,10 @@ if True:
             losses_top = len([t for t in trades_mes_top if t <= -75])
             total_validos_top = wins_top + losses_top
             win_pct_top = (wins_top / total_validos_top * 100) if total_validos_top > 0 else 0.0
-            color_pnl_top = "#00C897" if net_pnl_top >= 0 else "#FF4C4C"
+            color_pnl_top = "#10B981" if net_pnl_top >= 0 else "#EF4444"
             bg_pnl_top = "#e6f9f4" if net_pnl_top >= 0 else "#ffeded"
             simb_pnl_top = "+" if net_pnl_top > 0 else ""
-            color_win_top = "#00C897" if win_pct_top >= 50 else "#FF4C4C"
+            color_win_top = "#10B981" if win_pct_top >= 50 else "#EF4444"
             bg_win_top = "#e6f9f4" if win_pct_top >= 50 else "#ffeded"
 
         # === MODAL INSTANTÁNEO DEL SELECTOR DE FECHAS ELIMINADO ===
@@ -3046,7 +3046,7 @@ if True:
                         fecha_corta = f"{f_cierre_dt.month}/{f_cierre_dt.day}/{f_cierre_dt.strftime('%y')}"
 
                         # 3. Lógica de colores (Rojo si faltan 5 días operables o menos)
-                        color_alerta = "#FF4C4C" if dias_restantes <= 5 else "#00C897"
+                        color_alerta = "#EF4444" if dias_restantes <= 5 else "#10B981"
                         bg_alerta = "#ffeded" if dias_restantes <= 5 else "#e6f9f4"
 
                         countdown_html = f'''
@@ -3110,7 +3110,7 @@ if True:
                                         has_notes = True
                                         confluences_str = ", ".join(t.get("Confluences", []))
                                         pnl_val_nota = t["pnl"]
-                                        pnl_color_nota = "#00C897" if pnl_val_nota >= 0 else "#FF4C4C"
+                                        pnl_color_nota = "#10B981" if pnl_val_nota >= 0 else "#EF4444"
                                         simbolo_nota = "+" if pnl_val_nota > 0 else ("-" if pnl_val_nota < 0 else "")
                                         pnl_formateado_nota = f"{simbolo_nota}${abs(pnl_val_nota):,.2f}"
                                         hora_trade_nota = t.get("hora", "00:00")
@@ -3138,13 +3138,13 @@ if True:
         svg = '<svg width="100%" height="100%" viewBox="0 0 100 100">'
         svg += '<line x1="5" y1="85" x2="95" y2="85" stroke="#4A5568" stroke-width="2" stroke-linecap="round" />'
         if w > 0:
-            svg += f'<rect x="12" y="{85 - hw}" width="22" height="{hw}" fill="#00C897" rx="3" />'
-            svg += f'<text x="23" y="{80 - hw}" fill="#00C897" font-size="14" font-family="sans-serif" font-weight="bold" text-anchor="middle">{w}</text>'
-            svg += f'<text x="23" y="98" fill="#00C897" font-size="12" font-family="sans-serif" font-weight="bold" text-anchor="middle">W</text>'
+            svg += f'<rect x="12" y="{85 - hw}" width="22" height="{hw}" fill="#10B981" rx="3" />'
+            svg += f'<text x="23" y="{80 - hw}" fill="#10B981" font-size="14" font-family="sans-serif" font-weight="bold" text-anchor="middle">{w}</text>'
+            svg += f'<text x="23" y="98" fill="#10B981" font-size="12" font-family="sans-serif" font-weight="bold" text-anchor="middle">W</text>'
         if l > 0:
-            svg += f'<rect x="39" y="{85 - hl}" width="22" height="{hl}" fill="#FF4C4C" rx="3" />'
-            svg += f'<text x="50" y="{80 - hl}" fill="#FF4C4C" font-size="14" font-family="sans-serif" font-weight="bold" text-anchor="middle">{l}</text>'
-            svg += f'<text x="50" y="98" fill="#FF4C4C" font-size="12" font-family="sans-serif" font-weight="bold" text-anchor="middle">L</text>'
+            svg += f'<rect x="39" y="{85 - hl}" width="22" height="{hl}" fill="#EF4444" rx="3" />'
+            svg += f'<text x="50" y="{80 - hl}" fill="#EF4444" font-size="14" font-family="sans-serif" font-weight="bold" text-anchor="middle">{l}</text>'
+            svg += f'<text x="50" y="98" fill="#EF4444" font-size="12" font-family="sans-serif" font-weight="bold" text-anchor="middle">L</text>'
         if t > 0:
             svg += f'<rect x="66" y="{85 - ht}" width="22" height="{ht}" fill="gray" rx="3" />'
             svg += f'<text x="77" y="{80 - ht}" fill="gray" font-size="14" font-family="sans-serif" font-weight="bold" text-anchor="middle">{t}</text>'
@@ -3186,7 +3186,7 @@ if True:
         falta_tg = meta_t - progreso
         distancia_dd = bal_mostrar - nivel_perdida
         
-        c_hex_dd = "#FF4C4C" if distancia_dd < alerta_dd else "#00C897"
+        c_hex_dd = "#EF4444" if distancia_dd < alerta_dd else "#10B981"
         titulo_target_dinamico = _l['cal']['target']
         c_hex_tg = "#FFFFFF" 
 
@@ -3194,13 +3194,13 @@ if True:
         if distancia_dd <= 0:
             texto_lose = _l['cal']['lost']; texto_dd = _l['cal']['lost'];
             texto_tg = _l['cal']['lost']
-            c_hex_tg = "#FF4C4C"
+            c_hex_tg = "#EF4444"
             clave_perdida_db = "cuenta_quemada_v1_" + str(ctx)
             if not db_global[usuario]["settings"]["PC"].get(clave_perdida_db, False):
                 db_global[usuario]["settings"]["PC"][clave_perdida_db] = True
                 db_global[usuario]["settings"]["Móvil"][clave_perdida_db] = True
                 reescribir_excel_usuario(usuario)
-                html_script_perdida = """<script>function iniciarPantallaPerdida() { const doc = window.parent.document; if (!doc.getElementById('lost-style')) { const style = doc.createElement('style'); style.id = 'lost-style'; style.innerHTML = `@import url('https://fonts.googleapis.com/css2?family=Inter:wght@800;900&display=swap'); #lost-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(20,0,0,0.95); backdrop-filter: blur(12px); z-index: 9999998; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; font-family: 'Inter', sans-serif; text-align: center; opacity: 0; animation: fadeInLost 1s forwards; pointer-events: none; overflow: hidden; } .lost-content { transform: scale(1.2); animation: dropInLost 0.5s forwards cubic-bezier(0.25, 0.46, 0.45, 0.94); z-index: 2; } .lost-title { font-size: 90px; font-weight: 900; margin-bottom: 20px; letter-spacing: -3px; line-height: 1; color: #FF4C4C; text-shadow: 0 0 40px rgba(255,76,76,0.6); } .lost-sub { font-size: 25px; font-weight: 800; color: #A0AEC0; text-transform: uppercase; letter-spacing: 2px; line-height: 1.4; } .skull-particle { position: absolute; top: -100px; z-index: 1; user-select: none; filter: drop-shadow(0 0 5px rgba(255,0,0,0.3)); } @keyframes fadeInLost { to { opacity: 1; } } @keyframes fadeOutLost { from { opacity: 1; } to { opacity: 0; } } @keyframes dropInLost { to { transform: scale(1); } } @keyframes shakeScreen { 0%, 100% { transform: translate(0, 0); } 10%, 30%, 50%, 70%, 90% { transform: translate(-8px, 0); } 20%, 40%, 60%, 80% { transform: translate(8px, 0); } } @keyframes fallSkull { 0% { transform: translateY(-100px) rotate(0deg); opacity: 1; } 100% { transform: translateY(110vh) rotate(360deg); opacity: 0; } }`; doc.head.appendChild(style); } const overlay = doc.createElement('div'); overlay.id = 'lost-overlay'; let skullsHtml = ''; for (let i = 0; i < 40; i++) { let left = Math.random() * 100; let size = Math.random() * 40 + 20; let duration = Math.random() * 2.5 + 2; let delay = Math.random() * 1.5; skullsHtml += `<div class="skull-particle" style="left: ${left}vw; font-size: ${size}px; animation: fallSkull ${duration}s linear ${delay}s forwards;">💀</div>`; } overlay.innerHTML = `${skullsHtml}<div class="lost-content"><div class="lost-title">"""+_l['cal']['acc_lost']+"""</div><div class="lost-sub">"""+_l['cal']['fail_info']+""" """ + usuario.upper() + """!</div></div>`; doc.body.appendChild(overlay); doc.body.style.animation = 'shakeScreen 0.4s ease-in-out'; setTimeout(() => { doc.body.style.animation = ''; }, 400); setTimeout(() => { overlay.style.animation = 'fadeOutLost 1.5s forwards'; setTimeout(() => { if(doc.body.contains(overlay)) { doc.body.removeChild(overlay); } }, 1500); }, 6500); } setTimeout(iniciarPantallaPerdida, 500); </script>"""
+                html_script_perdida = """<script>function iniciarPantallaPerdida() { const doc = window.parent.document; if (!doc.getElementById('lost-style')) { const style = doc.createElement('style'); style.id = 'lost-style'; style.innerHTML = `@import url('https://fonts.googleapis.com/css2?family=Inter:wght@800;900&display=swap'); #lost-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(20,0,0,0.95); backdrop-filter: blur(12px); z-index: 9999998; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; font-family: 'Inter', sans-serif; text-align: center; opacity: 0; animation: fadeInLost 1s forwards; pointer-events: none; overflow: hidden; } .lost-content { transform: scale(1.2); animation: dropInLost 0.5s forwards cubic-bezier(0.25, 0.46, 0.45, 0.94); z-index: 2; } .lost-title { font-size: 90px; font-weight: 900; margin-bottom: 20px; letter-spacing: -3px; line-height: 1; color: #EF4444; text-shadow: 0 0 40px rgba(255,76,76,0.6); } .lost-sub { font-size: 25px; font-weight: 800; color: #A0AEC0; text-transform: uppercase; letter-spacing: 2px; line-height: 1.4; } .skull-particle { position: absolute; top: -100px; z-index: 1; user-select: none; filter: drop-shadow(0 0 5px rgba(255,0,0,0.3)); } @keyframes fadeInLost { to { opacity: 1; } } @keyframes fadeOutLost { from { opacity: 1; } to { opacity: 0; } } @keyframes dropInLost { to { transform: scale(1); } } @keyframes shakeScreen { 0%, 100% { transform: translate(0, 0); } 10%, 30%, 50%, 70%, 90% { transform: translate(-8px, 0); } 20%, 40%, 60%, 80% { transform: translate(8px, 0); } } @keyframes fallSkull { 0% { transform: translateY(-100px) rotate(0deg); opacity: 1; } 100% { transform: translateY(110vh) rotate(360deg); opacity: 0; } }`; doc.head.appendChild(style); } const overlay = doc.createElement('div'); overlay.id = 'lost-overlay'; let skullsHtml = ''; for (let i = 0; i < 40; i++) { let left = Math.random() * 100; let size = Math.random() * 40 + 20; let duration = Math.random() * 2.5 + 2; let delay = Math.random() * 1.5; skullsHtml += `<div class="skull-particle" style="left: ${left}vw; font-size: ${size}px; animation: fallSkull ${duration}s linear ${delay}s forwards;">💀</div>`; } overlay.innerHTML = `${skullsHtml}<div class="lost-content"><div class="lost-title">"""+_l['cal']['acc_lost']+"""</div><div class="lost-sub">"""+_l['cal']['fail_info']+""" """ + usuario.upper() + """!</div></div>`; doc.body.appendChild(overlay); doc.body.style.animation = 'shakeScreen 0.4s ease-in-out'; setTimeout(() => { doc.body.style.animation = ''; }, 400); setTimeout(() => { overlay.style.animation = 'fadeOutLost 1.5s forwards'; setTimeout(() => { if(doc.body.contains(overlay)) { doc.body.removeChild(overlay); } }, 1500); }, 6500); } setTimeout(iniciarPantallaPerdida, 500); </script>"""
                 components.html(html_script_perdida, height=1, width=1)
         else:
             # Si es Backtesting y está quemada, mostramos los números en lugar de "LOST"
@@ -3212,17 +3212,17 @@ if True:
                     titulo_target_dinamico = _l['cal']['avail_payout']
                     payout_disponible = abs(falta_para_tope)
                     texto_tg = f"${payout_disponible:,.2f}"
-                    c_hex_tg = "#00C897"
+                    c_hex_tg = "#10B981"
                 else:
                     titulo_target_dinamico = _l['cal']['target']
                     texto_tg = f"${falta_para_tope:,.2f}"
                     c_hex_tg = "#FFFFFF"
             elif falta_tg <= 0:
                 texto_tg = "PASSED 🎉"
-                c_hex_tg = "#00C897"
+                c_hex_tg = "#10B981"
             else:
                 texto_tg = f"${falta_tg:,.2f}"
-                c_hex_tg = "#FF4C4C" if falta_tg > meta_t else "#FFFFFF"
+                c_hex_tg = "#EF4444" if falta_tg > meta_t else "#FFFFFF"
 
 # Título redundante eliminado a petición
         pass
@@ -3266,7 +3266,7 @@ if True:
         total_validos = wins + losses
         win_pct = (wins / total_validos * 100) if total_validos > 0 else 0.0
         simbolo_pnl = "+" if net_pnl > 0 else ""
-        c_win_card = "#00C897" if win_pct >= 50 else "#FF4C4C"
+        c_win_card = "#10B981" if win_pct >= 50 else "#EF4444"
         
         rr_valores = []
         trades_para_rr = todos_los_trades_planos if ver_todo else [tr for k, v in db_usuario[ctx]["trades"].items() if k[0] == anio_sel and k[1] == mes_sel for tr in v if not (modo_funded_activo and tr.get("is_pre_funded", False))]
@@ -3280,7 +3280,7 @@ if True:
         rr_promedio = sum(rr_valores) / len(rr_valores) if rr_valores else 0.0
 
         c_met1, c_met2, c_met3 = st.columns(3)
-        c_hex_pnl = "#00C897" if net_pnl >= 0 else "#FF4C4C"
+        c_hex_pnl = "#10B981" if net_pnl >= 0 else "#EF4444"
         with c_met1: st.markdown(f"""<div class="metric-card card-pnl"><div class="metric-header"><span class="title-net-pnl" style="font-size: var(--size-card-titles);">{titulo_pnl}</span></div><div style="color: {c_hex_pnl}; font-size: var(--size-box-vals); font-weight: 800;">{simbolo_pnl}${net_pnl:,.2f}</div></div>""", unsafe_allow_html=True)
         with c_met2: st.markdown(f"""<div class="metric-card card-win"><div class="metric-header"><span class="title-trade-win" style="font-size: var(--size-card-titles);">{_l['cal']['tot_tr']}</span></div><div class="rr-value" style="color: white; font-size: var(--size-box-vals) !important;">{total_trades}</div></div>""", unsafe_allow_html=True)
         with c_met3: st.markdown(f"""<div class="metric-card card-rr"><div class="metric-header"><span class="title-trade-win" style="font-size: var(--size-card-titles);">{_l['cal']['avg_rr']}</span></div><div class="rr-value" style="color: #FFFFFF; font-size: var(--size-box-vals) !important;">1 / {rr_promedio:.2f}</div></div>""", unsafe_allow_html=True)
@@ -3369,7 +3369,7 @@ if True:
                     if len(df_s_validos) > 0:
                         wr = (len(df_s_validos[df_s_validos['pnl'] >= 75]) / len(df_s_validos)) * 100
                         wr_str = f"{wr:.0f}%"
-                        color = "#00C897" if wr >= 50 else "#FF4C4C"
+                        color = "#10B981" if wr >= 50 else "#EF4444"
                         
                         if s == 'New York': 
                             wr_ny_str = wr_str
@@ -3384,23 +3384,23 @@ if True:
         else:
             profit_diario_avg = 0.0
             
-        c_prof_dia = "#00C897" if profit_diario_avg >= 0 else "#FF4C4C"
+        c_prof_dia = "#10B981" if profit_diario_avg >= 0 else "#EF4444"
         simb_prof_dia = "+" if profit_diario_avg > 0 else ""
 
         # FILA 2 DE TARJETAS (Dividiendo Avg Win / Avg Loss)
         c_m4, c_m5, c_m6 = st.columns(3)
         with c_m4: st.markdown(f"""<div class="metric-card card-rr"><div class="metric-header"><span class="title-trade-win" style="font-size: var(--size-card-titles);">Profit Factor</span></div><div class="rr-value" style="color: #FFFFFF; font-size: var(--size-box-vals) !important;">{profit_factor:.2f}</div></div>""", unsafe_allow_html=True)
-        with c_m5: st.markdown(f"""<div class="metric-card card-rr"><div class="metric-header"><span class="title-trade-win" style="font-size: var(--size-card-titles);">Average Win</span></div><div class="rr-value" style="color: #00C897; font-size: var(--size-box-vals) !important;">+${avg_win:,.2f}</div></div>""", unsafe_allow_html=True)
-        with c_m6: st.markdown(f"""<div class="metric-card card-rr"><div class="metric-header"><span class="title-trade-win" style="font-size: var(--size-card-titles);">Average Loss</span></div><div class="rr-value" style="color: #FF4C4C; font-size: var(--size-box-vals) !important;">-${avg_loss:,.2f}</div></div>""", unsafe_allow_html=True)
+        with c_m5: st.markdown(f"""<div class="metric-card card-rr"><div class="metric-header"><span class="title-trade-win" style="font-size: var(--size-card-titles);">Average Win</span></div><div class="rr-value" style="color: #10B981; font-size: var(--size-box-vals) !important;">+${avg_win:,.2f}</div></div>""", unsafe_allow_html=True)
+        with c_m6: st.markdown(f"""<div class="metric-card card-rr"><div class="metric-header"><span class="title-trade-win" style="font-size: var(--size-card-titles);">Average Loss</span></div><div class="rr-value" style="color: #EF4444; font-size: var(--size-box-vals) !important;">-${avg_loss:,.2f}</div></div>""", unsafe_allow_html=True)
 
         st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
         
         # FILA 3 DE TARJETAS (Dividiendo Rachas y agregando Mejor/Peor Trade)
         c_m7, c_m8, c_m9, c_m10 = st.columns(4)
-        with c_m7: st.markdown(f"""<div class="metric-card card-rr"><div class="metric-header"><span class="title-trade-win" style="font-size: var(--size-card-titles);">Racha Victorias</span></div><div class="rr-value" style="color: #00C897; font-size: var(--size-box-vals) !important;">{max_w}W</div></div>""", unsafe_allow_html=True)
-        with c_m8: st.markdown(f"""<div class="metric-card card-rr"><div class="metric-header"><span class="title-trade-win" style="font-size: var(--size-card-titles);">Racha Pérdidas</span></div><div class="rr-value" style="color: #FF4C4C; font-size: var(--size-box-vals) !important;">{max_l}L</div></div>""", unsafe_allow_html=True)
-        with c_m9: st.markdown(f"""<div class="metric-card card-rr"><div class="metric-header"><span class="title-trade-win" style="font-size: var(--size-card-titles);">Mejor Trade</span></div><div class="rr-value" style="color: #00C897; font-size: var(--size-box-vals) !important;">+${best_trade:,.2f}</div></div>""", unsafe_allow_html=True)
-        with c_m10: st.markdown(f"""<div class="metric-card card-rr"><div class="metric-header"><span class="title-trade-win" style="font-size: var(--size-card-titles);">Peor Trade</span></div><div class="rr-value" style="color: #FF4C4C; font-size: var(--size-box-vals) !important;">${worst_trade:,.2f}</div></div>""", unsafe_allow_html=True)
+        with c_m7: st.markdown(f"""<div class="metric-card card-rr"><div class="metric-header"><span class="title-trade-win" style="font-size: var(--size-card-titles);">Racha Victorias</span></div><div class="rr-value" style="color: #10B981; font-size: var(--size-box-vals) !important;">{max_w}W</div></div>""", unsafe_allow_html=True)
+        with c_m8: st.markdown(f"""<div class="metric-card card-rr"><div class="metric-header"><span class="title-trade-win" style="font-size: var(--size-card-titles);">Racha Pérdidas</span></div><div class="rr-value" style="color: #EF4444; font-size: var(--size-box-vals) !important;">{max_l}L</div></div>""", unsafe_allow_html=True)
+        with c_m9: st.markdown(f"""<div class="metric-card card-rr"><div class="metric-header"><span class="title-trade-win" style="font-size: var(--size-card-titles);">Mejor Trade</span></div><div class="rr-value" style="color: #10B981; font-size: var(--size-box-vals) !important;">+${best_trade:,.2f}</div></div>""", unsafe_allow_html=True)
+        with c_m10: st.markdown(f"""<div class="metric-card card-rr"><div class="metric-header"><span class="title-trade-win" style="font-size: var(--size-card-titles);">Peor Trade</span></div><div class="rr-value" style="color: #EF4444; font-size: var(--size-box-vals) !important;">${worst_trade:,.2f}</div></div>""", unsafe_allow_html=True)
 
         st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
 
@@ -3415,8 +3415,8 @@ if True:
 
         # === 1. TARJETA GLOBAL DE PORCENTAJE DE VICTORIAS (AHORA ARRIBA) ===
         wl_parts_pie = []
-        if wins >= 1: wl_parts_pie.append(f'<span style="color:#00C897;">{wins}W</span>')
-        if losses >= 1: wl_parts_pie.append(f'<span style="color:#FF4C4C;">{losses}L</span>')
+        if wins >= 1: wl_parts_pie.append(f'<span style="color:#10B981;">{wins}W</span>')
+        if losses >= 1: wl_parts_pie.append(f'<span style="color:#EF4444;">{losses}L</span>')
         if ties >= 1: wl_parts_pie.append(f'<span style="color:gray;">{ties}BE</span>')
         wl_text_pie = ' <span style="color:gray;">/</span> '.join(wl_parts_pie) if total_validos > 0 else '<span style="color:gray;">0W / 0L / 0BE</span>'
         bar_html = get_bar_svg(wins, losses, ties)
@@ -3444,7 +3444,7 @@ if True:
             
             import plotly.express as px
             
-            colores_barras = ['#00C897' if p >= 0 else '#FF4C4C' for p in df_grouped['pnl']]
+            colores_barras = ['#10B981' if p >= 0 else '#EF4444' for p in df_grouped['pnl']]
             
             y_min = df_grouped['Equity'].min()
             y_max = df_grouped['Equity'].max()
@@ -3522,8 +3522,8 @@ if True:
                 total_trades_sem = stats["w"] + stats["l"] + stats["be"]
                 
                 wl_parts_sem = []
-                if stats["w"] >= 1: wl_parts_sem.append(f'<span style="color:#00C897;">{stats["w"]}W</span>')
-                if stats["l"] >= 1: wl_parts_sem.append(f'<span style="color:#FF4C4C;">{stats["l"]}L</span>')
+                if stats["w"] >= 1: wl_parts_sem.append(f'<span style="color:#10B981;">{stats["w"]}W</span>')
+                if stats["l"] >= 1: wl_parts_sem.append(f'<span style="color:#EF4444;">{stats["l"]}L</span>')
                 if stats["be"] >= 1: wl_parts_sem.append(f'<span style="color:gray;">{stats["be"]}BE</span>')
                 
                 # Alineación corregida a 16 espacios exactos con el conteo en blanco al final
@@ -3536,8 +3536,8 @@ if True:
             total_trades_mo = m_w + m_l + m_be
             
             wl_parts_mo = []
-            if m_w >= 1: wl_parts_mo.append(f'<span style="color:#00C897;">{m_w}W</span>')
-            if m_l >= 1: wl_parts_mo.append(f'<span style="color:#FF4C4C;">{m_l}L</span>')
+            if m_w >= 1: wl_parts_mo.append(f'<span style="color:#10B981;">{m_w}W</span>')
+            if m_l >= 1: wl_parts_mo.append(f'<span style="color:#EF4444;">{m_l}L</span>')
             if m_be >= 1: wl_parts_mo.append(f'<span style="color:gray;">{m_be}BE</span>')
             
             # Alineación corregida a 12 espacios limpios y conteo en blanco al final sin duplicados
@@ -3581,8 +3581,8 @@ if True:
                 pct_m_box = calc_pct(val_m)
                 
                 wl_parts_all = []
-                if w_m >= 1: wl_parts_all.append(f'<span style="color:#00C897;">{w_m}W</span>')
-                if l_m >= 1: wl_parts_all.append(f'<span style="color:#FF4C4C;">{l_m}L</span>')
+                if w_m >= 1: wl_parts_all.append(f'<span style="color:#10B981;">{w_m}W</span>')
+                if l_m >= 1: wl_parts_all.append(f'<span style="color:#EF4444;">{l_m}L</span>')
                 if be_m >= 1: wl_parts_all.append(f'<span style="color:gray;">{be_m}BE</span>')
                 
                 wl_text_all = ' <span style="color:gray;">/</span> '.join(wl_parts_all) if wl_parts_all else '<span style="color:gray;">0W / 0L / 0BE</span>'
@@ -3631,7 +3631,7 @@ if True:
             e_caja_p = f"padding: 15px; min-height: 110px; display: flex; flex-direction: column; justify-content: center; background-color: {card_bg}; border: 1px solid {border_color}; border-radius: 15px;"
             st.markdown("""<style>
             div[data-testid="stForm"]:has(input[aria-label="Amount"]) div[data-testid="stNumberInput"] { width: 100% !important; min-width: 100% !important; max-width: 100% !important; margin: 0 !important; } 
-            div[data-testid="stForm"]:has(input[aria-label="Amount"]) [data-testid="stFormSubmitButton"] button { width: 100% !important; margin: 5px 0 0 0 !important; background-color: #FF4C4C !important; color: white !important;}
+            div[data-testid="stForm"]:has(input[aria-label="Amount"]) [data-testid="stFormSubmitButton"] button { width: 100% !important; margin: 5px 0 0 0 !important; background-color: #EF4444 !important; color: white !important;}
             
             /* 🔴 FIX: MATAR LA DOBLE CAJA (DEJAR SOLO LA EXTERNA VISIBLE) 🔴 */
             div[data-testid="stForm"]:has(input[aria-label="Amount"]) div[data-baseweb="input"] {
@@ -3674,13 +3674,13 @@ if True:
                                 reescribir_excel_usuario(usuario)
                                 st.session_state.retiro_exitoso = True
                                 st.rerun()
-            with c_p2: st.markdown(f'<div style="{e_caja_p}"><div style="font-size: 20px; font-weight: 700; color: #FFFFFF; text-transform: none;">{_l["wd"]["tot_wdn"]}</div><div style="color: #00C897; font-size: 26px; font-weight: 800;">${total_retirado:,.2f}</div></div>', unsafe_allow_html=True)
+            with c_p2: st.markdown(f'<div style="{e_caja_p}"><div style="font-size: 20px; font-weight: 700; color: #FFFFFF; text-transform: none;">{_l["wd"]["tot_wdn"]}</div><div style="color: #10B981; font-size: 26px; font-weight: 800;">${total_retirado:,.2f}</div></div>', unsafe_allow_html=True)
             with c_p3: st.markdown(f'<div style="{e_caja_p}"><div style="font-size: 20px; font-weight: 700; color: #FFFFFF; text-transform: none;">{_l["wd"]["tot_wds"]}</div><div style="color: {c_dash}; font-size: 26px; font-weight: 800;">{retiros_realizados}</div></div>', unsafe_allow_html=True)
-            with c_p4: st.markdown(f'<div style="{e_caja_p}"><div style="font-size: 20px; font-weight: 700; color: #FFFFFF; text-transform: none;">{_l["wd"]["days_done"]}</div><div style="color: #00C897; font-size: 26px; font-weight: 800;">{dias_ganadores_count}</div></div>', unsafe_allow_html=True)
+            with c_p4: st.markdown(f'<div style="{e_caja_p}"><div style="font-size: 20px; font-weight: 700; color: #FFFFFF; text-transform: none;">{_l["wd"]["days_done"]}</div><div style="color: #10B981; font-size: 26px; font-weight: 800;">{dias_ganadores_count}</div></div>', unsafe_allow_html=True)
             if st.session_state.get("retiro_exitoso", False):
                 st.toast(_l['wd']['succ_toast'], icon="💸")
                 st.balloons()
-                html_script_payout = """<script>setTimeout(function() { if (!window.parent.document.getElementById('confetti-script')) { const script = window.parent.document.createElement('script'); script.id = 'confetti-script'; script.src = 'https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js'; script.onload = function() { iniciarCelebracionRetiro(); }; window.parent.document.head.appendChild(script); } else { iniciarCelebracionRetiro(); } }, 500); function iniciarCelebracionRetiro() { const doc = window.parent.document; if (!doc.getElementById('celebration-style')) { const style = doc.createElement('style'); style.id = 'celebration-style'; style.innerHTML = `@import url('https://fonts.googleapis.com/css2?family=Inter:wght@800;900&display=swap'); #celebration-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(0,0,0,0.9); backdrop-filter: blur(10px); z-index: 9999998; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; font-family: 'Inter', sans-serif; text-align: center; opacity: 0; animation: fadeInCelebration 0.8s forwards; pointer-events: none; } .cel-content { transform: scale(0.5); animation: scaleInCelebration 0.8s 0.2s forwards cubic-bezier(0.17, 0.89, 0.32, 1.49); } .cel-title { font-size: 80px; font-weight: 900; margin-bottom: 20px; letter-spacing: -4px; line-height: 1; text-shadow: 0 10px 20px rgba(0,0,0,0.5); } .cel-sub { font-size: 30px; font-weight: 800; color: #00C897; text-transform: uppercase; letter-spacing: 2px; } @keyframes fadeInCelebration { to { opacity: 1; } } @keyframes fadeOutCelebration { from { opacity: 1; } to { opacity: 0; } } @keyframes scaleInCelebration { to { transform: scale(1); } }`; doc.head.appendChild(style); } const overlay = doc.createElement('div'); overlay.id = 'celebration-overlay'; overlay.innerHTML = `<div class="cel-content"><div class="cel-title">"""+_l['wd']['wd_succ']+"""<br>""" + usuario.upper() + """</div><div class="cel-sub">"""+_l['wd']['beers']+"""</div></div>`; doc.body.appendChild(overlay); var duration = 5 * 1000; var end = window.parent.Date.now() + duration; var colors = ['#00C897', '#FFFFFF', '#FFD700', '#FF4C4C']; (function frame() { if (window.parent.confetti) { window.parent.confetti({ particleCount: 7, angle: 60, spread: 60, origin: { x: 0, y: 0.6 }, colors: colors, zIndex: 9999999 }); window.parent.confetti({ particleCount: 7, angle: 120, spread: 60, origin: { x: 1, y: 0.6 }, colors: colors, zIndex: 9999999 }); } if (window.parent.Date.now() < end) { window.parent.requestAnimationFrame(frame); } }()); setTimeout(() => { overlay.style.animation = 'fadeOutCelebration 1s forwards'; setTimeout(() => { if(doc.body.contains(overlay)) { doc.body.removeChild(overlay); } }, 1000); }, 6500); } </script>"""
+                html_script_payout = """<script>setTimeout(function() { if (!window.parent.document.getElementById('confetti-script')) { const script = window.parent.document.createElement('script'); script.id = 'confetti-script'; script.src = 'https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js'; script.onload = function() { iniciarCelebracionRetiro(); }; window.parent.document.head.appendChild(script); } else { iniciarCelebracionRetiro(); } }, 500); function iniciarCelebracionRetiro() { const doc = window.parent.document; if (!doc.getElementById('celebration-style')) { const style = doc.createElement('style'); style.id = 'celebration-style'; style.innerHTML = `@import url('https://fonts.googleapis.com/css2?family=Inter:wght@800;900&display=swap'); #celebration-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(0,0,0,0.9); backdrop-filter: blur(10px); z-index: 9999998; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; font-family: 'Inter', sans-serif; text-align: center; opacity: 0; animation: fadeInCelebration 0.8s forwards; pointer-events: none; } .cel-content { transform: scale(0.5); animation: scaleInCelebration 0.8s 0.2s forwards cubic-bezier(0.17, 0.89, 0.32, 1.49); } .cel-title { font-size: 80px; font-weight: 900; margin-bottom: 20px; letter-spacing: -4px; line-height: 1; text-shadow: 0 10px 20px rgba(0,0,0,0.5); } .cel-sub { font-size: 30px; font-weight: 800; color: #10B981; text-transform: uppercase; letter-spacing: 2px; } @keyframes fadeInCelebration { to { opacity: 1; } } @keyframes fadeOutCelebration { from { opacity: 1; } to { opacity: 0; } } @keyframes scaleInCelebration { to { transform: scale(1); } }`; doc.head.appendChild(style); } const overlay = doc.createElement('div'); overlay.id = 'celebration-overlay'; overlay.innerHTML = `<div class="cel-content"><div class="cel-title">"""+_l['wd']['wd_succ']+"""<br>""" + usuario.upper() + """</div><div class="cel-sub">"""+_l['wd']['beers']+"""</div></div>`; doc.body.appendChild(overlay); var duration = 5 * 1000; var end = window.parent.Date.now() + duration; var colors = ['#10B981', '#FFFFFF', '#FFD700', '#EF4444']; (function frame() { if (window.parent.confetti) { window.parent.confetti({ particleCount: 7, angle: 60, spread: 60, origin: { x: 0, y: 0.6 }, colors: colors, zIndex: 9999999 }); window.parent.confetti({ particleCount: 7, angle: 120, spread: 60, origin: { x: 1, y: 0.6 }, colors: colors, zIndex: 9999999 }); } if (window.parent.Date.now() < end) { window.parent.requestAnimationFrame(frame); } }()); setTimeout(() => { overlay.style.animation = 'fadeOutCelebration 1s forwards'; setTimeout(() => { if(doc.body.contains(overlay)) { doc.body.removeChild(overlay); } }, 1000); }, 6500); } </script>"""
                 components.html(html_script_payout, height=1, width=1)
                 st.session_state.retiro_exitoso = False
 
@@ -4145,12 +4145,12 @@ with tab_tabla:
                 filas_html = ""
                 for row in table_data:
                     pnl_str = row['P&L']
-                    if pnl_str.startswith("+$"): pnl_color = "#00C897"
-                    elif "$-" in pnl_str or "-$" in pnl_str: pnl_color = "#FF4C4C"
+                    if pnl_str.startswith("+$"): pnl_color = "#10B981"
+                    elif "$-" in pnl_str or "-$" in pnl_str: pnl_color = "#EF4444"
                     else: pnl_color = "gray"
                     bias = row['Bias']
-                    if bias == "LONG": bias_badge = f'<span style="background: rgba(0,200,151,0.15); color: #00C897; padding: 4px 8px; border-radius: 6px; font-weight: bold; font-size: 12px;">{bias}</span>'
-                    elif bias == "SHORT": bias_badge = f'<span style="background: rgba(255,76,76,0.15); color: #FF4C4C; padding: 4px 8px; border-radius: 6px; font-weight: bold; font-size: 12px;">{bias}</span>'
+                    if bias == "LONG": bias_badge = f'<span style="background: rgba(0,200,151,0.15); color: #10B981; padding: 4px 8px; border-radius: 6px; font-weight: bold; font-size: 12px;">{bias}</span>'
+                    elif bias == "SHORT": bias_badge = f'<span style="background: rgba(255,76,76,0.15); color: #EF4444; padding: 4px 8px; border-radius: 6px; font-weight: bold; font-size: 12px;">{bias}</span>'
                     else: bias_badge = f'<span style="background: rgba(128,128,128,0.15); color: gray; padding: 4px 8px; border-radius: 6px; font-weight: bold; font-size: 12px;">{bias}</span>'
                     # Eliminamos los 'div' que cortan el texto y le damos un ancho mínimo para que se lea perfecto
                     filas_html += f"""<tr><td style="{td_style}">{row['Date']}</td><td style="{td_style}"><b>{row['Trade']}</b></td><td style="{td_style} font-weight: 800; color: {pnl_color};">{pnl_str}</td><td style="{td_style} font-weight: 600;">{row['Trade Type']}</td><td style="{td_style}">{bias_badge}</td><td style="{td_style} font-weight: 600;">{row['Sesión']}</td><td style="{td_style} font-weight: 600;">{row['RR']}</td><td style="{td_style} min-width: 200px; white-space: normal;">{row['Confluences']}</td><td style="{td_style}">{row['Risk']}</td><td style="{td_style} min-width: 250px; white-space: normal;">{row['Reason For Trade']}</td><td style="{td_style} min-width: 200px; white-space: normal;">{row['Emotions']}</td><td style="{td_style} min-width: 200px; white-space: normal;">{row['Corrections']}</td></tr>"""
@@ -4289,7 +4289,7 @@ with tab_galeria:
         img_tags_master = ""
         
         for idx, (img_url, fecha, pnl, estado) in enumerate(todas_imagenes):
-            c_pnl = "#00C897" if pnl >= 0 else "#FF4C4C"
+            c_pnl = "#10B981" if pnl >= 0 else "#EF4444"
             simb = "+" if pnl > 0 else ""
             
             # 1. Elemento individual en la cuadrícula (Ahora apunta al Modal Maestro en vez del suyo propio)
@@ -4314,17 +4314,17 @@ with tab_galeria:
 .modal-toggle:checked ~ .fs-modal {{ display: flex !important; }}
 .fs-modal {{ display: none; position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; background: rgba(0,0,0,0.98) !important; z-index: 9999999 !important; flex-direction: column !important; align-items: center !important; justify-content: center !important; }}
 .fs-modal img {{ width: 100vw !important; height: 100vh !important; max-width: 100vw !important; max-height: 100vh !important; object-fit: contain !important; transition: transform 0.1s ease-out !important; transform-origin: center center !important; will-change: transform !important; }}
-.close-btn {{ position: fixed !important; top: 35px !important; right: 25px !important; font-size: 20px !important; background-color: #FF4C4C !important; color: white !important; padding: 8px 15px !important; border-radius: 8px !important; cursor: pointer !important; z-index: 10000000 !important; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }}
+.close-btn {{ position: fixed !important; top: 35px !important; right: 25px !important; font-size: 20px !important; background-color: #EF4444 !important; color: white !important; padding: 8px 15px !important; border-radius: 8px !important; cursor: pointer !important; z-index: 10000000 !important; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }}
 .gal-grid {{ display: grid; grid-template-columns: repeat(auto-fill, minmax(450px, 1fr)); gap: 35px; margin-top: -25px; }}
 .gal-item {{ background: transparent; padding: 0; border: none; text-align: center; box-shadow: none; position: static; }}
 .gal-label:hover {{ transform: scale(1.02); }}
 .gal-filters-btn {{ display: flex; gap: 12px; justify-content: center; align-items: center; margin-top: -20px; margin-bottom: 15px; position: relative; z-index: 10; }}
 .gal-filters-btn button {{ height: 42px; padding: 0 25px; background: #2D3748; border: 1px solid #4A5568; border-radius: 8px; cursor: pointer; color: white; font-weight: bold; font-size: 15px; transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; line-height: 1; }}
-.gal-filters-btn button.active {{ background: #00C897 !important; border-color: #00C897 !important; box-shadow: 0 4px 10px rgba(0,200,151,0.4) !important; }}
+.gal-filters-btn button.active {{ background: #10B981 !important; border-color: #10B981 !important; box-shadow: 0 4px 10px rgba(0,200,151,0.4) !important; }}
 .gal-counter-bar {{ text-align: center; color: #A0AEC0; font-size: 17px; font-weight: 600; margin-bottom: 25px; letter-spacing: 0.5px; }}
 .gal-counter-bar span {{ color: #FFFFFF; font-weight: 800; margin: 0 4px; }}
 .gal-counter-bar .txt-eval {{ color: #A0AEC0; margin-left: 8px; }}
-.gal-counter-bar .txt-pa {{ color: #00C897; margin-left: 8px; }}
+.gal-counter-bar .txt-pa {{ color: #10B981; margin-left: 8px; }}
 </style>
 <div class="gal-filters-btn" id="gal-filter-container">
 <button id="btn-Todas" class="active">Todas</button>
@@ -4384,8 +4384,8 @@ with tab_galeria:
             const btnActivo = doc.getElementById('btn-' + etapa);
             if(btnActivo) {{
                 btnActivo.classList.add('active');
-                btnActivo.style.background = '#00C897';
-                btnActivo.style.borderColor = '#00C897';
+                btnActivo.style.background = '#10B981';
+                btnActivo.style.borderColor = '#10B981';
             }}
             
             const items = doc.querySelectorAll('.gal-item');
