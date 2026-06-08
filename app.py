@@ -1931,8 +1931,18 @@ div[data-testid="stTabs"] [data-baseweb="tab-highlight-point"] {{ display: none 
     [data-testid="stFileUploadDropzone"] button::after {{ content: "{BTN_UP_TEXTO}" !important; font-size: {BTN_UP_SIZE} !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; width: 100% !important; text-align: center !important; }}
     [data-testid="stFileUploadDropzone"] button div {{ display: none !important; }}
 
-    div[data-testid="stButton"] > button {{ background-color: {btn_bg} !important; color: {btn_txt} !important; border: 1px solid {border_color} !important; }}
-    div[data-testid="stPopover"] {{ width: {BTN_CAL_W}px !important; min-width: {BTN_CAL_W}px !important; height: {BTN_CAL_H}px !important; display: block !important; position: relative !important; padding: 0 !important; margin: 0 !important; }}
+    div[data-testid="stButton"] > button {{ background-color: {btn_bg} !important; color: {btn_txt} !important; border: 1px solid {border_color} !important; }}/* Botones Secundarios Minimalistas (Transición suave y sin fondo invasivo) */
+    div[data-testid="stButton"] > button {{ 
+        background-color: transparent !important; 
+        color: {c_dash} !important; 
+        border: 1px solid {border_color} !important;
+        transition: all 0.2s ease !important;
+    }}
+    div[data-testid="stButton"] > button:hover {{
+        border-color: #10B981 !important;
+        color: #10B981 !important;
+        background-color: rgba(16, 185, 129, 0.05) !important;
+    }}   div[data-testid="stPopover"] {{ width: {BTN_CAL_W}px !important; min-width: {BTN_CAL_W}px !important; height: {BTN_CAL_H}px !important; display: block !important; position: relative !important; padding: 0 !important; margin: 0 !important; }}
     
     /* Capas internas: forzamos el tamaño exacto sin importar cómo lo envuelva Streamlit */
     div[data-testid="stPopover"] > div:first-child {{ width: {BTN_CAL_W}px !important; height: {BTN_CAL_H}px !important; }}
@@ -3450,16 +3460,18 @@ if True:
             )
             fig.update_layout(
                 paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', 
-                font=dict(color='gray'),
+                font=dict(color='#94A3B8'),
                 height=650, # <---  ALTURA GIGANTE (650px para ver muchísimos datos)
                 xaxis=dict(
                     showgrid=False, title="", 
-                    tickfont=dict(size=tamano_num * 0.8)
+                    tickfont=dict(size=tamano_num * 0.8),
+                    showline=False, zeroline=False
                 ),
                 yaxis=dict(
-                    showgrid=True, gridcolor='#4A5568', gridwidth=1, title="", 
+                    showgrid=True, gridcolor='rgba(255,255,255,0.05)', gridwidth=1, title="", 
                     tickformat="$,.2f", range=[y_min - margen, y_max + margen], 
-                    tickfont=dict(size=tamano_num * 0.8)
+                    tickfont=dict(size=tamano_num * 0.8),
+                    showline=False, zeroline=False
                 ),
                 margin=dict(l=10, r=10, t=tamano_num + 15, b=10), hovermode="x unified"
             )
@@ -3469,7 +3481,7 @@ if True:
             
         # === 3. DASHBOARD DE PSICOLOGÍA Y CONFLUENCIAS ===
         st.markdown("<div style='margin-top: 40px;'></div>", unsafe_allow_html=True)
-        st.markdown(f"<h4 style='color:#F8FAFC; font-size:22px; font-weight:700;'>🧠 Psicología y Confluencias</h4>", unsafe_allow_html=True)
+        st.markdown(f"<h4 style='color:#F8FAFC; font-size:18px; font-weight:800; letter-spacing: 0.5px; text-transform: uppercase;'>Análisis de Psicología y Confluencias</h4>", unsafe_allow_html=True)
         st.markdown("<p style='color:#94A3B8; font-size:15px;'>Descubre qué estrategias y emociones están dictando tus resultados. Mantén la disciplina al registrar tus datos.</p>", unsafe_allow_html=True)
         
         if not df_full.empty:
@@ -3477,7 +3489,7 @@ if True:
             
             with c_ps1:
                 st.markdown("<div class='metric-card' style='height: 100%; min-height: 200px;'>", unsafe_allow_html=True)
-                st.markdown("<h5 style='color:#10B981; font-weight:700; margin-bottom: 15px;'>🏆 Top Confluencias en Victorias</h5>", unsafe_allow_html=True)
+                st.markdown("<h5 style='color:#10B981; font-weight:700; margin-bottom: 15px; text-transform: uppercase; font-size: 13px; letter-spacing: 0.5px;'>Top Confluencias (Victorias)</h5>", unsafe_allow_html=True)
                 
                 ganadores = df_full[df_full['pnl'] >= 75]
                 todas_confluencias_w = []
@@ -3495,7 +3507,7 @@ if True:
                 
             with c_ps2:
                 st.markdown("<div class='metric-card' style='height: 100%; min-height: 200px;'>", unsafe_allow_html=True)
-                st.markdown("<h5 style='color:#EF4444; font-weight:700; margin-bottom: 15px;'>⚠️ Emociones Frecuentes en Pérdidas</h5>", unsafe_allow_html=True)
+                st.markdown("<h5 style='color:#EF4444; font-weight:700; margin-bottom: 15px; text-transform: uppercase; font-size: 13px; letter-spacing: 0.5px;'>Emociones de Riesgo (Pérdidas)</h5>", unsafe_allow_html=True)
                 
                 perdedores = df_full[df_full['pnl'] <= -75]
                 todas_emociones_l = []
