@@ -2200,10 +2200,14 @@ border: 1px solid {border_color} !important; box-shadow: 0 1px 3px rgba(0,0,0,0.
             div[data-testid="stTabs"] button, 
             div[data-baseweb="tab-list"] button, 
             button[role="tab"] {{
-                font-size: 11px !important; /* Letra pequeña y estilizada */
-                padding: 6px 8px !important; /* Reducción drástica del tamaño del botón */
-                margin: 0px 2px !important; /* Elimina los márgenes laterales gigantes que los separaban */
-                border-radius: 6px !important;
+    
+                font-size: 14px !important;
+                /* Tamaño táctil cómodo y profesional */
+                padding: 10px 14px !important;
+                /* Espacio amplio para el dedo */
+                margin: 0px 4px !important;
+                /* Separación sutil */
+                border-radius: 8px !important;
                 white-space: nowrap !important;
                 flex: 0 0 auto !important; /* Desbloquea el estiramiento forzado */
                 min-width: 0 !important;
@@ -2705,10 +2709,11 @@ if True:
                 c_date, c_cant, c_det, c_link, c_upd, c_btn = st.columns([0.8, 1.2, 1.1, 1.9, 0.6, 1])
                 
                 with c_date:
+            
                     st.markdown('<div class="lbl-header">Fecha:</div>', unsafe_allow_html=True)
                     # El botón principal mostrará la fecha, y al darle clic abrirá el selector con hora local (UTC-4)
-                    with st.popover(f"🗓️ {hoy.strftime('%d/%m')}", use_container_width=True):
-                        st.markdown("<div style='margin-bottom: 5px; font-weight: bold; color: gray;'>Día y Hora del Trade</div>", unsafe_allow_html=True)
+                    with st.popover(f"📅 {hoy.strftime('%d/%m')}", use_container_width=True):
+                        st.markdown("<div style='margin-bottom: 10px; font-weight: 700; color: #94A3B8; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;'>Configurar Fecha y Hora</div>", unsafe_allow_html=True)
                         fecha_sel = st.date_input("Día", value=hoy, label_visibility="collapsed")
                         
                         # Hora de RD minuto a minuto (step=60)
@@ -3896,7 +3901,7 @@ if es_admin:
                         reescribir_excel_usuario(usuario)
 
 with tab_plan:
-    st.markdown("<br><h2 style='text-align:center; color:#FFFFFF; font-weight: 900; letter-spacing: -1px;'>📝 TRADING PLAN</h2>", unsafe_allow_html=True)
+    st.markdown("<br><h2 style='text-align:center; color:#F8FAFC; font-weight: 800; letter-spacing: -0.5px; font-family: \"Inter\", sans-serif;'>Estrategia y Reglas Operativas</h2><p style='text-align:center; color:#94A3B8; font-size:15px; margin-top:-10px; margin-bottom: 25px;'>Define tu Trading Plan. La IA leerá estas reglas para darte retroalimentación.</p>", unsafe_allow_html=True)
     
     # Cargar estado guardado de la base de datos
     pc_set = db_global[usuario]["settings"]["PC"]
