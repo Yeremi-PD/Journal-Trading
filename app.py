@@ -2404,13 +2404,13 @@ if True:
             contenido_ajustes()
 
     with col_t:
-        if paso_cuenta: badge_html = f'<span style="font-size: 20px; background-color: #10B981; color: white; padding: 4px 12px; border-radius: 8px; margin-left: 15px; font-weight: 800; letter-spacing: 0px;">{_l["dash"]["pa"]}</span>'
-        else: badge_html = f'<span style="font-size: 20px; background-color: #4A5568; color: white; padding: 4px 12px; border-radius: 8px; margin-left: 15px; font-weight: 800; letter-spacing: 0px;">{_l["dash"]["eval"]}</span>'
+        if paso_cuenta: badge_html = f'<span style="font-size: 20px; background-color: #10B981; color: white; padding: 4px 12px; border-radius: 8px; margin-left: 15px; font-weight: 800; letter-spacing: 0px; align-self: center;">{_l["dash"]["pa"]}</span>'
+        else: badge_html = f'<span style="font-size: 20px; background-color: #4A5568; color: white; padding: 4px 12px; border-radius: 8px; margin-left: 15px; font-weight: 800; letter-spacing: 0px; align-self: center;">{_l["dash"]["eval"]}</span>'
         if modo_lectura:
             c_tit_visit, c_btn_volver = st.columns([3, 1])
-            st.markdown(f'<div class="dashboard-title" style="display: flex; align-items: center;"><span style="color:#10B981; font-weight: 800; font-size: 20px; margin-right: 10px;">👀 Viendo Perfil de</span> {usuario} {badge_html}</div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="dashboard-title" style="display: flex; align-items: center;">👀 Viendo a {usuario} {badge_html}</div>', unsafe_allow_html=True)
         else:
-            st.markdown(f'<div class="dashboard-title" style="display: flex; align-items: center;"><span style="color:#94A3B8; font-weight: 500; font-size: 20px; margin-right: 10px;">Hola,</span> {usuario} {badge_html}</div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="dashboard-title" style="display: flex; align-items: center;">Hola, {usuario} {badge_html}</div>', unsafe_allow_html=True)
 
     with col_data: 
         st.markdown(f'<div class="lbl-data">{LBL_DATA}</div>', unsafe_allow_html=True)
@@ -3547,8 +3547,7 @@ if True:
             c_ps1, c_ps2 = st.columns(2)
             
             with c_ps1:
-                st.markdown("<div class='metric-card' style='height: 100%; min-height: 200px;'>", unsafe_allow_html=True)
-                st.markdown("<h5 style='color:#10B981; font-weight:700; margin-bottom: 15px; text-transform: uppercase; font-size: 13px; letter-spacing: 0.5px;'>Top Confluencias (Victorias)</h5>", unsafe_allow_html=True)
+                html_confs = "<div class='metric-card' style='height: 100%; min-height: 200px;'><h5 style='color:#10B981; font-weight:700; margin-bottom: 15px; text-transform: uppercase; font-size: 13px; letter-spacing: 0.5px;'>Top Confluencias (Victorias)</h5>"
                 
                 ganadores = df_full[df_full['pnl'] >= 75]
                 todas_confluencias_w = []
@@ -3559,14 +3558,15 @@ if True:
                 if todas_confluencias_w:
                     top_confs = Counter(todas_confluencias_w).most_common(5)
                     for conf, count in top_confs:
-                        st.markdown(f"<div style='display:flex; justify-content:space-between; margin-bottom:10px; border-bottom: 1px solid #334155; padding-bottom:6px;'><span style='color:#F8FAFC; font-weight:600;'>{conf}</span> <span style='color:#10B981; font-weight:800; background: rgba(16,185,129,0.1); padding: 2px 8px; border-radius: 6px;'>{count} Wins</span></div>", unsafe_allow_html=True)
+                        html_confs += f"<div style='display:flex; justify-content:space-between; margin-bottom:10px; border-bottom: 1px solid #334155; padding-bottom:6px;'><span style='color:#F8FAFC; font-weight:600;'>{conf}</span> <span style='color:#10B981; font-weight:800; background: rgba(16,185,129,0.1); padding: 2px 8px; border-radius: 6px;'>{count} Wins</span></div>"
                 else:
-                    st.markdown("<span style='color:#94A3B8; font-style:italic;'>Aún no hay confluencias en tus victorias. ¡Anótalas en tu próximo trade!</span>", unsafe_allow_html=True)
-                st.markdown("</div>", unsafe_allow_html=True)
+                    html_confs += "<span style='color:#94A3B8; font-style:italic;'>Aún no hay confluencias en tus victorias. ¡Anótalas en tu próximo trade!</span>"
+                
+                html_confs += "</div>"
+                st.markdown(html_confs, unsafe_allow_html=True)
                 
             with c_ps2:
-                st.markdown("<div class='metric-card' style='height: 100%; min-height: 200px;'>", unsafe_allow_html=True)
-                st.markdown("<h5 style='color:#EF4444; font-weight:700; margin-bottom: 15px; text-transform: uppercase; font-size: 13px; letter-spacing: 0.5px;'>Emociones de Riesgo (Pérdidas)</h5>", unsafe_allow_html=True)
+                html_emos = "<div class='metric-card' style='height: 100%; min-height: 200px;'><h5 style='color:#EF4444; font-weight:700; margin-bottom: 15px; text-transform: uppercase; font-size: 13px; letter-spacing: 0.5px;'>Emociones de Riesgo (Pérdidas)</h5>"
                 
                 perdedores = df_full[df_full['pnl'] <= -75]
                 todas_emociones_l = []
@@ -3577,10 +3577,12 @@ if True:
                 if todas_emociones_l:
                     top_emos = Counter(todas_emociones_l).most_common(5)
                     for emo, count in top_emos:
-                        st.markdown(f"<div style='display:flex; justify-content:space-between; margin-bottom:10px; border-bottom: 1px solid #334155; padding-bottom:6px;'><span style='color:#F8FAFC; font-weight:600;'>{emo.capitalize()}</span> <span style='color:#EF4444; font-weight:800; background: rgba(239,68,68,0.1); padding: 2px 8px; border-radius: 6px;'>{count} Losses</span></div>", unsafe_allow_html=True)
+                        html_emos += f"<div style='display:flex; justify-content:space-between; margin-bottom:10px; border-bottom: 1px solid #334155; padding-bottom:6px;'><span style='color:#F8FAFC; font-weight:600;'>{emo.capitalize()}</span> <span style='color:#EF4444; font-weight:800; background: rgba(239,68,68,0.1); padding: 2px 8px; border-radius: 6px;'>{count} Losses</span></div>"
                 else:
-                    st.markdown("<span style='color:#94A3B8; font-style:italic;'>Aún no hay emociones en tus pérdidas. Conocerlas te ayudará a mejorar.</span>", unsafe_allow_html=True)
-                st.markdown("</div>", unsafe_allow_html=True)
+                    html_emos += "<span style='color:#94A3B8; font-style:italic;'>Aún no hay emociones en tus pérdidas. Conocerlas te ayudará a mejorar.</span>"
+                
+                html_emos += "</div>"
+                st.markdown(html_emos, unsafe_allow_html=True)
         else:
             st.info("Registra operaciones con tus Confluencias y Emociones para desbloquear tu perfil psicológico.")
 
@@ -4104,7 +4106,15 @@ with tab_plan:
 
     if modo_lectura:
         # Mostrar el plan como HTML de solo lectura para los visitantes
-        st.markdown(f"<div style='background: #1A202C; border: 1px solid #4A5568; border-radius: 12px; padding: 25px; color: #E2E8F0; min-height: 300px; box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.5); font-size: 16px;'>{pc_set['global_notes_body']}</div>", unsafe_allow_html=True)
+        st.markdown(f"""
+        <style>
+        .plan-visitante * {{ color: #F8FAFC !important; font-family: 'Inter', sans-serif !important; }}
+        .plan-visitante background-color {{ background-color: transparent !important; }}
+        </style>
+        <div class='plan-visitante' style='background: #1A202C; border: 1px solid #4A5568; border-radius: 12px; padding: 25px; color: #F8FAFC; min-height: 300px; box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.5); font-size: 16px;'>
+        {pc_set['global_notes_body']}
+        </div>
+        """, unsafe_allow_html=True)
     else:
         # 1. EL FORMULARIO (Se auto-ajusta al ancho completo de la pantalla)
         with st.form("form_notas_globales", border=False):
@@ -4172,15 +4182,11 @@ with tab_historial_principal:
     
     st.markdown("<div style='margin-top: -50px;'></div>", unsafe_allow_html=True)
     
-    if modo_lectura: 
-        # 🟢 TRUCO MAESTRO: Alteramos el orden en modo lectura para que "TABLA" y "IMÁGENES" sean las 1 y 2.
-        # Las pestañas de edición y exportar quedan como 3 y 4, las cuales invisibilizamos.
-        tab_tabla, tab_galeria, tab_hist, tab_exportar = st.tabs(["TABLA DE RESULTADOS", "IMÁGENES", "OCULTO1", "OCULTO2"])
-        
-        # CSS que apunta específicamente a los botones de las sub-pestañas dentro del Historial
-        st.markdown("<style>div[data-testid='stTabs'] div[role='tabpanel']:nth-child(3) div[data-testid='stTabs'] div[role='tablist'] button:nth-child(3), div[data-testid='stTabs'] div[role='tabpanel']:nth-child(3) div[data-testid='stTabs'] div[role='tablist'] button:nth-child(4) { display: none !important; }</style>", unsafe_allow_html=True)
+    if modo_lectura:
+        # Modo Lectura: Mostramos explícitamente las 4 para no romper referencias, pero bloqueamos visualmente 1 y 4
+        tab_tabla, tab_galeria, tab_hist, tab_exportar = st.tabs(["TABLA DE RESULTADOS", "IMÁGENES", "EDICIÓN", "EXPORTAR"])
     else:
-        # 🟢 Modo normal del dueño de la cuenta
+        # Modo normal del dueño de la cuenta
         tab_hist, tab_tabla, tab_galeria, tab_exportar = st.tabs(["EDICIÓN DE TRADE", "TABLA DE RESULTADOS", "IMÁGENES", "EXPORTAR DATA"])
 
 def borrar_imagen_historial(contexto, clave, idx_trade, idx_img):
@@ -4199,6 +4205,9 @@ def ventana_borrar_trade(ctx, clave, i, usuario_actual):
         st.rerun()
 
 with tab_hist:
+    if modo_lectura:
+        st.markdown("<div style='text-align: center; padding: 50px; background: #1E293B; border-radius: 12px; border: 1px dashed #EF4444;'><h3 style='color: #EF4444;'>Edición Bloqueada 🔒</h3><p style='color: #94A3B8;'>Por seguridad, no puedes editar los trades de otro trader.</p></div><style>div[data-testid='stTabs'] div[role='tabpanel']:nth-child(3) .element-container:nth-child(n+2) { display: none !important; }</style>", unsafe_allow_html=True)
+    
     with st.container(): # Usamos container para no romper la indentación original
         trades_actuales = db_usuario[ctx]["trades"]
         if not trades_actuales: 
