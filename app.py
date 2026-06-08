@@ -283,25 +283,31 @@ def mostrar_pantalla_bloqueo(usuario_bloqueado):
     }}
     </style>
     
-    <div style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; font-family: 'Inter', sans-serif; text-align: center; padding: 20px; box-sizing: border-box; z-index: 999999999;">
-        <div style="background: rgba(25, 20, 20, 0.4); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 76, 76, 0.2); border-radius: 24px; padding: 50px 40px; max-width: 550px; width: 100%; box-shadow: 0 30px 60px rgba(0,0,0,0.8);">
-            <div style="font-size: 80px; margin-bottom: 20px; filter: drop-shadow(0 0 15px rgba(255,76,76,0.5));">🚫</div>
-            <h1 style="font-size: 38px; font-weight: 900; color: #EF4444; margin: 0 0 15px 0; letter-spacing: -1px; text-transform: uppercase;">Acceso Restringido</h1>
-            <p style="font-size: 18px; color: #E2E8F0; line-height: 1.5; margin: 0 0 25px 0; font-weight: 500;">
-                Su cuenta está inactiva porque el plazo de tiempo permitido para este usuario ha caducado.
-            </p>
-            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 20px; margin-bottom: 30px; text-align: left;">
-                <div style="font-size: 13px; color: #718096; text-transform: uppercase; font-weight: 700; margin-bottom: 5px;">Detalles de Seguridad</div>
-                <div style="font-size: 15px; color: #CBD5E0; margin-bottom: 3px;">• <b>Usuario:</b> {usuario_bloqueado}</div>
-                <div style="font-size: 15px; color: #CBD5E0; margin-bottom: 3px;">• <b>Estado:</b> Tiempo Agotado / Expirado</div>
-                <div style="font-size: 15px; color: #CBD5E0;">• <b>Acción Requerida:</b> Renovación de acceso</div>
+    <div style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; font-family: 'Inter', sans-serif; text-align: center; padding: 20px; box-sizing: border-box; z-index: 999999999; background-color: rgba(15, 23, 42, 0.95); backdrop-filter: blur(10px);">
+        <div style="background: #1E293B; border: 1px solid #334155; border-radius: 16px; padding: 50px 40px; max-width: 500px; width: 100%; box-shadow: 0 25px 50px rgba(0,0,0,0.5);">
+            <div style="background: rgba(239, 68, 68, 0.1); width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 25px auto;">
+                <div style="font-size: 40px;">🔒</div>
             </div>
-            <p style="font-size: 16px; color: #A0AEC0; margin-bottom: 20px; font-weight: 600;">Comuníquese con soporte técnico al siguiente número:</p>
+            <h1 style="font-size: 28px; font-weight: 800; color: #F8FAFC; margin: 0 0 10px 0; letter-spacing: -0.5px;">Suscripción Expirada</h1>
+            <p style="font-size: 15px; color: #94A3B8; line-height: 1.6; margin: 0 0 30px 0;">
+                Hola <b>{usuario_bloqueado}</b>, tu acceso a PF Journal Pro ha finalizado. Renueva tu licencia para seguir analizando tus trades y usando la IA.
+            </p>
+            
+            <div style="background: #0F172A; border: 1px solid #334155; border-radius: 12px; padding: 20px; margin-bottom: 30px; text-align: left;">
+                <div style="font-size: 14px; color: #F8FAFC; margin-bottom: 10px; display: flex; justify-content: space-between;">
+                    <span style="color: #94A3B8;">Usuario:</span> <b>{usuario_bloqueado}</b>
+                </div>
+                <div style="font-size: 14px; color: #F8FAFC; display: flex; justify-content: space-between;">
+                    <span style="color: #94A3B8;">Estado:</span> <span style="color: #EF4444; font-weight: 700; background: rgba(239,68,68,0.1); padding: 2px 8px; border-radius: 4px;">Inactivo</span>
+                </div>
+            </div>
+            
             <a href="https://wa.me/18494015150" target="_blank" style="text-decoration: none;">
-                <div style="background: #25D366; color: white; font-size: 21px; font-weight: 800; padding: 18px 30px; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 10px 25px rgba(37, 211, 102, 0.4); cursor: pointer; width: 100%; box-sizing: border-box;">
-                    💬 WhatsApp: 849 401 5150
+                <div style="background: #10B981; color: white; font-size: 16px; font-weight: 700; padding: 16px 30px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; gap: 10px; transition: all 0.2s; cursor: pointer; width: 100%; box-sizing: border-box;">
+                    Renovar vía WhatsApp 💬
                 </div>
             </a>
+            <p style="font-size: 13px; color: #64748B; margin-top: 20px; margin-bottom: 0;">Soporte: +1 (849) 401-5150</p>
         </div>
     </div>
     """, unsafe_allow_html=True)
@@ -1671,65 +1677,67 @@ def contenido_ajustes():
     st.button(texto_boton_tema, on_click=cb_cambiar_tema)
             
     st.markdown("---")
-    st.markdown(f"### {_l['sidebar']['admin']}")
-    with st.expander(_l['sidebar']['admin']):
-        admin_pass = st.text_input(_l['sidebar']['admin_pass'], type="password", key="admin_pass_input")
+    st.markdown(f"### 🛡️ Portal de Administración")
+    with st.expander("Acceso Restringido (Solo Staff)"):
+        st.markdown("<p style='color:#94A3B8; font-size:13px;'>Ingresa la clave maestra para gestionar usuarios y licencias.</p>", unsafe_allow_html=True)
+        admin_pass = st.text_input("Clave de Administrador", type="password", key="admin_pass_input", label_visibility="collapsed", placeholder="••••••••")
         
         if admin_pass:
             if admin_pass.strip() == "Yfutures.":
-                st.success(_l['sidebar']['acc_granted'])
+                st.markdown("<div style='background: rgba(16,185,129,0.1); border-left: 4px solid #10B981; padding: 10px 15px; border-radius: 4px; margin-bottom: 20px;'><span style='color: #10B981; font-weight: 700;'>✅ Acceso de Administrador Concedido</span></div>", unsafe_allow_html=True)
                 
-                # 🤖 PANEL DE CONTROL MAESTRO DE IA
-                st.markdown("### 🤖 Control de Inteligencia Artificial")
-                st.markdown("<span style='font-size:12px; color:gray;'>Activa o desactiva la IA para cada usuario de forma independiente:</span>", unsafe_allow_html=True)
+                st.markdown("#### 👥 Panel de Clientes")
+                st.markdown("<p style='font-size:13px; color:#94A3B8; margin-top:-10px;'>Gestiona el acceso a la IA y administra las cuentas activas.</p>", unsafe_allow_html=True)
                 
-                # Iteramos sobre TODOS los usuarios de tu base de datos
-                for u in list(db_global.keys()):
-                    es_admin_u = db_global[u]["settings"]["PC"].get("is_admin", False) or db_global[u]["settings"]["Móvil"].get("is_admin", False)
+                # Cabecera de la tabla improvisada
+                col_h1, col_h2, col_h3, col_h4 = st.columns([2, 1.5, 1.5, 1])
+                col_h1.markdown("<span style='color:#94A3B8; font-size:12px; text-transform:uppercase;'>Usuario</span>", unsafe_allow_html=True)
+                col_h2.markdown("<span style='color:#94A3B8; font-size:12px; text-transform:uppercase;'>Contraseña</span>", unsafe_allow_html=True)
+                col_h3.markdown("<span style='color:#94A3B8; font-size:12px; text-transform:uppercase;'>Estado IA</span>", unsafe_allow_html=True)
+                col_h4.markdown("<span style='color:#94A3B8; font-size:12px; text-transform:uppercase;'>Acción</span>", unsafe_allow_html=True)
+                st.markdown("<hr style='margin-top: 5px; margin-bottom: 10px; border-color: #334155;'>", unsafe_allow_html=True)
+                
+                # Iteramos sobre TODOS los usuarios
+                for u, data in list(db_global.items()):
+                    es_admin_u = data["settings"]["PC"].get("is_admin", False) or data["settings"]["Móvil"].get("is_admin", False)
                     
-                    # Creamos dos columnas: una para el nombre y otra para el botón
-                    c1, c2 = st.columns([2, 1])
-                    with c1:
-                        if es_admin_u:
-                            st.markdown(f"👤 **{u}** <br> <span style='color:#10B981; font-size:12px;'>IA Activada ✅</span>", unsafe_allow_html=True)
-                        else:
-                            st.markdown(f"👤 **{u}** <br> <span style='color:#EF4444; font-size:12px;'>IA Oculta ❌</span>", unsafe_allow_html=True)
+                    c1, c2, c3, c4 = st.columns([2, 1.5, 1.5, 1])
                     
-                    with c2:
-                        # Le ponemos un 'key' único con el nombre del usuario para que Streamlit sepa a quién le das clic
+                    # Columna 1: Usuario
+                    c1.markdown(f"<span style='color:#F8FAFC; font-weight:600;'>👤 {u}</span>", unsafe_allow_html=True)
+                    
+                    # Columna 2: Password (Estilo código)
+                    c2.markdown(f"<code style='color:#94A3B8; background:rgba(0,0,0,0.2); padding: 4px 8px; border-radius: 4px;'>{data['password']}</code>", unsafe_allow_html=True)
+                    
+                    # Columna 3: Toggle IA
+                    with c3:
                         if es_admin_u:
-                            if st.button("Apagar", key=f"off_ia_{u}"):
+                            if st.button("Apagar IA", key=f"off_ia_{u}", help="Desactivar Inteligencia Artificial"):
                                 db_global[u]["settings"]["PC"]["is_admin"] = False
                                 db_global[u]["settings"]["Móvil"]["is_admin"] = False
                                 reescribir_excel_usuario(u)
                                 st.rerun()
                         else:
-                            if st.button("Encender", key=f"on_ia_{u}", type="primary"):
+                            if st.button("Activar IA", key=f"on_ia_{u}", type="primary", help="Habilitar Inteligencia Artificial"):
                                 db_global[u]["settings"]["PC"]["is_admin"] = True
                                 db_global[u]["settings"]["Móvil"]["is_admin"] = True
                                 reescribir_excel_usuario(u)
                                 st.rerun()
-                
-                st.markdown("---")
-                st.markdown("### 🗑️ Gestión de Usuarios")
-                
-                # 🔒 AHORA ESTO ESTÁ PROTEGIDO: Solo se ejecuta si la contraseña es correcta
-                for u, data in list(db_global.items()):
-                    col_u, col_p, col_btn = st.columns([2, 2, 1])
-                    col_u.write(f"**{u}**")
-                    col_p.write(f"{data['password']}")
-              
-                    if col_btn.button("❌", key=f"del_usr_{u}"):
-                        del db_global[u]
-                        if st.session_state.usuario_actual == u: 
-                            st.session_state.usuario_actual = None
-                         
-                        try: st.query_params.clear()
-                        except: pass
-                        st.rerun()
+                                
+                    # Columna 4: Eliminar
+                    with c4:
+                        if st.button("🗑️", key=f"del_usr_{u}", help="Eliminar usuario permanentemente"):
+                            del db_global[u]
+                            if st.session_state.usuario_actual == u: 
+                                st.session_state.usuario_actual = None
+                            try: st.query_params.clear()
+                            except: pass
+                            st.rerun()
+                            
+                    st.markdown("<hr style='margin-top: 5px; margin-bottom: 10px; border-color: #334155; opacity: 0.3;'>", unsafe_allow_html=True)
+                    
             else:
-                # Si pones mal la clave, el código muere aquí y no muestra lo de arriba
-                st.error("⚠️ Contraseña incorrecta. Revisa mayúsculas, puntos y espacios.")
+                st.markdown("<div style='background: rgba(239,68,68,0.1); border-left: 4px solid #EF4444; padding: 10px 15px; border-radius: 4px;'><span style='color: #EF4444; font-weight: 700;'>⚠️ Contraseña incorrecta. Acceso denegado.</span></div>", unsafe_allow_html=True)
 
     st.markdown("---")
     st.markdown("### 🖥️ Diseño Automático")
