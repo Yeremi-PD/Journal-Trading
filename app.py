@@ -4013,8 +4013,8 @@ with tab_hist:
                     # Le damos 93% de espacio al Trade y solo 7% al botón de borrar
                     c_exp, c_trash = st.columns([0.93, 0.07])
                     with c_exp:
-                        with st.expander(f"🗓️ {data['fecha_str']} (Trade #{i+1}) | P&L: :{color_md}[{simbolo}${pnl_val:,.2f}]"):
-                            st.markdown(f"**{_l['hist']['fin']}**")
+                        with st.expander(f"🔹 Trade #{i+1}  |  🗓️ {data['fecha_str']}  |  💰 P&L: :{color_md}[{simbolo}${pnl_val:,.2f}]"):
+                            st.markdown(f"<div style='color: #94A3B8; font-size: 13px; font-weight: 700; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 0.5px;'>{_l['hist']['fin']}</div>", unsafe_allow_html=True)
                             
                             # Extraemos la hora guardada para mostrarla
                             hora_str = data.get("hora", "00:00")
@@ -4164,8 +4164,8 @@ with tab_tabla:
                     table_data.append(row)
             if not table_data: st.info(_l['table']['no_tr_mo_tbl'])
             else:
-                th_style = f"padding: 12px 15px; border-bottom: 2px solid {border_color}; color: gray; font-weight: bold; text-transform: uppercase; font-size: 12px; letter-spacing: 0.5px;"
-                td_style = f"padding: 12px 15px; border-bottom: 1px solid {border_color}; font-size: 14px; color: {c_dash}; vertical-align: middle;"
+                th_style = f"padding: 14px 15px; border-bottom: 1px solid {border_color}; color: #94A3B8; font-weight: 700; text-transform: uppercase; font-size: 12px; letter-spacing: 0.5px; background-color: rgba(0,0,0,0.15);"
+                td_style = f"padding: 14px 15px; border-bottom: 1px solid {border_color}; font-size: 14px; color: {c_dash}; vertical-align: middle;"
                 filas_html = ""
                 for row in table_data:
                     pnl_str = row['P&L']
@@ -4173,9 +4173,9 @@ with tab_tabla:
                     elif "$-" in pnl_str or "-$" in pnl_str: pnl_color = "#EF4444"
                     else: pnl_color = "gray"
                     bias = row['Bias']
-                    if bias == "LONG": bias_badge = f'<span style="background: rgba(0,200,151,0.15); color: #10B981; padding: 4px 8px; border-radius: 6px; font-weight: bold; font-size: 12px;">{bias}</span>'
-                    elif bias == "SHORT": bias_badge = f'<span style="background: rgba(255,76,76,0.15); color: #EF4444; padding: 4px 8px; border-radius: 6px; font-weight: bold; font-size: 12px;">{bias}</span>'
-                    else: bias_badge = f'<span style="background: rgba(128,128,128,0.15); color: gray; padding: 4px 8px; border-radius: 6px; font-weight: bold; font-size: 12px;">{bias}</span>'
+                    if bias == "LONG": bias_badge = f'<span style="background: rgba(16,185,129,0.15); color: #10B981; padding: 4px 10px; border-radius: 6px; font-weight: 700; font-size: 12px;">{bias}</span>'
+                    elif bias == "SHORT": bias_badge = f'<span style="background: rgba(239,68,68,0.15); color: #EF4444; padding: 4px 10px; border-radius: 6px; font-weight: 700; font-size: 12px;">{bias}</span>'
+                    else: bias_badge = f'<span style="background: rgba(148,163,184,0.15); color: #94A3B8; padding: 4px 10px; border-radius: 6px; font-weight: 700; font-size: 12px;">{bias}</span>'
                     # Eliminamos los 'div' que cortan el texto y le damos un ancho mínimo para que se lea perfecto
                     filas_html += f"""<tr><td style="{td_style}">{row['Date']}</td><td style="{td_style}"><b>{row['Trade']}</b></td><td style="{td_style} font-weight: 800; color: {pnl_color};">{pnl_str}</td><td style="{td_style} font-weight: 600;">{row['Trade Type']}</td><td style="{td_style}">{bias_badge}</td><td style="{td_style} font-weight: 600;">{row['Sesión']}</td><td style="{td_style} font-weight: 600;">{row['RR']}</td><td style="{td_style} min-width: 200px; white-space: normal;">{row['Confluences']}</td><td style="{td_style}">{row['Risk']}</td><td style="{td_style} min-width: 250px; white-space: normal;">{row['Reason For Trade']}</td><td style="{td_style} min-width: 200px; white-space: normal;">{row['Emotions']}</td><td style="{td_style} min-width: 200px; white-space: normal;">{row['Corrections']}</td></tr>"""
                 tabla_html = f"""<div style="width: 100%; height: auto; overflow-y: auto; overflow-x: auto; background-color: {card_bg}; border: 1px solid {border_color}; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 40px;"><table style="width: 100%; border-collapse: collapse; text-align: left; white-space: nowrap;"><thead style="position: sticky; top: 0; background-color: {card_bg}; z-index: 1;"><tr><th style="{th_style}">{_l['table']['date']}</th><th style="{th_style}">{_l['table']['trade']}</th><th style="{th_style}">{_l['table']['pnl']}</th><th style="{th_style}">{_l['table']['type']}</th><th style="{th_style}">{_l['table']['bias']}</th><th style="{th_style}">Sesión</th><th style="{th_style}">{_l['table']['rr']}</th><th style="{th_style}">{_l['table']['conf']}</th><th style="{th_style}">{_l['table']['risk']}</th><th style="{th_style}">{_l['table']['reason']}</th><th style="{th_style}">{_l['table']['emo']}</th><th style="{th_style}">{_l['table']['corr']}</th></tr></thead><tbody>{filas_html}</tbody></table></div><br><br>"""
@@ -4274,7 +4274,7 @@ def area_exportacion():
                 
             nombre_archivo = f"Trades_{usuario}_{nombre_periodo}.csv"
             
-            st.download_button(label="📥 DESCARGAR EXCEL", data=csv_export, file_name=nombre_archivo, mime="text/csv", use_container_width=True)
+            st.download_button(label="📥 DESCARGAR REPORTE (CSV)", data=csv_export, file_name=nombre_archivo, mime="text/csv", use_container_width=True, type="primary")
         else:
             st.button("📥 SIN DATOS", disabled=True, use_container_width=True)
     
