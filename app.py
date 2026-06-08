@@ -1740,12 +1740,35 @@ def contenido_ajustes():
                 st.markdown("<div style='background: rgba(239,68,68,0.1); border-left: 4px solid #EF4444; padding: 10px 15px; border-radius: 4px;'><span style='color: #EF4444; font-weight: 700;'>⚠️ Contraseña incorrecta. Acceso denegado.</span></div>", unsafe_allow_html=True)
 
     st.markdown("---")
-    st.markdown("### 🖥️ Diseño Automático")
-    st.info("💡 El diseño se autoajusta de forma inteligente para garantizar una experiencia visual óptima. Los valores por defecto han sido aplicados.")
-    if st.button("🔄 Restaurar Diseño de Fábrica", use_container_width=True):
-        cb_reset_dash()
-        cb_reset_txt()
-        cb_reset_cal()
+    st.markdown("### 🖥️ Tamaño de Interfaz")
+    st.markdown("<p style='color:#94A3B8; font-size:13px;'>Ajusta la densidad visual de los elementos según el tamaño de tu pantalla.</p>", unsafe_allow_html=True)
+    
+    # Selector de tamaño
+    opciones_tamano = ["Compacto (S)", "Cómodo (M)", "Amplio (L)"]
+    tamano_ui = st.radio("Densidad visual", opciones_tamano, index=1, horizontal=True, label_visibility="collapsed")
+    
+    if st.button("Aplicar Tamaño", use_container_width=True, type="primary"):
+        disp = st.session_state.dispositivo_actual
+        if "Compacto" in tamano_ui:
+            # Tamaño Small
+            db_global[usuario]["settings"][disp].update({
+                "bal_num_sz": 22, "bal_box_w": 40, "bal_box_pad": 5, "size_top_stats": 18, "size_card_titles": 14, "size_box_titles": 16, "size_box_vals": 20, "size_box_pct": 16, "size_box_wl": 12, "pie_size": 120, "pie_y_offset": -20, "cal_mes_size": 24, "cal_pnl_size": 16, "cal_pct_size": 14, "cal_dia_size": 14, "cal_cam_size": 16, "cal_scale": 110, "cal_line_height": 1.1, "cal_note_size": 18, "note_lbl_size": 20, "note_val_size": 14
+            })
+        elif "Cómodo" in tamano_ui:
+            # Tamaño Medium (Valores de fábrica)
+            cb_reset_dash()
+            cb_reset_txt()
+            cb_reset_cal()
+        elif "Amplio" in tamano_ui:
+            # Tamaño Large
+            db_global[usuario]["settings"][disp].update({
+                "bal_num_sz": 32, "bal_box_w": 55, "bal_box_pad": 10, "size_top_stats": 26, "size_card_titles": 22, "size_box_titles": 24, "size_box_vals": 30, "size_box_pct": 24, "size_box_wl": 18, "pie_size": 180, "pie_y_offset": -40, "cal_mes_size": 40, "cal_pnl_size": 24, "cal_pct_size": 22, "cal_dia_size": 22, "cal_cam_size": 26, "cal_scale": 180, "cal_line_height": 1.4, "cal_note_size": 28, "note_lbl_size": 30, "note_val_size": 22
+            })
+        
+        reescribir_excel_usuario(usuario)
+        st.success(f"✅ Tamaño {tamano_ui} aplicado con éxito.")
+        import time
+        time.sleep(0.5)
         st.rerun()
 
     st.markdown("<br>", unsafe_allow_html=True)
