@@ -3900,8 +3900,6 @@ with tab_comunidad:
                     st.session_state.data_source_sel = trader['cuenta'] # Forzar a visitar la cuenta elegida
                     try: st.query_params["account"] = trader['cuenta']
                     except: pass
-                    try: st.query_params["user"] = trader["user"]
-                    except: pass
                     st.rerun()
             st.markdown("<hr style='border-color: #334155; margin: 10px 0; opacity: 0.3;'>", unsafe_allow_html=True)
 
@@ -4112,7 +4110,8 @@ with tab_plan:
         # Mostrar el plan como HTML de solo lectura para los visitantes forzando letras blancas
         st.markdown(f"""
         <style>
-        .plan-visitante, .plan-visitante * {{ color: white !important; font-family: 'Inter', sans-serif !important; background-color: transparent !important; }}
+        /* Forzamos TODO el texto a blanco brillante, anulando colores inyectados por el editor */
+        .plan-visitante, .plan-visitante *, .plan-visitante span, .plan-visitante p {{ color: #FFFFFF !important; font-family: 'Inter', sans-serif !important; background-color: transparent !important; }}
         </style>
         <div class='plan-visitante' style='background: #1A202C !important; border: 1px solid #4A5568 !important; border-radius: 12px !important; padding: 25px !important; min-height: 300px !important; box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.5) !important; font-size: 16px !important;'>
         {pc_set['global_notes_body']}
@@ -4212,172 +4211,172 @@ def ventana_borrar_trade(ctx, clave, i, usuario_actual):
 if tab_hist is not None:
     with tab_hist:
         with st.container(): # Usamos container para no romper la indentación original
-        trades_actuales = db_usuario[ctx]["trades"]
-        if not trades_actuales: 
-            st.markdown("<div style='text-align: center; padding: 50px; background: #1E293B; border-radius: 12px; border: 1px dashed #334155;'><h3 style='color: #F8FAFC;'>Aún no hay operaciones aquí 🚀</h3><p style='color: #94A3B8;'>Tu historial está limpio. Ve a la pestaña del Calendario y registra tu primer trade para empezar a ver tus estadísticas detalladas.</p></div>", unsafe_allow_html=True)
-        else:
-            c_h1, c_h2, c_h3 = st.columns([1, 2, 1])
-            with c_h1: st.button("◀", on_click=cambiar_mes, args=(-1,), key="btn_h_prev", use_container_width=True)
-            if st.session_state.idioma == "ES":
-                meses_es = ["", "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
-                nom_mes = meses_es[st.session_state.cal_month]
-            else: nom_mes = calendar.month_name[st.session_state.cal_month]
-            with c_h2: st.markdown(f"<h4 style='text-align:center; color:{c_dash}; margin-top:5px;'>🗓️ {nom_mes} {st.session_state.cal_year}</h4>", unsafe_allow_html=True)
-            with c_h3: st.button("▶", on_click=cambiar_mes, args=(1,), key="btn_h_next", use_container_width=True)
-            st.markdown("---")
-            trades_ordenados = sorted(trades_actuales.items(), key=lambda x: datetime(x[0][0], x[0][1], x[0][2]), reverse=False)
-            trades_en_mes = 0 
-            for clave, lista_trades in trades_ordenados:
-                anio_t, mes_t, dia_t = clave
-                if not ver_todo and (anio_t != st.session_state.cal_year or mes_t != st.session_state.cal_month): continue
-                trades_en_mes += len(lista_trades)
-                fecha_dt = datetime(anio_t, mes_t, dia_t)
-                for i, data in enumerate(lista_trades):
-                    if st.session_state.get("toggle_funded_state", False) and data.get("is_pre_funded", False): continue
-                    pnl_val = float(data['pnl'])
-                    color_md = "green" if pnl_val > 0 else ("red" if pnl_val < 0 else "gray")
-                    simbolo = "+" if pnl_val > 0 else ""
-                    # Le damos 93% de espacio al Trade y solo 7% al botón de borrar
-                    c_exp, c_trash = st.columns([0.93, 0.07])
-                    with c_exp:
-                        with st.expander(f"🔹 Trade #{i+1}  |  🗓️ {data['fecha_str']}  |  💰 P&L: :{color_md}[{simbolo}${pnl_val:,.2f}]"):
-                            st.markdown(f"<div style='color: #94A3B8; font-size: 13px; font-weight: 700; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 0.5px;'>{_l['hist']['fin']}</div>", unsafe_allow_html=True)
-                            
-                            # Extraemos la hora guardada para mostrarla
-                            hora_str = data.get("hora", "00:00")
-                            try: hora_dt = datetime.strptime(hora_str, "%H:%M").time()
-                            except: hora_dt = datetime.strptime("00:00", "%H:%M").time()
-                            
-                            c_ed1, c_ed_h, c_ed2, c_ed3 = st.columns([1, 1, 1.5, 1.5])
-                            with c_ed1: nueva_fecha = st.date_input(_l['hist']['day'], value=fecha_dt, key=f"f_{clave}_{i}")
-                            with c_ed_h: nueva_hora = st.time_input("Hora", value=hora_dt, step=60, key=f"h_{clave}_{i}")
-                            with c_ed2: nuevo_bal = st.number_input(_l['hist']['bal'], value=float(data['balance_final']), format="%.2f", key=f"b_{clave}_{i}")
-                            with c_ed3: nuevo_pnl = st.number_input("P&L", value=pnl_val, format="%.2f", key=f"p_{clave}_{i}")
-                            st.markdown("---")
-                            with st.expander(_l['hist']['edit_det'], expanded=False):
-                                c_ed4, c_ed5 = st.columns(2)
-                                with c_ed4:
-                                    def_bias = data.get('bias', 'NEUTRO')
-                                    if def_bias not in ['LONG', 'SHORT', 'NONE', 'NEUTRO']: def_bias = 'NEUTRO'
-                                    e_bias = st.selectbox(_l['dash']['bias'], ['LONG', 'SHORT', 'NONE', 'NEUTRO'], index=['LONG', 'SHORT', 'NONE', 'NEUTRO'].index(def_bias), key=f"e_bias_{clave}_{i}")
-                                    
-                                    def_ses = data.get('sesion', 'NONE')
-                                    if def_ses not in ['New York', 'Asia', 'Londres', 'NONE']: def_ses = 'NONE'
-                                    e_sesion = st.selectbox("Sesión", ['New York', 'Asia', 'Londres', 'NONE'], index=['New York', 'Asia', 'Londres', 'NONE'].index(def_ses), key=f"e_sesion_{clave}_{i}")
-                                    st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 15px; margin-bottom: 10px;'>{_l['dash']['conf']}</div>", unsafe_allow_html=True)
-                                    all_confs = ['BIAS WELL', 'LIQ SWEEP', 'IFVG', 'FVG', 'EQH / EQL', 'BSL / SSL', 'POI', 'SMT', 'Order Block', 'Continuation', 'Data High / Data Low', 'CISD']
-                                    curr_confs = data.get('Confluences', [])
-                                    e_conf = []
-                                    cols_e_conf = st.columns(3)
-                                    for idx_c, c_name in enumerate(all_confs):
-                                        if cols_e_conf[idx_c % 3].checkbox(c_name, value=(c_name in curr_confs), key=f"e_conf_{clave}_{i}_{idx_c}"): e_conf.append(c_name)
-                                    
-                                    # Rescatar confluencias custom si las hay
-                                    custom_confs_existentes = [c for c in curr_confs if c not in all_confs]
-                                    texto_custom_existente = ", ".join(custom_confs_existentes)
-                                    
-                                    st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
-                                    e_conf_custom = st.text_area("Otras Confluencias (Opcional)", value=texto_custom_existente, key=f"e_conf_custom_{clave}_{i}", height=45)
+            trades_actuales = db_usuario[ctx]["trades"]
+            if not trades_actuales: 
+                st.markdown("<div style='text-align: center; padding: 50px; background: #1E293B; border-radius: 12px; border: 1px dashed #334155;'><h3 style='color: #F8FAFC;'>Aún no hay operaciones aquí 🚀</h3><p style='color: #94A3B8;'>Tu historial está limpio. Ve a la pestaña del Calendario y registra tu primer trade para empezar a ver tus estadísticas detalladas.</p></div>", unsafe_allow_html=True)
+            else:
+                c_h1, c_h2, c_h3 = st.columns([1, 2, 1])
+                with c_h1: st.button("◀", on_click=cambiar_mes, args=(-1,), key="btn_h_prev", use_container_width=True)
+                if st.session_state.idioma == "ES":
+                    meses_es = ["", "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
+                    nom_mes = meses_es[st.session_state.cal_month]
+                else: nom_mes = calendar.month_name[st.session_state.cal_month]
+                with c_h2: st.markdown(f"<h4 style='text-align:center; color:{c_dash}; margin-top:5px;'>🗓️ {nom_mes} {st.session_state.cal_year}</h4>", unsafe_allow_html=True)
+                with c_h3: st.button("▶", on_click=cambiar_mes, args=(1,), key="btn_h_next", use_container_width=True)
+                st.markdown("---")
+                trades_ordenados = sorted(trades_actuales.items(), key=lambda x: datetime(x[0][0], x[0][1], x[0][2]), reverse=False)
+                trades_en_mes = 0 
+                for clave, lista_trades in trades_ordenados:
+                    anio_t, mes_t, dia_t = clave
+                    if not ver_todo and (anio_t != st.session_state.cal_year or mes_t != st.session_state.cal_month): continue
+                    trades_en_mes += len(lista_trades)
+                    fecha_dt = datetime(anio_t, mes_t, dia_t)
+                    for i, data in enumerate(lista_trades):
+                        if st.session_state.get("toggle_funded_state", False) and data.get("is_pre_funded", False): continue
+                        pnl_val = float(data['pnl'])
+                        color_md = "green" if pnl_val > 0 else ("red" if pnl_val < 0 else "gray")
+                        simbolo = "+" if pnl_val > 0 else ""
+                        # Le damos 93% de espacio al Trade y solo 7% al botón de borrar
+                        c_exp, c_trash = st.columns([0.93, 0.07])
+                        with c_exp:
+                            with st.expander(f"🔹 Trade #{i+1}  |  🗓️ {data['fecha_str']}  |  💰 P&L: :{color_md}[{simbolo}${pnl_val:,.2f}]"):
+                                st.markdown(f"<div style='color: #94A3B8; font-size: 13px; font-weight: 700; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 0.5px;'>{_l['hist']['fin']}</div>", unsafe_allow_html=True)
+                                
+                                # Extraemos la hora guardada para mostrarla
+                                hora_str = data.get("hora", "00:00")
+                                try: hora_dt = datetime.strptime(hora_str, "%H:%M").time()
+                                except: hora_dt = datetime.strptime("00:00", "%H:%M").time()
+                                
+                                c_ed1, c_ed_h, c_ed2, c_ed3 = st.columns([1, 1, 1.5, 1.5])
+                                with c_ed1: nueva_fecha = st.date_input(_l['hist']['day'], value=fecha_dt, key=f"f_{clave}_{i}")
+                                with c_ed_h: nueva_hora = st.time_input("Hora", value=hora_dt, step=60, key=f"h_{clave}_{i}")
+                                with c_ed2: nuevo_bal = st.number_input(_l['hist']['bal'], value=float(data['balance_final']), format="%.2f", key=f"b_{clave}_{i}")
+                                with c_ed3: nuevo_pnl = st.number_input("P&L", value=pnl_val, format="%.2f", key=f"p_{clave}_{i}")
+                                st.markdown("---")
+                                with st.expander(_l['hist']['edit_det'], expanded=False):
+                                    c_ed4, c_ed5 = st.columns(2)
+                                    with c_ed4:
+                                        def_bias = data.get('bias', 'NEUTRO')
+                                        if def_bias not in ['LONG', 'SHORT', 'NONE', 'NEUTRO']: def_bias = 'NEUTRO'
+                                        e_bias = st.selectbox(_l['dash']['bias'], ['LONG', 'SHORT', 'NONE', 'NEUTRO'], index=['LONG', 'SHORT', 'NONE', 'NEUTRO'].index(def_bias), key=f"e_bias_{clave}_{i}")
+                                        
+                                        def_ses = data.get('sesion', 'NONE')
+                                        if def_ses not in ['New York', 'Asia', 'Londres', 'NONE']: def_ses = 'NONE'
+                                        e_sesion = st.selectbox("Sesión", ['New York', 'Asia', 'Londres', 'NONE'], index=['New York', 'Asia', 'Londres', 'NONE'].index(def_ses), key=f"e_sesion_{clave}_{i}")
+                                        st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 15px; margin-bottom: 10px;'>{_l['dash']['conf']}</div>", unsafe_allow_html=True)
+                                        all_confs = ['BIAS WELL', 'LIQ SWEEP', 'IFVG', 'FVG', 'EQH / EQL', 'BSL / SSL', 'POI', 'SMT', 'Order Block', 'Continuation', 'Data High / Data Low', 'CISD']
+                                        curr_confs = data.get('Confluences', [])
+                                        e_conf = []
+                                        cols_e_conf = st.columns(3)
+                                        for idx_c, c_name in enumerate(all_confs):
+                                            if cols_e_conf[idx_c % 3].checkbox(c_name, value=(c_name in curr_confs), key=f"e_conf_{clave}_{i}_{idx_c}"): e_conf.append(c_name)
+                                        
+                                        # Rescatar confluencias custom si las hay
+                                        custom_confs_existentes = [c for c in curr_confs if c not in all_confs]
+                                        texto_custom_existente = ", ".join(custom_confs_existentes)
+                                        
+                                        st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
+                                        e_conf_custom = st.text_area("Otras Confluencias (Opcional)", value=texto_custom_existente, key=f"e_conf_custom_{clave}_{i}", height=45)
 
-                                    def_risk = data.get('risk', '0.5%')
-                                    if def_risk not in ['1%', '0.9%', '0.8%', '0.7%', '0.6%', '0.5%', '0.4%']: def_risk = '0.5%'
-                                    e_risk = st.selectbox(_l['dash']['risk'], ['1%', '0.9%', '0.8%', '0.7%', '0.6%', '0.5%', '0.4%'], index=['1%', '0.9%', '0.8%', '0.7%', '0.6%', '0.5%', '0.4%'].index(def_risk), key=f"e_risk_{clave}_{i}")
-                                    def_rr = data.get('RR', '1:2')
-                                    if def_rr not in ['1:1', '1:1.5', '1:2', '1:3', '1:4']: def_rr = '1:2'
-                                    e_rr = st.selectbox(_l['dash']['rr'], ['1:1', '1:1.5', '1:2', '1:3', '1:4'], index=['1:1', '1:1.5', '1:2', '1:3', '1:4'].index(def_rr), key=f"e_rr_{clave}_{i}")
-                                    def_tt = data.get('trade_type', 'A')
-                                    if def_tt not in ['A+', 'A', 'B', 'C']: def_tt = 'A'
-                                    e_tt = st.selectbox(_l['dash']['tt'], ['A+', 'A', 'B', 'C'], index=['A+', 'A', 'B', 'C'].index(def_tt), key=f"e_tt_{clave}_{i}")
-                                with c_ed5:
-                                    e_razon = st.text_area(_l['dash']['reason'], value=data.get('razon_trade', ''), key=f"e_raz_{clave}_{i}", height=68)
-                                    e_corr = st.text_area(_l['dash']['corr'], value=data.get('Corrections', ''), key=f"e_cor_{clave}_{i}", height=68)
-                                    e_emo = st.text_area(_l['dash']['emo'], value=data.get('Emotions', ''), key=f"e_emo_{clave}_{i}", height=68)
-                            st.markdown("---")
-                            # 📸 TARJETA DE SOCIAL PROOF (Para Screenshots en Instagram)
-                            st.markdown(f"<div style='color: #94A3B8; font-size: 13px; font-weight: 700; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 0.5px;'>📸 Compartir Resultados</div>", unsafe_allow_html=True)
-                            
-                            bg_tarjeta = "linear-gradient(135deg, rgba(16,185,129,0.15) 0%, rgba(15,23,42,1) 100%)" if pnl_val >= 0 else "linear-gradient(135deg, rgba(239,68,68,0.15) 0%, rgba(15,23,42,1) 100%)"
-                            borde_tarjeta = "#10B981" if pnl_val >= 0 else "#EF4444"
-                            
-                            st.markdown(f'''
-                            <div style="background: {bg_tarjeta}; border: 1px solid {borde_tarjeta}; border-radius: 12px; padding: 25px; text-align: center; margin-bottom: 20px; position: relative; overflow: hidden;">
-                                <div style="position: absolute; top: -20px; right: -10px; font-size: 90px; opacity: 0.03; font-weight: 900;">PF</div>
-                                <h3 style="color:#F8FAFC; margin:0; font-size: 13px; font-weight: 700; opacity: 0.6; text-transform: uppercase; letter-spacing: 2px;">PF Journal Pro</h3>
-                                <h1 style="color:{borde_tarjeta}; font-size: 48px; font-weight: 900; margin: 10px 0; letter-spacing: -2px;">{simbolo}${pnl_val:,.2f}</h1>
-                                <div style="display:flex; justify-content:center; gap: 15px; color: #94A3B8; font-size: 14px; font-weight: 600;">
-                                    <span>🗓️ {data['fecha_str']}</span> • 
-                                    <span>{data.get('sesion', 'NONE')}</span> • 
-                                    <span style="color: #F8FAFC; background: rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 4px;">{data.get('bias', 'NEUTRO')}</span>
+                                        def_risk = data.get('risk', '0.5%')
+                                        if def_risk not in ['1%', '0.9%', '0.8%', '0.7%', '0.6%', '0.5%', '0.4%']: def_risk = '0.5%'
+                                        e_risk = st.selectbox(_l['dash']['risk'], ['1%', '0.9%', '0.8%', '0.7%', '0.6%', '0.5%', '0.4%'], index=['1%', '0.9%', '0.8%', '0.7%', '0.6%', '0.5%', '0.4%'].index(def_risk), key=f"e_risk_{clave}_{i}")
+                                        def_rr = data.get('RR', '1:2')
+                                        if def_rr not in ['1:1', '1:1.5', '1:2', '1:3', '1:4']: def_rr = '1:2'
+                                        e_rr = st.selectbox(_l['dash']['rr'], ['1:1', '1:1.5', '1:2', '1:3', '1:4'], index=['1:1', '1:1.5', '1:2', '1:3', '1:4'].index(def_rr), key=f"e_rr_{clave}_{i}")
+                                        def_tt = data.get('trade_type', 'A')
+                                        if def_tt not in ['A+', 'A', 'B', 'C']: def_tt = 'A'
+                                        e_tt = st.selectbox(_l['dash']['tt'], ['A+', 'A', 'B', 'C'], index=['A+', 'A', 'B', 'C'].index(def_tt), key=f"e_tt_{clave}_{i}")
+                                    with c_ed5:
+                                        e_razon = st.text_area(_l['dash']['reason'], value=data.get('razon_trade', ''), key=f"e_raz_{clave}_{i}", height=68)
+                                        e_corr = st.text_area(_l['dash']['corr'], value=data.get('Corrections', ''), key=f"e_cor_{clave}_{i}", height=68)
+                                        e_emo = st.text_area(_l['dash']['emo'], value=data.get('Emotions', ''), key=f"e_emo_{clave}_{i}", height=68)
+                                st.markdown("---")
+                                # 📸 TARJETA DE SOCIAL PROOF (Para Screenshots en Instagram)
+                                st.markdown(f"<div style='color: #94A3B8; font-size: 13px; font-weight: 700; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 0.5px;'>📸 Compartir Resultados</div>", unsafe_allow_html=True)
+                                
+                                bg_tarjeta = "linear-gradient(135deg, rgba(16,185,129,0.15) 0%, rgba(15,23,42,1) 100%)" if pnl_val >= 0 else "linear-gradient(135deg, rgba(239,68,68,0.15) 0%, rgba(15,23,42,1) 100%)"
+                                borde_tarjeta = "#10B981" if pnl_val >= 0 else "#EF4444"
+                                
+                                st.markdown(f'''
+                                <div style="background: {bg_tarjeta}; border: 1px solid {borde_tarjeta}; border-radius: 12px; padding: 25px; text-align: center; margin-bottom: 20px; position: relative; overflow: hidden;">
+                                    <div style="position: absolute; top: -20px; right: -10px; font-size: 90px; opacity: 0.03; font-weight: 900;">PF</div>
+                                    <h3 style="color:#F8FAFC; margin:0; font-size: 13px; font-weight: 700; opacity: 0.6; text-transform: uppercase; letter-spacing: 2px;">PF Journal Pro</h3>
+                                    <h1 style="color:{borde_tarjeta}; font-size: 48px; font-weight: 900; margin: 10px 0; letter-spacing: -2px;">{simbolo}${pnl_val:,.2f}</h1>
+                                    <div style="display:flex; justify-content:center; gap: 15px; color: #94A3B8; font-size: 14px; font-weight: 600;">
+                                        <span>🗓️ {data['fecha_str']}</span> • 
+                                        <span>{data.get('sesion', 'NONE')}</span> • 
+                                        <span style="color: #F8FAFC; background: rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 4px;">{data.get('bias', 'NEUTRO')}</span>
+                                    </div>
                                 </div>
-                            </div>
-                            ''', unsafe_allow_html=True)
-                            
-                            st.markdown("---")
-                            st.markdown(_l['hist']['saved_img'])
-                            upd_key = f"upd_{clave}_{i}"
-                            # 📥 Capturamos los archivos subidos (permite múltiples a la vez)
-                            archivos_edit_img = st.file_uploader(_l['hist']['upd_new'], accept_multiple_files=True, key=upd_key)
-                            link_key = f"link_upd_{clave}_{i}"
-                            nuevo_link_edit = st.text_input(_l['dash']['paste_link'], key=link_key, placeholder=_l['dash']['paste_link'])
-                            imagenes_restantes = db_usuario[ctx]["trades"][clave][i].get("imagenes", [])
-                            if imagenes_restantes:
-                                id_modal_hist = f"mod_hist_{clave[0]}_{clave[1]}_{clave[2]}_{i}"
-                                img_tags_hist = ""
-                                for idx_img_gal, img_url in enumerate(imagenes_restantes):
-                                    disp = "block" if idx_img_gal == 0 else "none"
-                                    img_tags_hist += f'<img src="{img_url}" class="gallery-img" data-idx="{idx_img_gal}" style="display: {disp};">'
-                                nav_html_hist = ""
-                                if len(imagenes_restantes) > 1: nav_html_hist = f'<div class="gallery-nav"><div class="prev-img-btn">◀</div><div class="img-counter">1 / {len(imagenes_restantes)}</div><div class="next-img-btn">▶</div></div>'
-                                modal_html_hist = f'<div><input type="checkbox" id="{id_modal_hist}" class="modal-toggle" style="display:none;"><div class="fs-modal" data-current="0" data-total="{len(imagenes_restantes)}"><div class="modal-controls">{nav_html_hist}<label for="{id_modal_hist}" class="close-btn">{_l["cal"]["close"]}</label></div>{img_tags_hist}</div></div>'
-                                st.markdown(modal_html_hist, unsafe_allow_html=True)
-                                cols_img = st.columns(len(imagenes_restantes))
-                                for idx_img, img_b64 in enumerate(imagenes_restantes):
-                                    with cols_img[idx_img]:
-                                        st.markdown(f'<label for="{id_modal_hist}" style="cursor:pointer; display:block;"><img src="{img_b64}" style="width:100%; border-radius:10px; border:1px solid gray; box-shadow: 0 4px 6px rgba(0,0,0,0.1);"></label>', unsafe_allow_html=True)
-                                        st.button(_l['hist']['del_img'], key=f"delimg_{clave}_{i}_{idx_img}", on_click=borrar_imagen_historial, args=(ctx, clave, i, idx_img), use_container_width=True)
-                            else: st.caption(_l['hist']['no_img_saved'])
-            
-                            if st.button(_l['hist']['save_edits'], key=f"save_{clave}_{i}", use_container_width=True):
-                                if nuevo_link_edit.strip().startswith("http"): data["imagenes"].append(nuevo_link_edit.strip())
+                                ''', unsafe_allow_html=True)
                                 
-                                # 🟢 NUBE AUTOMÁTICA EN HISTORIAL (ImgBB Múltiple)
-                                if archivos_edit_img:
-                                    with st.spinner("📤 Subiendo nuevas imágenes a la nube..."):
-                                        import requests
-                                        url_api = "https://api.imgbb.com/1/upload"
-                                        
-                                        # 🔥 PEGA AQUÍ LA MISMA API KEY DE IMGBB 🔥
-                                        api_key_imgbb = "dd266f375897b76af931e00467716917"
-                                        
-                                        for arch in archivos_edit_img:
-                                            try:
-                                                payload = {"key": api_key_imgbb}
-                                                archivos = {"image": (arch.name, arch.getvalue(), arch.type)}
-                                                respuesta = requests.post(url_api, params=payload, files=archivos)
-                                                if respuesta.status_code == 200:
-                                                    data["imagenes"].append(respuesta.json()["data"]["url"])
-                                            except Exception as e:
-                                                print(f"Error subiendo imagen extra: {e}")
-                                
-                                nueva_clave = (nueva_fecha.year, nueva_fecha.month, nueva_fecha.day)
-                                data["pnl"] = nuevo_pnl
-                                data["balance_final"] = nuevo_bal
-                                data["fecha_str"] = nueva_fecha.strftime("%d/%m/%Y")
-                                data["hora"] = nueva_hora.strftime("%H:%M")
-                                
-                                if e_conf_custom.strip():
-                                    e_conf.append(e_conf_custom.strip().upper())
+                                st.markdown("---")
+                                st.markdown(_l['hist']['saved_img'])
+                                upd_key = f"upd_{clave}_{i}"
+                                # 📥 Capturamos los archivos subidos (permite múltiples a la vez)
+                                archivos_edit_img = st.file_uploader(_l['hist']['upd_new'], accept_multiple_files=True, key=upd_key)
+                                link_key = f"link_upd_{clave}_{i}"
+                                nuevo_link_edit = st.text_input(_l['dash']['paste_link'], key=link_key, placeholder=_l['dash']['paste_link'])
+                                imagenes_restantes = db_usuario[ctx]["trades"][clave][i].get("imagenes", [])
+                                if imagenes_restantes:
+                                    id_modal_hist = f"mod_hist_{clave[0]}_{clave[1]}_{clave[2]}_{i}"
+                                    img_tags_hist = ""
+                                    for idx_img_gal, img_url in enumerate(imagenes_restantes):
+                                        disp = "block" if idx_img_gal == 0 else "none"
+                                        img_tags_hist += f'<img src="{img_url}" class="gallery-img" data-idx="{idx_img_gal}" style="display: {disp};">'
+                                    nav_html_hist = ""
+                                    if len(imagenes_restantes) > 1: nav_html_hist = f'<div class="gallery-nav"><div class="prev-img-btn">◀</div><div class="img-counter">1 / {len(imagenes_restantes)}</div><div class="next-img-btn">▶</div></div>'
+                                    modal_html_hist = f'<div><input type="checkbox" id="{id_modal_hist}" class="modal-toggle" style="display:none;"><div class="fs-modal" data-current="0" data-total="{len(imagenes_restantes)}"><div class="modal-controls">{nav_html_hist}<label for="{id_modal_hist}" class="close-btn">{_l["cal"]["close"]}</label></div>{img_tags_hist}</div></div>'
+                                    st.markdown(modal_html_hist, unsafe_allow_html=True)
+                                    cols_img = st.columns(len(imagenes_restantes))
+                                    for idx_img, img_b64 in enumerate(imagenes_restantes):
+                                        with cols_img[idx_img]:
+                                            st.markdown(f'<label for="{id_modal_hist}" style="cursor:pointer; display:block;"><img src="{img_b64}" style="width:100%; border-radius:10px; border:1px solid gray; box-shadow: 0 4px 6px rgba(0,0,0,0.1);"></label>', unsafe_allow_html=True)
+                                            st.button(_l['hist']['del_img'], key=f"delimg_{clave}_{i}_{idx_img}", on_click=borrar_imagen_historial, args=(ctx, clave, i, idx_img), use_container_width=True)
+                                else: st.caption(_l['hist']['no_img_saved'])
+                
+                                if st.button(_l['hist']['save_edits'], key=f"save_{clave}_{i}", use_container_width=True):
+                                    if nuevo_link_edit.strip().startswith("http"): data["imagenes"].append(nuevo_link_edit.strip())
                                     
-                                data["bias"] = e_bias; data["sesion"] = e_sesion; data["Confluences"] = e_conf; data["risk"] = e_risk; data["RR"] = e_rr; data["trade_type"] = e_tt; data["razon_trade"] = e_razon.upper(); data["Corrections"] = e_corr.upper(); data["Emotions"] = e_emo.upper()
-                                if nueva_clave != clave:
-                                    trade_movido = db_usuario[ctx]["trades"][clave].pop(i)
-                                    if not db_usuario[ctx]["trades"][clave]: del db_usuario[ctx]["trades"][clave]
-                                    if nueva_clave not in db_usuario[ctx]["trades"]: db_usuario[ctx]["trades"][nueva_clave] = []
-                                    db_usuario[ctx]["trades"][nueva_clave].append(trade_movido)
-                                reescribir_excel_usuario(usuario)
-                                st.rerun()
-                    with c_trash:
-                        if not modo_lectura and st.button("🗑️", key=f"trash_{clave}_{i}", use_container_width=True): ventana_borrar_trade(ctx, clave, i, usuario)
+                                    # 🟢 NUBE AUTOMÁTICA EN HISTORIAL (ImgBB Múltiple)
+                                    if archivos_edit_img:
+                                        with st.spinner("📤 Subiendo nuevas imágenes a la nube..."):
+                                            import requests
+                                            url_api = "https://api.imgbb.com/1/upload"
+                                            
+                                            # 🔥 PEGA AQUÍ LA MISMA API KEY DE IMGBB 🔥
+                                            api_key_imgbb = "dd266f375897b76af931e00467716917"
+                                            
+                                            for arch in archivos_edit_img:
+                                                try:
+                                                    payload = {"key": api_key_imgbb}
+                                                    archivos = {"image": (arch.name, arch.getvalue(), arch.type)}
+                                                    respuesta = requests.post(url_api, params=payload, files=archivos)
+                                                    if respuesta.status_code == 200:
+                                                        data["imagenes"].append(respuesta.json()["data"]["url"])
+                                                except Exception as e:
+                                                    print(f"Error subiendo imagen extra: {e}")
+                                    
+                                    nueva_clave = (nueva_fecha.year, nueva_fecha.month, nueva_fecha.day)
+                                    data["pnl"] = nuevo_pnl
+                                    data["balance_final"] = nuevo_bal
+                                    data["fecha_str"] = nueva_fecha.strftime("%d/%m/%Y")
+                                    data["hora"] = nueva_hora.strftime("%H:%M")
+                                    
+                                    if e_conf_custom.strip():
+                                        e_conf.append(e_conf_custom.strip().upper())
+                                        
+                                    data["bias"] = e_bias; data["sesion"] = e_sesion; data["Confluences"] = e_conf; data["risk"] = e_risk; data["RR"] = e_rr; data["trade_type"] = e_tt; data["razon_trade"] = e_razon.upper(); data["Corrections"] = e_corr.upper(); data["Emotions"] = e_emo.upper()
+                                    if nueva_clave != clave:
+                                        trade_movido = db_usuario[ctx]["trades"][clave].pop(i)
+                                        if not db_usuario[ctx]["trades"][clave]: del db_usuario[ctx]["trades"][clave]
+                                        if nueva_clave not in db_usuario[ctx]["trades"]: db_usuario[ctx]["trades"][nueva_clave] = []
+                                        db_usuario[ctx]["trades"][nueva_clave].append(trade_movido)
+                                    reescribir_excel_usuario(usuario)
+                                    st.rerun()
+                        with c_trash:
+                            if not modo_lectura and st.button("🗑️", key=f"trash_{clave}_{i}", use_container_width=True): ventana_borrar_trade(ctx, clave, i, usuario)
             if trades_en_mes == 0: st.info(_l['hist']['no_tr_mo'])
 
 with tab_tabla:
