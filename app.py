@@ -3860,11 +3860,11 @@ with tab_comunidad:
                     st.success("✅ Ajustes actualizados. Serás invisible en las cuentas que no seleccionaste.")
                     import time; time.sleep(0.5); st.rerun()
 
-    st.markdown("<hr style='border-color: #334155; margin: 15px 0;'>", unsafe_allow_html=True)
+
     
     # --- BUSCADOR GENERAL (ARRIBA) ---
     busqueda = st.text_input("Buscar usuario", placeholder="🔍 Busca por el nombre de un trader (Sensible a mayúsculas)...", label_visibility="collapsed")
-
+    st.markdown("<br>", unsafe_allow_html=True)
 
     # --- TABLA DE POSICIONES (LEADERBOARD) ---
     st.markdown("<h3 style='text-align:center; color:#10B981; font-weight: 800;'>🏆 Top Traders</h3>", unsafe_allow_html=True)
