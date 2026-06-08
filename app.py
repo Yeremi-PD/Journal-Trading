@@ -3831,7 +3831,25 @@ with tab_comunidad:
                 v_his = c_p3.checkbox("🕒 Historial", value=pc_set_logged.get("vis_historial", True))
                 v_plan = c_p4.checkbox("📝 Plan", value=pc_set_logged.get("vis_plan", True))
                 
-                if st.form_submit_button("💾 Guardar Ajustes de Privacidad", type="primary", use_container_width=True):
+                # 🟢 CSS EXCLUSIVO PARA DESVINCULAR ESTE BOTÓN DEL DISEÑO GIGANTE
+                st.markdown("<div class='identificador-form-privacidad'></div>", unsafe_allow_html=True)
+                st.markdown("""
+                <style>
+                div[data-testid="stForm"]:has(.identificador-form-privacidad) [data-testid="stFormSubmitButton"] button {
+                    width: 100% !important; 
+                    font-size: 16px !important;
+                    min-height: 45px !important;
+                    height: 45px !important;
+                    margin-top: 15px !important;
+                }
+                </style>
+                """, unsafe_allow_html=True)
+                
+                _, c_btn_priv, _ = st.columns([1, 1.5, 1])
+                with c_btn_priv:
+                    btn_guardar_priv = st.form_submit_button("💾 Guardar Ajustes de Privacidad", type="primary", use_container_width=True)
+                    
+                if btn_guardar_priv:
                     for dev in ["PC", "Móvil"]:
                         db_global[usuario_logueado]["settings"][dev]["public_accounts"] = cuentas_publicas
                         db_global[usuario_logueado]["settings"][dev]["vis_calendario"] = v_cal
