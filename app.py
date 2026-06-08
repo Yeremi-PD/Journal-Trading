@@ -125,17 +125,15 @@ observer.observe(doc.body, {childList: true, subtree: true});
 """, height=0, width=0)
 
 # ==========================================
-# 🚀 AUTO-LOGIN (SISTEMA
+# 🚀 AUTO-LOGIN Y ENRUTADOR INTELIGENTE DE DISPOSITIVOS
 # ==========================================
 import streamlit.components.v1 as components
 
-# Eliminamos por completo el telón invisible para asegurar la carga del diario bajo cualquier circunstancia
 components.html("""
 <script>
 try {
     const urlParams = new URLSearchParams(window.parent.location.search);
     
-    // Función protegida para mitigar bloqueos de Sandbox impuestos por Streamlit Share
     const getCookie = (name) => { 
         try {
             const value = `; ${window.parent.document.cookie}`; 
@@ -149,14 +147,37 @@ try {
     const sDevice = getCookie("yeremi_device");
     const sAccount = getCookie("yeremi_account");
 
+    // 🟢 ESCÁNER DE HARDWARE: Detecta teléfonos reales aunque fuercen el "Modo Escritorio"
+    let devDetectado = "PC";
+    const ua = navigator.userAgent;
+    const esMovilUA = /Mobi|Android|iPhone|iPad|iPod/i.test(ua);
+    const esAppleTouch = (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    const tieneTouch = (navigator.maxTouchPoints > 0 || 'ontouchstart' in window);
+    
+    if (esMovilUA || esAppleTouch || (tieneTouch && window.parent.innerWidth <= 1280)) {
+        devDetectado = "Móvil";
+    }
+
+    let necesitaRedireccion = false;
+
+    // 1. Si la URL no tiene el parámetro de diseño asignado, lo forzamos según el hardware
+    if (!urlParams.has("device")) {
+        urlParams.set("device", sDevice ? sDevice : devDetectado);
+        necesitaRedireccion = true;
+    }
+
+    // 2. Si hay una sesión activa guardada y falta el usuario en la URL (Auto-login)
     if (sUser && !urlParams.has("user")) {
         urlParams.set("user", sUser);
-        urlParams.set("device", sDevice ? sDevice : (window.parent.innerWidth <= 768 ? 'Móvil' : 'PC'));
         if (sAccount) urlParams.set("account", sAccount);
+        necesitaRedireccion = true;
+    }
+
+    if (necesitaRedireccion) {
         window.parent.location.replace(window.parent.location.pathname + "?" + urlParams.toString());
     }
 } catch (error) {
-    console.log("Aviso de control: Restricciones de Iframe activas en este navegador.");
+    console.log("Aviso de control: Restricciones de enrutamiento activas.");
 }
 </script>
 """, height=0, width=0)
@@ -1124,8 +1145,9 @@ if st.session_state.usuario_actual is None:
                 log_user = st.text_input("Usuario", placeholder="Tu nombre de usuario")
                 log_pass = st.text_input("Contraseña", type="password", placeholder="••••••••")
                 
-                # 📱 Toggle DENTRO del formulario (Desactivado por defecto)
-                modo_movil_check = st.toggle("📱 Activar Modo Móvil", value=False)
+                # 📱 Toggle DENTRO del formulario (Auto-encendido si el escáner detectó un teléfono)
+                valores_def_movil = (st.session_state.dispositivo_actual == "Móvil")
+                modo_movil_check = st.toggle("📱 Activar Modo Móvil", value=valores_def_movil)
                 
                 btn_acceder = st.form_submit_button("ACCEDER", use_container_width=True)
                 
@@ -1170,8 +1192,9 @@ if st.session_state.usuario_actual is None:
                 reg_user = st.text_input("Nuevo Usuario", placeholder="Elige tu nombre de usuario")
                 reg_pass = st.text_input("Nueva Contraseña", type="password", placeholder="Crea una contraseña fuerte")
                 
-                # 📱 Toggle DENTRO del formulario (Desactivado por defecto)
-                modo_movil_check_reg = st.toggle("📱 Activar Modo Móvil", value=False)
+                # 📱 Toggle DENTRO del formulario (Auto-encendido si el escáner detectó un teléfono)
+                valores_def_movil = (st.session_state.dispositivo_actual == "Móvil")
+                modo_movil_check_reg = st.toggle("📱 Activar Modo Móvil", value=valores_def_movil)
                 
                 btn_registrar = st.form_submit_button("CREAR CUENTA", use_container_width=True)
                 
