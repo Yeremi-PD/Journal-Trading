@@ -3867,17 +3867,17 @@ with tab_comunidad:
     st.markdown("<br><h2 style='text-align:center; color:#F8FAFC; font-weight: 800;'>Comunidad de Traders</h2>", unsafe_allow_html=True)
     
     if not modo_lectura:
-        with st.expander("⚙️ Mi Privacidad y Perfil Público", expanded=False):
+        with st.expander("⚙️ Privacidad y Perfil Público", expanded=False):
             pc_set_logged = db_global[usuario_logueado]["settings"]["PC"]
             
             with st.form(key="form_privacidad", border=False):
-                st.markdown("<p style='color:#94A3B8; font-size: 14px;'>Selecciona qué cuentas quieres mostrar en la tabla de posiciones. Si no seleccionas ninguna, serás un fantasma 👻.</p>", unsafe_allow_html=True)
+                st.markdown("<p style='color:#94A3B8; font-size: 14px;'>Selecciona qué cuentas quieres mostrar.</p>", unsafe_allow_html=True)
                 
                 cuentas_disponibles = [c for c in db_usuario.keys() if c != "Todas las Cuentas"]
                 cuentas_guardadas = pc_set_logged.get("public_accounts", [])
                 cuentas_guardadas = [c for c in cuentas_guardadas if c in cuentas_disponibles] 
                 
-                cuentas_publicas = st.multiselect("🌍 Cuentas Públicas (Las que todos verán):", cuentas_disponibles, default=cuentas_guardadas)
+                cuentas_publicas = st.multiselect("🌍 Cuentas Públicas:", cuentas_disponibles, default=cuentas_guardadas)
                 
                 st.markdown("<hr style='border-color: #334155; margin: 15px 0;'>", unsafe_allow_html=True)
                 st.markdown("<p style='color:#F8FAFC; font-weight: 600; font-size: 15px;'>¿Qué pestañas pueden ver los demás en tus cuentas públicas?</p>", unsafe_allow_html=True)
@@ -3920,7 +3920,7 @@ with tab_comunidad:
 
     
     # --- BUSCADOR GENERAL (ARRIBA) ---
-    busqueda = st.text_input("Buscar usuario", placeholder="🔍 Busca por el nombre de un trader (Sensible a mayúsculas)...", label_visibility="collapsed")
+    busqueda = st.text_input("Buscar usuario", placeholder="🔍 Busca trader", label_visibility="collapsed")
     st.markdown("<br>", unsafe_allow_html=True)
 
     # --- TABLA DE POSICIONES (LEADERBOARD) ---
