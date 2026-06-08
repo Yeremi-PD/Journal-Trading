@@ -2926,12 +2926,13 @@ if True:
                         transform: translateY(-5px) !important; 
                     }
 
-                    /* 🔥 CONTROL MAESTRO: AQUÍ SUBIMOS EL BOTÓN EXACTAMENTE 40 PX 🔥 */
+                    /* 🔥 FIX DEFINITIVO: MATAR HERENCIA FANTASMA Y SUBIR EL CONTENEDOR 🔥 */
                     div[data-testid="stForm"] div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] {
-                        margin-top: -15px !important; /* Antes estaba en 25px. Bajarlo a -15px lo sube 40 puntos */
+                        margin-top: 0px !important; 
                         width: 100% !important;
                         position: relative !important;
                         z-index: 50 !important;
+                        transform: translateY(-25px) !important; /* Esto lo sube a la fuerza sin importar nada */
                     }
 
                     /* Formato del botón interno */
@@ -2949,6 +2950,7 @@ if True:
                         border-radius: 8px !important;
                         transition: all 0.2s ease !important;
                         padding: 0 !important;
+                        margin-top: 0px !important; /* 💀 AQUÍ MATAMOS LOS 25PX DEL CSS FANTASMA GLOBAL 💀 */
                     }
 
                     /* Efecto hover premium */
