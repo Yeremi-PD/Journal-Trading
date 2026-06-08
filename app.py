@@ -2062,11 +2062,11 @@ div[data-testid="stTabs"] [data-baseweb="tab-highlight-point"] {{ display: none 
     .note-modal-content span.note-val {{ font-size: var(--note-val-size) !important; display: inline-block !important; margin-bottom: 5px !important; color: {c_dash} !important; }}
     .note-modal-content hr {{ border-color: {border_color} !important; margin: 10px 0 !important; }}
 
-.cell-win {{ border: 2px solid #10B981 !important; color: #00664F !important; background-color: #e6f9f4 !important;}}
-    .cell-loss {{ border: 2px solid #EF4444 !important; color: #9B1C1C !important; background-color: #ffeded !important;}}
-    .cell-be-win {{ border: 2px solid #A0AEC0 !important; color: #00664F !important; background-color: #7e7e7e !important;}}
-    .cell-be-loss {{ border: 2px solid #A0AEC0 !important; color: #9B1C1C !important; background-color: #7e7e7e !important;}}
-    .cell-empty {{ border: 1px solid {border_color} !important; background-color: {empty_cell_bg} !important;}}
+.cell-win {{ border: 1px solid rgba(16,185,129,0.3) !important; color: #10B981 !important; background-color: rgba(16,185,129,0.1) !important;}}
+    .cell-loss {{ border: 1px solid rgba(239,68,68,0.3) !important; color: #EF4444 !important; background-color: rgba(239,68,68,0.1) !important;}}
+    .cell-be-win {{ border: 1px solid rgba(148,163,184,0.3) !important; color: #10B981 !important; background-color: rgba(148,163,184,0.05) !important;}}
+    .cell-be-loss {{ border: 1px solid rgba(148,163,184,0.3) !important; color: #EF4444 !important; background-color: rgba(148,163,184,0.05) !important;}}
+    .cell-empty {{ border: 1px dashed {border_color} !important; background-color: transparent !important;}}
 
     .modal-toggle:checked ~ .fs-modal {{ display: flex !important; }}
     
@@ -2996,10 +2996,10 @@ if True:
             total_validos_top = wins_top + losses_top
             win_pct_top = (wins_top / total_validos_top * 100) if total_validos_top > 0 else 0.0
             color_pnl_top = "#10B981" if net_pnl_top >= 0 else "#EF4444"
-            bg_pnl_top = "#e6f9f4" if net_pnl_top >= 0 else "#ffeded"
+            bg_pnl_top = "rgba(16,185,129,0.15)" if net_pnl_top >= 0 else "rgba(239,68,68,0.15)"
             simb_pnl_top = "+" if net_pnl_top > 0 else ""
             color_win_top = "#10B981" if win_pct_top >= 50 else "#EF4444"
-            bg_win_top = "#e6f9f4" if win_pct_top >= 50 else "#ffeded"
+            bg_win_top = "rgba(16,185,129,0.15)" if win_pct_top >= 50 else "rgba(239,68,68,0.15)"
 
         # === MODAL INSTANTÁNEO DEL SELECTOR DE FECHAS ELIMINADO ===
             c_izq, c_cen, c_der, c_stats = st.columns([0.6, 2, 0.6, 3.8])
@@ -4331,8 +4331,8 @@ with tab_galeria:
             
             # 1. Elemento individual en la cuadrícula (Ahora apunta al Modal Maestro en vez del suyo propio)
             html_items += f'''<div class="gal-item" data-stage="{estado}">
-<label class="gal-label" for="gal_master_toggle" onclick="if(window.parent.abrirGaleriaMaestra) window.parent.abrirGaleriaMaestra({idx})" style="cursor:zoom-in; display:block; background:transparent; border-radius:16px; overflow:hidden; border:none; position: relative; box-shadow: none; transition: transform 0.2s ease;">
-<img src="{img_url}" style="width:100%; height:450px; object-fit:contain; display: block;">
+<label class="gal-label" for="gal_master_toggle" onclick="if(window.parent.abrirGaleriaMaestra) window.parent.abrirGaleriaMaestra({idx})" style="cursor:zoom-in; display:block; background:#0F172A; border-radius:12px; border:1px solid #334155; overflow:hidden; position: relative; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: transform 0.2s ease;">
+<img src="{img_url}" loading="lazy" style="width:100%; height:450px; object-fit:contain; display: block;">
 <div style="position: absolute; bottom: 0; left: 0; width: 100%; background: linear-gradient(transparent, rgba(0,0,0,0.95)); padding: 40px 20px 15px 20px; display: flex; justify-content: space-between; align-items: flex-end;">
 <span style="font-weight: bold; color: white; text-shadow: 1px 1px 4px black; font-size: 20px;">🗓️ {fecha}</span>
 <span style="font-weight: 900; color: {c_pnl}; text-shadow: 1px 1px 4px black; font-size: 24px;">{simb}${pnl:,.2f}</span>
