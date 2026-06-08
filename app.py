@@ -3046,7 +3046,7 @@ if True:
                     if link_imagen.strip().startswith("http"): 
                         imgs_finales.append(link_imagen.strip())
 
-                    estado_actual = "PA" if st.session_state.get("toggle_funded_state", False) else "Eval"
+                    estado_actual = "Funded" if st.session_state.get("toggle_funded_state", False) else "Eval"
                     if "payouts" in db_global[usuario]["settings"]["PC"]:
                         retiros_ac = sum(db_global[usuario]["settings"]["PC"]["payouts"].get(ctx, []))
                     else:
@@ -4626,9 +4626,13 @@ with tab_galeria:
     for key, lt in sorted(db_usuario[ctx]["trades"].items(), key=lambda x: datetime(x[0][0], x[0][1], x[0][2]), reverse=True):
         # 2. Invertimos también los trades del mismo día para que el último ingresado salga primero
         for t in reversed(lt):
-            estado_trade = t.get("estado_cuenta", "Eval")
-            for img in t.get("imagenes", []):
-                todas_imagenes.append((img, t.get("fecha_str", ""), float(t.get("pnl", 0)), estado_trade))
+    estado_trade = t.get("estado_cuenta", "Eval")
+    # Si el trade es antiguo y dice "PA", lo tratamos como "Funded" en la interfaz
+    if estado_trade == "PA":
+        estado_trade = "Funded"
+        
+    for img in t.get("imagenes", []):
+        todas_imagenes.append((img, t.get("fecha_str", ""), float(t.get("pnl", 0)), estado_trade))
 
     # Calcular totales dinámicos para la barra de contadores de la galería
     cnt_todas = len(todas_imagenes)
@@ -4638,7 +4642,7 @@ with tab_galeria:
     if not todas_imagenes:
         st.info("No hay imágenes guardadas en esta cuenta.")
     else:
-        estado_actual = "PA" if st.session_state.get("toggle_funded_state", False) else "Eval"
+        estado_actual = "Funded" if st.session_state.get("toggle_funded_state", False) else "Eval"
         html_items = ""
         img_tags_master = ""
         
@@ -4683,7 +4687,7 @@ with tab_galeria:
 <div class="gal-filters-btn" id="gal-filter-container">
 <button id="btn-Todas" class="active">Todas</button>
 <button id="btn-Eval">Eval</button>
-<button id="btn-PA">Funded</button>
+<button id="btn-Funded">Funded</button>
 </div>
 <div class="gal-counter-bar">
 📸 Total Imágenes: <span>{cnt_todas}</span> | <span class="txt-eval">Eval:</span> <span>{cnt_eval}</span> | <span class="txt-pa">Funded:</span> <span>{cnt_funded}</span>
@@ -4754,11 +4758,11 @@ with tab_galeria:
 
         const btnT = doc.getElementById('btn-Todas');
         const btnE = doc.getElementById('btn-Eval');
-        const btnP = doc.getElementById('btn-PA');
-        
-        if (btnT) btnT.addEventListener('click', () => window.parent.filtrarGaleria('Todas'));
-        if (btnE) btnE.addEventListener('click', () => window.parent.filtrarGaleria('Eval'));
-        if (btnP) btnP.addEventListener('click', () => window.parent.filtrarGaleria('Funded'));
+        const btnP = doc.getElementById('btn-Funded');
+
+if (btnT) btnT.addEventListener('click', () => window.parent.filtrarGaleria('Todas'));
+if (btnE) btnE.addEventListener('click', () => window.parent.filtrarGaleria('Eval'));
+if (btnP) btnP.addEventListener('click', () => window.parent.filtrarGaleria('Funded'));
         
         setTimeout(() => {{ if (window.parent.filtrarGaleria) window.parent.filtrarGaleria('Todas'); }}, 200);
         setTimeout(() => {{ if (window.parent.filtrarGaleria) window.parent.filtrarGaleria('{estado_actual}'); }}, 50);
