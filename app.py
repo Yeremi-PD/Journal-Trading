@@ -351,7 +351,7 @@ def get_global_db():
     if db_spreadsheet:
         for hoja in db_spreadsheet.worksheets():
             user = str(hoja.title).strip()
-            if user.lower() in ["sheet1", "hoja 1", "hoja1"]: continue 
+            if user.lower() in ["sheet1", "hoja 1", "hoja1", "accesos"] or user.lower().startswith("chats_"): continue 
             
             db_temp[user] = {
                 "password": "123", 
@@ -1225,7 +1225,7 @@ if "form_reset_key" not in st.session_state: st.session_state.form_reset_key = 0
 if "viewing_user" not in st.session_state: st.session_state.viewing_user = None
 
 usuario_logueado = st.session_state.usuario_actual
-# Magia: Si estamos visitando un perfil, usamos sus datos. Si no, los nuestros.
+# Magia: Si estamos de visita, usamos los datos del anfitrión.
 usuario = st.session_state.viewing_user if st.session_state.viewing_user else usuario_logueado
 modo_lectura = (usuario != usuario_logueado)
 
@@ -2400,14 +2400,10 @@ if True:
         else: badge_html = f'<span style="font-size: 20px; background-color: #4A5568; color: white; padding: 4px 12px; border-radius: 8px; margin-left: 15px; font-weight: 800; letter-spacing: 0px;">{_l["dash"]["eval"]}</span>'
         if modo_lectura:
             c_tit_visit, c_btn_volver = st.columns([3, 1])
-            with c_tit_visit:
-                st.markdown(f'<div class="dashboard-title" style="display: flex; align-items: center; color: #10B981;">👀 Viendo a: {usuario} {badge_html}</div>', unsafe_allow_html=True)
-            with c_btn_volver:
-                if st.button("⬅️ Volver a mi Perfil", type="primary", use_container_width=True):
-                    st.session_state.viewing_user = None
-                    st.rerun()
+            if modo_lectura:
+            st.markdown(f'<div class="dashboard-title" style="display: flex; align-items: center;"><span style="color:#10B981; font-weight: 800; font-size: 20px; margin-right: 10px;">👀 Viendo Perfil de</span> {usuario} {badge_html}</div>', unsafe_allow_html=True)
         else:
-            st.markdown(f'<div class="dashboard-title" style="display: flex; align-items: center;">{TXT_DASHBOARD}, {usuario} {badge_html}</div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="dashboard-title" style="display: flex; align-items: center;"><span style="color:#94A3B8; font-weight: 500; font-size: 20px; margin-right: 10px;">Portafolio de</span> {usuario} {badge_html}</div>', unsafe_allow_html=True)
 
     with col_data: 
         st.markdown(f'<div class="lbl-data">{LBL_DATA}</div>', unsafe_allow_html=True)
@@ -2417,8 +2413,13 @@ if True:
         except: pass
 
     with col_bal:
-        st.markdown(f'<div style="text-align:center; margin-bottom:5px;"><span class="lbl-total-bal">{LBL_BAL_TOTAL}</span></div>', unsafe_allow_html=True)
-        st.markdown(f'<div class="balance-box">${bal_mostrar:,.2f}</div>', unsafe_allow_html=True)
+        if modo_lectura:
+            if st.button("⬅️ VOLVER A MI PERFIL", type="primary", use_container_width=True):
+                st.session_state.viewing_user = None
+                st.rerun()
+        else:
+            st.markdown(f'<div style="text-align:center; margin-bottom:5px;"><span class="lbl-total-bal">{LBL_BAL_TOTAL}</span></div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="balance-box">${bal_mostrar:,.2f}</div>', unsafe_allow_html=True)
 
     st.markdown('<div class="thin-line"></div>', unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True) # Cerramos el contenedor de la cabecera fija global
@@ -2428,7 +2429,6 @@ if True:
         tab_calendario, tab_estadisticas, tab_historial_principal, tab_plan, tab_comunidad, tab_asistente = st.tabs(["📅 CALENDARIO", "📊 MÉTRICAS", "🕒 HISTORIAL", "📝 PLAN", "🌍 COMUNIDAD", "🤖 AI"])
     else:
         tab_calendario, tab_estadisticas, tab_historial_principal, tab_plan, tab_comunidad = st.tabs(["📅 CALENDARIO", "📊 MÉTRICAS", "🕒 HISTORIAL", "📝 PLAN", "🌍 COMUNIDAD"])
-
     # === CSS EXCLUSIVO PARA LA BARRA DE ENTRADA (Estilo Finance Center) ===
     st.markdown("""
     <style>
@@ -2756,14 +2756,15 @@ if True:
 
     #  Nos anclamos a la pestaña superior (sin crear unas nuevas repetidas)
     with tab_calendario:
+        if modo_lectura and not db_global[usuario]["settings"]["PC"].get("vis_calendario", True):
+            st.markdown("<div style='text-align: center; padding: 50px; background: #1E293B; border-radius: 12px; border: 1px dashed #EF4444;'><h3 style='color: #EF4444;'>Calendario Privado 🔒</h3><p style='color: #94A3B8;'>El usuario ha ocultado su calendario.</p></div><style>div[data-testid='stTabs'] div[role='tabpanel']:nth-child(1) .element-container:nth-child(n+2) { display: none !important; }</style>", unsafe_allow_html=True)
+        
         #  El formulario ahora toma el 100% del ancho igual que el calendario
         col_form_area = st.container()
 
         with col_form_area:
             if modo_lectura:
                 st.markdown("<style>div[data-testid='stForm']:has(.lbl-header) {display: none !important;}</style>", unsafe_allow_html=True)
-                st.markdown(f"<div style='text-align: center; padding: 15px; background: rgba(16,185,129,0.1); border: 1px solid #10B981; border-radius: 12px; color: #10B981; font-weight: bold; margin-bottom: 25px;'>🔒 Modo Espectador: Estás viendo el diario público de {usuario}. No puedes registrar trades aquí.</div>", unsafe_allow_html=True)
-                
             with st.form(key="form_main_entry", clear_on_submit=True, border=False):
                 #  NUEVO LAYOUT: 6 columnas para separar el Link y el botón Popover de imagen
                 c_date, c_cant, c_det, c_link, c_upd, c_btn = st.columns([0.8, 1.2, 1.1, 1.9, 0.6, 1])
@@ -3194,6 +3195,9 @@ if True:
         return svg
 
     with tab_estadisticas:
+        if modo_lectura and not db_global[usuario]["settings"]["PC"].get("vis_metricas", True):
+            st.markdown("<div style='text-align: center; padding: 50px; background: #1E293B; border-radius: 12px; border: 1px dashed #EF4444;'><h3 style='color: #EF4444;'>Métricas Privadas 🔒</h3><p style='color: #94A3B8;'>El usuario ha ocultado sus estadísticas.</p></div><style>div[data-testid='stTabs'] div[role='tabpanel']:nth-child(2) .element-container:nth-child(n+2) { display: none !important; }</style>", unsafe_allow_html=True)
+            
         trades_cronologicos = []
         for c, lt in sorted(db_usuario[ctx]["trades"].items(), key=lambda x: datetime(x[0][0], x[0][1], x[0][2])):
             for t in lt:
@@ -3808,6 +3812,70 @@ with tab_comunidad:
     if traders_encontrados == 0:
         st.info("No se encontraron traders con ese nombre.")
 
+# ==========================================
+# 🌟 PESTAÑA DE COMUNIDAD (SOCIAL TRADING)
+# ==========================================
+with tab_comunidad:
+    st.markdown("<br><h2 style='text-align:center; color:#F8FAFC; font-weight: 800;'>🌍 Comunidad de Traders</h2>", unsafe_allow_html=True)
+    
+    if not modo_lectura:
+        with st.expander("⚙️ Mi Privacidad y Perfil Público", expanded=False):
+            pc_set_logged = db_global[usuario_logueado]["settings"]["PC"]
+            
+            st.markdown("<p style='color:#94A3B8; font-size: 14px;'>Activa tu perfil para que otros puedan ver tus resultados.</p>", unsafe_allow_html=True)
+            is_public = st.toggle("🌍 Hacer mi perfil público", value=pc_set_logged.get("public_profile", False))
+            
+            st.markdown("<hr style='border-color: #334155; margin: 15px 0;'>", unsafe_allow_html=True)
+            st.markdown("<p style='color:#F8FAFC; font-weight: 600; font-size: 15px;'>¿Qué pestañas pueden ver los demás?</p>", unsafe_allow_html=True)
+            
+            c_p1, c_p2, c_p3, c_p4 = st.columns(4)
+            v_cal = c_p1.checkbox("📅 Calendario", value=pc_set_logged.get("vis_calendario", True))
+            v_met = c_p2.checkbox("📊 Métricas", value=pc_set_logged.get("vis_metricas", True))
+            v_his = c_p3.checkbox("🕒 Historial", value=pc_set_logged.get("vis_historial", True))
+            v_plan = c_p4.checkbox("📝 Plan", value=pc_set_logged.get("vis_plan", True))
+            
+            if st.button("💾 Guardar Ajustes de Privacidad", type="primary"):
+                for dev in ["PC", "Móvil"]:
+                    db_global[usuario_logueado]["settings"][dev]["public_profile"] = is_public
+                    db_global[usuario_logueado]["settings"][dev]["vis_calendario"] = v_cal
+                    db_global[usuario_logueado]["settings"][dev]["vis_metricas"] = v_met
+                    db_global[usuario_logueado]["settings"][dev]["vis_historial"] = v_his
+                    db_global[usuario_logueado]["settings"][dev]["vis_plan"] = v_plan
+                reescribir_excel_usuario(usuario_logueado)
+                st.success("✅ Ajustes actualizados.")
+                import time; time.sleep(0.5); st.rerun()
+    
+    st.markdown("<p style='text-align:center; color:#94A3B8; margin-bottom: 25px; margin-top: 15px;'>Explora los diarios y estrategias operativas de otros usuarios.</p>", unsafe_allow_html=True)
+    
+    busqueda = st.text_input("Buscar usuario", placeholder="🔍 Escribe el nombre de un trader...", label_visibility="collapsed")
+    st.markdown("<hr style='border-color: #334155;'>", unsafe_allow_html=True)
+    
+    traders_encontrados = 0
+    for u_name in db_global.keys():
+        if u_name == usuario_logueado: continue # Ocultarte a ti mismo
+        
+        # 🟢 Filtro: Solo mostrar si el usuario activó "Hacer mi perfil público"
+        if not db_global[u_name]["settings"]["PC"].get("public_profile", False): continue
+        if busqueda and busqueda.lower() not in u_name.lower(): continue
+        
+        traders_encontrados += 1
+        data_u = db_global[u_name]["data"]
+        cuenta_principal = list(data_u.keys())[0] if data_u else "Sin cuenta"
+        
+        c1, c2, c3 = st.columns([3, 2, 2])
+        with c1:
+            st.markdown(f"<h4 style='color:#10B981; margin:0;'>👤 {u_name}</h4>", unsafe_allow_html=True)
+        with c2:
+            st.markdown(f"<span style='color:#94A3B8;'>Cuenta activa: <b>{cuenta_principal}</b></span>", unsafe_allow_html=True)
+        with c3:
+            if st.button(f"👀 Ver Perfil", key=f"view_{u_name}", use_container_width=True):
+                st.session_state.viewing_user = u_name
+                st.rerun()
+        st.markdown("<hr style='border-color: #334155; opacity: 0.3;'>", unsafe_allow_html=True)
+        
+    if traders_encontrados == 0:
+        st.info("No se encontraron traders públicos.")
+
 if es_admin:
     with tab_asistente:
         # 🌟 INYECCIÓN DE CSS: Letras 20% más grandes (26px) y botones un 50% más pequeños
@@ -3998,7 +4066,13 @@ if es_admin:
                         reescribir_excel_usuario(usuario)
 
 with tab_plan:
+    if modo_lectura and not db_global[usuario]["settings"]["PC"].get("vis_plan", True):
+        st.markdown("<div style='text-align: center; padding: 50px; margin-top: 20px; background: #1E293B; border-radius: 12px; border: 1px dashed #EF4444;'><h3 style='color: #EF4444;'>Plan Privado 🔒</h3><p style='color: #94A3B8;'>El usuario ha ocultado su estrategia.</p></div><style>div[data-testid='stTabs'] div[role='tabpanel']:nth-child(4) .element-container:nth-child(n+2) { display: none !important; }</style>", unsafe_allow_html=True)
+    
     st.markdown("<br><h2 style='text-align:center; color:#F8FAFC; font-weight: 800; letter-spacing: -0.5px; font-family: \"Inter\", sans-serif;'>Estrategia y Reglas Operativas</h2><p style='text-align:center; color:#94A3B8; font-size:15px; margin-top:-10px; margin-bottom: 25px;'>Define tu Trading Plan. La IA leerá estas reglas para darte retroalimentación.</p>", unsafe_allow_html=True)
+    
+    if modo_lectura:
+        st.markdown("<style>div[data-testid='stTabs'] div[role='tabpanel']:nth-child(4) button { display: none !important; } div[data-testid='stTabs'] div[role='tabpanel']:nth-child(4) iframe { pointer-events: none !important; opacity: 0.8; }</style>", unsafe_allow_html=True)
     
     # Cargar estado guardado de la base de datos
     pc_set = db_global[usuario]["settings"]["PC"]
@@ -4068,7 +4142,12 @@ with tab_plan:
 
 # 👇 REABRIMOS LA PESTAÑA HISTORIAL DE ÓRDENES PRINCIPAL PARA ANIDAR LAS SUB-PESTAÑAS AQUÍ 👇
 with tab_historial_principal:
+    if modo_lectura and not db_global[usuario]["settings"]["PC"].get("vis_historial", True):
+        st.markdown("<div style='text-align: center; padding: 50px; margin-top: 20px; background: #1E293B; border-radius: 12px; border: 1px dashed #EF4444;'><h3 style='color: #EF4444;'>Historial Privado 🔒</h3><p style='color: #94A3B8;'>El usuario ha ocultado sus trades.</p></div><style>div[data-testid='stTabs'] div[role='tabpanel']:nth-child(3) .element-container:nth-child(n+2) { display: none !important; }</style>", unsafe_allow_html=True)
+    
     st.markdown("<div style='margin-top: -50px;'></div>", unsafe_allow_html=True)
+    if modo_lectura: # Oculta los botones de Guardar y Borrar
+        st.markdown("<style>div[data-testid='stTabs'] div[role='tabpanel']:nth-child(3) button[kind='secondary'], div[data-testid='stTabs'] div[role='tabpanel']:nth-child(3) div[data-testid='stFileUploader'] { display: none !important; }</style>", unsafe_allow_html=True)
 
     #  AQUI CREAMOS LAS PESTAÑAS AL ESTILO FINANCE CENTER 
     tab_hist, tab_tabla, tab_galeria, tab_exportar = st.tabs(["EDICIÓN DE TRADE", "TABLA DE RESULTADOS", "IMÁGENES", "EXPORTAR DATA"])
@@ -4412,7 +4491,7 @@ def area_exportacion():
 with tab_exportar:
     with st.container():
         if modo_lectura:
-            st.markdown("<div style='text-align: center; padding: 50px; background: #1E293B; border-radius: 12px; border: 1px dashed #EF4444;'><h3 style='color: #EF4444;'>Exportación Bloqueada 🔒</h3><p style='color: #94A3B8;'>Por privacidad, no puedes descargar la data de otros traders.</p></div>", unsafe_allow_html=True)
+            st.markdown("<div style='text-align: center; padding: 50px; background: #1E293B; border-radius: 12px; border: 1px dashed #EF4444;'><h3 style='color: #EF4444;'>Exportación Bloqueada 🔒</h3><p style='color: #94A3B8;'>Por seguridad, no puedes descargar la data de otros traders.</p></div>", unsafe_allow_html=True)
         else:
             area_exportacion()
 
