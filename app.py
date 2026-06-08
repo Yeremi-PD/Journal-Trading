@@ -2928,11 +2928,12 @@ if True:
 
                     /* 🔥 FIX DEFINITIVO: MATAR HERENCIA FANTASMA Y SUBIR EL CONTENEDOR 🔥 */
                     div[data-testid="stForm"] div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] {
-                        margin-top: 0px !important; 
-                        width: 100% !important;
-                        position: relative !important;
-                        z-index: 50 !important;
-                        transform: translateY(-25px) !important; /* Esto lo sube a la fuerza sin importar nada */
+                        margin-top: 0px!important;
+                        width: 100%!important;
+                        position: relative!important;
+                        z-index: 50!important;
+                        transform: translateY(-65px)!important;
+/* Esto lo sube a la fuerza sin importar nada */
                     }
 
                     /* Formato del botón interno */
