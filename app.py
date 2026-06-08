@@ -2402,7 +2402,7 @@ if True:
             c_tit_visit, c_btn_volver = st.columns([3, 1])
             st.markdown(f'<div class="dashboard-title" style="display: flex; align-items: center;"><span style="color:#10B981; font-weight: 800; font-size: 20px; margin-right: 10px;">👀 Viendo Perfil de</span> {usuario} {badge_html}</div>', unsafe_allow_html=True)
         else:
-            st.markdown(f'<div class="dashboard-title" style="display: flex; align-items: center;"><span style="color:#94A3B8; font-weight: 500; font-size: 20px; margin-right: 10px;">Portafolio de</span> {usuario} {badge_html}</div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="dashboard-title" style="display: flex; align-items: center;"><span style="color:#94A3B8; font-weight: 500; font-size: 20px; margin-right: 10px;">Hola,</span> {usuario} {badge_html}</div>', unsafe_allow_html=True)
 
     with col_data: 
         st.markdown(f'<div class="lbl-data">{LBL_DATA}</div>', unsafe_allow_html=True)
@@ -3777,41 +3777,6 @@ if True:
                 st.session_state.retiro_exitoso = False
 
 # ==========================================
-# 🌟 PESTAÑA DE COMUNIDAD (LEADERBOARD)
-# ==========================================
-with tab_comunidad:
-    st.markdown("<br><h2 style='text-align:center; color:#F8FAFC; font-weight: 800;'>🌍 Comunidad de Traders</h2><p style='text-align:center; color:#94A3B8; margin-bottom: 25px;'>Explora los diarios y estrategias operativas de otros usuarios.</p>", unsafe_allow_html=True)
-    
-    # Buscador
-    busqueda = st.text_input("Buscar usuario", placeholder="🔍 Escribe el nombre de un trader...", label_visibility="collapsed")
-    
-    st.markdown("<hr style='border-color: #334155;'>", unsafe_allow_html=True)
-    
-    traders_encontrados = 0
-    for u_name in db_global.keys():
-        if u_name == usuario_logueado: continue # No mostrarte a ti mismo
-        if busqueda and busqueda.lower() not in u_name.lower(): continue
-        
-        traders_encontrados += 1
-        data_u = db_global[u_name]["data"]
-        # Buscamos su primera cuenta para mostrarla de referencia
-        cuenta_principal = list(data_u.keys())[0] if data_u else "Sin cuenta"
-        
-        c1, c2, c3 = st.columns([3, 2, 2])
-        with c1:
-            st.markdown(f"<h4 style='color:#10B981; margin:0;'>👤 {u_name}</h4>", unsafe_allow_html=True)
-        with c2:
-            st.markdown(f"<span style='color:#94A3B8;'>Cuenta activa: <b>{cuenta_principal}</b></span>", unsafe_allow_html=True)
-        with c3:
-            if st.button(f"👀 Ver Perfil", key=f"view_{u_name}", use_container_width=True):
-                st.session_state.viewing_user = u_name
-                st.rerun()
-        st.markdown("<hr style='border-color: #334155; opacity: 0.3;'>", unsafe_allow_html=True)
-        
-    if traders_encontrados == 0:
-        st.info("No se encontraron traders con ese nombre.")
-
-# ==========================================
 # 🌟 PESTAÑA DE COMUNIDAD (SOCIAL TRADING)
 # ==========================================
 with tab_comunidad:
@@ -3821,7 +3786,6 @@ with tab_comunidad:
         with st.expander("⚙️ Mi Privacidad y Perfil Público", expanded=False):
             pc_set_logged = db_global[usuario_logueado]["settings"]["PC"]
             
-            st.markdown("<p style='color:#94A3B8; font-size: 14px;'>Activa tu perfil para que otros puedan ver tus resultados.</p>", unsafe_allow_html=True)
             is_public = st.toggle("🌍 Hacer mi perfil público", value=pc_set_logged.get("public_profile", False))
             
             st.markdown("<hr style='border-color: #334155; margin: 15px 0;'>", unsafe_allow_html=True)
@@ -3843,8 +3807,6 @@ with tab_comunidad:
                 reescribir_excel_usuario(usuario_logueado)
                 st.success("✅ Ajustes actualizados.")
                 import time; time.sleep(0.5); st.rerun()
-    
-    st.markdown("<p style='text-align:center; color:#94A3B8; margin-bottom: 25px; margin-top: 15px;'>Explora los diarios y estrategias operativas de otros usuarios.</p>", unsafe_allow_html=True)
     
     busqueda = st.text_input("Buscar usuario", placeholder="🔍 Escribe el nombre de un trader...", label_visibility="collapsed")
     st.markdown("<hr style='border-color: #334155;'>", unsafe_allow_html=True)
