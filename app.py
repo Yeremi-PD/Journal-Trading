@@ -1970,7 +1970,7 @@ div[data-testid="stTabs"] [data-baseweb="tab-highlight-point"] {{ display: none 
     [data-testid="stMainBlockContainer"],
     .main .block-container {{ 
         padding-top: 0px !important; 
-        margin-top: -150px !important; 
+        margin-top: -155px !important; 
         max-width: 100% !important;
     }}
 
