@@ -1222,8 +1222,13 @@ WEEKS_TITULOS_COLOR_C, WEEKS_TITULOS_COLOR_O, WEEK_BOX_W, WEEK_BOX_H, Month_BOX_
 # ==========================================
 if "tema" not in st.session_state: st.session_state.tema = TEMA_POR_DEFECTO
 if "form_reset_key" not in st.session_state: st.session_state.form_reset_key = 0
+if "viewing_user" not in st.session_state: st.session_state.viewing_user = None
 
-usuario = st.session_state.usuario_actual
+usuario_logueado = st.session_state.usuario_actual
+# Magia: Si estamos visitando un perfil, usamos sus datos. Si no, los nuestros.
+usuario = st.session_state.viewing_user if st.session_state.viewing_user else usuario_logueado
+modo_lectura = (usuario != usuario_logueado)
+
 db_usuario = db_global[usuario]["data"]
 
 if "Todas las Cuentas" in db_usuario:
@@ -2393,7 +2398,16 @@ if True:
     with col_t:
         if paso_cuenta: badge_html = f'<span style="font-size: 20px; background-color: #10B981; color: white; padding: 4px 12px; border-radius: 8px; margin-left: 15px; font-weight: 800; letter-spacing: 0px;">{_l["dash"]["pa"]}</span>'
         else: badge_html = f'<span style="font-size: 20px; background-color: #4A5568; color: white; padding: 4px 12px; border-radius: 8px; margin-left: 15px; font-weight: 800; letter-spacing: 0px;">{_l["dash"]["eval"]}</span>'
-        st.markdown(f'<div class="dashboard-title" style="display: flex; align-items: center;">{TXT_DASHBOARD}, {usuario} {badge_html}</div>', unsafe_allow_html=True)
+        if modo_lectura:
+            c_tit_visit, c_btn_volver = st.columns([3, 1])
+            with c_tit_visit:
+                st.markdown(f'<div class="dashboard-title" style="display: flex; align-items: center; color: #10B981;">👀 Viendo a: {usuario} {badge_html}</div>', unsafe_allow_html=True)
+            with c_btn_volver:
+                if st.button("⬅️ Volver a mi Perfil", type="primary", use_container_width=True):
+                    st.session_state.viewing_user = None
+                    st.rerun()
+        else:
+            st.markdown(f'<div class="dashboard-title" style="display: flex; align-items: center;">{TXT_DASHBOARD}, {usuario} {badge_html}</div>', unsafe_allow_html=True)
 
     with col_data: 
         st.markdown(f'<div class="lbl-data">{LBL_DATA}</div>', unsafe_allow_html=True)
@@ -2411,9 +2425,9 @@ if True:
 
     # 3. Inicializamos las pestañas justo aquí, para que queden debajo en la estructura del código
     if es_admin:
-        tab_calendario, tab_estadisticas, tab_historial_principal, tab_plan, tab_asistente = st.tabs(["📅 CALENDARIO", "📊 MÉTRICAS", "🕒 HISTORIAL", "📝 PLAN", "🤖 AI"])
+        tab_calendario, tab_estadisticas, tab_historial_principal, tab_plan, tab_comunidad, tab_asistente = st.tabs(["📅 CALENDARIO", "📊 MÉTRICAS", "🕒 HISTORIAL", "📝 PLAN", "🌍 COMUNIDAD", "🤖 AI"])
     else:
-        tab_calendario, tab_estadisticas, tab_historial_principal, tab_plan = st.tabs(["📅 CALENDARIO", "📊 MÉTRICAS", "🕒 HISTORIAL", "📝 PLAN"])
+        tab_calendario, tab_estadisticas, tab_historial_principal, tab_plan, tab_comunidad = st.tabs(["📅 CALENDARIO", "📊 MÉTRICAS", "🕒 HISTORIAL", "📝 PLAN", "🌍 COMUNIDAD"])
 
     # === CSS EXCLUSIVO PARA LA BARRA DE ENTRADA (Estilo Finance Center) ===
     st.markdown("""
@@ -2746,6 +2760,10 @@ if True:
         col_form_area = st.container()
 
         with col_form_area:
+            if modo_lectura:
+                st.markdown("<style>div[data-testid='stForm']:has(.lbl-header) {display: none !important;}</style>", unsafe_allow_html=True)
+                st.markdown(f"<div style='text-align: center; padding: 15px; background: rgba(16,185,129,0.1); border: 1px solid #10B981; border-radius: 12px; color: #10B981; font-weight: bold; margin-bottom: 25px;'>🔒 Modo Espectador: Estás viendo el diario público de {usuario}. No puedes registrar trades aquí.</div>", unsafe_allow_html=True)
+                
             with st.form(key="form_main_entry", clear_on_submit=True, border=False):
                 #  NUEVO LAYOUT: 6 columnas para separar el Link y el botón Popover de imagen
                 c_date, c_cant, c_det, c_link, c_upd, c_btn = st.columns([0.8, 1.2, 1.1, 1.9, 0.6, 1])
@@ -3755,6 +3773,41 @@ if True:
                 components.html(html_script_payout, height=1, width=1)
                 st.session_state.retiro_exitoso = False
 
+# ==========================================
+# 🌟 PESTAÑA DE COMUNIDAD (LEADERBOARD)
+# ==========================================
+with tab_comunidad:
+    st.markdown("<br><h2 style='text-align:center; color:#F8FAFC; font-weight: 800;'>🌍 Comunidad de Traders</h2><p style='text-align:center; color:#94A3B8; margin-bottom: 25px;'>Explora los diarios y estrategias operativas de otros usuarios.</p>", unsafe_allow_html=True)
+    
+    # Buscador
+    busqueda = st.text_input("Buscar usuario", placeholder="🔍 Escribe el nombre de un trader...", label_visibility="collapsed")
+    
+    st.markdown("<hr style='border-color: #334155;'>", unsafe_allow_html=True)
+    
+    traders_encontrados = 0
+    for u_name in db_global.keys():
+        if u_name == usuario_logueado: continue # No mostrarte a ti mismo
+        if busqueda and busqueda.lower() not in u_name.lower(): continue
+        
+        traders_encontrados += 1
+        data_u = db_global[u_name]["data"]
+        # Buscamos su primera cuenta para mostrarla de referencia
+        cuenta_principal = list(data_u.keys())[0] if data_u else "Sin cuenta"
+        
+        c1, c2, c3 = st.columns([3, 2, 2])
+        with c1:
+            st.markdown(f"<h4 style='color:#10B981; margin:0;'>👤 {u_name}</h4>", unsafe_allow_html=True)
+        with c2:
+            st.markdown(f"<span style='color:#94A3B8;'>Cuenta activa: <b>{cuenta_principal}</b></span>", unsafe_allow_html=True)
+        with c3:
+            if st.button(f"👀 Ver Perfil", key=f"view_{u_name}", use_container_width=True):
+                st.session_state.viewing_user = u_name
+                st.rerun()
+        st.markdown("<hr style='border-color: #334155; opacity: 0.3;'>", unsafe_allow_html=True)
+        
+    if traders_encontrados == 0:
+        st.info("No se encontraron traders con ese nombre.")
+
 if es_admin:
     with tab_asistente:
         # 🌟 INYECCIÓN DE CSS: Letras 20% más grandes (26px) y botones un 50% más pequeños
@@ -3965,10 +4018,13 @@ with tab_plan:
         
         _, col_centro_btn, _ = st.columns([1, 1.5, 1])
         with col_centro_btn:
-            btn_guardado = st.form_submit_button("💾 GUARDAR DOCUMENTO EN LA NUBE", use_container_width=True)
+            if not modo_lectura:
+                btn_guardado = st.form_submit_button("💾 GUARDAR DOCUMENTO EN LA NUBE", use_container_width=True)
+            else:
+                btn_guardado = False
 
     # 2. LÓGICA DE GUARDADO
-    if btn_guardado:
+    if btn_guardado and not modo_lectura:
         for dev in ["PC", "Móvil"]:
             db_global[usuario]["settings"][dev]["global_notes_body"] = nota_cuerpo
         
@@ -4199,7 +4255,7 @@ with tab_hist:
                                 reescribir_excel_usuario(usuario)
                                 st.rerun()
                     with c_trash:
-                        if st.button("🗑️", key=f"trash_{clave}_{i}", use_container_width=True): ventana_borrar_trade(ctx, clave, i, usuario)
+                        if not modo_lectura and st.button("🗑️", key=f"trash_{clave}_{i}", use_container_width=True): ventana_borrar_trade(ctx, clave, i, usuario)
             if trades_en_mes == 0: st.info(_l['hist']['no_tr_mo'])
 
 with tab_tabla:
@@ -4355,7 +4411,10 @@ def area_exportacion():
 # Aquí es donde llamamos a la burbuja aislada dentro de la pestaña
 with tab_exportar:
     with st.container():
-        area_exportacion()
+        if modo_lectura:
+            st.markdown("<div style='text-align: center; padding: 50px; background: #1E293B; border-radius: 12px; border: 1px dashed #EF4444;'><h3 style='color: #EF4444;'>Exportación Bloqueada 🔒</h3><p style='color: #94A3B8;'>Por privacidad, no puedes descargar la data de otros traders.</p></div>", unsafe_allow_html=True)
+        else:
+            area_exportacion()
 
 with tab_galeria:
     st.markdown("<h4 style='text-align:center; color:white; margin-top: -10px; margin-bottom: 25px;'>🖼️ Galería de Trades</h4>", unsafe_allow_html=True)
