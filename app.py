@@ -1905,8 +1905,9 @@ div[data-testid="stTabs"] [data-baseweb="tab-highlight-point"] {{ display: none 
     div[data-testid="stTextInput"]:has(input[aria-label="Link"]) div[data-baseweb="base-input"], div[data-testid="stTextInput"]:has(input[aria-label="Link"]) div[data-baseweb="input"] {{ background-color: {btn_bg} !important; border-color: {border_color} !important; border-radius: 8px !important; }}
     input[aria-label="Link"] {{ height: {LINK_IMG_H} !important; font-size: {LINK_IMG_TXT_SIZE}px !important; background-color: transparent !important; color: {c_dash} !important; }}
 
-    .balance-box {{ background: #10B981 !important; color: white !important; padding: var(--bal-box-pad) 0px !important; border-radius: 80px !important; text-align: center !important; font-weight: 700 !important; font-size: var(--bal-num-sz) !important; width: var(--bal-box-w) !important; margin: 0 auto !important; transform: translate({BALANCE_BOX_X}px, {BALANCE_BOX_Y}px) !important; }}
-    .thin-line {{ border-bottom: {LINEA_GROSOR}px solid {c_linea} !important; margin: {LINEA_MARGEN_SUP}px 0px {LINEA_MARGEN_INF}px 0px !important; width: {LINEA_ANCHO}% !important; transform: translateX({LINEA_X}px) !important; }}
+    .balance-box {{ background: linear-gradient(135deg, #10B981 0%, #047857 100%) !important; color: white !important;
+padding: var(--bal-box-pad) 0px !important; border-radius: 12px !important; text-align: center !important; font-weight: 800 !important; font-size: var(--bal-num-sz) !important; width: var(--bal-box-w) !important;
+margin: 0 auto !important; transform: translate({BALANCE_BOX_X}px, {BALANCE_BOX_Y}px) !important; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3) !important; letter-spacing: -1px !important; border: 1px solid rgba(255,255,255,0.2) !important; }}
 
     div[data-testid="stSelectbox"] label, div[data-testid="stNumberInput"] label {{ display: none !important; }}
     div[data-baseweb="select"] > div, ul[role="listbox"] {{ background-color: {card_bg} !important; border-color: {border_color} !important; }}
@@ -2369,7 +2370,7 @@ if True:
     with col_t:
         if paso_cuenta: badge_html = f'<span style="font-size: 20px; background-color: #10B981; color: white; padding: 4px 12px; border-radius: 8px; margin-left: 15px; font-weight: 800; letter-spacing: 0px;">{_l["dash"]["pa"]}</span>'
         else: badge_html = f'<span style="font-size: 20px; background-color: #4A5568; color: white; padding: 4px 12px; border-radius: 8px; margin-left: 15px; font-weight: 800; letter-spacing: 0px;">{_l["dash"]["eval"]}</span>'
-        st.markdown(f'<div class="dashboard-title" style="display: flex; align-items: center;">{TXT_DASHBOARD}, {usuario} {badge_html}</div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="dashboard-title" style="display: flex; align-items: center;"><span style="color:#94A3B8; font-weight: 500; font-size: 20px; margin-right: 10px;">Portafolio de</span> {usuario} {badge_html}</div>', unsafe_allow_html=True)
 
     with col_data: 
         st.markdown(f'<div class="lbl-data">{LBL_DATA}</div>', unsafe_allow_html=True)
@@ -4090,6 +4091,26 @@ with tab_hist:
                                     e_razon = st.text_area(_l['dash']['reason'], value=data.get('razon_trade', ''), key=f"e_raz_{clave}_{i}", height=68)
                                     e_corr = st.text_area(_l['dash']['corr'], value=data.get('Corrections', ''), key=f"e_cor_{clave}_{i}", height=68)
                                     e_emo = st.text_area(_l['dash']['emo'], value=data.get('Emotions', ''), key=f"e_emo_{clave}_{i}", height=68)
+                            st.markdown("---")
+                            # 📸 TARJETA DE SOCIAL PROOF (Para Screenshots en Instagram)
+                            st.markdown(f"<div style='color: #94A3B8; font-size: 13px; font-weight: 700; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 0.5px;'>📸 Compartir Resultados</div>", unsafe_allow_html=True)
+                            
+                            bg_tarjeta = "linear-gradient(135deg, rgba(16,185,129,0.15) 0%, rgba(15,23,42,1) 100%)" if pnl_val >= 0 else "linear-gradient(135deg, rgba(239,68,68,0.15) 0%, rgba(15,23,42,1) 100%)"
+                            borde_tarjeta = "#10B981" if pnl_val >= 0 else "#EF4444"
+                            
+                            st.markdown(f'''
+                            <div style="background: {bg_tarjeta}; border: 1px solid {borde_tarjeta}; border-radius: 12px; padding: 25px; text-align: center; margin-bottom: 20px; position: relative; overflow: hidden;">
+                                <div style="position: absolute; top: -20px; right: -10px; font-size: 90px; opacity: 0.03; font-weight: 900;">PF</div>
+                                <h3 style="color:#F8FAFC; margin:0; font-size: 13px; font-weight: 700; opacity: 0.6; text-transform: uppercase; letter-spacing: 2px;">PF Journal Pro</h3>
+                                <h1 style="color:{borde_tarjeta}; font-size: 48px; font-weight: 900; margin: 10px 0; letter-spacing: -2px;">{simbolo}${pnl_val:,.2f}</h1>
+                                <div style="display:flex; justify-content:center; gap: 15px; color: #94A3B8; font-size: 14px; font-weight: 600;">
+                                    <span>🗓️ {data['fecha_str']}</span> • 
+                                    <span>{data.get('sesion', 'NONE')}</span> • 
+                                    <span style="color: #F8FAFC; background: rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 4px;">{data.get('bias', 'NEUTRO')}</span>
+                                </div>
+                            </div>
+                            ''', unsafe_allow_html=True)
+                            
                             st.markdown("---")
                             st.markdown(_l['hist']['saved_img'])
                             upd_key = f"upd_{clave}_{i}"
