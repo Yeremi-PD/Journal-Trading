@@ -2848,7 +2848,7 @@ if True:
                     nuevo_bal_input_str = st.text_input("Balance Input", value="", placeholder=f"{bal_mostrar:.2f}", label_visibility="collapsed")
                     
                 with c_det:
-                    st.markdown('<div class="lbl-header">   Detalles:</div>', unsafe_allow_html=True)
+                    st.markdown('<div class="lbl-header">Detalles:</div>', unsafe_allow_html=True)
                     # El nuevo texto invita a la acción profesional
                     with st.popover("Abrir", use_container_width=True):
                         # Lógica original de los detalles del trade
