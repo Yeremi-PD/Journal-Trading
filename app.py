@@ -4098,74 +4098,72 @@ with tab_plan:
     
     st.markdown("<br><h2 style='text-align:center; color:#F8FAFC; font-weight: 800; letter-spacing: -0.5px; font-family: \"Inter\", sans-serif;'>Estrategia y Reglas Operativas</h2><p style='text-align:center; color:#94A3B8; font-size:15px; margin-top:-10px; margin-bottom: 25px;'>Define tu Trading Plan. La IA leerá estas reglas para darte retroalimentación.</p>", unsafe_allow_html=True)
     
-    if modo_lectura:
-        st.markdown("<style>div[data-testid='stTabs'] div[role='tabpanel']:nth-child(4) button { display: none !important; } div[data-testid='stTabs'] div[role='tabpanel']:nth-child(4) iframe { pointer-events: none !important; opacity: 0.8; }</style>", unsafe_allow_html=True)
-    
     # Cargar estado guardado de la base de datos
     pc_set = db_global[usuario]["settings"]["PC"]
     if "global_notes_body" not in pc_set: pc_set["global_notes_body"] = ""
 
-    # 1. EL FORMULARIO (Se auto-ajusta al ancho completo de la pantalla)
-    with st.form("form_notas_globales", border=False):
-        st.markdown("<div class='identificador-trading-plan'></div>", unsafe_allow_html=True)
-        
-        # Editor premium estilo Word en Modo Oscuro
-        nota_cuerpo = st_quill(
-            value=pc_set["global_notes_body"],
-            placeholder="Escribe tu Trading Plan aquí con todo el formato que quieras...",
-            html=True, 
-            key="quill_trading_plan"
-        )
-        
-        _, col_centro_btn, _ = st.columns([1, 1.5, 1])
-        with col_centro_btn:
-            if not modo_lectura:
+    if modo_lectura:
+        # Mostrar el plan como HTML de solo lectura para los visitantes
+        st.markdown(f"<div style='background: #1A202C; border: 1px solid #4A5568; border-radius: 12px; padding: 25px; color: #E2E8F0; min-height: 300px; box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.5); font-size: 16px;'>{pc_set['global_notes_body']}</div>", unsafe_allow_html=True)
+    else:
+        # 1. EL FORMULARIO (Se auto-ajusta al ancho completo de la pantalla)
+        with st.form("form_notas_globales", border=False):
+            st.markdown("<div class='identificador-trading-plan'></div>", unsafe_allow_html=True)
+            
+            # Editor premium estilo Word en Modo Oscuro
+            nota_cuerpo = st_quill(
+                value=pc_set["global_notes_body"],
+                placeholder="Escribe tu Trading Plan aquí con todo el formato que quieras...",
+                html=True, 
+                key="quill_trading_plan"
+            )
+            
+            _, col_centro_btn, _ = st.columns([1, 1.5, 1])
+            with col_centro_btn:
                 btn_guardado = st.form_submit_button("💾 GUARDAR DOCUMENTO EN LA NUBE", use_container_width=True)
-            else:
-                btn_guardado = False
 
-    # 2. LÓGICA DE GUARDADO
-    if btn_guardado and not modo_lectura:
-        for dev in ["PC", "Móvil"]:
-            db_global[usuario]["settings"][dev]["global_notes_body"] = nota_cuerpo
+        # 2. LÓGICA DE GUARDADO
+        if btn_guardado:
+            for dev in ["PC", "Móvil"]:
+                db_global[usuario]["settings"][dev]["global_notes_body"] = nota_cuerpo
+            
+            reescribir_excel_usuario(usuario)
+            st.success("✅ ¡Trading Plan guardado en la base de datos con éxito!")
+            import time
+            time.sleep(1)
+            st.rerun()
+
+        # 3. CSS EXCLUSIVO Y PROTEGIDO PARA EL TRADING PLAN
+        st.markdown(f"""
+        <style>
+        /* Desactivar fondo molesto del formulario nativo */
+        div[data-testid="stForm"]:has(.identificador-trading-plan) {{
+            background-color: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            padding: 0 !important;
+            margin-top: -10px !important;
+        }}
         
-        reescribir_excel_usuario(usuario)
-        st.success("✅ ¡Trading Plan guardado en la base de datos con éxito!")
-        import time
-        time.sleep(1)
-        st.rerun()
-
-    # 3. CSS EXCLUSIVO Y PROTEGIDO PARA EL TRADING PLAN
-    st.markdown(f"""
-    <style>
-    /* Desactivar fondo molesto del formulario nativo */
-    div[data-testid="stForm"]:has(.identificador-trading-plan) {{
-        background-color: transparent !important;
-        border: none !important;
-        box-shadow: none !important;
-        padding: 0 !important;
-        margin-top: -10px !important;
-    }}
-    
-    /* Forzar el editor Word (iframe) a Modo Oscuro Completo */
-    div[data-testid="stForm"]:has(.identificador-trading-plan) iframe {{
-        filter: invert(0.92) hue-rotate(180deg) !important;
-        border: 1px solid #4A5568 !important;
-        border-radius: 12px !important;
-        box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.5) !important;
-    }}
-    
-    /* Aislar y mejorar el botón de guardado */
-    div[data-testid="stForm"]:has(.identificador-trading-plan) [data-testid="stFormSubmitButton"] button {{
-        margin-top: 25px !important;
-        font-size: 18px !important;
-        height: 50px !important;
-        min-height: 50px !important;
-        width: 100% !important;
-        margin-left: 0 !important;
-    }}
-    </style>
-    """, unsafe_allow_html=True)
+        /* Forzar el editor Word (iframe) a Modo Oscuro Completo */
+        div[data-testid="stForm"]:has(.identificador-trading-plan) iframe {{
+            filter: invert(0.92) hue-rotate(180deg) !important;
+            border: 1px solid #4A5568 !important;
+            border-radius: 12px !important;
+            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.5) !important;
+        }}
+        
+        /* Aislar y mejorar el botón de guardado */
+        div[data-testid="stForm"]:has(.identificador-trading-plan) [data-testid="stFormSubmitButton"] button {{
+            margin-top: 25px !important;
+            font-size: 18px !important;
+            height: 50px !important;
+            min-height: 50px !important;
+            width: 100% !important;
+            margin-left: 0 !important;
+        }}
+        </style>
+        """, unsafe_allow_html=True)
 
 # 👇 REABRIMOS LA PESTAÑA HISTORIAL DE ÓRDENES PRINCIPAL PARA ANIDAR LAS SUB-PESTAÑAS AQUÍ 👇
 with tab_historial_principal:
@@ -4175,11 +4173,15 @@ with tab_historial_principal:
     st.markdown("<div style='margin-top: -50px;'></div>", unsafe_allow_html=True)
     
     if modo_lectura: 
-        # Oculta completamente las pestañas 1 (Edición) y 4 (Exportar)
-        st.markdown("<style>div[data-testid='stTabs'] div[role='tablist'] button:nth-child(1), div[data-testid='stTabs'] div[role='tablist'] button:nth-child(4) { display: none !important; }</style>", unsafe_allow_html=True)
-
-    #  AQUI CREAMOS LAS PESTAÑAS AL ESTILO FINANCE CENTER 
-    tab_hist, tab_tabla, tab_galeria, tab_exportar = st.tabs(["EDICIÓN DE TRADE", "TABLA DE RESULTADOS", "IMÁGENES", "EXPORTAR DATA"])
+        # 🟢 TRUCO MAESTRO: Alteramos el orden en modo lectura para que "TABLA" y "IMÁGENES" sean las 1 y 2.
+        # Las pestañas de edición y exportar quedan como 3 y 4, las cuales invisibilizamos.
+        tab_tabla, tab_galeria, tab_hist, tab_exportar = st.tabs(["TABLA DE RESULTADOS", "IMÁGENES", "OCULTO1", "OCULTO2"])
+        
+        # CSS que apunta específicamente a los botones de las sub-pestañas dentro del Historial
+        st.markdown("<style>div[data-testid='stTabs'] div[role='tabpanel']:nth-child(3) div[data-testid='stTabs'] div[role='tablist'] button:nth-child(3), div[data-testid='stTabs'] div[role='tabpanel']:nth-child(3) div[data-testid='stTabs'] div[role='tablist'] button:nth-child(4) { display: none !important; }</style>", unsafe_allow_html=True)
+    else:
+        # 🟢 Modo normal del dueño de la cuenta
+        tab_hist, tab_tabla, tab_galeria, tab_exportar = st.tabs(["EDICIÓN DE TRADE", "TABLA DE RESULTADOS", "IMÁGENES", "EXPORTAR DATA"])
 
 def borrar_imagen_historial(contexto, clave, idx_trade, idx_img):
     if len(db_usuario[contexto]["trades"][clave][idx_trade]["imagenes"]) > idx_img: db_usuario[contexto]["trades"][clave][idx_trade]["imagenes"].pop(idx_img)
