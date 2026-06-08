@@ -1225,10 +1225,14 @@ if "form_reset_key" not in st.session_state: st.session_state.form_reset_key = 0
 if "viewing_user" not in st.session_state: st.session_state.viewing_user = None
 
 usuario_logueado = st.session_state.usuario_actual
-# Magia: Si estamos de visita, usamos los datos del anfitrión.
-# --- SEGURIDAD: Expulsar si el perfil visitado está privado ---
-if st.session_state.viewing_user and not db_global[st.session_state.viewing_user]["settings"]["PC"].get("public_profile", False):
-    st.session_state.viewing_user = None 
+
+# --- SEGURIDAD: Expulsar si el perfil visitado no tiene cuentas públicas ---
+if st.session_state.get("viewing_user"):
+    cuentas_publicas = db_global[st.session_state.viewing_user]["settings"]["PC"].get("public_accounts", [])
+    if not cuentas_publicas:
+        st.session_state.viewing_user = None 
+    elif st.session_state.get("data_source_sel") not in cuentas_publicas:
+        st.session_state.data_source_sel = cuentas_publicas[0]
 
 usuario = st.session_state.viewing_user if st.session_state.viewing_user else usuario_logueado
 modo_lectura = (usuario != usuario_logueado)
@@ -2410,8 +2414,14 @@ if True:
 
     with col_data: 
         st.markdown(f'<div class="lbl-data">{LBL_DATA}</div>', unsafe_allow_html=True)
-        opciones_cta = ["Todas las Cuentas"] + [c for c in db_usuario.keys() if c != "Todas las Cuentas"]
-        st.selectbox("Data Source", opciones_cta, key="data_source_sel", label_visibility="collapsed")
+        if modo_lectura:
+            opciones_cta = db_global[usuario]["settings"]["PC"].get("public_accounts", [])
+            if not opciones_cta: opciones_cta = ["Privado"]
+        else:
+            opciones_cta = ["Todas las Cuentas"] + [c for c in db_usuario.keys() if c != "Todas las Cuentas"]
+        
+        idx_sel = opciones_cta.index(st.session_state.data_source_sel) if st.session_state.data_source_sel in opciones_cta else 0
+        st.selectbox("Data Source", opciones_cta, index=idx_sel, key="data_source_sel", label_visibility="collapsed")
         try: st.query_params["account"] = st.session_state.data_source_sel; db_global[usuario]["last_account"] = st.session_state.data_source_sel
         except: pass
 
@@ -3790,10 +3800,16 @@ with tab_comunidad:
         with st.expander("⚙️ Mi Privacidad y Perfil Público", expanded=False):
             pc_set_logged = db_global[usuario_logueado]["settings"]["PC"]
             
-            is_public = st.toggle("🌍 Hacer mi perfil público (Permitir que otros me vean)", value=pc_set_logged.get("public_profile", False))
+            st.markdown("<p style='color:#94A3B8; font-size: 14px;'>Selecciona qué cuentas quieres mostrar en la tabla de posiciones. Si no seleccionas ninguna, serás un fantasma 👻.</p>", unsafe_allow_html=True)
+            
+            cuentas_disponibles = [c for c in db_usuario.keys() if c != "Todas las Cuentas"]
+            cuentas_guardadas = pc_set_logged.get("public_accounts", [])
+            cuentas_guardadas = [c for c in cuentas_guardadas if c in cuentas_disponibles] # Limpia si borraste alguna
+            
+            cuentas_publicas = st.multiselect("🌍 Cuentas Públicas (Las que todos verán):", cuentas_disponibles, default=cuentas_guardadas)
             
             st.markdown("<hr style='border-color: #334155; margin: 15px 0;'>", unsafe_allow_html=True)
-            st.markdown("<p style='color:#F8FAFC; font-weight: 600; font-size: 15px;'>¿Qué pestañas pueden ver los demás?</p>", unsafe_allow_html=True)
+            st.markdown("<p style='color:#F8FAFC; font-weight: 600; font-size: 15px;'>¿Qué pestañas pueden ver los demás en tus cuentas públicas?</p>", unsafe_allow_html=True)
             
             c_p1, c_p2, c_p3, c_p4 = st.columns(4)
             v_cal = c_p1.checkbox("📅 Calendario", value=pc_set_logged.get("vis_calendario", True))
@@ -3803,17 +3819,21 @@ with tab_comunidad:
             
             if st.button("💾 Guardar Ajustes de Privacidad", type="primary"):
                 for dev in ["PC", "Móvil"]:
-                    db_global[usuario_logueado]["settings"][dev]["public_profile"] = is_public
+                    db_global[usuario_logueado]["settings"][dev]["public_accounts"] = cuentas_publicas
                     db_global[usuario_logueado]["settings"][dev]["vis_calendario"] = v_cal
                     db_global[usuario_logueado]["settings"][dev]["vis_metricas"] = v_met
                     db_global[usuario_logueado]["settings"][dev]["vis_historial"] = v_his
                     db_global[usuario_logueado]["settings"][dev]["vis_plan"] = v_plan
                 reescribir_excel_usuario(usuario_logueado)
-                st.success("✅ Ajustes actualizados.")
+                st.success("✅ Ajustes actualizados. Serás invisible en las cuentas que no seleccionaste.")
                 import time; time.sleep(0.5); st.rerun()
 
     st.markdown("<hr style='border-color: #334155; margin: 15px 0;'>", unsafe_allow_html=True)
     
+    # --- BUSCADOR GENERAL (ARRIBA) ---
+    busqueda = st.text_input("Buscar usuario", placeholder="🔍 Busca por el nombre de un trader (Sensible a mayúsculas)...", label_visibility="collapsed")
+    st.markdown("<br>", unsafe_allow_html=True)
+
     # --- TABLA DE POSICIONES (LEADERBOARD) ---
     st.markdown("<h3 style='text-align:center; color:#10B981; font-weight: 800;'>🏆 Top Traders (Leaderboard)</h3>", unsafe_allow_html=True)
     st.markdown("<p style='text-align:center; color:#94A3B8; font-size:14px; margin-top:-10px;'>Clasificación por tamaño de cuenta original.</p>", unsafe_allow_html=True)
@@ -3821,9 +3841,18 @@ with tab_comunidad:
     leaderboard_25k, leaderboard_50k, leaderboard_100k = [], [], []
     
     for u_name, d_global in db_global.items():
-        is_pub = d_global["settings"]["PC"].get("public_profile", False)
+        if u_name == usuario_logueado: continue # No mostrarte a ti mismo
+        
+        cuentas_pub_usuario = d_global["settings"]["PC"].get("public_accounts", [])
+        
+        # Filtro del buscador (solo incluye a la persona si su nombre coincide)
+        if busqueda and busqueda.lower() not in u_name.lower(): continue
+        
         for cta_name, cta_data in d_global["data"].items():
             if cta_name == "Todas las Cuentas": continue
+            
+            # 👻 Aquí ocurre la magia del fantasma: Si no es cuenta pública, la saltamos.
+            if cta_name not in cuentas_pub_usuario: continue
             
             bal_actual_cta = cta_data.get("balance", 0.0)
             trades_cta = []
@@ -3831,110 +3860,45 @@ with tab_comunidad:
             
             bruto_inicial = bal_actual_cta - sum(t.get("pnl", 0.0) for t in trades_cta) if trades_cta else bal_actual_cta
             
+            # Clasificación en el leaderboard
             if bruto_inicial > 75000: tier = 100000.0
             elif bruto_inicial > 35000: tier = 50000.0
             else: tier = 25000.0
             
-            info_trader = {"user": u_name, "cuenta": cta_name, "balance": bal_actual_cta, "publico": is_pub}
+            info_trader = {"user": u_name, "cuenta": cta_name, "balance": bal_actual_cta}
             
             if tier == 25000.0: leaderboard_25k.append(info_trader)
             elif tier == 50000.0: leaderboard_50k.append(info_trader)
             else: leaderboard_100k.append(info_trader)
     
+    # Ordenar por balance (El que tenga más dinero va primero)
     leaderboard_25k.sort(key=lambda x: x["balance"], reverse=True)
     leaderboard_50k.sort(key=lambda x: x["balance"], reverse=True)
     leaderboard_100k.sort(key=lambda x: x["balance"], reverse=True)
     
-    tab_25, tab_50, tab_100 = st.tabs(["Cuentas 25K", "Cuentas 50K", "Cuentas 100K"])
+    tab_25, tab_50, tab_100 = st.tabs(["Top Cuentas 25K", "Top Cuentas 50K", "Top Cuentas 100K"])
     
     def render_leaderboard(lista_top):
         if not lista_top:
-            st.info("Aún no hay cuentas en esta categoría.")
+            st.info("Aún no hay traders públicos en esta categoría 👻.")
             return
         for i, trader in enumerate(lista_top[:20]): # Muestra el Top 20
             icono = "🥇" if i == 0 else ("🥈" if i == 1 else ("🥉" if i == 2 else f"#{i+1}"))
-            color_estado = "🟢" if trader["publico"] else "🔴"
             
             c_l1, c_l2, c_l3, c_l4 = st.columns([1, 3, 2, 2])
             with c_l1: st.markdown(f"<h3 style='margin:0; text-align:center;'>{icono}</h3>", unsafe_allow_html=True)
-            with c_l2: st.markdown(f"<h5 style='margin:0; color:#F8FAFC;'>{color_estado} {trader['user']}</h5><span style='color:#94A3B8; font-size:12px;'>{trader['cuenta']}</span>", unsafe_allow_html=True)
+            with c_l2: st.markdown(f"<h5 style='margin:0; color:#F8FAFC;'>👤 {trader['user']}</h5><span style='color:#94A3B8; font-size:12px;'>{trader['cuenta']}</span>", unsafe_allow_html=True)
             with c_l3: st.markdown(f"<h5 style='margin:0; color:#10B981;'>${trader['balance']:,.2f}</h5>", unsafe_allow_html=True)
             with c_l4:
-                if trader["user"] != usuario_logueado:
-                    if trader["publico"]:
-                        if st.button("👀 Ver", key=f"top_{trader['user']}_{trader['cuenta']}_{i}", use_container_width=True):
-                            st.session_state.viewing_user = trader["user"]
-                            st.rerun()
-                    else:
-                        st.button("🔒 Privado", key=f"priv_top_{trader['user']}_{trader['cuenta']}_{i}", disabled=True, use_container_width=True)
+                if st.button("👀 Ver", key=f"top_{trader['user']}_{trader['cuenta']}_{i}", use_container_width=True):
+                    st.session_state.viewing_user = trader["user"]
+                    st.session_state.data_source_sel = trader['cuenta'] # Forzar a visitar la cuenta elegida
+                    st.rerun()
             st.markdown("<hr style='border-color: #334155; margin: 10px 0; opacity: 0.3;'>", unsafe_allow_html=True)
 
     with tab_25: render_leaderboard(leaderboard_25k)
     with tab_50: render_leaderboard(leaderboard_50k)
     with tab_100: render_leaderboard(leaderboard_100k)
-
-    st.markdown("<br><hr style='border-color: #334155;'><br>", unsafe_allow_html=True)
-    
-    # --- BUSCADOR GENERAL ---
-    st.markdown("<h4 style='text-align:center; color:#F8FAFC;'>🔍 Buscar Trader Específico</h4>", unsafe_allow_html=True)
-    busqueda = st.text_input("Buscar usuario", placeholder="Escribe el nombre de un trader...", label_visibility="collapsed")
-    st.markdown("<br>", unsafe_allow_html=True)
-    
-    traders_encontrados = 0
-    for u_name in db_global.keys():
-        if u_name == usuario_logueado: continue 
-        if busqueda and busqueda.lower() not in u_name.lower(): continue
-        
-        traders_encontrados += 1
-        data_u = db_global[u_name]["data"]
-        cuenta_principal = list(data_u.keys())[0] if data_u else "Sin cuenta"
-        
-        is_pub_search = db_global[u_name]["settings"]["PC"].get("public_profile", False)
-        color_circulo = "🟢" if is_pub_search else "🔴"
-        
-        c1, c2, c3 = st.columns([3, 2, 2])
-        with c1:
-            st.markdown(f"<h4 style='color:#10B981; margin:0;'>{color_circulo} {u_name}</h4>", unsafe_allow_html=True)
-        with c2:
-            st.markdown(f"<span style='color:#94A3B8;'>Cuenta: <b>{cuenta_principal}</b></span>", unsafe_allow_html=True)
-        with c3:
-            if is_pub_search:
-                if st.button(f"👀 Ver Perfil", key=f"view_search_{u_name}", use_container_width=True):
-                    st.session_state.viewing_user = u_name
-                    st.rerun()
-            else:
-                st.button(f"🔒 Privado", key=f"priv_search_{u_name}", disabled=True, use_container_width=True)
-        st.markdown("<hr style='border-color: #334155; opacity: 0.3;'>", unsafe_allow_html=True)
-        
-    if traders_encontrados == 0:
-        st.info("No se encontraron traders con ese nombre.")
-    st.markdown("<hr style='border-color: #334155;'>", unsafe_allow_html=True)
-    
-    traders_encontrados = 0
-    for u_name in db_global.keys():
-        if u_name == usuario_logueado: continue # Ocultarte a ti mismo
-        
-        # 🟢 Filtro: Solo mostrar si el usuario activó "Hacer mi perfil público"
-        if not db_global[u_name]["settings"]["PC"].get("public_profile", False): continue
-        if busqueda and busqueda.lower() not in u_name.lower(): continue
-        
-        traders_encontrados += 1
-        data_u = db_global[u_name]["data"]
-        cuenta_principal = list(data_u.keys())[0] if data_u else "Sin cuenta"
-        
-        c1, c2, c3 = st.columns([3, 2, 2])
-        with c1:
-            st.markdown(f"<h4 style='color:#10B981; margin:0;'>👤 {u_name}</h4>", unsafe_allow_html=True)
-        with c2:
-            st.markdown(f"<span style='color:#94A3B8;'>Cuenta activa: <b>{cuenta_principal}</b></span>", unsafe_allow_html=True)
-        with c3:
-            if st.button(f"👀 Ver Perfil", key=f"view_{u_name}", use_container_width=True):
-                st.session_state.viewing_user = u_name
-                st.rerun()
-        st.markdown("<hr style='border-color: #334155; opacity: 0.3;'>", unsafe_allow_html=True)
-        
-    if traders_encontrados == 0:
-        st.info("No se encontraron traders públicos.")
 
 if es_admin:
     with tab_asistente:
@@ -4206,8 +4170,10 @@ with tab_historial_principal:
         st.markdown("<div style='text-align: center; padding: 50px; margin-top: 20px; background: #1E293B; border-radius: 12px; border: 1px dashed #EF4444;'><h3 style='color: #EF4444;'>Historial Privado 🔒</h3><p style='color: #94A3B8;'>El usuario ha ocultado sus trades.</p></div><style>div[data-testid='stTabs'] div[role='tabpanel']:nth-child(3) .element-container:nth-child(n+2) { display: none !important; }</style>", unsafe_allow_html=True)
     
     st.markdown("<div style='margin-top: -50px;'></div>", unsafe_allow_html=True)
-    if modo_lectura: # Oculta los botones de Guardar y Borrar
-        st.markdown("<style>div[data-testid='stTabs'] div[role='tabpanel']:nth-child(3) button[kind='secondary'], div[data-testid='stTabs'] div[role='tabpanel']:nth-child(3) div[data-testid='stFileUploader'] { display: none !important; }</style>", unsafe_allow_html=True)
+    
+    if modo_lectura: 
+        # Oculta completamente las pestañas 1 (Edición) y 4 (Exportar)
+        st.markdown("<style>div[data-testid='stTabs'] div[role='tablist'] button:nth-child(1), div[data-testid='stTabs'] div[role='tablist'] button:nth-child(4) { display: none !important; }</style>", unsafe_allow_html=True)
 
     #  AQUI CREAMOS LAS PESTAÑAS AL ESTILO FINANCE CENTER 
     tab_hist, tab_tabla, tab_galeria, tab_exportar = st.tabs(["EDICIÓN DE TRADE", "TABLA DE RESULTADOS", "IMÁGENES", "EXPORTAR DATA"])
