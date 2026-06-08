@@ -3540,7 +3540,7 @@ if True:
         st.markdown(f"""<div class="metric-card card-win"><div style="display:flex; justify-content:space-between; align-items:flex-start;"><div><div class="metric-header"><span class="title-trade-win">{titulo_win}</span></div><div class="win-value" style="color: {c_win_card};">{win_pct:.2f}%</div></div></div><div style="display:flex; flex-direction:row; align-items:center; justify-content:center; gap:20px; margin-top:0px; padding:0px;"><div style="width: var(--pie-size); height: var(--pie-size); transform: translateY(var(--pie-y-offset)); flex-shrink: 0; display:flex; margin: -15px 0;">{bar_html}</div><div style="font-size: calc(var(--size-box-wl) * 1.5); font-weight: 800; text-align:center; white-space:nowrap; transform: translateY(var(--pie-y-offset));">{wl_text_pie}</div></div></div>""", unsafe_allow_html=True)
 
         st.markdown("<div style='margin-top: 25px;'></div>", unsafe_allow_html=True)
-        st.markdown(f"<h4 style='color:gray; font-size:18px;'>Equity Curve</h4>", unsafe_allow_html=True)
+        st.markdown(f"<h4 style='color:#F8FAFC; font-size:18px; font-weight:800; letter-spacing: 0.5px; text-transform: uppercase;'>Equity Curve</h4>", unsafe_allow_html=True)
         
         # === 2. GENERAR EQUITY CURVE INTERACTIVA (AHORA ABAJO Y MÁS ALTA) ===
         if not df_full.empty:
