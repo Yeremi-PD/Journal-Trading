@@ -2926,10 +2926,12 @@ if True:
                         transform: translateY(-5px) !important; 
                     }
 
-                    /*  EMPUJAMOS EL BOTÓN HACIA ABAJO CON MARGIN */
+                    /* 🔥 CONTROL MAESTRO: AQUÍ SUBIMOS EL BOTÓN EXACTAMENTE 40 PX 🔥 */
                     div[data-testid="stForm"] div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] {
-                        margin-top: 25px !important; /* 🔥 CONTROL MAESTRO: CÁMBIALO AQUÍ PARA BAJARLO MÁS */
+                        margin-top: -15px !important; /* Antes estaba en 25px. Bajarlo a -15px lo sube 40 puntos */
                         width: 100% !important;
+                        position: relative !important;
+                        z-index: 50 !important;
                     }
 
                     /* Formato del botón interno */
