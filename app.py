@@ -2720,9 +2720,9 @@ if True:
                     nuevo_bal_input_str = st.text_input("Balance Input", value="", placeholder=f"{bal_mostrar:.2f}", label_visibility="collapsed")
                     
                 with c_det:
-                    st.markdown('<div class="lbl-header">Detalles:</div>', unsafe_allow_html=True)
-                    # AQUÍ CAMBIAS EL TEXTO DEL BOTÓN ("📝 Abrir Detalles", etc.)
-                    with st.popover("Abrir", use_container_width=True):
+                    st.markdown('<div class="lbl-header">Análisis:</div>', unsafe_allow_html=True)
+                    # El nuevo texto invita a la acción profesional
+                    with st.popover("🎯 Analizar Trade", use_container_width=True):
                         # Lógica original de los detalles del trade
                         st.markdown(f"<div class='titulo-trade-details'>{_l['dash']['trade_det']}</div>", unsafe_allow_html=True)
                         st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 5px; margin-bottom: 0px;'>{_l['dash']['bias']}</div>", unsafe_allow_html=True)
@@ -3453,7 +3453,53 @@ if True:
             st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
         else:
             st.info("Registra algunos trades para visualizar tu Equity Curve.")
+            
+        # === 3. DASHBOARD DE PSICOLOGÍA Y CONFLUENCIAS ===
+        st.markdown("<div style='margin-top: 40px;'></div>", unsafe_allow_html=True)
+        st.markdown(f"<h4 style='color:#F8FAFC; font-size:22px; font-weight:700;'>🧠 Psicología y Confluencias</h4>", unsafe_allow_html=True)
+        st.markdown("<p style='color:#94A3B8; font-size:15px;'>Descubre qué estrategias y emociones están dictando tus resultados. Mantén la disciplina al registrar tus datos.</p>", unsafe_allow_html=True)
         
+        if not df_full.empty:
+            c_ps1, c_ps2 = st.columns(2)
+            
+            with c_ps1:
+                st.markdown("<div class='metric-card' style='height: 100%; min-height: 200px;'>", unsafe_allow_html=True)
+                st.markdown("<h5 style='color:#10B981; font-weight:700; margin-bottom: 15px;'>🏆 Top Confluencias en Victorias</h5>", unsafe_allow_html=True)
+                
+                ganadores = df_full[df_full['pnl'] >= 75]
+                todas_confluencias_w = []
+                for conf_list in ganadores['Confluences'].dropna():
+                    if isinstance(conf_list, list): todas_confluencias_w.extend(conf_list)
+                
+                from collections import Counter
+                if todas_confluencias_w:
+                    top_confs = Counter(todas_confluencias_w).most_common(5)
+                    for conf, count in top_confs:
+                        st.markdown(f"<div style='display:flex; justify-content:space-between; margin-bottom:10px; border-bottom: 1px solid #334155; padding-bottom:6px;'><span style='color:#F8FAFC; font-weight:600;'>{conf}</span> <span style='color:#10B981; font-weight:800; background: rgba(16,185,129,0.1); padding: 2px 8px; border-radius: 6px;'>{count} Wins</span></div>", unsafe_allow_html=True)
+                else:
+                    st.markdown("<span style='color:#94A3B8; font-style:italic;'>Aún no hay confluencias en tus victorias. ¡Anótalas en tu próximo trade!</span>", unsafe_allow_html=True)
+                st.markdown("</div>", unsafe_allow_html=True)
+                
+            with c_ps2:
+                st.markdown("<div class='metric-card' style='height: 100%; min-height: 200px;'>", unsafe_allow_html=True)
+                st.markdown("<h5 style='color:#EF4444; font-weight:700; margin-bottom: 15px;'>⚠️ Emociones Frecuentes en Pérdidas</h5>", unsafe_allow_html=True)
+                
+                perdedores = df_full[df_full['pnl'] <= -75]
+                todas_emociones_l = []
+                for emo in perdedores['Emotions'].dropna():
+                    if isinstance(emo, str) and emo.strip():
+                        todas_emociones_l.extend([e.strip() for e in emo.split(',') if e.strip()])
+                
+                if todas_emociones_l:
+                    top_emos = Counter(todas_emociones_l).most_common(5)
+                    for emo, count in top_emos:
+                        st.markdown(f"<div style='display:flex; justify-content:space-between; margin-bottom:10px; border-bottom: 1px solid #334155; padding-bottom:6px;'><span style='color:#F8FAFC; font-weight:600;'>{emo.capitalize()}</span> <span style='color:#EF4444; font-weight:800; background: rgba(239,68,68,0.1); padding: 2px 8px; border-radius: 6px;'>{count} Losses</span></div>", unsafe_allow_html=True)
+                else:
+                    st.markdown("<span style='color:#94A3B8; font-style:italic;'>Aún no hay emociones en tus pérdidas. Conocerlas te ayudará a mejorar.</span>", unsafe_allow_html=True)
+                st.markdown("</div>", unsafe_allow_html=True)
+        else:
+            st.info("Registra operaciones con tus Confluencias y Emociones para desbloquear tu perfil psicológico.")
+
         def get_col_simb(valor):
             if valor > 0: return "txt-green", "+"
             elif valor < 0: return "txt-red", ""
