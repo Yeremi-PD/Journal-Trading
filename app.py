@@ -3898,6 +3898,10 @@ with tab_comunidad:
                 if st.button("👀 Ver", key=f"top_{trader['user']}_{trader['cuenta']}_{i}", use_container_width=True):
                     st.session_state.viewing_user = trader["user"]
                     st.session_state.data_source_sel = trader['cuenta'] # Forzar a visitar la cuenta elegida
+                    try: st.query_params["account"] = trader['cuenta']
+                    except: pass
+                    try: st.query_params["user"] = trader["user"]
+                    except: pass
                     st.rerun()
             st.markdown("<hr style='border-color: #334155; margin: 10px 0; opacity: 0.3;'>", unsafe_allow_html=True)
 
@@ -4105,13 +4109,12 @@ with tab_plan:
     if "global_notes_body" not in pc_set: pc_set["global_notes_body"] = ""
 
     if modo_lectura:
-        # Mostrar el plan como HTML de solo lectura para los visitantes
+        # Mostrar el plan como HTML de solo lectura para los visitantes forzando letras blancas
         st.markdown(f"""
         <style>
-        .plan-visitante * {{ color: #F8FAFC !important; font-family: 'Inter', sans-serif !important; }}
-        .plan-visitante background-color {{ background-color: transparent !important; }}
+        .plan-visitante, .plan-visitante * {{ color: white !important; font-family: 'Inter', sans-serif !important; background-color: transparent !important; }}
         </style>
-        <div class='plan-visitante' style='background: #1A202C; border: 1px solid #4A5568; border-radius: 12px; padding: 25px; color: #F8FAFC; min-height: 300px; box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.5); font-size: 16px;'>
+        <div class='plan-visitante' style='background: #1A202C !important; border: 1px solid #4A5568 !important; border-radius: 12px !important; padding: 25px !important; min-height: 300px !important; box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.5) !important; font-size: 16px !important;'>
         {pc_set['global_notes_body']}
         </div>
         """, unsafe_allow_html=True)
@@ -4183,10 +4186,12 @@ with tab_historial_principal:
     st.markdown("<div style='margin-top: -50px;'></div>", unsafe_allow_html=True)
     
     if modo_lectura:
-        # Modo Lectura: Mostramos explícitamente las 4 para no romper referencias, pero bloqueamos visualmente 1 y 4
-        tab_tabla, tab_galeria, tab_hist, tab_exportar = st.tabs(["TABLA DE RESULTADOS", "IMÁGENES", "EDICIÓN", "EXPORTAR"])
+        # 🟢 MAGIA EN PYTHON: Para los visitantes, SOLO creamos las dos pestañas permitidas. ¡Las otras ni siquiera se dibujan!
+        tab_tabla, tab_galeria = st.tabs(["TABLA DE RESULTADOS", "IMÁGENES"])
+        tab_hist = None
+        tab_exportar = None
     else:
-        # Modo normal del dueño de la cuenta
+        # Modo normal del dueño de la cuenta (Ve las 4)
         tab_hist, tab_tabla, tab_galeria, tab_exportar = st.tabs(["EDICIÓN DE TRADE", "TABLA DE RESULTADOS", "IMÁGENES", "EXPORTAR DATA"])
 
 def borrar_imagen_historial(contexto, clave, idx_trade, idx_img):
@@ -4204,11 +4209,9 @@ def ventana_borrar_trade(ctx, clave, i, usuario_actual):
         reescribir_excel_usuario(usuario_actual)
         st.rerun()
 
-with tab_hist:
-    if modo_lectura:
-        st.markdown("<div style='text-align: center; padding: 50px; background: #1E293B; border-radius: 12px; border: 1px dashed #EF4444;'><h3 style='color: #EF4444;'>Edición Bloqueada 🔒</h3><p style='color: #94A3B8;'>Por seguridad, no puedes editar los trades de otro trader.</p></div><style>div[data-testid='stTabs'] div[role='tabpanel']:nth-child(3) .element-container:nth-child(n+2) { display: none !important; }</style>", unsafe_allow_html=True)
-    
-    with st.container(): # Usamos container para no romper la indentación original
+if tab_hist is not None:
+    with tab_hist:
+        with st.container(): # Usamos container para no romper la indentación original
         trades_actuales = db_usuario[ctx]["trades"]
         if not trades_actuales: 
             st.markdown("<div style='text-align: center; padding: 50px; background: #1E293B; border-radius: 12px; border: 1px dashed #334155;'><h3 style='color: #F8FAFC;'>Aún no hay operaciones aquí 🚀</h3><p style='color: #94A3B8;'>Tu historial está limpio. Ve a la pestaña del Calendario y registra tu primer trade para empezar a ver tus estadísticas detalladas.</p></div>", unsafe_allow_html=True)
@@ -4528,11 +4531,9 @@ def area_exportacion():
         st.success(f"✅ ¡Listo! Se encontraron **{len(datos_exportar)} trades** en este periodo.")
 
 # Aquí es donde llamamos a la burbuja aislada dentro de la pestaña
-with tab_exportar:
-    with st.container():
-        if modo_lectura:
-            st.markdown("<div style='text-align: center; padding: 50px; background: #1E293B; border-radius: 12px; border: 1px dashed #EF4444;'><h3 style='color: #EF4444;'>Exportación Bloqueada 🔒</h3><p style='color: #94A3B8;'>Por seguridad, no puedes descargar la data de otros traders.</p></div>", unsafe_allow_html=True)
-        else:
+if tab_exportar is not None:
+    with tab_exportar:
+        with st.container():
             area_exportacion()
 
 with tab_galeria:
