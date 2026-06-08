@@ -3800,33 +3800,36 @@ with tab_comunidad:
         with st.expander("⚙️ Mi Privacidad y Perfil Público", expanded=False):
             pc_set_logged = db_global[usuario_logueado]["settings"]["PC"]
             
-            st.markdown("<p style='color:#94A3B8; font-size: 14px;'>Selecciona qué cuentas quieres mostrar en la tabla de posiciones. Si no seleccionas ninguna, serás un fantasma 👻.</p>", unsafe_allow_html=True)
-            
-            cuentas_disponibles = [c for c in db_usuario.keys() if c != "Todas las Cuentas"]
-            cuentas_guardadas = pc_set_logged.get("public_accounts", [])
-            cuentas_guardadas = [c for c in cuentas_guardadas if c in cuentas_disponibles] # Limpia si borraste alguna
-            
-            cuentas_publicas = st.multiselect("🌍 Cuentas Públicas (Las que todos verán):", cuentas_disponibles, default=cuentas_guardadas)
-            
-            st.markdown("<hr style='border-color: #334155; margin: 15px 0;'>", unsafe_allow_html=True)
-            st.markdown("<p style='color:#F8FAFC; font-weight: 600; font-size: 15px;'>¿Qué pestañas pueden ver los demás en tus cuentas públicas?</p>", unsafe_allow_html=True)
-            
-            c_p1, c_p2, c_p3, c_p4 = st.columns(4)
-            v_cal = c_p1.checkbox("📅 Calendario", value=pc_set_logged.get("vis_calendario", True))
-            v_met = c_p2.checkbox("📊 Métricas", value=pc_set_logged.get("vis_metricas", True))
-            v_his = c_p3.checkbox("🕒 Historial", value=pc_set_logged.get("vis_historial", True))
-            v_plan = c_p4.checkbox("📝 Plan", value=pc_set_logged.get("vis_plan", True))
-            
-            if st.button("💾 Guardar Ajustes de Privacidad", type="primary"):
-                for dev in ["PC", "Móvil"]:
-                    db_global[usuario_logueado]["settings"][dev]["public_accounts"] = cuentas_publicas
-                    db_global[usuario_logueado]["settings"][dev]["vis_calendario"] = v_cal
-                    db_global[usuario_logueado]["settings"][dev]["vis_metricas"] = v_met
-                    db_global[usuario_logueado]["settings"][dev]["vis_historial"] = v_his
-                    db_global[usuario_logueado]["settings"][dev]["vis_plan"] = v_plan
-                reescribir_excel_usuario(usuario_logueado)
-                st.success("✅ Ajustes actualizados. Serás invisible en las cuentas que no seleccionaste.")
-                import time; time.sleep(0.5); st.rerun()
+            # Formulario para evitar recargas innecesarias
+            with st.form(key="form_privacidad", border=False):
+                st.markdown("<p style='color:#94A3B8; font-size: 14px;'>Selecciona qué cuentas quieres mostrar en la tabla de posiciones. Si no seleccionas ninguna, serás un fantasma 👻.</p>", unsafe_allow_html=True)
+                
+                cuentas_disponibles = [c for c in db_usuario.keys() if c != "Todas las Cuentas"]
+                cuentas_guardadas = pc_set_logged.get("public_accounts", [])
+                cuentas_guardadas = [c for c in cuentas_guardadas if c in cuentas_disponibles] # Limpia si borraste alguna
+                
+                cuentas_publicas = st.multiselect("🌍 Cuentas Públicas (Las que todos verán):", cuentas_disponibles, default=cuentas_guardadas)
+                
+                st.markdown("<hr style='border-color: #334155; margin: 15px 0;'>", unsafe_allow_html=True)
+                st.markdown("<p style='color:#F8FAFC; font-weight: 600; font-size: 15px;'>¿Qué pestañas pueden ver los demás en tus cuentas públicas?</p>", unsafe_allow_html=True)
+                
+                c_p1, c_p2, c_p3, c_p4 = st.columns(4)
+                v_cal = c_p1.checkbox("📅 Calendario", value=pc_set_logged.get("vis_calendario", True))
+                v_met = c_p2.checkbox("📊 Métricas", value=pc_set_logged.get("vis_metricas", True))
+                v_his = c_p3.checkbox("🕒 Historial", value=pc_set_logged.get("vis_historial", True))
+                v_plan = c_p4.checkbox("📝 Plan", value=pc_set_logged.get("vis_plan", True))
+                
+                # El botón ahora es del formulario, solo recarga cuando se presiona
+                if st.form_submit_button("💾 Guardar Ajustes de Privacidad", type="primary", use_container_width=True):
+                    for dev in ["PC", "Móvil"]:
+                        db_global[usuario_logueado]["settings"][dev]["public_accounts"] = cuentas_publicas
+                        db_global[usuario_logueado]["settings"][dev]["vis_calendario"] = v_cal
+                        db_global[usuario_logueado]["settings"][dev]["vis_metricas"] = v_met
+                        db_global[usuario_logueado]["settings"][dev]["vis_historial"] = v_his
+                        db_global[usuario_logueado]["settings"][dev]["vis_plan"] = v_plan
+                    reescribir_excel_usuario(usuario_logueado)
+                    st.success("✅ Ajustes actualizados. Serás invisible en las cuentas que no seleccionaste.")
+                    import time; time.sleep(0.5); st.rerun()
 
     st.markdown("<hr style='border-color: #334155; margin: 15px 0;'>", unsafe_allow_html=True)
     
