@@ -1584,38 +1584,37 @@ def cb_reset_dash(): reset_settings("dash")
 def cb_reset_txt(): reset_settings("txt")
 def cb_reset_cal(): reset_settings("cal")
 
-@st.dialog("⚙️ CONFIGURACIÓN GLOBAL", width="large")
-def modal_configuracion_completa():
-    # 1. Inyectar CSS para volver el modal pantalla completa y premium
+def contenido_ajustes():
+    # 🟢 INYECCIÓN DE CSS PARA VOLVER EL POPOVER UN MODAL GIGANTE INSTANTÁNEO
+    st.markdown("<div class='identificador-config-full'></div>", unsafe_allow_html=True)
     st.markdown("""
     <style>
-    /* Hacer que el modal ocupe el 100% de la pantalla exacto */
-    div[data-testid="stDialog"] > div[role="dialog"] {
-        width: 100vw !important;
-        max-width: 100vw !important;
-        height: 100vh !important;
-        max-height: 100vh !important;
-        margin: 0 !important;
-        padding: 40px !important;
-        border-radius: 0px !important;
+    /* Magia: Cuando el popover tiene este identificador, se vuelve gigante y centrado */
+    div[data-testid="stPopoverBody"]:has(.identificador-config-full) {
+        position: fixed !important;
+        top: 50% !important;
+        left: 50% !important;
+        transform: translate(-50%, -50%) !important;
+        width: 95vw !important;
+        max-width: 1200px !important;
+        height: 90vh !important;
+        max-height: 90vh !important;
+        border-radius: 16px !important;
         background: radial-gradient(circle at 50% 0%, #0F172A 0%, #020617 100%) !important;
-        border: none !important;
+        border: 1px solid #334155 !important;
+        box-shadow: 0 25px 50px rgba(0,0,0,0.8), 0 0 0 100vw rgba(0,0,0,0.7) !important;
+        z-index: 9999999 !important;
+        padding: 30px 40px !important;
         overflow-y: auto !important;
     }
-    /* Ocultar el botón X nativo para usar uno propio más bonito */
-    div[data-testid="stDialog"] button[aria-label="Close"] {
-        top: 25px !important;
-        right: 25px !important;
-        transform: scale(1.3) !important;
-        color: #EF4444 !important;
-    }
-    /* Estilos de las pestañas internas de config */
-    div[data-testid="stDialog"] div[data-testid="stTabs"] button {
-        background-color: transparent !important;
+    /* Estilos de las pestañas internas de config para que destaquen */
+    div[data-testid="stPopoverBody"]:has(.identificador-config-full) div[data-testid="stTabs"] button {
+        background-color: rgba(0,0,0,0.2) !important;
         border: 1px solid #334155 !important;
         color: #94A3B8 !important;
+        font-size: 18px !important;
     }
-    div[data-testid="stDialog"] div[data-testid="stTabs"] button[aria-selected="true"] {
+    div[data-testid="stPopoverBody"]:has(.identificador-config-full) div[data-testid="stTabs"] button[aria-selected="true"] {
         background-color: #10B981 !important;
         border-color: #10B981 !important;
         color: white !important;
@@ -1623,8 +1622,9 @@ def modal_configuracion_completa():
     </style>
     """, unsafe_allow_html=True)
 
-    st.markdown("<h2 style='text-align: center; color: #F8FAFC; font-weight: 900; margin-top: -40px; margin-bottom: 20px; letter-spacing: -1px;'>PANEL DE CONTROL</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 style='text-align: center; color: #F8FAFC; font-weight: 900; margin-top: -10px; margin-bottom: 20px; letter-spacing: -1px;'>PANEL DE CONTROL</h2>", unsafe_allow_html=True)
 
+    # 🟢 REORGANIZAMOS TODO EN PESTAÑAS PARA MAYOR ELEGANCIA
     tab_perfil, tab_diseno, tab_admin = st.tabs(["👤 Cuentas y Datos", "🎨 Apariencia e Interfaz", "🛡️ Zona Admin"])
 
     with tab_perfil:
@@ -1635,6 +1635,7 @@ def modal_configuracion_completa():
                 st.markdown(f"**{_l['sidebar']['create_acc']}**")
                 nueva_cuenta_nombre = st.text_input(_l['setup']['acc_name'], key="input_nombre_nueva_cta")
                 nueva_cuenta_bal = st.selectbox(_l['sidebar']['sel_bal'], [25000.0, 50000.0, 100000.0], format_func=lambda x: f"${x:,.0f}", key="select_bal_nueva_cta")
+                
                 if st.button(_l['sidebar']['btn_create_acc'], use_container_width=True, key="btn_crear_cta_sidebar"):
                     if nueva_cuenta_nombre and nueva_cuenta_nombre not in db_usuario:
                         modal_fecha_inicio(nueva_cuenta_nombre, nueva_cuenta_bal)
@@ -1649,7 +1650,10 @@ def modal_configuracion_completa():
                 nuevo_balance_reset = opciones_reset[seleccion_reset]
                 
                 if "confirm_reset" not in st.session_state: st.session_state.confirm_reset = False
-                if st.button(_l['sidebar']['btn_conf_reset'], use_container_width=True, key="btn_solicitar_reset"): st.session_state.confirm_reset = True
+                
+                if st.button(_l['sidebar']['btn_conf_reset'], use_container_width=True, key="btn_solicitar_reset"):
+                    st.session_state.confirm_reset = True
+                    
                 if st.session_state.confirm_reset:
                     st.warning(f"{_l['sidebar']['ask_reset']} {ctx_actual}?")
                     cr_yes, cr_no = st.columns(2)
@@ -1668,16 +1672,22 @@ def modal_configuracion_completa():
             with st.container(border=True):
                 st.markdown(f"**{_l['sidebar']['del_acc']}**")
                 cuenta_a_borrar = st.selectbox(_l['sidebar']['sel_del'], list(db_usuario.keys()), key="select_eliminar_cta")
+                
                 if "confirm_delete_acc" not in st.session_state: st.session_state.confirm_delete_acc = False
+                
                 if st.button(_l['sidebar']['btn_del'], use_container_width=True, key="btn_solicitar_borrado"):
-                    if len(db_usuario) <= 1: st.error(_l['sidebar']['err_del_only'])
-                    else: st.session_state.confirm_delete_acc = True
+                    if len(db_usuario) <= 1:
+                        st.error(_l['sidebar']['err_del_only'])
+                    else:
+                        st.session_state.confirm_delete_acc = True
+                        
                 if st.session_state.confirm_delete_acc:
                     st.warning(f"{_l['sidebar']['ask_del']} '{cuenta_a_borrar}'?")
                     cd_yes, cd_no = st.columns(2)
                     if cd_yes.button(_l['sidebar']['yes_del'], key="btn_si_borrar_final"):
                         del db_usuario[cuenta_a_borrar]
-                        if st.session_state.data_source_sel == cuenta_a_borrar: st.session_state.data_source_sel = list(db_usuario.keys())[0]
+                        if st.session_state.data_source_sel == cuenta_a_borrar:
+                            st.session_state.data_source_sel = list(db_usuario.keys())[0]
                         reescribir_excel_usuario(usuario)
                         st.session_state.confirm_delete_acc = False
                         st.rerun()
@@ -1724,12 +1734,12 @@ def modal_configuracion_completa():
                         "bal_num_sz": 32, "bal_box_w": 55, "bal_box_pad": 10, "size_top_stats": 26, "size_card_titles": 22, "size_box_titles": 24, "size_box_vals": 30, "size_box_pct": 24, "size_box_wl": 18, "pie_size": 180, "pie_y_offset": -40, "cal_mes_size": 40, "cal_pnl_size": 24, "cal_pct_size": 22, "cal_dia_size": 22, "cal_cam_size": 26, "cal_scale": 180, "cal_line_height": 1.4, "cal_note_size": 28, "note_lbl_size": 30, "note_val_size": 22
                     })
                 reescribir_excel_usuario(usuario)
-                st.success(f"✅ Tamaño {tamano_ui} aplicado.")
+                st.success(f"✅ Tamaño {tamano_ui} aplicado con éxito.")
                 import time; time.sleep(0.5); st.rerun()
 
     with tab_admin:
         st.markdown("### 🛡️ Portal de Administración")
-        st.markdown("<p style='color:#94A3B8; font-size:14px;'>Ingresa la clave maestra para gestionar usuarios y licencias.</p>", unsafe_allow_html=True)
+        st.markdown("<p style='color:#94A3B8; font-size:13px;'>Ingresa la clave maestra para gestionar usuarios y licencias.</p>", unsafe_allow_html=True)
         admin_pass = st.text_input("Clave de Administrador", type="password", key="admin_pass_input", label_visibility="collapsed", placeholder="••••••••")
         
         if admin_pass:
