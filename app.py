@@ -2384,14 +2384,14 @@ if True:
     # === CSS EXCLUSIVO PARA LA BARRA DE ENTRADA (Estilo Finance Center) ===
     st.markdown("""
     <style>
-    /* Contenedor principal de la caja */
+    /* Contenedor principal de la caja (Transparente para fusionarse con el fondo) */
     div[data-testid="stForm"] {
-        background-color: #1A202C !important;
-        border: 1px solid #4A5568 !important;
+        background-color: transparent !important;
+        border: none !important;
         border-radius: 12px !important;
-        padding: 15px 20px 20px 20px !important;
+        padding: 10px 0px 20px 0px !important;
         margin-bottom: 25px !important;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.2) !important;
+        box-shadow: none !important;
     }
 
     /* Títulos pequeños de arriba (Date:, Cantidad:, etc.) */
@@ -3979,7 +3979,7 @@ with tab_historial_principal:
     st.markdown("<div style='margin-top: -50px;'></div>", unsafe_allow_html=True)
 
     #  AQUI CREAMOS LAS PESTAÑAS AL ESTILO FINANCE CENTER 
-    tab_hist, tab_tabla, tab_galeria, tab_exportar = st.tabs(["TRADES", "TABLA DE RESULTADOS", "IMAGENES", "EXPORTAR DATA"])
+    tab_hist, tab_tabla, tab_galeria, tab_exportar = st.tabs(["EDICIÓN DE TRADE", "TABLA DE RESULTADOS", "IMÁGENES", "EXPORTAR DATA"])
 
 def borrar_imagen_historial(contexto, clave, idx_trade, idx_img):
     if len(db_usuario[contexto]["trades"][clave][idx_trade]["imagenes"]) > idx_img: db_usuario[contexto]["trades"][clave][idx_trade]["imagenes"].pop(idx_img)
@@ -4011,7 +4011,7 @@ with tab_hist:
             with c_h2: st.markdown(f"<h4 style='text-align:center; color:{c_dash}; margin-top:5px;'>🗓️ {nom_mes} {st.session_state.cal_year}</h4>", unsafe_allow_html=True)
             with c_h3: st.button("▶", on_click=cambiar_mes, args=(1,), key="btn_h_next", use_container_width=True)
             st.markdown("---")
-            trades_ordenados = sorted(trades_actuales.items(), key=lambda x: datetime(x[0][0], x[0][1], x[0][2]), reverse=True)
+            trades_ordenados = sorted(trades_actuales.items(), key=lambda x: datetime(x[0][0], x[0][1], x[0][2]), reverse=False)
             trades_en_mes = 0 
             for clave, lista_trades in trades_ordenados:
                 anio_t, mes_t, dia_t = clave
