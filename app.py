@@ -2455,7 +2455,7 @@ if True:
         else: badge_html = f'<span style="font-size: 20px; background-color: #4A5568; color: white; padding: 4px 12px; border-radius: 8px; margin-left: 15px; font-weight: 800; letter-spacing: 0px; align-self: center;">{_l["dash"]["eval"]}</span>'
         if modo_lectura:
             c_tit_visit, c_btn_volver = st.columns([3, 1])
-            st.markdown(f'<div class="dashboard-title" style="display: flex; align-items: center;">👀 Viendo a {usuario} {badge_html}</div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="dashboard-title" style="display: flex; align-items: center;">👀 Usuario De {usuario} {badge_html}</div>', unsafe_allow_html=True)
         else:
             st.markdown(f'<div class="dashboard-title" style="display: flex; align-items: center;">Hola, {usuario} {badge_html}</div>', unsafe_allow_html=True)
 
