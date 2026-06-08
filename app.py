@@ -3972,7 +3972,7 @@ with tab_comunidad:
             with c_l3: st.markdown(f"<h5 style='margin:0; color:#10B981;'>${trader['balance']:,.2f}</h5>", unsafe_allow_html=True)
             with c_l4:
                 # Usamos el On_Click Callback mágico aquí para evitar doble recarga
-                st.button("👀 Ver", key=f"top_{trader['user']}_{trader['cuenta']}_{i}", on_click=accion_ver_perfil_cb, args=(trader['user'], trader['cuenta']), use_container_width=True)
+                st.button("Observar Journal", key=f"top_{trader['user']}_{trader['cuenta']}_{i}", on_click=accion_ver_perfil_cb, args=(trader['user'], trader['cuenta']), use_container_width=True)
             st.markdown("<hr style='border-color: #334155; margin: 10px 0; opacity: 0.3;'>", unsafe_allow_html=True)
 
     with tab_25: render_leaderboard(leaderboard_25k)
@@ -4269,7 +4269,7 @@ with tab_historial_principal:
     st.markdown("<div style='margin-top: -50px;'></div>", unsafe_allow_html=True)
     
     # Mantenemos las 4 pestañas para todos, pero las bloquearemos por dentro en modo lectura
-    tab_tabla, tab_galeria, tab_hist, tab_exportar = st.tabs(["TABLA DE RESULTADOS", "IMÁGENES", "EDICIÓN DE TRADE", "EXPORTAR DATA"])
+    tab_tabla, tab_galeria, tab_hist, tab_exportar = st.tabs(["TABLA DE RESULTADOS", "IMÁGENES", "EDICIÓN DE TRADES", "EXPORTAR DATA"])
 
 def borrar_imagen_historial(contexto, clave, idx_trade, idx_img):
     if len(db_usuario[contexto]["trades"][clave][idx_trade]["imagenes"]) > idx_img: db_usuario[contexto]["trades"][clave][idx_trade]["imagenes"].pop(idx_img)
