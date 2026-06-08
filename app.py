@@ -3099,7 +3099,12 @@ if True:
 
         anio_sel = st.session_state.cal_year
         mes_sel = st.session_state.cal_month
-        nombre_mes = calendar.month_name[mes_sel]
+        
+        if st.session_state.idioma == "ES":
+            meses_es = ["", "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
+            nombre_mes = meses_es[mes_sel]
+        else:
+            nombre_mes = calendar.month_name[mes_sel]
 
         trades_mes_top = []
         for k, lista_t in db_usuario[ctx]["trades"].items():
