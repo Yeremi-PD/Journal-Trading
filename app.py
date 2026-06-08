@@ -3807,7 +3807,7 @@ def accion_ver_perfil_cb(u_name, c_name=None):
     st.session_state.cuenta_previa_calendario = None
 
 with tab_comunidad:
-    st.markdown("<br><h2 style='text-align:center; color:#F8FAFC; font-weight: 800;'>🌍 Comunidad de Traders</h2>", unsafe_allow_html=True)
+    st.markdown("<br><h2 style='text-align:center; color:#F8FAFC; font-weight: 800;'>Comunidad de Traders</h2>", unsafe_allow_html=True)
     
     if not modo_lectura:
         with st.expander("⚙️ Mi Privacidad y Perfil Público", expanded=False):
@@ -3847,7 +3847,7 @@ with tab_comunidad:
                 
                 _, c_btn_priv, _ = st.columns([1, 1.5, 1])
                 with c_btn_priv:
-                    btn_guardar_priv = st.form_submit_button("💾 Guardar Ajustes de Privacidad", type="primary", use_container_width=True)
+                    btn_guardar_priv = st.form_submit_button("Guardar Ajustes de Privacidad", type="primary", use_container_width=True)
                     
                 if btn_guardar_priv:
                     for dev in ["PC", "Móvil"]:
@@ -3864,10 +3864,10 @@ with tab_comunidad:
     
     # --- BUSCADOR GENERAL (ARRIBA) ---
     busqueda = st.text_input("Buscar usuario", placeholder="🔍 Busca por el nombre de un trader (Sensible a mayúsculas)...", label_visibility="collapsed")
-    st.markdown("<br>", unsafe_allow_html=True)
+
 
     # --- TABLA DE POSICIONES (LEADERBOARD) ---
-    st.markdown("<h3 style='text-align:center; color:#10B981; font-weight: 800;'>🏆 Top Traders (Leaderboard)</h3>", unsafe_allow_html=True)
+    st.markdown("<h3 style='text-align:center; color:#10B981; font-weight: 800;'>🏆 Top Traders</h3>", unsafe_allow_html=True)
     st.markdown("<p style='text-align:center; color:#94A3B8; font-size:14px; margin-top:-10px;'>Clasificación por tamaño de cuenta original.</p>", unsafe_allow_html=True)
     
     leaderboard_25k, leaderboard_50k, leaderboard_100k = [], [], []
@@ -4115,7 +4115,7 @@ with tab_plan:
     if modo_lectura and not db_global[usuario]["settings"]["PC"].get("vis_plan", True):
         st.markdown("<div style='text-align: center; padding: 50px; margin-top: 20px; background: #1E293B; border-radius: 12px; border: 1px dashed #EF4444;'><h3 style='color: #EF4444;'>Plan Privado 🔒</h3><p style='color: #94A3B8;'>El usuario ha ocultado su estrategia.</p></div><style>div[data-testid='stTabs'] div[role='tabpanel']:nth-child(4) .element-container:nth-child(n+2) { display: none !important; }</style>", unsafe_allow_html=True)
     
-    st.markdown("<br><h2 style='text-align:center; color:#F8FAFC; font-weight: 800; letter-spacing: -0.5px; font-family: \"Inter\", sans-serif;'>Estrategia y Reglas Operativas</h2><p style='text-align:center; color:#94A3B8; font-size:15px; margin-top:-10px; margin-bottom: 25px;'>Define tu Trading Plan. La IA leerá estas reglas para darte retroalimentación.</p>", unsafe_allow_html=True)
+    st.markdown("<br><h2 style='text-align:center; color:#F8FAFC; font-weight: 800; letter-spacing: -0.5px; font-family: \"Inter\", sans-serif;'>Estrategia y Reglas Operativas</h2><p style='text-align:center; color:#94A3B8; font-size:15px; margin-top:-10px; margin-bottom: 25px;'>Define tu Trading Plan.</p>", unsafe_allow_html=True)
     
     # Cargar estado guardado de la base de datos
     pc_set = db_global[usuario]["settings"]["PC"]
@@ -4159,7 +4159,7 @@ with tab_plan:
             
             _, col_centro_btn, _ = st.columns([1, 1.5, 1])
             with col_centro_btn:
-                btn_guardado = st.form_submit_button("💾 GUARDAR DOCUMENTO EN LA NUBE", use_container_width=True)
+                btn_guardado = st.form_submit_button("GUARDAR PLAN DE TRADING", use_container_width=True)
 
         # 2. LÓGICA DE GUARDADO
         if btn_guardado:
