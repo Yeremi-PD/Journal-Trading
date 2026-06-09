@@ -3687,6 +3687,10 @@ if True:
                 
                 # Calculamos el total de operaciones de la semana
                 total_trades_sem = stats["w"] + stats["l"] + stats["be"]
+                valid_trades_sem = stats["w"] + stats["l"]
+                wr_sem = (stats["w"] / valid_trades_sem * 100) if valid_trades_sem > 0 else 0.0
+                c_wr_sem = "#10B981" if wr_sem >= 50 else "#EF4444"
+                if valid_trades_sem == 0: c_wr_sem = "gray"
                 
                 wl_parts_sem = []
                 if stats["w"] >= 1: wl_parts_sem.append(f'<span style="color:#10B981;">{stats["w"]}W</span>')
@@ -3697,10 +3701,14 @@ if True:
                 wl_text_sem = ' <span style="color:gray;">/</span> '.join(wl_parts_sem) if wl_parts_sem else '<span style="color:gray;">0W / 0L / 0BE</span>'
                 wl_text_sem += f' <span style="color:white;">({total_trades_sem})</span>'
                 
-                semanas_html += f'<div class="wk-box"><div class="wk-title" style="font-size:var(--size-box-titles) !important;">{titulo_str}</div><div class="wk-val {c_sem}" style="font-size:var(--size-box-vals) !important;">{s_sem}${stats["pnl"]:,.2f}<br><span style="font-size:var(--size-box-pct);">{s_sem}{pct_sem:.2f}%</span><br><span style="font-size: calc(var(--size-box-wl) + 2px) !important; font-weight: 800 !important;">{wl_text_sem}</span></div></div>'
+                semanas_html += f'<div class="wk-box" style="position: relative;"><span style="position:absolute; top:6px; right:8px; font-size:12px; font-weight:800; color:{c_wr_sem};">{wr_sem:.0f}%</span><div class="wk-title" style="font-size:var(--size-box-titles) !important;">{titulo_str}</div><div class="wk-val {c_sem}" style="font-size:var(--size-box-vals) !important;">{s_sem}${stats["pnl"]:,.2f}<br><span style="font-size:var(--size-box-pct);">{s_sem}{pct_sem:.2f}%</span><br><span style="font-size: calc(var(--size-box-wl) + 2px) !important; font-weight: 800 !important;">{wl_text_sem}</span></div></div>'
             
 # Calculamos el total de operaciones de la caja del mes actual
             total_trades_mo = m_w + m_l + m_be
+            valid_trades_mo = m_w + m_l
+            wr_mo = (m_w / valid_trades_mo * 100) if valid_trades_mo > 0 else 0.0
+            c_wr_mo = "#10B981" if wr_mo >= 50 else "#EF4444"
+            if valid_trades_mo == 0: c_wr_mo = "gray"
             
             wl_parts_mo = []
             if m_w >= 1: wl_parts_mo.append(f'<span style="color:#10B981;">{m_w}W</span>')
@@ -3711,7 +3719,7 @@ if True:
             wl_text_mo = ' <span style="color:gray;">/</span> '.join(wl_parts_mo) if wl_parts_mo else '<span style="color:gray;">0W / 0L / 0BE</span>'
             wl_text_mo += f' <span style="color:white;">({total_trades_mo})</span>'
             
-            st.markdown(f'<div class="weeks-container">{semanas_html}<div class="mo-box"><div class="mo-title" style="font-size:var(--size-box-titles) !important;">{TXT_MO}</div><div class="mo-val {cM}" style="font-size:var(--size-box-vals) !important;">{sM}${m_total:,.2f}<br><span style="font-size:var(--size-box-pct);">{sM}{pct_m:.2f}%</span><br><span style="font-size: calc(var(--size-box-wl) + 2px) !important; font-weight: 800 !important;">{wl_text_mo}</span></div></div></div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="weeks-container">{semanas_html}<div class="mo-box" style="position: relative;"><span style="position:absolute; top:8px; right:12px; font-size:14px; font-weight:800; color:{c_wr_mo};">{wr_mo:.0f}%</span><div class="mo-title" style="font-size:var(--size-box-titles) !important;">{TXT_MO}</div><div class="mo-val {cM}" style="font-size:var(--size-box-vals) !important;">{sM}${m_total:,.2f}<br><span style="font-size:var(--size-box-pct);">{sM}{pct_m:.2f}%</span><br><span style="font-size: calc(var(--size-box-wl) + 2px) !important; font-weight: 800 !important;">{wl_text_mo}</span></div></div></div>', unsafe_allow_html=True)
             
 # Si "Ver Solo Este Mes" está DESACTIVADO (ver_todo es True), mostramos TAMBIÉN las cajas de los meses debajo
         if ver_todo:
@@ -3737,6 +3745,10 @@ if True:
                 
                 # Calculamos el total de operaciones para el desglose histórico mensual continuo
                 total_trades_hist_m = w_m + l_m + be_m
+                valid_trades_hist_m = w_m + l_m
+                wr_hist_m = (w_m / valid_trades_hist_m * 100) if valid_trades_hist_m > 0 else 0.0
+                c_wr_hist_m = "#10B981" if wr_hist_m >= 50 else "#EF4444"
+                if valid_trades_hist_m == 0: c_wr_hist_m = "gray"
             
                 if st.session_state.idioma == "ES":
                     meses_es = ["", "Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"]
@@ -3755,7 +3767,7 @@ if True:
                 wl_text_all = ' <span style="color:gray;">/</span> '.join(wl_parts_all) if wl_parts_all else '<span style="color:gray;">0W / 0L / 0BE</span>'
                 wl_text_all += f' <span style="color:white;">({total_trades_hist_m})</span>'
                 
-                meses_html += f'<div class="wk-box"><div class="wk-title" style="font-size:var(--size-box-titles) !important;">{nombre_m}</div><div class="wk-val {c_m}" style="font-size:var(--size-box-vals) !important;">{s_m}${val_m:,.2f}<br><span style="font-size:var(--size-box-pct);">{s_m}{pct_m_box:.2f}%</span><br><span style="font-size: calc(var(--size-box-wl) + 2px) !important; font-weight: 800 !important;">{wl_text_all}</span></div></div>'
+                meses_html += f'<div class="wk-box" style="position: relative;"><span style="position:absolute; top:6px; right:8px; font-size:12px; font-weight:800; color:{c_wr_hist_m};">{wr_hist_m:.0f}%</span><div class="wk-title" style="font-size:var(--size-box-titles) !important;">{nombre_m}</div><div class="wk-val {c_m}" style="font-size:var(--size-box-vals) !important;">{s_m}${val_m:,.2f}<br><span style="font-size:var(--size-box-pct);">{s_m}{pct_m_box:.2f}%</span><br><span style="font-size: calc(var(--size-box-wl) + 2px) !important; font-weight: 800 !important;">{wl_text_all}</span></div></div>'
             
             if meses_html: st.markdown(f'<div class="weeks-container">{meses_html}</div>', unsafe_allow_html=True)
             else: st.info("No hay meses con trades registrados aún.")
