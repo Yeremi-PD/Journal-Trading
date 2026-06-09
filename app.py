@@ -1289,6 +1289,19 @@ WEEKS_TITULOS_COLOR_C, WEEKS_TITULOS_COLOR_O, WEEK_BOX_W, WEEK_BOX_H, Month_BOX_
 # ==========================================
 # 4. LÓGICA DE ESTADO Y AJUSTES
 # ==========================================
+def obtener_ahora_local():
+    usr = st.session_state.get("usuario_actual")
+    es_adm = False
+    try:
+        if usr and usr in db_global:
+            es_adm = db_global[usr]["settings"]["PC"].get("is_admin", False) or db_global[usr]["settings"]["Móvil"].get("is_admin", False)
+    except: pass
+    
+    if es_adm:
+        return datetime.now() + pd.Timedelta(hours=6) # 👑 Tu cuenta Admin: Hace el salto de día
+    else:
+        return datetime.utcnow() - pd.Timedelta(hours=4) # 👥 Otras cuentas: Hora normal (RD)
+
 if "tema" not in st.session_state: st.session_state.tema = TEMA_POR_DEFECTO
 if "form_reset_key" not in st.session_state: st.session_state.form_reset_key = 0
 if "viewing_user" not in st.session_state: st.session_state.viewing_user = None
@@ -1344,7 +1357,7 @@ def modal_fecha_inicio(nombre, balance):
     st.markdown("<p style='text-align: center; color: #A0AEC0; margin-bottom: 10px;'>Selecciona la fecha exacta en la que comenzaste esta prueba.</p>", unsafe_allow_html=True)
     
     # Selector de fecha limpio y nativo
-    f_ini = st.date_input("Fecha de Inicio", value=(datetime.now() + pd.Timedelta(hours=6)).date(), label_visibility="collapsed")
+    f_ini = st.date_input("Fecha de Inicio", value=obtener_ahora_local().date(), label_visibility="collapsed")
     f_cie = f_ini + pd.Timedelta(days=30)
     
     st.markdown("<br>", unsafe_allow_html=True)
@@ -1477,7 +1490,7 @@ if not db_usuario or (len(db_usuario) == 1 and "Todas las Cuentas" in db_usuario
             bal_inicial_opcion = st.selectbox(_l['setup']['init_bal'], [25000.0, 50000.0, 100000.0], format_func=lambda x: f"${x:,.0f}")
             
             #  Fecha de inicio agregada directamente aquí en la misma tarjeta
-            fecha_inicio_opcion = st.date_input("Fecha de Inicio de la Cuenta", value=(datetime.now() + pd.Timedelta(hours=6)).date())
+            fecha_inicio_opcion = st.date_input("Fecha de Inicio de la Cuenta", value=obtener_ahora_local().date())
             
             btn_inicializar = st.form_submit_button(_l['setup']['btn_start'], use_container_width=True)
             
@@ -1546,7 +1559,7 @@ for dev in ["PC", "Móvil"]:
 
 user_settings = db_global[usuario]["settings"][st.session_state.dispositivo_actual]
 
-hoy = (datetime.now() + pd.Timedelta(hours=6)).date()
+hoy = obtener_ahora_local().date()
 
 # --- LÓGICA DE AUTO-TRANSPORTE AL ÚLTIMO MES TRADEADO ---
 # Se activa cuando entras o cuando cambias de cuenta en el selectbox (refresco instantáneo)
@@ -4142,7 +4155,7 @@ if es_admin:
                             nota_cuerpo = pc_set.get("global_notes_body", "")
                             bloc_notas_str = f"REGLAS:\n{nota_cuerpo}" if nota_cuerpo else "Sin reglas."
                             
-                            fecha_hoy_str = (datetime.now() + pd.Timedelta(hours=6)).strftime("%d/%m/%Y")
+                            fecha_hoy_str = obtener_ahora_local().strftime("%d/%m/%Y")
                             
                             contexto_sistema = (
                                 f"Eres el analista de datos de {usuario}. Fecha actual: {fecha_hoy_str}.\n"
@@ -4548,7 +4561,7 @@ def area_exportacion():
         periodo_seleccionado = st.selectbox("📅 Selecciona el rango de tiempo:", list(opciones_tiempo.keys()))
     
     dias_a_restar = opciones_tiempo[periodo_seleccionado]
-    fecha_limite = (datetime.now() + pd.Timedelta(hours=6)).date() - pd.Timedelta(days=dias_a_restar)
+    fecha_limite = obtener_ahora_local().date() - pd.Timedelta(days=dias_a_restar)
     
     # 2. Recopilar y filtrar datos
     datos_exportar = []
@@ -4588,7 +4601,7 @@ def area_exportacion():
             # 🟢 FIX: Cambiamos a sep=';' para que Excel en español lo divida en columnas automáticamente
             csv_export = df_export.to_csv(index=False, sep=';', decimal=',').encode('utf-8-sig')
             
-            hoy_dt = (datetime.now() + pd.Timedelta(hours=6)).date()
+            hoy_dt = obtener_ahora_local().date()
             y_hoy = hoy_dt.year
             y_lim = fecha_limite.year
             
