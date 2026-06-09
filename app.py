@@ -34,28 +34,34 @@ logo_final = ImageOps.pad(logo_recortado, (tamaño_max, tamaño_max))
 st.set_page_config(page_title="PF Journal Pro", page_icon=logo_final, layout="wide")
 
 # 🌟 PANTALLA DE CARGA SOFISTICADA Y ANTI-PARPADEO GRIS 🌟
-st.markdown("""
+if "app_loaded" not in st.session_state:
+    loader_html = """<div id="sophisticated-loader"><div class="loader-spinner"></div><div class="loader-text">Sincronizando Datos...</div></div>"""
+    st.session_state.app_loaded = True
+else:
+    loader_html = ""
+
+st.markdown(f"""
 <style>
 /* 1. Nuke a todas las cajas de excepciones nativas */
 [data-testid="stException"], 
-[data-testid="stAppExceptionContainer"] { display: none !important; }
+[data-testid="stAppExceptionContainer"] {{ display: none !important; }}
 
 /* 2. ELIMINAR EFECTO GRIS: Evita que Streamlit opaque la app entera al procesar datos */
-.stApp, [data-testid="stAppViewContainer"], .block-container {
+.stApp, [data-testid="stAppViewContainer"], .block-container {{
     filter: none !important;
     opacity: 1 !important;
     transition: none !important;
-}
+}}
 
 /* 3. Matar el relojito de "Running..." arriba a la derecha */
-[data-testid="stStatusWidget"] {
+[data-testid="stStatusWidget"] {{
     display: none !important;
     opacity: 0 !important;
     visibility: hidden !important;
-}
+}}
 
 /* 4. LA ILUSIÓN: Overlay de Carga Profesional que cubre todo al inicio */
-#sophisticated-loader {
+#sophisticated-loader {{
     position: fixed;
     top: 0; left: 0; width: 100vw; height: 100vh;
     background-color: #0F172A; /* Fondo oscuro exacto de tu app */
@@ -65,20 +71,20 @@ st.markdown("""
     animation: fadeOutLoader 0.4s forwards;
     animation-delay: 0.6s; 
     pointer-events: none; /* Para no bloquear clics después */
-}
+}}
 
 /* El círculo giratorio verde premium */
-.loader-spinner {
+.loader-spinner {{
     width: 60px; height: 60px;
     border: 4px solid rgba(16, 185, 129, 0.1);
     border-top-color: #10B981; 
     border-radius: 50%;
     animation: spinLoader 0.8s linear infinite;
     margin-bottom: 25px;
-}
+}}
 
 /* El texto que parpadea */
-.loader-text {
+.loader-text {{
     color: #F8FAFC;
     font-family: 'Inter', sans-serif;
     font-weight: 800;
@@ -86,27 +92,23 @@ st.markdown("""
     letter-spacing: 3px;
     text-transform: uppercase;
     animation: pulseText 1s ease-in-out infinite;
-}
+}}
 
 /* Animaciones */
-@keyframes fadeOutLoader {
-    0% { opacity: 1; visibility: visible; }
-    100% { opacity: 0; visibility: hidden; }
-}
-@keyframes spinLoader {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-@keyframes pulseText {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.4; }
-}
+@keyframes fadeOutLoader {{
+    0% {{ opacity: 1; visibility: visible; }}
+    100% {{ opacity: 0; visibility: hidden; }}
+}}
+@keyframes spinLoader {{
+    0% {{ transform: rotate(0deg); }}
+    100% {{ transform: rotate(360deg); }}
+}}
+@keyframes pulseText {{
+    0%, 100% {{ opacity: 1; }}
+    50% {{ opacity: 0.4; }}
+}}
 </style>
-
-<div id="sophisticated-loader">
-    <div class="loader-spinner"></div>
-    <div class="loader-text">Sincronizando Datos...</div>
-</div>
+{loader_html}
 """, unsafe_allow_html=True)
 
 # 🤖 ASESINO SILENCIOSO: Caza la alerta específica del botón y la borra en 1 milisegundo
@@ -1840,12 +1842,16 @@ def modal_configuracion_completa():
                             if st.button("Apagar IA", key=f"off_ia_{u}", use_container_width=True):
                                 db_global[u]["settings"]["PC"]["is_admin"] = False
                                 db_global[u]["settings"]["Móvil"]["is_admin"] = False
-                                reescribir_excel_usuario(u); st.rerun()
+                                reescribir_excel_usuario(u)
+                                st.cache_resource.clear()
+                                st.rerun()
                         else:
                             if st.button("Activar IA", key=f"on_ia_{u}", type="primary", use_container_width=True):
                                 db_global[u]["settings"]["PC"]["is_admin"] = True
                                 db_global[u]["settings"]["Móvil"]["is_admin"] = True
-                                reescribir_excel_usuario(u); st.rerun()
+                                reescribir_excel_usuario(u)
+                                st.cache_resource.clear()
+                                st.rerun()
                     with c4:
                         if st.button("🗑️", key=f"del_usr_{u}", use_container_width=True):
                             del db_global[u]
