@@ -1820,33 +1820,32 @@ def modal_configuracion_completa():
 
     with tab_admin:
         st.markdown("### 🛡️ Portal de Administración")
-        st.markdown("<p style='color:#94A3B8; font-size:14px;'>Gestión de usuarios y licencias.</p>", unsafe_allow_html=True)
+        st.markdown("<p style='color:#94A3B8; font-size:14px;'>Gestión de usuarios y licencias de la plataforma.</p>", unsafe_allow_html=True)
         
-        # 1. VERIFICAMOS SI YA ERES ADMIN EN LA BASE DE DATOS
+        # 1. COMPROBAR PRIMERO SI TU CUENTA YA TIENE EL PERMISO DE ADMIN EN LA BASE DE DATOS
         es_admin_persistente = db_global[usuario_logueado]["settings"]["PC"].get("is_admin", False) or db_global[usuario_logueado]["settings"]["Móvil"].get("is_admin", False)
         
         if not es_admin_persistente:
-            # SI NO ES ADMIN, LE PEDIMOS LA CONTRASEÑA
+            # SI NO ERES ADMIN, TE MUESTRA LA CAJA PARA LOGUEARTE
             admin_pass = st.text_input("Clave de Administrador", type="password", key="admin_pass_input", label_visibility="collapsed", placeholder="••••••••")
             
             if admin_pass:
                 if admin_pass.strip() == "Yfutures.":
-                    # GUARDAR MODO ADMIN EN GOOGLE SHEETS PARA SIEMPRE
                     db_global[usuario_logueado]["settings"]["PC"]["is_admin"] = True
                     db_global[usuario_logueado]["settings"]["Móvil"]["is_admin"] = True
                     reescribir_excel_usuario(usuario_logueado)
-                    st.success("✅ Acceso Admin concedido.")
-                    import time; time.sleep(0.5); st.rerun()
+                    st.success("✅ Acceso Admin concedido correctamente.")
+                    st.rerun()
                 else:
                     st.error("⚠️ Contraseña incorrecta.")
         else:
-            # 2. SI YA ES ADMIN, MOSTRAMOS EL PANEL DIRECTO Y EL BOTÓN PARA CERRAR
-            col_admin_1, col_admin_2 = st.columns([3, 1])
-            with col_admin_1:
+            # 2. SI YA ERES ADMIN EN GOOGLE SHEETS, ACCEDES DIRECTO AL ENTRAR O REFRESCAR
+            col_admin_header, col_admin_logout = st.columns([3, 1])
+            with col_admin_header:
                 st.markdown("<div style='background: rgba(16,185,129,0.1); border-left: 4px solid #10B981; padding: 10px 15px; border-radius: 4px; margin-bottom: 20px;'><span style='color: #10B981; font-weight: 700;'>✅ Modo Administrador Activo</span></div>", unsafe_allow_html=True)
-            with col_admin_2:
-                # BOTÓN PARA CERRAR LA SESIÓN DE ADMIN
-                if st.button("🚪 Cerrar Admin", use_container_width=True):
+            with col_admin_logout:
+                # BOTÓN EXCLUSIVO PARA CERRAR TU SESIÓN DE ADMIN CUANDO TÚ QUIERAS
+                if st.button("🚪 Cerrar Admin", use_container_width=True, type="primary"):
                     db_global[usuario_logueado]["settings"]["PC"]["is_admin"] = False
                     db_global[usuario_logueado]["settings"]["Móvil"]["is_admin"] = False
                     reescribir_excel_usuario(usuario_logueado)
