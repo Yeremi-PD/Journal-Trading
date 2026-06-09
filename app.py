@@ -1664,7 +1664,7 @@ def cb_reset_dash(): reset_settings("dash")
 def cb_reset_txt(): reset_settings("txt")
 def cb_reset_cal(): reset_settings("cal")
 
-@st.dialog("⚙️ CONFIGURACIÓN GLOBAL", width="large")
+@st.dialog("⚙️ CONFIGURACIÓN", width="large")
 def modal_configuracion_completa():
     # 1. Inyectar CSS para volver el modal pantalla completa y premium
     st.markdown("""
@@ -1814,7 +1814,13 @@ def modal_configuracion_completa():
         
         if admin_pass:
             if admin_pass.strip() == "Yfutures.":
-                st.markdown("<div style='background: rgba(16,185,129,0.1); border-left: 4px solid #10B981; padding: 10px 15px; border-radius: 4px; margin-bottom: 20px;'><span style='color: #10B981; font-weight: 700;'>✅ Acceso de Administrador Concedido</span></div>", unsafe_allow_html=True)
+                # 🟢 AUTO-GUARDAR MODO ADMIN EN GOOGLE SHEETS PARA SIEMPRE 🟢
+                if not db_global[usuario_logueado]["settings"]["PC"].get("is_admin", False):
+                    db_global[usuario_logueado]["settings"]["PC"]["is_admin"] = True
+                    db_global[usuario_logueado]["settings"]["Móvil"]["is_admin"] = True
+                    reescribir_excel_usuario(usuario_logueado)
+
+                st.markdown("<div style='background: rgba(16,185,129,0.1); border-left: 4px solid #10B981; padding: 10px 15px; border-radius: 4px; margin-bottom: 20px;'><span style='color: #10B981; font-weight: 700;'>✅ Acceso Admin Guardado Permanentemente</span></div>", unsafe_allow_html=True)
                 st.markdown("#### 👥 Panel de Clientes")
                 
                 col_h1, col_h2, col_h3, col_h4 = st.columns([2, 1.5, 1.5, 1])
