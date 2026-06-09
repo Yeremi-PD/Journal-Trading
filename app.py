@@ -3701,7 +3701,7 @@ if True:
                 wl_text_sem = ' <span style="color:gray;">/</span> '.join(wl_parts_sem) if wl_parts_sem else '<span style="color:gray;">0W / 0L / 0BE</span>'
                 wl_text_sem += f' <span style="color:white;">({total_trades_sem})</span>'
                 
-                semanas_html += f'<div class="wk-box" style="position: relative;"><span style="position:absolute; top:6px; right:8px; font-size:12px; font-weight:800; color:{c_wr_sem};">{wr_sem:.0f}%</span><div class="wk-title" style="font-size:var(--size-box-titles) !important;">{titulo_str}</div><div class="wk-val {c_sem}" style="font-size:var(--size-box-vals) !important;">{s_sem}${stats["pnl"]:,.2f}<br><span style="font-size:var(--size-box-pct);">{s_sem}{pct_sem:.2f}%</span><br><span style="font-size: calc(var(--size-box-wl) + 2px) !important; font-weight: 800 !important;">{wl_text_sem}</span></div></div>'
+                semanas_html += f'<div class="wk-box" style="position: relative;"><span style="position:absolute; top:8px; right:10px; font-size:18px; font-weight:900; color:{c_wr_sem};">{wr_sem:.0f}%</span><div class="wk-title" style="font-size:var(--size-box-titles) !important;">{titulo_str}</div><div class="wk-val {c_sem}" style="font-size:var(--size-box-vals) !important;">{s_sem}${stats["pnl"]:,.2f}<br><span style="font-size:var(--size-box-pct);">{s_sem}{pct_sem:.2f}%</span><br><span style="font-size: calc(var(--size-box-wl) + 2px) !important; font-weight: 800 !important;">{wl_text_sem}</span></div></div>'
             
 # Calculamos el total de operaciones de la caja del mes actual
             total_trades_mo = m_w + m_l + m_be
@@ -3719,7 +3719,7 @@ if True:
             wl_text_mo = ' <span style="color:gray;">/</span> '.join(wl_parts_mo) if wl_parts_mo else '<span style="color:gray;">0W / 0L / 0BE</span>'
             wl_text_mo += f' <span style="color:white;">({total_trades_mo})</span>'
             
-            st.markdown(f'<div class="weeks-container">{semanas_html}<div class="mo-box" style="position: relative;"><span style="position:absolute; top:8px; right:12px; font-size:14px; font-weight:800; color:{c_wr_mo};">{wr_mo:.0f}%</span><div class="mo-title" style="font-size:var(--size-box-titles) !important;">{TXT_MO}</div><div class="mo-val {cM}" style="font-size:var(--size-box-vals) !important;">{sM}${m_total:,.2f}<br><span style="font-size:var(--size-box-pct);">{sM}{pct_m:.2f}%</span><br><span style="font-size: calc(var(--size-box-wl) + 2px) !important; font-weight: 800 !important;">{wl_text_mo}</span></div></div></div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="weeks-container">{semanas_html}<div class="mo-box" style="position: relative;"><span style="position:absolute; top:12px; right:15px; font-size:24px; font-weight:900; color:{c_wr_mo};">{wr_mo:.0f}%</span><div class="mo-title" style="font-size:var(--size-box-titles) !important;">{TXT_MO}</div><div class="mo-val {cM}" style="font-size:var(--size-box-vals) !important;">{sM}${m_total:,.2f}<br><span style="font-size:var(--size-box-pct);">{sM}{pct_m:.2f}%</span><br><span style="font-size: calc(var(--size-box-wl) + 2px) !important; font-weight: 800 !important;">{wl_text_mo}</span></div></div></div>', unsafe_allow_html=True)
             
 # Si "Ver Solo Este Mes" está DESACTIVADO (ver_todo es True), mostramos TAMBIÉN las cajas de los meses debajo
         if ver_todo:
@@ -3767,7 +3767,7 @@ if True:
                 wl_text_all = ' <span style="color:gray;">/</span> '.join(wl_parts_all) if wl_parts_all else '<span style="color:gray;">0W / 0L / 0BE</span>'
                 wl_text_all += f' <span style="color:white;">({total_trades_hist_m})</span>'
                 
-                meses_html += f'<div class="wk-box" style="position: relative;"><span style="position:absolute; top:6px; right:8px; font-size:12px; font-weight:800; color:{c_wr_hist_m};">{wr_hist_m:.0f}%</span><div class="wk-title" style="font-size:var(--size-box-titles) !important;">{nombre_m}</div><div class="wk-val {c_m}" style="font-size:var(--size-box-vals) !important;">{s_m}${val_m:,.2f}<br><span style="font-size:var(--size-box-pct);">{s_m}{pct_m_box:.2f}%</span><br><span style="font-size: calc(var(--size-box-wl) + 2px) !important; font-weight: 800 !important;">{wl_text_all}</span></div></div>'
+                meses_html += f'<div class="wk-box" style="position: relative;"><span style="position:absolute; top:8px; right:10px; font-size:18px; font-weight:900; color:{c_wr_hist_m};">{wr_hist_m:.0f}%</span><div class="wk-title" style="font-size:var(--size-box-titles) !important;">{nombre_m}</div><div class="wk-val {c_m}" style="font-size:var(--size-box-vals) !important;">{s_m}${val_m:,.2f}<br><span style="font-size:var(--size-box-pct);">{s_m}{pct_m_box:.2f}%</span><br><span style="font-size: calc(var(--size-box-wl) + 2px) !important; font-weight: 800 !important;">{wl_text_all}</span></div></div>'
             
             if meses_html: st.markdown(f'<div class="weeks-container">{meses_html}</div>', unsafe_allow_html=True)
             else: st.info("No hay meses con trades registrados aún.")
