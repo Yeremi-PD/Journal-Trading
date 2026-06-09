@@ -1299,15 +1299,15 @@ def obtener_ahora_local():
             es_adm = db_global[usr]["settings"]["PC"].get("is_admin", False) or db_global[usr]["settings"]["Móvil"].get("is_admin", False)
     except: pass
     
-    # 1. Calculamos la hora exacta de RD (Independiente de dónde esté el servidor de Streamlit)
+    # 1. Hora local de República Dominicana en tiempo real
     hora_rd = datetime.utcnow() - pd.Timedelta(hours=4)
     
-    if es_adm:
-        # 👑 Tu cuenta Admin: A la hora exacta de RD, le sumamos 6 horas.
-        # Si en RD son las 6:00 PM (18:00) + 6h = 00:00 (¡Salta a mañana 100% garantizado!)
-        return hora_rd + pd.Timedelta(hours=6) 
+    # 2. REGLA ESTRICTA DE ADMINISTRADOR:
+    if es_adm and hora_rd.hour >= 18:
+        # Si eres Admin y son las 18:00 (6:00 PM) o más tarde, forzamos +1 día entero
+        return hora_rd + pd.Timedelta(days=1)
     else:
-        # 👥 Otras cuentas: Hora normal de RD intacta
+        # Usuarios normales, o si eres Admin pero aún es temprano (ej. 4:00 PM), se queda igual
         return hora_rd
 
 if "tema" not in st.session_state: st.session_state.tema = TEMA_POR_DEFECTO
