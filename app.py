@@ -1820,57 +1820,78 @@ def modal_configuracion_completa():
 
     with tab_admin:
         st.markdown("### 🛡️ Portal de Administración")
-        st.markdown("<p style='color:#94A3B8; font-size:14px;'>Ingresa la clave maestra para gestionar usuarios y licencias.</p>", unsafe_allow_html=True)
-        admin_pass = st.text_input("Clave de Administrador", type="password", key="admin_pass_input", label_visibility="collapsed", placeholder="••••••••")
+        st.markdown("<p style='color:#94A3B8; font-size:14px;'>Gestión de usuarios y licencias.</p>", unsafe_allow_html=True)
         
-        if admin_pass:
-            if admin_pass.strip() == "Yfutures.":
-                # 🟢 AUTO-GUARDAR MODO ADMIN EN GOOGLE SHEETS PARA SIEMPRE 🟢
-                if not db_global[usuario_logueado]["settings"]["PC"].get("is_admin", False):
+        # 1. VERIFICAMOS SI YA ERES ADMIN EN LA BASE DE DATOS
+        es_admin_persistente = db_global[usuario_logueado]["settings"]["PC"].get("is_admin", False) or db_global[usuario_logueado]["settings"]["Móvil"].get("is_admin", False)
+        
+        if not es_admin_persistente:
+            # SI NO ES ADMIN, LE PEDIMOS LA CONTRASEÑA
+            admin_pass = st.text_input("Clave de Administrador", type="password", key="admin_pass_input", label_visibility="collapsed", placeholder="••••••••")
+            
+            if admin_pass:
+                if admin_pass.strip() == "Yfutures.":
+                    # GUARDAR MODO ADMIN EN GOOGLE SHEETS PARA SIEMPRE
                     db_global[usuario_logueado]["settings"]["PC"]["is_admin"] = True
                     db_global[usuario_logueado]["settings"]["Móvil"]["is_admin"] = True
                     reescribir_excel_usuario(usuario_logueado)
+                    st.success("✅ Acceso Admin concedido.")
+                    import time; time.sleep(0.5); st.rerun()
+                else:
+                    st.error("⚠️ Contraseña incorrecta.")
+        else:
+            # 2. SI YA ES ADMIN, MOSTRAMOS EL PANEL DIRECTO Y EL BOTÓN PARA CERRAR
+            col_admin_1, col_admin_2 = st.columns([3, 1])
+            with col_admin_1:
+                st.markdown("<div style='background: rgba(16,185,129,0.1); border-left: 4px solid #10B981; padding: 10px 15px; border-radius: 4px; margin-bottom: 20px;'><span style='color: #10B981; font-weight: 700;'>✅ Modo Administrador Activo</span></div>", unsafe_allow_html=True)
+            with col_admin_2:
+                # BOTÓN PARA CERRAR LA SESIÓN DE ADMIN
+                if st.button("🚪 Cerrar Admin", use_container_width=True):
+                    db_global[usuario_logueado]["settings"]["PC"]["is_admin"] = False
+                    db_global[usuario_logueado]["settings"]["Móvil"]["is_admin"] = False
+                    reescribir_excel_usuario(usuario_logueado)
+                    st.rerun()
 
-                st.markdown("<div style='background: rgba(16,185,129,0.1); border-left: 4px solid #10B981; padding: 10px 15px; border-radius: 4px; margin-bottom: 20px;'><span style='color: #10B981; font-weight: 700;'>✅ Acceso Admin Guardado Permanentemente</span></div>", unsafe_allow_html=True)
-                st.markdown("#### 👥 Panel de Clientes")
+            st.markdown("#### 👥 Panel de Clientes")
+            
+            col_h1, col_h2, col_h3, col_h4 = st.columns([2, 1.5, 1.5, 1])
+            col_h1.markdown("<span style='color:#94A3B8; font-size:12px; text-transform:uppercase;'>Usuario</span>", unsafe_allow_html=True)
+            col_h2.markdown("<span style='color:#94A3B8; font-size:12px; text-transform:uppercase;'>Contraseña</span>", unsafe_allow_html=True)
+            col_h3.markdown("<span style='color:#94A3B8; font-size:12px; text-transform:uppercase;'>Estado IA</span>", unsafe_allow_html=True)
+            col_h4.markdown("<span style='color:#94A3B8; font-size:12px; text-transform:uppercase;'>Acción</span>", unsafe_allow_html=True)
+            st.markdown("<hr style='margin-top: 5px; margin-bottom: 10px; border-color: #334155;'>", unsafe_allow_html=True)
+            
+            for u, data in list(db_global.items()):
+                es_admin_u = data["settings"]["PC"].get("is_admin", False) or data["settings"]["Móvil"].get("is_admin", False)
+                c1, c2, c3, c4 = st.columns([2, 1.5, 1.5, 1])
+                c1.markdown(f"<span style='color:#F8FAFC; font-weight:600;'>👤 {u}</span>", unsafe_allow_html=True)
+                c2.markdown(f"<code style='color:#94A3B8; background:rgba(0,0,0,0.2); padding: 4px 8px; border-radius: 4px;'>{data['password']}</code>", unsafe_allow_html=True)
                 
-                col_h1, col_h2, col_h3, col_h4 = st.columns([2, 1.5, 1.5, 1])
-                col_h1.markdown("<span style='color:#94A3B8; font-size:12px; text-transform:uppercase;'>Usuario</span>", unsafe_allow_html=True)
-                col_h2.markdown("<span style='color:#94A3B8; font-size:12px; text-transform:uppercase;'>Contraseña</span>", unsafe_allow_html=True)
-                col_h3.markdown("<span style='color:#94A3B8; font-size:12px; text-transform:uppercase;'>Estado IA</span>", unsafe_allow_html=True)
-                col_h4.markdown("<span style='color:#94A3B8; font-size:12px; text-transform:uppercase;'>Acción</span>", unsafe_allow_html=True)
-                st.markdown("<hr style='margin-top: 5px; margin-bottom: 10px; border-color: #334155;'>", unsafe_allow_html=True)
-                
-                for u, data in list(db_global.items()):
-                    es_admin_u = data["settings"]["PC"].get("is_admin", False) or data["settings"]["Móvil"].get("is_admin", False)
-                    c1, c2, c3, c4 = st.columns([2, 1.5, 1.5, 1])
-                    c1.markdown(f"<span style='color:#F8FAFC; font-weight:600;'>👤 {u}</span>", unsafe_allow_html=True)
-                    c2.markdown(f"<code style='color:#94A3B8; background:rgba(0,0,0,0.2); padding: 4px 8px; border-radius: 4px;'>{data['password']}</code>", unsafe_allow_html=True)
-                    with c3:
-                        if es_admin_u:
-                            if st.button("Apagar IA", key=f"off_ia_{u}", use_container_width=True):
-                                db_global[u]["settings"]["PC"]["is_admin"] = False
-                                db_global[u]["settings"]["Móvil"]["is_admin"] = False
-                                reescribir_excel_usuario(u)
-                                st.cache_resource.clear()
-                                st.rerun()
-                        else:
-                            if st.button("Activar IA", key=f"on_ia_{u}", type="primary", use_container_width=True):
-                                db_global[u]["settings"]["PC"]["is_admin"] = True
-                                db_global[u]["settings"]["Móvil"]["is_admin"] = True
-                                reescribir_excel_usuario(u)
-                                st.cache_resource.clear()
-                                st.rerun()
-                    with c4:
-                        if st.button("🗑️", key=f"del_usr_{u}", use_container_width=True):
-                            del db_global[u]
-                            if st.session_state.usuario_actual == u: st.session_state.usuario_actual = None
-                            try: st.query_params.clear()
-                            except: pass
+                with c3:
+                    if es_admin_u:
+                        if st.button("Apagar IA", key=f"off_ia_{u}", use_container_width=True):
+                            db_global[u]["settings"]["PC"]["is_admin"] = False
+                            db_global[u]["settings"]["Móvil"]["is_admin"] = False
+                            reescribir_excel_usuario(u)
+                            st.cache_resource.clear()
                             st.rerun()
-                    st.markdown("<hr style='margin-top: 5px; margin-bottom: 10px; border-color: #334155; opacity: 0.3;'>", unsafe_allow_html=True)
-            else:
-                st.error("⚠️ Contraseña incorrecta.")
+                    else:
+                        if st.button("Activar IA", key=f"on_ia_{u}", type="primary", use_container_width=True):
+                            db_global[u]["settings"]["PC"]["is_admin"] = True
+                            db_global[u]["settings"]["Móvil"]["is_admin"] = True
+                            reescribir_excel_usuario(u)
+                            st.cache_resource.clear()
+                            st.rerun()
+                
+                with c4:
+                    if st.button("🗑️", key=f"del_usr_{u}", use_container_width=True):
+                        del db_global[u]
+                        if st.session_state.usuario_actual == u: st.session_state.usuario_actual = None
+                        try: st.query_params.clear()
+                        except: pass
+                        st.rerun()
+                
+                st.markdown("<hr style='margin-top: 5px; margin-bottom: 10px; border-color: #334155; opacity: 0.3;'>", unsafe_allow_html=True)
 
 
 # ==========================================
