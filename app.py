@@ -1299,14 +1299,18 @@ def obtener_ahora_local():
             es_adm = db_global[usr]["settings"]["PC"].get("is_admin", False) or db_global[usr]["settings"]["Móvil"].get("is_admin", False)
     except: pass
     
-    # 1. Obtenemos la hora real de RD (independiente de dónde esté el servidor)
+    # 1. Sacamos la hora exacta de RD matemáticamente (UTC - 4 horas)
     hora_rd = datetime.utcnow() - pd.Timedelta(hours=4)
     
-    if es_adm:
-        # 👑 Tu cuenta Admin: Tu misma fórmula original, pero sumándole las 6 horas a la hora local
-        return hora_rd + pd.Timedelta(hours=6)
+    # 2. TU LÓGICA MATEMÁTICA:
+    if es_adm and hora_rd.hour >= 18:
+        # Si es Admin y son las 6:00 PM (18) o más, le sumamos 1 día (Ej: Día 7 pasa a Día 8)
+        return hora_rd + pd.Timedelta(days=1)
+    elif es_adm:
+        # Si es Admin pero son las 5:59 PM o menos, NO sumamos nada (Se queda en Día 7)
+        return hora_rd
     else:
-        # 👥 Otras cuentas: Hora normal (Se queda en RD sin sumar nada)
+        # Cuentas normales: Hora normal de RD
         return hora_rd
 
 if "tema" not in st.session_state: st.session_state.tema = TEMA_POR_DEFECTO
