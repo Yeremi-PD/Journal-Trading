@@ -1299,15 +1299,14 @@ def obtener_ahora_local():
             es_adm = db_global[usr]["settings"]["PC"].get("is_admin", False) or db_global[usr]["settings"]["Móvil"].get("is_admin", False)
     except: pass
     
-    # 1. Hora local de República Dominicana en tiempo real
+    # 1. Obtenemos la hora real de RD (independiente de dónde esté el servidor)
     hora_rd = datetime.utcnow() - pd.Timedelta(hours=4)
     
-    # 2. REGLA ESTRICTA DE ADMINISTRADOR:
-    if es_adm and hora_rd.hour >= 18:
-        # Si eres Admin y son las 18:00 (6:00 PM) o más tarde, forzamos +1 día entero
-        return hora_rd + pd.Timedelta(days=1)
+    if es_adm:
+        # 👑 Tu cuenta Admin: Tu misma fórmula original, pero sumándole las 6 horas a la hora local
+        return hora_rd + pd.Timedelta(hours=6)
     else:
-        # Usuarios normales, o si eres Admin pero aún es temprano (ej. 4:00 PM), se queda igual
+        # 👥 Otras cuentas: Hora normal (Se queda en RD sin sumar nada)
         return hora_rd
 
 if "tema" not in st.session_state: st.session_state.tema = TEMA_POR_DEFECTO
