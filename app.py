@@ -1820,31 +1820,33 @@ def modal_configuracion_completa():
 
     with tab_admin:
         st.markdown("### 🛡️ Portal de Administración")
-        st.markdown("<p style='color:#94A3B8; font-size:14px;'>Gestión de usuarios y licencias de la plataforma.</p>", unsafe_allow_html=True)
         
-        # 1. COMPROBAR PRIMERO SI TU CUENTA YA TIENE EL PERMISO DE ADMIN EN LA BASE DE DATOS
+        # 1. LEER EL GOOGLE SHEET PRIMERO: ¿Es este usuario administrador?
         es_admin_persistente = db_global[usuario_logueado]["settings"]["PC"].get("is_admin", False) or db_global[usuario_logueado]["settings"]["Móvil"].get("is_admin", False)
         
+        # 2. LÓGICA PRINCIPAL: Si NO es admin, pide clave. Si YA ES, salta directo al panel.
         if not es_admin_persistente:
-            # SI NO ERES ADMIN, TE MUESTRA LA CAJA PARA LOGUEARTE
+            st.markdown("<p style='color:#94A3B8; font-size:14px;'>Ingresa la clave maestra para gestionar usuarios y licencias.</p>", unsafe_allow_html=True)
             admin_pass = st.text_input("Clave de Administrador", type="password", key="admin_pass_input", label_visibility="collapsed", placeholder="••••••••")
             
             if admin_pass:
                 if admin_pass.strip() == "Yfutures.":
+                    # GUARDAR MODO ADMIN EN GOOGLE SHEETS PARA SIEMPRE
                     db_global[usuario_logueado]["settings"]["PC"]["is_admin"] = True
                     db_global[usuario_logueado]["settings"]["Móvil"]["is_admin"] = True
                     reescribir_excel_usuario(usuario_logueado)
-                    st.success("✅ Acceso Admin concedido correctamente.")
+                    st.success("✅ Acceso concedido.")
                     st.rerun()
                 else:
                     st.error("⚠️ Contraseña incorrecta.")
-        else:
-            # 2. SI YA ERES ADMIN EN GOOGLE SHEETS, ACCEDES DIRECTO AL ENTRAR O REFRESCAR
-            col_admin_header, col_admin_logout = st.columns([3, 1])
-            with col_admin_header:
+        
+        if es_admin_persistente:
+            # YA ES ADMINISTRADOR, MOSTRAMOS EL PANEL DIRECTAMENTE SIN PEDIR CONTRASEÑA
+            col_admin_msg, col_admin_btn = st.columns([3, 1])
+            with col_admin_msg:
                 st.markdown("<div style='background: rgba(16,185,129,0.1); border-left: 4px solid #10B981; padding: 10px 15px; border-radius: 4px; margin-bottom: 20px;'><span style='color: #10B981; font-weight: 700;'>✅ Modo Administrador Activo</span></div>", unsafe_allow_html=True)
-            with col_admin_logout:
-                # BOTÓN EXCLUSIVO PARA CERRAR TU SESIÓN DE ADMIN CUANDO TÚ QUIERAS
+            with col_admin_btn:
+                # Al presionar este botón, tu usuario deja de ser administrador y el cambio se guarda en el Google Sheet
                 if st.button("🚪 Cerrar Admin", use_container_width=True, type="primary"):
                     db_global[usuario_logueado]["settings"]["PC"]["is_admin"] = False
                     db_global[usuario_logueado]["settings"]["Móvil"]["is_admin"] = False
@@ -1865,7 +1867,6 @@ def modal_configuracion_completa():
                 c1, c2, c3, c4 = st.columns([2, 1.5, 1.5, 1])
                 c1.markdown(f"<span style='color:#F8FAFC; font-weight:600;'>👤 {u}</span>", unsafe_allow_html=True)
                 c2.markdown(f"<code style='color:#94A3B8; background:rgba(0,0,0,0.2); padding: 4px 8px; border-radius: 4px;'>{data['password']}</code>", unsafe_allow_html=True)
-                
                 with c3:
                     if es_admin_u:
                         if st.button("Apagar IA", key=f"off_ia_{u}", use_container_width=True):
@@ -1881,7 +1882,7 @@ def modal_configuracion_completa():
                             reescribir_excel_usuario(u)
                             st.cache_resource.clear()
                             st.rerun()
-                
+       
                 with c4:
                     if st.button("🗑️", key=f"del_usr_{u}", use_container_width=True):
                         del db_global[u]
@@ -1889,7 +1890,7 @@ def modal_configuracion_completa():
                         try: st.query_params.clear()
                         except: pass
                         st.rerun()
-                
+          
                 st.markdown("<hr style='margin-top: 5px; margin-bottom: 10px; border-color: #334155; opacity: 0.3;'>", unsafe_allow_html=True)
 
 
