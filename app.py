@@ -1299,10 +1299,16 @@ def obtener_ahora_local():
             es_adm = db_global[usr]["settings"]["PC"].get("is_admin", False) or db_global[usr]["settings"]["Móvil"].get("is_admin", False)
     except: pass
     
+    # 1. Calculamos la hora exacta de RD (Independiente de dónde esté el servidor de Streamlit)
+    hora_rd = datetime.utcnow() - pd.Timedelta(hours=4)
+    
     if es_adm:
-        return datetime.now() + pd.Timedelta(hours=6) # 👑 Tu cuenta Admin: Hace el salto de día
+        # 👑 Tu cuenta Admin: A la hora exacta de RD, le sumamos 6 horas.
+        # Si en RD son las 6:00 PM (18:00) + 6h = 00:00 (¡Salta a mañana 100% garantizado!)
+        return hora_rd + pd.Timedelta(hours=6) 
     else:
-        return datetime.utcnow() - pd.Timedelta(hours=4) # 👥 Otras cuentas: Hora normal (RD)
+        # 👥 Otras cuentas: Hora normal de RD intacta
+        return hora_rd
 
 if "tema" not in st.session_state: st.session_state.tema = TEMA_POR_DEFECTO
 if "form_reset_key" not in st.session_state: st.session_state.form_reset_key = 0
