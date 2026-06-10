@@ -2773,7 +2773,7 @@ if True:
         display: block !important;
         text-align: left !important;
         width: 100% !important;
-        padding-left: 2px !important; /* Hace que inicie exactamente alineado al borde del botón */
+        padding-left: 211px !important; /* Hace que inicie exactamente alineado al borde del botón */
     }
 
     /* Inputs de texto y números */
@@ -3031,7 +3031,7 @@ if True:
             transform: none !important;
             text-align: center !important;
             justify-content: center !important;
-            width: 1100% !important;
+            width: 100% !important;
         }
         .lbl-header {
             transform: none !important;
