@@ -2242,7 +2242,42 @@ margin: 0 auto !important; transform: translate({BALANCE_BOX_X}px, {BALANCE_BOX_
     div[data-testid="stPopover"] > button:active, div[data-testid="stPopover"] > div:first-child > button:active, div[data-testid="stPopover"] button[kind="secondary"]:first-of-type:active {{ background-color: {btn_bg} !important; color: {btn_txt} !important; border: 1px solid {border_color} !important; outline: none !important; box-shadow: none !important; }}
     
 /* Forzamos el fondo y borde claro en el cuerpo del popover */
-    div[data-testid="stPopoverBody"] {{ background-color: {card_bg} !important; border: 2px solid {card_bg} !important; border-radius: 8px !important; padding: 15px !important; }}
+    div[data-testid="stPopoverBody"] { background-color: {card_bg} !important;
+ border: 2px solid {card_bg} !important; border-radius: 8px !important; padding: 15px !important;
+ }
+    
+    /* Normalizar selectores de fecha y hora dentro de las ventanas emergentes (Popovers) */
+    div[data-testid="stPopoverBody"] div[data-testid="stDateInput"],
+    div[data-testid="stPopoverBody"] div[data-testid="stTimeInput"] {
+        width: 100% !important;
+        min-width: 100% !important;
+        height: auto !important;
+    }
+    div[data-testid="stPopoverBody"] div[data-testid="stDateInput"] > div:first-child,
+    div[data-testid="stPopoverBody"] div[data-testid="stTimeInput"] > div:first-child {
+        width: 100% !important;
+        height: 45px !important;
+        min-height: 45px !important;
+        background-color: #2D3748 !important;
+        border: 1px solid #4A5568 !important;
+        border-radius: 8px !important;
+    }
+    div[data-testid="stPopoverBody"] div[data-testid="stDateInput"] input,
+    div[data-testid="stPopoverBody"] div[data-testid="stTimeInput"] input {
+        color: white !important;
+        -webkit-text-fill-color: white !important;
+        height: 45px !important;
+        font-size: 16px !important;
+        cursor: pointer !important;
+    }
+    div[data-testid="stPopoverBody"] div[data-testid="stDateInput"]::after {
+        display: none !important;
+    }
+    div[data-testid="stPopoverBody"] div[data-testid="stDateInput"] svg,
+    div[data-testid="stPopoverBody"] div[data-testid="stTimeInput"] svg {
+        display: block !important;
+        color: #A0AEC0 !important;
+    }
     
     /* Matamos el color oscuro de la capa base invisible de Streamlit */
     div[data-baseweb="popover"], div[data-baseweb="popover"] > div {{ background-color: {card_bg} !important; border: none !important; outline: none !important; box-shadow: none !important; }}
@@ -3065,21 +3100,28 @@ if True:
             """, unsafe_allow_html=True)
             
             with st.expander("Agregar Nuevo Trade", expanded=False):
+                if "main_fecha_sel" not in st.session_state:
+                    st.session_state.main_fecha_sel = hoy
+                if "main_hora_sel" not in st.session_state:
+                    st.session_state.main_hora_sel = (datetime.utcnow() - pd.Timedelta(hours=4)).time()
+
                 with st.form(key="form_main_entry", clear_on_submit=True, border=False):
-                    #  NUEVO LAYOUT: 6 columnas para separar el Link y el botón Popover de imagen
-                    c_date, c_cant, c_det, c_link, c_upd, c_btn = st.columns([0.8, 1.2, 1.1, 1.9, 0.6, 1])
+                    # LAYOUT AJUSTADO: Más espacio a la columna de tiempo para que quepa la etiqueta combinada
+                    c_date, c_cant, c_det, c_link, c_upd, c_btn = st.columns([1.5, 1.2, 1.1, 1.5, 0.6, 1.0])
                     
                     with c_date:
-                
-                        st.markdown('<div class="lbl-header">Fecha:</div>', unsafe_allow_html=True)
-                        # El botón principal mostrará la fecha, y al darle clic abrirá el selector con hora local (UTC-4)
-                        with st.popover(f"{hoy.strftime('%d/%m')}", use_container_width=True):
+                        st.markdown('<div class="lbl-header">Fecha y Hora:</div>', unsafe_allow_html=True)
+                        popover_label = f"{st.session_state.main_fecha_sel.strftime('%d/%m')} | {st.session_state.main_hora_sel.strftime('%H:%M')}"
+                        with st.popover(popover_label, use_container_width=True):
                             st.markdown("<div style='margin-bottom: 10px; font-weight: 700; color: #94A3B8; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;'>Configurar Fecha y Hora</div>", unsafe_allow_html=True)
-                            fecha_sel = st.date_input("Día", value=hoy, label_visibility="collapsed")
-                            
-                            # Hora de RD minuto a minuto (step=60)
-                            hora_local_rd = (datetime.utcnow() - pd.Timedelta(hours=4)).time()
-                            hora_sel = st.time_input("Hora exacta", value=hora_local_rd, step=60, label_visibility="collapsed")
+                            col_f1, col_f2 = st.columns(2)
+                            with col_f1:
+                                st.markdown("<span style='font-size:12px; color:#94A3B8; font-weight:700;'>Día:</span>", unsafe_allow_html=True)
+                                fecha_sel = st.date_input("Día", value=st.session_state.main_fecha_sel, key="main_fecha_sel", label_visibility="collapsed")
+                            with col_f2:
+                               _hora_def = (datetime.utcnow() - pd.Timedelta(hours=4)).time() if not st.session_state.main_hora_sel else st.session_state.main_hora_sel
+                               st.markdown("<span style='font-size:12px; color:#94A3B8; font-weight:700;'>Hora:</span>", unsafe_allow_html=True)
+                               hora_sel = st.time_input("Hora exacta", value=_hora_def, step=60, key="main_hora_sel", label_visibility="collapsed")
                             
                     with c_cant:
                         st.markdown('<div class="lbl-header">P&L:</div>', unsafe_allow_html=True)
@@ -5138,13 +5180,11 @@ doc.addEventListener('keydown', function(e) {
     }
 });
 
-// 2. 🟢 FIX: Bloquear teclado móvil sin romper el Selectbox en iOS y agregando la Hora
+// 2. 🟢 FIX: Bloquear teclado móvil sin romper el Selectbox en iOS
 function bloquearTeclado() {
-    // Agregamos stTimeInput a la lista
-    const inputs = doc.querySelectorAll('div[data-testid="stSelectbox"] input, div[data-testid="stDateInput"] input, div[data-testid="stTimeInput"] input');
+    const inputs = doc.querySelectorAll('div[data-testid="stSelectbox"] input');
     inputs.forEach(input => {
         input.setAttribute('inputmode', 'none'); 
-        // Quitamos el 'readonly' porque rompe Safari. Usamos un event listener para desenfocar (blur) al instante.
         input.addEventListener('focus', function() {
             this.blur();
         });
