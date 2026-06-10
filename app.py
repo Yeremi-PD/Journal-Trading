@@ -1728,7 +1728,28 @@ def modal_configuracion_completa():
                 nueva_cuenta_bal = st.selectbox(_l['sidebar']['sel_bal'], [25000.0, 50000.0, 100000.0], format_func=lambda x: f"${x:,.0f}", key="select_bal_nueva_cta")
                 if st.button(_l['sidebar']['btn_create_acc'], use_container_width=True, key="btn_crear_cta_sidebar"):
                     if nueva_cuenta_nombre and nueva_cuenta_nombre not in db_usuario:
-                        modal_fecha_inicio(nueva_cuenta_nombre, nueva_cuenta_bal)
+                        # 🟢 Solución: Crear la cuenta y asignar fechas directamente sin anidar modales
+                        f_ini = obtener_ahora_local().date()
+                        f_cie = f_ini + pd.Timedelta(days=30)
+                        
+                        db_usuario[nueva_cuenta_nombre] = {
+                            "balance": nueva_cuenta_bal, 
+                            "trades": {}, 
+                            "fecha_inicio": f_ini.strftime("%d/%m/%Y"),
+                            "fecha_cierre": f_cie.strftime("%d/%m/%Y")
+                        }
+                        
+                        # Actualizar la sesión para ir a la cuenta nueva automáticamente
+                        st.session_state.data_source_sel = nueva_cuenta_nombre
+                        try: 
+                            st.query_params["account"] = nueva_cuenta_nombre
+                        except: 
+                            pass
+                            
+                        # Guardar en base de datos y refrescar
+                        reescribir_excel_usuario(usuario)
+                        st.rerun()
+                        
                     elif nueva_cuenta_nombre in db_usuario:
                         st.warning(_l['sidebar']['exist_name'])
             
