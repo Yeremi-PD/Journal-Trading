@@ -2435,14 +2435,15 @@ border: 1px solid {border_color} !important; box-shadow: 0 1px 3px rgba(0,0,0,0.
             }}
 
             div[data-baseweb="tab-list"] {{
-                gap: 10px 6px !important;
+                display: flex !important;
+                flex-wrap: wrap !important; /* Obliga a romper la línea */
+                gap: 8px 4px !important; /* Separación horizontal y vertical */
                 padding-left: 2px !important;
                 padding-right: 2px !important;
                 justify-content: center !important; 
                 width: 100% !important;
                 height: auto !important;
                 overflow: visible !important;
-                flex-wrap: wrap !important;
             }}
             
             div[data-baseweb="tab-list"]::-webkit-scrollbar {{
@@ -2453,13 +2454,20 @@ border: 1px solid {border_color} !important; box-shadow: 0 1px 3px rgba(0,0,0,0.
             div[data-testid="stTabs"] button, 
             div[data-baseweb="tab-list"] button, 
             button[role="tab"] {{
-                font-size: 13px !important; /* Ligeramente más pequeño para que quepan bien */
-                padding: 10px 12px !important;
-                margin: 0px 2px !important; /* Juntarlos un poco más */
+                font-size: 11px !important; /* Letra un poquitito más pequeña para que quepa bien la palabra "Calendario" */
+                padding: 8px 2px !important;
+                margin: 0 !important; 
                 border-radius: 8px !important;
-                white-space: nowrap !important;
-                flex: 0 0 auto !important; 
-                min-width: 0 !important;
+                white-space: normal !important; /* Permite que el texto se acomode si es largo */
+                
+                /* 🟢 LA MAGIA: Obliga a que sean 4 botones por fila */
+                flex: 1 1 calc(25% - 6px) !important; 
+                min-width: calc(25% - 6px) !important;
+                
+                text-align: center !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
             }}
             
             div[data-testid="stTabs"] button p, 
