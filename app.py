@@ -1727,10 +1727,12 @@ def modal_configuracion_completa():
                 nueva_cuenta_nombre = st.text_input(_l['setup']['acc_name'], key="input_nombre_nueva_cta")
                 nueva_cuenta_bal = st.selectbox(_l['sidebar']['sel_bal'], [25000.0, 50000.0, 100000.0], format_func=lambda x: f"${x:,.0f}", key="select_bal_nueva_cta")
                 if st.button(_l['sidebar']['btn_create_acc'], use_container_width=True, key="btn_crear_cta_sidebar"):
-                    if nueva_cuenta_nombre and nueva_cuenta_nombre not in db_usuario:
-                        modal_fecha_inicio(nueva_cuenta_nombre, nueva_cuenta_bal)
-                    elif nueva_cuenta_nombre in db_usuario:
+                    if not nueva_cuenta_nombre or nueva_cuenta_nombre.strip() == "":
+                        st.warning("⚠️ Escribe un nombre para la cuenta.")
+                    elif nueva_cuenta_nombre.strip() in db_usuario:
                         st.warning(_l['sidebar']['exist_name'])
+                    else:
+                        modal_fecha_inicio(nueva_cuenta_nombre.strip(), nueva_cuenta_bal)
             
             ctx_actual = st.session_state.get("data_source_sel", "Account Real")
             with st.container(border=True):
