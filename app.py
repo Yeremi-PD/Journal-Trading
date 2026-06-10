@@ -3064,7 +3064,7 @@ if True:
             </style>
             """, unsafe_allow_html=True)
             
-            with st.expander("➕ Agregar Nuevo Trade", expanded=False):
+            with st.expander("Agregar Nuevo Trade", expanded=False):
                 with st.form(key="form_main_entry", clear_on_submit=True, border=False):
                     #  NUEVO LAYOUT: 6 columnas para separar el Link y el botón Popover de imagen
                     c_date, c_cant, c_det, c_link, c_upd, c_btn = st.columns([0.8, 1.2, 1.1, 1.9, 0.6, 1])
