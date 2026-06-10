@@ -2983,180 +2983,193 @@ if True:
             
             with st.expander("➕ Agregar Nuevo Trade", expanded=False):
                 with st.form(key="form_main_entry", clear_on_submit=True, border=False):
-                #  NUEVO LAYOUT: 6 columnas para separar el Link y el botón Popover de imagen
-                c_date, c_cant, c_det, c_link, c_upd, c_btn = st.columns([0.8, 1.2, 1.1, 1.9, 0.6, 1])
+                    #  NUEVO LAYOUT: 6 columnas para separar el Link y el botón Popover de imagen
+                    c_date, c_cant, c_det, c_link, c_upd, c_btn = st.columns([0.8, 1.2, 1.1, 1.9, 0.6, 1])
+                    
+                    with c_date:
                 
-                with c_date:
-            
-                    st.markdown('<div class="lbl-header">Fecha:</div>', unsafe_allow_html=True)
-                    # El botón principal mostrará la fecha, y al darle clic abrirá el selector con hora local (UTC-4)
-                    with st.popover(f"{hoy.strftime('%d/%m')}", use_container_width=True):
-                        st.markdown("<div style='margin-bottom: 10px; font-weight: 700; color: #94A3B8; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;'>Configurar Fecha y Hora</div>", unsafe_allow_html=True)
-                        fecha_sel = st.date_input("Día", value=hoy, label_visibility="collapsed")
+                        st.markdown('<div class="lbl-header">Fecha:</div>', unsafe_allow_html=True)
+                        # El botón principal mostrará la fecha, y al darle clic abrirá el selector con hora local (UTC-4)
+                        with st.popover(f"{hoy.strftime('%d/%m')}", use_container_width=True):
+                            st.markdown("<div style='margin-bottom: 10px; font-weight: 700; color: #94A3B8; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;'>Configurar Fecha y Hora</div>", unsafe_allow_html=True)
+                            fecha_sel = st.date_input("Día", value=hoy, label_visibility="collapsed")
+                            
+                            # Hora de RD minuto a minuto (step=60)
+                            hora_local_rd = (datetime.utcnow() - pd.Timedelta(hours=4)).time()
+                            hora_sel = st.time_input("Hora exacta", value=hora_local_rd, step=60, label_visibility="collapsed")
+                            
+                    with c_cant:
+                        st.markdown('<div class="lbl-header">P&L:</div>', unsafe_allow_html=True)
+                        nuevo_bal_input_str = st.text_input("Balance Input", value="", placeholder=f"{bal_mostrar:.2f}", label_visibility="collapsed")
                         
-                        # Hora de RD minuto a minuto (step=60)
-                        hora_local_rd = (datetime.utcnow() - pd.Timedelta(hours=4)).time()
-                        hora_sel = st.time_input("Hora exacta", value=hora_local_rd, step=60, label_visibility="collapsed")
+                    with c_det:
+                        st.markdown('<div class="lbl-header">Detalles:</div>', unsafe_allow_html=True)
+                        # El nuevo texto invita a la acción profesional
+                        with st.popover("Abrir", use_container_width=True):
+                            # Lógica original de los detalles del trade
+                            st.markdown(f"<div class='titulo-trade-details'>{_l['dash']['trade_det']}</div>", unsafe_allow_html=True)
+                            st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 5px; margin-bottom: 0px;'>{_l['dash']['bias']}</div>", unsafe_allow_html=True)
+                            bias_opts = ['LONG', 'SHORT', 'NONE']
+                            nuevo_bias_list = []
+                            cols_bias = st.columns([1, 1, 1, 3])
+                            for idx, op in enumerate(bias_opts):
+                                if cols_bias[idx].checkbox(op, key=f"new_bias_{idx}"): nuevo_bias_list.append(op)
+                            
+                            nuevo_bias = ", ".join(nuevo_bias_list) if nuevo_bias_list else "NONE"
+                            
+                            st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 15px; margin-bottom: 0px;'>Sesión</div>", unsafe_allow_html=True)
+                            sesion_opts = ['New York', 'Asia', 'Londres']
+                            nueva_sesion_list = []
+                            cols_sesion = st.columns([1, 1, 1, 3])
+                            for s_idx, s_op in enumerate(sesion_opts):
+                                if cols_sesion[s_idx].checkbox(s_op, key=f"new_sesion_{s_idx}"): nueva_sesion_list.append(s_op)
+                            nueva_sesion = ", ".join(nueva_sesion_list) if nueva_sesion_list else "NONE"
+                            st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 15px; margin-bottom: 0px;'>{_l['dash']['conf']}</div>", unsafe_allow_html=True)
+                            all_confs_list = ['BIAS WELL', 'LIQ SWEEP', 'IFVG', 'FVG', 'EQH / EQL', 'BSL / SSL', 'POI', 'SMT', 'Order Block', 'Continuation', 'Data High / Data Low', 'CISD']
+                            nuevo_conf = []
+                            cols_conf = st.columns(3)
+                            for idx, c_name in enumerate(all_confs_list):
+                                if cols_conf[idx % 3].checkbox(c_name, key=f"new_conf_{idx}"): nuevo_conf.append(c_name)
+                            
+                            st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
+                            nuevo_conf_custom = st.text_area("Otras Confluencias (Opcional)", value='', height=45, placeholder="Escribe aquí otras confluencias...")
+                            
+                            st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
+                            nuevo_razon = st.text_area(_l['dash']['reason'], value='', height=45)
+                            st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 5px; margin-bottom: 0px;'>{_l['dash']['risk']}</div>", unsafe_allow_html=True)
+                            risk_opts = ['1%', '0.9%', '0.8%', '0.7%', '0.6%', '0.5%', '0.4%']
+                            nuevo_risk_list = []
+                            cols_risk = st.columns([1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 0.2])
+                            for idx, op in enumerate(risk_opts):
+                                if cols_risk[idx].checkbox(op, key=f"new_risk_{idx}"): nuevo_risk_list.append(op)
+                            nuevo_risk = ", ".join(nuevo_risk_list) if nuevo_risk_list else ""
+                            st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 5px; margin-bottom: 0px;'>{_l['dash']['rr']}</div>", unsafe_allow_html=True)
+                            rr_opts = ['1:1', '1:1.5', '1:2', '1:3', '1:4']
+                            nuevo_rr_list = []
+                            cols_rr = st.columns([1.5, 1.5, 1.5, 1.5, 1.5, 1.5]) 
+                            for idx, op in enumerate(rr_opts):
+                                if cols_rr[idx].checkbox(op, key=f"new_rr_{idx}"): nuevo_rr_list.append(op)
+                            nuevo_rr = ", ".join(nuevo_rr_list) if nuevo_rr_list else ""
+                            st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 5px; margin-bottom: 0px;'>{_l['dash']['tt']}</div>", unsafe_allow_html=True)
+                            tt_opts = ['A+', 'A', 'B', 'C']
+                            nuevo_tt_list = []
+                            cols_tt = st.columns([1, 1, 1, 1, 4])
+                            for idx, op in enumerate(tt_opts):
+                                if cols_tt[idx].checkbox(op, key=f"new_tt_{idx}"): nuevo_tt_list.append(op)
+                            nuevo_tt = ", ".join(nuevo_tt_list) if nuevo_tt_list else ""
+                            st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
+                            nuevo_emo = st.text_area(_l['dash']['emo'], value='', height=45)
+                            nuevo_corr = st.text_area(_l['dash']['corr'], value='', height=45)
+                            
+                    with c_link:
+                        st.markdown('<div class="lbl-header">Imagen:</div>', unsafe_allow_html=True)
+                        link_imagen = st.text_input("Link", value="", label_visibility="collapsed", placeholder="🔗 Pega el Link aquí")
                         
-                with c_cant:
-                    st.markdown('<div class="lbl-header">P&L:</div>', unsafe_allow_html=True)
-                    nuevo_bal_input_str = st.text_input("Balance Input", value="", placeholder=f"{bal_mostrar:.2f}", label_visibility="collapsed")
-                    
-                with c_det:
-                    st.markdown('<div class="lbl-header">Detalles:</div>', unsafe_allow_html=True)
-                    # El nuevo texto invita a la acción profesional
-                    with st.popover("Abrir", use_container_width=True):
-                        # Lógica original de los detalles del trade
-                        st.markdown(f"<div class='titulo-trade-details'>{_l['dash']['trade_det']}</div>", unsafe_allow_html=True)
-                        st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 5px; margin-bottom: 0px;'>{_l['dash']['bias']}</div>", unsafe_allow_html=True)
-                        bias_opts = ['LONG', 'SHORT', 'NONE']
-                        nuevo_bias_list = []
-                        cols_bias = st.columns([1, 1, 1, 3])
-                        for idx, op in enumerate(bias_opts):
-                            if cols_bias[idx].checkbox(op, key=f"new_bias_{idx}"): nuevo_bias_list.append(op)
+                    with c_upd:
+                        # 1. TÍTULO NORMAL
+                        st.markdown('<div class="lbl-header">Captura:</div>', unsafe_allow_html=True)
                         
-                        nuevo_bias = ", ".join(nuevo_bias_list) if nuevo_bias_list else "NONE"
-                        
-                        st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 15px; margin-bottom: 0px;'>Sesión</div>", unsafe_allow_html=True)
-                        sesion_opts = ['New York', 'Asia', 'Londres']
-                        nueva_sesion_list = []
-                        cols_sesion = st.columns([1, 1, 1, 3])
-                        for s_idx, s_op in enumerate(sesion_opts):
-                            if cols_sesion[s_idx].checkbox(s_op, key=f"new_sesion_{s_idx}"): nueva_sesion_list.append(s_op)
-                        nueva_sesion = ", ".join(nueva_sesion_list) if nueva_sesion_list else "NONE"
-                        st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 15px; margin-bottom: 0px;'>{_l['dash']['conf']}</div>", unsafe_allow_html=True)
-                        all_confs_list = ['BIAS WELL', 'LIQ SWEEP', 'IFVG', 'FVG', 'EQH / EQL', 'BSL / SSL', 'POI', 'SMT', 'Order Block', 'Continuation', 'Data High / Data Low', 'CISD']
-                        nuevo_conf = []
-                        cols_conf = st.columns(3)
-                    
-                        for idx, c_name in enumerate(all_confs_list):
-                            if cols_conf[idx % 3].checkbox(c_name, key=f"new_conf_{idx}"): nuevo_conf.append(c_name)
-                        
-                        st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
-                        nuevo_conf_custom = st.text_area("Otras Confluencias (Opcional)", value='', height=45, placeholder="Escribe aquí otras confluencias...")
-                        
-                        st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
-                        nuevo_razon = st.text_area(_l['dash']['reason'], value='', height=45)
-                        st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 5px; margin-bottom: 0px;'>{_l['dash']['risk']}</div>", unsafe_allow_html=True)
-                        risk_opts = ['1%', '0.9%', '0.8%', '0.7%', '0.6%', '0.5%', '0.4%']
-                        nuevo_risk_list = []
-                        cols_risk = st.columns([1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 0.2])
-                        for idx, op in enumerate(risk_opts):
-                            if cols_risk[idx].checkbox(op, key=f"new_risk_{idx}"): nuevo_risk_list.append(op)
-                
-                        nuevo_risk = ", ".join(nuevo_risk_list) if nuevo_risk_list else ""
-                        st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 5px; margin-bottom: 0px;'>{_l['dash']['rr']}</div>", unsafe_allow_html=True)
-                        rr_opts = ['1:1', '1:1.5', '1:2', '1:3', '1:4']
-                        nuevo_rr_list = []
-                        cols_rr = st.columns([1.5, 1.5, 1.5, 1.5, 1.5, 1.5]) 
-                        
-                        for idx, op in enumerate(rr_opts):
-                            if cols_rr[idx].checkbox(op, key=f"new_rr_{idx}"): nuevo_rr_list.append(op)
-                        nuevo_rr = ", ".join(nuevo_rr_list) if nuevo_rr_list else ""
-                        st.markdown(f"<div style='font-weight: 900; font-size: 14px; margin-top: 5px; margin-bottom: 0px;'>{_l['dash']['tt']}</div>", unsafe_allow_html=True)
-                        tt_opts = ['A+', 'A', 'B', 'C']
-                        nuevo_tt_list = []
-                        cols_tt = st.columns([1, 1, 1, 1, 4])
-                        for idx, op in enumerate(tt_opts):
-                            if cols_tt[idx].checkbox(op, key=f"new_tt_{idx}"): nuevo_tt_list.append(op)
-                    
-                        nuevo_tt = ", ".join(nuevo_tt_list) if nuevo_tt_list else ""
-                        st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
-                        nuevo_emo = st.text_area(_l['dash']['emo'], value='', height=45)
-                        nuevo_corr = st.text_area(_l['dash']['corr'], value='', height=45)
-                        
-                with c_link:
-                    st.markdown('<div class="lbl-header">Imagen:</div>', unsafe_allow_html=True)
-                    link_imagen = st.text_input("Link", value="", label_visibility="collapsed", placeholder="🔗 Pega el Link aquí")
-                    
-                with c_upd:
-                    # 1. TÍTULO NORMAL
-                    st.markdown('<div class="lbl-header">Captura:</div>', unsafe_allow_html=True)
-                    
-                    # 2. CSS SIMPLIFICADO Y DISEÑO PREMIUM
-                    st.markdown("""<style>
-                    /* Alineamos el link de la columna 4 */
-                    div[data-testid="stForm"] div[data-testid="stTextInput"]:has(input[aria-label="Link"]) {
-                        margin-top: 0px !important;
-                        transform: translateY(-5px) !important; 
-                    }
+                        # 2. CSS SIMPLIFICADO Y DISEÑO PREMIUM
+                        st.markdown("""<style>
+                        /* Alineamos el link de la columna 4 */
+                        div[data-testid="stForm"] div[data-testid="stTextInput"]:has(input[aria-label="Link"]) {
+                            margin-top: 0px !important;
+                            transform: translateY(-5px) !important; 
+                        }
 
-                    /* 🔥 FIX DEFINITIVO: MATAR HERENCIA FANTASMA Y SUBIR EL CONTENEDOR 🔥 */
-                    div[data-testid="stForm"] div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] {
-                        margin-top: 0px!important;
-                        width: 100%!important;
-                        position: relative!important;
-                        z-index: 50!important;
-                        transform: translateY(-65px)!important;
-/* Esto lo sube a la fuerza sin importar nada */
-                    }
+                        /* 🔥 FIX DEFINITIVO: MATAR HERENCIA FANTASMA Y SUBIR EL CONTENEDOR 🔥 */
+                        div[data-testid="stForm"] div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] {
+                            margin-top: 0px!important;
+                            width: 100%!important;
+                            position: relative!important;
+                            z-index: 50!important;
+                            transform: translateY(-65px)!important;
+    /* Esto lo sube a la fuerza sin importar nada */
+                        }
 
-                    /* Formato del botón interno */
-                    div[data-testid="stForm"] div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > button,
-                    div[data-testid="stForm"] div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > div:first-child > button {
-                        width: 100% !important;     
-                        height: 45px !important;    
-                        min-height: 45px !important;
-                        background: #2D3748 !important; 
-                        border: 1px solid #4A5568 !important; 
-                        color: white !important;
-                        font-size: 16px !important; 
-                        font-weight: bold !important;
-                        box-shadow: 0 4px 6px rgba(0,0,0,0.2) !important; 
-                        border-radius: 8px !important;
-                        transition: all 0.2s ease !important;
-                        padding: 0 !important;
-                        margin-top: 0px !important; /* 💀 AQUÍ MATAMOS LOS 25PX DEL CSS FANTASMA GLOBAL 💀 */
-                    }
+                        /* Formato del botón interno */
+                        div[data-testid="stForm"] div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > button,
+                        div[data-testid="stForm"] div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > div:first-child > button {
+                            width: 100% !important;
+                            height: 45px !important;    
+                            min-height: 45px !important;
+                            background: #2D3748 !important; 
+                            border: 1px solid #4A5568 !important; 
+                            color: white !important;
+                            font-size: 16px !important;
+                            font-weight: bold !important;
+                            box-shadow: 0 4px 6px rgba(0,0,0,0.2) !important; 
+                            border-radius: 8px !important;
+                            transition: all 0.2s ease !important;
+                            padding: 0 !important;
+                            margin-top: 0px !important; /* 💀 AQUÍ MATAMOS LOS 25PX DEL CSS FANTASMA GLOBAL 💀 */
+                        }
 
-                    /* Efecto hover premium */
-                    div[data-testid="stForm"] div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > button:hover {
-                        border-color: #10B981 !important;
-                        background: rgba(0, 200, 151, 0.1) !important;
-                        color: #10B981 !important;
-                    }
-                    
-                    /* 🎨 CAJA DE SUBIDA DE IMÁGENES (Permite apilar varias sin romperse) */
-                    div[data-testid="stPopoverBody"] div[data-testid="stFileUploader"] { margin: 0 !important; width: 100% !important; display: block !important; }
-                    div[data-testid="stPopoverBody"] div[data-testid="stFileUploader"] section { background: #1A202C !important; border: 1px dashed #4A5568 !important; border-radius: 12px !important; padding: 15px !important; }
-                    div[data-testid="stPopoverBody"] div[data-testid="stFileUploader"] section svg { display: block !important; color: #A0AEC0 !important; width: 35px !important; height: 35px !important; margin: 0 auto !important; }
-                    div[data-testid="stPopoverBody"] div[data-testid="stFileUploader"] section div > span, div[data-testid="stPopoverBody"] div[data-testid="stFileUploader"] section small { display: block !important; color: #E2E8F0 !important; text-align: center !important; }
-                    div[data-testid="stPopoverBody"] div[data-testid="stFileUploader"] section button:not([data-testid="stFileUploaderDeleteBtn"]) { background: #2D3748 !important; color: white !important; border: 1px solid #4A5568 !important; border-radius: 6px !important; padding: 5px 15px !important; margin-top: 10px !important; width: auto !important; }
-                    div[data-testid="stPopoverBody"] div[data-testid="stFileUploader"] section button:not([data-testid="stFileUploaderDeleteBtn"]):hover { background: #4A5568 !important; }
-
-                    /* 🤍 BOTÓN DE LA "X" (Blanco, sutil y limpio) 🤍 */
-                    [data-testid="stFileUploaderDeleteBtn"] { background-color: transparent !important; border: none !important; box-shadow: none !important; padding: 5px !important; width: 32px !important; height: 32px !important; display: flex !important; align-items: center !important; justify-content: center !important; border-radius: 50% !important; }
-                    [data-testid="stFileUploaderDeleteBtn"] svg { color: white !important; fill: white !important; width: 16px !important; height: 16px !important; display: block !important; }
-                    [data-testid="stFileUploaderDeleteBtn"]:hover { background-color: rgba(255, 76, 76, 0.2) !important; }
-                    [data-testid="stFileUploaderDeleteBtn"]:hover svg { color: #EF4444 !important; fill: #EF4444 !important; }
-
-                    /* 📦 CAJITAS DE LOS ARCHIVOS YA SUBIDOS */
-                    [data-testid="stUploadedFile"] { background-color: #2D3748 !important; border: 1px solid #4A5568 !important; border-radius: 8px !important; margin-top: 8px !important; }
-                    </style>""", unsafe_allow_html=True)
-                    
-                    with st.popover("🖼️", use_container_width=True):
-                        st.markdown("<p style='text-align:center; font-weight:bold; color:#E2E8F0; margin-bottom:10px; font-size: 15px;'>Busca o Arrastra(Máx 2)</p>", unsafe_allow_html=True)
-                        archivos_local_img = st.file_uploader("", type=["png", "jpg", "jpeg"], accept_multiple_files=True, label_visibility="collapsed", key="main_file_uploader")
+                        /* Efecto hover premium */
+                        div[data-testid="stForm"] div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > button:hover {
+                            border-color: #10B981 !important;
+                            background: rgba(0, 200, 151, 0.1) !important;
+                            color: #10B981 !important;
+                        }
                         
-                        #  SCRIPT MÁGICO PARA PEGAR CON CTRL+V EN CUALQUIER PARTE 
-                        components.html("""
-                        <script>
-                        const doc = window.parent.document;
-                        doc.addEventListener('paste', function(e) {
-                            if (e.clipboardData && e.clipboardData.files.length > 0) {
-                                const dropzone = doc.querySelector('[data-testid="stFileUploadDropzone"]');
-                                if (dropzone) {
-                                    e.preventDefault();
-                                    const dropEvent = new DragEvent('drop', { bubbles: true, cancelable: true, dataTransfer: e.clipboardData });
-                                    dropzone.dispatchEvent(dropEvent);
+                        /* 🎨 CAJA DE SUBIDA DE IMÁGENES (Permite apilar varias sin romperse) */
+                        div[data-testid="stPopoverBody"] div[data-testid="stFileUploader"] { margin: 0 !important;
+                            width: 100% !important; display: block !important; }
+                        div[data-testid="stPopoverBody"] div[data-testid="stFileUploader"] section { background: #1A202C !important;
+                            border: 1px dashed #4A5568 !important; border-radius: 12px !important; padding: 15px !important;
+                        }
+                        div[data-testid="stPopoverBody"] div[data-testid="stFileUploader"] section svg { display: block !important;
+                            color: #A0AEC0 !important; width: 35px !important; height: 35px !important; margin: 0 auto !important;
+                        }
+                        div[data-testid="stPopoverBody"] div[data-testid="stFileUploader"] section div > span, div[data-testid="stPopoverBody"] div[data-testid="stFileUploader"] section small { display: block !important;
+                            color: #E2E8F0 !important; text-align: center !important; }
+                        div[data-testid="stPopoverBody"] div[data-testid="stFileUploader"] section button:not([data-testid="stFileUploaderDeleteBtn"]) { background: #2D3748 !important;
+                            color: white !important; border: 1px solid #4A5568 !important; border-radius: 6px !important; padding: 5px 15px !important; margin-top: 10px !important;
+                            width: auto !important; }
+                        div[data-testid="stPopoverBody"] div[data-testid="stFileUploader"] section button:not([data-testid="stFileUploaderDeleteBtn"]):hover { background: #4A5568 !important;
+                        }
+
+                        /* 🤍 BOTÓN DE LA "X" (Blanco, sutil y limpio) 🤍 */
+                        [data-testid="stFileUploaderDeleteBtn"] { background-color: transparent !important;
+                            border: none !important; box-shadow: none !important; padding: 5px !important; width: 32px !important; height: 32px !important; display: flex !important;
+                            align-items: center !important; justify-content: center !important; border-radius: 50% !important; }
+                        [data-testid="stFileUploaderDeleteBtn"] svg { color: white !important;
+                            fill: white !important; width: 16px !important; height: 16px !important; display: block !important;
+                        }
+                        [data-testid="stFileUploaderDeleteBtn"]:hover { background-color: rgba(255, 76, 76, 0.2) !important;
+                        }
+                        [data-testid="stFileUploaderDeleteBtn"]:hover svg { color: #EF4444 !important;
+                            fill: #EF4444 !important; }
+
+                        /* 📦 CAJITAS DE LOS ARCHIVOS YA SUBIDOS */
+                        [data-testid="stUploadedFile"] { background-color: #2D3748 !important;
+                            border: 1px solid #4A5568 !important; border-radius: 8px !important; margin-top: 8px !important;
+                        }
+                        </style>""", unsafe_allow_html=True)
+                        
+                        with st.popover("🖼️", use_container_width=True):
+                            st.markdown("<p style='text-align:center; font-weight:bold; color:#E2E8F0; margin-bottom:10px; font-size: 15px;'>Busca o Arrastra(Máx 2)</p>", unsafe_allow_html=True)
+                            archivos_local_img = st.file_uploader("", type=["png", "jpg", "jpeg"], accept_multiple_files=True, label_visibility="collapsed", key="main_file_uploader")
+                            
+                            #  SCRIPT MÁGICO PARA PEGAR CON CTRL+V EN CUALQUIER PARTE 
+                            components.html("""
+                            <script>
+                            const doc = window.parent.document;
+                            doc.addEventListener('paste', function(e) {
+                                if (e.clipboardData && e.clipboardData.files.length > 0) {
+                                    const dropzone = doc.querySelector('[data-testid="stFileUploadDropzone"]');
+                                    if (dropzone) {
+                                        e.preventDefault();
+                                        const dropEvent = new DragEvent('drop', { bubbles: true, cancelable: true, dataTransfer: e.clipboardData });
+                                        dropzone.dispatchEvent(dropEvent);
+                                    }
                                 }
-                            }
-                        });
-                        </script>
-                        """, height=0, width=0)
-                    
-                with c_btn:
-                    btn_save = st.form_submit_button("GUARDAR", key="btn_save_main")
+                            });
+                            </script>
+                            """, height=0, width=0)
+                        
+                    with c_btn:
+                        btn_save = st.form_submit_button("GUARDAR", key="btn_save_main")
 
             if btn_save:
                 entrada_limpia = str(nuevo_bal_input_str).strip()
