@@ -3031,7 +3031,7 @@ if True:
             transform: none !important;
             text-align: center !important;
             justify-content: center !important;
-            width: 100% !important;
+            width: 1100% !important;
         }
         .lbl-header {
             transform: none !important;
