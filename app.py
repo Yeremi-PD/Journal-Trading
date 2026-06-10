@@ -483,7 +483,6 @@ def get_global_db():
                                 set_mov = json.loads(str(row_data.get('Settings_Movil', '{}')).strip() or '{}')
                                 if set_mov: db_temp[user]["settings"]["Móvil"].update(set_mov)
 
-                                # Leemos la columna "App_Data" (Variables del sistema)
                                 app_data_excel = str(row_data.get('App_Data', '{}')).strip()
                                 if app_data_excel:
                                     try:
@@ -492,15 +491,11 @@ def get_global_db():
                                         db_temp[user]["settings"]["Móvil"].update(app_data_json)
                                     except: pass
                                 
-                                # Leemos la columna "Notas_Globales" directamente desde Excel
-                                
-                                # Leemos la columna "Notas_Globales" directamente desde Excel
                                 nota_global_excel = str(row_data.get('Notas_Globales', '')).strip()
                                 if nota_global_excel:
                                     db_temp[user]["settings"]["PC"]["global_notes_body"] = nota_global_excel
                                     db_temp[user]["settings"]["Móvil"]["global_notes_body"] = nota_global_excel
-                                 
-                                # Compatibilidad vieja (por si tenías chats en la columna antigua)
+                                
                                 chats_ia_excel = str(row_data.get('Chats_IA', '')).strip()
                                 if chats_ia_excel:
                                     try:
@@ -515,7 +510,6 @@ def get_global_db():
                             
                             f_str = str(row_data.get('Fecha', '')).strip()
                             if not f_str: 
-                                # 🟢 Si no hay fecha de operación, procesamos la fila como una inicialización base para una cuenta vacía
                                 if cuenta not in db_temp[user]["data"]:
                                     db_temp[user]["data"][cuenta] = {"balance": safe_float(row_data.get('Balance', 25000.0)), "trades": {}, "backtesting_mode": False}
                                 if row_data.get('Fecha_Inicio'):
@@ -529,7 +523,6 @@ def get_global_db():
                                 clave = (d_obj.year, d_obj.month, d_obj.day)
                             except: continue
 
-                            # Convertidor robusto para números mal formateados
                             def safe_float(val):
                                 try:
                                     v = str(val).replace(',', '').replace('$', '').strip()
@@ -543,7 +536,6 @@ def get_global_db():
                                 if str(row_data.get(c_name, "")).strip().upper() == "X":
                                     confluencias_leidas.append(c_name)
 
-# Extraemos de las columnas si ya existen en el Excel
                             hora_leida = str(row_data.get('Hora', '')).strip()
                             bias_leido = str(row_data.get('Bias', '')).strip()
                             sesion_leida = str(row_data.get('Sesion', '')).strip()
@@ -555,7 +547,6 @@ def get_global_db():
                             reason_leido = str(row_data.get('Reason', '')).strip()
                             corr_leido = str(row_data.get('Corrections', '')).strip()
                             emo_leido = str(row_data.get('Emotions', '')).strip()
-                            
                             estado_leido = str(row_data.get('Estado_Cuenta', '')).strip()
                             retiros_leidos = safe_float(row_data.get('Retiros_Acumulados', 0.0))
 
@@ -587,8 +578,6 @@ def get_global_db():
                             if extra:
                                 try: 
                                     parsed_extra = json.loads(extra)
-                        
-                                    # MIGRACIÓN: Si las columnas de Excel estaban vacías, rescatamos los datos del JSON viejo
                                     if not bias_leido and "bias" in parsed_extra: trade_info["bias"] = parsed_extra["bias"]
                                     if not sesion_leida and "sesion" in parsed_extra: trade_info["sesion"] = parsed_extra["sesion"]
                                     if not conf_leidas and "Confluences" in parsed_extra: trade_info["Confluences"] = parsed_extra["Confluences"]
@@ -599,18 +588,16 @@ def get_global_db():
                                     if not corr_leido and "Corrections" in parsed_extra: trade_info["Corrections"] = parsed_extra["Corrections"]
                                     if not emo_leido and "Emotions" in parsed_extra: trade_info["Emotions"] = parsed_extra["Emotions"]
                                     
-                                    # MIGRACIÓN NUEVA: Rescatar datos ocultos si existen
                                     if not hora_leida and "hora" in parsed_extra: trade_info["hora"] = parsed_extra["hora"]
-                                    if not ticker_leido and "ticker" in parsed_extra: trade_info["ticker"] = parsed_extra["ticker"]
-                                    if not dir_leido and "direccion" in parsed_extra: trade_info["direccion"] = parsed_extra["direccion"]
-                                    if not lotes_leido and "lotes" in parsed_extra: trade_info["lotes"] = parsed_extra["lotes"]
-                                    if not pe_leido and "precio_entrada" in parsed_extra: trade_info["precio_entrada"] = parsed_extra["precio_entrada"]
-                                    if not ps_leido and "precio_salida" in parsed_extra: trade_info["precio_salida"] = parsed_extra["precio_salida"]
-                                    if not com_leida and "comisiones" in parsed_extra: trade_info["comisiones"] = parsed_extra["comisiones"]
+                                    if "ticker" in parsed_extra: trade_info["ticker"] = parsed_extra["ticker"]
+                                    if "direccion" in parsed_extra: trade_info["direccion"] = parsed_extra["direccion"]
+                                    if "lotes" in parsed_extra: trade_info["lotes"] = parsed_extra["lotes"]
+                                    if "precio_entrada" in parsed_extra: trade_info["precio_entrada"] = parsed_extra["precio_entrada"]
+                                    if "precio_salida" in parsed_extra: trade_info["precio_salida"] = parsed_extra["precio_salida"]
+                                    if "comisiones" in parsed_extra: trade_info["comisiones"] = parsed_extra["comisiones"]
                                     if not estado_leido and "estado_cuenta" in parsed_extra: trade_info["estado_cuenta"] = parsed_extra["estado_cuenta"]
                                     if not retiros_leidos and "retiros_acumulados" in parsed_extra: trade_info["retiros_acumulados"] = safe_float(parsed_extra["retiros_acumulados"])
 
-                                    # Cargamos el resto de cosas que siguen viviendo en ExtraData
                                     ex_keys = ['bias', 'Confluences', 'risk', 'RR', 'trade_type', 'razon_trade', 'Corrections', 'Emotions', 'hora', 'ticker', 'direccion', 'lotes', 'precio_entrada', 'precio_salida', 'comisiones', 'estado_cuenta', 'retiros_acumulados']
                                     trade_info.update({k:v for k,v in parsed_extra.items() if k not in ex_keys})
                                 except: pass
@@ -618,7 +605,6 @@ def get_global_db():
                             if cuenta not in db_temp[user]["data"]:
                                 db_temp[user]["data"][cuenta] = {"balance": 25000.00, "trades": {}, "backtesting_mode": False}
                             
-                            # Recuperar el modo backtesting guardado en el Excel para que no se pierda al recargar
                             try:
                                 if extra:
                                     _pe = json.loads(extra)
@@ -630,21 +616,18 @@ def get_global_db():
 
                             if clave not in db_temp[user]["data"][cuenta]["trades"]:
                                 db_temp[user]["data"][cuenta]["trades"][clave] = []
-                                
+                            
                             db_temp[user]["data"][cuenta]["trades"][clave].append(trade_info)
                             
-                            # Actualizamos balance, fecha inicio y cierre desde el Excel
                             db_temp[user]["data"][cuenta]["balance"] = safe_float(row_data.get('Balance', 0))
                             if row_data.get('Fecha_Inicio'):
                                 db_temp[user]["data"][cuenta]["fecha_inicio"] = str(row_data.get('Fecha_Inicio')).strip()
                             if row_data.get('Fecha_Cierre'):
                                 db_temp[user]["data"][cuenta]["fecha_cierre"] = str(row_data.get('Fecha_Cierre')).strip()
                         except Exception as e_row:
-                            # OPTIMIZACIÓN 2B: Log de fila fallida
                             print(f"Advertencia: Error procesando fila de la cuenta '{cuenta}' para '{user}': {e_row}")
-            except Exception as e_sheet:
-                # Log de hoja completa fallida
-                print(f"Error cargando datos de la hoja del usuario '{user}': {e_sheet}")
+        except Exception as e_sheet:
+            print(f"Error masivo cargando datos de la base de datos: {e_sheet}")
     return db_temp
 
 import copy
