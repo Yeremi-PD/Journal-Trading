@@ -226,9 +226,10 @@ def enviar_correo_admin(usuario, codigo):
                 emisor = st.secrets["gcp_service_account"].get("admin_email", "")
                 password = st.secrets["gcp_service_account"].get("admin_pass", "")
                 
-        # 3. Si definitivamente no están, chivamos exactamente qué variables ve el sistema
+        # 3. 🟢 SECURE: Si no están, devolvemos un error genérico y dejamos la información sensible solo en la consola
         if not emisor or not password: 
-            return f"FALTAN_SECRETOS: Streamlit solo ve estas variables: {list(st.secrets.keys())}"
+            print(f"DEBUG ADMIN - Faltan secretos de correo. Llaves detectadas en el servidor: {list(st.secrets.keys())}")
+            return "FALTAN_SECRETOS: La configuración de correo del administrador no está disponible."
         
         msg = MIMEText(f"¡Tienes un nuevo Usuario en PF Journal Pro!\n\n👤 Usuario: {usuario}\n🔑 Código: {codigo}\n\nRevisa la Base de Datos para administrar su licencia.")
         msg['Subject'] = f" Nuevo Registro: {usuario}"
