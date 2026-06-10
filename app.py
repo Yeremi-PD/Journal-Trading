@@ -2773,7 +2773,7 @@ if True:
         display: block !important;
         text-align: left !important;
         width: 100% !important;
-        padding-left: 13px !important; /* Hace que inicie exactamente alineado al borde del botón */
+        padding-left: 17px !important; /* Hace que inicie exactamente alineado al borde del botón */
     }
 
     /* Inputs de texto y números */
