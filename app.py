@@ -2773,7 +2773,7 @@ if True:
         display: block !important;
         text-align: left !important;
         width: 100% !important;
-        padding-left: 211px !important; /* Hace que inicie exactamente alineado al borde del botón */
+        padding-left: 2px !important; /* Hace que inicie exactamente alineado al borde del botón */
     }
 
     /* Inputs de texto y números */
@@ -5192,16 +5192,18 @@ doc.addEventListener('keydown', function(e) {
     }
 });
 
-// 2. 🟢 FIX: Bloquear teclado móvil sin romper el Selectbox en iOS
+// 2. 🟢 FIX: Quitar bloqueos del Selectbox para que despliegue el menú de cuentas normalmente
 function bloquearTeclado() {
-    const inputs = doc.querySelectorAll('div[data-testid="stSelectbox"] input');
+    // Dejamos que el Selectbox funcione de forma nativa sin forzar el blur() que lo congelaba
+    const inputs = doc.querySelectorAll('div[data-testid="stDateInput"] input, div[data-testid="stTimeInput"] input');
     inputs.forEach(input => {
-        input.setAttribute('inputmode', 'none'); 
-        input.addEventListener('focus', function() {
-            this.blur();
+        input.setAttribute('inputmode', 'none');
+        // Evitamos que levante el teclado en dispositivos móviles
+        input.addEventListener('focus', function(e) {
+            if (window.parent.innerWidth <= 768) {
+                this.blur();
+            }
         });
-        input.style.webkitTapHighlightColor = 'transparent';
-        input.style.outline = 'none';
     });
 }
 bloquearTeclado();
