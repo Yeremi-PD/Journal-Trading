@@ -3113,10 +3113,10 @@ if True:
                     st.session_state.main_hora_sel = (datetime.utcnow() - pd.Timedelta(hours=4)).time()
 
                 with st.form(key="form_main_entry", clear_on_submit=True, border=False):
-                    c_date, c_cant, c_det, c_link, c_upd, c_btn = st.columns([0.6, 1.2, 1.1, 1.5, 0.6, 1.0])
+                    c_date, c_cant, c_det, c_link, c_upd, c_btn = st.columns([0.6, 0.6, 1.1, 1.5, 0.6, 1.0])
                     
                     with c_date:
-                        st.markdown('<div class="lbl-header">Fecha y Hora:</div>', unsafe_allow_html=True)
+                        st.markdown('<div class="lbl-header">Día y Hora:</div>', unsafe_allow_html=True)
                         popover_label = f"{st.session_state.main_fecha_sel.strftime('%d/%m')} | {st.session_state.main_hora_sel.strftime('%H:%M')}"
                         with st.popover(popover_label, use_container_width=True):
                             st.markdown("<div style='margin-bottom: 10px; font-weight: 700; color: #94A3B8; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;'>Configurar Fecha y Hora</div>", unsafe_allow_html=True)
