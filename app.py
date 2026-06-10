@@ -419,23 +419,33 @@ def inicializar_settings(device="PC"):
 def get_global_db():
     db_temp = {}
     if db_spreadsheet:
-        for hoja in db_spreadsheet.worksheets():
-            user = str(hoja.title).strip()
-            if user.lower() in ["sheet1", "hoja 1", "hoja1", "accesos"] or user.lower().startswith("chats_"): continue 
+        try:
+            hojas = db_spreadsheet.worksheets()
+            # 🚀 RENDIMIENTO NIVEL DIOS: 1 sola llamada API para descargar TODAS las hojas a la vez
+            rangos = [f"'{h.title}'!A:AC" for h in hojas]
+            batch_data = db_spreadsheet.values_batch_get(rangos) if rangos else {}
             
-            db_temp[user] = {
-                "password": "123", 
-                "data": inicializar_data_usuario(),
-                "settings": {"PC": inicializar_settings("PC"), "Móvil": inicializar_settings("Móvil")}
-            }
-            
-            try:
-                filas = hoja.get_all_values()
+            # Guardamos todo en la memoria RAM local para no llamar a Google nunca más en este bucle
+            hojas_data = {}
+            for i, h in enumerate(hojas):
+                if 'valueRanges' in batch_data and i < len(batch_data['valueRanges']):
+                    hojas_data[h.title] = batch_data['valueRanges'][i].get('values', [])
+
+            for titulo_hoja, filas in hojas_data.items():
+                user = str(titulo_hoja).strip()
+                if user.lower() in ["sheet1", "hoja 1", "hoja1", "accesos"] or user.lower().startswith("chats_"): continue 
+                
+                db_temp[user] = {
+                    "password": "123", 
+                    "data": inicializar_data_usuario(),
+                    "settings": {"PC": inicializar_settings("PC"), "Móvil": inicializar_settings("Móvil")}
+                }
+                
                 if len(filas) > 1:
                     # Limpiamos espacios en los headers
                     headers = [str(h).strip() for h in filas[0]]
                     
-                    # BÚSQUEDA INTELIGENTE DE CONTRASEÑA (Por si la primera fila está vacía)
+                    # BÚSQUEDA INTELIGENTE DE CONTRASEÑA
                     try: pass_idx = headers.index("Password")
                     except: pass_idx = 1
                     
@@ -444,10 +454,10 @@ def get_global_db():
                             db_temp[user]["password"] = str(r[pass_idx]).strip()
                             break
 
-                    # 🟢 NUEVO: Recuperar el historial desde la HOJA DEDICADA "Chats_TuNombre" (AFUERA DEL BUCLE PARA EVITAR BLOQUEOS)
-                    try:
-                        hoja_chats = db_spreadsheet.worksheet(f"Chats_{user}")
-                        filas_chats = hoja_chats.get_all_values()
+                    # 🚀 RENDIMIENTO: Buscar chats en nuestra memoria RAM, no en los servidores de Google
+                    nombre_chat = f"Chats_{user}"
+                    if nombre_chat in hojas_data:
+                        filas_chats = hojas_data[nombre_chat]
                         if len(filas_chats) > 1:
                             chats_recuperados = {}
                             for r in filas_chats[1:]:
@@ -459,7 +469,6 @@ def get_global_db():
                             
                             db_temp[user]["settings"]["PC"]["chats_historial"] = chats_recuperados
                             db_temp[user]["settings"]["Móvil"]["chats_historial"] = chats_recuperados
-                    except: pass
 
                     for row in filas[1:]:
                         try:
