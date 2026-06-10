@@ -2658,8 +2658,8 @@ div[data-testid="column"]:nth-child(6) div[data-testid="stPopover"] > div:first-
 }
 div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > button,
 div[data-testid="column"]:nth-child(6) div[data-testid="stPopover"] > button {
-    width: 1100% !important; height: 42px !important; min-height: 42px !important; 
-    border-radius: 822px !important; background-color: transparent !important; 
+    width: 100% !important; height: 42px !important; min-height: 42px !important; 
+    border-radius: 8px !important; background-color: transparent !important; 
     border: 1px solid #4A5568 !important; display: flex !important;
     align-items: center !important; justify-content: center !important; margin-top: 25px !important;
 }
@@ -3212,35 +3212,6 @@ if True:
                         div[data-testid="stForm"] div[data-testid="stTextInput"]:has(input[aria-label="Link"]) {
                             margin-top: 0px !important;
                             transform: translateY(-5px) !important; 
-                        }
-
-                        /* 🔥 FIX DEFINITIVO: MATAR HERENCIA FANTASMA Y SUBIR EL CONTENEDOR 🔥 */
-                        div[data-testid="stForm"] div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] {
-                            margin-top: 0px!important;
-                            width: 100%!important;
-                            height: 45px !important; /* Forzamos la altura del contenedor para eliminar bordes invisibles */
-                            position: relative!important;
-                            z-index: 50!important;
-                            transform: translateY(-71px)!important; /* Incrementamos el tiro hacia arriba para alineación exacta */
-    /* Esto lo sube a la fuerza sin importar nada */
-                        }
-
-                        /* Formato del botón interno */
-                        div[data-testid="stForm"] div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > button,
-                        div[data-testid="stForm"] div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > div:first-child > button {
-                            width: 100% !important;
-                            height: 45px !important;    
-                            min-height: 45px !important;
-                            background: #2D3748 !important; 
-                            border: 1px solid #4A5568 !important; 
-                            color: white !important;
-                            font-size: 16px !important;
-                            font-weight: bold !important;
-                            box-shadow: 0 4px 6px rgba(0,0,0,0.2) !important; 
-                            border-radius: 8px !important;
-                            transition: all 0.2s ease !important;
-                            padding: 0 !important;
-                            margin-top: 0px !important; /* 💀 AQUÍ MATAMOS LOS 25PX DEL CSS FANTASMA GLOBAL 💀 */
                         }
 
                         /* Efecto hover premium */
