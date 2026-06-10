@@ -2421,37 +2421,29 @@ border: 1px solid {border_color} !important; box-shadow: 0 1px 3px rgba(0,0,0,0.
             }}
 
             div[data-baseweb="tab-list"] {{
-                gap: 4px !important;
+                gap: 10px 6px !important; /* Espacio vertical y horizontal */
                 padding-left: 2px !important;
                 padding-right: 2px !important;
-                justify-content: flex-start !important; /* Permitir flujo continuo */
+                justify-content: center !important; /* 🟢 FIX: Centrar los botones en ambas filas */
                 width: 100% !important;
-                overflow-x: auto !important; /* Forzar scroll horizontal si no caben */
-                overflow-y: hidden !important;
-                flex-wrap: nowrap !important;
-                -webkit-overflow-scrolling: touch !important; /* Swipe ultra rápido en celular */
-                scrollbar-width: none !important; /* Ocultar scroll en Firefox */
-                -ms-overflow-style: none !important; /* Ocultar scroll en Edge/IE */
+                overflow: visible !important; /* Quitamos el scroll forzado */
+                flex-wrap: wrap !important; /* 🟢 FIX: Forzar que bajen a 2 filas */
             }}
             
             div[data-baseweb="tab-list"]::-webkit-scrollbar {{
-                display: none !important; /* Ocultar scroll en Chrome/Safari/iOS */
+                display: none !important;
             }}
             
             /* Atacamos todos los selectores posibles en cascada para obligar al teléfono a obedecer */
             div[data-testid="stTabs"] button, 
             div[data-baseweb="tab-list"] button, 
             button[role="tab"] {{
-    
-                font-size: 14px !important;
-                /* Tamaño táctil cómodo y profesional */
-                padding: 10px 14px !important;
-                /* Espacio amplio para el dedo */
-                margin: 0px 4px !important;
-                /* Separación sutil */
+                font-size: 13px !important; /* Ligeramente más pequeño para que quepan bien */
+                padding: 10px 12px !important;
+                margin: 0px 2px !important; /* Juntarlos un poco más */
                 border-radius: 8px !important;
                 white-space: nowrap !important;
-                flex: 0 0 auto !important; /* Desbloquea el estiramiento forzado */
+                flex: 0 0 auto !important; 
                 min-width: 0 !important;
             }}
             
@@ -2964,13 +2956,33 @@ if True:
         if modo_lectura and not db_global[usuario]["settings"]["PC"].get("vis_calendario", True):
             st.markdown("<div style='text-align: center; padding: 50px; background: #1E293B; border-radius: 12px; border: 1px dashed #EF4444;'><h3 style='color: #EF4444;'>Calendario Privado 🔒</h3><p style='color: #94A3B8;'>El usuario ha ocultado su calendario.</p></div><style>div[data-testid='stTabs'] div[role='tabpanel']:nth-child(1) .element-container:nth-child(n+2) { display: none !important; }</style>", unsafe_allow_html=True)
         
-        #  El formulario ahora toma el 100% del ancho igual que el calendario
-        col_form_area = st.container()
-
-        with col_form_area:
-            if modo_lectura:
-                st.markdown("<style>div[data-testid='stForm']:has(.lbl-header) {display: none !important;}</style>", unsafe_allow_html=True)
-            with st.form(key="form_main_entry", clear_on_submit=True, border=False):
+        # 🟢 UX MEJORA: Menú desplegable para agregar trades
+        if not modo_lectura:
+            st.markdown("""
+            <style>
+            /* Diseño premium para el botón desplegable de Registrar Trade */
+            div[data-testid="stExpander"] details summary p {
+                font-size: 18px !important;
+                font-weight: 800 !important;
+                color: #10B981 !important;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+            }
+            div[data-testid="stExpander"] {
+                border: 1px solid #334155 !important;
+                border-radius: 12px !important;
+                background-color: #1A202C !important;
+                margin-bottom: 25px !important;
+                box-shadow: 0px 4px 6px rgba(0,0,0,0.3) !important;
+            }
+            div[data-testid="stExpander"] details summary:hover {
+                background-color: rgba(16,185,129,0.05) !important;
+            }
+            </style>
+            """, unsafe_allow_html=True)
+            
+            with st.expander("➕ Agregar Nuevo Trade", expanded=False):
+                with st.form(key="form_main_entry", clear_on_submit=True, border=False):
                 #  NUEVO LAYOUT: 6 columnas para separar el Link y el botón Popover de imagen
                 c_date, c_cant, c_det, c_link, c_upd, c_btn = st.columns([0.8, 1.2, 1.1, 1.9, 0.6, 1])
                 
