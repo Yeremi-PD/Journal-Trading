@@ -2658,7 +2658,7 @@ div[data-testid="column"]:nth-child(6) div[data-testid="stPopover"] > div:first-
 }
 div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > button,
 div[data-testid="column"]:nth-child(6) div[data-testid="stPopover"] > button {
-    width: 100% !important; height: 42px !important; min-height: 42px !important; 
+    width: 1100% !important; height: 42px !important; min-height: 42px !important; 
     border-radius: 8px !important; background-color: transparent !important; 
     border: 1px solid #4A5568 !important; display: flex !important;
     align-items: center !important; justify-content: center !important; margin-top: 25px !important;
