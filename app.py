@@ -4348,9 +4348,20 @@ def agregar_imagenes_historial(contexto, clave, idx_trade, widget_id):
 def ventana_borrar_trade(ctx, clave, i, usuario_actual):
     st.write(_l['hist']['ask_del_tr'])
     if st.button(_l['hist']['yes_del_tr'], type="primary", use_container_width=True):
+        # 1. Capturamos el PnL del trade ANTES de borrarlo para descontarlo
+        pnl_a_restar = float(db_usuario[ctx]["trades"][clave][i].get("pnl", 0.0))
+        
+        # 2. Actualizamos el balance total de la cuenta (revierte la ganancia/pérdida)
+        db_usuario[ctx]["balance"] -= pnl_a_restar
+        
+        # 3. Borramos el trade de la base de datos
         db_usuario[ctx]["trades"][clave].pop(i)
+        
         if not db_usuario[ctx]["trades"][clave]: del db_usuario[ctx]["trades"][clave]
+        
+        # 4. Reescribimos el Excel y limpiamos caché para forzar sincronización instantánea
         reescribir_excel_usuario(usuario_actual)
+        st.cache_resource.clear()
         st.rerun()
 
 with tab_hist:
