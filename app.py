@@ -3218,9 +3218,10 @@ if True:
                         div[data-testid="stForm"] div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] {
                             margin-top: 0px!important;
                             width: 100%!important;
+                            height: 45px !important; /* Forzamos la altura del contenedor para eliminar bordes invisibles */
                             position: relative!important;
                             z-index: 50!important;
-                            transform: translateY(-65px)!important;
+                            transform: translateY(-71px)!important; /* Incrementamos el tiro hacia arriba para alineación exacta */
     /* Esto lo sube a la fuerza sin importar nada */
                         }
 
