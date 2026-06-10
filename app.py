@@ -44,7 +44,7 @@ st.markdown(f"""
 <style>
 /* 1. Nuke a todas las cajas de excepciones nativas */
 [data-testid="stException"], 
-[data-testid="stAppExceptionContainer"] { display: block !important; }
+[data-testid="stAppExceptionContainer"] {{ display: none !important; }}
 
 /* 2. ELIMINAR EFECTO GRIS: Evita que Streamlit opaque la app entera al procesar datos */
 .stApp, [data-testid="stAppViewContainer"], .block-container {{
@@ -1195,12 +1195,8 @@ if st.session_state.usuario_actual is None:
                         
                         # 🟢 GUARDAR INMEDIATAMENTE EN GOOGLE SHEETS PARA QUE EL USUARIO EXISTA REALMENTE
                         with st.spinner("⏳ Creando tu espacio seguro en la nube..."):
-    try:
-        reescribir_excel_usuario(u_reg_clean)
-        st.cache_resource.clear()
-    except Exception as e:
-        st.error(f"ERROR REGISTRO: {e}")
-        st.stop()
+                            reescribir_excel_usuario(u_reg_clean)
+                            st.cache_resource.clear()
                             
                             # 🛡️ Crear Licencia y Enviar Correo con Rastreador de Errores
                             codigo_nuevo = registrar_nuevo_acceso(u_reg_clean, p_reg_clean)
