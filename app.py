@@ -1942,6 +1942,41 @@ def modal_configuracion_completa():
 
             st.markdown("#### 👥 Panel de Clientes")
             
+            # ⚡ BOTÓN MAESTRO ADM: Fuerza la ejecución del botón "Guardar" para todas las cuentas del sistema en segundo plano
+            if st.button("💥 FORZAR REGENERACIÓN GLOBAL (Actualizar Google Sheets de Todos)", type="primary", use_container_width=True):
+                with st.spinner("⏳ Forzando el guardado y la reescritura masiva en Google Sheets..."):
+                    contador_actualizados = 0
+                    
+                    # Iteramos por cada una de las cuentas que existen en la memoria del sistema
+                    for usuario_destino in list(db_global.keys()):
+                        # Ignoramos por seguridad las pestañas de control interno de la base de datos
+                        if usuario_destino.lower() in ["sheet1", "hoja 1", "hoja1", "accesos"] or usuario_destino.lower().startswith("chats_"):
+                            continue
+                        
+                        # CAPA DE SEGURIDAD: Si es un usuario pasivo que no ha entrado, nos aseguramos de inicializar sus settings
+                        if "settings" not in db_global[usuario_destino]:
+                            db_global[usuario_destino]["settings"] = {"PC": inicializar_settings("PC"), "Móvil": inicializar_settings("Móvil")}
+                        
+                        # Si no tienen un Alias guardado todavía, les asignamos su propio nombre de usuario como Alias por defecto
+                        # Esto evita que se guarden vacíos o rompan la lógica comunitaria en el Sheets
+                        if "display_name" not in db_global[usuario_destino]["settings"]["PC"] or not db_global[usuario_destino]["settings"]["PC"]["display_name"]:
+                            db_global[usuario_destino]["settings"]["PC"]["display_name"] = str(usuario_destino).strip()
+                        if "display_name" not in db_global[usuario_destino]["settings"]["Móvil"] or not db_global[usuario_destino]["settings"]["Móvil"]["display_name"]:
+                            db_global[usuario_destino]["settings"]["Móvil"]["display_name"] = str(usuario_destino).strip()
+                        
+                        try:
+                            # Ejecutamos la función central de guardado. Esto sobreescribe la pestaña del usuario en Sheets
+                            # introduciendo automáticamente las nuevas cabeceras, JSONs y el Alias generado.
+                            reescribir_excel_usuario(usuario_destino)
+                            contador_actualizados += 1
+                        except Exception as e_error:
+                            print(f"Error forzando actualización para {usuario_destino}: {e_error}")
+                            
+                    st.success(f"✅ ¡Estructura sincronizada! Se forzó el guardado en {contador_actualizados} cuentas activas. Tu base de datos está al día.")
+                    import time; time.sleep(1.5); st.rerun()
+
+            st.markdown("<br>", unsafe_allow_html=True)
+            
             col_h1, col_h2, col_h3, col_h4 = st.columns([2, 1.5, 1.5, 1])
             col_h1.markdown("<span style='color:#94A3B8; font-size:12px; text-transform:uppercase;'>Usuario</span>", unsafe_allow_html=True)
             col_h2.markdown("<span style='color:#94A3B8; font-size:12px; text-transform:uppercase;'>Contraseña</span>", unsafe_allow_html=True)
