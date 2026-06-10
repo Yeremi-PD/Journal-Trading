@@ -1211,7 +1211,7 @@ if st.session_state.usuario_actual is None:
                         # 🟢 GUARDAR INMEDIATAMENTE EN GOOGLE SHEETS PARA QUE EL USUARIO EXISTA REALMENTE
                         with st.spinner("⏳ Creando tu espacio seguro en la nube..."):
                             reescribir_excel_usuario(u_reg_clean)
-                            st.cache_resource.clear()
+                            # Eliminamos la limpieza de caché global
                             
                             # 🛡️ Crear Licencia y Enviar Correo con Rastreador de Errores
                             codigo_nuevo = registrar_nuevo_acceso(u_reg_clean, p_reg_clean)
@@ -1540,8 +1540,7 @@ if not db_usuario or (len(db_usuario) == 1 and "Todas las Cuentas" in db_usuario
                         # Guarda directamente la estructura y actualiza Excel
                         reescribir_excel_usuario(usuario)
                         
-                        # 🟢 LIMPIAMOS LA MEMORIA CACHÉ PARA QUE RECUERDE LA CUENTA AL REFRESCAR
-                        st.cache_resource.clear()
+                        # 🟢 SECURE: Eliminamos la limpieza de caché global. Tu sesión local ya tiene los datos.
                         
                     st.rerun()
     st.stop()
@@ -1929,14 +1928,12 @@ def modal_configuracion_completa():
                             db_global[u]["settings"]["PC"]["is_admin"] = False
                             db_global[u]["settings"]["Móvil"]["is_admin"] = False
                             reescribir_excel_usuario(u)
-                            st.cache_resource.clear()
                             st.rerun()
                     else:
                         if st.button("Activar IA", key=f"on_ia_{u}", type="primary", use_container_width=True):
                             db_global[u]["settings"]["PC"]["is_admin"] = True
                             db_global[u]["settings"]["Móvil"]["is_admin"] = True
                             reescribir_excel_usuario(u)
-                            st.cache_resource.clear()
                             st.rerun()
        
                 with c4:
@@ -4424,9 +4421,8 @@ def ventana_borrar_trade(ctx, clave, i, usuario_actual):
         
         if not db_usuario[ctx]["trades"][clave]: del db_usuario[ctx]["trades"][clave]
         
-        # 4. Reescribimos el Excel y limpiamos caché para forzar sincronización instantánea
+        # 4. Reescribimos el Excel. La sesión local ya descontó el trade.
         reescribir_excel_usuario(usuario_actual)
-        st.cache_resource.clear()
         st.rerun()
 
 with tab_hist:
