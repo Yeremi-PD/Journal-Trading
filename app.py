@@ -2248,36 +2248,36 @@ margin: 0 auto !important; transform: translate({BALANCE_BOX_X}px, {BALANCE_BOX_
     
     /* Normalizar selectores de fecha y hora dentro de las ventanas emergentes (Popovers) */
     div[data-testid="stPopoverBody"] div[data-testid="stDateInput"],
-    div[data-testid="stPopoverBody"] div[data-testid="stTimeInput"] {
+    div[data-testid="stPopoverBody"] div[data-testid="stTimeInput"] {{
         width: 100% !important;
         min-width: 100% !important;
         height: auto !important;
-    }
+    }}
     div[data-testid="stPopoverBody"] div[data-testid="stDateInput"] > div:first-child,
-    div[data-testid="stPopoverBody"] div[data-testid="stTimeInput"] > div:first-child {
+    div[data-testid="stPopoverBody"] div[data-testid="stTimeInput"] > div:first-child {{
         width: 100% !important;
         height: 45px !important;
         min-height: 45px !important;
         background-color: #2D3748 !important;
         border: 1px solid #4A5568 !important;
         border-radius: 8px !important;
-    }
+    }}
     div[data-testid="stPopoverBody"] div[data-testid="stDateInput"] input,
-    div[data-testid="stPopoverBody"] div[data-testid="stTimeInput"] input {
+    div[data-testid="stPopoverBody"] div[data-testid="stTimeInput"] input {{
         color: white !important;
         -webkit-text-fill-color: white !important;
         height: 45px !important;
         font-size: 16px !important;
         cursor: pointer !important;
-    }
-    div[data-testid="stPopoverBody"] div[data-testid="stDateInput"]::after {
+    }}
+    div[data-testid="stPopoverBody"] div[data-testid="stDateInput"]::after {{
         display: none !important;
-    }
+    }}
     div[data-testid="stPopoverBody"] div[data-testid="stDateInput"] svg,
-    div[data-testid="stPopoverBody"] div[data-testid="stTimeInput"] svg {
+    div[data-testid="stPopoverBody"] div[data-testid="stTimeInput"] svg {{
         display: block !important;
         color: #A0AEC0 !important;
-    }
+    }}
     
     /* Matamos el color oscuro de la capa base invisible de Streamlit */
     div[data-baseweb="popover"], div[data-baseweb="popover"] > div {{ background-color: {card_bg} !important; border: none !important; outline: none !important; box-shadow: none !important; }}
@@ -3106,7 +3106,6 @@ if True:
                     st.session_state.main_hora_sel = (datetime.utcnow() - pd.Timedelta(hours=4)).time()
 
                 with st.form(key="form_main_entry", clear_on_submit=True, border=False):
-                    # LAYOUT AJUSTADO: Más espacio a la columna de tiempo para que quepa la etiqueta combinada
                     c_date, c_cant, c_det, c_link, c_upd, c_btn = st.columns([1.5, 1.2, 1.1, 1.5, 0.6, 1.0])
                     
                     with c_date:
@@ -3119,9 +3118,9 @@ if True:
                                 st.markdown("<span style='font-size:12px; color:#94A3B8; font-weight:700;'>Día:</span>", unsafe_allow_html=True)
                                 fecha_sel = st.date_input("Día", value=st.session_state.main_fecha_sel, key="main_fecha_sel", label_visibility="collapsed")
                             with col_f2:
-                               _hora_def = (datetime.utcnow() - pd.Timedelta(hours=4)).time() if not st.session_state.main_hora_sel else st.session_state.main_hora_sel
-                               st.markdown("<span style='font-size:12px; color:#94A3B8; font-weight:700;'>Hora:</span>", unsafe_allow_html=True)
-                               hora_sel = st.time_input("Hora exacta", value=_hora_def, step=60, key="main_hora_sel", label_visibility="collapsed")
+                                _hora_def = st.session_state.main_hora_sel if st.session_state.main_hora_sel is not None else (datetime.utcnow() - pd.Timedelta(hours=4)).time()
+                                st.markdown("<span style='font-size:12px; color:#94A3B8; font-weight:700;'>Hora:</span>", unsafe_allow_html=True)
+                                hora_sel = st.time_input("Hora exacta", value=_hora_def, step=60, key="main_hora_sel", label_visibility="collapsed")
                             
                     with c_cant:
                         st.markdown('<div class="lbl-header">P&L:</div>', unsafe_allow_html=True)
