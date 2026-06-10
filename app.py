@@ -2270,15 +2270,22 @@ margin: 0 auto !important; transform: translate({BALANCE_BOX_X}px, {BALANCE_BOX_
         border-radius: 8px !important;
     }}
     div[data-testid="stPopoverBody"] div[data-testid="stDateInput"] input,
-    div[data-testid="stPopoverBody"] div[data-testid="stTimeInput"] input {{
+    div[data-testid="stPopoverBody"] div[data-testid="stDateInput"] input:focus,
+    div[data-testid="stPopoverBody"] div[data-testid="stDateInput"] input:active,
+    div[data-testid="stPopoverBody"] div[data-testid="stTimeInput"] input,
+    div[data-testid="stPopoverBody"] div[data-testid="stTimeInput"] input:focus,
+    div[data-testid="stPopoverBody"] div[data-testid="stTimeInput"] input:active {{
         color: white !important;
         -webkit-text-fill-color: white !important;
         height: 45px !important;
         font-size: 16px !important;
         cursor: pointer !important;
+        padding: 0 10px !important;
+        text-align: center !important;
     }}
     div[data-testid="stPopoverBody"] div[data-testid="stDateInput"]::after {{
         display: none !important;
+        content: "" !important;
     }}
     div[data-testid="stPopoverBody"] div[data-testid="stDateInput"] svg,
     div[data-testid="stPopoverBody"] div[data-testid="stTimeInput"] svg {{
