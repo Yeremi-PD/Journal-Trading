@@ -3214,6 +3214,34 @@ if True:
                             transform: translateY(-5px) !important; 
                         }
 
+                        /* 🔥 FIX DEFINITIVO: MATAR HERENCIA FANTASMA Y SUBIR EL CONTENEDOR 🔥 */
+                        div[data-testid="stForm"] div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] {
+                            margin-top: 0px!important;
+                            width: 100%!important;
+                            position: relative!important;
+                            z-index: 50!important;
+                            transform: translateY(-65px)!important;
+    /* Esto lo sube a la fuerza sin importar nada */
+                        }
+
+                        /* Formato del botón interno */
+                        div[data-testid="stForm"] div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > button,
+                        div[data-testid="stForm"] div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > div:first-child > button {
+                            width: 100% !important;
+                            height: 45px !important;    
+                            min-height: 45px !important;
+                            background: #2D3748 !important; 
+                            border: 1px solid #4A5568 !important; 
+                            color: white !important;
+                            font-size: 16px !important;
+                            font-weight: bold !important;
+                            box-shadow: 0 4px 6px rgba(0,0,0,0.2) !important; 
+                            border-radius: 8px !important;
+                            transition: all 0.2s ease !important;
+                            padding: 0 !important;
+                            margin-top: 0px !important; /* 💀 AQUÍ MATAMOS LOS 25PX DEL CSS FANTASMA GLOBAL 💀 */
+                        }
+
                         /* Efecto hover premium */
                         div[data-testid="stForm"] div[data-testid="column"]:nth-child(5) div[data-testid="stPopover"] > button:hover {
                             border-color: #10B981 !important;
