@@ -1788,34 +1788,42 @@ def modal_configuracion_completa():
             
             ctx_actual = st.session_state.get("data_source_sel", "Account Real")
             with st.container(border=True):
-                st.markdown(f"**{_l['sidebar']['reset_acc']} {ctx_actual}**")
-                opciones_reset = {"$25,000": 25000.0, "$50,000": 50000.0, "$100,000": 100000.0}
-                seleccion_reset = st.radio(_l['sidebar']['sel_bal'], list(opciones_reset.keys()), key="radio_reset_sidebar", horizontal=True)
-                nuevo_balance_reset = opciones_reset[seleccion_reset]
-                
-                if "confirm_reset" not in st.session_state: st.session_state.confirm_reset = False
-                if st.button(_l['sidebar']['btn_conf_reset'], use_container_width=True, key="btn_solicitar_reset"): st.session_state.confirm_reset = True
-                if st.session_state.confirm_reset:
-                    st.warning(f"{_l['sidebar']['ask_reset']} {ctx_actual}?")
-                    cr_yes, cr_no = st.columns(2)
-                    if cr_yes.button(_l['sidebar']['yes_reset'], key="btn_si_reset_final"):
-                        db_usuario[ctx_actual]["balance"] = nuevo_balance_reset
-                        db_usuario[ctx_actual]["trades"] = {}
-                        reescribir_excel_usuario(usuario)
-                        st.session_state.confirm_reset = False
-                        st.rerun()
-                    if cr_no.button(_l['sidebar']['no'], key="btn_no_reset_final"):
-                        st.session_state.confirm_reset = False
-                        st.rerun()
+                # 🟢 FIX: Si están viendo la cuenta global, bloqueamos el reseteo
+                if ctx_actual == "Todas las Cuentas":
+                    st.info("⚠️ No puedes resetear la vista global de 'Todas las Cuentas'. Selecciona una cuenta individual en el panel principal para resetearla.")
+                else:
+                    st.markdown(f"**{_l['sidebar']['reset_acc']} {ctx_actual}**")
+                    opciones_reset = {"$25,000": 25000.0, "$50,000": 50000.0, "$100,000": 100000.0}
+                    seleccion_reset = st.radio(_l['sidebar']['sel_bal'], list(opciones_reset.keys()), key="radio_reset_sidebar", horizontal=True)
+                    nuevo_balance_reset = opciones_reset[seleccion_reset]
+                    
+                    if "confirm_reset" not in st.session_state: st.session_state.confirm_reset = False
+                    if st.button(_l['sidebar']['btn_conf_reset'], use_container_width=True, key="btn_solicitar_reset"): st.session_state.confirm_reset = True
+                    if st.session_state.confirm_reset:
+                        st.warning(f"{_l['sidebar']['ask_reset']} {ctx_actual}?")
+                        cr_yes, cr_no = st.columns(2)
+                        if cr_yes.button(_l['sidebar']['yes_reset'], key="btn_si_reset_final"):
+                            db_usuario[ctx_actual]["balance"] = nuevo_balance_reset
+                            db_usuario[ctx_actual]["trades"] = {}
+                            reescribir_excel_usuario(usuario)
+                            st.session_state.confirm_reset = False
+                            st.rerun()
+                        if cr_no.button(_l['sidebar']['no'], key="btn_no_reset_final"):
+                            st.session_state.confirm_reset = False
+                            st.rerun()
 
         with c_p2:
             st.markdown("### Acciones de Sistema")
             with st.container(border=True):
                 st.markdown(f"**{_l['sidebar']['del_acc']}**")
-                cuenta_a_borrar = st.selectbox(_l['sidebar']['sel_del'], list(db_usuario.keys()), key="select_eliminar_cta")
+                # 🟢 FIX: Ocultamos 'Todas las Cuentas' del menú desplegable para que nadie la borre por accidente
+                cuentas_borrables = [c for c in db_usuario.keys() if c != "Todas las Cuentas"]
+                cuenta_a_borrar = st.selectbox(_l['sidebar']['sel_del'], cuentas_borrables, key="select_eliminar_cta")
+                
                 if "confirm_delete_acc" not in st.session_state: st.session_state.confirm_delete_acc = False
                 if st.button(_l['sidebar']['btn_del'], use_container_width=True, key="btn_solicitar_borrado"):
-                    if len(db_usuario) <= 1: st.error(_l['sidebar']['err_del_only'])
+                    # Verificamos que al usuario le quede al menos 1 cuenta real para no dejarlo en el limbo
+                    if len(cuentas_borrables) <= 1: st.error(_l['sidebar']['err_del_only'])
                     else: st.session_state.confirm_delete_acc = True
                 if st.session_state.confirm_delete_acc:
                     st.warning(f"{_l['sidebar']['ask_del']} '{cuenta_a_borrar}'?")
