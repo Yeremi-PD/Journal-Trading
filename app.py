@@ -1742,6 +1742,25 @@ def modal_configuracion_completa():
     tab_perfil, tab_diseno, tab_admin = st.tabs(["👤 Cuentas y Datos", "🎨 Apariencia e Interfaz", "🛡️ Zona Admin"])
 
     with tab_perfil:
+        # 🟢 SECURE: Sección para que los usuarios viejos (y nuevos) cambien su Alias
+        st.markdown("### 📝 Mi Perfil Público")
+        with st.container(border=True):
+            col_alias1, col_alias2 = st.columns([2, 1])
+            with col_alias1:
+                alias_actual = db_global[usuario_logueado]["settings"]["PC"].get("display_name", "Trader")
+                nuevo_alias = st.text_input("Nombre a mostrar (Alias Público)", value=alias_actual, key="input_cambiar_alias", help="Este nombre se mostrará en la comunidad en lugar de tu usuario real.")
+            with col_alias2:
+                st.markdown("<div style='margin-top: 28px;'></div>", unsafe_allow_html=True)
+                if st.button("💾 Guardar Alias", use_container_width=True):
+                    if nuevo_alias.strip():
+                        db_global[usuario_logueado]["settings"]["PC"]["display_name"] = nuevo_alias.strip()
+                        db_global[usuario_logueado]["settings"]["Móvil"]["display_name"] = nuevo_alias.strip()
+                        reescribir_excel_usuario(usuario_logueado)
+                        st.success("✅ Alias actualizado.")
+                        import time; time.sleep(0.5); st.rerun()
+                    else:
+                        st.error("⚠️ El alias no puede estar vacío.")
+
         c_p1, c_p2 = st.columns(2)
         with c_p1:
             st.markdown(f"### {_l['sidebar']['manage_acc']}")
