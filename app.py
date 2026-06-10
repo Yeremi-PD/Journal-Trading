@@ -4348,45 +4348,9 @@ def agregar_imagenes_historial(contexto, clave, idx_trade, widget_id):
 def ventana_borrar_trade(ctx, clave, i, usuario_actual):
     st.write(_l['hist']['ask_del_tr'])
     if st.button(_l['hist']['yes_del_tr'], type="primary", use_container_width=True):
-        
-        # 1. Borramos el trade de la base de datos en memoria
         db_usuario[ctx]["trades"][clave].pop(i)
-        if not db_usuario[ctx]["trades"][clave]: 
-            del db_usuario[ctx]["trades"][clave]
-        
-        # 2. MOTOR DE AUTO-REPARACIÓN MATEMÁTICA
-        from datetime import datetime
-        trades_ordenados = []
-        for f_clave, lista_t in sorted(db_usuario[ctx]["trades"].items(), key=lambda x: datetime(x[0][0], x[0][1], x[0][2])):
-            for t in lista_t:
-                trades_ordenados.append(t)
-        
-        # Identificamos el balance base original (25k, 50k, 100k)
-        bal_base = 25000.0
-        if trades_ordenados:
-            primer_bal_bruto = float(trades_ordenados[0].get("balance_final", 25000.0)) - float(trades_ordenados[0].get("pnl", 0.0))
-            if primer_bal_bruto > 75000: bal_base = 100000.0
-            elif primer_bal_bruto > 35000: bal_base = 50000.0
-            else: bal_base = 25000.0
-            
-            # Recalculamos matemáticamente el balance de TODOS los trades desde cero
-            bal_acumulado = bal_base
-            for t in trades_ordenados:
-                bal_acumulado += float(t.get("pnl", 0.0))
-                t["balance_final"] = bal_acumulado
-            
-            # Actualizamos el balance total real de la cuenta
-            db_usuario[ctx]["balance"] = bal_acumulado
-        else:
-            # Si borraste el único trade que quedaba, la cuenta vuelve a su balance original intacto
-            db_usuario[ctx]["balance"] = bal_base
-            
-        # 3. Guardamos en Google Sheets y DESTRUIMOS la memoria zombie para matar al fantasma
+        if not db_usuario[ctx]["trades"][clave]: del db_usuario[ctx]["trades"][clave]
         reescribir_excel_usuario(usuario_actual)
-        st.cache_resource.clear()
-        if "db_global_local" in st.session_state:
-            del st.session_state.db_global_local
-            
         st.rerun()
 
 with tab_hist:
