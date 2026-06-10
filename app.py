@@ -1192,7 +1192,14 @@ if st.session_state.usuario_actual is None:
                     elif u_reg_clean in db_global:
                         st.error("⚠️ Ese usuario ya existe. Elige otro.")
                     else:
-                        db_global[u_reg_clean] = {"password": p_reg_clean, "data": inicializar_data_usuario(), "settings": {"PC": inicializar_settings("PC"), "Móvil": inicializar_settings("Móvil")}}
+                        # 🟢 SECURE: Encriptamos la contraseña con SHA-256 antes de guardarla
+                        import hashlib
+                        hashed_pass = hashlib.sha256(p_reg_clean.encode()).hexdigest()
+                        
+                        db_global[u_reg_clean] = {"password": hashed_pass, "data": inicializar_data_usuario(), "settings": {"PC": inicializar_settings("PC"), "Móvil": inicializar_settings("Móvil")}}
+                        
+                        # Reemplazamos la variable para que si viaja a otra función (como Accesos), viaje encriptada
+                        p_reg_clean = hashed_pass
                         
                         # 🟢 GUARDAR INMEDIATAMENTE EN GOOGLE SHEETS PARA QUE EL USUARIO EXISTA REALMENTE
                         with st.spinner("⏳ Creando tu espacio seguro en la nube..."):
