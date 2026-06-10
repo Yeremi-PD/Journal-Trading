@@ -60,7 +60,8 @@ st.markdown(f"""
 <style>
 /* 1. Nuke a todas las cajas de excepciones nativas */
 [data-testid="stException"], 
-[data-testid="stAppExceptionContainer"] {{ display: none !important; }}
+[data-testid="stAppExceptionContainer"] {{ display: block !important;
+}}
 
 /* 2. ELIMINAR EFECTO GRIS: Evita que Streamlit opaque la app entera al procesar datos */
 .stApp, [data-testid="stAppViewContainer"], .block-container {{
@@ -2236,16 +2237,22 @@ margin: 0 auto !important; transform: translate({BALANCE_BOX_X}px, {BALANCE_BOX_
     /* Forzamos a que el texto/emoji 📝 interno crezca al mismo tamaño del icono del calendario */
     div[data-testid="stPopover"] > button p, div[data-testid="stPopover"] > div:first-child > button p, div[data-testid="stPopover"] button[kind="secondary"]:first-of-type p {{ font-size: {BTN_CAL_ICON_SIZE}px !important; margin: 0 !important; padding: 0 !important; line-height: 1 !important; }}
     
-    /* Matamos el fondo oscuro/sombra negra al hacer click */
+/* Matamos el fondo oscuro/sombra negra al hacer click */
     div[data-testid="stPopover"] > button:hover, div[data-testid="stPopover"] > div:first-child > button:hover, div[data-testid="stPopover"] button[kind="secondary"]:first-of-type:hover, 
     div[data-testid="stPopover"] > button:focus, div[data-testid="stPopover"] > div:first-child > button:focus, div[data-testid="stPopover"] button[kind="secondary"]:first-of-type:focus, 
-    div[data-testid="stPopover"] > button:active, div[data-testid="stPopover"] > div:first-child > button:active, div[data-testid="stPopover"] button[kind="secondary"]:first-of-type:active {{ background-color: {btn_bg} !important; color: {btn_txt} !important; border: 1px solid {border_color} !important; outline: none !important; box-shadow: none !important; }}
+    div[data-testid="stPopover"] > button:active, div[data-testid="stPopover"] > div:first-child > button:active, div[data-testid="stPopover"] button[kind="secondary"]:first-of-type:active {{ background-color: {btn_bg} !important;
+    color: {btn_txt} !important; border: 1px solid {border_color} !important; outline: none !important; box-shadow: none !important;
+    }}
     
-/* Forzamos el fondo y borde claro en el cuerpo del popover */
-    div[data-testid="stPopoverBody"] { background-color: {card_bg} !important;
- border: 2px solid {card_bg} !important; border-radius: 8px !important; padding: 15px !important;
- }
+    /* Forzamos el fondo y borde claro en el cuerpo del popover */
+    div[data-testid="stPopoverBody"] {{ background-color: {card_bg} !important;
+        border: 2px solid {card_bg} !important; border-radius: 8px !important; padding: 15px !important;
+    }}
     
+    /* Matamos el color oscuro de la capa base invisible de Streamlit */
+    div[data-baseweb="popover"], div[data-baseweb="popover"] > div {{ background-color: {card_bg} !important;
+        border: none !important; outline: none !important; box-shadow: none !important; }}
+
     /* Normalizar selectores de fecha y hora dentro de las ventanas emergentes (Popovers) */
     div[data-testid="stPopoverBody"] div[data-testid="stDateInput"],
     div[data-testid="stPopoverBody"] div[data-testid="stTimeInput"] {{
@@ -3116,11 +3123,10 @@ if True:
                             col_f1, col_f2 = st.columns(2)
                             with col_f1:
                                 st.markdown("<span style='font-size:12px; color:#94A3B8; font-weight:700;'>Día:</span>", unsafe_allow_html=True)
-                                fecha_sel = st.date_input("Día", value=st.session_state.main_fecha_sel, key="main_fecha_sel", label_visibility="collapsed")
+                                fecha_sel = st.date_input("Día", key="main_fecha_sel", label_visibility="collapsed")
                             with col_f2:
-                                _hora_def = st.session_state.main_hora_sel if st.session_state.main_hora_sel is not None else (datetime.utcnow() - pd.Timedelta(hours=4)).time()
                                 st.markdown("<span style='font-size:12px; color:#94A3B8; font-weight:700;'>Hora:</span>", unsafe_allow_html=True)
-                                hora_sel = st.time_input("Hora exacta", value=_hora_def, step=60, key="main_hora_sel", label_visibility="collapsed")
+                                hora_sel = st.time_input("Hora exacta", step=60, key="main_hora_sel", label_visibility="collapsed")
                             
                     with c_cant:
                         st.markdown('<div class="lbl-header">P&L:</div>', unsafe_allow_html=True)
