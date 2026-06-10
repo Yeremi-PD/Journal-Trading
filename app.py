@@ -677,8 +677,9 @@ def registrar_en_excel(usuario, password, cuenta, fecha_obj, balance, pnl, trade
             try: 
                 hoja_user = db_spreadsheet.worksheet(usuario)
             except gspread.exceptions.WorksheetNotFound:
-                hoja_user = db_spreadsheet.add_worksheet(title=usuario, rows="1000", cols="30")
-                headers = ["Usuario", "Password", "Cuenta", "Fecha", "Balance", "PnL", "Imagenes", "Settings_PC", "Settings_Movil", "Bias", "Sesion", "Hora", "Confluences", "Risk", "RR", "Trade Type", "Reason", "Corrections", "Emotions", "Estado_Cuenta", "Retiros_Acumulados", "Fecha_Inicio", "Fecha_Cierre", "ExtraData", "Notas_Globales", "Chats_IA", "App_Data"]
+                # 🟢 Ampliamos a 35 columnas para que quepan los nuevos campos holgadamente
+                hoja_user = db_spreadsheet.add_worksheet(title=usuario, rows="1000", cols="35")
+                headers = ["Usuario", "Password", "Cuenta", "Fecha", "Balance", "PnL", "Imagenes", "Settings_PC", "Settings_Movil", "Bias", "Sesion", "Hora", "Confluences", "Risk", "RR", "Trade Type", "Reason", "Corrections", "Emotions", "Estado_Cuenta", "Retiros_Acumulados", "Fecha_Inicio", "Fecha_Cierre", "ExtraData", "Notas_Globales", "Chats_IA", "App_Data", "Nombre Público", "Perfil Público", "Datos Públicos"]
                 hoja_user.append_row(headers)
                 # FIJAR EL ALTO DE TODAS LAS FILAS A 25px PARA QUE NINGUNA SE ESTIRE HACIA ABAJO
                 try:
@@ -740,8 +741,21 @@ def registrar_en_excel(usuario, password, cuenta, fecha_obj, balance, pnl, trade
             f_cie_val = db_global[usuario]["data"][cuenta].get("fecha_cierre", "")
             
             val_chats_str = json.dumps(settings_pc.get("chats_historial", {})) if settings_pc else "{}"
+            
+            # 🟢 PROCESAMIENTO Y EXTRACCIÓN DE COLUMNAS DE PRIVACIDAD INDEPENDIENTES
+            val_nombre_publico = (settings_pc or {}).get("display_name", safe_user).strip()
+            pub_accs = (settings_pc or {}).get("public_accounts", [])
+            val_perfil_publico = "SÍ" if pub_accs else "NO"
+            
+            datos_pub_list = []
+            if (settings_pc or {}).get("vis_calendario", True): datos_pub_list.append("Calendario")
+            if (settings_pc or {}).get("vis_metricas", True): datos_pub_list.append("Métricas")
+            if (settings_pc or {}).get("vis_historial", True): datos_pub_list.append("Historial")
+            if (settings_pc or {}).get("vis_plan", True): datos_pub_list.append("Plan")
+            val_datos_publicos = ", ".join(datos_pub_list) if datos_pub_list else "Ninguno"
+
             nueva_fila = [safe_user, safe_pass, str(cuenta), fecha_texto, float(balance), float(pnl), imgs_texto, 
- set_pc_str, set_mov_str, val_bias, val_sesion, val_hora, val_confs, val_risk, val_rr, val_tt, val_reason, val_corr, val_emo, val_estado, float(val_retiros), f_ini_val, f_cie_val, json.dumps(extra_data), nota_global_str, val_chats_str, app_data_str]
+ set_pc_str, set_mov_str, val_bias, val_sesion, val_hora, val_confs, val_risk, val_rr, val_tt, val_reason, val_corr, val_emo, val_estado, float(val_retiros), f_ini_val, f_cie_val, json.dumps(extra_data), nota_global_str, val_chats_str, app_data_str, val_nombre_publico, val_perfil_publico, val_datos_publicos]
             
             hoja_user.append_row(nueva_fila)
         except Exception as e:
@@ -766,11 +780,22 @@ def registrar_chat_excel(usuario, cuenta, nombre_chat, pregunta, respuesta):
 def reescribir_excel_usuario(usuario):
     if not db_spreadsheet: return
     try:
-        headers = ["Usuario", "Password", "Cuenta", "Fecha", "Balance", "PnL", "Imagenes", "Settings_PC", "Settings_Movil", "Bias", "Sesion", "Hora", "Confluences", "Risk", "RR", "Trade Type", "Reason", "Corrections", "Emotions", "Estado_Cuenta", "Retiros_Acumulados", "Fecha_Inicio", "Fecha_Cierre", "ExtraData", "Notas_Globales", "Chats_IA", "App_Data"]
+        headers = ["Usuario", "Password", "Cuenta", "Fecha", "Balance", "PnL", "Imagenes", "Settings_PC", "Settings_Movil", "Bias", "Sesion", "Hora", "Confluences", "Risk", "RR", "Trade Type", "Reason", "Corrections", "Emotions", "Estado_Cuenta", "Retiros_Acumulados", "Fecha_Inicio", "Fecha_Cierre", "ExtraData", "Notas_Globales", "Chats_IA", "App_Data", "Nombre Público", "Perfil Público", "Datos Públicos"]
         filas_a_insertar = [headers]
-        
+ 
         pwd = db_global[usuario]["password"]
         
+        # 🟢 CALCULAR ATRIBUTOS DE PRIVACIDAD PARA LAS NUEVAS COLUMNAS INDEPENDIENTES
+        val_nombre_publico = db_global[usuario]["settings"]["PC"].get("display_name", str(usuario)).strip()
+        pub_accs = db_global[usuario]["settings"]["PC"].get("public_accounts", [])
+        val_perfil_publico = "SÍ" if pub_accs else "NO"
+        
+        datos_pub_list = []
+        if db_global[usuario]["settings"]["PC"].get("vis_calendario", True): datos_pub_list.append("Calendario")
+        if db_global[usuario]["settings"]["PC"].get("vis_metricas", True): datos_pub_list.append("Métricas")
+        if db_global[usuario]["settings"]["PC"].get("vis_historial", True): datos_pub_list.append("Historial")
+        if db_global[usuario]["settings"]["PC"].get("vis_plan", True): datos_pub_list.append("Plan")
+        val_datos_publicos = ", ".join(datos_pub_list) if datos_pub_list else "Ninguno"
         claves_config = ["orientacion_horizontal", "bal_num_sz", "bal_box_w", "bal_box_pad", "size_top_stats", "size_card_titles", "size_box_titles", "size_box_vals", "size_box_pct", "size_box_wl", "pie_size", "pie_y_offset", "cal_mes_size", "cal_pnl_size", "cal_pct_size", "cal_dia_size", "cal_cam_size", "cal_scale", "cal_line_height", "cal_txt_y", "cal_txt_pad", "cal_note_size", "note_lbl_size", "note_val_size"]
         
         pc_config = {k: v for k, v in db_global[usuario]["settings"]["PC"].items() if k in claves_config}
@@ -795,7 +820,7 @@ def reescribir_excel_usuario(usuario):
                 filas_a_insertar.append([
                     usuario, pwd, cuenta, "", float(d_cuenta.get("balance", 25000.0)), 0.0, 
                     "", set_pc_str, set_mov_str, "NONE", "NONE", "00:00", "", "", 
-                    "", "", "", "", "", "Eval", 0.0, f_ini_val, f_cie_val, "{}", nota_global_str, val_chats_str, app_data_str
+                    "", "", "", "", "", "Eval", 0.0, f_ini_val, f_cie_val, "{}", nota_global_str, val_chats_str, app_data_str, val_nombre_publico, val_perfil_publico, val_datos_publicos
                 ])
             else:
                 for clave, lista_t in sorted(d_cuenta["trades"].items()):
@@ -828,7 +853,7 @@ def reescribir_excel_usuario(usuario):
                         filas_a_insertar.append([
                             usuario, pwd, cuenta, t["fecha_str"], float(t["balance_final"]), float(t["pnl"]), 
                             imgs_texto, set_pc_str, set_mov_str, val_bias, val_sesion, val_hora, val_confs, val_risk, 
-                            val_rr, val_tt, val_reason, val_corr, val_emo, val_estado, float(val_retiros), f_ini_val, f_cie_val, json.dumps(extra_data), nota_global_str, val_chats_str, app_data_str
+                            val_rr, val_tt, val_reason, val_corr, val_emo, val_estado, float(val_retiros), f_ini_val, f_cie_val, json.dumps(extra_data), nota_global_str, val_chats_str, app_data_str, val_nombre_publico, val_perfil_publico, val_datos_publicos
                         ])
         
         # OPTIMIZACIÓN 1.2: Guardado Seguro Anti-Cortes de Internet
@@ -840,9 +865,9 @@ def reescribir_excel_usuario(usuario):
 # 1. SOBRESCRIBIR PRIMERO: Guardamos todo encima.
         hoja_user.update(values=filas_a_insertar, range_name="A1")
         
-        # 🟢 2. LIMPIAR DESPUÉS: Borramos 500 filas debajo de la nueva data para eliminar trades "fantasma"
+        # 🟢 2. LIMPIAR DESPUÉS: Borramos 500 filas debajo de la nueva data para eliminar trades "fantasma" extendiendo el rango hasta AE
         fila_inicio_basura = len(filas_a_insertar) + 1
-        hoja_user.batch_clear([f"A{fila_inicio_basura}:AA{fila_inicio_basura + 500}"])
+        hoja_user.batch_clear([f"A{fila_inicio_basura}:AE{fila_inicio_basura + 500}"])
         
         # FIJAR EL ALTO DE TODAS LAS FILAS A 25px PARA QUE NINGUNA SE ESTIRE HACIA ABAJO
         try:
