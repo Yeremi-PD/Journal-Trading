@@ -1145,7 +1145,13 @@ if st.session_state.usuario_actual is None:
                     
                     if user_match:
                         pass_db = str(db_global[user_match].get("password", "")).strip()
-                        if pass_db == p_clean or (pass_db == "123" and p_clean != ""):
+                        
+                        # 🟢 SECURE: Encriptamos lo que escribió el usuario para compararlo con la base de datos
+                        import hashlib
+                        hashed_input = hashlib.sha256(p_clean.encode()).hexdigest()
+                        
+                        # Mantenemos 'pass_db == p_clean' por ahora para que los usuarios viejos no pierdan acceso.
+                        if pass_db == hashed_input or pass_db == p_clean or (pass_db == "123" and p_clean != ""):
                             
 # 🛡️ Verificar Licencia en vivo antes de dejarlo entrar
                             acceso_permitido, msg_error = verificar_acceso_live(user_match)
@@ -1170,7 +1176,9 @@ if st.session_state.usuario_actual is None:
             with st.form("form_registro", border=False):
                 st.markdown("<h3 style='text-align: center; color: white; margin-top: -10px; margin-bottom: 25px; font-weight: 800;'>Crea tu cuenta </h3>", unsafe_allow_html=True)
                 
-                reg_user = st.text_input("Nuevo Usuario", placeholder="Elige tu nombre de usuario")
+                reg_user = st.text_input("Usuario de Acceso (Privado)", placeholder="Con este iniciarás sesión")
+                # 🟢 SECURE: Añadimos el Alias público
+                reg_display = st.text_input("Nombre a mostrar (Público)", placeholder="Ej: TraderPro99")
                 reg_pass = st.text_input("Nueva Contraseña", type="password", placeholder="Crea una contraseña fuerte")
                 
                 # 📱 Toggle DENTRO del formulario (Desactivado por defecto)
@@ -1180,6 +1188,7 @@ if st.session_state.usuario_actual is None:
                 
                 if btn_registrar:
                     u_reg_clean = reg_user.strip()
+                    d_reg_clean = reg_display.strip()
                     p_reg_clean = reg_pass.strip()
                     
                     if "db_global_local" not in st.session_state:
@@ -1187,8 +1196,8 @@ if st.session_state.usuario_actual is None:
                             st.session_state.db_global_local = copy.deepcopy(get_global_db())
                     db_global = st.session_state.db_global_local
                     
-                    if not u_reg_clean or not p_reg_clean:
-                        st.error("⚠️ Debes llenar ambos campos.")
+                    if not u_reg_clean or not p_reg_clean or not d_reg_clean:
+                        st.error("⚠️ Debes llenar todos los campos.")
                     elif u_reg_clean in db_global:
                         st.error("⚠️ Ese usuario ya existe. Elige otro.")
                     else:
@@ -1196,7 +1205,13 @@ if st.session_state.usuario_actual is None:
                         import hashlib
                         hashed_pass = hashlib.sha256(p_reg_clean.encode()).hexdigest()
                         
-                        db_global[u_reg_clean] = {"password": hashed_pass, "data": inicializar_data_usuario(), "settings": {"PC": inicializar_settings("PC"), "Móvil": inicializar_settings("Móvil")}}
+                        # 🟢 SECURE: Guardamos el Alias en las configuraciones para no alterar el Google Sheet
+                        settings_pc = inicializar_settings("PC")
+                        settings_movil = inicializar_settings("Móvil")
+                        settings_pc["display_name"] = d_reg_clean
+                        settings_movil["display_name"] = d_reg_clean
+                        
+                        db_global[u_reg_clean] = {"password": hashed_pass, "data": inicializar_data_usuario(), "settings": {"PC": settings_pc, "Móvil": settings_movil}}
                         
                         # Reemplazamos la variable para que si viaja a otra función (como Accesos), viaje encriptada
                         p_reg_clean = hashed_pass
@@ -2538,11 +2553,14 @@ if True:
     with col_t:
         if paso_cuenta: badge_html = f'<span style="font-size: 20px; background-color: #10B981; color: white; padding: 4px 12px; border-radius: 8px; margin-left: 15px; font-weight: 800; letter-spacing: 0px; align-self: center;">{_l["dash"]["pa"]}</span>'
         else: badge_html = f'<span style="font-size: 20px; background-color: #4A5568; color: white; padding: 4px 12px; border-radius: 8px; margin-left: 15px; font-weight: 800; letter-spacing: 0px; align-self: center;">{_l["dash"]["eval"]}</span>'
+        # 🟢 SECURE: Obtenemos el Alias. Si es una cuenta vieja que no lo tiene, ponemos "Trader"
+        nombre_mostrar = db_global[usuario]["settings"]["PC"].get("display_name", "Trader")
+        
         if modo_lectura:
             c_tit_visit, c_btn_volver = st.columns([3, 1])
-            st.markdown(f'<div class="dashboard-title" style="display: flex; align-items: center;">👀 Usuario De {usuario} {badge_html}</div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="dashboard-title" style="display: flex; align-items: center;">👀 Viendo a {nombre_mostrar} {badge_html}</div>', unsafe_allow_html=True)
         else:
-            st.markdown(f'<div class="dashboard-title" style="display: flex; align-items: center;">Hola, {usuario} {badge_html}</div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="dashboard-title" style="display: flex; align-items: center;">Hola, {nombre_mostrar} {badge_html}</div>', unsafe_allow_html=True)
 
     with col_data: 
         st.markdown(f'<div class="lbl-data">{LBL_DATA}</div>', unsafe_allow_html=True)
@@ -4047,6 +4065,10 @@ with tab_comunidad:
             else: tier = 25000.0
             
             info_trader = {"user": u_name, "cuenta": cta_name, "balance": bal_actual_cta}
+            # 🟢 SECURE: Inyectamos el alias en la info del trader
+            alias_trader = d_global["settings"]["PC"].get("display_name", "Trader Oculto")
+            info_trader["alias"] = alias_trader
+            
             if tier == 25000.0: leaderboard_25k.append(info_trader)
             elif tier == 50000.0: leaderboard_50k.append(info_trader)
             else: leaderboard_100k.append(info_trader)
@@ -4066,7 +4088,8 @@ with tab_comunidad:
             
             c_l1, c_l2, c_l3, c_l4 = st.columns([1, 3, 2, 2])
             with c_l1: st.markdown(f"<h3 style='margin:0; text-align:center;'>{icono}</h3>", unsafe_allow_html=True)
-            with c_l2: st.markdown(f"<h5 style='margin:0; color:#F8FAFC;'>👤 {trader['user']}</h5><span style='color:#94A3B8; font-size:12px;'>{trader['cuenta']}</span>", unsafe_allow_html=True)
+            # 🟢 SECURE: Mostramos el Alias en lugar del usuario real
+            with c_l2: st.markdown(f"<h5 style='margin:0; color:#F8FAFC;'>👤 {trader['alias']}</h5><span style='color:#94A3B8; font-size:12px;'>{trader['cuenta']}</span>", unsafe_allow_html=True)
             with c_l3: st.markdown(f"<h5 style='margin:0; color:#10B981;'>${trader['balance']:,.2f}</h5>", unsafe_allow_html=True)
             with c_l4:
                 # Usamos el On_Click Callback mágico aquí para evitar doble recarga
