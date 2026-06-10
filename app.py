@@ -1851,7 +1851,8 @@ def modal_configuracion_completa():
             admin_pass = st.text_input("Clave de Administrador", type="password", key="admin_pass_input", label_visibility="collapsed", placeholder="••••••••")
             
             if admin_pass:
-                if admin_pass.strip() == "Yfutures.":
+                # 🟢 SECURE: Obtenemos la clave maestra desde los secretos de Streamlit
+                if admin_pass.strip() == st.secrets.get("admin_master_pass", ""):
                     # GUARDAR MODO ADMIN EN GOOGLE SHEETS PARA SIEMPRE
                     db_global[usuario_logueado]["settings"]["PC"]["is_admin"] = True
                     db_global[usuario_logueado]["settings"]["Móvil"]["is_admin"] = True
@@ -3103,7 +3104,8 @@ if True:
                         with st.spinner("📤 Subiendo imágenes a la nube segura..."):
                             import requests
                             url_api = "https://api.imgbb.com/1/upload"
-                            api_key_imgbb = "dd266f375897b76af931e00467716917" 
+                            # 🟢 SECURE: API Key oculta
+                            api_key_imgbb = st.secrets.get("imgbb_api_key", "") 
                             
                             # Limitamos el bucle a un máximo de 2 archivos
                             for arch in archivos_local_img[:2]:
@@ -4525,8 +4527,8 @@ with tab_hist:
                                             import requests
                                             url_api = "https://api.imgbb.com/1/upload"
                                             
-                                            # 🔥 PEGA AQUÍ LA MISMA API KEY DE IMGBB 🔥
-                                            api_key_imgbb = "dd266f375897b76af931e00467716917"
+                                            # 🟢 SECURE: API Key oculta
+                                            api_key_imgbb = st.secrets.get("imgbb_api_key", "")
                                             
                                             for arch in archivos_edit_img:
                                                 try:
