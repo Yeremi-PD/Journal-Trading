@@ -2770,9 +2770,10 @@ if True:
         font-weight: 700 !important;
         color: #E2E8F0 !important;
         margin-bottom: 6px !important;
-        display: flex;
-        align-items: center;
-        gap: 5px;
+        display: block !important;
+        text-align: left !important;
+        width: 100% !important;
+        padding-left: 2px !important; /* Hace que inicie exactamente alineado al borde del botón */
     }
 
     /* Inputs de texto y números */
@@ -3026,11 +3027,17 @@ if True:
         .dashboard-title span {
             margin-left: 0px !important;
         }
-        .lbl-total-bal, .lbl-filtros, .lbl-data, .lbl-input, .lbl-link, .lbl-header {
+        .lbl-total-bal, .lbl-filtros, .lbl-data, .lbl-input, .lbl-link {
             transform: none !important;
             text-align: center !important;
             justify-content: center !important;
             width: 100% !important;
+        }
+        .lbl-header {
+            transform: none !important;
+            text-align: left !important;
+            width: 100% !important;
+            padding-left: 2px !important;
         }
         .balance-box {
             transform: none !important;
