@@ -5002,12 +5002,16 @@ doc.addEventListener('keydown', function(e) {
     }
 });
 
-// 2. Bloquear teclado movil en Filtros, Data Source y Calendario
+// 2. 🟢 FIX: Bloquear teclado móvil sin romper el Selectbox en iOS y agregando la Hora
 function bloquearTeclado() {
-    const inputs = doc.querySelectorAll('div[data-testid="stSelectbox"] input, div[data-testid="stDateInput"] input');
+    // Agregamos stTimeInput a la lista
+    const inputs = doc.querySelectorAll('div[data-testid="stSelectbox"] input, div[data-testid="stDateInput"] input, div[data-testid="stTimeInput"] input');
     inputs.forEach(input => {
         input.setAttribute('inputmode', 'none'); 
-        input.setAttribute('readonly', 'true'); 
+        // Quitamos el 'readonly' porque rompe Safari. Usamos un event listener para desenfocar (blur) al instante.
+        input.addEventListener('focus', function() {
+            this.blur();
+        });
         input.style.webkitTapHighlightColor = 'transparent';
         input.style.outline = 'none';
     });
