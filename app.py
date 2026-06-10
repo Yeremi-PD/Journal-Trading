@@ -2409,26 +2409,40 @@ border: 1px solid {border_color} !important; box-shadow: 0 1px 3px rgba(0,0,0,0.
     }}
 
 /* 📱 RESPONSIVO: CONTROL TOTAL Y REDUCCIÓN DE ESPACIO EN TELÉFONOS */
-        @media (max-width: 768px) {{
+        @media (max-width: 768px) {
+            /* 🟢 FIX DEFINITIVO: Obligar a los contenedores ocultos de Streamlit a mostrar la segunda línea */
+            div[data-testid="stTabs"] > div:first-of-type,
+            div[data-testid="stTabs"] > div:first-of-type > div {
+                overflow: visible !important;
+                height: auto !important;
+                min-height: auto !important;
+            }
+            
+            /* Empujar el contenido hacia abajo para que la 2da línea no tape los números */
+            .tab-buttons-spacer {
+                height: 120px !important;
+            }
+
             /* 🔴 ANIQUILACIÓN TOTAL DE LAS FLECHAS DE SCROLL NATIVAS */
             div[data-testid="stTabs"] button:not([role="tab"]),
-            div[data-testid="stTabs"] button[aria-label*="Scroll"] {{
+            div[data-testid="stTabs"] button[aria-label*="Scroll"] {
                 display: none !important;
                 width: 0px !important;
                 height: 0px !important;
                 opacity: 0 !important;
                 pointer-events: none !important;
-            }}
+            }
 
-            div[data-baseweb="tab-list"] {{
-                gap: 10px 6px !important; /* Espacio vertical y horizontal */
+            div[data-baseweb="tab-list"] {
+                gap: 10px 6px !important;
                 padding-left: 2px !important;
                 padding-right: 2px !important;
-                justify-content: center !important; /* 🟢 FIX: Centrar los botones en ambas filas */
+                justify-content: center !important; 
                 width: 100% !important;
-                overflow: visible !important; /* Quitamos el scroll forzado */
-                flex-wrap: wrap !important; /* 🟢 FIX: Forzar que bajen a 2 filas */
-            }}
+                height: auto !important;
+                overflow: visible !important; 
+                flex-wrap: wrap !important;
+            }
             
             div[data-baseweb="tab-list"]::-webkit-scrollbar {{
                 display: none !important;
