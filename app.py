@@ -144,41 +144,42 @@ observer.observe(doc.body, {childList: true, subtree: true});
 """, height=0, width=0)
 
 # ==========================================
-# 🚀 AUTO-LOGIN (SISTEMA
+# 🚀 AUTO-LOGIN (SISTEMA)
 # ==========================================
 import streamlit.components.v1 as components
 
-# Eliminamos por completo el telón invisible para asegurar la carga del diario bajo cualquier circunstancia
-components.html("""
-<script>
-try {
-    const urlParams = new URLSearchParams(window.parent.location.search);
-    
-    // Función protegida para mitigar bloqueos de Sandbox impuestos por Streamlit Share
-    const getCookie = (name) => { 
-        try {
-            const value = `; ${window.parent.document.cookie}`; 
-            const parts = value.split(`; ${name}=`); 
-            if (parts.length === 2) return parts.pop().split(';').shift(); 
-        } catch(e) { return null; }
-        return null; 
-    };
-    
-    const sUser = getCookie("yeremi_user");
-    const sDevice = getCookie("yeremi_device");
-    const sAccount = getCookie("yeremi_account");
+# 🟢 SECURE: Solo inyectamos este script si NO hay sesión activa. 
+# Esto evita que JavaScript vuelva a poner el token en la URL después de que Python lo borra.
+if st.session_state.get("usuario_actual") is None:
+    components.html("""
+    <script>
+    try {
+        const urlParams = new URLSearchParams(window.parent.location.search);
+        
+        const getCookie = (name) => { 
+            try {
+                const value = `; ${window.parent.document.cookie}`; 
+                const parts = value.split(`; ${name}=`); 
+                if (parts.length === 2) return parts.pop().split(';').shift(); 
+            } catch(e) { return null; }
+            return null; 
+        };
+        
+        const sUser = getCookie("yeremi_user");
+        const sDevice = getCookie("yeremi_device");
+        const sAccount = getCookie("yeremi_account");
 
-    if (sUser && !urlParams.has("user")) {
-        urlParams.set("user", sUser);
-        urlParams.set("device", sDevice ? sDevice : (window.parent.innerWidth <= 768 ? 'Móvil' : 'PC'));
-        if (sAccount) urlParams.set("account", sAccount);
-        window.parent.location.replace(window.parent.location.pathname + "?" + urlParams.toString());
+        if (sUser && !urlParams.has("user")) {
+            urlParams.set("user", sUser);
+            urlParams.set("device", sDevice ? sDevice : (window.parent.innerWidth <= 768 ? 'Móvil' : 'PC'));
+            if (sAccount) urlParams.set("account", sAccount);
+            window.parent.location.replace(window.parent.location.pathname + "?" + urlParams.toString());
+        }
+    } catch (error) {
+        console.log("Aviso de control: Restricciones de Iframe activas en este navegador.");
     }
-} catch (error) {
-    console.log("Aviso de control: Restricciones de Iframe activas en este navegador.");
-}
-</script>
-""", height=0, width=0)
+    </script>
+    """, height=0, width=0)
 
 # ==========================================
 # 2. BASE DE DATOS GLOBAL Y LOGIN (GOOGLE SHEETS)
@@ -1215,11 +1216,13 @@ if st.session_state.usuario_actual is None:
                                 
                             st.session_state.usuario_actual = user_match
                             st.session_state.dispositivo_actual = "Móvil" if modo_movil_check else "PC"
-                            # 🟢 SECURE: Guardamos el token encriptado, no el usuario real
+                            # 🟢 SECURE: Guardamos el token encriptado en las cookies, pero NO en la URL
                             token_seguro = crear_token_sesion(user_match)
                             components.html(f"""<script>window.parent.document.cookie = "yeremi_user={token_seguro}; path=/; max-age=2592000; SameSite=Strict"; window.parent.document.cookie = "yeremi_device={st.session_state.dispositivo_actual}; path=/; max-age=2592000; SameSite=Strict";</script>""", height=0, width=0)
-                            st.query_params["user"] = token_seguro
-                            st.query_params["device"] = st.session_state.dispositivo_actual
+                            
+                            # Limpiamos explícitamente cualquier residuo de la URL
+                            st.query_params.pop("user", None)
+                            st.query_params.pop("device", None)
                             st.rerun()
                         else:
                             st.error(f"⚠️ {_l['login']['cred_err']}")
@@ -1299,11 +1302,12 @@ if st.session_state.usuario_actual is None:
                         #  AUTO-LOGIN INMEDIATO
                         st.session_state.usuario_actual = u_reg_clean
                         st.session_state.dispositivo_actual = "Móvil" if modo_movil_check_reg else "PC"
-                        # 🟢 SECURE: Guardamos el token encriptado
+                        # 🟢 SECURE: Guardamos el token encriptado en cookies, NO en la URL
                         token_seguro = crear_token_sesion(u_reg_clean)
                         components.html(f"""<script>window.parent.document.cookie = "yeremi_user={token_seguro}; path=/; max-age=2592000; SameSite=Strict"; window.parent.document.cookie = "yeremi_device={st.session_state.dispositivo_actual}; path=/; max-age=2592000; SameSite=Strict";</script>""", height=0, width=0)
-                        st.query_params["user"] = token_seguro
-                        st.query_params["device"] = st.session_state.dispositivo_actual
+                        
+                        st.query_params.pop("user", None)
+                        st.query_params.pop("device", None)
                         st.rerun()
 
             st.markdown('<div class="btn-secundario-link">', unsafe_allow_html=True)
