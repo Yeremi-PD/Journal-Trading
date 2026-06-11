@@ -934,6 +934,23 @@ if query_u and query_u in db_global and st.session_state.usuario_actual is None:
         
     st.session_state.usuario_actual = query_u
     st.session_state.dispositivo_actual = query_d
+    
+    # 🟢 BLINDAJE DE URL: Barremos los tokens de la barra de direcciones de inmediato para proteger la sesión
+    try:
+        st.query_params.pop("user", None)
+        st.query_params.pop("device", None)
+        st.rerun()
+    except:
+        pass
+
+# Capa de prevención activa: Si ya hay sesión pero la URL arrastra residuos del token por recarga, los eliminamos
+if st.session_state.usuario_actual is not None and "user" in st.query_params:
+    try:
+        st.query_params.pop("user", None)
+        st.query_params.pop("device", None)
+        st.rerun()
+    except:
+        pass
 
 # Paso 2: Si no hay memoria, mostrar la pantalla de Login
 if "idioma" not in st.session_state:
