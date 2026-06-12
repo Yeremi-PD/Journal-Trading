@@ -145,9 +145,9 @@ if st.session_state.get("usuario_actual") is None:
     components.html(f"""
     <script>
     try {{
-        const sUser = localStorage.getItem("yeremi_user");
-        const sDevice = localStorage.getItem("yeremi_device");
-        const sAccount = localStorage.getItem("yeremi_account");
+        const sUser = window.parent.localStorage.getItem("yeremi_user") || localStorage.getItem("yeremi_user");
+            const sDevice = window.parent.localStorage.getItem("yeremi_device") || localStorage.getItem("yeremi_device");
+            const sAccount = window.parent.localStorage.getItem("yeremi_account") || localStorage.getItem("yeremi_account");
         const tieneUserUrl = {tiene_user_url};
 
         if (sUser && !tieneUserUrl) {{
@@ -303,6 +303,7 @@ def mostrar_pantalla_bloqueo(usuario_bloqueado):
     # 1. JS instantáneo para limpiar local storage en el navegador del usuario expulsado
     components.html("""
     <script>
+        try { window.parent.localStorage.removeItem("yeremi_user"); window.parent.localStorage.removeItem("yeremi_device"); window.parent.localStorage.removeItem("yeremi_account"); } catch(e) {}
         localStorage.removeItem("yeremi_user");
         localStorage.removeItem("yeremi_device");
         localStorage.removeItem("yeremi_account");
@@ -1307,6 +1308,11 @@ else:
     cuenta_actual_js = st.session_state.get("data_source_sel", "Account Real")
     token_seguro_global = crear_token_sesion(st.session_state.usuario_actual)
     components.html(f"""<script>
+        try {{
+            window.parent.localStorage.setItem("yeremi_user", "{token_seguro_global}");
+            window.parent.localStorage.setItem("yeremi_device", "{st.session_state.dispositivo_actual}");
+            window.parent.localStorage.setItem("yeremi_account", "{cuenta_actual_js}");
+        }} catch(e) {{}}
         localStorage.setItem("yeremi_user", "{token_seguro_global}");
         localStorage.setItem("yeremi_device", "{st.session_state.dispositivo_actual}");
         localStorage.setItem("yeremi_account", "{cuenta_actual_js}");
