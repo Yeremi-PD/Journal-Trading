@@ -144,22 +144,21 @@ if st.session_state.get("usuario_actual") is None:
     tiene_user_url = "true" if "user" in st.query_params else "false"
     components.html(f"""
     <script>
-    try {{
-        const sUser = window.parent.localStorage.getItem("yeremi_user") || localStorage.getItem("yeremi_user");
-            const sDevice = window.parent.localStorage.getItem("yeremi_device") || localStorage.getItem("yeremi_device");
-            const sAccount = window.parent.localStorage.getItem("yeremi_account") || localStorage.getItem("yeremi_account");
-        const tieneUserUrl = {tiene_user_url};
+    function safeGet(key) {{
+        try {{ return window.parent.localStorage.getItem(key); }}
+        catch(e) {{ try {{ return window.localStorage.getItem(key); }} catch(e2) {{ return null; }} }}
+    }}
+    const sUser = safeGet("yeremi_user");
+    const sDevice = safeGet("yeremi_device");
+    const sAccount = safeGet("yeremi_account");
+    const tieneUserUrl = {tiene_user_url};
 
-        if (sUser && !tieneUserUrl) {{
-            const dev = sDevice ? sDevice : (window.innerWidth <= 768 ? 'Móvil' : 'PC');
-            let url = "/?user=" + encodeURIComponent(sUser) + "&device=" + encodeURIComponent(dev);
-            if (sAccount) {{
-                url += "&account=" + encodeURIComponent(sAccount);
-            }}
-            window.parent.location.replace(url);
-        }}
-    }} catch (error) {{
-        console.log("Error en auto-login:", error);
+    if (sUser && !tieneUserUrl) {{
+        const dev = sDevice ? sDevice : (window.innerWidth <= 768 ? 'Móvil' : 'PC');
+        const baseUrl = window.parent.location.href.split('?')[0];
+        let newUrl = baseUrl + "?user=" + encodeURIComponent(sUser) + "&device=" + encodeURIComponent(dev);
+        if (sAccount) newUrl += "&account=" + encodeURIComponent(sAccount);
+        window.parent.location.replace(newUrl);
     }}
     </script>
     """, height=0, width=0)
@@ -303,11 +302,14 @@ def mostrar_pantalla_bloqueo(usuario_bloqueado):
     # 1. JS instantáneo para limpiar local storage en el navegador del usuario expulsado
     components.html("""
     <script>
-        try { window.parent.localStorage.removeItem("yeremi_user"); window.parent.localStorage.removeItem("yeremi_device"); window.parent.localStorage.removeItem("yeremi_account"); } catch(e) {}
-        localStorage.removeItem("yeremi_user");
-        localStorage.removeItem("yeremi_device");
-        localStorage.removeItem("yeremi_account");
-        window.parent.location.replace("/");
+        function safeRemove(key) {
+            try { window.parent.localStorage.removeItem(key); } catch(e) {}
+            try { window.localStorage.removeItem(key); } catch(e) {}
+        }
+        safeRemove("yeremi_user");
+        safeRemove("yeremi_device");
+        safeRemove("yeremi_account");
+        window.parent.location.replace(window.parent.location.href.split('?')[0]);
     </script>
     """, height=0, width=0)
 
@@ -1309,14 +1311,13 @@ else:
     cuenta_actual_js = st.session_state.get("data_source_sel", "Account Real")
     token_seguro_global = crear_token_sesion(st.session_state.usuario_actual)
     components.html(f"""<script>
-        try {{
-            window.parent.localStorage.setItem("yeremi_user", "{token_seguro_global}");
-            window.parent.localStorage.setItem("yeremi_device", "{st.session_state.dispositivo_actual}");
-            window.parent.localStorage.setItem("yeremi_account", "{cuenta_actual_js}");
-        }} catch(e) {{}}
-        localStorage.setItem("yeremi_user", "{token_seguro_global}");
-        localStorage.setItem("yeremi_device", "{st.session_state.dispositivo_actual}");
-        localStorage.setItem("yeremi_account", "{cuenta_actual_js}");
+        function safeSet(key, val) {{
+            try {{ window.parent.localStorage.setItem(key, val); }} catch(e) {{}}
+            try {{ window.localStorage.setItem(key, val); }} catch(e) {{}}
+        }}
+        safeSet("yeremi_user", "{token_seguro_global}");
+        safeSet("yeremi_device", "{st.session_state.dispositivo_actual}");
+        safeSet("yeremi_account", "{cuenta_actual_js}");
     </script>""", height=0, width=0)
 
 # ==========================================
