@@ -2740,7 +2740,9 @@ if True:
         if paso_cuenta: badge_html = f'<span style="font-size: 20px; background-color: #10B981; color: white; padding: 4px 12px; border-radius: 8px; margin-left: 15px; font-weight: 800; letter-spacing: 0px; align-self: center;">{_l["dash"]["pa"]}</span>'
         else: badge_html = f'<span style="font-size: 20px; background-color: #4A5568; color: white; padding: 4px 12px; border-radius: 8px; margin-left: 15px; font-weight: 800; letter-spacing: 0px; align-self: center;">{_l["dash"]["eval"]}</span>'
         # 🟢 SECURE: Obtenemos el Alias. Si es una cuenta vieja que no lo tiene, ponemos "Trader"
-        nombre_mostrar = db_global[usuario]["settings"]["PC"].get("display_name", "Trader")
+        import html
+        # 🟢 FIX CRÍTICO: Escapamos el nombre para que no inyecte HTML malicioso en la cabecera
+        nombre_mostrar = html.escape(str(db_global[usuario]["settings"]["PC"].get("display_name", "Trader")))
         
         if modo_lectura:
             c_tit_visit, c_btn_volver = st.columns([3, 1])
@@ -3379,7 +3381,9 @@ if True:
                                     st.error(f"⚠️ Error de conexión al subir: {e_upload}")
                     
                     if link_imagen.strip().startswith("http"): 
-                        imgs_finales.append(link_imagen.strip())
+                        # 🟢 FIX CRÍTICO: Sanitizar URL para evitar escape de atributos en la etiqueta <img>
+                        import html
+                        imgs_finales.append(html.escape(link_imagen.strip()))
 
                     estado_actual = "Funded" if st.session_state.get("toggle_funded_state", False) else "Eval"
                     if "payouts" in db_global[usuario]["settings"]["PC"]:
@@ -4302,9 +4306,11 @@ with tab_comunidad:
                 bruto_inicial = bal_actual_cta - sum(t.get("pnl", 0.0) for t in trades_cta) if trades_cta else bal_actual_cta
                 
                 tier = 100000.0 if bruto_inicial > 75000 else (50000.0 if bruto_inicial > 35000 else 25000.0)
+                import html
                 info_trader = {
                     "user": u_name, "cuenta": cta_name, "balance": bal_actual_cta, 
-                    "alias": d_glob["settings"]["PC"].get("display_name", "Trader Oculto")
+                    # 🟢 FIX CRÍTICO: Sanitizar el alias para evitar XSS en el Leaderboard
+                    "alias": html.escape(str(d_glob["settings"]["PC"].get("display_name", "Trader Oculto")))
                 }
                 
                 if tier == 25000.0: lb_25.append(info_trader)
@@ -4794,7 +4800,9 @@ with tab_hist:
                                 else: st.caption(_l['hist']['no_img_saved'])
                 
                                 if st.button(_l['hist']['save_edits'], key=f"save_{clave}_{i}", use_container_width=True):
-                                    if nuevo_link_edit.strip().startswith("http"): data["imagenes"].append(nuevo_link_edit.strip())
+                                    if nuevo_link_edit.strip().startswith("http"): 
+                                        import html
+                                        data["imagenes"].append(html.escape(nuevo_link_edit.strip()))
                                     
                                     # 🟢 NUBE AUTOMÁTICA EN HISTORIAL (ImgBB Múltiple)
                                     if archivos_edit_img:
