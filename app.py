@@ -16,19 +16,31 @@ import hmac
 import hashlib
 import logging
 
-# 🟢 SECURE: Funciones de firma digital para proteger las cookies
+# 🟢 SECURE: Tokens dinámicos con autodestrucción por tiempo
 def crear_token_sesion(usuario):
-    secreto = st.secrets.get("cookie_secret")
-    if not secreto: raise ValueError("ERROR CRÍTICO: Falta 'cookie_secret' en st.secrets.")
-    firma = hmac.new(secreto.encode(), usuario.encode(), hashlib.sha256).hexdigest()
-    return f"{usuario}|{firma}"
+    secreto = st.secrets.get("cookie_secret", "fallback_secret")
+    tiempo_actual = int(datetime.now().timestamp())
+    datos = f"{usuario}|{tiempo_actual}"
+    firma = hmac.new(secreto.encode(), datos.encode(), hashlib.sha256).hexdigest()
+    return f"{datos}|{firma}"
 
 def validar_token_sesion(token_completo):
-    if not token_completo or "|" not in token_completo: return None
-    usuario, firma = token_completo.split("|", 1)
-    secreto = st.secrets.get("cookie_secret")
-    if not secreto: return None
-    firma_esperada = hmac.new(secreto.encode(), usuario.encode(), hashlib.sha256).hexdigest()
+    # Aseguramos que el token tenga las 3 partes (Usuario | Tiempo | Firma)
+    if not token_completo or token_completo.count("|") != 2: return None
+    usuario, tiempo_str, firma = token_completo.split("|")
+    secreto = st.secrets.get("cookie_secret", "fallback_secret")
+    
+    # 🛡️ Verificación de Caducidad (7200 segundos = 2 horas)
+    try:
+        tiempo_creacion = int(tiempo_str)
+        tiempo_actual = int(datetime.now().timestamp())
+        if tiempo_actual - tiempo_creacion > 7200:
+            return None # 🚫 Token expirado. Bloquea el acceso desde el historial.
+    except:
+        return None
+        
+    datos = f"{usuario}|{tiempo_str}"
+    firma_esperada = hmac.new(secreto.encode(), datos.encode(), hashlib.sha256).hexdigest()
     return usuario if hmac.compare_digest(firma, firma_esperada) else None
 
 # ==========================================
@@ -928,9 +940,15 @@ if query_u and query_u in db_global and st.session_state.usuario_actual is None:
     st.session_state.usuario_actual = query_u
     st.session_state.dispositivo_actual = query_d
     
-    # 🟢 FIX: Mantenemos el token encriptado en la URL para que la sesión sobreviva al F5
+    # 🟢 FIX F5: Dejamos que Streamlit lea la URL para que la sesión sobreviva al refrescar
     st.query_params["user"] = query_u_raw
     st.query_params["device"] = query_d
+
+# 🛡️ CAPA ACTIVA DE SEGURIDAD: Refresca el tiempo de vida del token en la URL con cada clic. 
+# Así nunca caducará mientras trabajas, pero morirá cuando cierres la app.
+if st.session_state.usuario_actual is not None:
+    st.query_params["user"] = crear_token_sesion(st.session_state.usuario_actual)
+    st.query_params["device"] = st.session_state.get("dispositivo_actual", "PC")
 
 # Paso 2: Si no hay memoria, mostrar la pantalla de Login
 if "idioma" not in st.session_state:
