@@ -2017,24 +2017,7 @@ def modal_configuracion_completa():
                         if "display_name" not in db_global[usuario_destino]["settings"]["Móvil"] or not db_global[usuario_destino]["settings"]["Móvil"]["display_name"]:
                             db_global[usuario_destino]["settings"]["Móvil"]["display_name"] = str(usuario_destino).strip()
                         
-                        try:
-                            # 🟢 FIX CRÍTICO: Pausa estructural obligatoria (Rate Limiting). 
-                            # Evita que Google te banee la API por exceso de peticiones simultáneas.
-                            import time
-                            reescribir_excel_usuario(usuario_destino)
-                            contador_actualizados += 1
-                            time.sleep(1.5) # Respiración obligatoria para la API
-                        except Exception as e_error:
-                            print(f"Error forzando actualización para {usuario_destino}: {e_error}")
-                            
-                    st.success(f"✅ ¡Estructura sincronizada! Se forzó el guardado en {contador_actualizados} cuentas activas. Tu base de datos está al día.")
-                    import time; time.sleep(1.5); st.rerun()
-
-            st.markdown("<br>", unsafe_allow_html=True)
-            
-            col_h1, col_h2, col_h3, col_h4 = st.columns([2, 1.5, 1.5, 1])
-            col_h1.markdown("<span style='color:#94A3B8; font-size:12px; text-transform:uppercase;'>Usuario</span>", unsafe_allow_html=True)
-            col_h2.markdown("<span style='color:#94A3B8; font-size:12px; text-transform:uppercase;'>Contraseña</span>", unsafe_allow_html=True)
+                        try:ont-size:12px; text-transform:uppercase;'>Contraseña</span>", unsafe_allow_html=True)
             col_h3.markdown("<span style='color:#94A3B8; font-size:12px; text-transform:uppercase;'>Estado IA</span>", unsafe_allow_html=True)
             col_h4.markdown("<span style='color:#94A3B8; font-size:12px; text-transform:uppercase;'>Acción</span>", unsafe_allow_html=True)
             st.markdown("<hr style='margin-top: 5px; margin-bottom: 10px; border-color: #334155;'>", unsafe_allow_html=True)
