@@ -2131,10 +2131,10 @@ st.markdown(f"""
 /* 🌟 MAGIA DE LAS PESTAÑAS (TABS) PREMIUM ESTILO FINANCE CENTER 🌟 */
     div[data-testid="stTabs"] {{ padding: 0px !important; margin-top: 0px !important; overflow: visible !important; position: relative !important; }}
     
-    /* 1. Las pestañas del menú principal se van limpias al tope absoluto de la página */
-    div[data-baseweb="tab-list"] {{ 
-        position: absolute !important;
-        top: -25px !important; /* Ajustado para quedar clavado en el borde superior */
+/* 1. Las pestañas del menú principal fluyen dinámicamente sin superponerse */
+    div[data-baseweb="tab-list"] { 
+        position: relative !important; /* 🟢 FIX CRÍTICO ESTÉTICO: Flujo natural que previene solapamientos si las pestañas colapsan en dos líneas */
+        top: -10px !important; 
         left: 0 !important;
         width: 100% !important;
         justify-content: center !important;
@@ -2851,14 +2851,16 @@ if True:
         display: none !important; 
     }
 
-    /* ==========================================
+/* ==========================================
     AJUSTES DEL BOTÓN "GUARDAR"
     ========================================== */
     div[data-testid="stForm"] [data-testid="stFormSubmitButton"] button {
-        background-color: #10B981 !important; /* Color de fondo (Verde) */
-        color: white !important;              /* Color del texto */
-        font-size: 30pt !important;           /* <-- TAMAÑO DEL TEXTO DEL BOTÓN */
-        font-weight: bold !important;         /* Negrita */
+        background-color: #10B981 !important;
+        /* Color de fondo (Verde) */
+        color: white !important;
+        /* Color del texto */
+        font-size: 18px !important;
+        /* 🟢 FIX CRÍTICO ESTÉTICO: Tamaño profesional y proporcionado */
         
         height: 50px !important;              /* Altura del botón */
         min-height: 60px !important;          
@@ -4354,7 +4356,7 @@ if es_admin:
         <style>
         div[data-testid="stChatMessageContent"] p, 
         div[data-testid="stChatMessageContent"] div {
-            font-size: 26px !important;
+            font-size: 15px !important; /* 🟢 FIX CRÍTICO ESTÉTICO: Lectura cómoda sin deformar la interfaz */
             line-height: 1.6 !important;
         }
         .chat-sidebar-title {
