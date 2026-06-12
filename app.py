@@ -17,14 +17,16 @@ import logging
 
 # 🟢 SECURE: Funciones de firma digital para proteger las cookies
 def crear_token_sesion(usuario):
-    secreto = st.secrets.get("cookie_secret", "fallback_inseguro_123")
+    secreto = st.secrets.get("cookie_secret")
+    if not secreto: raise ValueError("ERROR CRÍTICO: Falta 'cookie_secret' en st.secrets.")
     firma = hmac.new(secreto.encode(), usuario.encode(), hashlib.sha256).hexdigest()
     return f"{usuario}|{firma}"
 
 def validar_token_sesion(token_completo):
     if not token_completo or "|" not in token_completo: return None
     usuario, firma = token_completo.split("|", 1)
-    secreto = st.secrets.get("cookie_secret", "fallback_inseguro_123")
+    secreto = st.secrets.get("cookie_secret")
+    if not secreto: return None
     firma_esperada = hmac.new(secreto.encode(), usuario.encode(), hashlib.sha256).hexdigest()
     return usuario if hmac.compare_digest(firma, firma_esperada) else None
 
@@ -298,7 +300,8 @@ def verificar_acceso_live(usuario):
             # 🟢 SECURE: Uso de append_row nativo (Atómico) para evitar colisiones en migraciones simultáneas
             hoja.append_row([str(usuario).strip(), str(pwd_viejo).strip(), codigo, f_crea, f_ven, "TRUE"])
             
-    except: pass
+    except Exception as e: 
+        print(f"⚠️ Error crítico en la verificación/migración de acceso para el usuario '{usuario}': {e}")
     return True, ""
 
 # 🛡️ FUNCIÓN ÚNICA CENTRALIZADA: PANTALLA DE BLOQUEO TOTAL PREMIUM
@@ -530,7 +533,9 @@ def get_global_db():
                             try:
                                 d_obj = datetime.strptime(f_str, "%d/%m/%Y")
                                 clave = (d_obj.year, d_obj.month, d_obj.day)
-                            except: continue
+                            except Exception as e:
+                                logging.error(f"⚠️ Error parseando fecha '{f_str}' para la cuenta '{cuenta}' de '{user}': {e}")
+                                continue
 
                             def safe_float(val):
                                 try:
@@ -609,7 +614,8 @@ def get_global_db():
 
                                     ex_keys = ['bias', 'Confluences', 'risk', 'RR', 'trade_type', 'razon_trade', 'Corrections', 'Emotions', 'hora', 'ticker', 'direccion', 'lotes', 'precio_entrada', 'precio_salida', 'comisiones', 'estado_cuenta', 'retiros_acumulados']
                                     trade_info.update({k:v for k,v in parsed_extra.items() if k not in ex_keys})
-                                except: pass
+                                except Exception as e:
+                                    logging.error(f"⚠️ Error estructurando ExtraData en el trade de fecha {f_str} para {user}: {e}")
                             
                             if cuenta not in db_temp[user]["data"]:
                                 db_temp[user]["data"][cuenta] = {"balance": 25000.00, "trades": {}, "backtesting_mode": False}
