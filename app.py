@@ -16,18 +16,25 @@ import hmac
 import hashlib
 import logging
 
-# 🟢 SECURE: Tokens dinámicos con autodestrucción por tiempo
+import urllib.parse
+# 🟢 SECURE: Tokens dinámicos con autodestrucción (A PRUEBA DE NAVEGADORES)
 def crear_token_sesion(usuario):
     secreto = st.secrets.get("cookie_secret", "fallback_secret")
     tiempo_actual = int(datetime.now().timestamp())
-    datos = f"{usuario}|{tiempo_actual}"
+    datos = f"{usuario}.{tiempo_actual}"
     firma = hmac.new(secreto.encode(), datos.encode(), hashlib.sha256).hexdigest()
-    return f"{datos}|{firma}"
+    return f"{datos}.{firma}"
 
 def validar_token_sesion(token_completo):
-    # Aseguramos que el token tenga las 3 partes (Usuario | Tiempo | Firma)
-    if not token_completo or token_completo.count("|") != 2: return None
-    usuario, tiempo_str, firma = token_completo.split("|")
+    if not token_completo: return None
+    if isinstance(token_completo, list): token_completo = token_completo[0]
+    
+    # Forzamos decodificación por si el navegador alteró la URL
+    token_completo = urllib.parse.unquote(str(token_completo))
+    
+    if token_completo.count(".") != 2: return None
+    
+    usuario, tiempo_str, firma = token_completo.split(".")
     secreto = st.secrets.get("cookie_secret", "fallback_secret")
     
     # 🛡️ Verificación de Caducidad (7200 segundos = 2 horas)
@@ -35,11 +42,11 @@ def validar_token_sesion(token_completo):
         tiempo_creacion = int(tiempo_str)
         tiempo_actual = int(datetime.now().timestamp())
         if tiempo_actual - tiempo_creacion > 7200:
-            return None # 🚫 Token expirado. Bloquea el acceso desde el historial.
+            return None # 🚫 Token expirado.
     except:
         return None
         
-    datos = f"{usuario}|{tiempo_str}"
+    datos = f"{usuario}.{tiempo_str}"
     firma_esperada = hmac.new(secreto.encode(), datos.encode(), hashlib.sha256).hexdigest()
     return usuario if hmac.compare_digest(firma, firma_esperada) else None
 
@@ -907,14 +914,6 @@ if st.session_state.get("logout_trigger", False):
     st.rerun()
 
 if "dispositivo_actual" not in st.session_state: st.session_state.dispositivo_actual = "PC"
-
-try:
-    if "user" in st.query_params and st.query_params["user"] in db_global:
-        st.session_state.usuario_actual = st.query_params["user"]
-    if "device" in st.query_params:
-        st.session_state.dispositivo_actual = st.query_params["device"]
-except:
-    pass
 
 # --- LOGIN CON MEMORIA ---
 if "usuario_actual" not in st.session_state:
