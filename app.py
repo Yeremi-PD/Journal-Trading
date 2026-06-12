@@ -1326,9 +1326,8 @@ else:
         mostrar_pantalla_bloqueo(st.session_state.usuario_actual)
         
     cuenta_actual_js = st.session_state.get("data_source_sel", "Account Real")
-    components.html(f"""<script>window.parent.document.cookie = "yeremi_user={st.session_state.usuario_actual};
-path=/; max-age=2592000; SameSite=Strict"; window.parent.document.cookie = "yeremi_device={st.session_state.dispositivo_actual}; path=/; max-age=2592000; SameSite=Strict"; window.parent.document.cookie = "yeremi_account={cuenta_actual_js}; path=/; max-age=2592000;
-SameSite=Strict";</script>""", height=0, width=0)
+    token_seguro_global = crear_token_sesion(st.session_state.usuario_actual)
+    components.html(f"""<script>window.parent.document.cookie = "yeremi_user={token_seguro_global}; path=/; max-age=2592000; SameSite=Strict"; window.parent.document.cookie = "yeremi_device={st.session_state.dispositivo_actual}; path=/; max-age=2592000; SameSite=Strict"; window.parent.document.cookie = "yeremi_account={cuenta_actual_js}; path=/; max-age=2592000; SameSite=Strict";</script>""", height=0, width=0)
 
 # ==========================================
 # 3. SECCIÓN DE AJUSTES MANUALES (CONSTANTES)
