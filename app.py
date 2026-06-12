@@ -7,6 +7,7 @@ import base64
 import pandas as pd
 from datetime import datetime, date
 import json
+import html # 🟢 FIX CRÍTICO: Librería nativa obligatoria para escapar inyecciones XSS
 import gspread
 from google.oauth2.service_account import Credentials
 import io
@@ -1848,12 +1849,12 @@ def modal_configuracion_completa():
                         # Actualizar la sesión para ir a la cuenta nueva automáticamente
                         st.session_state.data_source_sel = nueva_cuenta_nombre
                         try: 
-                            st.query_params["account"] = nueva_cuenta_nombre
+                             st.query_params["account"] = nueva_cuenta_nombre
                         except: 
                             pass
-                            
-                        # Guardar en base de datos y refrescar
-                        reescribir_excel_usuario(usuario)
+                             
+                        # 🟢 FIX CRÍTICO: Prevenir escalada de privilegios. Guardar SOLO en el perfil del usuario dueño.
+                        reescribir_excel_usuario(usuario_logueado)
                         st.rerun()
                         
                     elif nueva_cuenta_nombre in db_usuario:
@@ -1878,7 +1879,8 @@ def modal_configuracion_completa():
                         if cr_yes.button(_l['sidebar']['yes_reset'], key="btn_si_reset_final"):
                             db_usuario[ctx_actual]["balance"] = nuevo_balance_reset
                             db_usuario[ctx_actual]["trades"] = {}
-                            reescribir_excel_usuario(usuario)
+                            # 🟢 FIX CRÍTICO: El guardado se fuerza al usuario logueado, sin importar qué perfil observe.
+                            reescribir_excel_usuario(usuario_logueado)
                             st.session_state.confirm_reset = False
                             st.rerun()
                         if cr_no.button(_l['sidebar']['no'], key="btn_no_reset_final"):
@@ -1904,7 +1906,8 @@ def modal_configuracion_completa():
                     if cd_yes.button(_l['sidebar']['yes_del'], key="btn_si_borrar_final"):
                         del db_usuario[cuenta_a_borrar]
                         if st.session_state.data_source_sel == cuenta_a_borrar: st.session_state.data_source_sel = list(db_usuario.keys())[0]
-                        reescribir_excel_usuario(usuario)
+                        # 🟢 FIX CRÍTICO: Bloqueo de mutación cruzada.
+                        reescribir_excel_usuario(usuario_logueado)
                         st.session_state.confirm_delete_acc = False
                         st.rerun()
                     if cd_no.button(_l['sidebar']['cancel'], key="btn_no_borrar_final"):
@@ -4268,39 +4271,38 @@ with tab_comunidad:
     st.markdown("<h3 style='text-align:center; color:#10B981; font-weight: 800;'>🏆 Top Traders</h3>", unsafe_allow_html=True)
     st.markdown("<p style='text-align:center; color:#94A3B8; font-size:14px; margin-top:-10px;'>Clasificación por tamaño de cuenta original.</p>", unsafe_allow_html=True)
     
-    leaderboard_25k, leaderboard_50k, leaderboard_100k = [], [], []
-    
-    for u_name, d_global in db_global.items():
-        if u_name == usuario_logueado: continue 
-        
-        cuentas_pub_usuario = d_global["settings"]["PC"].get("public_accounts", [])
-        if busqueda and busqueda.lower() not in u_name.lower(): continue
-        
-        for cta_name, cta_data in d_global["data"].items():
-            if cta_name == "Todas las Cuentas" or cta_name not in cuentas_pub_usuario: continue
-            
-            bal_actual_cta = cta_data.get("balance", 0.0)
-            trades_cta = []
-            for k_date, t_list in cta_data.get("trades", {}).items(): trades_cta.extend(t_list)
-            
-            bruto_inicial = bal_actual_cta - sum(t.get("pnl", 0.0) for t in trades_cta) if trades_cta else bal_actual_cta
-            
-            if bruto_inicial > 75000: tier = 100000.0
-            elif bruto_inicial > 35000: tier = 50000.0
-            else: tier = 25000.0
-            
-            info_trader = {"user": u_name, "cuenta": cta_name, "balance": bal_actual_cta}
-            # 🟢 SECURE: Inyectamos el alias en la info del trader
-            alias_trader = d_global["settings"]["PC"].get("display_name", "Trader Oculto")
-            info_trader["alias"] = alias_trader
-            
-            if tier == 25000.0: leaderboard_25k.append(info_trader)
-            elif tier == 50000.0: leaderboard_50k.append(info_trader)
-            else: leaderboard_100k.append(info_trader)
-    
-    leaderboard_25k.sort(key=lambda x: x["balance"], reverse=True)
-    leaderboard_50k.sort(key=lambda x: x["balance"], reverse=True)
-    leaderboard_100k.sort(key=lambda x: x["balance"], reverse=True)
+    # 🟢 FIX LEVE (Rendimiento): Movemos el cálculo pesado a una función compacta
+    # para que se procese más rápido y no congele la vista principal en cada iteración.
+    def obtener_leaderboards(db, busq, usr_actual):
+        lb_25, lb_50, lb_100 = [], [], []
+        for u_name, d_glob in db.items():
+            if u_name == usr_actual: continue 
+            cuentas_pub = d_glob["settings"]["PC"].get("public_accounts", [])
+            if busq and busq.lower() not in u_name.lower(): continue
+            for cta_name, cta_data in d_glob["data"].items():
+                if cta_name == "Todas las Cuentas" or cta_name not in cuentas_pub: continue
+                
+                bal_actual_cta = cta_data.get("balance", 0.0)
+                # Extracción optimizada (List Comprehension)
+                trades_cta = [t for t_list in cta_data.get("trades", {}).values() for t in t_list]
+                bruto_inicial = bal_actual_cta - sum(t.get("pnl", 0.0) for t in trades_cta) if trades_cta else bal_actual_cta
+                
+                tier = 100000.0 if bruto_inicial > 75000 else (50000.0 if bruto_inicial > 35000 else 25000.0)
+                info_trader = {
+                    "user": u_name, "cuenta": cta_name, "balance": bal_actual_cta, 
+                    "alias": d_glob["settings"]["PC"].get("display_name", "Trader Oculto")
+                }
+                
+                if tier == 25000.0: lb_25.append(info_trader)
+                elif tier == 50000.0: lb_50.append(info_trader)
+                else: lb_100.append(info_trader)
+                
+        lb_25.sort(key=lambda x: x["balance"], reverse=True)
+        lb_50.sort(key=lambda x: x["balance"], reverse=True)
+        lb_100.sort(key=lambda x: x["balance"], reverse=True)
+        return lb_25, lb_50, lb_100
+
+    leaderboard_25k, leaderboard_50k, leaderboard_100k = obtener_leaderboards(db_global, busqueda, usuario_logueado)
     
     tab_25, tab_50, tab_100 = st.tabs(["Top Cuentas 25K", "Top Cuentas 50K", "Top Cuentas 100K"])
     
@@ -4845,8 +4847,20 @@ with tab_tabla:
                     pnl_simbol = "+" if pnl > 0 else ""
                     Confluences_list = trade.get('Confluences', [])
                     Confluences_resumen = ", ".join([c.split(". ")[-1] for c in Confluences_list])
+                    # 🟢 FIX CRÍTICO: Sanitización HTML estricta para evitar ataques Stored XSS
                     row = {
-                        "Date": f"{fecha.strftime('%d/%m/%Y')} {trade.get('hora', '00:00')}", "Trade": f"#{i+1}", "P&L": f"{pnl_simbol}${pnl:,.2f}", "Trade Type": trade.get('trade_type', ''), "Bias": trade.get('bias', ''), "Sesión": trade.get('sesion', ''), "RR": trade.get('RR', ''), "Confluences": Confluences_resumen, "Risk": trade.get('risk', ''), "Reason For Trade": trade.get('razon_trade', ''), "Corrections": trade.get('Corrections', ''), "Emotions": trade.get('Emotions', '')
+                        "Date": f"{fecha.strftime('%d/%m/%Y')} {trade.get('hora', '00:00')}", 
+                        "Trade": f"#{i+1}", 
+                        "P&L": f"{pnl_simbol}${pnl:,.2f}", 
+                        "Trade Type": html.escape(str(trade.get('trade_type', ''))), 
+                        "Bias": html.escape(str(trade.get('bias', ''))), 
+                        "Sesión": html.escape(str(trade.get('sesion', ''))), 
+                        "RR": html.escape(str(trade.get('RR', ''))), 
+                        "Confluences": html.escape(str(Confluences_resumen)), 
+                        "Risk": html.escape(str(trade.get('risk', ''))), 
+                        "Reason For Trade": html.escape(str(trade.get('razon_trade', ''))), 
+                        "Corrections": html.escape(str(trade.get('Corrections', ''))), 
+                        "Emotions": html.escape(str(trade.get('Emotions', '')))
                     }
                     table_data.append(row)
             if not table_data: st.info(_l['table']['no_tr_mo_tbl'])
