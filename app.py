@@ -140,35 +140,27 @@ st.markdown(f"""
 import streamlit.components.v1 as components
 
 # 🟢 SECURE: Solo inyectamos este script si NO hay sesión activa. 
-# Esto evita que JavaScript vuelva a poner el token en la URL después de que Python lo borra.
 if st.session_state.get("usuario_actual") is None:
-    components.html("""
+    tiene_user_url = "true" if "user" in st.query_params else "false"
+    components.html(f"""
     <script>
-    try {
-        const urlParams = new URLSearchParams(window.parent.location.search);
-        
-        const getCookie = (name) => { 
-            try {
-                const value = `; ${window.parent.document.cookie}`; 
-                const parts = value.split(`; ${name}=`); 
-                if (parts.length === 2) return parts.pop().split(';').shift(); 
-            } catch(e) { return null; }
-            return null; 
-        };
-        
-        const sUser = getCookie("yeremi_user");
-        const sDevice = getCookie("yeremi_device");
-        const sAccount = getCookie("yeremi_account");
+    try {{
+        const sUser = localStorage.getItem("yeremi_user");
+        const sDevice = localStorage.getItem("yeremi_device");
+        const sAccount = localStorage.getItem("yeremi_account");
+        const tieneUserUrl = {tiene_user_url};
 
-        if (sUser && !urlParams.has("user")) {
-            urlParams.set("user", sUser);
-            urlParams.set("device", sDevice ? sDevice : (window.parent.innerWidth <= 768 ? 'Móvil' : 'PC'));
-            if (sAccount) urlParams.set("account", sAccount);
-            window.parent.location.replace(window.parent.location.pathname + "?" + urlParams.toString());
-        }
-    } catch (error) {
-        console.log("Aviso de control: Restricciones de Iframe activas en este navegador.");
-    }
+        if (sUser && !tieneUserUrl) {{
+            const dev = sDevice ? sDevice : (window.innerWidth <= 768 ? 'Móvil' : 'PC');
+            let url = "/?user=" + encodeURIComponent(sUser) + "&device=" + encodeURIComponent(dev);
+            if (sAccount) {{
+                url += "&account=" + encodeURIComponent(sAccount);
+            }}
+            window.parent.location.replace(url);
+        }}
+    }} catch (error) {{
+        console.log("Error en auto-login:", error);
+    }}
     </script>
     """, height=0, width=0)
 
@@ -308,16 +300,13 @@ def verificar_acceso_live(usuario):
 
 # 🛡️ FUNCIÓN ÚNICA CENTRALIZADA: PANTALLA DE BLOQUEO TOTAL PREMIUM
 def mostrar_pantalla_bloqueo(usuario_bloqueado):
-    # 1. JS instantáneo para limpiar cookies y local storage en el navegador del usuario expulsado
+    # 1. JS instantáneo para limpiar local storage en el navegador del usuario expulsado
     components.html("""
     <script>
-        window.parent.document.cookie = "yeremi_user=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-        window.parent.document.cookie = "yeremi_device=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-        window.parent.document.cookie = "yeremi_account=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-        window.parent.localStorage.removeItem("yeremi_user");
-        window.parent.localStorage.removeItem("yeremi_device");
-        window.parent.localStorage.removeItem("yeremi_account");
-        window.parent.history.replaceState({}, document.title, window.parent.location.pathname);
+        localStorage.removeItem("yeremi_user");
+        localStorage.removeItem("yeremi_device");
+        localStorage.removeItem("yeremi_account");
+        window.parent.location.replace("/");
     </script>
     """, height=0, width=0)
 
@@ -893,14 +882,10 @@ if st.session_state.get("logout_trigger", False):
     except: pass
     components.html("""
     <script>
-        window.parent.document.cookie = "yeremi_user=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-        window.parent.document.cookie = "yeremi_device=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-        window.parent.document.cookie = "yeremi_account=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-        window.parent.localStorage.removeItem("yeremi_user");
-        window.parent.localStorage.removeItem("yeremi_device");
-        window.parent.localStorage.removeItem("yeremi_account");
-        window.parent.history.replaceState({}, document.title, window.parent.location.pathname);
-        window.parent.location.reload();
+        localStorage.removeItem("yeremi_user");
+        localStorage.removeItem("yeremi_device");
+        localStorage.removeItem("yeremi_account");
+        window.parent.location.replace("/");
     </script>
     """, height=0, width=0)
     st.rerun()
@@ -1221,9 +1206,6 @@ if st.session_state.usuario_actual is None:
                             st.session_state.usuario_actual = user_match
                             st.session_state.dispositivo_actual = "Móvil" if modo_movil_check else "PC"
                             # 🟢 SECURE: Guardamos el token encriptado en las cookies, pero NO en la URL
-                            token_seguro = crear_token_sesion(user_match)
-                            components.html(f"""<script>window.parent.document.cookie = "yeremi_user={token_seguro}; path=/; max-age=2592000; SameSite=Strict"; window.parent.document.cookie = "yeremi_device={st.session_state.dispositivo_actual}; path=/; max-age=2592000; SameSite=Strict";</script>""", height=0, width=0)
-                            
                             # Limpiamos explícitamente cualquier residuo de la URL
                             st.query_params.pop("user", None)
                             st.query_params.pop("device", None)
@@ -1307,9 +1289,6 @@ if st.session_state.usuario_actual is None:
                         st.session_state.usuario_actual = u_reg_clean
                         st.session_state.dispositivo_actual = "Móvil" if modo_movil_check_reg else "PC"
                         # 🟢 SECURE: Guardamos el token encriptado en cookies, NO en la URL
-                        token_seguro = crear_token_sesion(u_reg_clean)
-                        components.html(f"""<script>window.parent.document.cookie = "yeremi_user={token_seguro}; path=/; max-age=2592000; SameSite=Strict"; window.parent.document.cookie = "yeremi_device={st.session_state.dispositivo_actual}; path=/; max-age=2592000; SameSite=Strict";</script>""", height=0, width=0)
-                        
                         st.query_params.pop("user", None)
                         st.query_params.pop("device", None)
                         st.rerun()
@@ -1327,7 +1306,11 @@ else:
         
     cuenta_actual_js = st.session_state.get("data_source_sel", "Account Real")
     token_seguro_global = crear_token_sesion(st.session_state.usuario_actual)
-    components.html(f"""<script>window.parent.document.cookie = "yeremi_user={token_seguro_global}; path=/; max-age=2592000; SameSite=Strict"; window.parent.document.cookie = "yeremi_device={st.session_state.dispositivo_actual}; path=/; max-age=2592000; SameSite=Strict"; window.parent.document.cookie = "yeremi_account={cuenta_actual_js}; path=/; max-age=2592000; SameSite=Strict";</script>""", height=0, width=0)
+    components.html(f"""<script>
+        localStorage.setItem("yeremi_user", "{token_seguro_global}");
+        localStorage.setItem("yeremi_device", "{st.session_state.dispositivo_actual}");
+        localStorage.setItem("yeremi_account", "{cuenta_actual_js}");
+    </script>""", height=0, width=0)
 
 # ==========================================
 # 3. SECCIÓN DE AJUSTES MANUALES (CONSTANTES)
