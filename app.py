@@ -235,9 +235,10 @@ def enviar_correo_admin(usuario, codigo):
                 emisor = st.secrets["gcp_service_account"].get("admin_email", "")
                 password = st.secrets["gcp_service_account"].get("admin_pass", "")
                 
-        # 3. 🟢 SECURE: Si no están, devolvemos un error genérico y dejamos la información sensible solo en la consola
+        # 3. 🟢 SECURE: Si no están, devolvemos un error genérico. 
         if not emisor or not password: 
-            print(f"DEBUG ADMIN - Faltan secretos de correo. Llaves detectadas en el servidor: {list(st.secrets.keys())}")
+            # 🟢 FIX CRÍTICO: JAMÁS imprimir st.secrets.keys() en producción.
+            logging.error("DEBUG ADMIN - Faltan secretos de correo. Por favor revisa las variables de entorno.")
             return "FALTAN_SECRETOS: La configuración de correo del administrador no está disponible."
         
         msg = MIMEText(f"¡Tienes un nuevo Usuario en PF Journal Pro!\n\n👤 Usuario: {usuario}\n🔑 Código: {codigo}\n\nRevisa la Base de Datos para administrar su licencia.")
@@ -2017,10 +2018,12 @@ def modal_configuracion_completa():
                             db_global[usuario_destino]["settings"]["Móvil"]["display_name"] = str(usuario_destino).strip()
                         
                         try:
-                            # Ejecutamos la función central de guardado. Esto sobreescribe la pestaña del usuario en Sheets
-                            # introduciendo automáticamente las nuevas cabeceras, JSONs y el Alias generado.
+                            # 🟢 FIX CRÍTICO: Pausa estructural obligatoria (Rate Limiting). 
+                            # Evita que Google te banee la API por exceso de peticiones simultáneas.
+                            import time
                             reescribir_excel_usuario(usuario_destino)
                             contador_actualizados += 1
+                            time.sleep(1.5) # Respiración obligatoria para la API
                         except Exception as e_error:
                             print(f"Error forzando actualización para {usuario_destino}: {e_error}")
                             
@@ -3561,7 +3564,18 @@ if True:
                                         pnl_formateado_nota = f"{simbolo_nota}${abs(pnl_val_nota):,.2f}"
                                         hora_trade_nota = t.get("hora", "00:00")
                             
-                                        notas_html_contenido += f'<div style="margin-bottom: 15px;"><h4 style="color:{pnl_color_nota}; margin:0;">Trade {idx_t+1} = {pnl_formateado_nota}</h4><span style="color:gray; font-size:18px; font-weight:bold;">🕒 {hora_trade_nota}</span><br><b>{_l["dash"]["bias"]}:</b> <span class="note-val">{t.get("bias", "NONE")}</span><br><b>{_l["dash"]["conf"]}:</b> <span class="note-val">{confluences_str}</span><br><b>{_l["dash"]["reason"]}:</b> <span class="note-val">{t.get("razon_trade", "")}</span><br><b>{_l["dash"]["corr"]}:</b> <span class="note-val">{t.get("Corrections", "")}</span><br><b>{_l["dash"]["risk"]}:</b> <span class="note-val">{t.get("risk", "")}</span><br><b>{_l["dash"]["rr"]}:</b> <span class="note-val">{t.get("RR", "")}</span><br><b>{_l["dash"]["tt"]}:</b> <span class="note-val">{t.get("trade_type", "")}</span><br><b>{_l["dash"]["emo"]}:</b> <span class="note-val">{t.get("Emotions", "")}</span></div>'
+                                        # 🟢 FIX CRÍTICO: Sanitización HTML en el modal de Calendario (Previene inyección en cuentas Admin).
+                                        import html
+                                        safe_bias = html.escape(str(t.get("bias", "NONE")))
+                                        safe_conf = html.escape(str(confluences_str))
+                                        safe_reason = html.escape(str(t.get("razon_trade", "")))
+                                        safe_corr = html.escape(str(t.get("Corrections", "")))
+                                        safe_risk = html.escape(str(t.get("risk", "")))
+                                        safe_rr = html.escape(str(t.get("RR", "")))
+                                        safe_tt = html.escape(str(t.get("trade_type", "")))
+                                        safe_emo = html.escape(str(t.get("Emotions", "")))
+
+                                        notas_html_contenido += f'<div style="margin-bottom: 15px;"><h4 style="color:{pnl_color_nota}; margin:0;">Trade {idx_t+1} = {pnl_formateado_nota}</h4><span style="color:gray; font-size:18px; font-weight:bold;">🕒 {hora_trade_nota}</span><br><b>{_l["dash"]["bias"]}:</b> <span class="note-val">{safe_bias}</span><br><b>{_l["dash"]["conf"]}:</b> <span class="note-val">{safe_conf}</span><br><b>{_l["dash"]["reason"]}:</b> <span class="note-val">{safe_reason}</span><br><b>{_l["dash"]["corr"]}:</b> <span class="note-val">{safe_corr}</span><br><b>{_l["dash"]["risk"]}:</b> <span class="note-val">{safe_risk}</span><br><b>{_l["dash"]["rr"]}:</b> <span class="note-val">{safe_rr}</span><br><b>{_l["dash"]["tt"]}:</b> <span class="note-val">{safe_tt}</span><br><b>{_l["dash"]["emo"]}:</b> <span class="note-val">{safe_emo}</span></div>'
                                 if has_notes:
                                     id_note_modal = f"mod_note_{anio_sel}_{mes_sel}_{dia}"
                                     note_html = f'<div><input type="checkbox" id="{id_note_modal}" class="modal-toggle" style="display:none;"><label for="{id_note_modal}"><div class="note-icon">💭</div></label><div class="fs-modal"><label for="{id_note_modal}" class="close-btn">{TXT_CERRAR_MODAL}</label><div class="note-modal-content"><h3 style="text-align:center; margin-top:0; font-size: var(--note-lbl-size);">💭 Trades - {dia}/{mes_sel}/{anio_sel}</h3><hr>{notas_html_contenido}</div></div></div>'
