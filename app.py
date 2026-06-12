@@ -2017,7 +2017,131 @@ def modal_configuracion_completa():
                         if "display_name" not in db_global[usuario_destino]["settings"]["Móvil"] or not db_global[usuario_destino]["settings"]["Móvil"]["display_name"]:
                             db_global[usuario_destino]["settings"]["Móvil"]["display_name"] = str(usuario_destino).strip()
                         
-   
+                        try:
+                            # 🟢 FIX CRÍTICO: Pausa estructural obligatoria (Rate Limiting). 
+                            # Evita que Google te banee la API por exceso de peticiones simultáneas.
+                            import time
+                            reescribir_excel_usuario(usuario_destino)
+                            contador_actualizados += 1
+                            time.sleep(1.5) # Respiración obligatoria para la API
+                        except Exception as e_error:
+                            print(f"Error forzando actualización para {usuario_destino}: {e_error}")
+                            
+                    st.success(f"✅ ¡Estructura sincronizada! Se forzó el guardado en {contador_actualizados} cuentas activas. Tu base de datos está al día.")
+                    import time; time.sleep(1.5); st.rerun()
+
+            st.markdown("<br>", unsafe_allow_html=True)
+            
+            col_h1, col_h2, col_h3, col_h4 = st.columns([2, 1.5, 1.5, 1])
+            col_h1.markdown("<span style='color:#94A3B8; font-size:12px; text-transform:uppercase;'>Usuario</span>", unsafe_allow_html=True)
+            col_h2.markdown("<span style='color:#94A3B8; font-size:12px; text-transform:uppercase;'>Contraseña</span>", unsafe_allow_html=True)
+            col_h3.markdown("<span style='color:#94A3B8; font-size:12px; text-transform:uppercase;'>Estado IA</span>", unsafe_allow_html=True)
+            col_h4.markdown("<span style='color:#94A3B8; font-size:12px; text-transform:uppercase;'>Acción</span>", unsafe_allow_html=True)
+            st.markdown("<hr style='margin-top: 5px; margin-bottom: 10px; border-color: #334155;'>", unsafe_allow_html=True)
+            
+            for u, data in list(db_global.items()):
+                es_admin_u = data["settings"]["PC"].get("is_admin", False) or data["settings"]["Móvil"].get("is_admin", False)
+                c1, c2, c3, c4 = st.columns([2, 1.5, 1.5, 1])
+                c1.markdown(f"<span style='color:#F8FAFC; font-weight:600;'>👤 {u}</span>", unsafe_allow_html=True)
+                c2.markdown(f"<code style='color:#94A3B8; background:rgba(0,0,0,0.2); padding: 4px 8px; border-radius: 4px;'>{data['password']}</code>", unsafe_allow_html=True)
+                with c3:
+                    if es_admin_u:
+                        if st.button("Apagar IA", key=f"off_ia_{u}", use_container_width=True):
+                            db_global[u]["settings"]["PC"]["is_admin"] = False
+                            db_global[u]["settings"]["Móvil"]["is_admin"] = False
+                            reescribir_excel_usuario(u)
+                            st.rerun()
+                    else:
+                        if st.button("Activar IA", key=f"on_ia_{u}", type="primary", use_container_width=True):
+                            db_global[u]["settings"]["PC"]["is_admin"] = True
+                            db_global[u]["settings"]["Móvil"]["is_admin"] = True
+                            reescribir_excel_usuario(u)
+                            st.rerun()
+       
+                with c4:
+                    if st.button("🗑️", key=f"del_usr_{u}", use_container_width=True):
+                        del db_global[u]
+                        if st.session_state.usuario_actual == u: st.session_state.usuario_actual = None
+                        try: st.query_params.clear()
+                        except: pass
+                        st.rerun()
+          
+                st.markdown("<hr style='margin-top: 5px; margin-bottom: 10px; border-color: #334155; opacity: 0.3;'>", unsafe_allow_html=True)
+
+
+# ==========================================
+# 6. ASIGNACIÓN DE COLORES Y CSS
+# ==========================================
+if st.session_state.tema == "Claro":
+    bg_color, card_bg, border_color, empty_cell_bg = "#F7FAFC", "#FFFFFF", "#E2E8F0", "#FFFFFF"
+    c_dash, c_filtros, c_opt_filtros = TXT_DASH_COLOR_C, LBL_FILTROS_COLOR_C, OPT_FILTROS_COLOR_C   
+    c_data, c_opt_data, c_lbl_bal, c_lbl_in = LBL_DATA_COLOR_C, OPT_DATA_COLOR_C, LBL_BAL_TOTAL_COLOR_C, LBL_INPUT_COLOR_C
+    c_mes, c_dias_sem, c_num_dia, c_pct_dia = TXT_MES_COLOR_C, TXT_DIAS_SEM_COLOR_C, TXT_NUM_DIA_COLOR_C, TXT_PCT_DIA_COLOR_C
+    c_tit_pnl, c_tit_win, c_val_win = CARD_PNL_TITULO_COLOR_C, CARD_WIN_TITULO_COLOR_C, CARD_WIN_VALOR_COLOR_C
+    btn_bg, btn_txt, input_bg = BTN_CAL_BG_C, "#000000", INPUT_FONDO_C
+    drop_bg, drop_border, u_btn_bg, u_btn_txt = DROPZONE_BG_C, DROPZONE_BORDER_C, BTN_UP_BG_C, BTN_UP_TXT_C
+    wk_tit_c, c_cam_bg, c_linea = WEEKS_TITULOS_COLOR_C, BTN_CAM_BG_C, LINEA_COLOR_C
+    edit_bg = "#EDF2F7"
+else:
+        bg_color, card_bg, border_color, empty_cell_bg = "#0F172A", "#1E293B", "#334155", "#0F172A"
+        c_dash, c_filtros, c_opt_filtros = "#F8FAFC", LBL_FILTROS_COLOR_O, OPT_FILTROS_COLOR_O   
+        c_data, c_opt_data, c_lbl_bal, c_lbl_in = LBL_DATA_COLOR_O, OPT_DATA_COLOR_O, "#F8FAFC", LBL_INPUT_COLOR_O
+        c_mes, c_dias_sem, c_num_dia, c_pct_dia = "#F8FAFC", "#94A3B8", "#F8FAFC", "#94A3B8"
+        c_tit_pnl, c_tit_win, c_val_win = "#94A3B8", "#94A3B8", "#F8FAFC"
+        btn_bg, btn_txt, input_bg = "#1E293B", "#F8FAFC", "#0F172A"
+        drop_bg, drop_border, u_btn_bg, u_btn_txt = DROPZONE_BG_O, "1px dashed #334155", "#1E293B", "#F8FAFC"
+        wk_tit_c, c_cam_bg, c_linea = "#94A3B8", "#334155", "#334155"
+        edit_bg = "#1E293B"
+
+def gen_css_vars(s):
+    return f"--size-top-stats:{s['size_top_stats']}px;--size-card-titles:{s['size_card_titles']}px;--size-box-titles:{s['size_box_titles']}px;--size-box-vals:{s['size_box_vals']}px;--size-box-pct:{s['size_box_pct']}px;--size-box-wl:{s['size_box_wl']}px;--pie-size:{s['pie_size']}px;--pie-y-offset:{s['pie_y_offset']}px;--cal-mes-size:{s['cal_mes_size']}px;--cal-pnl-size:{s['cal_pnl_size']}px;--cal-pct-size:{s['cal_pct_size']}px;--cal-dia-size:{s['cal_dia_size']}px;--cal-cam-size:{s['cal_cam_size']}px;--cal-note-size:{s.get('cal_note_size',30)}px;--cal-scale:{s['cal_scale']}px;--cal-line-height:{s['cal_line_height']};--bal-num-sz:{s['bal_num_sz']}px;--bal-box-w:{s['bal_box_w']}%;--bal-box-pad:{s['bal_box_pad']}px;--cal-txt-y:{s.get('cal_txt_y',0)}px;--cal-txt-pad:{s.get('cal_txt_pad',0)}px;--note-lbl-size:{s.get('note_lbl_size',16)}px;--note-val-size:{s.get('note_val_size',16)}px;"
+
+# 🟢 FIX DEFINITIVO: Interceptamos la memoria de los sliders ANTES de inyectar el CSS
+claves_sliders = ["bal_num_sz", "bal_box_w", "bal_box_pad", "size_top_stats", "size_card_titles", "size_box_titles", "size_box_vals", "size_box_pct", "size_box_wl", "pie_size", "pie_y_offset", "cal_mes_size", "cal_pnl_size", "cal_pct_size", "cal_dia_size", "cal_cam_size", "cal_note_size", "note_lbl_size", "note_val_size", "cal_scale", "cal_line_height", "cal_txt_y", "cal_txt_pad"]
+for k in claves_sliders:
+    if f"sk_{k}" in st.session_state:
+        user_settings[k] = st.session_state[f"sk_{k}"]
+
+st.markdown(f"""
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+:root {{ {gen_css_vars(user_settings)} }}
+
+/* Ocultar Barra Lateral y Controles Nativos por Completo */
+    [data-testid="stSidebar"] {{ display: none !important; }}
+    [data-testid="collapsedControl"] {{ display: none !important; }}
+
+/* 🔴 ANIQUILACIÓN TOTAL DEL ESPACIO SUPERIOR 🔴 */
+    header[data-testid="stHeader"] {{ 
+        display: none !important;
+    }}
+    .block-container, [data-testid="stAppViewBlockContainer"], [data-testid="stMainBlockContainer"] {{ 
+        padding-top: 0px !important;
+        margin-top: 0px !important; /* Jalamos toda la página hacia arriba al tope absoluto de la pantalla */
+    }}
+    
+    /* Ocultamos por completo la línea nativa inferior de las pestañas (la segunda línea) */
+    div[data-baseweb="tab-border"] {{
+        display: none !important;
+    }}
+    
+/* 🔴 EL SECRETO: OCULTAR EL "RUNNING..." PARA QUE SEA INSTANTÁNEO 🔴 */
+    [data-testid="stStatusWidget"] {{ visibility: hidden !important; display: none !important; }}
+    
+/* 🌟 MAGIA DE LAS PESTAÑAS (TABS) PREMIUM ESTILO FINANCE CENTER 🌟 */
+    div[data-testid="stTabs"] {{ padding: 0px !important; margin-top: 0px !important; overflow: visible !important; position: relative !important; }}
+    
+/* 1. Las pestañas del menú principal fluyen dinámicamente sin superponerse */
+    div[data-baseweb="tab-list"] { 
+        position: relative !important; /* 🟢 FIX CRÍTICO ESTÉTICO: Flujo natural que previene solapamientos si las pestañas colapsan en dos líneas */
+        top: -10px !important; 
+        left: 0 !important;
+        width: 100% !important;
+        justify-content: center !important;
+        gap: 25px !important; border-bottom: 1px solid {border_color} !important; overflow: visible !important; padding-bottom: 15px !important;
+        z-index: 1000 !important;
+    }}
+    
     /* 2. REGLA DE AISLAMIENTO: Las pestañas internas (Historial, Tabla, Exportar) se quedan abajo y fluyen perfectamente sin romperse */
     div[data-baseweb="tab-panel"] div[data-baseweb="tab-list"] {{
         position: relative !important;
