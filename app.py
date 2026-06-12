@@ -883,6 +883,7 @@ if st.session_state.get("logout_trigger", False):
     except: pass
     components.html("""
     <script>
+        try { window.parent.localStorage.removeItem("yeremi_user"); window.parent.localStorage.removeItem("yeremi_device"); window.parent.localStorage.removeItem("yeremi_account"); } catch(e) {}
         localStorage.removeItem("yeremi_user");
         localStorage.removeItem("yeremi_device");
         localStorage.removeItem("yeremi_account");
