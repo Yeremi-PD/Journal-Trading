@@ -128,20 +128,8 @@ st.markdown(f"""
 {loader_html}
 """, unsafe_allow_html=True)
 
-# 🤖 ASESINO SILENCIOSO: Caza la alerta específica del botón y la borra en 1 milisegundo
-components.html("""
-<script>
-const doc = window.parent.document;
-const observer = new MutationObserver(() => {
-    doc.querySelectorAll('[data-testid="stAlert"]').forEach(alert => {
-        if(alert.innerText.includes("Submit") || alert.innerText.includes("form_submit_button") || alert.innerText.includes("missing")) {
-            alert.style.display = 'none';
-        }
-    });
-});
-observer.observe(doc.body, {childList: true, subtree: true});
-</script>
-""", height=0, width=0)
+# 🟢 FIX CRÍTICO: Eliminado el script JS "Asesino Silencioso" que dependía del DOM interno de Streamlit.
+# Es responsabilidad de la lógica en Python (st.form_submit_button) gestionar campos requeridos sin generar alertas falsas.
 
 # ==========================================
 # 🚀 AUTO-LOGIN (SISTEMA)
@@ -432,7 +420,8 @@ def inicializar_settings(device="PC"):
         "note_lbl_size": 25, "note_val_size": 18
     }
 
-@st.cache_resource(ttl=600, show_spinner=False)
+# 🟢 FIX CRÍTICO: Usamos cache_data para devolver copias aisladas y evitar race conditions entre usuarios.
+@st.cache_data(ttl=600, show_spinner=False)
 def get_global_db():
     db_temp = {}
     if db_spreadsheet:
@@ -864,12 +853,18 @@ def reescribir_excel_usuario(usuario):
         except gspread.exceptions.WorksheetNotFound:
             hoja_user = db_spreadsheet.add_worksheet(title=usuario, rows="1000", cols="30")
         
-# 1. SOBRESCRIBIR PRIMERO: Guardamos todo encima.
-        hoja_user.update(values=filas_a_insertar, range_name="A1")
-        
-        # 🟢 2. LIMPIAR DESPUÉS: Borramos 500 filas debajo de la nueva data para eliminar trades "fantasma" extendiendo el rango hasta AE
-        fila_inicio_basura = len(filas_a_insertar) + 1
-        hoja_user.batch_clear([f"A{fila_inicio_basura}:AE{fila_inicio_basura + 500}"])
+# 🟢 FIX CRÍTICO: Control de transacciones para evitar pérdida total de datos ante caídas de API.
+        try:
+            hoja_user.update(values=filas_a_insertar, range_name="A1")
+            
+            # Solo limpiamos si la actualización anterior fue exitosa (evita borrar ciegamente)
+            fila_inicio_basura = len(filas_a_insertar) + 1
+            rango_limpieza = f"A{fila_inicio_basura}:AE{fila_inicio_basura + 500}"
+            hoja_user.batch_clear([rango_limpieza])
+        except Exception as api_error:
+            # En caso de fallo, detenemos silenciosamente la corrupción e informamos a la consola
+            print(f"❌ ALERTA CRÍTICA: Fallo al actualizar la hoja del usuario {usuario}. Detalles: {api_error}")
+            raise  # Opcional: Detiene el flujo para evitar inconsistencias en el frontend
         
         # FIJAR EL ALTO DE TODAS LAS FILAS A 25px PARA QUE NINGUNA SE ESTIRE HACIA ABAJO
         try:
@@ -1206,8 +1201,9 @@ if st.session_state.usuario_actual is None:
                         import hashlib
                         hashed_input = hashlib.sha256(p_clean.encode()).hexdigest()
                         
-                        # Mantenemos 'pass_db == p_clean' por ahora para que los usuarios viejos no pierdan acceso.
-                        if pass_db == hashed_input or pass_db == p_clean or (pass_db == "123" and p_clean != ""):
+                        # 🟢 FIX CRÍTICO: Eliminada la vulnerabilidad de la contraseña "123". 
+                        # Mantenemos solo el hash estricto y el fallback temporal en texto plano para usuarios viejos.
+                        if pass_db == hashed_input or pass_db == p_clean:
                             
 # 🛡️ Verificar Licencia en vivo antes de dejarlo entrar
                             acceso_permitido, msg_error = verificar_acceso_live(user_match)
