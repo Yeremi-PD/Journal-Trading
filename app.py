@@ -2132,7 +2132,7 @@ st.markdown(f"""
     div[data-testid="stTabs"] {{ padding: 0px !important; margin-top: 0px !important; overflow: visible !important; position: relative !important; }}
     
 /* 1. Las pestañas del menú principal fluyen dinámicamente sin superponerse */
-    div[data-baseweb="tab-list"] { 
+    div[data-baseweb="tab-list"] {{ 
         position: relative !important; /* 🟢 FIX CRÍTICO ESTÉTICO: Flujo natural que previene solapamientos si las pestañas colapsan en dos líneas */
         top: -10px !important; 
         left: 0 !important;
