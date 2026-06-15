@@ -709,7 +709,7 @@ def registrar_en_excel(usuario, password, cuenta, fecha_obj, balance, pnl, trade
             else:
                 imgs_texto = f"📸 Tiene {num_fotos} foto(s)" if num_fotos > 0 else ""
             
-            claves_config = ["orientacion_horizontal", "bal_num_sz", "bal_box_w", "bal_box_pad", "size_top_stats", "size_card_titles", "size_box_titles", "size_box_vals", "size_box_pct", "size_box_wl", "pie_size", "pie_y_offset", "cal_mes_size", "cal_pnl_size", "cal_pct_size", "cal_dia_size", "cal_cam_size", "cal_scale", "cal_line_height", "cal_txt_y", "cal_txt_pad", "cal_note_size", "note_lbl_size", "note_val_size"]
+            claves_config = ["orientacion_horizontal", "bal_num_sz", "bal_box_w", "bal_box_pad", "size_top_stats", "size_card_titles", "size_box_titles", "size_box_vals", "size_box_pct", "size_box_wl", "pie_size", "pie_y_offset", "cal_mes_size", "cal_pnl_size", "cal_pct_size", "cal_dia_size", "cal_cam_size", "cal_scale", "cal_line_height", "cal_txt_y", "cal_txt_pad", "cal_note_size", "note_lbl_size", "note_val_size", "ui_density_mode"]
             
             pc_config = {k: v for k, v in (settings_pc or {}).items() if k in claves_config}
             mov_config = {k: v for k, v in (settings_movil or {}).items() if k in claves_config}
@@ -806,7 +806,7 @@ def reescribir_excel_usuario(usuario):
         if db_global[usuario]["settings"]["PC"].get("vis_historial", True): datos_pub_list.append("Historial")
         if db_global[usuario]["settings"]["PC"].get("vis_plan", True): datos_pub_list.append("Plan")
         val_datos_publicos = ", ".join(datos_pub_list) if datos_pub_list else "Ninguno"
-        claves_config = ["orientacion_horizontal", "bal_num_sz", "bal_box_w", "bal_box_pad", "size_top_stats", "size_card_titles", "size_box_titles", "size_box_vals", "size_box_pct", "size_box_wl", "pie_size", "pie_y_offset", "cal_mes_size", "cal_pnl_size", "cal_pct_size", "cal_dia_size", "cal_cam_size", "cal_scale", "cal_line_height", "cal_txt_y", "cal_txt_pad", "cal_note_size", "note_lbl_size", "note_val_size"]
+        claves_config = ["orientacion_horizontal", "bal_num_sz", "bal_box_w", "bal_box_pad", "size_top_stats", "size_card_titles", "size_box_titles", "size_box_vals", "size_box_pct", "size_box_wl", "pie_size", "pie_y_offset", "cal_mes_size", "cal_pnl_size", "cal_pct_size", "cal_dia_size", "cal_cam_size", "cal_scale", "cal_line_height", "cal_txt_y", "cal_txt_pad", "cal_note_size", "note_lbl_size", "note_val_size", "ui_density_mode"]
         
         pc_config = {k: v for k, v in db_global[usuario]["settings"]["PC"].items() if k in claves_config}
         mov_config = {k: v for k, v in db_global[usuario]["settings"]["Móvil"].items() if k in claves_config}
@@ -1932,10 +1932,23 @@ def modal_configuracion_completa():
             st.markdown("### 🖥️ Tamaño de Interfaz")
             st.markdown("<p style='color:#94A3B8; font-size:14px;'>Ajusta la densidad visual de los elementos según tu pantalla.</p>", unsafe_allow_html=True)
             opciones_tamano = ["Compacto (S)", "Cómodo (M)", "Amplio (L)"]
-            tamano_ui = st.radio("Densidad visual", opciones_tamano, index=1, horizontal=True, label_visibility="collapsed")
+            
+            # 🟢 FIX: Leer la selección guardada INDEPENDIENTEMENTE para el dispositivo actual
+            disp_actual = st.session_state.dispositivo_actual
+            tamano_guardado = db_global[usuario]["settings"][disp_actual].get("ui_density_mode", "Cómodo (M)")
+            try:
+                idx_tamano = opciones_tamano.index(tamano_guardado)
+            except ValueError:
+                idx_tamano = 1
+                
+            tamano_ui = st.radio("Densidad visual", opciones_tamano, index=idx_tamano, horizontal=True, label_visibility="collapsed")
             
             if st.button("Aplicar Tamaño", use_container_width=True, type="primary"):
                 disp = st.session_state.dispositivo_actual
+                
+                # 🟢 FIX: Guardar la elección en memoria para que el botón la recuerde la próxima vez
+                db_global[usuario]["settings"][disp]["ui_density_mode"] = tamano_ui
+                
                 if "Compacto" in tamano_ui:
                     db_global[usuario]["settings"][disp].update({
                         "bal_num_sz": 22, "bal_box_w": 40, "bal_box_pad": 5, "size_top_stats": 18, "size_card_titles": 14, "size_box_titles": 16, "size_box_vals": 20, "size_box_pct": 16, "size_box_wl": 12, "pie_size": 120, "pie_y_offset": -20, "cal_mes_size": 24, "cal_pnl_size": 16, "cal_pct_size": 14, "cal_dia_size": 14, "cal_cam_size": 16, "cal_scale": 110, "cal_line_height": 1.1, "cal_note_size": 18, "note_lbl_size": 20, "note_val_size": 14
@@ -1947,7 +1960,7 @@ def modal_configuracion_completa():
                         "bal_num_sz": 32, "bal_box_w": 55, "bal_box_pad": 10, "size_top_stats": 26, "size_card_titles": 22, "size_box_titles": 24, "size_box_vals": 30, "size_box_pct": 24, "size_box_wl": 18, "pie_size": 180, "pie_y_offset": -40, "cal_mes_size": 40, "cal_pnl_size": 24, "cal_pct_size": 22, "cal_dia_size": 22, "cal_cam_size": 26, "cal_scale": 180, "cal_line_height": 1.4, "cal_note_size": 28, "note_lbl_size": 30, "note_val_size": 22
                     })
                 reescribir_excel_usuario(usuario)
-                st.success(f"✅ Tamaño {tamano_ui} aplicado.")
+                st.success(f"✅ Tamaño {tamano_ui} aplicado en {disp}.")
                 import time; time.sleep(0.5); st.rerun()
 
     with tab_admin:
