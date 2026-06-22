@@ -3463,8 +3463,8 @@ if True:
         with col_cal:
             total_trades_top = len(trades_mes_top)
             net_pnl_top = sum(trades_mes_top) if total_trades_top > 0 else 0.0
-            wins_top = len([t for t in trades_mes_top if t > 0])
-            losses_top = len([t for t in trades_mes_top if t < 0])
+            wins_top = len([t for t in trades_mes_top if t >= 75])
+            losses_top = len([t for t in trades_mes_top if t <= -75])
             total_validos_top = wins_top + losses_top
             win_pct_top = (wins_top / total_validos_top * 100) if total_validos_top > 0 else 0.0
             color_pnl_top = "#10B981" if net_pnl_top >= 0 else "#EF4444"
@@ -3540,10 +3540,10 @@ if True:
                                 trades_visibles.append(t)
                             if trades_visibles:
                                 pnl_dia = sum(t["pnl"] for t in trades_visibles)
-                                if pnl_dia > 0:
+                                if pnl_dia >= 75:
                                     c_cls = "cell-win"
                                     c_sim = "+"
-                                elif pnl_dia < 0:
+                                elif pnl_dia <= -75:
                                     c_cls = "cell-loss"
                                     c_sim = ""
                                 else:
@@ -3735,9 +3735,9 @@ if True:
         df_stats = pd.DataFrame(trades_lista, columns=['pnl'])
         total_trades = len(df_stats)
         net_pnl = float(df_stats['pnl'].sum()) if total_trades > 0 else 0.0
-        wins = int((df_stats['pnl'] > 0).sum()) if total_trades > 0 else 0
-        losses = int((df_stats['pnl'] < 0).sum()) if total_trades > 0 else 0
-        ties = int((df_stats['pnl'] == 0).sum()) if total_trades > 0 else 0
+        wins = int((df_stats['pnl'] >= 75).sum()) if total_trades > 0 else 0
+        losses = int((df_stats['pnl'] <= -75).sum()) if total_trades > 0 else 0
+        ties = int(((df_stats['pnl'] > -75) & (df_stats['pnl'] < 75)).sum()) if total_trades > 0 else 0
         total_validos = wins + losses
         win_pct = (wins / total_validos * 100) if total_validos > 0 else 0.0
         simbolo_pnl = "+" if net_pnl > 0 else ""
@@ -3772,8 +3772,8 @@ if True:
         profit_factor = (gross_profit / gross_loss) if gross_loss > 0 else (gross_profit if gross_profit > 0 else 0.0)
         
         # Promedios financieros EXACTOS (Suma TODO el dinero para P&L)
-        wins_financieros = len(df_stats[df_stats['pnl'] > 0])
-        losses_financieros = len(df_stats[df_stats['pnl'] < 0])
+        wins_financieros = len(df_stats[df_stats['pnl'] >= 75])
+        losses_financieros = len(df_stats[df_stats['pnl'] <= -75])
         
         avg_win = (gross_profit / wins_financieros) if wins_financieros > 0 else 0.0
         avg_loss = (gross_loss / losses_financieros) if losses_financieros > 0 else 0.0
@@ -3785,10 +3785,10 @@ if True:
         # 3. Racha (Streaks) (Excluyendo BE de +/- $75)
         curr_w = max_w = curr_l = max_l = 0
         for p in df_stats['pnl']:
-            if p > 0:
+            if p >= 75:
                 curr_w += 1; curr_l = 0
                 max_w = max(max_w, curr_w)
-            elif p < 0:
+            elif p <= -75:
                 curr_l += 1; curr_w = 0
                 max_l = max(max_l, curr_l)
             else:
@@ -3840,9 +3840,9 @@ if True:
                 for s in ['New York', 'Asia']:
                     df_s = df_full[df_full['sesion'] == s]
                     # Limpiamos los BE antes de calcular
-                    df_s_validos = df_s[(df_s['pnl'] > 0) | (df_s['pnl'] < 0)]
+                    df_s_validos = df_s[(df_s['pnl'] >= 75) | (df_s['pnl'] <= -75)]
                     if len(df_s_validos) > 0:
-                        wr = (len(df_s_validos[df_s_validos['pnl'] > 0]) / len(df_s_validos)) * 100
+                        wr = (len(df_s_validos[df_s_validos['pnl'] >= 75]) / len(df_s_validos)) * 100
                         wr_str = f"{wr:.0f}%"
                         color = "#10B981" if wr >= 50 else "#EF4444"
                         
@@ -3966,7 +3966,7 @@ if True:
             with c_ps1:
                 html_confs = "<div class='metric-card' style='height: 100%; min-height: 200px;'><h5 style='color:#10B981; font-weight:700; margin-bottom: 15px; text-transform: uppercase; font-size: 13px; letter-spacing: 0.5px;'>Top Confluencias (Victorias)</h5>"
                 
-                ganadores = df_full[df_full['pnl'] > 0]
+                ganadores = df_full[df_full['pnl'] >= 75]
                 todas_confluencias_w = []
                 for conf_list in ganadores['Confluences'].dropna():
                     if isinstance(conf_list, list): todas_confluencias_w.extend(conf_list)
@@ -3985,7 +3985,7 @@ if True:
             with c_ps2:
                 html_emos = "<div class='metric-card' style='height: 100%; min-height: 200px;'><h5 style='color:#EF4444; font-weight:700; margin-bottom: 15px; text-transform: uppercase; font-size: 13px; letter-spacing: 0.5px;'>Emociones de Riesgo (Pérdidas)</h5>"
                 
-                perdedores = df_full[df_full['pnl'] < 0]
+                perdedores = df_full[df_full['pnl'] <= -75]
                 todas_emociones_l = []
                 for emo in perdedores['Emotions'].dropna():
                     if isinstance(emo, str) and emo.strip():
@@ -4025,8 +4025,8 @@ if True:
                                 semanas_stats[idx + 1]["pnl"] += val["pnl"]
                                 
                                 # Aplicamos el filtro estricto de tu diario (+/- 75 dólares)
-                                if val["pnl"] > 0: semanas_stats[idx + 1]["w"] += 1
-                                elif val["pnl"] < 0: semanas_stats[idx + 1]["l"] += 1
+                                if val["pnl"] >= 75: semanas_stats[idx + 1]["w"] += 1
+                                elif val["pnl"] <= -75: semanas_stats[idx + 1]["l"] += 1
                                 else: semanas_stats[idx + 1]["be"] += 1
                             break
             
@@ -4090,8 +4090,8 @@ if True:
                     meses_stats[(y, m)]["pnl"] += val["pnl"]
                     
                     # Unificamos también el desglose mensual histórico continuo
-                    if val["pnl"] > 0: meses_stats[(y, m)]["w"] += 1
-                    elif val["pnl"] < 0: meses_stats[(y, m)]["l"] += 1
+                    if val["pnl"] >= 75: meses_stats[(y, m)]["w"] += 1
+                    elif val["pnl"] <= -75: meses_stats[(y, m)]["l"] += 1
                     else: meses_stats[(y, m)]["be"] += 1
             
             meses_html = ""
@@ -4482,8 +4482,8 @@ if es_admin:
                             for i, t in enumerate(ultimos_100):
                                 f_str = t.get('fecha_str', '')
                                 p = t.get('pnl', 0)
-                                if p > 0: estado_tr = "W"
-                                elif p < 0: estado_tr = "L"
+                                if p >= 75: estado_tr = "W"
+                                elif p <= -75: estado_tr = "L"
                                 else: estado_tr = "BE"
                                 ses = t.get('sesion', '')
                                 
