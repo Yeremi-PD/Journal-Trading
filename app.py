@@ -772,21 +772,6 @@ def registrar_en_excel(usuario, password, cuenta, fecha_obj, balance, pnl, trade
             # OPTIMIZACIÓN 2A: Imprimimos el error exacto en la consola para no estar ciegos
             print(f"ERROR GRAVE: Falló el guardado (append_row) para {usuario}. Detalles: {e}")
 
-def registrar_chat_excel(usuario, cuenta, nombre_chat, pregunta, respuesta):
-    if not db_spreadsheet: return
-    try:
-        nombre_hoja = f"Chats_{usuario}"
-        try: 
-            hoja_chats = db_spreadsheet.worksheet(nombre_hoja)
-        except gspread.exceptions.WorksheetNotFound:
-            hoja_chats = db_spreadsheet.add_worksheet(title=nombre_hoja, rows="1000", cols="5")
-            hoja_chats.append_row(["Fecha", "Cuenta", "Chat", "Pregunta", "Respuesta"])
-        
-        ahora = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-        hoja_chats.append_row([ahora, str(cuenta), str(nombre_chat), str(pregunta), str(respuesta)])
-    except Exception as e:
-        print(f"Error guardando chat: {e}")
-
 def reescribir_excel_usuario(usuario):
     if not db_spreadsheet: return
     try:
@@ -2038,32 +2023,16 @@ def modal_configuracion_completa():
 
             st.markdown("<br>", unsafe_allow_html=True)
             
-            col_h1, col_h2, col_h3, col_h4 = st.columns([2, 1.5, 1.5, 1])
+            col_h1, col_h2, col_h4 = st.columns([2, 2, 1])
             col_h1.markdown("<span style='color:#94A3B8; font-size:12px; text-transform:uppercase;'>Usuario</span>", unsafe_allow_html=True)
             col_h2.markdown("<span style='color:#94A3B8; font-size:12px; text-transform:uppercase;'>Contraseña</span>", unsafe_allow_html=True)
-            col_h3.markdown("<span style='color:#94A3B8; font-size:12px; text-transform:uppercase;'>Estado IA</span>", unsafe_allow_html=True)
             col_h4.markdown("<span style='color:#94A3B8; font-size:12px; text-transform:uppercase;'>Acción</span>", unsafe_allow_html=True)
             st.markdown("<hr style='margin-top: 5px; margin-bottom: 10px; border-color: #334155;'>", unsafe_allow_html=True)
             
             for u, data in list(db_global.items()):
-                es_admin_u = data["settings"]["PC"].get("is_admin", False) or data["settings"]["Móvil"].get("is_admin", False)
-                c1, c2, c3, c4 = st.columns([2, 1.5, 1.5, 1])
+                c1, c2, c4 = st.columns([2, 2, 1])
                 c1.markdown(f"<span style='color:#F8FAFC; font-weight:600;'>👤 {u}</span>", unsafe_allow_html=True)
                 c2.markdown(f"<code style='color:#94A3B8; background:rgba(0,0,0,0.2); padding: 4px 8px; border-radius: 4px;'>{data['password']}</code>", unsafe_allow_html=True)
-                with c3:
-                    if es_admin_u:
-                        if st.button("Apagar IA", key=f"off_ia_{u}", use_container_width=True):
-                            db_global[u]["settings"]["PC"]["is_admin"] = False
-                            db_global[u]["settings"]["Móvil"]["is_admin"] = False
-                            reescribir_excel_usuario(u)
-                            st.rerun()
-                    else:
-                        if st.button("Activar IA", key=f"on_ia_{u}", type="primary", use_container_width=True):
-                            db_global[u]["settings"]["PC"]["is_admin"] = True
-                            db_global[u]["settings"]["Móvil"]["is_admin"] = True
-                            reescribir_excel_usuario(u)
-                            st.rerun()
-       
                 with c4:
                     if st.button("🗑️", key=f"del_usr_{u}", use_container_width=True):
                         del db_global[u]
@@ -2784,10 +2753,7 @@ if True:
     st.markdown('</div>', unsafe_allow_html=True) # Cerramos el contenedor de la cabecera fija global
 
     # 3. Inicializamos las pestañas justo aquí, para que queden debajo en la estructura del código
-    if es_admin:
-        tab_calendario, tab_estadisticas, tab_historial_principal, tab_plan, tab_comunidad, tab_asistente = st.tabs(["📅 CALENDARIO", "📊 MÉTRICAS", "🕒 HISTORIAL", "📝 PLAN", "🌍 COMUNIDAD", "🤖 AI"])
-    else:
-        tab_calendario, tab_estadisticas, tab_historial_principal, tab_plan, tab_comunidad = st.tabs(["📅 CALENDARIO", "📊 MÉTRICAS", "🕒 HISTORIAL", "📝 PLAN", "🌍 COMUNIDAD"])
+    tab_calendario, tab_estadisticas, tab_historial_principal, tab_plan, tab_comunidad = st.tabs(["📅 CALENDARIO", "📊 MÉTRICAS", "🕒 HISTORIAL", "📝 PLAN", "🌍 COMUNIDAD"])
     # === CSS EXCLUSIVO PARA LA BARRA DE ENTRADA (Estilo Finance Center) ===
     st.markdown("""
     <style>
@@ -4354,72 +4320,6 @@ with tab_comunidad:
     with tab_25: render_leaderboard(leaderboard_25k)
     with tab_50: render_leaderboard(leaderboard_50k)
     with tab_100: render_leaderboard(leaderboard_100k)
-
-if es_admin:
-    with tab_asistente:
-        # 🌟 INYECCIÓN DE CSS: Letras 20% más grandes (26px) y botones un 50% más pequeños
-        st.markdown("""
-        <style>
-        div[data-testid="stChatMessageContent"] p, 
-        div[data-testid="stChatMessageContent"] div {
-            font-size: 15px !important; /* 🟢 FIX CRÍTICO ESTÉTICO: Lectura cómoda sin deformar la interfaz */
-            line-height: 1.6 !important;
-        }
-        .chat-sidebar-title {
-            font-weight: bold; color: gray; font-size: 12px; margin-bottom: 5px; text-transform: uppercase; text-align: center;
-        }
-        /* Achicar botones de la barra lateral a la mitad */
-        div[data-testid="column"]:has(.chat-sidebar-title) div[data-testid="stButton"] button {
-            padding: 2px 10px !important;
-            font-size: 12px !important;
-            min-height: 30px !important;
-            height: 30px !important;
-            width: 70% !important;
-            margin: 0 auto !important;
-            display: block !important;
-        }
-        /* Achicar la caja de renombrar chat */
-        div[data-testid="column"]:has(.chat-sidebar-title) div[data-testid="stTextInput"] input {
-            font-size: 12px !important;
-            height: 30px !important;
-            min-height: 30px !important;
-        }
-        div[data-testid="column"]:has(.chat-sidebar-title) div[data-testid="stTextInput"] {
-            width: 80% !important;
-            margin: 0 auto !important;
-        }
-        </style>
-        """, unsafe_allow_html=True)
-
-
-        # 🟢 INICIALIZACIÓN DE VARIABLES DE CHAT EN SESSION STATE
-        if "chats_historial_ia" not in st.session_state:
-            st.session_state.chats_historial_ia = db_global[usuario]["settings"]["PC"].get("chats_historial", {})
-        if "chat_activo_id" not in st.session_state:
-            st.session_state.chat_activo_id = "General"
-
-        chats_dict = st.session_state.chats_historial_ia
-
-        # Aseguramos que siempre exista el chat 'General'
-        if "General" not in chats_dict:
-            chats_dict["General"] = []
-
-        # Interfaz dividida: Historial de chats (Izquierda) | Chat actual (Derecha)
-        col_historial, col_chat = st.columns([1, 3])
-
-        with col_historial:
-            st.markdown("<div class='chat-sidebar-title'>Tus Conversaciones</div>", unsafe_allow_html=True)
-            
-            # Botón para crear un nuevo chat
-            if st.button("➕ Nuevo Chat", use_container_width=True):
-                nuevo_id = f"Chat {len(chats_dict) + 1}"
-                chats_dict[nuevo_id] = []
-                st.session_state.chat_activo_id = nuevo_id
-                db_global[usuario]["settings"]["PC"]["chats_historial"] = chats_dict
-                reescribir_excel_usuario(usuario)
-                st.rerun()
-
-            st.markdown("<br>", unsafe_allow_html=True)
 
             # Lista de chats existentes
             for chat_id in list(chats_dict.keys()):
