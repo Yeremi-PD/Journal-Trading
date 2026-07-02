@@ -4968,35 +4968,35 @@ with tab_galeria:
         const doc = window.parent.document;
         
         //  NUEVA FUNCIÓN: Permite saltar directamente a la imagen a la que le diste clic
-        window.parent.abrirGaleriaMaestra = function(idx) {
+        window.parent.abrirGaleriaMaestra = function(idx) {{
             const modal = doc.getElementById('gal_master_modal');
             if(!modal) return;
             
             modal.setAttribute('data-current', idx);
             const imgs = modal.querySelectorAll('.gal-img-master');
-            imgs.forEach(img => {
-                if(parseInt(img.getAttribute('data-idx')) === idx) {
+            imgs.forEach(img => {{
+                if(parseInt(img.getAttribute('data-idx')) === idx) {{
                     img.style.setProperty('display', 'block', 'important');
-                } else {
+                }} else {{
                     img.style.setProperty('display', 'none', 'important');
-                }
-            });
+                }}
+            }});
             
             const total = parseInt(modal.getAttribute('data-total')) || 1;
             const counter = doc.getElementById('gal_master_counter');
             if(counter) counter.innerText = (idx + 1) + ' / ' + total;
-        };
+        }};
 
         // Captura de clics global para abrir la imagen seleccionada sin depender de código inline filtrado
-        doc.addEventListener('click', function(e) {
+        doc.addEventListener('click', function(e) {{
             const label = e.target.closest('.gal-label');
-            if (label && label.getAttribute('for') === 'gal_master_toggle') {
+            if (label && label.getAttribute('for') === 'gal_master_toggle') {{
                 const idx = parseInt(label.getAttribute('data-idx'));
-                if (!isNaN(idx)) {
+                if (!isNaN(idx)) {{
                     window.parent.abrirGaleriaMaestra(idx);
-                }
-            }
-        }, true);
+                }}
+            }}
+        }}, true);
 
         window.parent.filtrarGaleria = function(etapa) {{
             const botones = doc.querySelectorAll('#gal-filter-container button');
