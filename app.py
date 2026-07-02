@@ -3600,19 +3600,41 @@ if True:
                 pnl_dia = sum(t["pnl"] for t in lista if not (st.session_state.get("toggle_funded_state", False) and t.get("is_pre_funded", False)))
                 trades_del_anio[(m, d)] = pnl_dia
                 
-        meses_es_corto = ["", "Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"]
+        meses_es_completo = ["", "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
         
-        cal_anual_html = "<div style='display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;'>"
+        # Incrementamos minmax de 250px a 320px para ensanchar significativamente las tarjetas
+        cal_anual_html = "<div style='display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 25px;'>"
         calendar.setfirstweekday(calendar.SUNDAY)
         
         for m_idx in range(1, 13):
-            mes_matriz_anual = calendar.monthcalendar(anio_sel, m_idx)
-            cal_anual_html += f"<div style='background: {card_bg}; border: 1px solid {border_color}; border-radius: 12px; padding: 15px;'><h4 style='text-align:center; color:#10B981; margin-top:0;'>{meses_es_corto[m_idx]}</h4><table style='width:100%; text-align:center; font-size:12px; border-collapse: collapse;'><tr>"
+            # Recopilar estadísticas del mes
+            trades_mes_resumen = []
+            for (y, m, d), lista in db_usuario[ctx]["trades"].items():
+                if y == anio_sel and m == m_idx:
+                    for t in lista:
+                        if not (st.session_state.get("toggle_funded_state", False) and t.get("is_pre_funded", False)):
+                            trades_mes_resumen.append(t["pnl"])
+                            
+            num_trades_mes = len(trades_mes_resumen)
+            pnl_mes = sum(trades_mes_resumen) if num_trades_mes > 0 else 0.0
+            simb_mes = "+" if pnl_mes > 0 else ""
+            color_pnl_mes = "#10B981" if pnl_mes > 0 else ("#EF4444" if pnl_mes < 0 else "#94A3B8")
+            
+            cal_anual_html += f"""
+            <div style='background: {card_bg}; border: 1px solid {border_color}; border-radius: 14px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.2);'>
+                <h4 style='text-align:center; color:#10B981; margin-top:0; margin-bottom:4px; font-size:18px;'>{meses_es_completo[m_idx]}</h4>
+                <div style='text-align:center; font-size:13px; margin-bottom:12px; color:#94A3B8; font-weight:600;'>
+                    Trades: <span style='color:#FFF;'>{num_trades_mes}</span> | P&L: <span style='color:{color_pnl_mes};'>{simb_mes}${pnl_mes:,.2f}</span>
+                </div>
+                <table style='width:100%; text-align:center; font-size:12px; border-collapse: collapse;'>
+                    <tr>
+            """
             
             for dia_sem in ["D", "L", "M", "M", "J", "V", "S"]:
-                cal_anual_html += f"<th style='color:#94A3B8; padding-bottom:5px;'>{dia_sem}</th>"
+                cal_anual_html += f"<th style='color:#94A3B8; padding-bottom:8px; font-weight:700;'>{dia_sem}</th>"
             cal_anual_html += "</tr>"
             
+            mes_matriz_anual = calendar.monthcalendar(anio_sel, m_idx)
             for semana in mes_matriz_anual:
                 cal_anual_html += "<tr>"
                 for dia in semana:
@@ -3622,12 +3644,12 @@ if True:
                         pnl = trades_del_anio.get((m_idx, dia), None)
                         if pnl is None:
                             bg_c = "transparent"
-                            col_c = "#94A3B8"
+                            col_c = "#64748B"
                         elif pnl >= 75:
-                            bg_c = "rgba(16,185,129,0.15)"
+                            bg_c = "rgba(16,185,129,0.18)"
                             col_c = "#10B981"
                         elif pnl <= -75:
-                            bg_c = "rgba(239,68,68,0.15)"
+                            bg_c = "rgba(239,68,68,0.18)"
                             col_c = "#EF4444"
                         else:
                             bg_c = "rgba(148,163,184,0.15)"
@@ -3635,7 +3657,7 @@ if True:
                             
                         fw = "bold" if pnl is not None else "normal"
                         b_rad = "6px" if pnl is not None else "0"
-                        cal_anual_html += f"<td><div style='background:{bg_c}; color:{col_c}; border-radius:{b_rad}; padding: 4px 0; margin: 2px; font-weight:{fw};'>{dia}</div></td>"
+                        cal_anual_html += f"<td><div style='background:{bg_c}; color:{col_c}; border-radius:{b_rad}; padding: 5px 0; margin: 3px; font-weight:{fw}; font-size:13px;'>{dia}</div></td>"
                 cal_anual_html += "</tr>"
             cal_anual_html += "</table></div>"
             
@@ -4888,7 +4910,7 @@ with tab_galeria:
             
             # 1. Elemento individual en la cuadrícula (Ahora apunta al Modal Maestro en vez del suyo propio)
             html_items += f'''<div class="gal-item" data-stage="{estado}">
-<label class="gal-label" for="gal_master_toggle" onclick="if(window.parent.abrirGaleriaMaestra) window.parent.abrirGaleriaMaestra({idx})" style="cursor:zoom-in; display:block; background:#0F172A; border-radius:12px; border:1px solid #334155; overflow:hidden; position: relative; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: transform 0.2s ease;">
+<label class="gal-label" for="gal_master_toggle" data-idx="{idx}" style="cursor:zoom-in; display:block; background:#0F172A; border-radius:12px; border:1px solid #334155; overflow:hidden; position: relative; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: transform 0.2s ease;">
 <img src="{img_url}" loading="lazy" style="width:100%; height:450px; object-fit:contain; display: block;">
 <div style="position: absolute; bottom: 0; left: 0; width: 100%; background: linear-gradient(transparent, rgba(0,0,0,0.95)); padding: 40px 20px 15px 20px; display: flex; justify-content: space-between; align-items: flex-end;">
 <span style="font-weight: bold; color: white; text-shadow: 1px 1px 4px black; font-size: 20px;">🗓️ {fecha}</span>
@@ -4946,24 +4968,35 @@ with tab_galeria:
         const doc = window.parent.document;
         
         //  NUEVA FUNCIÓN: Permite saltar directamente a la imagen a la que le diste clic
-        window.parent.abrirGaleriaMaestra = function(idx) {{
+        window.parent.abrirGaleriaMaestra = function(idx) {
             const modal = doc.getElementById('gal_master_modal');
             if(!modal) return;
             
             modal.setAttribute('data-current', idx);
             const imgs = modal.querySelectorAll('.gal-img-master');
-            imgs.forEach(img => {{
-                if(parseInt(img.getAttribute('data-idx')) === idx) {{
+            imgs.forEach(img => {
+                if(parseInt(img.getAttribute('data-idx')) === idx) {
                     img.style.setProperty('display', 'block', 'important');
-                }} else {{
+                } else {
                     img.style.setProperty('display', 'none', 'important');
-                }}
-            }});
+                }
+            });
             
             const total = parseInt(modal.getAttribute('data-total')) || 1;
             const counter = doc.getElementById('gal_master_counter');
             if(counter) counter.innerText = (idx + 1) + ' / ' + total;
-        }};
+        };
+
+        // Captura de clics global para abrir la imagen seleccionada sin depender de código inline filtrado
+        doc.addEventListener('click', function(e) {
+            const label = e.target.closest('.gal-label');
+            if (label && label.getAttribute('for') === 'gal_master_toggle') {
+                const idx = parseInt(label.getAttribute('data-idx'));
+                if (!isNaN(idx)) {
+                    window.parent.abrirGaleriaMaestra(idx);
+                }
+            }
+        }, true);
 
         window.parent.filtrarGaleria = function(etapa) {{
             const botones = doc.querySelectorAll('#gal-filter-container button');
