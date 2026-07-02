@@ -3651,38 +3651,38 @@ if True:
                 cal_anual_html += "<tr>"
                 for dia in semana:
                     if dia == 0:
-                        cal_anual_html += "<td></td>"
+                        # Relleno mínimo para mantener la estructura simétrica
+                        cal_anual_html += "<td style='padding: 1px; width: 14.28%;'></td>"
                     else:
                         info_dia = trades_del_anio.get((m_idx, dia), None)
                         if info_dia is None:
-                            bg_c = "transparent"
-                            # Celdas vacías gigantes
-                            contenido_celda = f"<div style='font-size:17px; font-weight:bold; color:#475569;'>{dia}</div><div style='font-size:14px; color:transparent; margin:3px 0;'>-</div><div style='font-size:11px; color:transparent;'>-</div>"
+                            # Día sin operar: Altura reducida, sin textos transparentes
+                            cal_anual_html += f"<td style='padding: 1px; width: 14.28%;'><div style='height: 60px; width: 100%; display:flex; align-items:center; justify-content:center;'><span style='font-size:16px; font-weight:bold; color:#475569;'>{dia}</span></div></td>"
                         else:
                             pnl = info_dia["pnl"]
                             cnt = info_dia["count"]
                             if pnl >= 75:
-                                bg_c = "rgba(16,185,129,0.18)"
+                                bg_c = "rgba(16,185,129,0.25)" # Fondo un poco más sólido para que destaque toda la celda
                                 col_c = "#10B981"
                                 simb = "+"
                             elif pnl <= -75:
-                                bg_c = "rgba(239,68,68,0.18)"
+                                bg_c = "rgba(239,68,68,0.25)"
                                 col_c = "#EF4444"
                                 simb = ""
                             else:
-                                bg_c = "rgba(148,163,184,0.15)"
+                                bg_c = "rgba(148,163,184,0.2)"
                                 col_c = "#E2E8F0"
                                 simb = "+" if pnl > 0 else ""
                             
-                            # Textos Gigantes 
+                            # Eliminamos márgenes internos y ajustamos line-height para que quepa perfecto
                             contenido_celda = f"""
-                            <div style='font-size:18px; font-weight:900; color:#FFF;'>{dia}</div>
-                            <div style='font-size:15px; font-weight:800; color:{col_c}; margin:2px 0;'>{simb}${pnl:,.0f}</div>
-                            <div style='font-size:12px; font-weight:800; color:#94A3B8;'>{cnt} TR</div>
+                            <div style='font-size:16px; font-weight:900; color:#FFF; line-height: 1.2;'>{dia}</div>
+                            <div style='font-size:14px; font-weight:800; color:{col_c}; line-height: 1.1;'>{simb}${pnl:,.0f}</div>
+                            <div style='font-size:11px; font-weight:800; color:#94A3B8; line-height: 1.2;'>{cnt} TR</div>
                             """
                             
-                        b_rad = "8px" if info_dia is not None else "0px"
-                        cal_anual_html += f"<td><div style='background:{bg_c}; border-radius:{b_rad}; padding: 10px 0; margin: 4px; min-height:80px; display:flex; flex-direction:column; align-items:center; justify-content:center;'>{contenido_celda}</div></td>"
+                            # La celda asume el color completo ocupando todo el td
+                            cal_anual_html += f"<td style='padding: 1px; width: 14.28%;'><div style='background:{bg_c}; border-radius:6px; height: 60px; width: 100%; display:flex; flex-direction:column; align-items:center; justify-content:center; box-sizing: border-box;'>{contenido_celda}</div></td>"
                 cal_anual_html += "</tr>"
             cal_anual_html += "</table></div>"
             
