@@ -3606,8 +3606,8 @@ if True:
         meses_es_completo = ["", "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
         
         # Ajustamos minmax a 440px para obligar a la pantalla a renderizar máximo 2 o 3 meses por fila
-        # Ajustamos minmax a 480px para tarjetas GIGANTES y legibles
-        cal_anual_html = "<div style='display: grid; grid-template-columns: repeat(auto-fit, minmax(480px, 1fr)); gap: 35px;'>"
+        # Ajustamos minmax a 720px para forzar que los meses sean un 50% más grandes (Máx. 2 por fila)
+        cal_anual_html = "<div style='display: grid; grid-template-columns: repeat(auto-fit, minmax(720px, 1fr)); gap: 40px;'>"
         calendar.setfirstweekday(calendar.SUNDAY)
         
         for m_idx in range(1, 13):
@@ -3632,10 +3632,11 @@ if True:
             color_wr_mes = "#10B981" if wr_mes >= 50 else "#EF4444"
             if validos_mes == 0: color_wr_mes = "#94A3B8"
             
+            # Tarjeta mensual gigante
             cal_anual_html += f"""
-            <div style='background: {card_bg}; border: 1px solid {border_color}; border-radius: 16px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.3);'>
-                <h4 style='text-align:center; color:#10B981; margin-top:0; margin-bottom:6px; font-size:24px; font-weight:900; letter-spacing:-0.5px;'>{meses_es_completo[m_idx]}</h4>
-                <div style='text-align:center; font-size:15px; margin-bottom:20px; color:#94A3B8; font-weight:700;'>
+            <div style='background: {card_bg}; border: 1px solid {border_color}; border-radius: 20px; padding: 35px 25px; box-shadow: 0 8px 25px rgba(0,0,0,0.4);'>
+                <h4 style='text-align:center; color:#10B981; margin-top:0; margin-bottom:8px; font-size:32px; font-weight:900; letter-spacing:-0.5px;'>{meses_es_completo[m_idx]}</h4>
+                <div style='text-align:center; font-size:18px; margin-bottom:25px; color:#94A3B8; font-weight:700;'>
                     Trades: <span style='color:#FFF;'>{num_trades_mes}</span> &nbsp;|&nbsp; P&L: <span style='color:{color_pnl_mes};'>{simb_mes}${pnl_mes:,.2f}</span> &nbsp;|&nbsp; Win Rate: <span style='color:{color_wr_mes};'>{wr_mes:.1f}%</span>
                 </div>
                 <table style='width:100%; text-align:center; border-collapse: collapse;'>
@@ -3643,7 +3644,7 @@ if True:
             """
             
             for dia_sem in ["D", "L", "M", "M", "J", "V", "S"]:
-                cal_anual_html += f"<th style='color:#94A3B8; padding-bottom:12px; font-weight:800; font-size:16px;'>{dia_sem}</th>"
+                cal_anual_html += f"<th style='color:#94A3B8; padding-bottom:16px; font-weight:900; font-size:20px;'>{dia_sem}</th>"
             cal_anual_html += "</tr>"
             
             mes_matriz_anual = calendar.monthcalendar(anio_sel, m_idx)
@@ -3651,18 +3652,17 @@ if True:
                 cal_anual_html += "<tr>"
                 for dia in semana:
                     if dia == 0:
-                        # Relleno mínimo para mantener la estructura simétrica
-                        cal_anual_html += "<td style='padding: 1px; width: 14.28%;'></td>"
+                        cal_anual_html += "<td style='padding: 2px; width: 14.28%;'></td>"
                     else:
                         info_dia = trades_del_anio.get((m_idx, dia), None)
                         if info_dia is None:
-                            # Día sin operar: Altura reducida, sin textos transparentes
-                            cal_anual_html += f"<td style='padding: 1px; width: 14.28%;'><div style='height: 60px; width: 100%; display:flex; align-items:center; justify-content:center;'><span style='font-size:16px; font-weight:bold; color:#475569;'>{dia}</span></div></td>"
+                            # Día sin operar: Altura ajustada a la nueva escala
+                            cal_anual_html += f"<td style='padding: 2px; width: 14.28%;'><div style='height: 95px; width: 100%; display:flex; align-items:center; justify-content:center;'><span style='font-size:22px; font-weight:bold; color:#475569;'>{dia}</span></div></td>"
                         else:
                             pnl = info_dia["pnl"]
                             cnt = info_dia["count"]
                             if pnl >= 75:
-                                bg_c = "rgba(16,185,129,0.25)" # Fondo un poco más sólido para que destaque toda la celda
+                                bg_c = "rgba(16,185,129,0.25)"
                                 col_c = "#10B981"
                                 simb = "+"
                             elif pnl <= -75:
@@ -3674,15 +3674,14 @@ if True:
                                 col_c = "#E2E8F0"
                                 simb = "+" if pnl > 0 else ""
                             
-                            # Eliminamos márgenes internos y ajustamos line-height para que quepa perfecto
+                            # Textos Internos XXL (Números y letras masivos)
                             contenido_celda = f"""
-                            <div style='font-size:16px; font-weight:900; color:#FFF; line-height: 1.2;'>{dia}</div>
-                            <div style='font-size:14px; font-weight:800; color:{col_c}; line-height: 1.1;'>{simb}${pnl:,.0f}</div>
-                            <div style='font-size:11px; font-weight:800; color:#94A3B8; line-height: 1.2;'>{cnt} TR</div>
+                            <div style='font-size:24px; font-weight:900; color:#FFF; line-height: 1.2;'>{dia}</div>
+                            <div style='font-size:20px; font-weight:800; color:{col_c}; line-height: 1.2; margin: 4px 0;'>{simb}${pnl:,.0f}</div>
+                            <div style='font-size:15px; font-weight:800; color:#94A3B8; line-height: 1.2;'>{cnt} TR</div>
                             """
                             
-                            # La celda asume el color completo ocupando todo el td
-                            cal_anual_html += f"<td style='padding: 1px; width: 14.28%;'><div style='background:{bg_c}; border-radius:6px; height: 60px; width: 100%; display:flex; flex-direction:column; align-items:center; justify-content:center; box-sizing: border-box;'>{contenido_celda}</div></td>"
+                            cal_anual_html += f"<td style='padding: 2px; width: 14.28%;'><div style='background:{bg_c}; border-radius:10px; height: 95px; width: 100%; display:flex; flex-direction:column; align-items:center; justify-content:center; box-sizing: border-box;'>{contenido_celda}</div></td>"
                 cal_anual_html += "</tr>"
             cal_anual_html += "</table></div>"
             
