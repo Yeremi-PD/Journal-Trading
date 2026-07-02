@@ -3606,11 +3606,12 @@ if True:
         meses_es_completo = ["", "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
         
         # Ajustamos minmax a 440px para obligar a la pantalla a renderizar máximo 2 o 3 meses por fila
-        cal_anual_html = "<div style='display: grid; grid-template-columns: repeat(auto-fit, minmax(440px, 1fr)); gap: 30px;'>"
+        # Ajustamos minmax a 480px para tarjetas GIGANTES y legibles
+        cal_anual_html = "<div style='display: grid; grid-template-columns: repeat(auto-fit, minmax(480px, 1fr)); gap: 35px;'>"
         calendar.setfirstweekday(calendar.SUNDAY)
         
         for m_idx in range(1, 13):
-            # Recopilar estadísticas generales del mes
+            # Recopilar estadísticas del mes para Win Rate y Total P&L
             trades_mes_resumen = []
             for (y, m, d), lista in db_usuario[ctx]["trades"].items():
                 if y == anio_sel and m == m_idx:
@@ -3623,18 +3624,26 @@ if True:
             simb_mes = "+" if pnl_mes > 0 else ""
             color_pnl_mes = "#10B981" if pnl_mes > 0 else ("#EF4444" if pnl_mes < 0 else "#94A3B8")
             
+            # Cálculo de Win Rate Mensual
+            wins_mes = len([t for t in trades_mes_resumen if t >= 75])
+            losses_mes = len([t for t in trades_mes_resumen if t <= -75])
+            validos_mes = wins_mes + losses_mes
+            wr_mes = (wins_mes / validos_mes * 100) if validos_mes > 0 else 0.0
+            color_wr_mes = "#10B981" if wr_mes >= 50 else "#EF4444"
+            if validos_mes == 0: color_wr_mes = "#94A3B8"
+            
             cal_anual_html += f"""
-            <div style='background: {card_bg}; border: 1px solid {border_color}; border-radius: 14px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.2);'>
-                <h4 style='text-align:center; color:#10B981; margin-top:0; margin-bottom:4px; font-size:18px;'>{meses_es_completo[m_idx]}</h4>
-                <div style='text-align:center; font-size:13px; margin-bottom:12px; color:#94A3B8; font-weight:600;'>
-                    Trades: <span style='color:#FFF;'>{num_trades_mes}</span> | P&L: <span style='color:{color_pnl_mes};'>{simb_mes}${pnl_mes:,.2f}</span>
+            <div style='background: {card_bg}; border: 1px solid {border_color}; border-radius: 16px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.3);'>
+                <h4 style='text-align:center; color:#10B981; margin-top:0; margin-bottom:6px; font-size:24px; font-weight:900; letter-spacing:-0.5px;'>{meses_es_completo[m_idx]}</h4>
+                <div style='text-align:center; font-size:15px; margin-bottom:20px; color:#94A3B8; font-weight:700;'>
+                    Trades: <span style='color:#FFF;'>{num_trades_mes}</span> &nbsp;|&nbsp; P&L: <span style='color:{color_pnl_mes};'>{simb_mes}${pnl_mes:,.2f}</span> &nbsp;|&nbsp; Win Rate: <span style='color:{color_wr_mes};'>{wr_mes:.1f}%</span>
                 </div>
-                <table style='width:100%; text-align:center; font-size:12px; border-collapse: collapse;'>
+                <table style='width:100%; text-align:center; border-collapse: collapse;'>
                     <tr>
             """
             
             for dia_sem in ["D", "L", "M", "M", "J", "V", "S"]:
-                cal_anual_html += f"<th style='color:#94A3B8; padding-bottom:8px; font-weight:700;'>{dia_sem}</th>"
+                cal_anual_html += f"<th style='color:#94A3B8; padding-bottom:12px; font-weight:800; font-size:16px;'>{dia_sem}</th>"
             cal_anual_html += "</tr>"
             
             mes_matriz_anual = calendar.monthcalendar(anio_sel, m_idx)
@@ -3647,8 +3656,8 @@ if True:
                         info_dia = trades_del_anio.get((m_idx, dia), None)
                         if info_dia is None:
                             bg_c = "transparent"
-                            # Estructura base limpia alineada para días vacíos
-                            contenido_celda = f"<div style='font-size:13px; font-weight:bold; color:#64748B;'>{dia}</div><div style='font-size:10px; color:transparent; margin:2px 0;'>-</div><div style='font-size:9px; color:transparent;'>-</div>"
+                            # Celdas vacías gigantes
+                            contenido_celda = f"<div style='font-size:17px; font-weight:bold; color:#475569;'>{dia}</div><div style='font-size:14px; color:transparent; margin:3px 0;'>-</div><div style='font-size:11px; color:transparent;'>-</div>"
                         else:
                             pnl = info_dia["pnl"]
                             cnt = info_dia["count"]
@@ -3665,15 +3674,15 @@ if True:
                                 col_c = "#E2E8F0"
                                 simb = "+" if pnl > 0 else ""
                             
-                            # Bloque de contenido interactivo diario con los datos solicitados
+                            # Textos Gigantes 
                             contenido_celda = f"""
-                            <div style='font-size:13px; font-weight:900; color:#FFF;'>{dia}</div>
-                            <div style='font-size:11px; font-weight:800; color:{col_c}; margin:1px 0;'>{simb}${pnl:,.0f}</div>
-                            <div style='font-size:9px; font-weight:700; color:#94A3B8;'>{cnt} TR</div>
+                            <div style='font-size:18px; font-weight:900; color:#FFF;'>{dia}</div>
+                            <div style='font-size:15px; font-weight:800; color:{col_c}; margin:2px 0;'>{simb}${pnl:,.0f}</div>
+                            <div style='font-size:12px; font-weight:800; color:#94A3B8;'>{cnt} TR</div>
                             """
                             
                         b_rad = "8px" if info_dia is not None else "0px"
-                        cal_anual_html += f"<td><div style='background:{bg_c}; border-radius:{b_rad}; padding: 6px 2px; margin: 3px; display:flex; flex-direction:column; align-items:center; justify-content:center;'>{contenido_celda}</div></td>"
+                        cal_anual_html += f"<td><div style='background:{bg_c}; border-radius:{b_rad}; padding: 10px 0; margin: 4px; min-height:80px; display:flex; flex-direction:column; align-items:center; justify-content:center;'>{contenido_celda}</div></td>"
                 cal_anual_html += "</tr>"
             cal_anual_html += "</table></div>"
             
@@ -4672,7 +4681,8 @@ with tab_hist:
                                     cols_img = st.columns(len(imagenes_restantes))
                                     for idx_img, img_b64 in enumerate(imagenes_restantes):
                                         with cols_img[idx_img]:
-                                            st.markdown(f'<label for="{id_modal_hist}" onclick="if(window.parent.abrirGaleriaLocal) window.parent.abrirGaleriaLocal(\'{id_modal_hist}\', {idx_img})" style="cursor:pointer; display:block;"><img src="{img_b64}" style="width:100%; border-radius:10px; border:1px solid gray; box-shadow: 0 4px 6px rgba(0,0,0,0.1);"></label>', unsafe_allow_html=True)
+                                            # Se usa un ID dinámico especial para saltarse la limpieza de Streamlit y enlazar la foto con JS
+                                            st.markdown(f'<label class="gal-label-local" id="gallocal_--_{id_modal_hist}_--_{idx_img}" for="{id_modal_hist}" style="cursor:pointer; display:block;"><img src="{img_b64}" style="width:100%; border-radius:10px; border:1px solid gray; box-shadow: 0 4px 6px rgba(0,0,0,0.1);"></label>', unsafe_allow_html=True)
                                             st.button(_l['hist']['del_img'], key=f"delimg_{clave}_{i}_{idx_img}", on_click=borrar_imagen_historial, args=(ctx, clave, i, idx_img), use_container_width=True)
                                 else: st.caption(_l['hist']['no_img_saved'])
                 
@@ -4924,9 +4934,11 @@ with tab_galeria:
             c_pnl = "#10B981" if pnl >= 0 else "#EF4444"
             simb = "+" if pnl > 0 else ""
             
-            # 1. Elemento individual en la cuadrícula (Ahora apunta al Modal Maestro en vez del suyo propio)
+# 1. Elemento individual en la cuadrícula (Ocultamos el Index en el ID para burlar a Streamlit)
             html_items += f'''<div class="gal-item" data-stage="{estado}">
-<label class="gal-label" for="gal_master_toggle" data-idx="{idx}" style="cursor:zoom-in; display:block; background:#0F172A; border-radius:12px; border:1px solid #334155; overflow:hidden; position: relative; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: transform 0.2s ease;">
+<label class="gal-label" id="gal_lbl_{idx}" for="gal_master_toggle" style="cursor:zoom-in;
+display:block; background:#0F172A; border-radius:12px; border:1px solid #334155; overflow:hidden; position: relative; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+transition: transform 0.2s ease;">
 <img src="{img_url}" loading="lazy" style="width:100%; height:450px; object-fit:contain; display: block;">
 <div style="position: absolute; bottom: 0; left: 0; width: 100%; background: linear-gradient(transparent, rgba(0,0,0,0.95)); padding: 40px 20px 15px 20px; display: flex; justify-content: space-between; align-items: flex-end;">
 <span style="font-weight: bold; color: white; text-shadow: 1px 1px 4px black; font-size: 20px;">🗓️ {fecha}</span>
@@ -5003,13 +5015,25 @@ with tab_galeria:
             if(counter) counter.innerText = (idx + 1) + ' / ' + total;
         }};
 
-        // Captura de clics global para abrir la imagen seleccionada sin depender de código inline filtrado
+        // Captura de clics global para abrir la imagen seleccionada evadiendo los filtros de seguridad de Streamlit
         doc.addEventListener('click', function(e) {{
-            const label = e.target.closest('.gal-label');
-            if (label && label.getAttribute('for') === 'gal_master_toggle') {{
-                const idx = parseInt(label.getAttribute('data-idx'));
+            // Galería Global Principal
+            const labelMaster = e.target.closest('.gal-label');
+            if (labelMaster && labelMaster.id && labelMaster.id.startsWith('gal_lbl_')) {{
+                const idx = parseInt(labelMaster.id.replace('gal_lbl_', ''));
                 if (!isNaN(idx)) {{
                     window.parent.abrirGaleriaMaestra(idx);
+                }}
+            }}
+            
+            // Galería Local del Historial de Órdenes
+            const labelLocal = e.target.closest('.gal-label-local');
+            if (labelLocal && labelLocal.id && labelLocal.id.startsWith('gallocal_--_')) {{
+                const partes = labelLocal.id.split('_--_');
+                const modalId = partes[1];
+                const idxLocal = parseInt(partes[2]);
+                if (modalId && !isNaN(idxLocal)) {{
+                    if(window.parent.abrirGaleriaLocal) window.parent.abrirGaleriaLocal(modalId, idxLocal);
                 }}
             }}
         }}, true);
