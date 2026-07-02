@@ -3593,21 +3593,24 @@ if True:
     with tab_cal_anual:
         st.markdown(f"<h3 style='text-align:center; color:#F8FAFC; margin-bottom: 20px;'>🗓️ Visión General del Año {anio_sel}</h3>", unsafe_allow_html=True)
         
-        # Filtramos trades del año actual
+        # Filtramos trades del año actual extrayendo el P&L y el conteo por día
         trades_del_anio = {}
         for (y, m, d), lista in db_usuario[ctx]["trades"].items():
             if y == anio_sel:
-                pnl_dia = sum(t["pnl"] for t in lista if not (st.session_state.get("toggle_funded_state", False) and t.get("is_pre_funded", False)))
-                trades_del_anio[(m, d)] = pnl_dia
+                valid_trades = [t for t in lista if not (st.session_state.get("toggle_funded_state", False) and t.get("is_pre_funded", False))]
+                if valid_trades:
+                    pnl_dia = sum(t["pnl"] for t in valid_trades)
+                    cnt_dia = len(valid_trades)
+                    trades_del_anio[(m, d)] = {"pnl": pnl_dia, "count": cnt_dia}
                 
         meses_es_completo = ["", "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
         
-        # Incrementamos minmax de 250px a 320px para ensanchar significativamente las tarjetas
-        cal_anual_html = "<div style='display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 25px;'>"
+        # Ajustamos minmax a 440px para obligar a la pantalla a renderizar máximo 2 o 3 meses por fila
+        cal_anual_html = "<div style='display: grid; grid-template-columns: repeat(auto-fit, minmax(440px, 1fr)); gap: 30px;'>"
         calendar.setfirstweekday(calendar.SUNDAY)
         
         for m_idx in range(1, 13):
-            # Recopilar estadísticas del mes
+            # Recopilar estadísticas generales del mes
             trades_mes_resumen = []
             for (y, m, d), lista in db_usuario[ctx]["trades"].items():
                 if y == anio_sel and m == m_idx:
@@ -3641,23 +3644,36 @@ if True:
                     if dia == 0:
                         cal_anual_html += "<td></td>"
                     else:
-                        pnl = trades_del_anio.get((m_idx, dia), None)
-                        if pnl is None:
+                        info_dia = trades_del_anio.get((m_idx, dia), None)
+                        if info_dia is None:
                             bg_c = "transparent"
-                            col_c = "#64748B"
-                        elif pnl >= 75:
-                            bg_c = "rgba(16,185,129,0.18)"
-                            col_c = "#10B981"
-                        elif pnl <= -75:
-                            bg_c = "rgba(239,68,68,0.18)"
-                            col_c = "#EF4444"
+                            # Estructura base limpia alineada para días vacíos
+                            contenido_celda = f"<div style='font-size:13px; font-weight:bold; color:#64748B;'>{dia}</div><div style='font-size:10px; color:transparent; margin:2px 0;'>-</div><div style='font-size:9px; color:transparent;'>-</div>"
                         else:
-                            bg_c = "rgba(148,163,184,0.15)"
-                            col_c = "#E2E8F0"
+                            pnl = info_dia["pnl"]
+                            cnt = info_dia["count"]
+                            if pnl >= 75:
+                                bg_c = "rgba(16,185,129,0.18)"
+                                col_c = "#10B981"
+                                simb = "+"
+                            elif pnl <= -75:
+                                bg_c = "rgba(239,68,68,0.18)"
+                                col_c = "#EF4444"
+                                simb = ""
+                            else:
+                                bg_c = "rgba(148,163,184,0.15)"
+                                col_c = "#E2E8F0"
+                                simb = "+" if pnl > 0 else ""
                             
-                        fw = "bold" if pnl is not None else "normal"
-                        b_rad = "6px" if pnl is not None else "0"
-                        cal_anual_html += f"<td><div style='background:{bg_c}; color:{col_c}; border-radius:{b_rad}; padding: 5px 0; margin: 3px; font-weight:{fw}; font-size:13px;'>{dia}</div></td>"
+                            # Bloque de contenido interactivo diario con los datos solicitados
+                            contenido_celda = f"""
+                            <div style='font-size:13px; font-weight:900; color:#FFF;'>{dia}</div>
+                            <div style='font-size:11px; font-weight:800; color:{col_c}; margin:1px 0;'>{simb}${pnl:,.0f}</div>
+                            <div style='font-size:9px; font-weight:700; color:#94A3B8;'>{cnt} TR</div>
+                            """
+                            
+                        b_rad = "8px" if info_dia is not None else "0px"
+                        cal_anual_html += f"<td><div style='background:{bg_c}; border-radius:{b_rad}; padding: 6px 2px; margin: 3px; display:flex; flex-direction:column; align-items:center; justify-content:center;'>{contenido_celda}</div></td>"
                 cal_anual_html += "</tr>"
             cal_anual_html += "</table></div>"
             
