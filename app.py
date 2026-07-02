@@ -2753,7 +2753,7 @@ if True:
     st.markdown('</div>', unsafe_allow_html=True) # Cerramos el contenedor de la cabecera fija global
 
     # 3. Inicializamos las pestañas justo aquí, para que queden debajo en la estructura del código
-    tab_calendario, tab_estadisticas, tab_historial_principal, tab_plan, tab_comunidad = st.tabs(["📅 CALENDARIO", "📊 MÉTRICAS", "🕒 HISTORIAL", "📝 PLAN", "🌍 COMUNIDAD"])
+    tab_calendario, tab_cal_anual, tab_estadisticas, tab_historial_principal, tab_plan, tab_comunidad = st.tabs(["📅 MES", "🗓️ AÑO COMPLETO", "📊 MÉTRICAS", "🕒 HISTORIAL", "📝 PLAN", "🌍 COMUNIDAD"])
     # === CSS EXCLUSIVO PARA LA BARRA DE ENTRADA (Estilo Finance Center) ===
     st.markdown("""
     <style>
@@ -3590,6 +3590,58 @@ if True:
         svg += '</svg>'
         return svg
 
+    with tab_cal_anual:
+        st.markdown(f"<h3 style='text-align:center; color:#F8FAFC; margin-bottom: 20px;'>🗓️ Visión General del Año {anio_sel}</h3>", unsafe_allow_html=True)
+        
+        # Filtramos trades del año actual
+        trades_del_anio = {}
+        for (y, m, d), lista in db_usuario[ctx]["trades"].items():
+            if y == anio_sel:
+                pnl_dia = sum(t["pnl"] for t in lista if not (st.session_state.get("toggle_funded_state", False) and t.get("is_pre_funded", False)))
+                trades_del_anio[(m, d)] = pnl_dia
+                
+        meses_es_corto = ["", "Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"]
+        
+        cal_anual_html = "<div style='display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;'>"
+        calendar.setfirstweekday(calendar.SUNDAY)
+        
+        for m_idx in range(1, 13):
+            mes_matriz_anual = calendar.monthcalendar(anio_sel, m_idx)
+            cal_anual_html += f"<div style='background: {card_bg}; border: 1px solid {border_color}; border-radius: 12px; padding: 15px;'><h4 style='text-align:center; color:#10B981; margin-top:0;'>{meses_es_corto[m_idx]}</h4><table style='width:100%; text-align:center; font-size:12px; border-collapse: collapse;'><tr>"
+            
+            for dia_sem in ["D", "L", "M", "M", "J", "V", "S"]:
+                cal_anual_html += f"<th style='color:#94A3B8; padding-bottom:5px;'>{dia_sem}</th>"
+            cal_anual_html += "</tr>"
+            
+            for semana in mes_matriz_anual:
+                cal_anual_html += "<tr>"
+                for dia in semana:
+                    if dia == 0:
+                        cal_anual_html += "<td></td>"
+                    else:
+                        pnl = trades_del_anio.get((m_idx, dia), None)
+                        if pnl is None:
+                            bg_c = "transparent"
+                            col_c = "#94A3B8"
+                        elif pnl >= 75:
+                            bg_c = "rgba(16,185,129,0.15)"
+                            col_c = "#10B981"
+                        elif pnl <= -75:
+                            bg_c = "rgba(239,68,68,0.15)"
+                            col_c = "#EF4444"
+                        else:
+                            bg_c = "rgba(148,163,184,0.15)"
+                            col_c = "#E2E8F0"
+                            
+                        fw = "bold" if pnl is not None else "normal"
+                        b_rad = "6px" if pnl is not None else "0"
+                        cal_anual_html += f"<td><div style='background:{bg_c}; color:{col_c}; border-radius:{b_rad}; padding: 4px 0; margin: 2px; font-weight:{fw};'>{dia}</div></td>"
+                cal_anual_html += "</tr>"
+            cal_anual_html += "</table></div>"
+            
+        cal_anual_html += "</div>"
+        st.markdown(cal_anual_html, unsafe_allow_html=True)
+
     with tab_estadisticas:
         if modo_lectura and not db_global[usuario]["settings"]["PC"].get("vis_metricas", True):
             st.markdown("<div style='text-align: center; padding: 50px; background: #1E293B; border-radius: 12px; border: 1px dashed #EF4444;'><h3 style='color: #EF4444;'>Métricas Privadas 🔒</h3><p style='color: #94A3B8;'>El usuario ha ocultado sus estadísticas.</p></div><style>div[data-testid='stTabs'] div[role='tabpanel']:nth-child(2) .element-container:nth-child(n+2) { display: none !important; }</style>", unsafe_allow_html=True)
@@ -3819,14 +3871,20 @@ if True:
                             wr_as_str = wr_str
                             c_as = color
 
-            # Cálculo estricto del Profit Promedio Diario
-            dias_unicos = df_full['fecha_str'].nunique() if 'fecha_str' in df_full.columns else 0
-            profit_diario_avg = (df_full['pnl'].sum() / dias_unicos) if dias_unicos > 0 else 0.0
+            # Cálculo de Consistencia (Mejor Día / Profit Total)
+            if 'fecha_str' in df_full.columns and df_full['pnl'].sum() > 0:
+                profit_total_bruto = df_full['pnl'].sum()
+                mejor_dia_pnl = df_full.groupby('fecha_str')['pnl'].sum().max()
+                consistencia_pct = (mejor_dia_pnl / profit_total_bruto) * 100 if profit_total_bruto > 0 else 0.0
+            else:
+                consistencia_pct = 0.0
+                
+            consistencia_str = f"{consistencia_pct:.1f}%"
         else:
-            profit_diario_avg = 0.0
+            consistencia_pct = 0.0
+            consistencia_str = "0.0%"
             
-        c_prof_dia = "#10B981" if profit_diario_avg >= 0 else "#EF4444"
-        simb_prof_dia = "+" if profit_diario_avg > 0 else ""
+        c_consistencia = "#10B981" if consistencia_pct <= 50 else "#EF4444"
 
         # FILA 2 DE TARJETAS (Dividiendo Avg Win / Avg Loss)
         c_m4, c_m5, c_m6 = st.columns(3)
@@ -3850,7 +3908,7 @@ if True:
         with c_m11: st.markdown(f"""<div class="metric-card card-rr"><div class="metric-header"><span class="title-trade-win" style="font-size: var(--size-card-titles);">Mejor Sesión</span></div><div class="rr-value" style="color: #FFFFFF; font-size: var(--size-box-vals) !important;">{mejor_sesion_str}</div></div>""", unsafe_allow_html=True)
         with c_m12: st.markdown(f"""<div class="metric-card card-rr"><div class="metric-header"><span class="title-trade-win" style="font-size: var(--size-card-titles);">Win Rate NY</span></div><div class="rr-value" style="color: {c_ny}; font-size: var(--size-box-vals) !important;">{wr_ny_str}</div></div>""", unsafe_allow_html=True)
         with c_m13: st.markdown(f"""<div class="metric-card card-rr"><div class="metric-header"><span class="title-trade-win" style="font-size: var(--size-card-titles);">Win Rate Asia</span></div><div class="rr-value" style="color: {c_as}; font-size: var(--size-box-vals) !important;">{wr_as_str}</div></div>""", unsafe_allow_html=True)
-        with c_m14: st.markdown(f"""<div class="metric-card card-rr"><div class="metric-header"><span class="title-trade-win" style="font-size: var(--size-card-titles);">Profit Prom. Diario</span></div><div class="rr-value" style="color: {c_prof_dia}; font-size: var(--size-box-vals) !important;">{simb_prof_dia}${profit_diario_avg:,.2f}</div></div>""", unsafe_allow_html=True)
+        with c_m14: st.markdown(f"""<div class="metric-card card-rr" title="Regla de consistencia: Tu mejor día no debe superar el 50% de tus ganancias totales"><div class="metric-header"><span class="title-trade-win" style="font-size: var(--size-card-titles);">Consistencia</span></div><div class="rr-value" style="color: {c_consistencia}; font-size: var(--size-box-vals) !important;">{consistencia_str}</div></div>""", unsafe_allow_html=True)
 
         st.markdown("<div style='margin-top: 20px;'></div>", unsafe_allow_html=True)
 
@@ -4576,7 +4634,7 @@ with tab_hist:
                                     cols_img = st.columns(len(imagenes_restantes))
                                     for idx_img, img_b64 in enumerate(imagenes_restantes):
                                         with cols_img[idx_img]:
-                                            st.markdown(f'<label for="{id_modal_hist}" style="cursor:pointer; display:block;"><img src="{img_b64}" style="width:100%; border-radius:10px; border:1px solid gray; box-shadow: 0 4px 6px rgba(0,0,0,0.1);"></label>', unsafe_allow_html=True)
+                                            st.markdown(f'<label for="{id_modal_hist}" onclick="if(window.parent.abrirGaleriaLocal) window.parent.abrirGaleriaLocal(\'{id_modal_hist}\', {idx_img})" style="cursor:pointer; display:block;"><img src="{img_b64}" style="width:100%; border-radius:10px; border:1px solid gray; box-shadow: 0 4px 6px rgba(0,0,0,0.1);"></label>', unsafe_allow_html=True)
                                             st.button(_l['hist']['del_img'], key=f"delimg_{clave}_{i}_{idx_img}", on_click=borrar_imagen_historial, args=(ctx, clave, i, idx_img), use_container_width=True)
                                 else: st.caption(_l['hist']['no_img_saved'])
                 
@@ -5023,6 +5081,25 @@ div[data-testid="stNumberInput"] input {
 
 <script>
 const doc = window.parent.document;
+
+window.parent.abrirGaleriaLocal = function(modalId, idx) {
+    const doc = window.parent.document;
+    const toggle = doc.getElementById(modalId);
+    if(toggle && toggle.nextElementSibling && toggle.nextElementSibling.classList.contains('fs-modal')) {
+        const modal = toggle.nextElementSibling;
+        modal.setAttribute('data-current', idx);
+        const imgs = modal.querySelectorAll('.gallery-img');
+        imgs.forEach(img => {
+            if(parseInt(img.getAttribute('data-idx')) === idx) {
+                img.style.setProperty('display', 'block', 'important');
+            } else {
+                img.style.setProperty('display', 'none', 'important');
+            }
+        });
+        const counter = modal.querySelector('.img-counter');
+        if(counter) counter.innerText = (idx + 1) + ' / ' + (modal.getAttribute('data-total') || 1);
+    }
+};
 
 // 1. Cerrar modales con Escape
 doc.addEventListener('keydown', function(e) {
