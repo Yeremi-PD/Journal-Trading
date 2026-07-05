@@ -2108,12 +2108,15 @@ st.markdown(f"""
     
 /* 1. Las pestañas del menú principal fluyen dinámicamente sin superponerse */
     div[data-baseweb="tab-list"] {{ 
-        position: relative !important; /* 🟢 FIX CRÍTICO ESTÉTICO: Flujo natural que previene solapamientos si las pestañas colapsan en dos líneas */
-        top: -10px !important; 
+        position: relative !important;
+        /* 🟢 FIX CRÍTICO ESTÉTICO: Flujo natural que previene solapamientos si las pestañas colapsan en dos líneas */
+        top: -10px !important;
         left: 0 !important;
         width: 100% !important;
         justify-content: center !important;
-        gap: 25px !important; border-bottom: 1px solid {border_color} !important; overflow: visible !important; padding-bottom: 15px !important;
+        flex-wrap: wrap !important; /* PERMITE QUE LOS BOTONES BAJEN A LA SIGUIENTE LÍNEA */
+        gap: 15px !important; border-bottom: 1px solid {border_color} !important; overflow: visible !important;
+        padding-bottom: 15px !important;
         z-index: 1000 !important;
     }}
     
@@ -2560,15 +2563,15 @@ border: 1px solid {border_color} !important; box-shadow: 0 1px 3px rgba(0,0,0,0.
             div[data-testid="stTabs"] button, 
             div[data-baseweb="tab-list"] button, 
             button[role="tab"] {{
-                font-size: 11px !important; /* Letra un poquitito más pequeña para que quepa bien la palabra "Calendario" */
-                padding: 8px 2px !important;
+                font-size: 13px !important;
+                padding: 10px 5px !important;
                 margin: 0 !important; 
                 border-radius: 8px !important;
                 white-space: normal !important; /* Permite que el texto se acomode si es largo */
                 
-                /* 🟢 LA MAGIA: Obliga a que sean 4 botones por fila */
-                flex: 1 1 calc(25% - 6px) !important; 
-                min-width: calc(25% - 6px) !important;
+                /* 🟢 LA MAGIA: Obliga a que sean 2 botones por fila (Cuadrícula) */
+                flex: 1 1 calc(50% - 8px) !important;
+                min-width: calc(50% - 8px) !important;
                 
                 text-align: center !important;
                 display: flex !important;
@@ -2578,7 +2581,7 @@ border: 1px solid {border_color} !important; box-shadow: 0 1px 3px rgba(0,0,0,0.
             
             div[data-testid="stTabs"] button p, 
             button[role="tab"] p {{
-                font-size: 11px !important;
+                font-size: 13px !important;
                 margin: 0 !important;
                 padding: 0 !important;
                 white-space: nowrap !important;
