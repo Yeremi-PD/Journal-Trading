@@ -3026,7 +3026,7 @@ if True:
             margin-left: 0px !important;
             margin-top: 0px !important;
             text-align: center !important;
-            font-size: 24px !important; /* Reducido para un look más premium y limpio */
+            font-size: 36px !important; /* 🔥 AUMENTADO PARA QUE DESTAQUE EN EL CELULAR 🔥 */
             display: flex !important;
             flex-direction: column !important;
             align-items: center !important;
