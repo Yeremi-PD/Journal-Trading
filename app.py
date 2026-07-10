@@ -2100,6 +2100,12 @@ st.markdown(f"""
         display: none !important;
     }}
     
+/* Ocultar el molesto texto de Ctrl+Enter en las cajas de texto */
+    div[data-testid="InputInstructions"] {{
+        display: none !important;
+        opacity: 0 !important;
+    }}
+
 /* 🔴 EL SECRETO: OCULTAR EL "RUNNING..." PARA QUE SEA INSTANTÁNEO 🔴 */
     [data-testid="stStatusWidget"] {{ visibility: hidden !important; display: none !important; }}
     
