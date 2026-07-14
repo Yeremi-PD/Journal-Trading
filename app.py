@@ -4737,7 +4737,9 @@ with tab_hist:
                                     st.rerun()
                         with c_trash:
                             if not modo_lectura and st.button("🗑️", key=f"trash_{clave}_{i}", use_container_width=True): ventana_borrar_trade(ctx, clave, i, usuario)
-            if trades_en_mes == 0: st.info(_l['hist']['no_tr_mo']) 
+                
+                # 🟢 FIX: Indentado 4 espacios más a la derecha para que pertenezca al bloque 'else'
+                if trades_en_mes == 0: st.info(_l['hist']['no_tr_mo']) 
 
 with tab_tabla:
     with st.container():
